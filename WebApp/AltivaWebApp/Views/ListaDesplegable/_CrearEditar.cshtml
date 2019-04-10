@@ -1,0 +1,171 @@
+﻿@model AltivaWebApp.Domains.TbCrListaDesplegables
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+
+<hr />
+<div class="row ">
+    <div class="col-md-4 ">
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label lass="control-label">Digite el nombre de la Lista</label>
+            <input type="text" class="form-control" id="nombreLista" />
+            <div id="mensaje"></div>
+        </div>
+        <div class="form-group">
+            <label lass="control-label">Tipo</label>
+            <input type="text" class="form-control" disabled="disabled" placeholder="Lista Desplegable" id="tipo" />
+          
+        </div>
+        <div class="form-group">
+            <table class="table table-bordered">
+                <tr>
+                    <th><button class="btn btn-link" id="AgregarLista">Agregar Campo </button></th>
+
+                   
+                </tr>
+                <tr>
+                    <th>  <div id="mensaje1"></div></th>
+                </tr>
+            </table>
+        </div>
+
+
+    </div>
+    <div class="col-md-8">
+        Nombre de las opciones :
+        <div class="  pre-scrollable" id="camposLista">
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+       var i = 0;
+    $('#AgregarLista').on('click', function () {
+        $('#camposLista').append('<div class="col-md-8" id="li' + i + '"><label>Digite el Nombre de la opcion ' + (i + 1) + ' </label><input type="text" class="form-control" id="c' + i + '"/> <div class="col-md-12" id="mensajeLi' + i + '"></div></div><div class="col-md-1"  id="li' + i +'"><label>Eliminar</label><button class="btn btn-link" onclick="eliminarCampo(' + i + ');"><i class="fas fa-trash"></i></button></div>');
+           i++;
+    });
+    function eliminarCampo(id) {
+        var opcion = confirm("<span>Esta seguro que desea eliminar el campo?</span>");
+        var mensaje;
+        if (opcion == true) {
+            $("#camposLista #li" + id + "").remove();
+
+            i--;
+            setTimeout(function () {
+                $("#mensaje").fadeOut(10);
+            }, 2000);
+
+        } else {
+            return;
+        }
+
+
+    }
+    $('#guardarLista').on('click', function () {
+
+
+    });
+         //guardar la lista desplegable.
+        $('#guardarLista').on('click', function () {
+            var nombreLista = $('#nombreLista').val();
+            alert(nombreLista);
+            if (nombreLista == "") {
+                $('#mensaje').empty();
+                $('#mensaje').append('<span class="text-danger">El nombre es requerido.</span>');
+                return false;
+            }
+            for (var j = 0; j < i; j++) {
+                if ($('#c' + j + '').val() == "") {
+                    $('#mensajeLi' + j + '').empty();
+                    $('#mensajeLi' + j + '').append('<span class="text-danger">El campo es querido</span>');
+                    return false;
+                }
+            }
+            if (i <= 0) {
+                $('#mensaje1').empty();
+                $('#mensaje1').append('<span class="text-danger">Debes seleccionar un campo.</span>');
+                return false;
+            }
+            var opcion = confirm("<span>Esta seguro que desea guardar los cambios?</span>");
+            if (opcion == true) {
+                var model1 = {
+
+                    nombre: nombreLista,
+                    tipo: "lista",
+                    valor: "Inactivo"
+                };
+
+                $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "POST",
+
+
+                    url: '@Url.Action("CrearCampos", "ListaDesplegable")',
+
+                    data: { model1: model1 },
+                    success: function (data) {
+                        agregarRelacionLista(data);
+
+                        var urls = '@Url.Action("Index", "CamposPersonalizados")';
+                        window.location.href = urls;
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+            } else {
+                return;
+            }
+        });
+        //agrega relacion con el campo personalizado
+        function agregarRelacionLista(data) {
+            var ArrayLista = [];
+            for (var j = 0; j < i; j++) {
+                if ($('#c' + j + '').val() == "") {
+                    $('#mensajeLi' + j + '').empty();
+                    $('#mensajeLi' + j + '').append('<span class="text-danger">El campo es querido.</span>');
+                    return false;
+                }
+                var model2 = {
+
+                    idCamposPersonalizados: data.id,
+                    valor: $('#c'+j+'').val()
+                };
+                ArrayLista.push(model2);
+            }
+           $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "POST",
+
+
+                    url: '@Url.Action("CrearCamposRelacionLista", "ListaDesplegable")',
+
+               data: { lista: ArrayLista },
+               success: function (data) {
+                 
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+        }
+</script>
+
+
