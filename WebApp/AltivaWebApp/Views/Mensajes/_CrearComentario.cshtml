@@ -13,16 +13,18 @@
         <h4>Comentarios</h4>
     </div>
     <div class="col-md-6">
-        <form asp-action="_CrearComentario">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <form id="frmComentario">
+            
             <div class="form-group">
                 <label asp-for="mensaje" class="control-label">Comentario:</label>
                 <textarea asp-for="mensaje" class="form-control" rows="4"> </textarea>
-                <span id="mensajeValid" class="text-danger"></span>
+                <span hidden data-translate="comentarioValid" id="mensajeValid" class="text-danger">Comentario no puede ir vacío</span>
             </div>
             <div class="form-group">
                 <span data-translate="cargaArchivos" class="input-group-text" id="inputGroup-sizing-sm">Adjuntar Archivos</span>
                 <input type="file" asp-for="Files" class="form-control" multiple="multiple" id="fileUpload">
+                <span hidden class="text-danger" data-translate="tamanoArchivoValid" id="tamanoArchivos">El tamaño máximo del archivo es de 25MB</span>
+                <span hidden data-translate="cantidadArchivosValid" id="cantidadArchivos" class="text-danger">No puede agregar más de 5 archivos</span>
             </div>
             <div class="form-group" hidden>
                 <label asp-for="tipoMensaje" class="control-label"></label>
@@ -38,42 +40,67 @@
             </div>
         </form>
         <div class="form-group">
-            <button class="btn btn-success" id="btnGuardarComentario">Guardar</button>
+            <button class="btn btn-success" onclick="guardarComentario()" id="btnGuardarComentario">Guardar</button>
         </div>
     </div>
 </div>
-<div id="listaComentarios">
 
+<div id="listaComentarios">
+    <div id="contenido">
+
+    </div>
 </div>
 
 <script>
-    $(document).ready(function () {
-
-        var model = {
-            idReferencia: @Model.id,
-            tipoReferencia: '@Model.tipoReferencia'
+    var model = {
+            idReferencia: 0,
+            tipoReferencia: ''
         };
+
+    $(document).ready(function () {
+     
+        model.idReferencia= @Model.id;
+        model.tipoReferencia = '@Model.tipoReferencia';
 
         GetComentarios(model);
 
     });
 
-    $('#fileUpload').bind('change', function () {
-        var e;
+
+
+    function guardarComentario() {
+        $.ajax({
+                type: "post",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: '/Mensajes/Nuevo-Comentario',
+                data: $('#frmComentario').serialize(),
+                success: function (data) {
+                    GetComentarios(model);                  
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+        });
+    }
+
+    $('#fileUpload').bind('change', function (e) {
+
+  
         for (var i = 0; i < this.files.length; i++) {
 
             e = + this.files[i].size;
             if (e > 25000) {
-                alert("Error el maximo del archivo a subir" + this.files[i].name + " debe ser menor o igual a 25MB");
-                window.location.reload();
-                return false;
+                $('#tamanoArchivos').attr('hidden', false);
+                break;
             }
         }
 
         if (this.files.length > 5) {
-            alert("Error el maximo de archivos a subir es de 5");
-            window.location.reload();
-            return false;
+
+            $('#cantidadArchivos').attr('hidden', false);
+          
         }
     });
 
@@ -86,7 +113,10 @@
              url: '@Url.Action("ListarComentarios", "Mensajes")',
              data: model,
              success: function (data) {
-                 $('#listaComentarios').html(data);                       
+                 $('#contenido').remove();
+                 $('#listaComentarios').html('<div id=contenido></div>');  
+                 $('#contenido').html(data);   
+                                      
              },
              error: function (err, scnd) {
 

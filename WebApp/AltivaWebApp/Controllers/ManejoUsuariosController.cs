@@ -65,8 +65,8 @@ namespace AltivaWebApp.Controllers
         public ActionResult CuentaUsuario(string codigo)
         {
             var model =  userService.GetUsuarioConPerfiles(codigo);
-            long id = model.Id;
-            ViewBag.id = id;
+            //long id = model.Id;
+            //ViewBag.id = id;
             var asignados = new List<TbSePerfil>();
 
             foreach (var item in model.TbSePerfilUsuario)

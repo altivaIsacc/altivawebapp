@@ -51,9 +51,10 @@ namespace AltivaWebApp.Controllers
         public IMensajeReceptorService IMensajeReceptorService;
         //variable mapper bitacora.
         public IBitacoraMapper IBitacoraMap;
-        //Constructrua Mensahjes controlador
 
-            //variable de mensaje service
+
+
+          
         
        
         public MensajesController(IPaisService IPaisService,IBitacoraMapper IBitacoraMa,IMensajeReceptorService pIMensajeReceptorService, IAdjuntoService IAdjuntoService, IMensajeReceptor pIMensajeReceptor, IMensajeService pImensajeService, IMensajeMap pIMensajeMap, IAdjuntoMap pIAdjuntoMap, IUserService pIUserService)
@@ -79,7 +80,9 @@ namespace AltivaWebApp.Controllers
         [Route("Lista-Comentarios")]
         public ActionResult ListarComentarios(ComentarioViewModel model)
         {
+            ViewData["usuarios"] = IUserService.GetAll();
             var comentarios = ImensajeService.GetComentarios(model).ToList();
+
             return PartialView("_PartialComentarios", comentarios);
         }
 
@@ -88,47 +91,45 @@ namespace AltivaWebApp.Controllers
         {
            
 
-            var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-
-            TbSeMensaje comentario = new TbSeMensaje();
+            var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;           
 
             TbSeAdjunto AdjuntoDomain = new TbSeAdjunto();
 
             List<TbSeAdjunto> listaAdjuntos = new List<TbSeAdjunto>();
 
-            comentario = this.IMensajeMap.Crear(model, int.Parse(id));
-            comentario = this.ImensajeService.create(comentario);
-
-            if (model.Files != null)
+            try
             {
-                foreach (var item in model.Files)
+                var comentario = this.IMensajeMap.Crear(model, int.Parse(id));
+                comentario = this.ImensajeService.create(comentario);
+
+                if (model.Files != null)
                 {
-
-                    var path = $"wwwroot\\Files\\{item.FileName}";
-                    using (var stream = new FileStream(path, FileMode.Create))
+                    var rutas = FotosService.SubirAdjuntos(model.Files);
+                    foreach (var item in rutas)
                     {
-                        item.CopyTo(stream);
-
+                        AdjuntoDomain = this.IAdjuntoMap.crear(comentario.Id, item);
                     }
 
-                    var ruta = $"/Files/{item.FileName}";
-                    AdjuntoDomain = this.IAdjuntoMap.crear(comentario.Id, ruta);
+                    listaAdjuntos.Add(AdjuntoDomain);
+                }
+                else
+                {
+                    AdjuntoDomain = this.IAdjuntoMap.crear(comentario.Id, "");
 
                     listaAdjuntos.Add(AdjuntoDomain);
-
                 }
 
-            }
-            else
-            {
-                AdjuntoDomain = this.IAdjuntoMap.crear(comentario.Id, "");
+                this.IAdjuntoService.Crear(listaAdjuntos);
 
-                listaAdjuntos.Add(AdjuntoDomain);
+                return Json(new { success = true });
             }
-            this.IAdjuntoService.Crear(listaAdjuntos);
+            catch (Exception)
+            {
+                return BadRequest();
+                //throw;
+            }            
            
-           
-           
+                      
 
         }
 
