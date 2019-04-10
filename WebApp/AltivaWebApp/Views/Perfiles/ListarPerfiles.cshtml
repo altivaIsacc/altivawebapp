@@ -1,0 +1,175 @@
+﻿@model IEnumerable<TbSePerfil>
+
+@{
+    var Perfil = new PerfilViewModel();
+    var PerfilFilled = Model.FirstOrDefault(p => p.Id == ViewBag.id);
+
+    var selected = Model.FirstOrDefault();
+}
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+<h3 data-translate="PETitulo">Perfiles</h3>
+<div class="row">
+
+    <div class="col-md-3">
+
+        <select id="perfiles" class="form-control search-key">
+
+            @{
+                foreach (var item in Model)
+                {
+                    <option value="@item.Id">@item.Nombre</option>
+                }
+
+
+            }
+            <option value="0">Seleccione</option>
+        </select>
+    </div>
+
+    <div class="col-md-4">
+        <button type="button" id="nuevoPerfil" class="btn btn-link" data-toggle="modal" data-target="#exampleModal">
+            <span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span>
+        </button>   
+        <button type="button" id="editarPerfilbtn" class="btn btn-link" data-toggle="modal" data-target="#editarPerfil">
+            <span style="font-size: 2rem"><i class="fas fa-edit"></i></span>
+        </button>   
+        <button type="button" id="eliminarPerfil" class="btn btn-link">
+            <span style="font-size: 2rem"><i class="fas fa-trash"></i></span>
+        </button>
+
+    </div>
+
+</div>
+<hr />
+
+<div class="row">
+    <div class="col-md-12" id="Modulos">
+
+        <partial name="_ListarModulos"
+                 for=@ViewData["ModulosAsignados"] />
+
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel">Nuevo Perfil</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <partial name="_NuevoPerfil"
+                         for=@Perfil />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editarPerfil" tabindex="-1" role="dialog" aria-labelledby="editarPerfilLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="editarPerfilLabel">Editar Perfíl</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <partial name="_EditarPerfil"
+                         for=@PerfilFilled />
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+   $(document).ready(function () {
+
+
+       var id = (location.search.split("id" + '=')[1] || '').split('&')[0];
+
+       console.log(@ViewBag.id);
+       if (@ViewBag.id != 0)
+           $('#perfiles').val(@ViewBag.id);
+       else {
+           $('#perfiles').val('0');
+           $('#eliminarPerfil').attr('disabled', true);
+           $('#editarPerfilbtn').attr('disabled', true);
+       }
+            
+
+       $('#perfiles').change(function () {
+           //alert($(this).val());
+            var id = $(this).val();
+            setUrl(id);
+       });
+
+       $('#grupo').val('@ViewBag.grupo');
+
+       $('#grupo').change(function () {
+           
+           var grupo = $(this).val();
+           var url = '';
+           if (grupo != '')
+               var url = '../Lista-Perfiles/' + $('#perfiles').val() + '/' + grupo;
+           else
+               url = '../' + $('#perfiles').val();
+
+           window.location.href = url;
+
+         });
+
+
+       $('#eliminarPerfil').click(function () {
+
+           $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: '@Url.Action("EliminarPerfil", "Perfiles")',
+               data: { id: $('#perfiles').val() },
+               success: function (data) {
+
+                   if (data.id === @ViewBag.id) {
+                       alert("No se puede eliminar un perfil si este está asignado previamente a usuarios");
+                   }
+                   else {
+                       setUrl(data.id);
+                   }
+
+
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+
+
+
+       });
+
+
+       function setUrl(id) {
+           var url = '@Url.Action("ListarPerfiles", "Perfiles", new { id = "__id__"})';
+            window.location.href = url.replace('__id__', id );
+       }
+    });
+
+
+</script>
+

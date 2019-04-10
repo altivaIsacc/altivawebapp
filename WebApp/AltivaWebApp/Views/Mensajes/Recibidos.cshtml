@@ -1,0 +1,586 @@
+﻿@model AltivaWebApp.ViewModels.MensajeViewModel
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+
+
+    var mensajeModel = new List<MensajeRecibidoViewModel>();
+
+    mensajeModel = ViewData["MensajeRecibido"] as List<MensajeRecibidoViewModel>;
+
+    var mensajeModel1 = new List<MensajeRecibidoViewModel>();
+    mensajeModel1 = ViewData["MensajeEnviados"] as List<MensajeRecibidoViewModel>;
+    var mensajeModel2 = new List<MensajeRecibidoViewModel>();
+    mensajeModel2 = ViewData["Archivados"] as List<MensajeRecibidoViewModel>;
+
+}
+<link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.dataTables.min.css" rel="stylesheet" />
+
+
+<div class="container" style="width:80%">
+    <h3 class="" style="text-align:center;" data-translate="mensajeria">Mensajeria</h3>
+    <div class="panel-heading">
+        <div class="form-group col-md-3">
+            <a asp-controller="Mensajes" asp-action="Index" class="btn btn-link " >Agregar Nuevo<i style="font-size:2rem;" class="fas fa-plus-circle "></i></a>
+        </div>
+        <div class="form-group col-md-3 form-inline">
+            <label for="sel1" data-translate="selecciones">Seleccione</label>
+            <select class="form-control target" id="sel1">
+                <option name="recibidos" value="1">Recibidos</option>
+                <option name="enviados" value="2">Enviados</option>
+                <option name="archivados" value="3">Archivados</option>
+
+            </select>
+
+
+
+        </div>
+    </div>
+    </div>
+
+    <div class="container" id="div1" style="width:80%" hidden>
+
+        <div class=" col-md-12 ">
+
+            <div class="panel-body">
+                @if (mensajeModel != null)
+                {
+                    <div class="form-group">
+                        <label class="control-label" data-translate="checkArchivar">Marque para archivar :</label>
+                        <input type="checkbox" name="archivar" id="archivarTodos" />
+                        <button class="btn-info" id="btnArchivar" hidden>Oki</button>
+
+                    </div>
+                }
+                <div class="row">
+
+
+
+                    <table id="example" class="display table-hover  example" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th hidden>Id</th>
+                                <th hidden>IdMensaje</th>
+                                <th><span class="glyphicon glyphicon-ok"></span></th>
+                                <th><span data-translate="emisor">Emisor </span></th>
+                                <th class="col-md-8" data-translate="mensaje"><span>Mensaje</span></th>
+                                <th>Accion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var items in mensajeModel)
+                            {
+                                @if (@items.Estado != "Archivado" && @items.Estado != "Eliminado")
+                                {
+                            <tr>
+                                <td hidden>@items.Id</td>
+                                <td hidden> @items.IdMensaje</td>
+                                <td>
+                                    <input type="checkbox" name="archi" id="archiva" disabled="disabled" value="@items.Id" />
+
+                                </td>
+                                <td>@items.UsuarioEmisor</td>
+
+                                <td>
+                                    <span>
+                                        <a  onclick="verMensaje(@items.Id)">
+                                            @items.Mensaje
+                                        </a>
+                                    </span>
+                                </td>
+
+
+
+                                <td>
+                                    <a class="btn btn-link " onclick="cambiarEstado(@items.Id)" style="font-size:2rem;"> <i class="fas fa-file-archive"></i></a>
+                                    <a class="btn btn-link" onclick="verMensaje(@items.Id)" style="font-size:2rem;"><i class="fas fa-eye"></i></a>
+                                </td>
+
+                            </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Tabla de mensaje enviados-->
+    <div class="container" id="div2" style="width:90%" hidden>
+
+        <div class="col-md-12">
+
+            <div class="panel-body">
+               
+                <div class="row" >
+
+
+                    <table id="example" class="display table-hover  example" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th hidden>Id</th>
+                                <th><span data-translate="receptor">Receptor</span></th>
+                                <th class="col-md-8" data-translate="mensaje"><span>Mensaje</span></th>
+
+                                <th><span data-translate="estado">Estado</span></th>
+                                <th> Accion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var items in mensajeModel1)
+                            {
+                                @if (@items.Estado != "Eliminado")
+                                {
+                            <tr>
+
+                                <td hidden>@items.Id</td>
+                                <td>@items.UsuarioReceptor</td>
+                                <td>
+                                    <span>
+                                        <a  onclick="verMensaje(@items.Id)">
+                                            @items.Mensaje
+                                        </a>
+                                    </span>
+                                </td>
+                                <td>@items.Estado</td>
+
+                                <td>
+
+                                    <a class="btn btn-link" onclick="verMensaje(@items.Id)" style="font-size:2rem;"><i class="fas fa-eye"></i></a>
+                                    <button class="btn btn-link" onclick="eliminarEstado(@items.Id)" style="font-size:2rem;"><i class="fas fa-trash"></i></button>
+                                </td>
+
+                            </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!--Tabla de mensaje archivados-->
+    <div class="container" id="div3" style="width:80%" hidden>
+
+        <div class=" col-md-12 ">
+
+            <div class="panel-body">
+
+                <div class="row">
+
+                  
+                        <table id="example" class="display  example" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th hidden>Id</th>
+                                    <th class="col-md-8"><span data-translate="mensaje">Mensaje</span></th>
+                                    <th><span data-translate="emisor">Emisor</span></th>
+                                    <th><span data-translate="receptor">Receptor</span></th>
+                                    <th>Ver</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var items2 in mensajeModel2)
+                                {
+                                    @if (@items2.Estado == "Archivado")
+                                    {
+                                <tr>
+
+                                    <td hidden>@items2.Id</td>
+                               
+                                    <td>
+                                        <span>
+                                            <a href="#"  onclick="verMensaje(@items2.Id)">
+                                                @items2.Mensaje
+                                            </a>
+                                        </span>
+                                    </td>
+
+                                    <td>@items2.UsuarioEmisor</td>
+                                    <td>@items2.UsuarioReceptor</td>
+                                    <td>
+                                        <a class="btn btn-link" onclick="verMensaj(@items2.Id)" style="font-size:2rem;"><i class="fas fa-eye"></i></a>
+
+                                    </td>
+
+
+                                </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+
+                 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Modal-->
+    <div class="modal fade" id="exampleModal" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Contenido del Mensaje</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding-left: 5rem">
+                    <div class="form-group">
+                        <label class="control-label">Mensaje </label>
+                        <textarea id="mensaje" class="form-control" style="height:30rem;width:100%;" disabled="disabled"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Archivos Adjuntos </label>
+                        <a id="adjunto" href="#" class="form-control" style="height:auto;width:500px;" target="_blank">Ver archivo</a>
+                        <p id="noFile"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Jquery-->
+    <script>
+    $(document).ready(function () {
+
+        $("#btnArchivar").hide();
+
+
+       var arraySeleccionados = [];
+        $("#archivarTodos").change(function () {
+
+            if ($(this).is(":checked")) {
+                $("input[name='archi']").prop("checked", true);
+
+                $.each($("input[name='archi']:checked"), function () {
+                    if (parseInt($(this).val()) != 0) {
+                        $("#btnArchivar").show();
+                        arraySeleccionados.push(parseInt($(this).val()));
+
+                    } else {
+                        alert("No existe ningun mensaje en este buzon");
+
+                        $("#btnArchivar").hide();
+                        arraySeleccionados = [];
+                    }
+                });
+                console.log(arraySeleccionados);
+            }
+            else {
+                $("input[name='archi']").prop("checked", false);
+                $("#btnArchivar").hide();
+                arraySeleccionados = [];
+                console.log(arraySeleccionados);
+            }
+
+        });
+        $('#btnArchivar').click(function () {
+            console.log(arraySeleccionados);
+            $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "POST",
+
+
+                url: '@Url.Action("ModificarEstados", "Mensajes")',
+
+                data: { id: arraySeleccionados },
+
+                success: function (data) {
+                    window.location.href = window.location.href;
+
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+        });
+        });
+       
+    if (@ViewBag.id == 1) {
+        $("#div3").hide();
+        $("#div2").hide();
+        $("#div1").show();
+    } else if (@ViewBag.id == 2) {
+        $("#div1").hide();
+        $("#div3").hide();
+        $("#div2").show();
+      
+    } else if (@ViewBag.id == 3) {
+    
+        $("#div2").hide();
+        $("#div1").hide();
+        $("#div3").show();
+    } else {
+        $("#div3").hide();
+        $("#div2").hide();
+    }
+         function setUrl(id) {
+           var url = '@Url.Action("Recibidos", "Mensajes", new { id = "__id__"})';
+            window.location.href = url.replace('__id__', id );
+       }
+
+    if (@ViewBag.id != 0) {
+          $('.target').val(@ViewBag.id);
+    }
+
+    $(".target").change(function () {
+        if ($(this).val() == 1) {
+
+
+            setUrl($(this).val());
+        } else if ($(this).val() == 2) {
+
+            setUrl($(this).val());
+        } else if ($(this).val() == 3) {
+
+            setUrl($(this).val());
+        }
+    });
+    function verMensaje(idMensaje) {
+
+            $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("Leidos", "Mensajes")',
+
+                data: { valor: idMensaje },
+
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    //  window.location.reload();
+
+                },
+
+                dataType: "json"
+
+            });
+            $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("verMensaje", "Mensajes")',
+
+                data: { valor: idMensaje },
+
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    $("#exampleModal").modal('show');
+                    $("#mensaje").html(data[0].mensaje);
+                    if (data[0].ruta != "") {
+                        $('#adjunto').show();
+                        $('#noFile').hide();
+                        $('#adjunto').attr('href', data[0].ruta);
+                    } else {
+                        $('#adjunto').hide();
+                        $('#noFile').show();
+                        $('#noFile').html("Este mensaje no tiene archivos adjuntos");
+                    }
+                },
+
+                dataType: "json"
+
+            });
+
+    }
+     function cambiarEstado(idMensaje) {
+
+
+          $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("CambiarEstado","Mensajes")',
+
+              data: { valor: idMensaje},
+
+                contentType: "application/json; charset=utf-8",
+              success: function (data) {
+                //  window.location.reload();
+
+                 window.location.href = window.location.href;
+
+                },
+
+                dataType: "json"
+
+         });
+
+    }
+
+    function leido(pMensaje) {
+        if ($('#checkbox1').is(":checked")) {
+
+             $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("Leidos", "Mensajes")',
+
+                 data: { valor: pMensaje},
+
+                contentType: "application/json; charset=utf-8",
+                 success: function (data) {
+                   //  window.location.reload();
+
+                },
+
+                dataType: "json"
+
+            });
+
+        }
+        else {
+               $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("NoLeidos", "Mensajes")',
+
+                   data: { valor: pMensaje},
+
+                contentType: "application/json; charset=utf-8",
+              success: function (data) {
+                //  window.location.reload();
+
+                },
+
+                dataType: "json"
+
+            });
+        }
+    }
+    $(document).ready(function () {
+
+
+
+        $(".example").DataTable({
+            scrollY: '50rem',
+            scrollCollapse: true,
+            paging: true,
+     dom: 'Bfrtip',
+     "Order": [0,Desc],
+       language: {
+           "decimal": "",
+           "emptyTable": "No hay información",
+           "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+           "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+           "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+           "infoPostFix": "",
+           "thousands": ",",
+           "lengthMenu": "Mostrar _MENU_ Entradas",
+           "loadingRecords": "Cargando...",
+           "processing": "Procesando...",
+           "search": "<a class='btn btn-link '><i class='fas fa-search' style='font-size:2rem;'></i></a>",
+           "zeroRecords": "Sin resultados encontrados",
+           "paginate": {
+               "first": "Primero",
+               "last": "Ultimo",
+               "next": "Siguiente",
+               "previous": "Anterior"
+           }
+       }
+      
+    });
+    });
+    </script>
+    <script>
+  function verMensaj(idMensaje) {
+
+
+            $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("verMensaje", "Mensajes")',
+
+                data: { valor: idMensaje },
+
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    $("#exampleModal").modal('show');
+                    $("#mensaje").html(data[0].mensaje);
+                    if (data[0].ruta != "") {
+                        $('#adjunto').show();
+                        $('#noFile').hide();
+                        $('#adjunto').attr('href', data[0].ruta);
+                    } else {
+                        $('#adjunto').hide();
+                        $('#noFile').show();
+                        $('#noFile').html("Este mensaje no tiene archivos adjuntos");
+                    }
+                },
+
+                dataType: "json"
+
+            });
+
+    }
+    function eliminarEstado(idMensaje) {
+
+
+          $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("Eliminar", "Mensajes")',
+
+              data: { valor: idMensaje},
+
+                contentType: "application/json; charset=utf-8",
+              success: function (data) {
+               window.location.reload();
+
+                },
+
+                dataType: "json"
+
+            });
+    }
+
+
+    </script>

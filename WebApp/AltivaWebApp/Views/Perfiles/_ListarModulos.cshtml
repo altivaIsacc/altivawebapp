@@ -1,0 +1,445 @@
+﻿@model IEnumerable<AltivaWebApp.ViewModels.ModuloPerfilViewModel>
+
+
+
+@{
+
+    var module = new List<string>();
+
+    module = ViewData["Grupos"] as List<string>;
+
+    ViewData["grupos"] = ViewData["Grupos"];
+
+
+}
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+
+<link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.dataTables.min.css" rel="stylesheet" />
+
+<div class="row">
+    <div class="form-group col-md-4">
+        <label for="inputState">Grupos</label>
+        <select id="grupo" class="form-control search-key">
+            <option value="">Todos</option>
+            @{
+                foreach (var item in module.Distinct())
+                {
+                    if (item != "")
+                    {
+                        <option value="@item">@item</option>
+                    }
+                }
+            }
+        </select>
+    </div>
+</div>
+<div class="row">
+
+    <div class="col-md-3">
+        <div class="row">
+            <div class="col-md-8">
+                <h4>Sin Asignar</h4>
+            </div>
+            <div class="col-md-4">
+                <a class="btn-link btn" id="incluir"><span style="font-size: 4rem"><i class="fas fa-chevron-circle-right"></i></span></a>
+            </div>
+        </div>
+
+        <table class="table tmodulos display ">
+            <thead>
+                <tr>
+                    <th>
+                        <p data-translate="nombre">Nombre</p>
+                    </th>
+
+                    <th class="text-center">
+                        <label>
+                            <input class="form-check-input" id="marcarTodosS" type="checkbox">
+                        </label>
+                    </th>
+                    <th>
+                        <span data-translate="accion">Acción</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in @ViewData["ModulosSinAsignar"] as IEnumerable<TbSeModulo>)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.NombreExterno)
+                        </td>
+                        <td class="text-center">
+                            <input class="form-check-input" name="sinAsignar" type="checkbox" value="@item.Id">
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-link btnModuloDet" value="@item.Id"><span style="font-size: 2rem"><i class="fas fa-eye"></i></span></button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="col-md-9">
+        <div class="row">
+            <div class="col-md-10">
+                <h4>Asignados</h4>
+            </div>
+            <div class="col-md-2">
+                <a class="btn-link btn" id="excluir"><span style="font-size: 4rem"><i class="fas fa-chevron-circle-left"></i></span></a>
+            </div>
+        </div>
+
+        <table class="tmodulos table display">
+            <thead>
+                <tr>
+                    <th>
+                        <p data-translate="nombre">Nombre</p>
+                    </th>
+                    <th>
+                        <p>Gp.</p>
+                    </th>
+                    <th>
+                        <p data-translate="ejecutar">Ejecutar</p>
+                    </th>
+                    <th>
+                        <p data-translate="actualizar">Actualizar</p>
+                    </th>
+                    <th>
+                        <p data-translate="insertar">Insertar</p>
+                    </th>
+                    <th>
+                        <p data-translate="eliminar">Eliminar</p>
+                    </th>
+                    <th>
+                        <p data-translate="imprimir">Imprimir</p>
+                    </th>
+                    <th style="width: 8rem">
+                        <p>Op.1</p>
+                    </th>
+                    <th style="width: 8rem">
+                        <p>Op.2</p>
+                    </th>
+                    <th class="text-center">
+                        <label>                          
+                            <input class="form-check-input" id="marcarTodosA" type="checkbox">
+                        </label>
+                    </th>
+                    <th>
+                        <span data-translate="accion">Acción</span>
+                    </th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in @ViewData["ModulosAsignados"] as IEnumerable<AltivaWebApp.ViewModels.ModuloPerfilViewModel>)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Nombre)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Grupo)
+                        </td>
+                        <td class="text-center">
+                            <input class="form-check-input accion" type="checkbox" value="@item.Id" name="ejecutar" checked="@item.Ejecutar">
+                        </td>
+
+                        <td class="text-center">
+                            <input class="form-check-input accion" type="checkbox" value="@item.Id" name="actualizar" checked="@item.Actualizar">
+                        </td>
+                        <td class="text-center">
+                            <input class="form-check-input accion" type="checkbox" value="@item.Id" name="insertar" checked="@item.Insertar">
+                        </td>
+                        <td class="text-center">
+                            <input class="form-check-input accion" type="checkbox" value="@item.Id" name="imprimir" checked="@item.Imprimir">
+                        </td>
+                        <td class="text-center">
+                            <input class="form-check-input accion" type="checkbox" value="@item.Id" name="eliminar" checked="@item.Eliminar">
+                        </td>
+                        <td class="text-center">
+                            <input class="form-check-input accion" type="checkbox" value="@item.Id" name="opcion1" checked="@item.Opcion1">
+                        </td>
+                        <td class="text-center">
+                            <input class="form-check-input accion" type="checkbox" value="@item.Id" name="opcion2" checked="@item.Opcion2">
+                        </td>
+                        <td class="text-center">
+                            <input class="form-check-input" name="asignado" type="checkbox" value="@item.Id">
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-link btnModuloDet" value="@item.IdModulo"><span><i class="fas fa-eye"></i></span></button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="moduloModal" tabindex="-1" role="dialog" aria-labelledby="moduloModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body" style="padding-left: 5rem">
+                <div class="row" id="detallesModulo">
+                    <partial name="_DetallesModulo" model="new ModuloViewModel()" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+
+
+        $(".btnModuloDet").click(function () {
+            //alert();
+            //console.log();
+
+            var url = '@Url.Action("_DetallesModulo", "Perfiles")';
+               $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                   url: url,
+                   data: {
+                       id: $(this).val()
+                     },
+                    success: function (data) {
+
+                        $('#moduloModal').modal('toggle');
+                        $('#moduloModal').modal('show');
+                        $('#detallesModulo').html(data);
+                        //window.location.href = window.location.href;
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+        });
+
+
+
+        arraySinASignar = [];
+        $("#marcarTodosS").change(function () {
+            arraySinASignar = [];
+
+            if ($(this).is(":checked")) {
+                $("input[name='sinAsignar']").prop("checked", true);
+
+                $.each($("input[name='sinAsignar']:checked"), function () {
+
+                    var model = {
+                        idModulo: $(this).val(),
+                        idPerfil: $('#perfiles').val()
+                    };
+                    arraySinASignar.push(model);
+                });
+                console.log(arraySinASignar);
+            }
+            else {
+                $("input[name='sinAsignar']").prop("checked", false);
+                arraySinASignar = [];
+                console.log(arraySinASignar);
+            }
+
+        });
+
+        arrayAsignados = [];
+        $("#marcarTodosA").change(function () {
+
+            arrayAsignados = [];
+
+            if ($(this).is(":checked")) {
+                $("input[name='asignado']").prop("checked", true);
+
+                $.each($("input[name='asignado']:checked"), function () {
+
+                    //var model = {
+                    //    idModulo: $(this).val(),
+                    //    idPerfil: $('#perfil').val()
+                    //};
+                    arrayAsignados.push(parseInt($(this).val()));
+                });
+                console.log(arrayAsignados);
+            }
+            else {
+                $("input[name='asignado']").prop("checked", false);
+                arrayAsignados = [];
+                console.log(arrayAsignados);
+            }
+
+        });
+
+
+        $('#incluir').click(function () {
+
+
+            var url = '@Url.Action("IncluirModulo", "Perfiles")';
+
+            $.ajax({
+                type: "POST",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { model: arraySinASignar },
+                    success: function (data) {
+                        //console.log($(this).parent());
+                        window.location.href = window.location.href;
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+        });
+
+        $('#excluir').click(function () {
+
+
+            var url = '@Url.Action("ExcluirModulo", "Perfiles")';
+
+            console.log(arrayAsignados);
+
+            $.ajax({
+                type: "POST",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { model: arrayAsignados },
+                    success: function (data) {
+                        //console.log($(this).parent());
+                        window.location.href = window.location.href;
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+        });
+
+
+        $("input[name='sinAsignar']").change(function () {
+
+            if ($(this).is(":checked")) {
+                var model = {
+                    idModulo: $(this).val(),
+                    idPerfil: $('#perfiles').val()
+                };
+                arraySinASignar.push(model);
+            }
+            else {
+
+                var model = {
+                    idModulo: $(this).val(),
+                    idPerfil: $('#perfiles').val()
+                };
+
+
+                for (var i = 0; i <= arraySinASignar.length - 1; i++) {
+                    if (arraySinASignar[i].idModulo == model.idModulo) {
+                        arraySinASignar.splice(i, 1);
+                    }
+                }
+
+
+            }
+            console.log(arraySinASignar);
+        });
+
+        $("input[name='asignado']").change(function () {
+
+            if ($(this).is(":checked")) {
+                arrayAsignados.push(parseInt($(this).val()));
+            }
+            else {
+                var ids = parseInt($(this).val());
+                arrayAsignados.splice($.inArray(ids, arrayAsignados), 1);
+            }
+            console.log(arrayAsignados);
+        });
+
+
+
+
+        $('.accion').on('change', function () {
+                //alert($(this).val());
+                //var data = { IdModulo = $(this).val(), IdPerfil = $('#perfil').val() }
+                var accion = $($(this)).attr('name');
+                var estado = $($(this)).prop('checked');
+                var modulo = $(this).val();
+                //console.log(accion + " " + estado + " " + modulo);
+
+                $.ajax({
+                type: "post",
+                headers: {
+                           "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                    url: '@Url.Action("EditarAccion", "Perfiles")',
+                    data: { id: modulo, accion: accion, estado: estado },
+                    success: function (data) {
+                        console.log(data.success);
+                        //window.location.href = window.location.href;
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+                });
+
+
+        });
+
+
+
+        $(".tmodulos").DataTable({
+
+           "paging": false,
+           "ordering": false,
+           "info": false,
+            scrollY: '50rem',
+            scrollCollapse: true,
+            scrollX: false,
+            paging: false,
+            searching: false,
+                language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            }
+
+        });
+        
+
+        });
+
+   
+
+</script>

@@ -1,0 +1,199 @@
+﻿@model IEnumerable<AltivaWebApp.GEDomain.TbSeHistorialMoneda>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+
+    var module = new List<TbSeHistorialMoneda>();
+
+    module = ViewData["historial"] as List<TbSeHistorialMoneda>;
+
+}
+<link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.dataTables.min.css" rel="stylesheet" />
+<div class="container">
+
+    <h3 data-translate="MDBucarXFecha">Buscar por fecha:</h3>
+
+    <form asp-action="FiltroByFecha" method="post">
+
+
+        <div class="input-group  col-sm-2 ">
+            <label data-translate="desde"> Desde:</label>
+            <input class=" form-control col-sm-2 " name="fecha1" id="fecha1" type="date" required />
+        </div>
+
+        <div class="input-group  col-sm-2 ">
+            <label data-translate="hasta">Hasta:</label>
+            <input class="form-control col-sm-2 " name="fecha2" id="fecha2" type="date" required />
+        </div>
+        <input data-translate="submitbuscar" type="submit" value="Buscar" class="btn btn-primary" />
+
+    </form>
+    <div class="panel panel-default">
+        @if (ViewBag.estado == 0)
+        {
+            <span data-translate="MDBucarXFechaError" class="alert alert-danger"> Formato de datos incorrecto</span>
+        }
+    </div>
+
+    <h4 data-translate="MHitorialCambio">Historial del tipo de Cambio</h4>
+
+    <table id="table1" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Id)
+                </th>
+                <th>
+                    <span data-translate="fecha">Fecha</span>
+                </th>
+                <th>
+                    <span data-translate="compra">Compra</span>
+                </th>
+                <th>
+                    <span data-translate="venta">Venta</span>
+                </th>
+
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in module)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+
+                    <td>
+                        @item.Fecha
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ValorCompra)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ValorVenta)
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+    <a data-translate="atras" asp-controller="Monedas" asp-action="Index" class="btn btn-default">Atrás</a>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.flash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.print.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.flash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.print.min.js"></script>
+
+<script>
+
+
+    $("#table1").DataTable({
+        scrollY: '50rem',
+        scrollCollapse: true,
+        paging: false,
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'pdf', 'excel'
+        ],
+        dom: 'Bfrtip',
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "<a class='btn btn-link '><i class='fas fa-search btn-sm'></i></a>",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        buttons: [
+            {
+                extend: 'copyHtml5',
+                text: '<i class="fas fa-copy btn-sm" ></i>',
+                titleAttr: 'Copy'
+            },
+            {
+                extend: 'excelHtml5',
+                text: '<i class="fas fa-file-excel btn-sm "></i>',
+                titleAttr: 'Excel'
+            },
+
+            {
+                extend: 'pdfHtml5',
+                text: '<i class="fas fa-file-pdf btn-sm"></i>',
+                titleAttr: 'PDF'
+            }
+        ]
+
+     
+
+
+    });
+
+
+</script>
+<script>
+
+    $(document).ready(function () {
+        $("fecha1").val("");
+
+
+
+    function buscarByFecha() {
+        var fecha = $("#fecha").val();
+         $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("FiltroByFecha", "Monedas")',
+
+                 data: { fecha: fecha },
+
+                contentType: "application/json; charset=utf-8",
+              success: function (data) {
+                  alert("Exitoso");
+                  window.location.reload();
+                },
+
+                dataType: "json"
+
+            });
+    }
+</script>

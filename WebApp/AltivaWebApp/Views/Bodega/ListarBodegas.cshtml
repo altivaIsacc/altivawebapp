@@ -1,0 +1,125 @@
+﻿@model IEnumerable<TbPrBodega>
+@{
+    var error = TempData["Error"];
+    var usuarios = ViewData["usuarios"] as IList<TbSeUsuario>;
+    var user = new TbSeUsuario();
+    var iconoEstado = "";
+}
+
+
+<div class="row">
+    <div class="col-md-1">
+        <h3 data-translate="bodegas">Bodegas</h3>
+    </div>
+    <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
+        <p>
+            <a class="btn btn-link" asp-action="CrearBodega"><span data-translate="crearNueva">Crear Nueva </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+        </p>
+    </div>
+</div>
+
+<hr />
+
+@if (ViewBag.estado == null)
+{
+    iconoEstado = "fas fa-trash";
+    <a class="btn btn-dark" href="@Url.Action("ListarBodegas", new { estado = "Inactivas" })"><span data-translate="">Ver Inactivas</span></a>
+}
+else
+{
+    iconoEstado = "fa-trash-restore";
+    <a class="btn btn-dark" href="@Url.Action("ListarBodegas", new { estado = "" })"><span data-translate="">Ver Activas</span></a>
+}
+
+<table class="table bodegas">
+    <thead>
+        <tr>
+            <th>
+                <span data-translate="nombre">Nombre</span>
+            </th>
+            <th>
+                <span data-translate="produccion">Produccion</span>
+            </th>
+            <th>
+                <span data-translate="almacenamiento">Almacenamiento</span>
+            </th>
+            <th>
+                <span data-translate="suministrosInternos">Suministros Internos</span>
+            </th>
+            <th>
+                <span data-translate="consignacion">Consignacion</span>
+            </th>
+            <th>
+                <span data-translate="estado">Estado</span>
+            </th>
+            <th>
+                <span data-translate="fechaCreacion">Fecha creación</span>
+            </th>
+            <th>
+                <span data-translate="usuarioEncargado">Usuario Encargado</span>
+            </th>
+            <th>
+                <span data-translate="observaciones">Observaciones</span>
+            </th>
+            <th>
+                <span data-translate="accion">Acción</span>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                <a asp-action="DetallesBodega" asp-route-id="@item.Id">@item.Nombre</a>
+            </td>
+            <td>
+                <input class="form-check-input" type="checkbox" disabled checked="@item.Produccion">
+            </td>
+            <td>
+                <input class="form-check-input" type="checkbox" disabled checked="@item.Almacenamiento">
+            </td>
+            <td>
+                <input class="form-check-input" type="checkbox" disabled checked="@item.SuministrosInternos">
+            </td>
+            <td>
+                <input class="form-check-input" type="checkbox" disabled checked="@item.Consignacion">
+            </td>
+            <td>
+                @if (item.Estado == true)
+                {
+                    <span data-translate="activa">Activa</span>
+                }
+                else
+                {
+                    <span data-translate="inactiva">Inactiva</span>
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FechaCreacion)
+            </td>
+            <td>
+                @{
+                    user = usuarios.FirstOrDefault(u => u.Id == item.UsuarioEncargado);
+                }
+                <a href="@Url.Action("CuentaUsuario", "ManejoUsuarios", new { codigo = user.Codigo })">@user.Nombre</a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Observaciones)
+            </td>
+            <td>
+                
+                <a asp-action="EditarBodega" asp-route-id="@item.Id"><span style="font-size: 2rem"><i class="fas fa-edit"></i></span></a>
+                <a asp-action="CambiarEstado" asp-route-id="@item.Id"><span style="font-size: 2rem"><i class="fas @iconoEstado"></i></span></a>
+
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+
+
+
+</script>

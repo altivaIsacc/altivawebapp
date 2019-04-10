@@ -1,0 +1,100 @@
+﻿@model AltivaWebApp.ViewModels.UnidadViewModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <form id="frmUnidad">
+            <div class="form-group" hidden>
+                <label asp-for="Id" class="control-label">Id</label>
+                <input asp-for="Id" class="form-control" />
+                <span asp-validation-for="Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label data-translate="nombre" asp-for="Nombre" class="control-label">Nombre</label>
+                <input maxlength="20" asp-for="Nombre" class="form-control" />
+                <span hidden id="validatedTextNombre" class="text-danger" data-translate="nombreRequerido">Nombre es requerido</span>
+            </div>
+            <div class="form-group">
+                <label data-translate="abreviatura" asp-for="Abreviatura" class="control-label">Abreviatura</label>
+                <input maxlength="4" asp-for="Abreviatura" class="form-control" />
+                <span hidden id="validatedTextAbreviatura" class="text-danger">Abrevaitura es requerida</span>
+            </div>
+            <div class="form-group" hidden>
+                <label asp-for="IdUsuario" class="control-label"></label>
+                <input asp-for="IdUsuario" class="form-control" />
+                <span asp-validation-for="IdUsuario" class="text-danger"></span>
+            </div>
+        </form>
+
+        <div class="form-group">
+            <button data-translate="guardar"  id="submitFrmUnidad" class="btn btn-primary">Guardar</button>
+            <button data-translate="cancelar"  class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $("#submitFrmUnidad").click(function (e) {
+
+            
+            if (validarForm()) {
+               var url = '@Url.Action("CrearEditarUnidad", "Unidades")';
+
+            $.ajax({
+                type: "post",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: 'CrearEditar-Unidad/' + @Model.Id,
+                data: $('#frmUnidad').serialize(),
+                success: function (data) {
+
+                    if(@Model.Id != 0)
+                        $("#unidades option:selected").remove();
+
+                    var text = data.nombre + ' - ' + data.abreviatura
+                    var o = new Option(text, data.id);
+                    $(o).attr('selected',  true);
+                    $("#unidades").append(o);                   
+                    $("#unidades").trigger('change');
+                    $('#modalUnidad').modal('hide');
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+            }); 
+            }
+            
+        });
+
+        function validarForm() {
+            var model = $('#frmUnidad').serializeArray();
+
+            if (model[1].value != '' && model[2].value != '') {
+                
+                return true;
+            }
+            else {
+                
+                $('#validatedTextNombre').attr('hidden', false);
+                $('#validatedTextAbreviatura').attr('hidden', false);
+                return false;
+            }
+               
+
+            
+        }
+
+
+    });
+
+</script>
+

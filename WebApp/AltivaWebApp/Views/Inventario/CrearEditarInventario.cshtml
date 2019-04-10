@@ -1,0 +1,860 @@
+﻿@model AltivaWebApp.ViewModels.InventarioViewModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    var habilitaVentaDirecta = "";
+    if (ViewBag.accion == "1")
+    {
+        habilitaVentaDirecta = "Checked";
+    }
+    else
+    {
+        if (Model.HabilitarVentaDirecta)
+        {
+            habilitaVentaDirecta = "Checked";
+        }
+        else
+        {
+            habilitaVentaDirecta = "";
+        }
+    }
+
+    var bodegas = ViewData["bodegas"] as IList<TbPrBodega>;
+}
+
+@if (ViewBag.accion == "1")
+{
+    <h3 data-translate="nuevoItem">Nuevo Item</h3>
+}
+else
+{
+
+    <h3 data-translate="editarItem">Editar Item</h3>
+}
+
+
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group habilitaEdicionGroup">
+            <input type="checkbox" class="form-check-input" id="habilitaEdicion" checked />
+            <label data-translate="habilitaEdicion" class="form-check-label" for="habilitaEdicion">Habilitar Edición</label>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <form id="formInventario">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group" hidden>
+                <label asp-for="IdInventario" class="control-label"></label>
+                <input asp-for="IdInventario" class="form-control" />
+                <span asp-validation-for="IdInventario" class="text-danger"></span>
+            </div>
+            <div class="row">
+                    <div class="form-group col-md-2">
+                        <label data-translate="presentacion" asp-for="CantidadUnidad" class="control-label">Presentación</label>
+                        <input required type="number" asp-for="CantidadUnidad" class="form-control" />
+                        <span id="presentacionValid" hidden data-translate="validacionPresentacion" class="text-danger">Presentación es requrida (Debe ser un número entero o con decimáles pero mayor a 0)</span>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label data-translate="unidadMedida" asp-for="IdUnidadMedida" class="control-label">Unidad de Medida</label>
+                        <select asp-for="IdUnidadMedida" id="unidades" class="form-control search-key">
+                            @{
+                                foreach (var item in ViewData["unidades"] as IList<TbPrUnidadMedida>)
+                                {
+                                    <option value="@item.Id">@item.Nombre</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                <div class="form-group col-md-4">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label class="control-label" data-translate="familia">Familia</label>
+                            <select id="familias" class="form-control search-key"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <br />
+                            <a class="btn btn-link crearEditarFamilia" id="crearFamilia">
+                                <span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span>
+                            </a>
+                            <a class="btn btn-link crearEditarFamilia" id="editarFamilia">
+                                <span style="font-size: 2rem"><i class="fas fa-edit"></i></span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label data-translate="impuesto" asp-for="ImpuestoVenta" class="control-label">Impuesto %</label>
+                    <input required type="number" min="0" max="100" asp-for="ImpuestoVenta" class="form-control inputPorcentaje" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label asp-for="Codigo" class="control-label" data-translate="codigo">Codigo</label>
+                    <input asp-for="Codigo" class="form-control" />
+                    <span hidden data-translate="validacionCodigo" id="codigoValid" class="text-danger">Código es requerido</span>
+                    <span hidden data-translate="existeCodigo" id="existeCodigoValid" class="text-danger">Este código ya existe en el sistema</span>
+                </div>
+                <div class="form-group col-md-4">
+
+
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label data-translate="subFamilia" class="control-label">Sub-Familia</label>
+                            <select asp-for="IdSubFamilia" id="subFamilias" class="form-control search-key"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <br />
+                            <a class="btn btn-link crearEditarSubFamilia" id="editarSubFamilia">
+                                <span style="font-size: 2rem"><i class="fas fa-edit"></i></span>
+                            </a>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="form-group col-md-4">
+                    <label data-translate="costoPromedio" class="control-label">Costo Promedio</label>
+                    <input type="number" readonly placeholder="0" asp-for="CostoPromedioGeneral" class="form-control" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label data-translate="descripcion" asp-for="Descripcion" class="control-label">Descripción</label>
+                    <input id="txtDescripcion" maxlength="150" asp-for="Descripcion" class="form-control" />
+                    <span id="descripcionValid" class="text-danger" hidden>Descripción es requerida</span>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label data-translate="moneda" asp-for="CodigoMoneda" class="control-label">Moneda</label>
+                    <select asp-for="CodigoMoneda" id="moneda" class="form-control search-key">
+                        @{
+                            foreach (var item in ViewData["moneda"] as IList<TbSeMoneda>)
+                            {
+                                <option value="@item.Codigo">@item.Nombre</option>
+                            }
+
+                        }
+
+                    </select>
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label data-translate="ultimoCosto" asp-for="UltimoPrecioCompra" class="control-label">Último Costo</label>
+                    <input type="number" readonly placeholder="0" asp-for="UltimoPrecioCompra" class="form-control" />
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="form-group col-md-8">
+                    <label data-translate="nota" asp-for="Notas" class="control-label">Nota</label>
+                    <textarea maxlength="500" rows="5" asp-for="Notas" class="form-control"></textarea>
+                </div>
+                <div class="form-group col-md-4">
+                    <label data-translate="factorAprovechamiento" class="control-label">Factor de Aprovechamiento %</label>
+                    <input type="number" min="0" max="100" asp-for="FactorAprovechamiento" class="form-control inputPorcentaje" />
+                </div>
+            </div>
+            <div class="row">
+
+                <br />
+
+                <div class="form-group col-md-12">
+                    <input type="checkbox" class="form-check-input" id="habilitaVenta" asp-for="HabilitarVentaDirecta" @habilitaVentaDirecta />
+                    <label data-translate="habilitaVenta" class="form-check-label" for="habilitaVenta">Habilitar Venta Directa </label>
+                </div>
+            </div>
+
+
+            <!--///////////////////////////venta directa form///////////////////////////////-->
+
+            <div class="card card-body collapse ventaDirectaForm">
+                <div class="row ">
+
+                    <div class="col-md-2">
+                        <br />
+                        <label data-translate="precioContado">Precio Contado:</label>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label data-translate="utilidadDeseada" class="control-label"> Utilidad deseada %</label>
+                        <input id="utilidadDeseada" type="number" asp-for="UtilidadDeseada" class="form-control inputVentaDirecta inputPorcentaje" />
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label data-translate="precioSinImpuesto" class="control-label">Precio sin Impuesto</label>
+                        <input id="precioVenta" type="number" asp-for="PrecioVenta" class="form-control inputVentaDirecta" />
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label data-translate="precioVentaFinal" asp-for="PrecioVentaFinal" class="control-label">Precio Venta Final</label>
+                        <input id="precioVentaFinal" type="number" asp-for="PrecioVentaFinal" class="form-control inputVentaDirecta" />
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-2">
+                        <label data-translate="precioCredito">Precio Crédito:</label>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input id="utilidadCredito" type="number" asp-for="UtilidadCredito" class="form-control inputVentaDirecta inputPorcentaje" />
+                    </div>
+
+                    <div class="form-group col-md-2">
+                        <input id="precioCredito" type="number" asp-for="PrecioCredito" class="form-control inputVentaDirecta" />
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input id="precioCreditoFinal" type="number" asp-for="PrecioCreditoFinal" class="form-control inputVentaDirecta" />
+                    </div>
+
+                </div>
+                <br />
+                <div class="row">
+
+                    <div class="col-md-2">
+                        <label data-translate="precioCredito">Precio Temporal:</label>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input id="utilidadTemporal" type="number" asp-for="UtilidadTemporal" class="form-control inputVentaDirecta inputPorcentaje" />
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input id="precioTemporal" type="number" asp-for="PrecioTemporal" class="form-control inputVentaDirecta" />
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input id="precioTemporalFinal" type="number" asp-for="PrecioTemporalFinal" class="form-control inputVentaDirecta" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label data-translate="descripcionVenta" asp-for="DescripcionVenta" class="control-label">Descripción de Venta</label>
+                        <input id="txtDescripcionVenta" asp-for="DescripcionVenta" class="form-control" />
+                        <span hidden id="descripcionVentaValid" data-translate="validacionDescripcionVenta" class="text-danger">Descripción de venta no puede ir vacía</span>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label data-translate="moneda" class="control-label">Moneda de Venta</label>
+                        <select asp-for="CodigoMonedaVenta" id="monedaVenta" class="form-control search-key">
+                            @{
+                                foreach (var item in ViewData["moneda"] as IList<TbSeMoneda>)
+                                {
+                                    <option value="@item.Codigo">@item.Nombre</option>
+                                }
+
+                            }
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--///////////////////////////fin venta directa fomr///////////////////////////////-->
+
+            <div class="form-group" hidden>
+                <label asp-for="ExistenciaGeneral" class="control-label"></label>
+                <input asp-for="ExistenciaGeneral" class="form-control" />
+                <span asp-validation-for="ExistenciaGeneral" class="text-danger"></span>
+            </div>
+
+
+            <div class="form-group" hidden>
+                <div class="checkbox">
+                    <label>
+                        <input asp-for="Inactiva" /> @Html.DisplayNameFor(model => model.Inactiva)
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" hidden>
+                <label asp-for="IdUsuario" class="control-label"></label>
+                <input asp-for="IdUsuario" class="form-control" />
+                <span asp-validation-for="IdUsuario" class="text-danger"></span>
+            </div>
+
+        </form>
+
+
+        <div class="row">
+            <div class="col-md-12"><h5>Bodegas</h5></div>
+            <div class="col-md-12">
+                <table class="table display" id="tblBodegas" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>
+                                <span data-translate="bodega">Bodega</span>
+                            </th>
+                            <th>
+                                <span data-translate="minima">Mínima</span>
+                            </th>
+                            <th>
+                                <span data-translate="media">Media</span>
+                            </th>
+                            <th>
+                                <span data-translate="maxima">Máxima</span>
+                            </th>
+                            <th>
+                                <span data-translate="actual">Actual</span>
+                            </th>
+                            <th>
+                                <span data-translate="costoPromedio">Costo Promedio</span>
+                            </th>
+                            <th>
+                                <span data-translate="saldo">Saldo</span>
+                            </th>
+                            <th><span data-translate="accion">Acción</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="bodegaInventarioForm">
+                            <td>
+                                <select class="form-control" id="bodega">
+                                    @{
+                                        foreach (var item in ViewData["bodegas"] as IList<TbPrBodega>)
+                                        {
+                                            <option value="@item.Id">@item.Nombre</option>
+                                        }
+
+                                    }
+
+                                </select>
+                            </td>
+                            <td><input min="0" pattern="^[0-9]+" type="number" id="minima" /></td>
+                            <td><input min="0" pattern="^[0-9]+" type="number" id="media" /></td>
+                            <td><input min="1" pattern="^[0-9]+" type="number" id="maxima" /></td>
+                            <td><input readonly value="0" type="number" id="actual" /></td>
+                            <td><input readonly value="0" type="number" id="costoPromedio" /></td>
+                            <td><input readonly value="0" type="number" id="saldo" /></td>
+                            <td><button class="btn btn-link" id="agregarBodega"><i class="fas fa-save"></i></button></td>
+                        </tr>
+
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <br />
+
+        <div class="form-group">
+            <button id="btnGuardar" class="btn btn-primary">Guardar</button>
+            <a id="btnCancelar" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </div>
+</div>
+
+
+
+<div>
+    <!-- Modal -->
+    <div class="modal fade" id="modalFamilia" tabindex="-1" role="dialog" aria-labelledby="familiaModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 data-translate="nuevaFamilia" class="modal-title" id="familiaModallabel">Nueva Unidad de Medida</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="crearEditarPartial">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    var contadorFila = 0;
+    var inventarioBodega = [];
+    var inventarioBodegaNuevas = [];
+
+
+
+    $(document).ready(function () {
+
+
+        
+
+        if ($('#habilitaVenta').prop('checked'))
+            $('.ventaDirectaForm').collapse('toggle');
+
+        var familias = [];
+        var subFamilia = [];
+
+        getFamilias();
+
+        if (@Model.IdInventario != 0) {
+            $('#unidades').attr('disabled', true);
+            getBodegas();
+        }
+        else
+            $('.habilitaEdicionGroup').attr('hidden', true);
+
+
+        $('#habilitaEdicion').change(function () {
+            if ($(this).prop('checked'))
+                $('#unidades').attr('disabled', true);
+            else
+                $('#unidades').attr('disabled', false);
+
+        });
+
+        $('#familias').change(function () {
+
+            setSubFamilia($(this).val());
+
+        });
+
+
+
+        $('#txtDescripcion').keyup(function () {
+
+            if ('@Model.DescripcionVenta' === "" ) {
+                $('#txtDescripcionVenta').val($(this).val());
+            }
+
+        });
+
+
+        $('#btnCancelar').click(function () {
+
+            if (confirm("Está seguro que desea cancelar"))
+                window.location.href = "@Url.Action("ListarInventario")";
+
+
+        });
+
+        $('#habilitaVenta').change(function () {
+
+            $('.ventaDirectaForm').collapse('toggle');
+
+            if (!$('#habilitaVenta').prop('checked')) {
+                $('.inputVentaDirecta').val(0);
+                $('#txtDescripcionVenta').val("");
+            }
+
+        });
+
+
+
+
+
+        $('#agregarBodega').click(function () {
+
+
+            var flag = false;
+
+
+            var bodega = parseInt($('#bodega option:selected').val());
+
+            for (var i = 0; i < inventarioBodega.length; i++) {
+                if (bodega === inventarioBodega[i].idBodega) {
+                    alert("No se puede agregar dos veces la misma bodega");
+                    flag = true;
+
+                }
+            }
+            if (!flag) {
+
+
+                var model = {
+                    id: 0,
+                    idBodegaNavigation: { nombre: $('#bodega option:selected').html() },
+                    idBodega: parseInt($('#bodega').val()),
+                    existenciaMinima: $('#minima').val(),
+                    existenciaMedia: $('#media').val(),
+                    existenciaMaxima: $('#maxima').val(),
+                    existenciaBodega: $('#actual').val(),
+                    costoPromedioBodega: $('#costoPromedio').val(),
+                    saldoBodega: $('#saldo').val(),
+                    idInventario: 0,
+                    costoPromedioBodega: 0
+                };
+
+                var flag2 = true;
+
+                if (model.existenciaMinima > 0 && model.existenciaMedia > 0 && model.existenciaMaxima > 0) {
+
+                    if (model.existenciaMinima >= model.existenciaMedia) {
+                        alert("La existencia minima debe ser menor a la media");
+                        flag2 = false;
+                    }
+
+                    else if (model.existenciaMedia >= model.existenciaMaxima) {
+                        alert("La existencia media debe ser menor a la máxima");
+                        flag2 = false;
+                    }
+
+
+                    if (flag2) {
+                        inventarioBodegaNuevas.push(model);
+                        inventarioBodega.push(model);
+                        cargarDatos(inventarioBodega);
+                        $('#minima').val(0);
+                        $('#media').val(0);
+                        $('#maxima').val(0);
+                    }
+
+                }
+                else {
+                    alert("Las existencias deben ser mayor a 0");
+                }
+
+
+
+
+            }
+
+
+        });
+
+
+
+        $('#btnGuardar').click(function () {
+
+            var model = $('#formInventario').serialize();
+            //console.log(inventarioBodega.length);
+
+            if (formIsValid())
+                if (inventarioBodega.length > 0)
+                     $.ajax({
+                        type: "post",
+                        headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        url: '/Inventario/CrearEditar-Inventario/' + @Model.IdInventario,
+                        data: model,
+                         success: function (data) {
+
+
+                             if (data.id != 0) {
+                                 if (inventarioBodega.length != 0) {
+                                     guardarRelacionIB(data.id);
+                                 }
+                                 else {
+                                     window.location.href = '@Url.Action("ListarInventario", "Inventario")';
+                                 }
+                             }
+                             else {
+                                 $('#existeCodigoValid').attr('hidden', false);
+                             }
+
+                        },
+                        error: function (err, scnd) {
+                            console.log(err.statusText);
+                        }
+                    });
+               else
+                    alert("El ítem no se puede agregar sin una bodega asignada");
+
+
+
+        });
+
+
+        $('#editarFamilia').click(function () {
+
+            var url = '/Familias/Editar-Familia/' + $('#familias').val();
+            crearEditarFamilia(url);
+
+        });
+
+        $('#crearFamilia').click(function () {
+
+            var url = '/Familias/Crear-Familia/';
+            crearEditarFamilia(url);
+
+        });
+
+        $('#editarSubFamilia').click(function () {
+
+            var url = '/Familias/Editar-Familia/' + $('#subFamilias').val();
+            crearEditarFamilia(url);
+
+        });
+
+        $('#crearSubFamilia').click(function () {
+
+            var url = '/Familias/Crear-Familia/';
+            crearEditarFamilia(url);
+
+        });
+
+
+        function crearEditarFamilia (url) {
+
+
+
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+
+                    $('#crearEditarPartial').html(data);
+                    $('#modalFamilia').modal('show');
+
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+            });
+        }
+
+        $('#modalFamilia').on('hidden.bs.modal', function (e) {
+            getFamilias();
+        })
+
+        function getFamilias() {
+
+            var url = '@Url.Action("GetFamilia", "Inventario")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+
+                    familias = data;
+                    $("#familias option").remove();
+                    for (var i = 0; i < data.length; i++) {
+                        var o = new Option(data[i].descripcion, data[i].id);
+                        $("#familias").append(o);
+                        for (var j = 0; j < data[i].inverseIdFamiliaNavigation.length; j++) {
+                            if (data[i].inverseIdFamiliaNavigation[j].id === @Model.IdSubFamilia)
+                                $(o).attr('selected', true);
+                        }
+                        //setSubFamilia(data[i].InverseIdFamiliaNavigation);
+                    }
+
+                    $("#familias").trigger('change');
+
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    alert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+        }
+
+        function getBodegas() {
+
+            var url = '@Url.Action("GetBodegas", "Inventario")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: {id: @Model.IdInventario},
+                success: function (data) {
+
+                    //inventarioBodegaOriginal = JSON.parse(JSON.stringify(data));
+                    inventarioBodega = JSON.parse(JSON.stringify(data));
+                    cargarDatos(data);
+
+                },
+                error: function (err, scnd) {
+                    alert("Tuvimos un error al procesar tu solicitud");
+                    console.log(err.statusText);
+                }
+            });
+        }
+
+        function guardarRelacionIB(id) {
+
+
+            var url = "/Inventario/CrearEditar-InventarioBodega/" + id;
+
+            $.ajax({
+                type: "post",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { inventarioBodega: inventarioBodegaNuevas},
+                success: function (data) {
+
+                    window.location.href = '@Url.Action("ListarInventario", "Inventario")';
+                },
+                error: function (err, scnd) {
+
+                    alert("Lo sentimos, tuvimos un problema al procesar tu solicitud");
+                    console.log(err.statusText);
+                }
+            });
+        }
+
+        function setSubFamilia(id) {
+            $('#subFamilias option').remove();
+
+            for (var i = 0; i < familias.length; i++) {
+                subFamilia = familias[i].inverseIdFamiliaNavigation;
+                if (familias[i].id === parseInt(id))
+                    for (var j = 0; j < subFamilia.length; j++) {
+                        var o = new Option(subFamilia[j].descripcion, subFamilia[j].id);
+                        $("#subFamilias").append(o);
+                        if (subFamilia[j].id === @Model.IdSubFamilia)
+                            $(o).attr('selected', true);
+                    }
+            }
+
+
+        }
+
+
+
+
+
+
+
+    });
+
+
+    function formIsValid() {
+        var array = $('#formInventario').serializeArray();
+        var flag = true;
+
+
+        if (parseFloat(array[1].value) <= 0 || array[1].value === ""){
+            $('#presentacionValid').attr('hidden', false);
+            flag = false;
+        }
+        if (array[3].value === "")
+            array[3].value = 0;
+        if (array[11].value === "")
+            array[11].value = 0;
+        if (array[13].value === "")
+            array[13].value = 0;
+        if (array[16].value === "")
+            array[16].value = 0;
+        if (array[19].value === "")
+            array[19].value = 0;
+        if (array[14].value === "")
+            array[14].value = 0;
+        if (array[15].value === "")
+            array[15].value = 0;
+        if (array[17].value === "")
+            array[17].value = 0;
+        if (array[18].value === "")
+            array[18].value = 0;
+        if (array[20].value === "")
+            array[20].value = 0;
+        if (array[21].value === "")
+            array[21].value = 0;
+        if (array[4].value === "") {
+            $('#codigoValid').attr('hidden', false);
+            flag = false;
+        }
+        if (array[7].value === "") {
+            $('#descripcionValid').attr('hidden', false);
+            flag = false;
+        }
+
+        console.log(array);
+
+
+        return flag;
+    }
+
+    function cargarDatos(data) {
+
+        //console.log(data);
+
+        $('.filasCargadas').remove();
+
+        contadorFila = 0;
+
+        for (var i = 0; i < data.length; i++) {
+            contadorFila++;
+            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td>' + data[i].idBodegaNavigation.nombre + '</td>'
+                + '<td>' + data[i].existenciaMinima + '</td>'
+                + '<td>' + data[i].existenciaMedia + ' </td>'
+                + '<td>' + data[i].existenciaMaxima + '</td>'
+                + '<td>' + data[i].existenciaBodega + '</td>'
+                + '<td>' + data[i].costoPromedioBodega + '</td>'
+                + '<td>' + data[i].saldoBodega + '</td>'
+                + '<td><button class="btn btn-link" value="' + contadorFila + '" onclick="eliminarBodegaInventario( value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+
+            $('.bodegaInventarioForm').before(body);
+
+        }
+
+    }
+
+
+    function eliminarBodegaInventario(fila, idRelacion) {
+
+        if (confirm('Está seguro que desea eliminar esta bodega?')) {
+            var flag = false;
+
+            for (var i = 0; i < inventarioBodega.length; i++) {
+                if (inventarioBodega[i].id == idRelacion)
+                    if (inventarioBodega[i].existenciaBodega > 0)
+                        flag = true;
+            }
+            if (inventarioBodega.length > 1) {
+
+
+                if (idRelacion != 0) {
+                    var url = '/Inventario/EliminarInventarioBodega/' + idRelacion;
+
+                    if (!flag)
+                        $.ajax({
+                            type: "get",
+                            headers: {
+                                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                            },
+                            url: url,
+                            //data: { id: idRelacion },
+                            success: function (data) {
+                                eliminarLocal(fila);
+                            },
+                            error: function (err, scnd) {
+                                console.log(err.statusText);
+                                alert("Lo sentimos, tuvimos un problema al procesar tu solicitud");
+                            }
+                        });
+                    else
+                        alert("No puede eliminar la bodega de este inventario si tiene existencias");
+
+                }
+                else {
+                    eliminarLocal(fila);
+                }
+
+
+            }
+            else {
+                alert("Inventario debe tener al menos una bodega asignada");
+            }
+
+
+        }
+
+
+    }
+
+    function eliminarLocal(id) {
+
+        inventarioBodega.splice(id - 1, 1);
+        cargarDatos(inventarioBodega);
+
+    }
+
+
+
+
+</script>
+

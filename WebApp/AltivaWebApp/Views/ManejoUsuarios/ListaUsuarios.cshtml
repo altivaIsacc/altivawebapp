@@ -1,0 +1,188 @@
+﻿@model IEnumerable<AltivaWebApp.GEDomain.TbSeUsuario>
+
+@{
+    var opt = "1";
+    var param = "";
+    var optList = "";
+
+    if (ViewBag.estado == "ACTIVO")
+    {
+        opt = "1";
+        param = "INACTIVO";
+        optList = "Inactivar";
+    }
+    else
+    {
+        opt = "2";
+        param = "ACTIVO";
+        optList = "Activar";
+    }
+
+
+}
+<link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.dataTables.min.css" rel="stylesheet" />
+<div class="row">
+    <div class="col-md-1">
+        <h3 data-translate="MUUsuarios">Usuarios</h3>
+    </div>
+    <div class="col-md-6" style="margin-left:1rem; padding-top:0.7rem">
+        <a asp-action="CrearUsuario" class="btn btn-link"><span data-translate="crearNuevo">Crear Nuevo</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+    </div>
+</div>
+
+<hr />
+
+@if (opt == "1")
+{
+    <a class="btn btn-dark" href="@Url.Action("ListaUsuarios", "ManejoUsuarios", new { estado = param })"><span data-translate="verInactivos">Ver Inactivos</span></a>
+}
+else
+{
+    <a class="btn btn-dark" href="@Url.Action("ListaUsuarios", "ManejoUsuarios", new { estado = param })"><span data-translate="verActivos">Ver Activos</span></a>
+}
+
+
+<div class="row text-center">
+
+    <div class="col-md-12 table-responsive">
+
+
+        <table id="usuarios" class="display table table-striped">
+            <thead>
+                <tr>
+                    <th hidden>
+                        ID
+                    </th>
+                    <th>
+                        <span data-translate="codigo">Codigo</span>
+                    </th>
+                    <th>
+                        <span data-translate="nombre">Nombre</span>
+                    </th>
+                    <th>
+                        <span data-translate="estado">Estado</span>
+                    </th>
+                    <th>
+                        <span data-translate="iniciales">Iniciales</span>
+                    </th>
+                    <th>
+                        <span data-translate="contrasena"> Contraseña</span>
+                    </th>
+                    <th>
+                        <span data-translate="fechamod">Fecha Mod</span>
+                    </th>
+                    <th>
+                        <span data-translate="correo">Correo</span>
+                    </th>
+                    <th>
+                        Avatar
+                    </th>
+                    <th>
+                        <p data-translate="accion">Accion</p>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="modelo">
+                        <td hidden>
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td>
+                            <a href="@Url.Action("CuentaUsuario", new { codigo = item.Codigo })">@item.Codigo</a>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Nombre)
+                        </td>
+                        <td class="estado">
+                            @Html.DisplayFor(modelItem => item.Estado)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Iniciales)
+                        </td>
+                        <td>
+                            <p>********</p>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.FechaMod)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Correo)
+                        </td>
+                        <td>
+                            <img style="height:4rem; width: 4rem;" src="@item.Avatar" />
+                        </td>
+                        <td>
+                                                      
+                            <a asp-action="EditarUsuario" asp-route-id="@item.Id"><span style="font-size: 2rem"><i class="fas fa-edit"></i></span></a>
+                            @if (optList == "Inactivar")
+                            {
+                                <a asp-action="EditarEstadoUsuario" asp-route-id="@item.Id"><span style="font-size: 2rem"><i class="fas fa-trash"></i></span></a>
+                            }
+                            else
+                            {
+                                <a asp-action="EditarEstadoUsuario" asp-route-id="@item.Id"><span style="font-size: 2rem"><i class="fas fa-trash-restore"></i></span></a>
+                            }
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.flash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.print.min.js"></script>
+
+
+<script>
+
+
+    $("#usuarios").DataTable({
+
+        dom: 'Bfrtip',
+        buttons: [
+            'pdf', 'excel'
+        ],
+        
+
+        scrollY: '50rem',
+        scrollCollapse: true,
+        paging: false,
+
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "<i class='fas fa-search'></i>",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        }
+
+        });
+
+
+</script>

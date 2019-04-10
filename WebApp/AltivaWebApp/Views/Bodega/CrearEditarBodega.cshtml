@@ -1,0 +1,105 @@
+﻿@model AltivaWebApp.ViewModels.BodegaViewModel
+
+@{    
+    var accion = ViewBag.accion as string;
+    var nombreAccion = "";
+    var ishidden = "hidden";
+    var ischecked = "checked";
+    var error = ViewBag.error as string;
+}
+
+@if (accion == "1")
+{
+    <h3 data-translate="nuevaBodega">Nueva Bodega</h3>
+    nombreAccion = "CrearBodega";   
+}
+else
+{
+    <h3 data-translate="editarBodega">Editar Bodega</h3>
+    nombreAccion = "EditarBodega";
+    ishidden = "";
+    ischecked = "";
+}
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+
+        <form asp-action="@nombreAccion">
+            @if (ViewBag.error != null)
+            {
+                <span class="text-danger" data-translate="errorCEBodega">Tuvimos un problema al procesar tu solicitud, revisa que no se haya creado una bodega con ese nombre anteriormente</span>
+            }
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label data-translate="nombre" asp-for="Nombre" class="control-label">Nombre</label>
+                <input asp-for="Nombre" class="form-control" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="Produccion" />
+                    <label  class="form-check-label">
+                        <span data-translate="produccion">Producción </span> <span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="Disponible para el descargo en puntos de ventas"></i></span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="Almacenamiento" />
+                    <label  class="form-check-label">
+                        <span data-translate="almacenamiento"> Almacenamiento</span> <span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="Disponible para el ingreso compras"></i></span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="SuministrosInternos" />
+                    <label data-translate="suministrosInternos" class="form-check-label">
+                        <span data-translate="suministrosInternos">Suministros Internos </span><span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="Disponible para requisiciones"></i></span> 
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="Consignacion" />
+                    <label class="form-check-label">
+                        <span data-translate="consignacion">Consignación </span><span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="Descargo prioritario, los descargos genera una orden de pago de consignacion"></i></span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" @ishidden>
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="Estado" @ischecked />
+                    <label data-translate="esActiva" class="form-check-label">
+                        Activa?
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label data-translate="usuarioEncargado" class="control-label">Usuario encargado</label>
+                <select asp-for="UsuarioEncargado" id="perfiles" class="form-control search-key">
+                    @{
+                        foreach (var item in ViewData["usuarios"] as List<TbSeUsuario>)
+                        {
+                            <option value="@item.Id">@item.Nombre</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Observaciones" data-translate="observaciones" class="control-label">Observaciones</label>
+                <textarea asp-for="Observaciones" class="form-control"></textarea>
+                <span asp-validation-for="Observaciones" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <a class="btn btn-default" asp-action="ListarBodegas" data-translate="atras">Atrás</a>
+                <input data-translate="submitguardar" type="submit" value="Guardar" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+

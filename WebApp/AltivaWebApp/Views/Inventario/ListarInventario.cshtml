@@ -1,0 +1,741 @@
+﻿@model IEnumerable<AltivaWebApp.Domains.TbPrInventario>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+
+<div class="row">
+    <div class="col-md-1">
+        <h3 data-translate="catalogo">Catálogo</h3>
+    </div>
+    <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
+        <p>
+            <a data-translate="nuevoItem" asp-action="CrearInventario" class="btn btn-link"><span>Nuevo item</span> <span><i class="fas fa-plus-circle"></i></span></a>
+        </p>    
+    </div>
+
+</div>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-12">
+        <button value="0" class="btn btn-dark btnEstado" id="btnInactivo"><span data-translate="verInactivas">Ver Inactivas</span></button>
+        <button value="1" class="btn btn-dark btnEstado" id="btnActivo"><span data-translate="verInactivas">Ver Activas</span></button>        
+    </div>
+    
+    <div class="col-md-2">
+        <label data-translate="buscar">Buscar:</label>
+        <input type="text" id="filtroBuscar" class="form-control"/>
+    </div>
+    <div class="col-md-2">
+        <label for="filtroFamilia">Familia</label>
+        <select id="filtroFamilia" class="form-control search-key selectFiltro">
+            <option value="0" selected>Todos</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label for="filtroSubFamilias">Sub-Familia</label>
+        <select id="filtroSubFamilias" class="form-control search-key selectFiltro">
+            <option id="seleccione" value="0" selected>Todos</option>
+        </select>
+    </div>
+
+    <div class="col-md-offset-1  col-md-3">
+        <input type="checkbox" id="filtroExistencia" class="selectFiltro" />
+        <label for="filtroExistencia">Filtro por existencia</label>
+        <div class="row ">
+            <div class="col-md-6">
+                <select style="width:12rem" id="filtroSExistencia" class="form-control form-control-sm selectExistencia selectFiltro">
+                    <option value="1" selected>Menor que</option>
+                    <option value="2" selected>Igual</option>
+                    <option value="3" selected>Mayor que</option>
+                    <option value="4" selected>Menor Igual</option>
+                    <option value="5" selected>Mayor Igual</option>
+                    <option value="6" selected>Diferente</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <select style="width:10rem" id="filtroMedida" class="form-control form-control-sm selectExistencia selectFiltro">
+                    <option value="1" data-translate="minima" selected>Mínima</option>
+                    <option value="2" data-translate="media" selected>Media</option>
+                    <option value="3" data-translate="maxima" selected>Máxima</option>
+                </select>
+            </div>                     
+        </div>        
+    </div>
+    <div class="col-md-2">
+        <label for="filtroBodega">Bodegas</label>
+        <select class="form-control selectFiltro" id="filtroBodega">
+            <option id="seleccione" value="0" selected>Todas</option>
+            @{
+                foreach (var item in ViewData["bodegas"] as IList<TbPrBodega>)
+                {
+                    <option value="@item.Id">@item.Nombre</option>
+                }
+
+            }
+        </select>
+    </div>
+</div>
+
+<hr />
+
+<table class="table tblCatalogo">
+    <thead>
+        <tr>
+            <th>
+                <span data-translate="codigo">Código</span>
+            </th>
+            <th>
+                <span data-translate="descripcion">Descripción</span>
+            </th>
+            <th>
+                <span data-translate="presentación">Presentación</span>
+            </th>
+            <th>
+                <span data-translate="precioUnitario">Precio Unitario</span>
+            </th>
+            <th>
+                <span data-translate="eistenciaGeneral">Existencia</span>
+            </th>
+            <th>
+                <span data-translate="minima">Mínima</span>
+            </th>
+            <th>
+                <span data-translate="media">Media</span>
+            </th>
+            <th>
+                <span data-translate="maxima">Máxima</span>
+            </th>
+            <th>
+                <span data-translate="estado">Estado</span>
+            </th>
+            <th>
+                <span data-translate="accion">Acción</span>
+            </th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+
+<script>
+
+
+    var inventario = [];
+    var inventarioMostrar = [];
+    var familias = [];
+    var subFamilia = [];
+    var estadoItem = false;
+
+    $(document).ready(function () {
+
+
+        
+
+        $('.selectExistencia').attr('disabled', true);
+        $('#filtroSubFamilias').attr('disabled', true);
+
+        $('#btnActivo').hide();
+
+
+        /////////////////////////get Familias//////////////////////////
+
+        var url = '@Url.Action("GetFamilia", "Inventario")';
+        $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            success: function (data) {
+
+                familias = data;
+
+                for (var i = 0; i < data.length; i++) {
+                    var o = new Option(data[i].descripcion, data[i].id);
+                    $("#filtroFamilia").append(o);
+                }
+
+
+
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+        });
+
+
+        getInventario();
+        
+
+
+        $('.tblCatalogo').DataTable({
+
+            "paging": false,
+            "ordering": false,
+            "info": false,
+            "bLengthChange": false,
+            "bFilter": false
+        });
+
+        $('#filtroExistencia').change(function () {
+            //selectExistencia
+
+            if ($(this).prop('checked'))
+                $('.selectExistencia').attr('disabled', false);
+            else
+                $('.selectExistencia').attr('disabled', true);
+
+
+        });
+
+        $('#filtroFamilia').change(function () {
+
+            setFiltroSubFamilia($(this).val());
+
+
+            if ($(this).val() === 0)
+                $('#filtroSubFamilias').attr('disabled', true);
+            else
+                $('#filtroSubFamilias').attr('disabled', false);
+        });
+
+
+
+
+        $('.selectFiltro').change(function () {
+
+            cargarFiltros();
+
+        });
+
+        $('.btnEstado').click(function () {           
+
+            $(this).hide();
+
+            if ($(this).val() === '1') {
+                estadoItem = false;               
+                $('#btnInactivo').show();
+            }                
+            else {
+                estadoItem = true;
+                $('#btnActivo').show();
+            }
+                
+
+            cargarFiltros();
+
+        });
+
+        
+
+
+        function getInventario() {
+            ///get inventario
+            $.ajax({
+
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: 'Lista-Inventario/todo',
+                success: function (data) {
+                    
+                inventario = JSON.parse(JSON.stringify(data));
+                //console.log(data);
+                cargarDatos(data);
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+            });
+        }
+
+
+        function setFiltroSubFamilia(id) {
+
+
+            $('#filtroSubFamilias option').remove();
+
+            var opt = new Option("Todos", 0);
+            $(opt).attr('selected', true);
+
+
+            $("#filtroSubFamilias").append(opt);
+
+            for (var i = 0; i < familias.length; i++) {
+                subFamilia = familias[i].inverseIdFamiliaNavigation;
+                if (familias[i].id === parseInt(id)) {
+                    for (var j = 0; j < subFamilia.length; j++) {
+                        var o = new Option(subFamilia[j].descripcion, subFamilia[j].id);
+                        $("#filtroSubFamilias").append(o);
+                    }
+
+                }
+            }
+
+
+        }
+               
+
+    });
+
+
+
+    
+    var contadorFila = 0;
+    function cargarDatos(data) {
+
+        contadorFila = 0;
+
+
+        $(".tblCatalogo > tbody").remove();
+
+        $('table').append('<tbody></tbody>');
+
+        for (var i = 0; i < data.length; i++) {
+            
+            var estado = "Activa";
+            var icono = '<i class="fas fa-trash"></i>';
+            if (data[i].inactiva === true) {
+                icono = '<i class="fas fa-trash-restore"></i>';
+                estado = "Inactiva";
+            }
+                
+            if (data[i].inactiva === estadoItem) {
+                var body = '<tr class="fila' + contadorFila + ' filas"><td>' + data[i].codigo + '</td>'
+                    + '<td>' + data[i].descripcion + '</td>'
+                    + '<td>' + data[i].idUnidadMedidaNavigation.nombre + ' </td>'
+                    + '<td>' + data[i].precioVentaFinal + '</td>'
+                    + '<td>' + calcularExistencia(data[i].tbPrInventarioBodega) + '</td>'
+                    + '<td>' + calcularExistenciaMinima(data[i].tbPrInventarioBodega) + '</td>'
+                    + '<td>' + calcularExistenciaMedia(data[i].tbPrInventarioBodega) + '</td>'
+                    + '<td>' + calcularExistenciaMaxima(data[i].tbPrInventarioBodega) + '</td>'
+                    + '<td>' + estado + '</td>'
+                    + '<td>  <button value="' + data[i].idInventario + '" onclick="editarInventario(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].idInventario + '" onclick="cambiarEstadoInventario(value ' + "," + contadorFila + ')" class="btn btn-link">' + icono + '</button></td></tr>';
+                $('.tblCatalogo > tbody').append(body);
+                contadorFila++;
+            }
+           
+
+            
+
+        }
+
+
+    }
+    
+
+    var counter = 0;
+
+    function editarInventario(id) {
+        counter++;
+        if (counter == 1) {
+            var url = '@Url.Action("EditarInventario", "Inventario", new { id = "__id__" })';
+        window.location.href = url.replace('__id__', id);
+        }
+
+
+    }
+
+    function cambiarEstadoInventarioLocal(id) {
+        var contador = 0;
+        var msj = "";
+
+        if (estadoItem)
+            msj = "Está seguro que desea reactivar este item?";
+        else
+            msj = "Está seguro que desea desactivar este item?";
+
+        for (var i = 0; i < inventario.length; i++) {
+
+            if (inventario[i].idInventario == id) {
+
+                if (confirm(msj)) {
+                    //inventario.splice(contador, 1);
+                    if (inventario[i].inactiva)
+                        inventario[i].inactiva = false;
+                    else
+                        inventario[i].inactiva = true;
+
+                    cargarFiltros();
+                    break;
+                }
+            }
+
+            contador++;
+        }               
+    }
+
+    function cambiarEstadoInventario(id) {
+                   
+        $.ajax({
+
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: 'CambiarEstado-Inventario/' + id,
+            success: function (data) {                   
+                cambiarEstadoInventarioLocal(id);
+                
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+                alert("Lo sentimos, tuvimos un error al procesar tu solicitud");
+            }
+
+        });
+
+    }
+
+    ////////////////////////////calculos existencia/////////////////////////////////
+
+    function calcularExistencia(bodegas) {
+
+        var existencia = 0;
+
+        for (var i = 0; i < bodegas.length; i++) {
+            existencia += bodegas[i].existenciaBodega;
+        }
+
+        return existencia;
+    }
+
+    function calcularExistenciaMaxima(bodegas) {
+
+        var existencia = 0;
+        for (var i = 0; i < bodegas.length; i++) {
+            existencia += bodegas[i].existenciaMaxima;
+        }
+
+        return existencia;
+    }
+
+    function calcularExistenciaMinima(bodegas) {
+
+        var existencia = 0;
+        for (var i = 0; i < bodegas.length; i++) {
+            existencia += bodegas[i].existenciaMinima;
+        }
+
+        return existencia;
+    }
+
+    function calcularExistenciaMedia(bodegas) {
+
+        var existencia = 0;
+        for (var i = 0; i < bodegas.length; i++) {
+            existencia += bodegas[i].existenciaMedia;
+        }
+
+        return existencia;
+    }
+
+    //////////////////////////////filtros/////////////////////////////////////////////////
+
+
+    $("#filtroBuscar").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $(".filas").filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+
+
+    function cargarFiltros() {
+
+        inventarioMostrar = JSON.parse(JSON.stringify(inventario));
+  
+        inventarioMostrar = filtroFamilia(inventarioMostrar);
+        inventarioMostrar = filtroSubFamilia(inventarioMostrar);
+        inventarioMostrar = filtroExistencia(inventarioMostrar);
+        inventarioMostrar = filtroBodega(inventarioMostrar);
+
+        cargarDatos(inventarioMostrar);
+    }
+
+    function filtroFamilia(inventarioMostrar) {
+
+        //console.log(inventarioMostrar);
+
+        var inventarioFiltrado = [];
+        var idFamilia = parseInt($('#filtroFamilia').val());
+
+        if (idFamilia === 0) {
+            return inventarioMostrar;
+        }
+        else {
+
+            for (var j = 0; j < familias.length; j++) {
+                if (familias[j].id == idFamilia)
+                    subF = familias[j].inverseIdFamiliaNavigation;
+            }
+
+            for (var i = 0; i < inventarioMostrar.length; i++) {
+                for (var j = 0; j < subF.length; j++) {
+                    if (inventarioMostrar[i].idSubFamilia == subF[j].id) {
+                        inventarioFiltrado.push(inventarioMostrar[i]);
+                    }
+                }
+            }
+
+            //console.log(inventarioFiltrado);
+
+            return inventarioFiltrado;
+
+        }
+
+
+
+    }
+    function filtroSubFamilia(inventarioMostrar) {
+
+        var inventarioFiltrado = [];
+        var subF = {};
+        var idSubFamilia = parseInt($('#filtroSubFamilias').val());
+
+        if (idSubFamilia === 0) {
+            return inventarioMostrar;
+        }
+        else {
+
+            for (var j = 0; j < familias.length; j++) {
+                for (var i = 0; i < familias[j].inverseIdFamiliaNavigation.length; i++) {
+                    if (familias[j].inverseIdFamiliaNavigation[i].id == idSubFamilia)
+                        subF = familias[j].inverseIdFamiliaNavigation[i];
+                }
+
+            }
+            //console.log(subF);
+
+            for (var i = 0; i < inventarioMostrar.length; i++) {
+                if (inventarioMostrar[i].idSubFamilia == subF.id)
+                    inventarioFiltrado.push(inventarioMostrar[i]);
+            }
+
+            return inventarioFiltrado;
+
+        }
+
+    }
+    function filtroExistencia(inventarioMostrar) {
+
+        if ($('#filtroExistencia').prop('checked')) {
+            var a = filtrarPorMedida(inventarioMostrar);
+            return a;
+        }
+        else {
+            return inventarioMostrar;
+        }
+
+
+    }
+
+
+    function filtroBodega(inventarioMostrar) {
+
+        //getInventario();
+
+        var idBodega = parseInt($('#filtroBodega').val());
+        var inventarioFiltrado = [];
+
+
+        if (idBodega === 0) {
+            return inventarioMostrar;
+        }
+        else {
+
+            for (var i = 0; i < inventarioMostrar.length; i++) {
+                var bodega = inventarioMostrar[i].tbPrInventarioBodega;
+
+                for (var j = 0; j < bodega.length; j++) {
+
+                    if (bodega[j].idBodega === idBodega) {
+
+                        inventarioFiltrado.push(inventarioMostrar[i]);
+
+                    }
+                    else {
+                        bodega[j].existenciaBodega = 0;
+                        bodega[j].existenciaMaxima = 0;
+                        bodega[j].existenciaMedia = 0;
+                        bodega[j].existenciaMinima = 0;
+                    }
+
+
+                }
+            }
+
+            return inventarioFiltrado;
+
+        }
+
+
+    }
+    function filtrarPorMedida(inventarioMostrar) {
+
+        var existencia = $('#filtroSExistencia').val();
+        var medida = parseInt($('#filtroMedida').val());
+        var inventarioAux = inventarioMostrar;
+        var inventarioFiltrado3 = [];
+
+        if (existencia == 1 && medida == 1) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) < calcularExistenciaMinima(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+        //menor que med
+        else if (existencia == 1 && medida == 2) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if
+                (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) < calcularExistenciaMedia(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+        //menor que maxima
+        else if (existencia == 1 && medida == 3) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if
+                (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) < calcularExistenciaMaxima(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+        // igual que min
+        else if (existencia == 2 && medida == 1) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) === calcularExistenciaMinima(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+        //igual que med
+        else if (existencia == 2 && medida == 2) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if
+                (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) === calcularExistenciaMedia(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+
+            }
+        }
+        //igual que max
+        else if (existencia == 2 && medida == 3) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if
+                (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) === calcularExistenciaMaxima(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+        //mayor que min
+        else if (existencia == 3 && medida == 1) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) > calcularExistenciaMinima(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+        //mayor que med
+        else if (existencia == 3 && medida == 2) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if
+                (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) > calcularExistenciaMedia(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+
+        //mayor que max
+        else if (existencia == 3 && medida == 3) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if
+                (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) > calcularExistenciaMaxima(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+        //menor igual que min
+        else if (existencia == 4 && medida == 1) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) <= calcularExistenciaMinima(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+        //menor igual que med
+        else if (existencia == 4 && medida == 2) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if
+                (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) <= calcularExistenciaMedia(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+
+        //menor igual que max
+        else if (existencia == 4 && medida == 3) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if
+                (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) <= calcularExistenciaMaxima(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+        //mayor igual que min
+        else if (existencia == 5 && medida == 1) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) >= calcularExistenciaMinima(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+        //mayor igual que med
+        else if (existencia == 5 && medida == 2) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if
+                (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) >= calcularExistenciaMedia(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+
+        //mayor igual que max
+        else if (existencia == 5 && medida == 3) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if
+                (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) >= calcularExistenciaMaxima(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+        //dif que min
+        else if (existencia == 6 && medida == 1) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) != calcularExistenciaMinima(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+        //dif que med
+        else if (existencia == 6 && medida == 2) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+                if
+                (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) != calcularExistenciaMedia(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+            }
+        }
+
+        //dif que max
+        else if (existencia == 6 && medida == 3) {
+            for (var i = 0; i < inventarioAux.length; i++) {
+
+                if
+                (calcularExistencia(inventarioAux[i].tbPrInventarioBodega) != calcularExistenciaMaxima(inventarioAux[i].tbPrInventarioBodega))
+                    inventarioFiltrado3.push(inventarioAux[i]);
+
+            }
+        }
+
+        return inventarioFiltrado3;
+
+    }
+
+
+</script>

@@ -1,0 +1,308 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AltivaWebApp</title>
+
+    <environment include="Development">
+
+
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <meta charset="us-ascii" />
+        <!-- Bootstrap -->
+        <link href="~/lib/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        @* confirm *@
+
+        <script src="https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js"></script>
+
+        <!-- Font Awesome -->
+        <link href="~/lib/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+        <!-- Custom Theme Style -->
+
+        <link href="~/lib/build/css/custom.min.css" rel="stylesheet">
+        <link href="~/css/AltivaEstilos.css" rel="stylesheet">
+        <link href="~/css/TemaClaro.css" rel="stylesheet">
+
+
+
+        <link id="tema" href="~/css/TemaCombinado.css" rel="stylesheet">
+        <!--<link href="~/css/TemaOscuro.css" rel="stylesheet">-->
+        <!--<link href="~/css/TemaCombinado.css" rel="stylesheet">-->
+        <!--<link href="~/lib/build/css/custom.min.css" rel="stylesheet">-->
+
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+              crossorigin="anonymous" />
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    </environment>
+
+
+</head>
+<body onload="startTime()" class="nav-md">
+
+
+
+
+    <div><partial name="~/Views/Monedas/getTipoCambio.cshtml" model=" new TbSeMoneda()" /></div>
+
+    <div class="container body">
+        <div class="main_container">
+            <div class="col-md-3 left_col">
+                <div class="left_col scroll-view">
+                    <div class="navbar nav_title" style="border: 0;">
+                        <a class="nombreEmpresaLink site_title"><img style="height:3rem; width:3rem;" id="fotoEmpresa" class="img-circle" /> <span class="nombreEmpresa">Altiva Soluciones</span></a>
+                    </div>
+                    <div class="clearfix"></div>
+                    <!-- menu profile quick info -->
+                    <div class="profile clearfix">
+                        <div class="profile_pic" id="perfil">
+
+                        </div>
+                        <div class="profile_info">
+                            <span data-translate="perfil_info">Bienvenido,</span>
+                            <h2>@Context.Session.GetString("nombreUsuario")</h2>
+                        </div>
+                    </div>
+                    <!-- /menu profile quick info -->
+                    <br />
+                    <!-- sidebar menu -->
+                    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                        <div class="menu_section">
+                            <ul class="nav side-menu">
+
+                                <li>
+                                    <a><i class="fa fa-lock"></i><span data-translate="layoutMSeguridad">Seguridad</span><span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li><a data-translate="layoutMOUsuarios" asp-controller="ManejoUsuarios" asp-action="ListaUsuarios">Usuarios</a></li>
+                                        <li><a data-translate="layoutMOPerfiles" asp-controller="Perfiles" asp-action="ListarPerfiles">Perfiles</a></li>
+                                        <li><a data-translate="layoutMOMoneda" asp-controller="Monedas" asp-action="Index">Moneda</a></li>
+                                        <li><a data-translate="layoutMOPais" asp-controller="Pais" asp-action="Index">Paises y Nacionalidades</a></li>
+                                        <li><a data-translate="layoutMOBitacora" asp-controller="Bitacora" asp-action="Index">Bitacora</a></li>
+                                        <li>
+                                            <a><span >Contactos</span><span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu">
+                                                <li><a asp-controller="Contacto" asp-action="Index">Lista de Contactos</a></li>
+                                                <li><a asp-action="Index" asp-controller="CamposPersonalizados">Campos Personalizados</a></li>
+                                            </ul>
+                                        </li>
+                                        <li><a data-translate="layoutMOPuntoVenta" href="#">Punto de venta</a></li>
+                                        <li><a data-translate="layoutMOOpciones" href="#">Opciones</a></li>
+                                    </ul>
+                                </li>
+                              
+                                <li>
+                                    <a><i class="fas fa-boxes"></i><span data-translate="inventario">&nbsp; &nbsp; Inventario</span><span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li><a asp-controller="Bodega" asp-action="ListarBodegas"><span data-translate="bodegas">Bodegas</span></a></li>
+                                        <li><a asp-controller="Unidades" asp-action="ListarUnidades"><span data-translate="unidades">Unidades y Conversiones</span></a></li>
+                                        <li><a asp-controller="Familia" asp-action="ListarFamilias"><span data-translate="familias">Familias</span></a></li>
+                                        <li><a asp-controller="Inventario" asp-action="ListarInventario"><span data-translate="catalogo">Catálogo</span></a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+                    <!-- /sidebar menu -->
+                    <!-- /menu footer buttons -->
+                    <!-- /menu footer buttons -->
+                </div>
+            </div>
+            <!-- top navigation -->
+            <div class="top_nav">
+                <div class="nav_menu">
+                    <nav>
+                        <div class="nav toggle">
+                            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                        </div>
+                        <ul class="nav navbar-nav navbar-left">
+                           
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="">
+                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    <span id="perfilNAV"></span>@User.Identity.Name
+                                    <span class=" fa fa-angle-down"></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-usermenu pull-right">
+                                    <li><a data-translate="layoutNAVMicuenta" href="@Url.Action("CuentaUsuario", "ManejoUsuarios", new { codigo = User.Identity.Name })">Mi cuenta</a></li>
+                                    <li><a asp-controller="Cuenta" asp-action="Logout"> <i class="fa fa-sign-out pull-right"></i><span data-translate="layoutNAVLogout">Cerrar sesion</span></a></li>
+                                    <li><a class="dropdown-item" id="english">EN</a></li>
+                                    <li><a class="dropdown-item" id="spanish">ES</a></li>
+                                    <li><a class="dropdown-item" asp-controller="GrupoEmpresarial" asp-action="ListarEmpresas">Empresas</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    <span data-translate="layoutNAVMsj">Mensajes</span>
+                                    <span class="badge bg-blue" id="contador"></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-usermenu pull-right">
+                                    <li><a data-translate="layoutNAVNuevoMsj" asp-controller="Mensajes" asp-action="Index">Nuevo Mensaje</a></li>
+                                    <li><a data-translate="layoutNAVInMsj" asp-controller="Mensajes" asp-action="Recibidos">Bandeja de entrada</a></li>
+                                </ul>
+                            </li>
+
+                            <li><a id="time"></a></li>
+                            <li><a><span data-translate="compra">Compra</span>: <span id="tipoCambioCompra"></span></a></li>
+                            <li><a><span data-translate="venta">Venta: </span>: <span id="tipoCambioVenta"></span></a></li>
+                            <li><a><span id="moneda"></span></a></li>                            
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!--final del menu-->
+
+            <div class="right_col" role="main">
+                @RenderBody()
+            </div>
+            <!-- /page content -->
+            <!-- footer content -->
+            <footer>
+                <div class="pull-right">
+                    <span data-translate="layoutFTitulo">Creado por </span><a href="http://altivasoluciones.com/"> Altiva Soluciones</a>
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!-- /footer content -->
+        </div>
+    </div>
+
+
+    <environment include="Development">
+
+        <script src="~/js/site.js" asp-append-version="true"></script>
+
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+
+
+
+
+        <!-- jQuery -->
+        <script src="~/lib/vendors/jquery/dist/jquery.min.js"></script>
+        <!-- Bootstrap -->
+        <script src="~/lib/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+        <!-- Custom Theme Scripts -->
+        <script src="~/lib/build/js/custom.min.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+
+
+        <script src="~/lib/translator/jqueryTranslator.min.js"></script>
+
+    </environment>
+    <environment exclude="Development">
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+                crossorigin="anonymous">
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+                integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+                crossorigin="anonymous">
+        </script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+                integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+                crossorigin="anonymous">
+        </script>
+        <script src="~/js/site.min.js" asp-append-version="true"></script>
+    </environment>
+
+
+    <script>
+        $(document).ready(function () {
+
+
+
+
+            //agrega tema del local storage
+            $("#tema").attr('href', '/../css/' + localStorage.getItem('tema') + '.css');
+
+            //agregar el nombre de la empresa del local storage y la imagen
+            var empresa = localStorage.getItem("empresa");
+            $('#fotoEmpresa').attr('src', localStorage.getItem('fotoEmpresa'));
+            $('.nombreEmpresa').text(empresa);
+            $('.nombreEmpresaLink').attr('href', '/../Grupo/Empresa/' + empresa);
+
+
+
+
+            if (localStorage.getItem('idioma') != null) {
+                $("[data-translate]").jqTranslate('/../idiomas/altiva', { forceLang: localStorage.getItem('idioma'), asyncLoad: false });
+            }
+
+            $('#english').click(function () {
+                $("[data-translate]").jqTranslate('/../idiomas/altiva', { defaultLang: 'es', forceLang: 'en', asyncLoad: false });
+                localStorage.setItem('idioma', 'en');
+            });
+            $('#spanish').click(function () {
+                $("[data-translate]").jqTranslate('/../idiomas/altiva', { defaultLang: 'en', forceLang: 'es', asyncLoad: false });
+                localStorage.setItem('idioma', 'es');
+            });
+
+
+
+            //$("#tema").attr('href', '/../css/TemaCombinado.css');
+
+            //$('head').append('<link href="/../css/TemaCombinado.css" rel="stylesheet" type="text/css">');
+            $("#perfil").append('<img alt="..." class="img-circle profile_img" id="perfilAvatar" src=' + localStorage.getItem("avatar") + '>');
+            $("#perfilNAV").append('<img id="perfilNAVAvatar"  src=' + localStorage.getItem("avatar") + '>');
+
+            var idMensaje = 0;
+
+            $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("Contador", "Mensajes")',
+
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $("#contador").text(data.contador);
+
+                },
+
+                dataType: "json"
+
+            });
+
+
+            ///boton atras////////////
+
+            $('.btnAtras').click(function(){
+                parent.history.back();
+		        return false;
+	        });
+
+
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
+
+

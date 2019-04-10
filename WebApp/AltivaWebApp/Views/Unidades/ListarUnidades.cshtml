@@ -1,0 +1,186 @@
+﻿@model IList<TbPrUnidadMedida>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+    ViewData["unidades"] = Model;
+    ViewData["unidad"] = Model.FirstOrDefault();
+}
+
+
+<div class="row">
+    <div class="col-md-12"><h3 data-translate="unidades"> Unidades de Medida</h3></div>
+    <div class="col-md-3">       
+        <select id="unidades" class="form-control search-key">
+            <option selected value="0">Seleccione</option>
+            @{
+                foreach (var item in Model)
+                {
+                    <option value="@item.Id">@item.Nombre - @item.Abreviatura</option>
+                }
+
+            }
+
+        </select>
+    </div>
+    <div class="col-md-6">
+        <button class="btn btn-link crearEditarUnidad" value="crear">
+            <span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span>
+        </button>
+        <button class="btn btn-link crearEditarUnidad" id="editarUnidad" value="editar">
+            <span style="font-size: 2rem"><i class="fas fa-edit"></i></span>
+        </button>
+        <button id="eliminarUnidad" class="btn btn-link">
+            <span style="font-size: 2rem"><i class="fas fa-trash"></i></span>
+        </button>
+
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-8" id="conversiones">
+        <partial name="_ListarConversiones" model="new TbPrUnidadMedida()" />
+    </div>
+</div>
+
+
+<div>
+    <!-- Modal -->
+    <div class="modal fade" id="modalUnidad" tabindex="-1" role="dialog" aria-labelledby="unidadModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 data-translate="nuevaUnidad" class="modal-title" id="unidadModallabel">Nueva Unidad de Medida</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="crearEditarPartial">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        
+        $("#guardarConversion").attr("disabled", true);
+        deshabilitarBtn();         
+
+        $('#unidades').on('change', function () {
+
+
+            if ($(this).val() != 0) {
+                habilitarBtn();
+            }
+            else {
+                deshabilitarBtn();
+                
+            }
+
+                var url = '@Url.Action("ListarConversiones", "Unidades")';
+
+                $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: url,
+                    data: { id: $(this).val()},
+                    success: function (data) {
+                        $('#conversiones').html(data);
+                    },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+                });
+                
+            });
+
+
+            $('.crearEditarUnidad').on('click', function () {
+
+
+                var url = '@Url.Action("CrearEditarUnidad", "Unidades")';
+                var id = 0;
+                if ($(this).val() === "editar") {
+                    id = $('#unidades').val();
+                }
+
+
+                $.ajax({
+                    type: "GET",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: 'CrearEditar-Unidad/' + id,
+              
+                    success: function (data) {
+                        $('#crearEditarPartial').html(data);
+                        $('#modalUnidad').modal('show');
+                    },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+
+        });
+
+
+        $('#eliminarUnidad').on('click', function () {
+
+
+                $.ajax({
+                    type: "GET",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: 'Eliminar-Unidad/' + $('#unidades').val(),
+              
+                    success: function (data) {
+                        if (data.data) {
+                            $("#unidades option:selected").remove();
+                            $("#unidades").val(0);
+                            $("#unidades").trigger('change');
+                        }
+                            
+                        else
+                            alert("Error al eliminar la unidad, elimine primero las conversiones asociadas.");
+                    },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+
+        });
+
+
+        function habilitarBtn() {
+            $("#editarUnidad").attr("disabled", false);
+            $("#eliminarUnidad").attr("disabled", false);
+        }
+        function deshabilitarBtn() {
+            $("#editarUnidad").attr("disabled", true);
+            $("#eliminarUnidad").attr("disabled", true);
+        }
+        
+    });
+
+
+
+</script>
+
+
+
+

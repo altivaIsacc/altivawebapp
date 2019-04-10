@@ -1,0 +1,203 @@
+﻿@model AltivaWebApp.ViewModels.MensajeViewModel
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+
+    var module  = new List<TbSeUsuario>();
+
+    module = ViewData["Usuarios"] as List<TbSeUsuario>;
+    var mensajeModel = new List<MensajeRecibidoViewModel>();
+    mensajeModel = ViewData["MensajeRecibido"] as List<MensajeRecibidoViewModel>;
+
+}
+
+
+<div class="container" style="align-content:center; display: flex;justify-content: center;align-items: center;">
+
+    <div class="panel panel-default col-sm-9 ">
+        <div class="panel-heading"><h4>Escriba su mensaje</h4></div>
+        <div class="panel-body">
+
+
+          
+            <br />
+
+            <form asp-action="Crear" asp-controller="Mensajes" method="post" enctype="multipart/form-data">
+                <div class="col-sm-8">
+                    <input type="text" id="input1" placeholder="Buscar Usuario" class="clonedInput form-control col-sm-3" />
+                </div>
+              
+                <div class="col-sm-8">
+                    <div class="form-group ">
+                        <label> Usuarios Asociados </label>
+                        <select multiple class="form-control input-lg" rows="4" id="sel2" asp-for="Usuarios" required onChange="select_OnChange()"></select>
+                    </div>
+                    <br />
+                </div>
+                  <div class="pre-scrollable usuario">
+
+                    <div class="card" style="width: 18rem;">
+
+                        <div class="card card-body" id="result">
+                            <h5 class="card-title"></h5>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-8">
+                    <div class="form-group">
+                        <label class="control-label">Seleccione un archivo</label>
+
+                        <input class="form-control input-lg  " type="file" asp-for="Files" multiple="multiple" id="fileUpload" />
+                    </div>
+                </div>
+
+                <div class="col-sm-8">
+                    <div class="form-group ">
+                        <label class="control-label">Mensaje:</label>
+
+                        <textarea asp-for="@Model.mensaje" 2 rows="8" class="form-control input-lg" pattern=".{10,100}" title="Este mensaje su minimo de caracteres es 10" name="mensaje" required style="height:150px;"></textarea>
+
+                        <span asp-validation-for="@Model.mensaje" class="text-danger"></span>
+                    </div>
+                </div>
+                <br />
+                <div class="col-sm-8">
+                    <div class="form-group">
+                        <label class="control-label">Tipo de Mensaje:</label>
+
+                        <SELECT class="form-control input-lg" required NAME="tipoMensaje">
+                            <OPTION VALUE="ME">Mensaje</OPTION>
+
+
+                        </SELECT>
+                    </div>
+                </div>
+
+                <div class="col-sm-8">
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-link " onclick="validar()" style="font-size:4rem;"><i class="fas fa-save"></i></button>
+                    </div>
+                </div>
+
+            </form>
+
+
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    
+    function ocultar(nombre) {
+ $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("BuscarNombre", "Mensajes")',
+
+                    contentType: "application/json; charset=utf-8",
+
+     data: { valor: nombre },
+
+                    success: function (data) {
+                     //   $('#result').html("");
+                      
+                        $("#sel2").append('<option value="' + nombre + '" selected >' + data[0].usuarioReceptor+'</option>');
+                        $('#result').hide(); 
+                        $('#input1').val("");
+                        
+                    },                  
+
+
+                dataType: "json"
+
+            });
+  
+    }
+    $(document).ready(function () {
+    
+ 
+        $(".clonedInput").keyup(function () {
+
+          
+                console.log($(this).val());
+                $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("FilterByName", "Mensajes")',
+
+                    contentType: "application/json; charset=utf-8",
+
+                    data: { valor: $(this).val() },
+
+                    success: function (data) {
+                     //   $('#result').html("");
+                        var tr = '';
+                        var nombre = '';
+                        var id = 0;
+                        for (var i = 0; i < data.length; i++) {
+                            nombre = data[i].usuarioReceptor;
+                            $('#result').show();
+                            tr += '<li>Nombre:' + data[i].usuarioReceptor + ' </li>';
+                            tr += '<button class="btn btn-warning" onclick="ocultar(' + data[i].idUsuarioReceptor+')">Agregar</button>';
+;
+                        }
+                        $('#result').html(tr);
+                    },                  
+
+
+                dataType: "json"
+
+            });
+
+
+            
+
+        });
+     
+        function agregar(){
+            $('#result2').html(s);
+        }
+
+        //binds to onchange event of your input field
+        $('#fileUpload').bind('change', function () {
+            var e ;
+            for (var i = 0; i < this.files.length; i++) {
+
+                e = + this.files[i].size;
+                if (e > 90000) {
+                    alert("Error el maximo del archivo a subir" + this.files[i].name + " debe ser menor o igual a 90 MEGAS");
+                    window.location.reload();
+                    return false;
+                }
+            }
+
+            if (this.files.length > 5) {
+                alert("Error el maximo del archivo a subir es de 5");
+                window.location.reload();
+                return false;
+            }
+        });
+    });
+
+
+
+
+</script>

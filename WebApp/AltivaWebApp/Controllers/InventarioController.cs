@@ -1,0 +1,248 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using AltivaWebApp.Domains;
+using AltivaWebApp.Mappers;
+using AltivaWebApp.Services;
+using AltivaWebApp.ViewModels;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AltivaWebApp.Controllers
+{
+    [Route("Inventario")]
+    public class InventarioController : Controller
+    {
+        readonly IInventarioService service;
+        readonly IInventarioMap map;
+        readonly IBodegaService bodegaService;
+        readonly IUnidadService unidadService;
+        readonly IFamiliaService familiaService;
+        readonly IMonedaService monedaService;
+        public InventarioController(IMonedaService monedaService, IFamiliaService familiaService, IUnidadService unidadService, IBodegaService bodegaService, IInventarioService service, IInventarioMap map)
+        {
+            this.service = service;
+            this.map = map;
+            this.bodegaService = bodegaService;
+            this.unidadService = unidadService;
+            this.familiaService = familiaService;
+            this.monedaService = monedaService;
+        }
+
+
+        // GET: Inventario
+        [Route("Lista-Inventario")]
+        public ActionResult ListarInventario()
+        {
+            ViewData["bodegas"] = bodegaService.GetAllActivas();
+            return View();
+        }
+
+        [HttpGet("Lista-Inventario/todo")]
+        public IActionResult GetAllInventario()
+        {
+            //ViewData["bodegas"] = bodegaService.GetAllActivas();
+            var catalogo = service.GetAllInventario();
+
+            foreach (var item in catalogo)
+            {
+                item.IdSubFamiliaNavigation.TbPrInventario = null;
+                item.IdSubFamiliaNavigation.IdFamiliaNavigation.InverseIdFamiliaNavigation = null;
+                item.IdUnidadMedidaNavigation.TbPrInventario = null;
+                foreach (var i in item.TbPrInventarioBodega)
+                {
+                    i.IdBodegaNavigation = null;
+                    i.IdInventarioNavigation = null;
+
+                }
+            }
+            return Ok(catalogo);
+        }
+
+        // GET: Inventario/Create
+        [Route("Nuevo-Inventario")]
+        public ActionResult CrearInventario()
+        {
+            var bodegaInventario = new List<TbPrInventarioBodega>();
+            ViewData["bodegas"] = bodegaService.GetAllActivas();
+            ViewData["bodegaInventario"] = bodegaInventario;
+            ViewData["unidades"] = unidadService.GetAll();
+            ViewData["moneda"] = monedaService.GetAll();
+
+            ViewBag.accion = "1";
+
+            var model = new InventarioViewModel();
+
+            return View("CrearEditarInventario", model);
+        }
+
+       
+
+        [Route("Editar-Inventario/{id}")]
+        public ActionResult EditarInventario(int id)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                var model = new InventarioViewModel();
+                return View("CrearEditarInventario", model);
+            }
+                
+
+            var bodegaInventario = service.GetAllBodegasPorInventario(id);
+            ViewData["bodegas"] = bodegaService.GetAllActivas();
+            ViewData["bodegaInventario"] = bodegaInventario;
+            ViewData["unidades"] = unidadService.GetAll();
+            ViewData["moneda"] = monedaService.GetAll();
+
+            var item = map.DomainToViewModel(service.GetInventarioById(id));
+
+            return View("CrearEditarInventario", item);
+        }
+
+        // POST: Inventario/Create
+        [HttpPost("CrearEditar-Inventario/{id?}")]
+        public ActionResult CrearEditarInventario(int id, InventarioViewModel model)
+        {
+            try
+            {
+                // TODO: Add insert logic here
+                var inventario = new TbPrInventario();
+
+                var idInventario = 0;
+
+                if(id == 0)
+                {
+                    inventario = service.GetInventarioByCodigo(model.Codigo);
+                    if (inventario == null)
+                    {
+                        var idUser = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                        model.IdUsuario = int.Parse(idUser);
+                        inventario = map.Create(model);
+                        idInventario = (int) inventario.IdInventario;
+                    }
+                }
+                else
+                {
+                    inventario = service.GetInventarioByCodigo(model.Codigo);
+                    var flag = true;
+
+                    if (inventario != null)
+                        if (inventario.IdInventario != id)
+                        {
+                            flag = false;
+                            idInventario = 0;
+                        }
+                            
+                    if (flag)
+                    {
+                        inventario = map.Update(id, model);
+                        idInventario = id;
+                    }
+
+
+                    
+
+                }
+
+                return Json(new { id = idInventario });
+            }
+            
+            catch
+            {
+                
+                return BadRequest();
+            }
+        }
+
+        [HttpPost("CrearEditar-InventarioBodega/{id}")]
+        public ActionResult CrearInventarioBodega(int id, IList<InventarioBodegaViewModel> inventarioBodega)
+        {
+            try
+            {
+                
+                map.CreateInventarioBodega(id, inventarioBodega);
+
+                return Json(new { success = true });
+            }
+            catch
+            {
+                //throw;
+                return BadRequest();
+            }
+        }
+
+        [Route("CambiarEstado-Inventario/{id}")]
+        public ActionResult CambiarEstadoInventario(int id)
+        {
+            try
+            {
+                var item = service.GetInventarioById(id);
+                if (item.Inactiva)
+                    item.Inactiva = false;
+                else
+                    item.Inactiva = true;
+
+                var res = service.Update(item);
+                return Ok(res);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                //throw;
+            }
+        }
+
+ 
+
+        [HttpGet("EliminarInventarioBodega/{id}")]
+        public ActionResult EliminarInventarioBodega(int id)
+        {
+            try
+            {
+                var res = service.EliminarInventarioBodega(id);
+                return Ok();
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+
+        //get auxiliares
+
+
+        [HttpGet("get-bodegas/{id}")]
+        public IActionResult GetBodegas(int id)
+        {
+            var bodegas = service.GetAllBodegasPorInventario(id);
+
+            foreach (var item in bodegas)
+            {
+                item.IdBodegaNavigation.TbPrInventarioBodega = null;
+            }
+
+            return Ok(bodegas);
+        }
+
+        [HttpGet("get-familias")]
+        public IActionResult GetFamilia()
+        {
+            var familias = familiaService.GetAllFamilias();
+
+            foreach (var item in familias)
+            {
+                foreach (var i in item.InverseIdFamiliaNavigation)
+                {
+                    i.InverseIdFamiliaNavigation = null;
+                    i.IdFamiliaNavigation = null;
+                }
+            }
+
+            return Ok(familias);
+        }
+    }
+}

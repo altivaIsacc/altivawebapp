@@ -1,0 +1,355 @@
+﻿@model AltivaWebApp.GEDomain.TbSeUsuario
+@{
+    var ids = @ViewBag.id;
+}
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+<style>
+    .btn-circle {
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        padding: 4px 0;
+        font-size: 8px;
+        line-height: 1.428571429;
+        border-radius: 10px;
+    }
+
+    .btn-combined {
+        background-image: linear-gradient(to right, black, white);
+    }
+</style>
+@ViewBag.id
+<div class="row">
+    @if (Model.Codigo == User.Identity.Name)
+    {
+        <h3 data-translate="layoutNAVMicuenta">Mi Cuenta</h3>
+    }
+    else
+    {
+        <h3 data-translate="MUCuentaUsuario">Cuenta Usuario</h3>
+    }
+
+    <a class="btn btn-link btnAtras" data-translate="atras">Atrás</a>
+
+    <hr />
+    <div class="col-md-2">
+        <h4>Avatar</h4>
+        <img style="height: 15rem; width:15rem" src="@Model.Avatar" class="img-circle" />
+
+        <div class="row">
+            <a data-translate="avatar" class="btn btn-link" data-toggle="modal" data-target="#exampleModal">
+                Cargar tu avatar
+            </a>
+        </div>
+        @if (Model.Codigo == User.Identity.Name)
+        {
+            <div class="row">
+                <h5 data-translate="tema">Tema: </h5>
+
+                <div class="col-md-12">
+                    <span data-translate="MUFuenteM">Fuente M:</span>
+                    <button type="button" name="1" value="TemaClaro" class="btn btntema btn-default btn-circle"></button>
+                    <button type="button" name="2" value="TemaOscuro" class="btn btntema btn-dark btn-circle"></button>
+                    <button type="button" name="3" value="TemaCombinado" class="btn btntema btn-combined btn-circle"></button>
+                </div>
+
+                <div class="col-md-12">
+                    <span data-translate="MUFuenteG">Fuente G:</span>
+                    <button type="button" name="4" value="TemaClaroG" class="btn btntema btn-default btn-circle"></button>
+                    <button type="button" name="5" value="TemaOscuroG" class="btn btntema btn-dark btn-circle"></button>
+                    <button type="button" name="6" value="TemaCombinadoG" class="btn btntema btn-combined btn-circle"></button>
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+
+    <div class="col-md-6">
+        <h4 data-translate="MUDatosUsuario">Datos de usuario</h4>
+        <table class="table table-bordered">
+
+            <tbody>
+                <tr>
+                    <th scope="Row">Id</th>
+                    <td>@Html.DisplayFor(model => model.Id)</td>
+                </tr>
+                <tr>
+                    <th data-translate="codigo" scope="row">Codigo</th>
+                    <td> @Html.DisplayFor(model => model.Codigo)</td>
+                </tr>
+                <tr>
+                    <th data-translate="nombre" scope="row">Nombre</th>
+                    <td>@Html.DisplayFor(model => model.Nombre)</td>
+                </tr>
+                <tr>
+                    <th data-translate="estado" scope="row">Estado</th>
+                    <td>@Html.DisplayFor(model => model.Estado)</td>
+                </tr>
+                <tr>
+                    <th data-translate="iniciales" scope="row">Iniciales</th>
+                    <td>@Html.DisplayFor(model => model.Iniciales)</td>
+                </tr>
+                <tr>
+                    <th data-translate="contrasena" scope="row">Contrase&ntildea</th>
+                    <td>********</td>
+                </tr>
+                <tr>
+                    <th data-translate="ultimamod" scope="row">&uacuteltima Modificaci&oacuten</th>
+                    <td>@Html.DisplayFor(model => model.FechaMod)</td>
+                </tr>
+                <tr>
+                    <th data-translate="correo" scope="row">Correo</th>
+                    <td>@Html.DisplayFor(model => model.Correo)</td>
+                </tr>
+                <tr>
+                    <th data-translate="accion" scope="row">Accion</th>
+                    <td><a class="btn btn-link" href="@Url.Action("EditarUsuario", "ManejoUsuarios", new { id = Model.Id })"><span data-translate="editar">Editar</span>&nbsp;<span style="font-size: 2rem"><i class="fas fa-edit"></i></span></a></td>
+                </tr>
+            </tbody>
+        </table>
+
+
+
+
+    </div>
+
+    <div class="col-md-4">
+        <a asp-action="CrearComentarioUsuario" asp-route-id="@Model.Id" asp-controller="Mensajes" class="btn btn-warning " style="width:auto;  font-size:1.1em;"> <i class="fas fa-comments"></i></a>
+    </div>
+
+
+    <div class="col-md-4">
+        <h4 data-translate="MUPerfilesAsig">Perfiles Asignados</h4>
+        <table class="table table-bordered" id="perfiles">
+            <thead>
+                <tr>
+                    <th>
+                        <p data-translate="perfil">Perfil</p>
+                    </th>
+                    <th>
+                        <p data-translate="accion">Acción</p>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in @ViewData["Asignados"] as IEnumerable<AltivaWebApp.GEDomain.TbSePerfil>)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Nombre)
+                        </td>
+                        <td>
+                            @Html.ActionLink("Quitar", "QuitarPerfil", "ManejoUsuarios", new { usuario = Model.Id, id = item.Id })
+                        </td>
+
+                    </tr>
+
+                }
+                <tr>
+                    <td>
+                        <a class="btn btn-link" data-toggle="modal" data-target="#perfilModal">
+                            <span style="font-size:3rem"><i class="fas fa-plus-circle"></i></span>
+                        </a>
+                    </td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <div id="errorDiv" class="col-md-6 col-sm-12 alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>Lo siento!</strong> <span>Algo ha salido mal, no se pudo guardar la configuración</span>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+</div>
+
+
+<!-- Modal for perfil-->
+<div class="modal fade" id="perfilModal" tabindex="-1" role="dialog" aria-labelledby="perfilModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header row">
+                <div class="col-md-6">
+                    <h4 data-translate="MUAsignarPerfil" class="modal-title" id="perfilModalLabel">Asignar Perfil</h4>
+                </div>
+                <div class="col-md-6">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body" style="padding-left: 5rem">
+                <div class="row">
+                    @foreach (var item in @ViewData["SinAsignar"] as IEnumerable<AltivaWebApp.GEDomain.TbSePerfil>)
+                    {
+                        <div class="col-md-4" style="margin-top: 1rem;">
+
+                            <label>
+                                <input value="@item.Id" class="asignar" name="@Model.Id" type="checkbox" data-toggle="toggle">
+                                @item.Nombre
+                            </label>
+
+                        </div>
+
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button data-translate="cancelar" type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button data-translate="guardar" type="button" id="guardar" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal for avatar-->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="row modal-header">
+                <div class="col-md-6"><h4 data-translate="avatar" class="modal-title" id="exampleModalLabel">Cargar mi Avatar</h4></div>
+                <div class="col-md-6">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-body" style="padding-left: 5rem">
+                @await Component.InvokeAsync("Avatar", Model)
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+
+
+    <!--   @@await Component.InvokeAsync("Comentario", new  { id = (long)ids, tipo = "Usuarios" });-->
+
+</div>
+
+
+
+
+<script type="text/javascript">
+
+
+
+    $(document).ready(function () {
+
+
+
+        $('.btntema').on('click', function () {
+            $("#tema").attr('href', '/../css/' + $(this).val() + '.css');
+            localStorage.setItem('tema', $(this).val());
+
+
+            var tema = $(this).attr('name');
+
+            /////ajax para guradar el tema en la bd//////
+            var userId = @Model.Id;
+
+            var config = {
+                idUsuario: userId,
+                tema: localStorage.getItem('tema'),
+                idioma: localStorage.getItem('idioma')
+            };
+
+            $.ajax({
+                type: "POST",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: '@Url.Action("CambiarConfig", "ManejoUsuarios")',
+                data: config,
+                success: function (data) {
+                    console.log(data.data);
+
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                        $('#errorDiv').attr('hidden', false);
+                }
+            });
+
+        });
+
+
+                    ///al cambiar avatar se cambia en el layout
+
+        if ("@User.Identity.Name" === "@Model.Codigo" ) {
+            localStorage.setItem("avatar", "@Model.Avatar");
+            $("#perfilNAVAvatar").attr('src', localStorage.getItem("avatar"));
+            $("#perfilAvatar").attr('src', localStorage.getItem("avatar"));
+        }
+
+
+        //metodo para asignar perfiles al usuario
+
+        var arrayModel = [];
+
+
+        $(".asignar").change(function () {
+
+            if ($(this).is(":checked")) {
+                var model = {
+                    idPerfil: $(this).val(),
+                    idUsuario: $(this).attr("name")
+                };
+                arrayModel.push(model);
+            }
+            else {
+
+                var model = {
+                    idPerfil: $(this).val(),
+                    idUsuario: $(this).attr("name")
+                };
+
+                arrayModel.splice($.inArray(model, arrayModel), 1);
+            }
+            console.log(arrayModel);
+        });
+
+
+
+        $('#guardar').click(function () {
+            console.log(arrayModel);
+
+            var url = '@Url.Action("AsignarPerfil", "ManejoUsuarios")';
+
+            $.ajax({
+                type: "POST",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: {model: arrayModel },
+                    success: function (data) {
+                        //console.log($(this).parent());
+                        window.location.href = window.location.href;
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+        });
+    });
+</script>
+
+
+
+
+

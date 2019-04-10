@@ -1,0 +1,108 @@
+﻿
+@model AltivaWebApp.ViewModels.MensajeViewModel
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+
+
+    var mensajeModel = new List<MensajeRecibidoViewModel>();
+    mensajeModel = ViewData["Archivados"] as List<MensajeRecibidoViewModel>;
+
+}
+<div class="container" style="align-content:center; display: flex;justify-content: center;align-items: center;">
+   
+    <div class="panel panel-default col-sm-9 " >
+        <div class="panel-heading" style="text-align:center;"><h4>Mensajes enviados</h4></div>
+        <div class="panel-body">
+
+            <div class="row">
+
+                @if (mensajeModel != null)
+                {
+
+                    <table id="example" class="table table-striped table-bordered" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Mensaje</th>
+                                <th>Emisor</th>
+                                <th>Receptor</th>
+                                <th>Archivo</th>
+                                <th>Archivado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var items in mensajeModel)
+                            {
+                                @if (@items.Estado == "Archivado")
+                                {
+                                    <tr>
+
+                                        <td>@items.Id</td>
+                                        <td>@items.Mensaje</td>
+                                        <td>@items.UsuarioEmisor</td>
+                                        <td>@items.UsuarioReceptor</td>
+                                        <td><a href="@items.ruta" target=”_blank”>Ver archivos abjuntos</a></td>
+
+                                        <td>YES</td>
+
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+
+                }
+                else
+                {
+                    <span class="alert alert-info">No tiene Mensajes Enviados </span>
+                }
+            </div>
+            </div>
+        </div>
+        </div>
+        <script>
+
+
+            $(document).ready(function () {
+
+                $("#example").DataTable({
+
+                    scrollY: '50rem',
+                    scrollCollapse: true,
+                    scrollX: '25rem',
+                    language: {
+                        "decimal": "",
+                        "emptyTable": "No hay información",
+                        "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                        "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                        "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                        "infoPostFix": "",
+                        "thousands": ",",
+                        "lengthMenu": "Mostrar _MENU_ Entradas",
+                        "loadingRecords": "Cargando...",
+                        "processing": "Procesando...",
+                        "search": "Buscar:",
+                        "zeroRecords": "Sin resultados encontrados",
+                        "paginate": {
+                            "first": "Primero",
+                            "last": "Ultimo",
+                            "next": "Siguiente",
+                            "previous": "Anterior"
+                        }
+                    }
+
+                });
+
+
+
+            });
+
+        </script>
