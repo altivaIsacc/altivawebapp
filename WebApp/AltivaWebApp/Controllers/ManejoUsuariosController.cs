@@ -17,7 +17,7 @@ namespace AltivaWebApp.Controllers
     [Route("Usuarios")]
     public class ManejoUsuariosController : Controller
     {
-
+       
         IUserMap userMap;
         IUserService userService;
         IPerfilService perfilService;
@@ -28,7 +28,7 @@ namespace AltivaWebApp.Controllers
             //email.insertarNotificacion(int.Parse(id), mensaje);
 
         }
-        public ManejoUsuariosController(EmailSender email, IPerfilService perfilService, IUserMap map, IUserService userservice)
+        public ManejoUsuariosController(EmailSender email,IPerfilService perfilService, IUserMap map, IUserService userservice)
         {
             this.userMap = map;
             this.userService = userservice;
@@ -42,17 +42,17 @@ namespace AltivaWebApp.Controllers
         {
 
 
-            if (estado == null || estado == "")
+            if (estado == null || estado == "" )   
                 estado = "ACTIVO";
 
             ViewBag.estado = estado;
 
             var usariosFiltrados = new List<TbSeUsuario>();
-            IList<TbSeUsuario> usuarios = userService.GetAll();
+            IList<TbSeUsuario> usuarios= userService.GetAll();
 
             foreach (var item in usuarios)
             {
-                if (item.Estado == estado)
+                if(item.Estado == estado)
                 {
                     usariosFiltrados.Add(item);
                 }
@@ -64,7 +64,7 @@ namespace AltivaWebApp.Controllers
         [Route("Cuenta-Usuario/{codigo?}")]
         public ActionResult CuentaUsuario(string codigo)
         {
-            var model = userService.GetUsuarioConPerfiles(codigo);
+            var model =  userService.GetUsuarioConPerfiles(codigo);
             long id = model.Id;
             ViewBag.id = id;
             var asignados = new List<TbSePerfil>();
@@ -157,7 +157,7 @@ namespace AltivaWebApp.Controllers
         }
 
 
-
+      
         // POST: ManejoUsuarios/Create
         [HttpPost("Nuevo-Usuario")]
         [ValidateAntiForgeryToken]
@@ -177,7 +177,7 @@ namespace AltivaWebApp.Controllers
                     ModelState.AddModelError(string.Empty, "El código ya existe en el sistema");
                     return View(model);
                 }
-
+                    
                 if (userService.ExisteUsuarioPorCorreo(model.correo))
                 {
                     ModelState.AddModelError(string.Empty, "El correo ya existe en el sistema");
@@ -186,10 +186,10 @@ namespace AltivaWebApp.Controllers
 
                 var user = userMap.Create(model);
 
-                if (user != null)
+                if(user != null)
                 {
                     var uId = userService.GetUsuarioConPerfiles(user.codigo);
-                    var idEmpresa = (int)HttpContext.Session.GetInt32("idEmpresa");
+                    var idEmpresa =(int) HttpContext.Session.GetInt32("idEmpresa");
                     var empresaUsuarioRel = new TbSeEmpresaUsuario
                     {
                         IdEmpresa = idEmpresa,
@@ -198,7 +198,7 @@ namespace AltivaWebApp.Controllers
                     };
                     var configUsuario = new TbSeUsuarioConfiguraion
                     {
-                        Idioma = "es",
+                        Idioma= "es",
                         IdUsuario = uId.Id,
                         Tema = "TemaCombinado"
                     };
@@ -213,19 +213,19 @@ namespace AltivaWebApp.Controllers
                         userService.Delete(uId);
                         return View(string.Empty, "Error al crear la relación del usuario y la empresa");
                     }
-
+                       
                 }
                 else
                 {
                     return View(string.Empty, "Error al crear el usuario");
                 }
 
-
+                
             }
             catch
             {
                 return View(string.Empty, "Error al crear el usuario");
-                throw;
+                throw;                
             }
         }
 
@@ -242,7 +242,7 @@ namespace AltivaWebApp.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult EditarUsuario(UsuarioViewModel model)
         {
-
+            
             try
             {
                 if (!ModelState.IsValid)
@@ -251,8 +251,8 @@ namespace AltivaWebApp.Controllers
                 }
 
                 var domain = userService.GetUsuarioConPerfiles(model.codigo);
-                if (userService.ExisteUsuarioPorCodigo(model.codigo))
-                    if (domain.Id != model.id)
+                if(userService.ExisteUsuarioPorCodigo(model.codigo))
+                    if(domain.Id != model.id)
                     {
                         ModelState.AddModelError(string.Empty, "El código ya existe en el sistema");
                         return View(model);
@@ -269,7 +269,7 @@ namespace AltivaWebApp.Controllers
 
                 var user = userMap.Update(model);
                 return RedirectToAction("CuentaUsuario", new { user.Codigo });
-
+                
             }
             catch
             {
@@ -280,8 +280,8 @@ namespace AltivaWebApp.Controllers
 
 
         [HttpGet("Editar-Avatar/{codigo}/{img}")]
-        public IActionResult EditarAvatar(string codigo, string img)
-        {
+        public IActionResult EditarAvatar(string codigo,string img)
+        {            
             var user = userService.GetUsuarioConPerfiles(codigo);
 
             string directorio = $"/avatars/{img}";
@@ -296,7 +296,7 @@ namespace AltivaWebApp.Controllers
         }
 
 
-        [HttpGet("Editar-Estado/{id}")]
+        [HttpGet("Editar-Estado/{id}")]      
         public ActionResult EditarEstadoUsuario(int id)
         {
             try
@@ -311,15 +311,14 @@ namespace AltivaWebApp.Controllers
                 if (model.Estado == "ACTIVO")
                 {
                     model.Estado = "INACTIVO";
-                }
-                else
+                }else
                     model.Estado = "ACTIVO";
 
                 var user = userService.UpdateUsuario(model);
                 if (user != null)
                 {
 
-                    return RedirectToAction("ListaUsuarios", new { estado = model.Estado });
+                        return RedirectToAction("ListaUsuarios", new { estado = model.Estado});
 
                 }
                 else

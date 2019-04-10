@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AltivaWebApp.GEDomain;
 using AltivaWebApp.ViewModels;
@@ -75,7 +76,7 @@ namespace AltivaWebApp.Services
             return repository.DeletePU(model);
         }
 
-        public IList<TbSeUsuario> GetAll()
+            public IList<TbSeUsuario> GetAll()
 
         {
 
@@ -83,10 +84,10 @@ namespace AltivaWebApp.Services
 
         }
 
-
+       
         public TbSeUsuario GetSingleUser(int id)
         {
-            // var user = context.TbSeUsuario.Where(u => u.Nombre == model.usuario && u.Contraseña == model.contrasena).ToList();
+           // var user = context.TbSeUsuario.Where(u => u.Nombre == model.usuario && u.Contraseña == model.contrasena).ToList();
             return repository.GetUsuarioById(id);
         }
         public TbSeUsuario GetUsuarioConPerfiles(string usuario)
@@ -115,4 +116,3 @@ namespace AltivaWebApp.Services
         }
     }
 }
-

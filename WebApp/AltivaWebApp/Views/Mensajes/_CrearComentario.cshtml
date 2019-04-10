@@ -1,0 +1,100 @@
+﻿@model AltivaWebApp.ViewModels.MensajeViewModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <h4>Comentarios</h4>
+    </div>
+    <div class="col-md-6">
+        <form asp-action="_CrearComentario">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="mensaje" class="control-label">Comentario:</label>
+                <textarea asp-for="mensaje" class="form-control" rows="4"> </textarea>
+                <span id="mensajeValid" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <span data-translate="cargaArchivos" class="input-group-text" id="inputGroup-sizing-sm">Adjuntar Archivos</span>
+                <input type="file" asp-for="Files" class="form-control" multiple="multiple" id="fileUpload">
+            </div>
+            <div class="form-group" hidden>
+                <label asp-for="tipoMensaje" class="control-label"></label>
+                <input asp-for="tipoMensaje" class="form-control" />
+            </div>
+            <div class="form-group" hidden>
+                <label asp-for="tipoReferencia" class="control-label"></label>
+                <input asp-for="tipoReferencia" class="form-control" />
+            </div>
+            <div class="form-group" hidden>
+                <label asp-for="id" class="control-label"></label>
+                <input asp-for="id" class="form-control" />
+            </div>
+        </form>
+        <div class="form-group">
+            <button class="btn btn-success" id="btnGuardarComentario">Guardar</button>
+        </div>
+    </div>
+</div>
+<div id="listaComentarios">
+
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        var model = {
+            idReferencia: @Model.id,
+            tipoReferencia: '@Model.tipoReferencia'
+        };
+
+        GetComentarios(model);
+
+    });
+
+    $('#fileUpload').bind('change', function () {
+        var e;
+        for (var i = 0; i < this.files.length; i++) {
+
+            e = + this.files[i].size;
+            if (e > 25000) {
+                alert("Error el maximo del archivo a subir" + this.files[i].name + " debe ser menor o igual a 25MB");
+                window.location.reload();
+                return false;
+            }
+        }
+
+        if (this.files.length > 5) {
+            alert("Error el maximo de archivos a subir es de 5");
+            window.location.reload();
+            return false;
+        }
+    });
+
+    function GetComentarios(model) {
+         $.ajax({
+             type: "GET",
+             headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+             },
+             url: '@Url.Action("ListarComentarios", "Mensajes")',
+             data: model,
+             success: function (data) {
+                 $('#listaComentarios').html(data);                       
+             },
+             error: function (err, scnd) {
+
+                alert("Lo sentimos, tuvimos un problema al procesar tu solicitud.");
+                console.log(err.statusText);
+
+             }           
+
+         });
+    }
+</script>

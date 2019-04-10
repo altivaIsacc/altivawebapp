@@ -27,4 +27,3 @@ namespace AltivaWebApp.Services
         bool ExisteUsuarioPorCorreo(string correo);
     }
 }
-

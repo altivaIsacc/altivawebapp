@@ -20,23 +20,23 @@ namespace AltivaWebApp.Controllers
     [Route("Cuenta")]
     public class CuentaController : Controller
     {
-
+        
         IUserMap userMap;
         IUserService userservice;
-        IPerfilService perfilService;
+        IPerfilService perfilService;      
 
 
 
         public CuentaController(IPerfilService perfilService, IUserMap map, IUserService userservice)
         {
             this.userMap = map;
-            this.userservice = userservice;
+            this.userservice = userservice;           
             this.perfilService = perfilService;
         }
         // GET: Cuenta
         [HttpGet("Login/{grupo?}")]
         public ActionResult Login()
-        {
+        {        
             return View();
         }
 
@@ -51,47 +51,47 @@ namespace AltivaWebApp.Controllers
             {
                 return View();
             }
-
+            
             //var user = userservice.GetSingleUserByCorreo( model);
             ClaimsIdentity identity = null;
             bool isAuthenticated = false;
 
 
 
-            var user = userservice.GetUsuarioConEmpresas(model.usuario);
+            var user = userservice.GetUsuarioConEmpresas(model.usuario);           
 
 
 
             if (user != null)
             {
-                if (user.Estado != "INACTIVO")
-                    if (user.Contrasena == model.contrasena)
+                if(user.Estado != "INACTIVO")
+                if (user.Contrasena == model.contrasena)
+                {
+
+                    var claims = new List<Claim>();
+                    claims.Add(new Claim(ClaimTypes.Name, user.Codigo));
+                    claims.Add(new Claim(ClaimTypes.Email, user.Correo));
+                    claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+
+                    var roles = userservice.GetPerfiles(unchecked((int)user.Id));
+
+
+                    foreach (var p in roles)
                     {
-
-                        var claims = new List<Claim>();
-                        claims.Add(new Claim(ClaimTypes.Name, user.Codigo));
-                        claims.Add(new Claim(ClaimTypes.Email, user.Correo));
-                        claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-
-                        var roles = userservice.GetPerfiles(unchecked((int)user.Id));
-
-
-                        foreach (var p in roles)
-                        {
-                            claims.Add(new Claim(ClaimTypes.Role, p.Nombre));
-                        }
-
-                        identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                        isAuthenticated = true;
-
+                        claims.Add(new Claim(ClaimTypes.Role, p.Nombre));
                     }
+
+                    identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    isAuthenticated = true;
+                    
+                }
                     //return View("MiCuenta", user);
-                    //return RedirectToAction("cuenta/micuenta/" + user.Id);
-                    else
-                    {
-                        ModelState.AddModelError(string.Empty, "Credenciales inválidas");
-                    }
+                //return RedirectToAction("cuenta/micuenta/" + user.Id);
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Credenciales inválidas");
+                }
                 else
                     ModelState.AddModelError(string.Empty, "Cuenta de usuario INACTIVA");
 
@@ -142,7 +142,7 @@ namespace AltivaWebApp.Controllers
             if (!ModelState.IsValid)
             {
                 // return View();
-                return Json(new { data = false });
+                return Json( new { data = false });
             }
             var user = userservice.GetUsuarioConPerfiles(model.correo);
 
@@ -160,6 +160,6 @@ namespace AltivaWebApp.Controllers
 
 
         }
-
+        
     }
 }

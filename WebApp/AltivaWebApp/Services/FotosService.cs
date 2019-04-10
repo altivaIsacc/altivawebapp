@@ -18,7 +18,7 @@ namespace AltivaWebApp.Services
                 var path = $"wwwroot\\uploads\\{fileName}";
                     using (var stream = new FileStream(path, FileMode.Create))
                     {
-                        file.CopyToAsync(stream);
+                        file.CopyTo(stream);
                     }
 
                 return $"/uploads/{fileName}";
@@ -63,6 +63,11 @@ namespace AltivaWebApp.Services
                 
 
                       
+        }
+
+        public static string SubirAdjuntos(IFormFile[] Files)
+        {
+
         }
 
         private static string GetUniqueName(string fileName)

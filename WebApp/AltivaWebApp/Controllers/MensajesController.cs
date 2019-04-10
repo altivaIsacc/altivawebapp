@@ -16,7 +16,7 @@ using Newtonsoft.Json;
 
 namespace AltivaWebApp.Controllers
 {
-
+    [Route("Mensajes")]
     public class MensajesController : Controller
     {
 
@@ -54,7 +54,8 @@ namespace AltivaWebApp.Controllers
         //Constructrua Mensahjes controlador
 
             //variable de mensaje service
-
+        
+       
         public MensajesController(IPaisService IPaisService,IBitacoraMapper IBitacoraMa,IMensajeReceptorService pIMensajeReceptorService, IAdjuntoService IAdjuntoService, IMensajeReceptor pIMensajeReceptor, IMensajeService pImensajeService, IMensajeMap pIMensajeMap, IAdjuntoMap pIAdjuntoMap, IUserService pIUserService)
         {
             this.IPaisService = IPaisService;
@@ -69,45 +70,38 @@ namespace AltivaWebApp.Controllers
             this.IMensajeReceptorService = pIMensajeReceptorService;
         }
 
-        public ActionResult Partial()
-        {
-
-            ViewBag.id = 1;
-            return  PartialView("_PartialComentario", ViewBag.id);
-        }
-
+        [Route("Nuevo-Comentario")]
         public ActionResult CrearComentario(MensajeViewModel model)
         {
-            return PartialView("_PartialComentarios", model);
+            return PartialView("_CrearComentario", model);
         }
 
-        //insertComentarioPais
-        public ActionResult CrearComentarioPais(MensajeViewModel collection)
+        [Route("Lista-Comentarios")]
+        public ActionResult ListarComentarios(ComentarioViewModel model)
         {
+            var comentarios = ImensajeService.GetComentarios(model).ToList();
+            return PartialView("_PartialComentarios", comentarios);
+        }
 
-            collection.tipoReferencia = "Pais";
-            collection.tipoMensaje = "CO";
-
-            if (!ModelState.IsValid)
-                return RedirectToAction("CrearReferenciaPais", new { @id = collection.id });
-
-            var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-
+        [HttpPost("Crear-ComentrioPost")]
+        public ActionResult CrearComentarioPost(MensajeViewModel model)
+        {
+           
 
             var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            MensajeViewModel adjunto = new MensajeViewModel();
-            TbSeMensaje msj = new TbSeMensaje();
+
+            TbSeMensaje comentario = new TbSeMensaje();
 
             TbSeAdjunto AdjuntoDomain = new TbSeAdjunto();
 
-            List<TbSeAdjunto> s = new List<TbSeAdjunto>();
+            List<TbSeAdjunto> listaAdjuntos = new List<TbSeAdjunto>();
 
-            msj = this.IMensajeMap.Crear(collection, int.Parse(id));
-            msj = this.ImensajeService.create(msj);
+            comentario = this.IMensajeMap.Crear(model, int.Parse(id));
+            comentario = this.ImensajeService.create(comentario);
 
-            if (collection.Files != null)
+            if (model.Files != null)
             {
-                foreach (var item in collection.Files)
+                foreach (var item in model.Files)
                 {
 
                     var path = $"wwwroot\\Files\\{item.FileName}";
@@ -118,102 +112,28 @@ namespace AltivaWebApp.Controllers
                     }
 
                     var ruta = $"/Files/{item.FileName}";
-                    AdjuntoDomain = this.IAdjuntoMap.crear(msj.Id, ruta);
+                    AdjuntoDomain = this.IAdjuntoMap.crear(comentario.Id, ruta);
 
-                    s.Add(AdjuntoDomain);
-
-                }
-
-            }
-            else
-            {
-                AdjuntoDomain = this.IAdjuntoMap.crear(msj.Id, "");
-
-                s.Add(AdjuntoDomain);
-            }
-            this.IAdjuntoService.Crear(s);
-           
-                ViewBag.modal = 1;
-                return RedirectToAction("CrearReferenciaPais", new { @id = collection.id });
-           
-
-        }
-
-        //post
-       public ActionResult CrearComentarioUser(MensajeViewModel collection)
-        {
-            collection.tipoReferencia = "Usuario";
-            collection.tipoMensaje = "CO";
-
-            if (!ModelState.IsValid)
-            {
-              
-                    return RedirectToAction("CrearComentarioUsuario", new { @id = collection.id });
-         
-            }
-            var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-
-
-            var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            MensajeViewModel adjunto = new MensajeViewModel();
-            TbSeMensaje msj = new TbSeMensaje();
-       
-            TbSeAdjunto AdjuntoDomain = new TbSeAdjunto();
-
-            List<TbSeAdjunto> s = new List<TbSeAdjunto>();
-
-            msj = this.IMensajeMap.Crear(collection, int.Parse(id));
-            msj = this.ImensajeService.create(msj);
-    
-            if (collection.Files != null)
-            {
-                foreach (var item in collection.Files)
-                {
-
-                    var path = $"wwwroot\\Files\\{item.FileName}";
-                    using (var stream = new FileStream(path, FileMode.Create))
-                    {
-                        item.CopyTo(stream);
-
-                    }
-
-                    var ruta = $"/Files/{item.FileName}";
-                    AdjuntoDomain = this.IAdjuntoMap.crear(msj.Id, ruta);
-
-                    s.Add(AdjuntoDomain);
+                    listaAdjuntos.Add(AdjuntoDomain);
 
                 }
 
             }
             else
             {
-                AdjuntoDomain = this.IAdjuntoMap.crear(msj.Id, "");
+                AdjuntoDomain = this.IAdjuntoMap.crear(comentario.Id, "");
 
-                s.Add(AdjuntoDomain);
+                listaAdjuntos.Add(AdjuntoDomain);
             }
-            this.IAdjuntoService.Crear(s);
-          
-                return RedirectToAction("CrearComentarioUsuario", new { @id = collection.id });
-            
+            this.IAdjuntoService.Crear(listaAdjuntos);
+           
+           
+           
+
         }
-        // GET: Mensajes
-        [HttpGet("/Comentario/Pais/{id?}")]
-        public ActionResult CrearComentarioUsuario(int id)
-        {
-            List<MensajeRecibidoViewModel> ms = new List<MensajeRecibidoViewModel>();
-            TbSeUsuario usuario = new TbSeUsuario();
-            // GetSingleUser
-            usuario= this.IUserService.GetSingleUser(id);
-            ViewBag.nombre = usuario.Nombre;
-            ViewBag.codigo = usuario.Codigo;
-            //id del usuario
-            ms = this.ImensajeService.VerComentariosUsuarios(id);
-            ViewData["comentarioUsuario"] = ms;
-            ViewBag.id = id;
-            return View();
-        }
+
+        
         //eliminar comentario pais
-
         public ActionResult EliminarComentario(int idComentario)
         {           
             try
@@ -225,43 +145,42 @@ namespace AltivaWebApp.Controllers
             catch (Exception)
             {
                 return BadRequest();
-                //throw;
             }
                       
         }
 
-        public ActionResult EliminarComentarioPais(int id, int codigo)
-        {
-            TbSeMensaje msj;
-            msj = IMensajeMap.EliminarComentario(id);
+        //public ActionResult EliminarComentarioPais(int id, int codigo)
+        //{
+        //    TbSeMensaje msj;
+        //    msj = IMensajeMap.EliminarComentario(id);
 
-            this.ImensajeService.Update(msj);
-            return RedirectToAction("CrearReferenciaPais", new { @id = codigo });
-        }
-        //Eliminar comentario usuario
+        //    this.ImensajeService.Update(msj);
+        //    return RedirectToAction("CrearReferenciaPais", new { @id = codigo });
+        //}
+        ////Eliminar comentario usuario
 
-        public ActionResult EliminarComentarioUsuario(int id,int codigo)
-        {
-            TbSeMensaje msj;
-            msj=  IMensajeMap.EliminarComentario(id);
+        //public ActionResult EliminarComentarioUsuario(int id,int codigo)
+        //{
+        //    TbSeMensaje msj;
+        //    msj=  IMensajeMap.EliminarComentario(id);
 
-            this.ImensajeService.Update(msj);
-            return RedirectToAction("CrearComentarioUsuario", new { @id = codigo });
-        }
+        //    this.ImensajeService.Update(msj);
+        //    return RedirectToAction("CrearComentarioUsuario", new { @id = codigo });
+        //}
 
-                [HttpGet("/Comentario/usuario/{id?}")]
-        public ActionResult CrearReferenciaPais(int id)
-        {
-            List<MensajeRecibidoViewModel> ms = new List<MensajeRecibidoViewModel>();
-            TbSePais pais = new TbSePais();
-            pais = this.IPaisService.GetPaisById(id);
-            ViewBag.nombre = pais.NombreEs;
-            ms = this.ImensajeService.ComentarioByPais(id);
-            ViewData["comentarioPais"] = ms;
-            //id del pais 
-            ViewBag.id = id;
-            return View();
-        }
+        //[HttpGet("/Comentario/usuario/{id?}")]
+        //public ActionResult CrearReferenciaPais(int id)
+        //{
+        //    List<MensajeRecibidoViewModel> ms = new List<MensajeRecibidoViewModel>();
+        //    TbSePais pais = new TbSePais();
+        //    pais = this.IPaisService.GetPaisById(id);
+        //    ViewBag.nombre = pais.NombreEs;
+        //    ms = this.ImensajeService.GetComentarios(id);
+        //    ViewData["comentarioPais"] = ms;
+        //    //id del pais 
+        //    ViewBag.id = id;
+        //    return View();
+        //}
         [HttpGet("/Mensajes/")]
         public ActionResult Index()
         {
@@ -285,7 +204,7 @@ namespace AltivaWebApp.Controllers
             return new JsonResult(ms);
         }
 
-        public JsonResult verComentario(int valor)
+        public ActionResult GetComentarios(int valor)
         {
             List<MensajeRecibidoViewModel> ms = new List<MensajeRecibidoViewModel>();
             ms = this.ImensajeService.VerComentarios(valor);
@@ -295,7 +214,6 @@ namespace AltivaWebApp.Controllers
         {
             var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
       
-
             TbSeMensajeReceptor re = new TbSeMensajeReceptor();
             re = this.IMensajeReceptorMap.EliminarTemporal(valor);
             this.IBitacoraMap.CrearBitacora(Convert.ToInt32(ids), "Paso un mensaje a estado eliminado",re.IdMensaje,"Mensaje");
@@ -362,7 +280,6 @@ namespace AltivaWebApp.Controllers
         //contador
         public JsonResult Contador()
         {
-
             var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             int w = this.ImensajeService.Contador(int.Parse(id));
     

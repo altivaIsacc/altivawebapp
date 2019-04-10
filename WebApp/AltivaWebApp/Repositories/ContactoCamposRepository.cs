@@ -31,14 +31,12 @@ namespace AltivaWebApp.Repositories
                          where c.IdContacto == id
                          select new ContactoViewModel
                          {
-                             
                              Tipo = cp.Tipo,
                              Valor = c.Valor,
                              IdCampoPersonalizados = c.Id,
-                             NombreCampo = cp.Nombre,
-                             Id = cp.Id
-
-
+                             NombreCampo = cp.Nombre
+                           
+                             
                          }
 
        ).ToList();

@@ -14,7 +14,6 @@ namespace AltivaWebApp.Repositories
         TbSeUsuario Update(TbSeUsuario domain);
         bool Delete(TbSeUsuario damain);
         IList<TbSeUsuario> GetAll();
-        IList<TbSeUsuario> GetAllById(int id);
         IList<TbSeUsuario> GetAllByIdUsuario(int id);
         TbSeUsuario GetUsuarioById(int id);
         TbSeUsuario GetUsuarioConEmpresas(string usuario);

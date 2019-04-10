@@ -25,7 +25,6 @@ namespace AltivaWebApp.Mappers
         }
 
         public UsuarioViewModel Create(UsuarioViewModel viewModel)
-
         {
 
             var user = ViewModelToDomainNuevo(viewModel);
@@ -42,15 +41,8 @@ namespace AltivaWebApp.Mappers
         public TbSeUsuario Update(UsuarioViewModel viewModel)
 
         {
-           
-            //var model = userService.GetUsuarioLogin(viewModel.codigo);
-
+ 
             var user = ViewModelToDomainEditar(viewModel);
-
-
-            //user.IdUsuario = model.IdUsuario;
-            //user.Id = model.Id;
-
 
             return userService.UpdateUsuario(user);
 
@@ -79,7 +71,7 @@ namespace AltivaWebApp.Mappers
             
             UsuarioViewModel model = new UsuarioViewModel
             {
-             
+                id =(int) domain.Id,         
                 codigo = domain.Codigo,
                 nombre = domain.Nombre,
                 estado = domain.Estado,
@@ -101,9 +93,7 @@ namespace AltivaWebApp.Mappers
             foreach (TbSeUsuario of in domain)
 
             {
-
                 model.Add(DomainToViewModelSingle(of));
-
             }
 
             return model;
@@ -111,11 +101,9 @@ namespace AltivaWebApp.Mappers
         }
 
         public TbSeUsuario ViewModelToDomainEditar(UsuarioViewModel officeViewModel)
-
         {
 
-            var domain = userService.GetUsuarioConPerfiles(officeViewModel.codigo);
-
+            var domain = userService.GetSingleUser(officeViewModel.id);
             domain.Codigo = officeViewModel.codigo;
             domain.Nombre = officeViewModel.nombre;
             domain.Estado = officeViewModel.estado;
@@ -125,9 +113,10 @@ namespace AltivaWebApp.Mappers
         
 
 
-            if (officeViewModel.Foto == null && domain.Avatar == null)
+            if (officeViewModel.Foto != null && domain.Avatar != null)
             {
-                domain.Avatar = "/avatars/ninja.png";
+               
+                domain.Avatar = FotosService.SubirFotoUsuario(officeViewModel.Foto);
             }
 
             return domain;
@@ -157,12 +146,12 @@ namespace AltivaWebApp.Mappers
 
         {
 
-            var domain = userService.GetUsuarioConPerfiles(officeViewModel.codigo);
+            //var domain = userService.GetUsuarioConPerfiles(officeViewModel.codigo);
 
-            if (domain != null)
-            {
-                return null;
-            }
+            //if (domain != null)
+            //{
+            //    return null;
+            //}
 
             var nuevoDomain = new TbSeUsuario
             {
