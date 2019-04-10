@@ -41,6 +41,9 @@ namespace AltivaWebApp.Services
             return this.pIcamposPersonalizados.GetCampos();
         }
 
-       
+        public TbCrCamposPersonalizados Save(TbCrCamposPersonalizados domain)
+        {
+            return this.pIcamposPersonalizados.Save(domain);
+        }
     }
 }

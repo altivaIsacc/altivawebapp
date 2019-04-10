@@ -4,90 +4,48 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
+using AltivaWebApp.Domains;
+using AltivaWebApp.ViewModels;
+using AltivaWebApp.Mappers;
+using AltivaWebApp.Services;
 namespace AltivaWebApp.Controllers
 {
     public class ListaDesplegableController : Controller
     {
-        // GET: ListaDesplegable
-        public ActionResult Index()
+         IListaDesplegableMapper map;
+        IListaDesplegableService service;
+        
+        public ListaDesplegableController(IListaDesplegableMapper map, IListaDesplegableService service)
         {
-            return View();
+            this.service = service;
+            this.map = map;
+        }
+       [HttpGet]
+        public IActionResult CrearLista()
+        {
+
+            
+            return PartialView("_CrearEditar", new TbCrListaDesplegables());
+        }
+        public JsonResult CrearCampos(CamposPersonalizadosViewModelSingle model1)
+        {
+            TbCrCamposPersonalizados vd = new TbCrCamposPersonalizados();
+           vd = this.map.Save(model1);
+            return new JsonResult(vd);
+        }
+        public JsonResult CrearCamposRelacionLista(IList<ListaViewModel> lista)
+        {
+            this.map.SaveRange(lista);
+            return new JsonResult(2);
         }
 
-        // GET: ListaDesplegable/Details/5
-        public ActionResult Details(int id)
+        public JsonResult GetCampos(int id)
         {
-            return View();
+            IList<ListaDesplegableGETViewModel> vs = new List<ListaDesplegableGETViewModel>();
+            vs = this.service.GetCampos(id);
+            return new JsonResult(vs);
         }
 
-        // GET: ListaDesplegable/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
 
-        // POST: ListaDesplegable/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add insert logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: ListaDesplegable/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: ListaDesplegable/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add update logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: ListaDesplegable/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: ListaDesplegable/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
     }
 }
