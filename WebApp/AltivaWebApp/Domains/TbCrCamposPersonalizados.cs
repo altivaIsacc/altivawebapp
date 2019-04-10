@@ -26,7 +26,7 @@ namespace AltivaWebApp.Domains
         public virtual ICollection<TbCrContactosCamposPersonalizados> TbCrContactosCamposPersonalizados { get; set; }
         public virtual ICollection<TbCrListaDesplegables> TbCrListaDesplegables { get; set; }
 
-     
+        public string Valor { get; set; }
 
 
 

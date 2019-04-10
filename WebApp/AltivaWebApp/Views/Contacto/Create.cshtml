@@ -20,12 +20,28 @@
 <div id="panel2" hidden>  <partial name="~/Views/Contacto/subContacto.cshtml" model="new ContactoViewModel()"  />   </div>
 <script src=" https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script>
+<script>
+    /*
+    $('#subContacto').on('click', function () {
+        $("#exampleModalCenter").modal('hide');
+        $("#btnNuevo").hide();
+        $("#atras").show();
+        $('#divBotones').append('<button type="submit" id="btnSubcontacto" class="btn btn-link" onclick="Subcontacto()"><i style="font-size:4rem;" class="fas fa-save"></i></button>|   <a asp-action="Index" class="btn btn-link">Atras</a>');
 
+      
+
+    }); $('#atrass').on('click', function () {
+        $("#btnNuevo").show();
+        $("#btnSubcontacto").hide();
+        $("#atras").hide();
+    });
+    */
+</script>
 <script>
     $(function () {
 
         $("#btnEditar").hide();
-        $('#divBotones').append('<button  id="btnNuevo" class="btn btn-success" onclick="guardar()">Guardar <i  class="fas fa-save"></i></button>  <button  class="btn btn-default atras">Atras</button>');
+        $('#divBotones').append('<button  id="btnNuevo" class="btn btn-link" onclick="guardar()">Guardar &nbsp;<i style="font-size:2rem;" class="fas fa-save"></i></button>|  <button  class="btn btn-link atras">Atras</button>');
 
 
         $("#tel").val("");
@@ -58,8 +74,8 @@
 
     $('#tel').mask('00000000');
     $('#fisica').mask('0-0000-0000');
-    $('#juridica').mask('0-0000-00000');
-    $('#dimex').mask(' 000000000000');
+    $('#juridica').mask('0-0000-000000');
+    $('#dimex').mask(' 00000000000');
     $('#nite').mask('0000000000');
     $(function () {
         $(' input[type=radio]').change(function () {
@@ -221,7 +237,7 @@
 
                         for (var i = 0; i < data.length; i++) {
 
-                            $("#usuarioEncargado").append('<option  value=' + data[i].id + '>' + data[i].nombre+' </option>');
+                            $("#usuarioEncargado").append('<option class="distrito" value=' + data[i].id + '>' + data[i].Nombre+' </option>');
                         }
 
 
@@ -296,186 +312,50 @@
     $(document).ready(function () {
 
 
-        $.ajax({
-            headers: {
-                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-            },
-            type: "POST",
-
-
-            url: '@Url.Action("TraerCamposPersonalizados", "CamposPersonalizados")',
-
-
-            success: function (data) {
-
-                for (var i = 0; i < data.length; i++) {
-                    if (data[i].tipo == 'textArea') {
-                        $("#ul").append('<li> <div class="form-group"><input id="id' + k + '" type="text" asp-for="idTextoGrande[]" name="idTextoGrande[]" hidden value="' + data[i].id + '"/><Label>' + data[i].nombre + '&nbsp;</label><textArea id="' + j + '" class="form-control" asp-for="textoGrande[]" ></textArea></div></li>');
-                        j++; k++;
-                    } else if (data[i].tipo == 'checkbox') {
-                        $("#ul").append('<li><input id="idc' + t + '"  type="text" asp-for="idChechBox[]" name="idChechBox[]" hidden value="' + data[i].id + '"/><Label>' + data[i].nombre + ':</label>&nbsp;<input  id="c' + y + '" asp-for="checkbox[]" name="checkbox" type="checkbox" checked="checked" /></li>');
-                        y++; t++;
-                    } else if (data[i].tipo == 'datetime-local') {
-                        $("#ul").append('<li><div class="form-group"><input id="id' + k + '"  type="text" asp-for="idFecha[]" name="idFecha[]" hidden value="' + data[i].id + '"/><Label>' + data[i].nombre + ':</label>&nbsp; <input asp-for="Fechas[]" id="' + j + '" name="fechas[]" class="form-control  " data-target="#datetimepicker1" type="' + data[i].tipo + '"/></div></li>');
-                        j++; k++;
-                    } else if (data[i].tipo == 'lista') {
-                        $("#ul").append('<li><div class="form-group"><input id="id' + k + '"  type="text" asp-for="idFecha[]" name="idFecha[]" hidden value="' + data[i].id + '"/><Label>' + data[i].nombre + ':</label>&nbsp; <select id="' + j + '" class="form-control"><option hidden value="">Seleccione</option></select></div></li>');
-
-                       
-                        cargarPersonalizados(data[i].id,j);
-
-                        j++; k++;
-                    }
-                    else {
-                        $("#ul").append('<li> <div class="form-group"><input type="text" asp-for="idTexto[]" id="id' + k + '"  name="idTexto[]" hidden value="' + data[i].id + '"/><Label>' + data[i].nombre + '&nbsp;</label><input  asp-for="texto[]" id="' + j + '" name="texto[]"  class="form-control "/></div></li>');
-                      
-                        j++; k++;
-                    }
-
-
-
-                }
-
-
-            },
-
-            error: function (err, scnd) {
-                console.log(err.statusText);
-            }
-
-        });
-    
-    
-    });
-   
-
-    function cargarPersonalizados(id,j) {
-      $.ajax({
+          $.ajax({
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
                     type: "POST",
 
 
-                    url: '@Url.Action("GetCampos", "ListaDesplegable")',
+                    url: '@Url.Action("TraerCamposPersonalizados", "CamposPersonalizados")',
 
-          data: {id:id},
 
-                    success: function (data1) {
-                        
-                        for (var i = 0; i < data1.length; i++) {
-                          
-                            $('#'+j+'').append('<option>'+data1[i].valor+'</option>');
+                    success: function (data) {
+
+                        for (var i = 0; i < data.length; i++) {
+                            if (data[i].tipo == 'textArea') {
+                                $("#ul").append('<li> <div class="form-group"><input id="id' + k + '" type="text" asp-for="idTextoGrande[]" name="idTextoGrande[]" hidden value="' + data[i].id + '"/><Label>' + data[i].nombre + '&nbsp;</label><textArea id="' + j + '" class="form-control" asp-for="textoGrande[]" ></textArea></div></li>');
+                                j++; k++;
+                            } else if (data[i].tipo == 'checkbox') {
+                                $("#ul").append('<li><input id="idc' + t + '"  type="text" asp-for="idChechBox[]" name="idChechBox[]" hidden value="' + data[i].id + '"/><Label>' + data[i].nombre + ':</label>&nbsp;<input  id="c' + y +'" asp-for="checkbox[]" name="checkbox" type="checkbox" checked="checked" /></li>');
+                                y++; t++;
+                            } else if (data[i].tipo == 'datetime-local') {
+                                $("#ul").append('<li><div class="form-group"><input id="id' + k +'"  type="text" asp-for="idFecha[]" name="idFecha[]" hidden value="' + data[i].id + '"/><Label>' + data[i].nombre + ':</label>&nbsp; <input asp-for="Fechas[]" id="' + j +'" name="fechas[]" class="form-control  input-lg" data-target="#datetimepicker1" type="' + data[i].tipo + '"/></div></li>');
+                                j++; k++;
+                            } else {
+                                $("#ul").append('<li> <div class="form-group"><input type="text" asp-for="idTexto[]" id="id' + k +'"  name="idTexto[]" hidden value="' + data[i].id + '"/><Label>' + data[i].nombre + '&nbsp;</label><input  asp-for="texto[]" id="' + j +'" name="texto[]"  class="form-control input-lg"/></div></li>');
+                                j++; k++;
+                            }
+
+
+
                         }
 
 
-                    
                     },
 
                     error: function (err, scnd) {
                         console.log(err.statusText);
                     }
 
-                });
-    }
-    function guardar() {
+        });
 
-        if (validarContactos() == true) {
-            var nombreContacto = $('#Nombre').val();
-            var apellidos = $('#Apellidos').val();
-            var nombreComercial = $('#NombreComercial').val();
-            var nombreJuridico = $('#NombreJuridico').val();
-            var tipoCedula = $('#combo').val();
-            var fisica = $('#fisica').val();
-            var juridica = $('#juridica').val();
-            var dimex = $('#dimex').val();
-            var nite = $('#nite').val();
-            var telefono = $('#tel').val();
-            var correo = $('#Correo').val();
-            var pais = $('#pais').val();
-            var provincia = $('#provincia').val();
-            var canton = $('#canton').val();
-            var distrito = $('#distrito').val();
-            var otrasSenas = $('#otrasSenas').val();
-            var idUsuario = $('#usuarioEncargado').val();
-            var imagen = $('#imagen').val();
-
-            var fileUpload = $("#imagen").get(0);
-
-            var files = fileUpload.files;
-            var formData = new FormData();
-            formData.append('foto', $("#imagen")[0].files[0]);
-            console.log(formData);
-            var proveedor = new Boolean(false);
-
-            if ($("#cliente").prop('checked')) {
-
-                cliente = true;
-
-
-            } else {
-                cliente = null;
-
-            } if ($("#proveedor").prop('checked')) {
-
-                proveedor = true;
-
-
-            } else {
-                proveedor = null;
-
+<<<<<<< HEAD
+    });
+=======
             }
-
-            var camposPersonalizados = [];
-            var Contacto = [];
-
-            var model2 = {
-                nombre: nombreContacto,
-                apellidos: apellidos,
-                nombreComercial: nombreComercial,
-                nombreJuridico: nombreJuridico,
-                tipoCedula: tipoCedula,
-                cedula: fisica,
-                juridica: juridica,
-                dimex: dimex,
-                nite: nite,
-                telefono: telefono,
-                correo: correo,
-                pais: pais,
-                provincia: provincia,
-                canton: canton,
-                distrito: distrito,
-                cliente: cliente,
-                proveedor: proveedor,
-
-                otrasSenas: otrasSenas,
-                idUsuario: idUsuario
-
-            };
-            // formData.append('model2', JSON.stringify( model2));
-            Contacto.push(model2);
-            console.log(formData);
-            for (var r = 0; r < y; r++) {
-
-
-                if ($("#c" + r + "").prop('checked')) {
-                    var model = {
-
-                        idCampoPersonalizados: $("#idc" + r + "").val(),
-                        valor: $("#c" + r + "").val()
-                    };
-                } else {
-                    var model = {
-
-                        idCampoPersonalizados: $("#idc" + r + "").val(),
-                        Valor: ""
-                    };
-                }
-
-                camposPersonalizados.push(model);
-
-            }
-
 
             for (var i = 0; i < j; i++) {
 
@@ -486,7 +366,8 @@
                 };
                 camposPersonalizados.push(model);
             }
-            $('#btnNuevo').attr('disabled',true);
+            //   formData.append('model', JSON.stringify(camposPersonalizados));
+            console.log(formData);
 
             $.ajax({
                 headers: {
@@ -500,7 +381,7 @@
                 data: { model: camposPersonalizados, model2: model2 },
 
                 success: function (data) {
-                    var id = data.id;
+                    
                     if (data.correo != "correo") {
 
                         if (data.cedula != "cedula") {
@@ -524,7 +405,7 @@
                                     success: function (data) {
 
                                         var urls = '@Url.Action("Edit", "Contacto", new { id = "__id__"})';
-                                        window.location.href = urls.replace('__id__', id);
+                                        window.location.href = urls.replace('__id__', data.id);
 
                                     },
 
@@ -535,7 +416,7 @@
                                 });
                             } else {
                                 var urls = '@Url.Action("Edit", "Contacto", new { id = "__id__"})';
-                                window.location.href = urls.replace('__id__', id);
+                                window.location.href = urls.replace('__id__', data.id);
                             }
                         } else {
                             $("#nombreAlert5").append('     <span class="text-danger " >El campo de cedula fisica  que ingreso ya existe. </span>');
@@ -553,9 +434,261 @@
                 }
 
             });
+        }
+>>>>>>> Juan
+
+    function guardar() {
+
+
+       var nombreContacto= $('#Nombre').val();
+     var apellidos=   $('#Apellidos').val();
+      var nombreComercial=  $('#NombreComercial').val();
+      var nombreJuridico=  $('#NombreJuridico').val();
+     var tipoCedula=   $('#combo').val();
+        var fisica = $('#fisica').val();
+     var juridica=   $('#juridica').val();
+      var dimex=  $('#dimex').val();
+     var nite=   $('#nite').val();
+     var telefono=   $('#tel').val();
+     var correo=   $('#Correo').val();
+     var pais =   $('#pais').val();
+     var provincia =   $('#provincia').val();
+     var canton =   $('#canton').val();
+     var distrito =   $('#distrito').val();
+      var otrasSenas = $('#otrasSenas').val();
+        var idUsuario = $('#usuarioEncargado').val();
+        var imagen = $('#imagen').val();
+
+        var fileUpload = $("#imagen").get(0);
+
+        var files = fileUpload.files;
+        var formData = new FormData();
+        formData.append('foto', $("#imagen")[0].files[0]);
+        console.log(formData);
+        var proveedor = new Boolean(false);
+        if ($("#radio").prop('checked')) {
+
+            if (nombreContacto == "") {
+
+                $("#nombreAlert").append('<span class="text-danger " >El campo nombre es requerido. </span>');
+     
+
+                return;
+            }
+            if (apellidos == "") {
+                
+                $("#nombreAlert2").append('<span class="text-danger " >El campo apellidos es requerido. </span>');
+                if (apellidos.length > 10) {
+                    $("#nombreAlert2").append('<span class="text-danger " >El campo apellidos tiene un maximo de 10 caracteres.</span>');
+                }
+
+                return;
+            }
+        } else {
+
+            if (nombreComercial == "") {
+
+                $("#nombreAlert1").append('     <span class="text-danger " >El campo nombre comercial es requerido. </span>');
+                if (nombreComercial.length > 5) {
+                    $("#nombreAlert1").append('     <span class="text-danger " >El campo nombre comercial tiene un maximo de 10 caracteres.</span>');
+                }
+
+                return;
+            }
+            if (nombreJuridico == "") {
+                $("#nombreAlert3").append('     <span class="text-danger " >El campo nombre juridico es requerido. </span>');
+
+                return;
+            }
 
         }
-       
+        if (tipoCedula == "Seleccione") {
+            $("#nombreAlert4").append('     <span class="text-danger " >El tipo de cedula  es requerido. </span>');
+
+            return;
+        }
+        if (tipoCedula == "CedulaFisica") {
+            if (fisica == "") {
+                $("#nombreAlert5").append('     <span class="text-danger " >El campo de cedula fisica  es requerido. </span>');
+
+                return;
+            }
+        }
+        if (tipoCedula == "CedulaJuridica") {
+            if (juridica == "") {
+                $("#nombreAlert6").append('     <span class="text-danger " >El campo de cedula Juridica  es requerido. </span>');
+
+                return;
+            }
+        } 
+        if (tipoCedula == "Dimex") {
+            if (dimex == "") {
+                $("#nombreAlert7").append('     <span class="text-danger " >El campo de cedula dimex  es requerido. </span>');
+
+                return;
+            }
+        } if (tipoCedula == "NITE") {
+            if (nite == "") {
+                $("#nombreAlert8").append('     <span class="text-danger " >El campo de cedula nite  es requerido. </span>');
+
+                return;
+            }
+        }
+        if (telefono == "") {
+            $("#nombreAlert9").append('     <span class="text-danger " >El campo telefono es requerido. </span>');
+
+            return;
+        }
+
+        if (correo == "") {
+            $("#nombreAlert10").append('     <span class="text-danger " >El campo correo es requerido. </span>');
+
+            return;
+        } if (pais == "Pais") {
+            $("#nombreAlert11").append('     <span class="text-danger " >El campo pais es requerido. </span>');
+
+            return;
+        }
+      
+        if ($("#cliente").prop('checked')) {
+
+            cliente = true;
+
+
+        } else {
+            cliente = null;
+
+        }    if ($("#proveedor").prop('checked')) {
+
+            proveedor = true;
+
+
+        } else {
+            proveedor = null;
+
+        }
+
+        var camposPersonalizados = [];
+        var Contacto = [];
+
+        var model2 = {
+            nombre: nombreContacto,
+            apellidos: apellidos,
+            nombreComercial: nombreComercial,
+            nombreJuridico: nombreJuridico,
+            tipoCedula: tipoCedula,
+            cedula: fisica,
+            juridica: juridica,
+            dimex: dimex,
+            nite: nite,
+            telefono: telefono,
+            correo: correo,
+            pais: pais,
+            provincia: provincia,
+            canton: canton,
+            distrito: distrito,
+            cliente: cliente,
+            proveedor: proveedor,
+
+            otrasSenas: otrasSenas,
+            idUsuario: idUsuario
+
+        };
+       // formData.append('model2', JSON.stringify( model2));
+        Contacto.push(model2);
+        console.log(formData);
+        for (var r = 0; r < y; r++) {
+
+
+            if ($("#c" + r + "").prop('checked')) {
+                var model = {
+
+                    idCampoPersonalizados: $("#idc" + r + "").val() ,
+                    valor: $("#c" + r + "").val()
+                };
+            } else {
+                var model = {
+
+                    idCampoPersonalizados: $("#idc" + r + "").val(),
+                    Valor:""
+                };
+            }
+
+            camposPersonalizados.push(model);
+
+        }
+      
+        for (var i = 0; i < j; i++) {
+
+            var model = {
+
+                IdCampoPersonalizados: $("#id" + i + "").val(),
+                valor: $("#" + i + "").val()
+            };
+            camposPersonalizados.push(model);
+        }
+     //   formData.append('model', JSON.stringify(camposPersonalizados));
+        console.log(formData);
+      
+        $.ajax({
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            type: "POST",
+          
+
+            url: '@Url.Action("Crear", "Contacto")',
+
+            data: { model: camposPersonalizados, model2: model2 },
+         
+            success: function (data) {
+                if (imagen != "") {
+                    formData.append('id', data.id);
+                    $.ajax({
+                        headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        type: "POST",
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+
+                        url: '@Url.Action("editFoto", "Contacto")',
+
+                        data: formData,
+
+                        success: function (data) {
+                            if (nombreContacto != "") {
+                                var urls = '@Url.Action("Index", "Contacto", new { palabra = "__id__"})';
+                                window.location.href = urls.replace('__id__', nombreContacto);
+                            } else if (nombreComercial != "") {
+                                var urls = '@Url.Action("Index", "Contacto", new { palabra = "__id__"})';
+                                window.location.href = urls.replace('__id__', nombreComercial);
+                            }
+                        },
+
+                        error: function (err, scnd) {
+                            console.log(err.statusText);
+                        }
+
+                    });
+                } else {
+                     if (nombreContacto != "") {
+                                var urls = '@Url.Action("Index", "Contacto", new { palabra = "__id__"})';
+                                window.location.href = urls.replace('__id__', nombreContacto);
+                            } else if (nombreComercial != "") {
+                                var urls = '@Url.Action("Index", "Contacto", new { palabra = "__id__"})';
+                                window.location.href = urls.replace('__id__', nombreComercial);
+                            }
+                }
+                   
+                   },
+
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
     }
 
 

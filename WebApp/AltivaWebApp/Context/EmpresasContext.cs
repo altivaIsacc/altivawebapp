@@ -55,7 +55,6 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbCpGastos> TbCpGastos { get; set; }
         public virtual DbSet<TbCpPago> TbCpPago { get; set; }
         public virtual DbSet<TbCpPagoDetallado> TbCpPagoDetallado { get; set; }
-   
         public virtual DbSet<TbFdAjusteSaldoMenor> TbFdAjusteSaldoMenor { get; set; }
         public virtual DbSet<TbFdAperturaCaja> TbFdAperturaCaja { get; set; }
         public virtual DbSet<TbFdArchivosAdjuntos> TbFdArchivosAdjuntos { get; set; }
@@ -1323,8 +1322,8 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
-                entity.Property(e => e.Estado)
-                    .HasMaxLength(100)
+                entity.Property(e => e.Valor)
+                    .HasMaxLength(50)
                     .IsUnicode(false);
             });
 

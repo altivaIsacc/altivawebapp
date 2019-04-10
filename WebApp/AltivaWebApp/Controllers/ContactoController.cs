@@ -35,7 +35,7 @@ namespace AltivaWebApp.Controllers
         public IUserRepository userMap;
         //variable de contactosCamposPersonalizadosService:
         public IContactoCamposService ICCService;
-        public ContactoController(FotosService pFotos,IUserRepository IUserRepository, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IcontactoCamposMap pContactoCamposMap, IcontactoCamposMap pContactoMap)
+        public ContactoController(FotosService pFotos, IUserRepository IUserRepository, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IcontactoCamposMap pContactoCamposMap, IcontactoCamposMap pContactoMap)
         {
             this.contactoService = contactoService;
             this.contactoMap = contactoMap;
@@ -83,9 +83,10 @@ namespace AltivaWebApp.Controllers
                     if (palabra == conPersonas[j].Correo)
                     {
                         buscar.Add(conPersonas[j]);
-                    }else if (palabra == conPersonas[j].Cedula)
+                    }
+                    else if (palabra == conPersonas[j].Cedula)
                     {
-                           buscar.Add(conPersonas[j]);
+                        buscar.Add(conPersonas[j]);
                     }
                 }
                 ViewData["conPersonas"] = buscar;
@@ -100,7 +101,7 @@ namespace AltivaWebApp.Controllers
 
                     ViewData["conPersonas"] = conPersonas;
                 }
-                else 
+                else
                 {
 
                     for (int i = 0; i < conPersonas.Count; i++)
@@ -183,7 +184,7 @@ namespace AltivaWebApp.Controllers
         {
             IList<ContactoRelacionGETViewModel> cr = null;
             ViewData["contactoRelacion"] = cr;
-            var idd= id["id"].ToString();
+            var idd = id["id"].ToString();
             string ruta = "";
             ruta = FotosService.SubirFotoContacto(foto);
 
@@ -193,31 +194,35 @@ namespace AltivaWebApp.Controllers
             return new JsonResult(1);
         }
         [HttpPost]
-        public JsonResult Crear(IList<CamposViewModel> model, ContactoViewModel model2)
+        public JsonResult Crear(IList<CamposViewModel> model, ContactoViewModel model2, IFormCollection Id)
 
         {
             //IList<CamposViewModel> model = new List<CamposViewModel>(); ContactoViewModel model2 = new ContactoViewModel();
 
-          
+
             TbCrContacto contacto = new TbCrContacto();
             TbCrContacto correo = new TbCrContacto();
             TbCrContacto cedula = new TbCrContacto();
-          
+
             IList<TbCrContactosCamposPersonalizados> contactosCampos = new List<TbCrContactosCamposPersonalizados>();
             try
             {
                 correo = this.contactoService.GetByEmailContacto(model2.Correo);
-                if (model2.TipoCedula == "CedulaFisica") {
+                if (model2.TipoCedula == "CedulaFisica")
+                {
                     cedula = this.contactoService.GetByCedulaContacto(model2.Cedula);
                 }
-                else if(model2.TipoCedula == "CedulaJuridica"){
+                else if (model2.TipoCedula == "CedulaJuridica")
+                {
                     cedula = this.contactoService.GetByCedulaContacto(model2.juridica);
-                }else if (model2.dimex == "Dimex")
+                }
+                else if (model2.dimex == "Dimex")
 
                 {
                     cedula = this.contactoService.GetByCedulaContacto(model2.dimex);
 
-                }else if (model2.nite == "NITE")
+                }
+                else if (model2.nite == "NITE")
                 {
                     cedula = this.contactoService.GetByCedulaContacto(model2.nite);
 
@@ -231,7 +236,7 @@ namespace AltivaWebApp.Controllers
                 {
                     return Json(new { correo = "correo" });
                 }
-               
+
                 if (model != null || model2 != null)
                 {
                     contacto = this.contactoMap.NuevoContacto(model2);
@@ -243,7 +248,7 @@ namespace AltivaWebApp.Controllers
 
                 model = null;
                 model2 = null;
-                return Json(new { id = contacto.IdContacto,correo = "libre",cedula = "Libre" });
+                return Json(new { id = contacto.IdContacto, correo = "libre", cedula = "Libre" });
             }
             catch
             {
@@ -280,13 +285,13 @@ namespace AltivaWebApp.Controllers
             ViewData["contactoRelacion"] = cr;
             ViewData["contactos"] = contactos;
             IList<TbSeUsuario> USER = new List<TbSeUsuario>();
-            USER = this.userMap.GetAllByIdUsuario(int.Parse(ids));
+            USER = userMap.GetAllByIdUsuario(int.Parse(ids));
             ViewData["Usuarios"] = USER;
             return View(contacto);
         }
 
         // POST: Contacto/Edit/5
-      
+
 
         public ActionResult Editar(IList<CamposViewModel> model1, ContactoViewModel model2)
 
@@ -294,54 +299,6 @@ namespace AltivaWebApp.Controllers
 
             try
             {
-                
-                TbCrContacto correo = new TbCrContacto();
-                TbCrContacto cedula = new TbCrContacto();
-                correo = this.contactoService.GetByEmailContacto(model2.Correo);
-                if (correo != null)
-                {
-                    if (correo.IdContacto == model2.Id)
-                    {
-
-                    }
-                    else
-                    {
-                        return Json(new { correo = "correo" });
-                    }
-                }
-                if (model2.TipoCedula == "CedulaFisica")
-                {
-                  
-                        cedula = this.contactoService.GetByCedulaContacto(model2.Cedula);
-                    
-                }
-                else if (model2.TipoCedula == "CedulaJuridica")
-                {
-                    cedula = this.contactoService.GetByCedulaContacto(model2.juridica);
-                }
-                else if (model2.dimex == "Dimex")
-
-                {
-                    cedula = this.contactoService.GetByCedulaContacto(model2.dimex);
-
-                }
-                else if (model2.nite == "NITE")
-                {
-                    cedula = this.contactoService.GetByCedulaContacto(model2.nite);
-
-                }
-
-                if (cedula != null)
-                {
-                    if (cedula.IdContacto == model2.Id)
-                    {
-
-                    }
-                    else
-                    {
-                        return Json(new { cedula = "cedula" });
-                    }
-                }
                 TbCrContacto contacto;
                 contacto = this.contactoMap.EditarContacto(model2);
 
@@ -350,7 +307,7 @@ namespace AltivaWebApp.Controllers
                     this.pContactoCamposMap.Update(model1, contacto.IdContacto);
 
                 }
-                return Json(new { id = contacto.IdContacto, correo = "libre", cedula = "Libre" });
+                return Json(new { id = contacto.IdContacto });
             }
             catch
             {
@@ -375,34 +332,5 @@ namespace AltivaWebApp.Controllers
             return new JsonResult(1);
         }
 
-        // GET: Contacto/Delete/5
-
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: Contacto/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-        public IActionResult Partial()
-        {
-            ContactoViewModel con = new ContactoViewModel();
-
-            return PartialView("subContacto.cshtml", new ContactoViewModel());
-        }
     }
 }

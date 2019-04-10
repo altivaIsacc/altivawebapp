@@ -19,12 +19,13 @@ namespace AltivaWebApp.Repositories
              : base(context)
         {
         }
-        public IList<TbSeUsuario> GetAllById(int id)
+
+        public TbSeUsuario GetUsuarioById(int id)
         {
-
-            return context.TbSeUsuario.Where(u => u.IdUsuario == id).ToList();
-
+            return context.TbSeUsuario.Include(p => p.TbSePerfilUsuario).ThenInclude(pu => pu.IdPerfilNavigation).SingleOrDefault(u=>u.Id == id);
+            // return context.TbSeUsuario.
         }
+
         public bool ExisteUsuarioPorCodigo(string codigo)
         {
             return context.TbSeUsuario.Any(u => u.Codigo == codigo);
@@ -34,13 +35,6 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbSeUsuario.Any(u => u.Correo == correo);
         }
-        public TbSeUsuario GetUsuarioById(int id)
-        {
-
-            return context.TbSeUsuario.Include(p => p.TbSePerfilUsuario).ThenInclude(pu => pu.IdPerfilNavigation).SingleOrDefault(u=>u.Id == id);
-            // return context.TbSeUsuario.
-        }
-
 
         public TbSeUsuario GetUsuarioConEmpresas(string usuario)
         {

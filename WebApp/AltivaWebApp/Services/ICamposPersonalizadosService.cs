@@ -11,7 +11,6 @@ namespace AltivaWebApp.Services
         IList<TbCrCamposPersonalizados> GetAll();
          IList<TbCrCamposPersonalizados> GetCampos();
         TbCrCamposPersonalizados getById(int id);
-        TbCrCamposPersonalizados Save(TbCrCamposPersonalizados domain);
         
         TbCrCamposPersonalizados Edit(TbCrCamposPersonalizados domain);
    
