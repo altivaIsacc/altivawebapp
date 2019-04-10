@@ -106,6 +106,10 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return View();
+                }
                 TbCrCamposPersonalizados contactoMap = new TbCrCamposPersonalizados();
                 contactoMap = this.pCamposPersonalizados.Edit(collection);
                 return RedirectToAction(nameof(Index));
