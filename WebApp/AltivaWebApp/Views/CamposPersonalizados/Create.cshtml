@@ -10,45 +10,30 @@
         return Xsrf.GetAndStoreTokens(Context).RequestToken;
     }
 }
+<link href="~/css/Code.css" />
 
-<div>
-    <a  asp-action="Index" class="btn btn-default">Atrás</a>
-</div>
-<h4>Seleccione el campo que desea agregar</h4>
-<hr />
-<div class="row">
-    <div class="col-md-9">
-        <div class="col-md-2">
-            <div class="form-group ">
-                <button class="btn btn-dark" id="fechaHora">Fecha y hora</button>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="form-group ">
-                <button class="btn btn-dark" id="CheckBox">Check Box </button>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="form-group ">
-                <button class="btn btn-dark" id="TextArea">Texto Grande </button>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="form-group ">
-                <button class="btn btn-dark" id="Text"> Texto Pequeño </button>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="form-group ">
-                <button type="button" class="btn btn-dark" id="btnAgregarNuevaLista">
-                    Lista Desplegable
-                </button>
-            </div>
-        </div>
+<div class="row col-md-12">
+    <div class="col-sm-4"> <h4>Seleccione el tipo que desea agregar:</h4></div>
+
+    <div class="col-md-4">
+
+        <select class="form-control" id="CamposPersonalizados">
+            <option value="Seleccione" hidden>Seleccione</option>
+            <option value="fechaHora">Fecha y hora</option>
+            <option value="checkBox">CheckBox</option>
+            <option value="textArea">Texto grande</option>
+            <option value="text">Texto Pequeño</option>
+            <option value="Lista">Lista desplegable</option>
+        </select>
+
     </div>
+</div>
+<hr>
+<div class="row">
 
-    <div class="col-md-6 ">
-        <h5>Campos Personalizados agregados</h5>
+
+    <div class="col-md-8 ">
+        <h5>Campos Personalizados agregados.</h5>
         <form asp-action="create" asp-controller="CamposPersonalizados">
             <div class="panel panel-default pre-scrollable" style="height:100rem;" id="panelCampos">
                 <div class="col-md-12">
@@ -62,8 +47,11 @@
 
 
             <button type="submit" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+
+            <a asp-action="Index" class="btn btn-default">Cancelar</a>
+
         </form>
-      
+
     </div>
 </div>
 
@@ -72,6 +60,26 @@
 
 
 <script>
+       $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "GET",
+
+
+                    url: '@Url.Action("TraerCamposPersonalizados", "CamposPersonalizados")',
+
+           success: function (data) {
+               for (var i = 0; data.length; i++) {
+                   $('#ul').append('<div style=" border-style: outset;" class="col-md-8" id=li' + i + '><label hidden>asd</label>' + data[i].nombre + '</div><div class="col-md-1" id=li' + i + '><label hidden>Eliminar</label><button class="btn btn-link" onclick="eliminar(' + data[i].id + ');"><i class="fas fa-trash"></i></button></div><div class="col-md-1" ><label hidden>Eliminar</label><button class="btn btn-link" onclick="Editar"><i class="fas fa-edit"></i></button></div><div class="col-md-12 text-danger" id=li' + i + ' hidden>El campo fecha y hora es requerido.</div>');
+               }
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
     function cancelar() {
         var opcion = confirm("Esta seguro que desea cancelar ?");
         if (opcion == true) {
@@ -112,12 +120,25 @@
         var opcion = confirm("Esta seguro que desea eliminar el campo?");
         var mensaje;
         if (opcion == true) {
-            $("#ul #li" + id + "").remove();
+             $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "POST",
 
-            i--;
-            setTimeout(function () {
-                $("#mensaje").fadeOut(10);
-            }, 2000);
+
+                url: '@Url.Action("Delete", "CamposPersonalizados")',
+
+                 data:{id : id},
+                 success: function (data) {
+                     window.location.reload();
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
 
         } else {
             return;
@@ -147,8 +168,34 @@
 
             <!-- Modal footer -->
             <div class="modal-footer">
-                <button type="button" id="guardarLista" class="btn btn-link">Guardar</button>
-                <button type="button" class="btn btn-link" data-dismiss="modal">Cancelar</button>
+                <button type="button" id="guardarLista" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            </div>
+
+        </div>
+    </div>
+
+</div><div class="modal fade" id="myModal1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div id="crearCampos">
+
+                </div>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" id="guardarCampo" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
             </div>
 
         </div>
@@ -156,24 +203,63 @@
 
 </div>
 <script>
+    //llamar modal con datas para crear campos personalizados.
+    $('#CamposPersonalizados').change(function () {
 
-        //LLamar modal con datos precardados
-        $('#btnAgregarNuevaLista').on('click', function () {
+        if ($(this).val() == "Lista") {
+            $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
 
+
+                url: '@Url.Action("CrearLista", "ListaDesplegable")',
+
+
+                success: function (data) {
+                    $('#crearEditarPartial').html(data);
+                    $('#myModal').modal('show');
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+        } else if ($(this).val() == "fechaHora") {
          
- $.ajax({
+            llamarModalCampos("datetime-local");
+        } else if ($(this).val() == "checkBox") {
+            llamarModalCampos("checkbox");
+        } else if ($(this).val() == "textArea") {
+            llamarModalCampos("textArea");
+        } else if ($(this).val() == "text") {
+            llamarModalCampos("text");
+        }
+
+    });
+
+    function llamarModalCampos(tipo) {
+
+        var domain1 = {
+            nombre: "",
+            tipo:tipo,
+            estado : "Activo"
+        };
+         $.ajax({
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
-                    type: "GET",
+                    type: "POST",
 
 
-                    url: '@Url.Action("CrearLista", "ListaDesplegable")',
-
+             url: '@Url.Action("CrearCamposPersonalizados", "CamposPersonalizados")',
+             data: { domain2: domain1 },
 
               success: function (data) {
-                  $('#crearEditarPartial').html(data);
-                  $('#myModal').modal('show');
+                  $('#crearCampos').html(data);
+                  $('#myModal1').modal('show');
                     },
 
                     error: function (err, scnd) {
@@ -181,7 +267,7 @@
                     }
 
                 });
-        });
+    }
 
-
+  
 </script>

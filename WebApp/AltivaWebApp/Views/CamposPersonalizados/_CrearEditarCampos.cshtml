@@ -1,0 +1,72 @@
+﻿@model AltivaWebApp.ViewModels.CamposPersonalizadosViewModelSingle
+
+@{
+    ViewData["Title"] = "Crear Campos Personalizados";
+}
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+<div class="row">
+    <div class="col-md-6 ">
+        <div><label>Campo de tipo:</label> @Model.Tipo</div>
+
+            <div class="form-group">
+                <input type="text" asp-for="@Model.Tipo" id="Tipo" hidden  />
+            </div>
+            <div class="form-group">
+                <input type="text" asp-for="@Model.Estado" id="Estado" hidden />
+            </div>
+            <div class="form-group">
+                <label>Nombre del campo</label>
+                <input type="text" asp-for="Nombre" id="Nombre" class="form-control" />
+                <div id="alertNombre"></div>
+            </div>
+   
+
+    </div>
+        </div>
+
+
+<script>
+    $('#guardarCampo').on('click', function () {
+        if ($('#Nombre').val() == "") {
+            $('#alertNombre').append('<span class="text-danger">El nombre es requerido.</span>');
+
+            return false;
+        }
+
+        var domain = {
+            nombre: $('#Nombre').val(),
+            tipo: $('#Tipo').val(),
+            estado: $('#Estado').val()
+        };
+            $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "POST",
+
+
+                    url: '@Url.Action("CrearNuevoCamposPersonalizados", "CamposPersonalizados")',
+
+                    data: { domain: domain },
+                    success: function (data) {
+                        $('#myModal1').modal('hide');
+                        window.location.reload();
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+    });
+
+    //cargar datos en el div con scrool
+   
+</script>

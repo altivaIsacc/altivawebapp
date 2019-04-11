@@ -31,7 +31,7 @@ namespace AltivaWebApp.Mappers
             TbCrCamposPersonalizados tp = new TbCrCamposPersonalizados();
             tp.Nombre = domain.Nombre;
             tp.Tipo = domain.Tipo;
-            tp.Estado = domain.Valor;
+            tp.Estado = domain.Estado;
 
             return tp;
         }
