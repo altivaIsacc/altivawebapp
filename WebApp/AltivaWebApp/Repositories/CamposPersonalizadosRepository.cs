@@ -28,6 +28,7 @@ namespace AltivaWebApp.Repositories
         {
             var model = (from us in context.TbCrCamposPersonalizados
                          where us.Estado != "Eliminado"
+                         orderby us.Nombre descending
                          select new TbCrCamposPersonalizados
                          {
 

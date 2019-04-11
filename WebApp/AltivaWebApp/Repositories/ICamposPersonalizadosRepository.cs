@@ -10,6 +10,7 @@ namespace AltivaWebApp.Repositories
         IList<TbCrCamposPersonalizados> GetAll();
         IList<TbCrCamposPersonalizados> GetCampos();
         TbCrCamposPersonalizados getById(int id);
+        TbCrCamposPersonalizados Save(TbCrCamposPersonalizados domain);
         TbCrCamposPersonalizados Update(TbCrCamposPersonalizados domain);
         void CrearCamposPersonalizados(IList<TbCrCamposPersonalizados> domain);
     }
