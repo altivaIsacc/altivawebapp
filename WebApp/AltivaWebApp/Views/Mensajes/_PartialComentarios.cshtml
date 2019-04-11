@@ -1,28 +1,93 @@
-﻿@model List<MensajeRecibidoViewModel>
-@{
-    var usuarios = ViewData["usuarios"] as List<TbSeUsuario>;
-}
-
-<div class="row">
-
-
-    @foreach (var item in Model)
+﻿@model List<TbSeMensaje>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
     {
-        <div class="col-md-12">
-            <div class="media">
-                <img src="@usuarios.FirstOrDefault(u => u.Id == item.IdUsuarioReceptor).Avatar" class="mr-3" alt="...">
-                <div class="media-body">
-                    <h5 class="mt-0">@usuarios.FirstOrDefault(u => u.Id == item.IdUsuarioReceptor).Nombre</h5>
-                    <p>@item.Mensaje</p>
-                </div>
-            </div>
-        </div>
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
     }
 
 
+}
 
+
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <h4>Comentarios</h4>
+    </div>
+    <div style="width: 100%; overflow-y: scroll; height:40rem; background-color: #EDEDED">
+
+        @foreach (var item in Model)
+        {
+
+            <div class="card col-md-12" style="border: 1px solid #e5e5e5; margin: 1rem; margin-bottom: 1rem; width: 98%;">
+                <div class="card-body" style="padding: 0.2rem;">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <img style="width:5rem; height:5rem" src="@item.IdUsuarioNavigation.Avatar" alt="...">
+                        </div>
+                        <div class="col-md-8">
+                            <a class="btn btn-link" href="@Url.Action("CuentaUsuario", "ManejoUsuarios", new { codigo = item.IdUsuarioNavigation.Codigo })"><h5>@item.IdUsuarioNavigation.Nombre</h5></a>
+                            <p>@item.Mensaje</p>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-link" onclick="eliminarComentario(@item.Id)"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <div class="col-md-12">
+                            @foreach (var i in item.TbSeAdjunto)
+                            {
+
+                                var ruta = i.Ruta.Replace(@"/Files/", "");
+                                //ruta = Regex.Replace(ruta, @"^/(.*)_$'", "[$1]");
+
+                                if (i.Ruta != "")
+                                {
+                                    <div class="col-md-1"><a target="_blank" href="@i.Ruta" data-toggle="tooltip" data-placement="top" title="@ruta"><i class="fas fa-paperclip"></i></a></div>
+                                }
+
+
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        }
+    </div>
 
 </div>
+
+<script>
+
+
+    function eliminarComentario(idComentario) {
+
+        $.ajax({
+            type: "GET",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: '/Mensajes/Eliminar-Comentario/' + idComentario,
+            //data: { idComentario: idComentario},
+            success: function (data) {
+                GetComentarios(model);
+             },
+             error: function (err, scnd) {
+
+                alert("Lo sentimos, tuvimos un problema al procesar tu solicitud.");
+                console.log(err.statusText);
+
+             }
+
+        });
+
+    }
+
+
+</script>
 
 
 

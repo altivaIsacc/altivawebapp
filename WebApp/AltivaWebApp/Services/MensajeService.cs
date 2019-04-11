@@ -28,7 +28,7 @@ namespace AltivaWebApp.Services
             return this.ImensajeRepository.BuscarNombre(id);
         }
 
-        public List<MensajeRecibidoViewModel> GetComentarios(ComentarioViewModel comentario)
+        public List<TbSeMensaje> GetComentarios(ComentarioViewModel comentario)
         {
             return this.ImensajeRepository.GetComentarios(comentario);
         }

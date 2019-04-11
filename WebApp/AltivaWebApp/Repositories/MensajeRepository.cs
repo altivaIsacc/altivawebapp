@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using AltivaWebApp.Context;
 using AltivaWebApp.GEDomain;
 using AltivaWebApp.ViewModels;
+using Microsoft.EntityFrameworkCore;
+
 namespace AltivaWebApp.Repositories
 {
     public class MensajeRepository : BaseRepositoryGE<TbSeMensaje>, IMensajeRepository
@@ -21,7 +23,7 @@ public List<MensajeRecibidoViewModel> Recibido(int id)
 {
    var model = (from us in context.TbSeUsuario join me in context.TbSeMensaje on us.Id equals me.IdUsuario
                 join a in context.TbSeAdjunto on me.Id equals a.IdMensaje
-                join mr in context.TbSeMensajeReceptor on me.Id equals mr.IdMensaje
+                join mr in context.TbSeMensajeReceptor on me.Id equals mr.IdMensaje               
                 where mr.IdReceptor == id && mr.Estado != "Archivado" && mr.Estado != "Eliminado" && me.Tipo == "ME"  orderby mr.IdMensaje descending
                 select new MensajeRecibidoViewModel
                 {
@@ -30,8 +32,7 @@ public List<MensajeRecibidoViewModel> Recibido(int id)
                     IdMensaje = me.Id,
                     Mensaje = me.Mensaje,
                    Estado = mr.Estado,
-                   ruta = a.Ruta,
-        
+                  ruta = me.TbSeAdjunto.ToList(),                 
                     UsuarioEmisor = us.Nombre
 
                 }).ToList();
@@ -52,7 +53,7 @@ public List<MensajeRecibidoViewModel> Recibido(int id)
                              Id = mr.Id,
                              Mensaje = me.Mensaje,
                              Estado = mr.Estado,
-                             ruta = a.Ruta,
+                             ruta = me.TbSeAdjunto.ToList(),
                              UsuarioEmisor = us.Nombre,
                              UsuarioReceptor = u.Nombre
                          }).ToList();
@@ -73,7 +74,7 @@ public List<MensajeRecibidoViewModel> Recibido(int id)
                              Id = mr.Id,
                              Mensaje = me.Mensaje,
                              Estado = mr.Estado,
-                             ruta = a.Ruta,
+                             ruta = me.TbSeAdjunto.ToList(),
                              UsuarioEmisor = us.Nombre,
                              UsuarioReceptor = u.Nombre
                          }).ToList();
@@ -83,26 +84,8 @@ public List<MensajeRecibidoViewModel> Recibido(int id)
 
         public int Contador(int id)
         {
-            int contador = 0;
-            var model = (from us in context.TbSeUsuario
-                         join me in context.TbSeMensaje on us.Id equals me.IdUsuario
-                         join a in context.TbSeAdjunto on me.Id equals a.IdMensaje
-                         join mr in context.TbSeMensajeReceptor on me.Id equals mr.IdMensaje
-                         where mr.IdReceptor == id && mr.Estado == "NoLeido"
-                         select new MensajeRecibidoViewModel
-                         {
-                             Id = mr.Id,
-                             Mensaje = me.Mensaje,
-                             Estado = mr.Estado,
-                             ruta = a.Ruta,
+            int contador = context.TbSeMensajeReceptor.Where(mr => mr.IdReceptor == id && mr.Estado == "NoLeido").Count();
 
-                             UsuarioEmisor = us.Nombre
-
-                         }).ToList();
-            foreach (var item in model)
-            {
-                contador = contador + 1;
-            }
             return contador;
         }
 
@@ -133,8 +116,8 @@ public List<MensajeRecibidoViewModel> Recibido(int id)
                                 {
                                   
                                     Mensaje = me.Mensaje,
-                     
-                                    ruta = a.Ruta,
+
+                                    ruta = me.TbSeAdjunto.ToList()
 
 
                                 }).ToList();
@@ -157,20 +140,29 @@ public List<MensajeRecibidoViewModel> Recibido(int id)
             return model;
         }
 
-        public List<MensajeRecibidoViewModel> GetComentarios(ComentarioViewModel comentario)
+        public List<TbSeMensaje> GetComentarios(ComentarioViewModel comentario)
         {
-            return (from us in context.TbSeUsuario
-                         join me in context.TbSeMensaje on us.Id equals me.IdUsuario
-                         join a in context.TbSeAdjunto on me.Id equals a.IdMensaje
-                         where me.IdReferencia == comentario.IdReferencia && me.TipoReferencia == comentario.TipoReferencia && me.Estado != "Eliminar"
-                         select new MensajeRecibidoViewModel
-                         {
-                             IdMensaje = me.Id,
-                             Mensaje = me.Mensaje,
-                             ruta = a.Ruta,
-                             UsuarioEmisor = us.Nombre,
-                             tipoReferencia = me.TipoReferencia
-                         }).ToList();
+            var msjs = context.TbSeMensaje
+                .Include(ad => ad.TbSeAdjunto)
+                .Include(u => u.IdUsuarioNavigation)
+                .Where(ms => ms.IdReferencia == comentario.IdReferencia && ms.TipoReferencia == comentario.TipoReferencia && ms.Estado != "Eliminar").ToList();
+
+            //var msj = (from us in context.TbSeUsuario
+            //             join me in context.TbSeMensaje on us.Id equals me.IdUsuario
+            //             join a in context.TbSeAdjunto on me.Id equals a.IdMensaje
+            //             join u in context.TbSeUsuario on me.IdUsuario equals u.Id
+            //        where me.IdReferencia == comentario.IdReferencia && me.TipoReferencia == comentario.TipoReferencia && me.Estado != "Eliminar" && me.Tipo == "CO"
+            //             select new MensajeRecibidoViewModel
+            //             {
+            //                 IdMensaje = me.Id,
+            //                 Mensaje = me.Mensaje,
+            //                 ruta = me.TbSeAdjunto.ToList(),
+            //                 UsuarioEmisor = us.Nombre,
+            //                 tipoReferencia = me.TipoReferencia,
+            //                 Emisor = me.IdUsuarioNavigation,
+            //             }).ToList();
+
+            return msjs;
             
         }
 
@@ -185,7 +177,7 @@ public List<MensajeRecibidoViewModel> Recibido(int id)
 
                              Mensaje = me.Mensaje,
 
-                             ruta = a.Ruta,
+                             ruta = me.TbSeAdjunto.ToList()
 
 
                          }
@@ -206,7 +198,7 @@ public List<MensajeRecibidoViewModel> Recibido(int id)
 
                              IdMensaje = me.Id,
                              Mensaje = me.Mensaje,
-                             ruta = a.Ruta,
+                             ruta = me.TbSeAdjunto.ToList(),
                              UsuarioEmisor = us.Nombre,
                              tipoReferencia = me.TipoReferencia
                          }

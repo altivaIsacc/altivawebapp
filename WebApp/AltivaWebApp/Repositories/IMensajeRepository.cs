@@ -18,7 +18,7 @@ namespace AltivaWebApp.Repositories
         TbSeMensaje Update(TbSeMensaje comentario);
         List<MensajeRecibidoViewModel> BuscarNombre(int id);
         List<MensajeRecibidoViewModel> VerComentarios(int id);
-        List<MensajeRecibidoViewModel> GetComentarios(ComentarioViewModel comentario);
+        List<TbSeMensaje> GetComentarios(ComentarioViewModel comentario);
         int Contador(int id);
         List<MensajeRecibidoViewModel> VerComentariosUsuarios(int id);
         List<MensajeRecibidoViewModel> FilterByName(int id, string valor);
