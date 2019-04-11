@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Hosting;
 using System.IO;
 
 
@@ -9,11 +10,10 @@ namespace AltivaWebApp.Context
 
         public static void CrearContext(string grupo)
         {
-            
-            
+                       
 
             var conf = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
+            .SetBasePath(Startup.entorno.ContentRootPath)
             .AddJsonFile("appsettings.json").Build();
 
            
