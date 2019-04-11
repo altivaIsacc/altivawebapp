@@ -9,16 +9,15 @@
 
 <hr />
 <div class="row">
-    <div class="col-md-12">
-        <h4>Comentarios</h4>
-    </div>
+    
     <div class="col-md-6">
+        <br />
         <form id="frmComentario">
             
             <div class="form-group">
                 <label asp-for="mensaje" class="control-label">Comentario:</label>
-                <textarea asp-for="mensaje" class="form-control" rows="4"> </textarea>
-                <span hidden data-translate="comentarioValid" id="mensajeValid" class="text-danger">Comentario no puede ir vacío</span>
+                <textarea id="txtMensaje" asp-for="mensaje" class="form-control" rows="4"> </textarea>
+                <span hidden data-translate="comentarioValid" id="comentarioValid" class="text-danger">Comentario no puede ir vacío</span>
             </div>
             <div class="form-group">
                 <span data-translate="cargaArchivos" class="input-group-text" id="inputGroup-sizing-sm">Adjuntar Archivos</span>
@@ -28,28 +27,32 @@
             </div>
             <div class="form-group" hidden>
                 <label asp-for="tipoMensaje" class="control-label"></label>
-                <input asp-for="tipoMensaje" class="form-control" />
+                <input id="txtTipoMensaje" asp-for="tipoMensaje" class="form-control" />
             </div>
             <div class="form-group" hidden>
                 <label asp-for="tipoReferencia" class="control-label"></label>
-                <input asp-for="tipoReferencia" class="form-control" />
+                <input id="txtTipoReferencia" asp-for="tipoReferencia" class="form-control" />
             </div>
             <div class="form-group" hidden>
                 <label asp-for="id" class="control-label"></label>
-                <input asp-for="id" class="form-control" />
+                <input id="txtId" asp-for="id" class="form-control" />
             </div>
         </form>
         <div class="form-group">
-            <button class="btn btn-success" onclick="guardarComentario()" id="btnGuardarComentario">Guardar</button>
+            <button class="btn btn-success" onclick="guardarComentario()" id="btnGuardarComentario">Guardar <i class="fas fa-save"></i></button>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div id="listaComentarios">
+            <div id="contenido">
+
+            </div>
         </div>
     </div>
 </div>
 
-<div id="listaComentarios">
-    <div id="contenido">
 
-    </div>
-</div>
 
 <script>
     var model = {
@@ -69,20 +72,48 @@
 
 
     function guardarComentario() {
-        $.ajax({
+        //$('#frmComentario').serialize()
+        
+        var formData = new FormData();
+        var file = [];
+        var files = $('#fileUpload')[0].files;
+
+        for (var i = 0; i < files.length; i++) {           
+            formData.append("files", files[i]);
+        }
+       
+
+        formData.append('mensaje', $('#txtMensaje').val());
+        formData.append('tipoMensaje', $('#txtTipoMensaje').val());
+        formData.append('tipoReferencia', $('#txtTipoReferencia').val());
+        formData.append('id', $('#txtId').val());
+        console.log($('#txtMensaje').val());
+        if ($('#txtMensaje').val() != "")
+            $.ajax({
                 type: "post",
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
-                url: '/Mensajes/Nuevo-Comentario',
-                data: $('#frmComentario').serialize(),
+                url: '/Mensajes/Crear-ComentrioPost',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                data: formData,
                 success: function (data) {
-                    GetComentarios(model);                  
+                    $('#txtMensaje').val("");
+                    GetComentarios(model);
+                    $('#comentarioValid').attr('hidden', true);
+                    $('#tamanoArchivos').attr('hidden', true);
+                    $('#cantidadArchivos').attr('hidden', true);
+
                 },
                 error: function (err, scnd) {
+                    alert("Lo sentimos, tuvimos un problema al procesar tu solicitud");
                     console.log(err.statusText);
                 }
-        });
+            });
+        else
+            $('#comentarioValid').attr('hidden', false);
     }
 
     $('#fileUpload').bind('change', function (e) {
@@ -93,12 +124,13 @@
             e = + this.files[i].size;
             if (e > 25000) {
                 $('#tamanoArchivos').attr('hidden', false);
+                $(this).attr("value", "");
                 break;
             }
         }
 
         if (this.files.length > 5) {
-
+            $(this).attr("value", "");
             $('#cantidadArchivos').attr('hidden', false);
           
         }

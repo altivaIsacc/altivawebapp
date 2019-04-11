@@ -80,9 +80,7 @@ namespace AltivaWebApp.Controllers
         [Route("Lista-Comentarios")]
         public ActionResult ListarComentarios(ComentarioViewModel model)
         {
-            ViewData["usuarios"] = IUserService.GetAll();
             var comentarios = ImensajeService.GetComentarios(model).ToList();
-
             return PartialView("_PartialComentarios", comentarios);
         }
 
@@ -108,9 +106,10 @@ namespace AltivaWebApp.Controllers
                     foreach (var item in rutas)
                     {
                         AdjuntoDomain = this.IAdjuntoMap.crear(comentario.Id, item);
+                        listaAdjuntos.Add(AdjuntoDomain);
                     }
 
-                    listaAdjuntos.Add(AdjuntoDomain);
+                    
                 }
                 else
                 {
@@ -134,14 +133,14 @@ namespace AltivaWebApp.Controllers
         }
 
         
-        //eliminar comentario pais
+        [Route("Eliminar-Comentario/{idComentario}")]
         public ActionResult EliminarComentario(int idComentario)
         {           
             try
             {
                 var msj = IMensajeMap.EliminarComentario(idComentario);
-                this.ImensajeService.Update(msj);
-                return Ok();
+                ImensajeService.Update(msj);
+                return Json(new { success = true });
             }
             catch (Exception)
             {
