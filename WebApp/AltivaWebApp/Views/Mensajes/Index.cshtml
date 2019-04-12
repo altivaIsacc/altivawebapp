@@ -26,36 +26,28 @@
         <div class="panel-body">
 
 
-          
+
             <br />
 
             <form asp-action="Crear" asp-controller="Mensajes" method="post" enctype="multipart/form-data">
                 <div class="col-sm-8">
                     <input type="text" id="input1" placeholder="Buscar Usuario" class="clonedInput form-control col-sm-3" />
                 </div>
-              
+
                 <div class="col-sm-8">
                     <div class="form-group ">
                         <label> Usuarios Asociados </label>
-                        <select multiple class="form-control input-lg" rows="4" id="sel2" asp-for="Usuarios" required onChange="select_OnChange()"></select>
+                        <select multiple class="form-control " rows="4" id="sel2" asp-for="Usuarios" onChange="select_OnChange()"></select>
                     </div>
                     <br />
                 </div>
-                  <div class="pre-scrollable usuario">
 
-                    <div class="card" style="width: 18rem;">
 
-                        <div class="card card-body" id="result">
-                            <h5 class="card-title"></h5>
-
-                        </div>
-                    </div>
-                </div>
                 <div class="col-sm-8">
                     <div class="form-group">
                         <label class="control-label">Seleccione un archivo</label>
 
-                        <input class="form-control input-lg  " type="file" asp-for="Files" multiple="multiple" id="fileUpload" />
+                        <input class="form-control  " type="file" asp-for="Files" multiple="multiple" id="fileUpload" />
                     </div>
                 </div>
 
@@ -63,7 +55,7 @@
                     <div class="form-group ">
                         <label class="control-label">Mensaje:</label>
 
-                        <textarea asp-for="@Model.mensaje" 2 rows="8" class="form-control input-lg" pattern=".{10,100}" title="Este mensaje su minimo de caracteres es 10" name="mensaje" required style="height:150px;"></textarea>
+                        <textarea asp-for="@Model.mensaje" 2 rows="8" class="form-control " pattern=".{10,100}" title="Este mensaje su minimo de caracteres es 10" name="mensaje" required style="height:150px;"></textarea>
 
                         <span asp-validation-for="@Model.mensaje" class="text-danger"></span>
                     </div>
@@ -83,13 +75,21 @@
 
                 <div class="col-sm-8">
                     <div class="form-group">
-                        <button type="submit" class="btn btn-link " onclick="validar()" style="font-size:4rem;"><i class="fas fa-save"></i></button>
+                        <button type="submit" class="btn btn-success " onclick="validar()" >Guardar <i class="fas fa-save"></i></button>
                     </div>
                 </div>
 
             </form>
+            <div class="pre-scrollable usuario">
 
+                <div class="card" style="width: 18rem;">
 
+                    <div class="card card-body" id="result">
+                        <h5 class="card-title"></h5>
+
+                    </div>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -98,35 +98,7 @@
 
 <script>
     
-    function ocultar(nombre) {
- $.ajax({
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                type: "GET",
-
-
-                url: '@Url.Action("BuscarNombre", "Mensajes")',
-
-                    contentType: "application/json; charset=utf-8",
-
-     data: { valor: nombre },
-
-                    success: function (data) {
-                     //   $('#result').html("");
-                      
-                        $("#sel2").append('<option value="' + nombre + '" selected >' + data[0].usuarioReceptor+'</option>');
-                        $('#result').hide(); 
-                        $('#input1').val("");
-                        
-                    },                  
-
-
-                dataType: "json"
-
-            });
-  
-    }
+ 
     $(document).ready(function () {
     
  
@@ -197,7 +169,33 @@
         });
     });
 
+    function ocultar(idUsuario) {
+  
+ $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+                
+
+     url: '/Mensajes/BuscarNombre/' + idUsuario,
 
 
+
+                    success: function (data) {
+                     //   $('#result').html("");
+                        alert(data[0].usuarioReceptor);
+                        $("#sel2").append('<option value="' + idUsuario + '" selected >' + data[0].usuarioReceptor+'</option>');
+                        $('#result').hide(); 
+                        $('#input1').val("");
+                        
+                    },                  
+
+
+          
+
+            });
+  
+    }
 
 </script>
