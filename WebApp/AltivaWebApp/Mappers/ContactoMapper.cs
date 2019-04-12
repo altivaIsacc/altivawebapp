@@ -29,6 +29,11 @@ namespace AltivaWebApp.Mappers
             return this.ICamposPersonalizados.Edit(cp);
         }
 
+        public TbCrCamposPersonalizados Edit(CamposPersonalizadosViewModelSingle domain)
+        {
+            return this.ICamposPersonalizados.Edit(viewModelCamposEdit(domain));
+        }
+
         public TbCrContacto EditarContacto(ContactoViewModel domain)
         {
             return this.contactoService.Edit(viewToModelContactoEditar(domain));
@@ -69,6 +74,17 @@ namespace AltivaWebApp.Mappers
         public TbCrContacto NuevoContacto(ContactoViewModel domain)
         {
             return this.contactoService.Save(viewToModelContacto(domain));
+        }
+
+        public TbCrCamposPersonalizados viewModelCamposEdit(CamposPersonalizadosViewModelSingle domain)
+        {
+            TbCrCamposPersonalizados tp = new TbCrCamposPersonalizados();
+            tp.Id = domain.Id;
+            tp.Nombre = domain.Nombre;
+            tp.Tipo = domain.Tipo;
+            tp.Estado = domain.Estado;
+
+            return tp;
         }
 
         public TbCrContacto viewToModelContacto(ContactoViewModel domain)

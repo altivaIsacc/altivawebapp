@@ -56,7 +56,7 @@ namespace AltivaWebApp.Controllers
         }
         public ActionResult CrearCamposPersonalizados(CamposPersonalizadosViewModelSingle domain2)
         {
-             
+            ViewBag.id = 0;
             return PartialView("_CrearEditarCampos",domain2);
         }
         // GET: CamposPersonalizados/Create
@@ -83,27 +83,27 @@ namespace AltivaWebApp.Controllers
         }
 
         // GET: CamposPersonalizados/Edit/5
-        public ActionResult Edit(int id)
+        public ActionResult EditCampos(int id)
         {
+            ViewBag.id = 1;
             TbCrCamposPersonalizados contactoMap = new TbCrCamposPersonalizados();
             contactoMap = this.pCamposPersonalizados.getById(id);
-            return View(contactoMap);
+            CamposPersonalizadosViewModelSingle domain2 = new CamposPersonalizadosViewModelSingle();
+            domain2.Id = Convert.ToInt32( contactoMap.Id);
+            domain2.Nombre = contactoMap.Nombre;
+            domain2.Tipo = contactoMap.Tipo;
+            domain2.Estado = contactoMap.Estado;
+            return PartialView("_CrearEditarCampos", domain2);
         }
 
-        // POST: CamposPersonalizados/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit( int id,TbCrCamposPersonalizados collection)
+        public ActionResult Editar(CamposPersonalizadosViewModelSingle model1)
         {
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    return View();
-                }
+               
                 TbCrCamposPersonalizados contactoMap = new TbCrCamposPersonalizados();
-                contactoMap = this.pCamposPersonalizados.Edit(collection);
-                return RedirectToAction(nameof(Index));
+                contactoMap = this.IcontactoMap.Edit(model1);
+                return new JsonResult(true);
             }
             catch
             {

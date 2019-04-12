@@ -14,25 +14,64 @@
 <div class="row">
     <div class="col-md-6 ">
         <div><label>Campo de tipo:</label> @Model.Tipo</div>
+        <div class="form-group">
+            <input type="text" asp-for="@Model.Id" id="id" hidden />
+        </div>
+        <div class="form-group">
+            <input type="text" asp-for="@Model.Tipo" id="Tipo" hidden />
+        </div>
+        <div class="form-group">
+            <input type="text" asp-for="@Model.Estado" id="Estado" hidden />
+        </div>
+        <div class="form-group">
+            <label>Nombre del campo</label>
+            <input type="text" asp-for="Nombre" id="Nombre" class="form-control" />
+            <div id="alertNombre"></div>
+        </div>
 
-            <div class="form-group">
-                <input type="text" asp-for="@Model.Tipo" id="Tipo" hidden  />
-            </div>
-            <div class="form-group">
-                <input type="text" asp-for="@Model.Estado" id="Estado" hidden />
-            </div>
-            <div class="form-group">
-                <label>Nombre del campo</label>
-                <input type="text" asp-for="Nombre" id="Nombre" class="form-control" />
-                <div id="alertNombre"></div>
-            </div>
-   
 
     </div>
         </div>
 
 
 <script>
+    $('#editarCampo').on('click', function () {
+        alert('asd');
+            if ($('#Nombre').val() == "") {
+                $('#alertNombre').append('<span class="text-danger">El nombre es requerido.</span>');
+
+                return false;
+            }
+
+            var domain1 = {
+                id: $('#id').val(),
+                nombre: $('#Nombre').val(),
+                tipo: $('#Tipo').val(),
+                estado: $('#Estado').val()
+            };
+
+                $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "POST",
+
+
+                    url: '@Url.Action("Editar", "CamposPersonalizados")',
+
+                    data: { model1: domain1 },
+                    success: function (data) {
+                      
+                        var urls = '@Url.Action("Create", "CamposPersonalizados")';
+                        window.location.href = urls;
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+    });
     $('#guardarCampo').on('click', function () {
         if ($('#Nombre').val() == "") {
             $('#alertNombre').append('<span class="text-danger">El nombre es requerido.</span>');

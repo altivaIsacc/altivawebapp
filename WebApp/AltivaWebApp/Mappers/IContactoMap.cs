@@ -17,5 +17,7 @@ namespace AltivaWebApp.Mappers
         TbCrContactoRelacion InsertarRelacion(ContactoRelacionViewModel domain);
         TbCrContactoRelacion viewToModelContactoRelacion(ContactoRelacionViewModel domain);
         TbCrCamposPersonalizados Delete(int id);
+        TbCrCamposPersonalizados Edit(CamposPersonalizadosViewModelSingle domain);
+        TbCrCamposPersonalizados viewModelCamposEdit(CamposPersonalizadosViewModelSingle domain);
     }
 }
