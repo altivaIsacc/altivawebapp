@@ -65,7 +65,11 @@ namespace AltivaWebApp.Controllers
             this.map.SaveRange(lista);
             return new JsonResult(2);
         }
-
+        public JsonResult EditarListaCampos(IList<ListaViewModel> domain)
+        {
+            this.map.UpdateRange(domain);
+            return new JsonResult(true);
+        }
         public JsonResult GetCampos(int id)
         {
             IList<ListaDesplegableGETViewModel> vs = new List<ListaDesplegableGETViewModel>();
@@ -73,6 +77,12 @@ namespace AltivaWebApp.Controllers
             return new JsonResult(vs);
         }
 
+        public JsonResult Delete(int id)
+        {
+            bool resutl;
+            resutl = this.service.Delete(id);
 
+            return new JsonResult(resutl);
+        }
     }
 }

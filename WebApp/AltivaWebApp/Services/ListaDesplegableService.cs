@@ -15,10 +15,26 @@ namespace AltivaWebApp.Services
         {
             this.IListaDesplegable = IListaDesplegable;
         }
-        
+
+        public bool Delete(int idLista)
+        {
+            TbCrListaDesplegables Lista = new TbCrListaDesplegables();
+
+            Lista = getById(idLista);
+
+           return this.IListaDesplegable.Delete(Lista);
+           
+            
+        }
+
         public IList<TbCrListaDesplegables> GetAll()
         {
             return this.IListaDesplegable.GetAll();
+        }
+
+        public TbCrListaDesplegables getById(int id)
+        {
+            return this.IListaDesplegable.GetById(id);
         }
 
         public IList<ListaDesplegableGETViewModel> GetCampos(int id)
@@ -40,5 +56,12 @@ namespace AltivaWebApp.Services
         {
             return this.IListaDesplegable.Update(domain);
         }
+
+        public void UpdateRange(IList<TbCrListaDesplegables> domain)
+        {
+             this.IListaDesplegable.UpdateRange(domain);
+        }
+
+    
     }
 }
