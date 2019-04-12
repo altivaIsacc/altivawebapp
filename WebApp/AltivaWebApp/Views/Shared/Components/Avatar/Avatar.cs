@@ -17,11 +17,11 @@ namespace AltivaWebApp.ViewModels.Components.Avatar
         {
             this._userMap = userMap;
         }
-        public IViewComponentResult Invoke( TbSeUsuario model)
+        public IViewComponentResult Invoke( UsuarioViewModel model)
         {
             ViewData["avatares"] = Avatars();
-            var viewModel =_userMap.DomainToViewModelSingle(model);
-            return View(viewModel);
+            //var viewModel =_userMap.DomainToViewModelSingle(model);
+            return View(model);
         }
         public IList<string> Avatars()
         {

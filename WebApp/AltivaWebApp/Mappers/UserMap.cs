@@ -77,7 +77,8 @@ namespace AltivaWebApp.Mappers
                 estado = domain.Estado,
                 iniciales = domain.Iniciales,
                 contrasena = domain.Contrasena,
-                correo = domain.Correo
+                correo = domain.Correo,
+                avatar = domain.Avatar
             };
 
             return model;

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AltivaWebApp.GEDomain;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -28,7 +29,6 @@ namespace AltivaWebApp.ViewModels
         [Required(ErrorMessage = "Inicales es requerido")]
         public string iniciales { get; set; }
 
-        [StringLength(16, MinimumLength = 8)]
         [Required(ErrorMessage = "Inicales es requerido")]
         public string contrasena { get; set; }
 
@@ -39,6 +39,8 @@ namespace AltivaWebApp.ViewModels
         public IFormFile Foto { get; set; }
 
         public int Id_Usuario { get; set; }
+
+        public string avatar { get; set; }
 
 
     }

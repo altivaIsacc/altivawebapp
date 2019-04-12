@@ -33,6 +33,36 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+        public bool AgregarUsuarios(int idEmpresa)
+        {
+            try
+            {
+                var usuarios = context.TbSeUsuario.ToList();
+
+                var ue = new List<TbSeEmpresaUsuario>();
+
+                foreach (var item in usuarios)
+                {
+                    ue.Add(new TbSeEmpresaUsuario {
+                        Estado= true,
+                        IdEmpresa = idEmpresa,
+                        IdUsuario = item.Id
+                    });
+                }
+
+                context.TbSeEmpresaUsuario.AddRange(ue);
+                context.SaveChanges();
+
+                return true;
+
+            }
+            catch (Exception)
+            {
+                return false;
+                //throw;
+            }
+        }
+
         public TbGeGrupoEmpresarial GetGE()
         {
             return context.TbGeGrupoEmpresarial.FirstOrDefault();
