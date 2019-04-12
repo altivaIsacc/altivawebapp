@@ -17,5 +17,6 @@ namespace AltivaWebApp.Repositories
         TbGeGrupoEmpresarial GetGE();
         TbGeEmpresa GetEmpresaById(int id);
         TbGeEmpresa GetEmpresaByNombre(string nombre);
+        bool AgregarUsuarios(int idEmpresa);
     }
 }

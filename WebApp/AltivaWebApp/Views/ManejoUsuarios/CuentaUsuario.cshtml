@@ -1,7 +1,4 @@
-﻿@model AltivaWebApp.GEDomain.TbSeUsuario
-@{
-    var ids = @ViewBag.id;
-}
+﻿@model UsuarioViewModel
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -27,101 +24,104 @@
 </style>
 
 <div class="row">
-    @if (Model.Codigo == User.Identity.Name)
-    {
-        <h3 data-translate="layoutNAVMicuenta">Mi Cuenta</h3>
-    }
-    else
-    {
-        <h3 data-translate="MUCuentaUsuario">Cuenta Usuario</h3>
-    }
+    <div class="col-md-12">
 
-    <a class="btn btn-link btnAtras" data-translate="atras">Atrás</a>
+        @if (Model.codigo == User.Identity.Name)
+        {
+            <h3 data-translate="layoutNAVMicuenta">Mi Cuenta</h3>
+        }
+        else
+        {
+            <h3 data-translate="MUCuentaUsuario">Cuenta Usuario</h3>
+        }
 
-    <hr />
+    </div>
     <div class="col-md-2">
         <h4>Avatar</h4>
-        <img style="height: 15rem; width:15rem" src="@Model.Avatar" class="img-circle" />
-
-        <div class="row">
-            <a data-translate="avatar" class="btn btn-link" data-toggle="modal" data-target="#exampleModal">
-                Cargar tu avatar
-            </a>
+        <div class="col-md-12">
+            <div style="background-color:#EDEDED; padding: 1rem; text-align:center">
+                <img style="height: 15rem; width:15rem" src="@Model.avatar" class="img-circle" />
+                <div class="row">
+                    <a data-translate="avatar" class="btn btn-link" data-toggle="modal" data-target="#exampleModal">
+                        Cargar tu avatar
+                    </a>
+                </div>
+            </div>
         </div>
-        @if (Model.Codigo == User.Identity.Name)
-        {
-            <div class="row">
+        <div class="col-md-12">
+            @if (Model.codigo == User.Identity.Name)
+            {
+
                 <h5 data-translate="tema">Tema: </h5>
 
                 <div class="col-md-12">
                     <span data-translate="MUFuenteM">Fuente M:</span>
-                    <button type="button" name="1" value="TemaClaro" class="btn btntema btn-default btn-circle"></button>
-                    <button type="button" name="2" value="TemaOscuro" class="btn btntema btn-dark btn-circle"></button>
+                    <button type="button" name="1" value="TemaClaro" class="btn btntema btn-default btn-circle"></button>                  
                     <button type="button" name="3" value="TemaCombinado" class="btn btntema btn-combined btn-circle"></button>
                 </div>
 
                 <div class="col-md-12">
                     <span data-translate="MUFuenteG">Fuente G:</span>
                     <button type="button" name="4" value="TemaClaroG" class="btn btntema btn-default btn-circle"></button>
-                    <button type="button" name="5" value="TemaOscuroG" class="btn btntema btn-dark btn-circle"></button>
                     <button type="button" name="6" value="TemaCombinadoG" class="btn btntema btn-combined btn-circle"></button>
                 </div>
 
+
+            }
+        </div>
+    </div>
+    <div class="col-md-4">
+        <h4 data-translate="datosUsuario">Datos</h4>
+        <form asp-controller="ManejoUsuarios" asp-action="EditarUsuario" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group" hidden>
+                <input asp-for="id" class="form-control" />
             </div>
-        }
+            <div class="form-group">
+                <label data-translate="codigo" asp-for="codigo" class="control-label">Codigo:</label>
+                <input asp-for="codigo" class="form-control" />
+                <span asp-validation-for="codigo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label data-translate="nombre" asp-for="nombre" class="control-label">Nombre:</label>
+                <input asp-for="nombre" class="form-control" />
+                <span asp-validation-for="nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label data-translate="estado" asp-for="estado" class="control-label">Estado:</label>
+                <select asp-for="estado" class="form-control">
+                    <option data-translate="estadoA" value="ACTIVO">ACTIVO</option>
+                    <option data-translate="estadoI" value="INACTIVO">INACTIVO</option>
+                </select>
+                <span asp-validation-for="estado" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label data-translate="iniciales" asp-for="iniciales" class="control-label">Iniciales:</label>
+                <input asp-for="iniciales" class="form-control" />
+                <span asp-validation-for="iniciales" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label data-translate="contrasena" asp-for="contrasena" class="control-label">Contraseña:</label>
+                <input pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" title="Es necesario que contenga al menos un número, una mayúsculay un caracter especial" asp-for="contrasena" class="form-control" />
+                <span asp-validation-for="contrasena" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label data-translate="correo" asp-for="correo" class="control-label">Correo:</label>
+                <input type="email" asp-for="correo" class="form-control" />
+                <span asp-validation-for="correo" class="text-danger"></span>
+            </div>
+            <div class="form-group" hidden>
+                <label asp-for="Id_Usuario" class="control-label">Id usuario:</label>
+                <input asp-for="Id_Usuario" class="form-control" />
+                <span asp-validation-for="Id_Usuario" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="submit" data-translate="guardar" class="btn btn-success"><span>Guardar </span><span><i class="fas fa-save"></i></span></button>
+                <a class="btn btn-default btnAtras" data-translate="atras">Atrás</a>
+            </div>
+        </form>
 
     </div>
-
-
-    <div class="col-md-6">
-        <h4 data-translate="MUDatosUsuario">Datos de usuario</h4>
-        <table class="table table-bordered">
-
-            <tbody>
-                <tr>
-                    <th scope="Row">Id</th>
-                    <td>@Html.DisplayFor(model => model.Id)</td>
-                </tr>
-                <tr>
-                    <th data-translate="codigo" scope="row">Codigo</th>
-                    <td> @Html.DisplayFor(model => model.Codigo)</td>
-                </tr>
-                <tr>
-                    <th data-translate="nombre" scope="row">Nombre</th>
-                    <td>@Html.DisplayFor(model => model.Nombre)</td>
-                </tr>
-                <tr>
-                    <th data-translate="estado" scope="row">Estado</th>
-                    <td>@Html.DisplayFor(model => model.Estado)</td>
-                </tr>
-                <tr>
-                    <th data-translate="iniciales" scope="row">Iniciales</th>
-                    <td>@Html.DisplayFor(model => model.Iniciales)</td>
-                </tr>
-                <tr>
-                    <th data-translate="contrasena" scope="row">Contrase&ntildea</th>
-                    <td>********</td>
-                </tr>
-                <tr>
-                    <th data-translate="ultimamod" scope="row">&uacuteltima Modificaci&oacuten</th>
-                    <td>@Html.DisplayFor(model => model.FechaMod)</td>
-                </tr>
-                <tr>
-                    <th data-translate="correo" scope="row">Correo</th>
-                    <td>@Html.DisplayFor(model => model.Correo)</td>
-                </tr>
-                <tr>
-                    <th data-translate="accion" scope="row">Accion</th>
-                    <td><a class="btn btn-link" href="@Url.Action("EditarUsuario", "ManejoUsuarios", new { id = Model.Id })"><span data-translate="editar">Editar</span>&nbsp;<span style="font-size: 2rem"><i class="fas fa-edit"></i></span></a></td>
-                </tr>
-            </tbody>
-        </table>
-
-
-
-
-    </div>
-
     <div class="col-md-4">
         <h4 data-translate="MUPerfilesAsig">Perfiles Asignados</h4>
         <table class="table table-bordered" id="perfiles">
@@ -143,7 +143,7 @@
                             @Html.DisplayFor(modelItem => item.Nombre)
                         </td>
                         <td>
-                            @Html.ActionLink("Quitar", "QuitarPerfil", "ManejoUsuarios", new { usuario = Model.Id, id = item.Id })
+                            @Html.ActionLink("Quitar", "QuitarPerfil", "ManejoUsuarios", new { usuario = Model.id, id = item.Id })
                         </td>
 
                     </tr>
@@ -159,8 +159,33 @@
                 </tr>
             </tbody>
         </table>
+    </div>
+
+
+</div>
+
+<div class="row">
+
+    
+
+    <div class="col-md-4">
+
+        
+    </div>
+    <div class="col-md-2">
+        
+    </div>
+    <div class="col-md-6">
+        
 
     </div>
+</div>
+
+
+
+<div class="row">
+
+
 
     <div id="errorDiv" class="col-md-6 col-sm-12 alert alert-warning alert-dismissible fade show" role="alert">
         <strong>Lo siento!</strong> <span>Algo ha salido mal, no se pudo guardar la configuración</span>
@@ -193,7 +218,7 @@
                         <div class="col-md-4" style="margin-top: 1rem;">
 
                             <label>
-                                <input value="@item.Id" class="asignar" name="@Model.Id" type="checkbox" data-toggle="toggle">
+                                <input value="@item.Id" class="asignar" name="@Model.id" type="checkbox" data-toggle="toggle">
                                 @item.Nombre
                             </label>
 
@@ -229,6 +254,8 @@
     </div>
 </div>
 
+<hr />
+
 <div id="comentarios">
 
 </div>
@@ -242,7 +269,7 @@
 
     $(document).ready(function () {
 
-        GetComentarios('Usuario', @Model.Id);
+        GetComentarios('Usuario', @Model.id);
 
         $('.btntema').on('click', function () {
             $("#tema").attr('href', '/../css/' + $(this).val() + '.css');
@@ -252,7 +279,7 @@
             var tema = $(this).attr('name');
 
             /////ajax para guradar el tema en la bd//////
-            var userId = @Model.Id;
+            var userId = @Model.id;
 
             var config = {
                 idUsuario: userId,
@@ -282,8 +309,8 @@
 
                     ///al cambiar avatar se cambia en el layout
 
-        if ("@User.Identity.Name" === "@Model.Codigo" ) {
-            localStorage.setItem("avatar", "@Model.Avatar");
+        if ("@User.Identity.Name" === "@Model.codigo" ) {
+            localStorage.setItem("avatar", "@Model.avatar");
             $("#perfilNAVAvatar").attr('src', localStorage.getItem("avatar"));
             $("#perfilAvatar").attr('src', localStorage.getItem("avatar"));
         }

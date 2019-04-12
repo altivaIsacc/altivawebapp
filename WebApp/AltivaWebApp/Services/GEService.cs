@@ -47,6 +47,12 @@ namespace AltivaWebApp.Services
         {
             return repository.CrearBD(nombre);
         }
+
+        public bool AgregarUsuarios(int idEmpresa)
+        {
+            return repository.AgregarUsuarios(idEmpresa);
+        }
+
         public TbGeEmpresa GetByCedula(string cedula)
         {
             return repository.GetByCedula(cedula);

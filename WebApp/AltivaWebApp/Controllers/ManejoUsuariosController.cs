@@ -95,7 +95,9 @@ namespace AltivaWebApp.Controllers
 
             ViewData["Asignados"] = asignados;
             ViewData["SinAsignar"] = sinAsignar;
-            return View(model);
+
+
+            return View(userMap.DomainToViewModelSingle(model));
         }
 
         [Route("Cambiar-Configuracion")]

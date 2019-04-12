@@ -133,6 +133,8 @@ namespace AltivaWebApp.Controllers
                     var res = service.CrearBD(model.Bd);
                     if (res)
                     {
+                        service.AgregarUsuarios((int)result.Id);
+
                         return RedirectToAction(nameof(ListarEmpresas));
                     }
 

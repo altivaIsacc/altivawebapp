@@ -176,18 +176,17 @@ namespace AltivaWebApp.Controllers
         [Route("Editar-Modulo")]
         public ActionResult EditarModulo(ModuloViewModel model)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return Json(new { success = false });
-            }
-
-            var modulo = moduloMap.Update(model);
-            if (modulo != null)
-            {
+                var modulo = moduloMap.Update(model);
                 return Json(new { success = true });
             }
-            else
-                return Json(new { success = false });
+            catch (Exception)
+            {
+                return BadRequest();
+                //throw;
+            }
+            
         }
 
         [Route("Editar-Accion")]
