@@ -221,16 +221,16 @@
 
 
 
-        <ul class="nav nav-tabs " id="tabs">
-            <li class="nav-item active">
-                <a class="nav-link " data-toggle="tab" id="campos" href="#home">Campos personalizados</a>
-            </li>
-            <li class="nav-item  ">
-                <a class="nav-link disabledTab " data-toggle="tab" href="#menu1" id="relaciones">Relaciones</a>
-            </li>
-            <li class="nav-item"> 
-                <a class="nav-link  disabledTab" data-toggle="tab" data-translate="comentarios" href="#contactoComentarios">Comentarios</a>
-            </li>
+
+
+
+
+
+
+
+
+
+
 
 <div class="container mt-3" id="tabs">
 
@@ -244,7 +244,9 @@
         <li class="nav-item  ">
             <a class="nav-link disabledTab " data-toggle="tab" href="#menu1" id="relaciones">Relaciones</a>
         </li>
-
+        <li class="nav-item">
+            <a class="nav-link  disabledTab" data-toggle="tab" data-translate="comentarios" href="#contactoComentarios">Comentarios</a>
+        </li>
     </ul>
 
     <!-- Tab panes -->
@@ -283,57 +285,45 @@
                                 @foreach (var cr in contactoRelacion)
                                 {
                                     <tr>
-                                        <th hidden>id</th>
-                                        <th class="col-md-2">Nombre</th>
-                                        <th class="col-md-2">NombreComercial</th>
-                                        <th class="col-md-2">Cedula</th>
-                                        <th class="col-md-2">Nota de relacion</th>
+                                        <td hidden>@cr.Id</td>
+                                        <td hidden>@cr.IdContactoHijo</td>
+                                        @if (cr.Nombre != null)
+                                        {
+                                            <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.Nombre</button></td>
+                                        }
+                                        else
+                                        {
+                                            <td>---</td>
+                                        }
+                                        @if (cr.NombreComercial != null)
+                                        {
+                                            <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.NombreComercial</button></td>
+                                        }
+                                        else
+                                        {
+                                            <td>---</td>
+                                        }
+
+                                        <td>@cr.Cedula</td>
+                                        <td><button class="btn btn-link" onclick="EditarRelacion(@cr.Id)">@cr.NotaRelacion</button> </td>
                                     </tr>
-                                </thead>
-                                <tbody id="tr">
-                                    @foreach (var cr in contactoRelacion)
-                                    {
-                                        <tr>
-                                            <td hidden>@cr.IdContactoHijo</td>
-                                            @if (cr.Nombre != null)
-                                            {
-                                                <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.Nombre</button></td>
-                                            }
-                                            else
-                                            {
-                                                <td>---</td>
-                                            }
-                                            @if (cr.NombreComercial != null)
-                                            {
-                                                <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.NombreComercial</button></td>
-                                            }
-                                            else
-                                            {
-                                                <td>---</td>
-                                            }
-
-                                            <td>@cr.Cedula</td>
-                                            <td>@cr.NotaRelacion</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                </div>
-            </div>
-            <div id="contactoComentarios" class="container tab-pane">
-                <br>
-
-                <div class="col-md-12">
-                    <div id="comentarios">
-
+                                }
+                            </tbody>
+                        </table>
                     </div>
-                </div>
+                }
             </div>
 
         </div>
+        <div id="contactoComentarios" class="container tab-pane">
+            <br>
 
+            <div class="col-md-12">
+                <div id="comentarios">
+
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <div id="divBotones">
@@ -597,8 +587,14 @@
 <script src="~/js/comentario.js"></script>
 
 <script>
+
+
+    $(document).ready(function () {
+        GetComentarios("Contacto", @Model.Id);
+    });
+
     function EditarRelacion(id) {
-   
+
         $("#editarRelacion").modal('show');
         var idContactoPadre = $('#Padre').val();
         var idCOntactoHijo = $('#Hijo').val();
@@ -615,11 +611,7 @@
             notaRelacion: nota
         };
 
-
-    $(document).ready(function () {
-        GetComentarios("Contacto", @Model.Id);
-    });
-
+    }
     $('#edit').on('click',function () {
 
 
@@ -628,7 +620,6 @@
     });
     function MostarInfo(id) {
 
-       
         $.ajax({
             headers: {
                 "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
