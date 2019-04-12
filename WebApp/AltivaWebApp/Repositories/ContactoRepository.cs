@@ -197,7 +197,8 @@ namespace AltivaWebApp.Repositories
                             Nombre = con.Nombre,
                             Cedula = con.Cedula,
                             NombreComercial = con.NombreComercial,
-                            IdContactoHijo = con.IdContacto
+                            IdContactoHijo = con.IdContacto,
+                            Id = cr.Id
                            
 
                          }

@@ -11,7 +11,11 @@ namespace AltivaWebApp.Services
         IList<TbCrListaDesplegables> GetAll();
         TbCrListaDesplegables Save(TbCrListaDesplegables domain);
         void SaveRange(IList<TbCrListaDesplegables> domain);
+        TbCrListaDesplegables getById(int id);
+        void UpdateRange(IList<TbCrListaDesplegables> domain);
+    
         TbCrListaDesplegables Update(TbCrListaDesplegables domain);
+        bool Delete(int idLista);
         IList<ListaDesplegableGETViewModel> GetCampos(int id);
     }
 }

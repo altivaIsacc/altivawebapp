@@ -25,7 +25,12 @@ namespace AltivaWebApp.Mappers
         {
             this.IListaService.SaveRange(viewModelCamposLista(domain));
         }
-     
+
+        public void UpdateRange(IList<ListaViewModel> domain)
+        {
+            this.IListaService.UpdateRange(ViewToModelUpdateRange(domain));
+        }
+
         public TbCrCamposPersonalizados viewModelCampos(CamposPersonalizadosViewModelSingle domain)
         {
             TbCrCamposPersonalizados tp = new TbCrCamposPersonalizados();
@@ -48,6 +53,25 @@ namespace AltivaWebApp.Mappers
                 a.Add(lista);
             }
             return a;
+        }
+
+        public IList<TbCrListaDesplegables> ViewToModelUpdateRange(IList<ListaViewModel> domain)
+        {
+
+
+            IList<TbCrListaDesplegables> ListaDesplegable = new List<TbCrListaDesplegables>();
+            TbCrListaDesplegables listaDesplegableSingle = new TbCrListaDesplegables();
+
+            foreach (var item in domain)
+            {
+                listaDesplegableSingle = this.IListaService.getById(item.IdCamposPersonalizados);
+                listaDesplegableSingle.Valor = item.Valor;
+                ListaDesplegable.Add(listaDesplegableSingle);
+            }
+
+
+
+            return ListaDesplegable;
         }
     }
 }

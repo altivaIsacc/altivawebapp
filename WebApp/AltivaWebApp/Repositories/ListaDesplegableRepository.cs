@@ -36,6 +36,12 @@ namespace AltivaWebApp.Repositories
             return model;
         }
 
+        public TbCrListaDesplegables GetById(int idLista)
+        {
+            return context.TbCrListaDesplegables.Where(u => u.Id == idLista).FirstOrDefault();
+
+        }
+
         public IList<ListaDesplegableGETViewModel> GetCampos(int id)
         {
 
@@ -61,6 +67,12 @@ namespace AltivaWebApp.Repositories
         public void SaveRange(IList<TbCrListaDesplegables> domain)
         {
             context.TbCrListaDesplegables.AddRange(domain);
+            context.SaveChanges();
+        }
+
+        public void UpdateRange(IList<TbCrListaDesplegables> domain)
+        {
+            context.TbCrListaDesplegables.UpdateRange(domain);
             context.SaveChanges();
         }
     }
