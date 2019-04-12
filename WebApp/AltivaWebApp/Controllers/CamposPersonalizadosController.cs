@@ -19,11 +19,13 @@ namespace AltivaWebApp.Controllers
         public ICamposPersonalizadosService pCamposPersonalizados;
 
         public IContactoMap IcontactoMap;
+        IListaDesplegableMapper map;
         //contructor
-        public CamposPersonalizadosController(IContactoMap IcontactoMap,ICamposPersonalizadosService pCamposPersonalizados)
+        public CamposPersonalizadosController(IContactoMap IcontactoMap,ICamposPersonalizadosService pCamposPersonalizados, IListaDesplegableMapper map)
         {
             this.pCamposPersonalizados = pCamposPersonalizados;
             this.IcontactoMap = IcontactoMap;
+            this.map = map;
         }
 
         public JsonResult TraerCamposPersonalizados()
@@ -52,42 +54,31 @@ namespace AltivaWebApp.Controllers
             return View(contactoMap);
            
         }
-
+        public ActionResult CrearCamposPersonalizados(CamposPersonalizadosViewModelSingle domain2)
+        {
+             
+            return PartialView("_CrearEditarCampos",domain2);
+        }
         // GET: CamposPersonalizados/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: CamposPersonalizados/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(CamposPersonalizadosViewModel collection)
+        public ActionResult CrearNuevoCamposPersonalizados(CamposPersonalizadosViewModelSingle domain)
         {
             List<TbCrCamposPersonalizados> ListaCampos = new List<TbCrCamposPersonalizados>();
           
             try
             {
-            
-                for (int i = 0; i < collection.Nombre.Length;i++)
-                {
-                            TbCrCamposPersonalizados camp = new TbCrCamposPersonalizados();
-              
-               
-             
-
-                        camp.Nombre = collection.Nombre[i];
-                        camp.Tipo = collection.Tipo[i];
-
-                    ListaCampos.Add(camp);
-                }
-
-                pCamposPersonalizados.CrearCamposPersonalizados(ListaCampos);
-                return RedirectToAction(nameof(Index));
+                TbCrCamposPersonalizados vd = new TbCrCamposPersonalizados();
+                vd = this.map.Save(domain);
+                return new JsonResult(vd);
+         
             }
             catch
             {
-                return View();
+                return new JsonResult(1);
             }
         }
 
@@ -106,6 +97,10 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return View();
+                }
                 TbCrCamposPersonalizados contactoMap = new TbCrCamposPersonalizados();
                 contactoMap = this.pCamposPersonalizados.Edit(collection);
                 return RedirectToAction(nameof(Index));
@@ -121,7 +116,7 @@ namespace AltivaWebApp.Controllers
             TbCrCamposPersonalizados cp = new TbCrCamposPersonalizados();
             cp = this.IcontactoMap.Delete(id);
 
-            return RedirectToAction("Index");
+            return new JsonResult(1);
 
         }
 

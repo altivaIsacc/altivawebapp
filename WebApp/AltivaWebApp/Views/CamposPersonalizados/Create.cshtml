@@ -1,50 +1,57 @@
 ﻿@model AltivaWebApp.ViewModels.CamposPersonalizadosViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Crear Contacto";
 }
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+<link href="~/css/Code.css" />
 
-<div class=" col-md-12" ><div id="mensaje" hidden class="alert alert-danger col-md-4">Quito un campo</div></div>
-<div>
-    <a asp-action="Index" class="btn btn-link" >Atras</a>
-</div>
-<h4>Seleccione el campo que desea agregar</h4>
-<hr />
-<div class="row">
-    <div class="col-md-6">
-        <div class="col-md-3">
-            <div class="form-group ">
-                <button class="btn btn-dark" id="fechaHora">Fecha y hora</button>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="form-group ">
-                <button class="btn btn-dark" id="CheckBox">Check Box </button>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="form-group ">
-                <button class="btn btn-dark" id="TextArea">Texto Grande </button>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="form-group ">
-                <button class="btn btn-dark" id="Text"> Texto Pequeño </button>
-            </div>
-        </div>
+<div class="row col-md-12">
+    <div class="col-sm-4"> <h4>Seleccione el tipo que desea agregar:</h4></div>
+
+    <div class="col-md-4">
+
+        <select class="form-control" id="CamposPersonalizados">
+            <option value="Seleccione" hidden>Seleccione</option>
+            <option value="fechaHora">Fecha y hora</option>
+            <option value="checkBox">CheckBox</option>
+            <option value="textArea">Texto grande</option>
+            <option value="text">Texto Pequeño</option>
+            <option value="Lista">Lista desplegable</option>
+        </select>
+
     </div>
+</div>
+<hr>
+<div class="row">
 
-    <div class="col-md-6 ">
-        <h2>Campos Personalizados agregados</h2>
+
+    <div class="col-md-8 ">
+        <h5>Campos Personalizados agregados.</h5>
         <form asp-action="create" asp-controller="CamposPersonalizados">
             <div class="panel panel-default pre-scrollable" style="height:100rem;" id="panelCampos">
-                <div class="col-md-4">
-                    <ul id="ul"></ul>
+                <div class="col-md-12">
+                    <div id="ul">
+
+
+                    </div>
 
                 </div>
             </div>
-            <button style="font-size:2rem;" type="submit" class="btn btn-link">Guardar&nbsp;<i class="fas fa-save"></i></button>
+
+
+            <button type="submit" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+
+            <a asp-action="Index" class="btn btn-default">Cancelar</a>
+
         </form>
+
     </div>
 </div>
 
@@ -53,48 +60,214 @@
 
 
 <script>
+       $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "GET",
 
+
+                    url: '@Url.Action("TraerCamposPersonalizados", "CamposPersonalizados")',
+
+           success: function (data) {
+               for (var i = 0; data.length; i++) {
+                   $('#ul').append('<div style=" border-style: outset;" class="col-md-8" id=li' + i + '><label hidden>asd</label>' + data[i].nombre + '</div><div class="col-md-1" id=li' + i + '><label hidden>Eliminar</label><button class="btn btn-link" onclick="eliminar(' + data[i].id + ');"><i class="fas fa-trash"></i></button></div><div class="col-md-1" ><label hidden>Eliminar</label><button class="btn btn-link" onclick="Editar"><i class="fas fa-edit"></i></button></div><div class="col-md-12 text-danger" id=li' + i + ' hidden>El campo fecha y hora es requerido.</div>');
+               }
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+    function cancelar() {
+        var opcion = confirm("Esta seguro que desea cancelar ?");
+        if (opcion == true) {
+             var urls = '@Url.Action("Index", "CamposPersonalizados")';
+                        window.location.href = urls;
+        } else {
+            return ;
+        }
+    }
     var i = 0;
     $(document).ready(function () {
-  
-        $("#fechaHora").click(function () {
 
-            $("#ul").append('<li id=li' + i + '><input hidden asp-for="tipo[]" name="tipo[]" id="fechayHora' + i + '" value="datetime-local"/>Nombre del campo fecha y hora: <input type="text"  required asp-for="nombre[]" name="nombre[]" class="form-control input-mini" id="' + i + '" /><button class="btn btn-link" onclick="eliminar(' + i + ');"><i class="fas fa-trash"></i></button></li>');
+        $("#fechaHora").click(function () {
+            $('#ul').append('<div class="col-md-8" id=li' + i + '><input hidden asp-for="tipo[]" name="tipo[]" id="fechayHora' + i + '" value="datetime-local"/>Nombre del campo fecha y hora: <input type="text"  required asp-for="nombre[]" name="nombre[]" class="form-control " id="' + i + '" /> </div><div class="col-md-1" id=li' + i + '><label>Eliminar</label><button class="btn btn-link" onclick="eliminar(' + i + ');"><i class="fas fa-trash"></i></button></div><div class="col-md-12 text-danger" id=li' + i + ' hidden>El campo fecha y hora es requerido.</div>');
+
             i++;
         });
         $("#CheckBox").click(function () {
+            $('#ul').append('<div class="col-md-8" id=li' + i + '><input hidden  asp-for="tipo[]" name="tipo[]"  id="checkbox' + i + '" value="checkbox"/>Nombre del campo CheckBox: <input type="text" required  asp-for="nombre[]" name="nombre[]" class="form-control input-mini" id=' + i + '/></div><div class="col-md-1" id=li' + i + '><label>Eliminar</label><button class="btn btn-link" onclick="eliminar(' + i + ');"><i class="fas fa-trash"></i></button></div>');
 
-            $("#ul").append('<li id=li' + i + '><input hidden  asp-for="tipo[]" name="tipo[]"  id="checkbox' + i + '" value="checkbox"/>Nombre del campo CheckBox: <input type="text" required  asp-for="nombre[]" name="nombre[]" class="form-control input-mini" id=' + i + '/><button class="btn btn-link" onclick="eliminar(' + i + ');"><i class="fas fa-trash"></i></button></li>');
+            //$("#ul").append('<li id=li' + i + '><button class="btn btn-link" onclick="eliminar(' + i + ');"><i class="fas fa-trash"></i></button></li>');
             i++;
         });
         $("#TextArea").click(function () {
+            $('#ul').append('<div class="col-md-8" id=li' + i + '><input hidden asp-for="tipo[]" name="tipo[]" id="textArea' + i + '" value="textArea"/>Nombre del Texto Grande: <input required type="text"  asp-for="nombre[]" name="nombre[]" class="form-control input-mini" id=' + i + '/></div><div class="col-md-1" id=li' + i + '><label>Eliminar</label><button class="btn btn-link" onclick="eliminar(' + i + ');"><i class="fas fa-trash"></i></button></div>');
 
-            $("#ul").append('<li id=li' + i + '><input hidden asp-for="tipo[]" name="tipo[]" id="textArea' + i + '" value="textArea"/>Nombre del Texto Grande: <input required type="text"  asp-for="nombre[]" name="nombre[]" class="form-control input-mini" id=' + i + '/><button class="btn btn-link" onclick="eliminar(' + i + ');"><i class="fas fa-trash"></i></button></li>');
+            //  $("#ul").append('<li id=li' + i + '><button class="btn btn-link" onclick="eliminar(' + i + ');"><i class="fas fa-trash"></i></button></li>');
             i++;
         });
         $("#Text").click(function () {
+            $('#ul').append('<div class="col-md-8" id=li' + i + '><input hidden asp-for="tipo[]" name="tipo[]" id="text' + i + '" value="text"/>Nombre del texto: <input type="text" required asp-for="nombre[]" name="nombre[]" class="form-control input-mini" id=' + i + '/></div><div class="col-md-1" id=li' + i + '><label>Eliminar</label><button class="btn btn-link" onclick="eliminar(' + i + ');"><i class="fas fa-trash"></i></button></div>');
 
-            $("#ul").append('<li id=li' + i + '><input hidden asp-for="tipo[]" name="tipo[]" id="text' + i + '" value="text"/>Nombre del texto: <input type="text" required asp-for="nombre[]" name="nombre[]" class="form-control input-mini" id=' + i + '/><button class="btn btn-link" onclick="eliminar(' + i + ');"><i class="fas fa-trash"></i></button></li>');
+            // $("#ul").append('<li id=li' + i + '><button class="btn btn-link" onclick="eliminar(' + i + ');"><i class="fas fa-trash"></i></button></li>');
             i++;
         });
     });
     function eliminar(id) {
-        var opcion = confirm("Deseas eliminarlo");
+        var opcion = confirm("Esta seguro que desea eliminar el campo?");
         var mensaje;
         if (opcion == true) {
-            $("#ul #li" + id + "").remove();
-          
-            $('#mensaje').show();
+             $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "POST",
 
-            i--;
-            setTimeout(function () {
-                $("#mensaje").fadeOut(10);
-            }, 2000);
+
+                url: '@Url.Action("Delete", "CamposPersonalizados")',
+
+                 data:{id : id},
+                 success: function (data) {
+                     window.location.reload();
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
 
         } else {
             return;
         }
-   
+
 
     }
+</script>
+
+<!-- The Modal -->
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div id="crearEditarPartial">
+
+                </div>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" id="guardarLista" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            </div>
+
+        </div>
+    </div>
+
+</div><div class="modal fade" id="myModal1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div id="crearCampos">
+
+                </div>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" id="guardarCampo" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+<script>
+    //llamar modal con datas para crear campos personalizados.
+    $('#CamposPersonalizados').change(function () {
+
+        if ($(this).val() == "Lista") {
+            $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("CrearLista", "ListaDesplegable")',
+
+
+                success: function (data) {
+                    $('#crearEditarPartial').html(data);
+                    $('#myModal').modal('show');
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+        } else if ($(this).val() == "fechaHora") {
+         
+            llamarModalCampos("datetime-local");
+        } else if ($(this).val() == "checkBox") {
+            llamarModalCampos("checkbox");
+        } else if ($(this).val() == "textArea") {
+            llamarModalCampos("textArea");
+        } else if ($(this).val() == "text") {
+            llamarModalCampos("text");
+        }
+
+    });
+
+    function llamarModalCampos(tipo) {
+
+        var domain1 = {
+            nombre: "",
+            tipo:tipo,
+            estado : "Activo"
+        };
+         $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "POST",
+
+
+             url: '@Url.Action("CrearCamposPersonalizados", "CamposPersonalizados")',
+             data: { domain2: domain1 },
+
+              success: function (data) {
+                  $('#crearCampos').html(data);
+                  $('#myModal1').modal('show');
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+    }
+
+  
 </script>

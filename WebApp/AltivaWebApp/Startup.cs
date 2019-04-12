@@ -1,6 +1,5 @@
 using AltivaWebApp.App_Start;﻿
 using AltivaWebApp.Context;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,18 +9,24 @@ using Microsoft.AspNetCore.Server.IIS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
+using System.IO; // for using Directory
 
 namespace AltivaWebApp
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
 
-        public IConfiguration Configuration { get; }
+            public IConfiguration Configuration { get; set; }
+         public static IHostingEnvironment entorno { get; set; }
+        public Startup(IHostingEnvironment env)
+            {
+            entorno = env;
+                     var builder = new ConfigurationBuilder()
+                        .SetBasePath(entorno.ContentRootPath)
+                        .AddJsonFile("appsettings.json");
+                        Configuration = builder.Build();
+            }  
+          
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -37,7 +42,7 @@ namespace AltivaWebApp
             services.AddDbContext<EmpresasContext>(options =>
                options.UseSqlServer(StringFactory.StringEmpresas));
 
-            StringFactory.SetStringGE(Configuration.GetConnectionString("GrupoEmpresarialString"));
+            StringFactory.SetStringGE(Configuration.GetConnectionString("GrupoEmpresarialString") );
 
             services.AddDbContext<GrupoEmpresarialContext>(options =>
                     options.UseSqlServer(StringFactory.StringGE));

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Data.SqlClient;
 using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
+using Microsoft.AspNetCore.Hosting;
 
 namespace AltivaWebApp.Controllers
 {
@@ -25,7 +26,9 @@ namespace AltivaWebApp.Controllers
        [Route("Login")] 
        public IActionResult Login(string grupo)
        {
-            
+         
+
+
             StringFactory.SetStringGE(grupo);
 
             try

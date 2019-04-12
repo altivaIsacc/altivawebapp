@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Hosting;
 using System.Configuration;
 using System.IO;
 
@@ -15,9 +16,9 @@ namespace AltivaWebApp.Context
         public static void SetStringGE(string grupo)
         {
             var conf = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json").Build();
-
+                .SetBasePath(Startup.entorno.ContentRootPath)
+            .AddJsonFile("appsettings.json").Build();        
+   
 
             var server = conf["server"];
 
@@ -33,8 +34,9 @@ namespace AltivaWebApp.Context
         public static void SetStringEmpresas(string empresa)
         {
             var conf = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json").Build();
+              .SetBasePath(Startup.entorno.ContentRootPath)
+          .AddJsonFile("appsettings.json").Build();
+
             var server = conf["server"];
 
             var pass = conf["serverPassword"];
