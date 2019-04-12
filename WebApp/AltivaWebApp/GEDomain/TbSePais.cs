@@ -8,16 +8,16 @@ namespace AltivaWebApp.GEDomain
     {
         public int Id { get; set; }
         [StringLength(30, MinimumLength = 2)]
-        [Required(ErrorMessage = "Nombre en español es Requerido")]
+        [Required(ErrorMessage = "Nombre en español es requerido.")]
         public string NombreEs { get; set; }
         [StringLength(30, MinimumLength = 2)]
-        [Required(ErrorMessage = "Nombre en ingles es Requerido")]
+        [Required(ErrorMessage = "Nombre en inglés es requerido")]
         public string NombreEn { get; set; }
         [StringLength(30, MinimumLength = 2)]
-        [Required(ErrorMessage = "Gentilicio en español es Requerido")]
+        [Required(ErrorMessage = "Gentilicio en español es requerido.")]
         public string GentilicioEs { get; set; }
         [StringLength(30, MinimumLength = 2)]
-        [Required(ErrorMessage = "Gentilicio en ingles es Requerido")]
+        [Required(ErrorMessage = "Gentilicio en inglés es requerido.")]
         public string GentilicioEn { get; set; }
       
         [StringLength(30, MinimumLength = 2)]

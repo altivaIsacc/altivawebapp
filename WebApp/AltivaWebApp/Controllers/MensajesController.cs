@@ -149,38 +149,6 @@ namespace AltivaWebApp.Controllers
                       
         }
 
-        //public ActionResult EliminarComentarioPais(int id, int codigo)
-        //{
-        //    TbSeMensaje msj;
-        //    msj = IMensajeMap.EliminarComentario(id);
-
-        //    this.ImensajeService.Update(msj);
-        //    return RedirectToAction("CrearReferenciaPais", new { @id = codigo });
-        //}
-        ////Eliminar comentario usuario
-
-        //public ActionResult EliminarComentarioUsuario(int id,int codigo)
-        //{
-        //    TbSeMensaje msj;
-        //    msj=  IMensajeMap.EliminarComentario(id);
-
-        //    this.ImensajeService.Update(msj);
-        //    return RedirectToAction("CrearComentarioUsuario", new { @id = codigo });
-        //}
-
-        //[HttpGet("/Comentario/usuario/{id?}")]
-        //public ActionResult CrearReferenciaPais(int id)
-        //{
-        //    List<MensajeRecibidoViewModel> ms = new List<MensajeRecibidoViewModel>();
-        //    TbSePais pais = new TbSePais();
-        //    pais = this.IPaisService.GetPaisById(id);
-        //    ViewBag.nombre = pais.NombreEs;
-        //    ms = this.ImensajeService.GetComentarios(id);
-        //    ViewData["comentarioPais"] = ms;
-        //    //id del pais 
-        //    ViewBag.id = id;
-        //    return View();
-        //}
         [HttpGet("/Mensajes/")]
         public ActionResult Index()
         {
@@ -191,16 +159,19 @@ namespace AltivaWebApp.Controllers
 
             return View();
         }
-        public JsonResult BuscarNombre(int valor)
+
+        [Route("BuscarNombre/{idUsuario}")]
+        public JsonResult BuscarNombre(int idUsuario)
         {
             List<MensajeRecibidoViewModel> nombreReceptor = new List<MensajeRecibidoViewModel>();
-            nombreReceptor = this.ImensajeService.BuscarNombre(valor);
+            nombreReceptor = this.ImensajeService.BuscarNombre(idUsuario);
             return new JsonResult(nombreReceptor);
         }
-        public JsonResult verMensaje(int valor)
+        [Route("VerMensaje/{idMensaje}")]
+        public JsonResult VerMensaje(int idMensaje)
         {
             List<MensajeRecibidoViewModel> ms = new List<MensajeRecibidoViewModel>();
-            ms = this.ImensajeService.Ver(valor);
+            ms = this.ImensajeService.Ver(idMensaje);
             return new JsonResult(ms);
         }
 
@@ -210,17 +181,19 @@ namespace AltivaWebApp.Controllers
             ms = this.ImensajeService.VerComentarios(valor);
             return new JsonResult(ms);
         }
-        public JsonResult Eliminar(int valor)
+        [Route("Eliminar/{idMensaje}")]
+        public JsonResult Eliminar(int idMensaje)
         {
             var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
       
             TbSeMensajeReceptor re = new TbSeMensajeReceptor();
-            re = this.IMensajeReceptorMap.EliminarTemporal(valor);
+            re = this.IMensajeReceptorMap.EliminarTemporal(idMensaje);
             this.IBitacoraMap.CrearBitacora(Convert.ToInt32(ids), "Paso un mensaje a estado eliminado",re.IdMensaje,"Mensaje");
             this.IMensajeReceptorService.Update(re);
             return Json(new { id = 1 });
         }
         //metodo que muestra los mensajes archivados
+        [Route("Archivados")]
         public ActionResult Archivados()
         {
             List<MensajeRecibidoViewModel> MensajeViewModel = new List<MensajeRecibidoViewModel>();
@@ -231,21 +204,22 @@ namespace AltivaWebApp.Controllers
             return View();
 
         }
-        
-        public JsonResult NoLeidos(int valor)
+         [Route("NoLeidos/{pMensaje}")]
+        public JsonResult NoLeidos(int pMensaje)
         {
             TbSeMensajeReceptor re = new TbSeMensajeReceptor();
-            re = this.IMensajeReceptorMap.NoLeido(valor);
+            re = this.IMensajeReceptorMap.NoLeido(pMensaje);
             this.IMensajeReceptorService.Update(re);
             return Json(new { id = 1 });
 
         }
-        public JsonResult Leidos(int valor)
+        [Route("Leidos/{pMensaje}")]
+        public JsonResult Leidos(int pMensaje)
         {
             var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             
             TbSeMensajeReceptor re = new TbSeMensajeReceptor();
-            re = this.IMensajeReceptorMap.Leido(valor);
+            re = this.IMensajeReceptorMap.Leido(pMensaje);
             this.IBitacoraMap.CrearBitacora(Convert.ToInt32(ids), "Vio un mensaje recibido",re.IdMensaje,"Mensaje");
 
             this.IMensajeReceptorService.Update(re); ;
@@ -253,6 +227,7 @@ namespace AltivaWebApp.Controllers
 
         }
         //enviados
+        [Route("Enviados")]
         public ActionResult Enviados()
         {
             List<MensajeRecibidoViewModel> MensajeViewModel = new List<MensajeRecibidoViewModel>();
@@ -278,6 +253,7 @@ namespace AltivaWebApp.Controllers
             return new JsonResult(f);
         }
         //contador
+        [Route("Contador")]
         public JsonResult Contador()
         {
             var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -304,12 +280,13 @@ namespace AltivaWebApp.Controllers
             ViewData["Archivados"] = MensajeViewModel3;
             return View();
         }
-        public JsonResult CambiarEstado(int valor)
+        [HttpGet("CambiarEstado/{idMensaje}")]
+        public JsonResult CambiarEstado(int idMensaje)
         {
             var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
           
             TbSeMensajeReceptor re = new TbSeMensajeReceptor();
-            re = this.IMensajeReceptorMap.Edit(valor);
+            re = this.IMensajeReceptorMap.Edit(idMensaje);
             this.IBitacoraMap.CrearBitacora(Convert.ToInt32(ids), "Paso un mensaje a estado archivado",re.IdMensaje,"Mensajes");
 
             this.IMensajeReceptorService.Update(re);
@@ -391,6 +368,8 @@ namespace AltivaWebApp.Controllers
                 throw;
                 }
             }
+        
+                [HttpPost("ModificarEstados")]
         public ActionResult ModificarEstados(List<int> id)
         {
             var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -428,44 +407,6 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        // POST: Mensajes/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add update logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: Mensajes/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: Mensajes/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        
     }
 }

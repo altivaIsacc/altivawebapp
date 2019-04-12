@@ -71,8 +71,7 @@
 </div>
 
 <script>
-   
-    var i;
+    var l = 0;
     if (@ViewBag.id == 1) {
         
    $.ajax({
@@ -86,11 +85,12 @@
 
           data: {id:@Model.Id},
 
-                    success: function (data1) {
-                      
-                        for (i = 0; i < data1.length; i++) {
+       success: function (data1) {
+
+     
+                        for (l= 0; l < data1.length; l++) {
                             
-                            $('#uls').append('<tr><th class="col-md-8" id="li' + i + '"><input type="text" disabled class="form-control" id="c' + i + '" value="' + data1[i].valor + '" /><div  id="mensajeLi' + i + '"></div> </th><td><button class="btn btn-link" onclick="EditarLista(' + data1[i].valor +')"><i class="fas fa-edit"></i></button><button class="btn btn-link" onclick="eliminarCampo(' + i + ');"><i class="fas fa-trash"></i></button></td></tr>');
+                            $('#uls').append('<tr><th class="col-md-8"><input hidden type="text" value="' + data1[l].idListaDesplegable + '"  id="l' + l + '" /><input type="text"  id="cam' + l + '"  value="' + data1[l].idCampoPersonalizado + '" hidden/><input type="text"  class="form-control" id="e' + l + '" value="' + data1[l].valor + '" /><div  id="mensajeLi' + l + '"></div> </th><td><button class="btn btn-link" onclick="EliminarCamposListaDesplegable(' + data1[l].idCampoPersonalizado + ');"><i class="fas fa-trash"></i></button></td></tr>');
 
                         }
 
@@ -105,21 +105,18 @@
                 });
                 }
     
-    
+        var i=0;
     $('#AgregarLista').on('click', function () {
-      
-        $('#uls').append('<tr id="li' + i + '"><th class="col-md-8" ><input type="text" class="form-control" id="c' + i + '"/> <div  id="mensajeLi' + i + '"></div></th><td><button class="btn btn-link" onclick="eliminarCampo(' + i + ');"><i class="fas fa-trash"></i></button></td></tr>');
+  
+        $('#uls').append('<tr id="li' + i + '"><th id="li' + i + '" class="col-md-8" ><input type="text" class="form-control" id="c' + i + '"/> <div  id="mensajeLi1' + i + '"></div></th><td id="li' + i + '"><button id="li' + i + '" class="btn btn-link" onclick="eliminarCampo(' + i + ');"><i id="li' + i + '" class="fas fa-trash"></i></button></td></tr>');
         
         i++;
     });
-    function EditarLista(id) {
-
-        $('#campo').val(id);
+  
+   
     
-        $('#myModal4').modal('show');
-      
-    }
-    function eliminarCampo(id) {
+
+     function eliminarCampo(id) {
         var opcion = confirm("<span>Esta seguro que desea eliminar el campo?</span>");
         var mensaje;
         if (opcion == true) {
@@ -136,14 +133,166 @@
 
 
     }
-    $('#guardarLista').on('click', function () {
+
+    function EliminarCamposListaDesplegable(id) {
+          $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "POST",
 
 
-    });
- 
+                
+                    url: '@Url.Action("Delete", "ListaDesplegable")',
 
-         //guardar la lista desplegable.
-        $('#guardarLista').on('click', function () {
+                    data: { id: id },
+                    success: function (data) {
+                        var urls = '@Url.Action("Create", "CamposPersonalizados")';
+                                    window.location.href = urls;
+                      
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+    }
+    function EditarListaCampo() {
+        var nombreLista = $('#nombreLista').val();
+
+
+ if (nombreLista == "") {
+                $('#mensaje').empty();
+                $('#mensaje').append('<span class="text-danger">El nombre es requerido.</span>');
+                return false;
+        }
+        
+            for (var j = 0; j < l; j++) {
+                if ($('#e' + j + '').val() == "") {
+                    $('#mensajeLi' + j + '').empty();
+                    $('#mensajeLi' + j + '').append('<span class="text-danger">El campo es querido</span>');
+                    return false;
+                }
+            }
+           
+        if (l <= 0) {
+            $('#mensaje1').empty();
+            $('#mensaje1').append('<span class="text-danger">Debes seleccionar un campo.</span>');
+            return false;
+        }
+        var domain1 = {
+                    id: $('#id').val(),
+                    nombre: nombreLista,
+                    tipo: "lista",
+                    valor: "Activo"
+        };
+        if (i != 0) {
+
+            for (var j = 0; j < i; j++) {
+                if ($('#c' + j + '').val() == "") {
+                    $('#mensajeLi1' + j + '').empty();
+                    $('#mensajeLi1' + j + '').append('<span class="text-danger">El campo es querido</span>');
+                    return false;
+                }
+            }
+
+        }
+                $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "POST",
+
+
+                
+                    url: '@Url.Action("Editar", "CamposPersonalizados")',
+
+                    data: { model1: domain1 },
+                    success: function (data) {
+                        EditarListaCamposPersonalizados();
+                      
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+           
+    }
+ function EditarListaCamposPersonalizados(){
+     var ArrayLista = [];
+     for (var j = 0; j < l; j++) {
+         var model2 = {
+
+             idCamposPersonalizados: $('#cam'+j+'').val(),
+             valor: $('#e' + j + '').val()
+         };
+         ArrayLista.push(model2);
+     }
+
+     console.log(ArrayLista);
+     var ArrayLista1 = [];
+        $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "POST",
+
+
+                    url: '@Url.Action("EditarListaCampos", "ListaDesplegable")',
+
+            data: { domain: ArrayLista },
+                    success: function (data) {
+                         if (i != 0) {
+
+                          
+                            for (var j = 0; j < i; j++) {
+
+                                var model2 = {
+
+                                    idCamposPersonalizados: $('#id').val(),
+                                    valor: $('#c' + j + '').val()
+                                };
+                                ArrayLista1.push(model2);
+                            }
+                            $.ajax({
+                                headers: {
+                                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                                },
+                                type: "POST",
+
+
+                                url: '@Url.Action("CrearCamposRelacionLista", "ListaDesplegable")',
+
+                                data: { lista: ArrayLista1 },
+                                success: function (data) {
+
+                                    var urls = '@Url.Action("Create", "CamposPersonalizados")';
+                                    window.location.href = urls;
+                                },
+
+                                error: function (err, scnd) {
+                                    console.log(err.statusText);
+                                }
+
+                            });
+                        } else {
+                                var urls = '@Url.Action("Create", "CamposPersonalizados")';
+                        window.location.href = urls;
+                        }
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+    }
+
+        //guardar la lista desplegable.
+        function guardar() {
             var nombreLista = $('#nombreLista').val();
     
             if (nombreLista == "") {
@@ -163,15 +312,14 @@
                 $('#mensaje1').append('<span class="text-danger">Debes seleccionar un campo.</span>');
                 return false;
             }
-            var opcion = confirm("<span>Esta seguro que desea guardar los cambios?</span>");
-            if (opcion == true) {
+         
                 var model1 = {
                     id:0,
                     nombre: nombreLista,
                     tipo: "lista",
                     valor: "Inactivo"
                 };
-
+            
                 $.ajax({
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
@@ -185,8 +333,6 @@
                     success: function (data) {
                         agregarRelacionLista(data);
 
-                        var urls = '@Url.Action("Create", "CamposPersonalizados")';
-                        window.location.href = urls;
                     },
 
                     error: function (err, scnd) {
@@ -194,19 +340,13 @@
                     }
 
                 });
-            } else {
-                return;
-            }
-        });
+           
+        }
         //agrega relacion con el campo personalizado
         function agregarRelacionLista(data) {
             var ArrayLista = [];
             for (var j = 0; j < i; j++) {
-                if ($('#c' + j + '').val() == "") {
-                    $('#mensajeLi' + j + '').empty();
-                    $('#mensajeLi' + j + '').append('<span class="text-danger">El campo es querido.</span>');
-                    return false;
-                }
+             
                 var model2 = {
 
                     idCamposPersonalizados: data.id,
@@ -225,7 +365,9 @@
 
                data: { lista: ArrayLista },
                success: function (data) {
-                 
+          
+                        var urls = '@Url.Action("Create", "CamposPersonalizados")';
+                        window.location.href = urls;
                     },
 
                     error: function (err, scnd) {

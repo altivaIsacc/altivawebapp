@@ -13,7 +13,8 @@ namespace AltivaWebApp.Mappers
   
         void SaveRange(IList<ListaViewModel> domain);
         IList<TbCrListaDesplegables> viewModelCamposLista(IList<ListaViewModel> domain);
-
+        void UpdateRange(IList<ListaViewModel> domain);
+        IList<TbCrListaDesplegables> ViewToModelUpdateRange(IList<ListaViewModel> domain);
 
     }
 }
