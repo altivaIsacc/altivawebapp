@@ -14,24 +14,51 @@ namespace AltivaWebApp.Controllers
     {
          IListaDesplegableMapper map;
         IListaDesplegableService service;
-        
-        public ListaDesplegableController(IListaDesplegableMapper map, IListaDesplegableService service)
+        ICamposPersonalizadosService pCamposPersonalizados;
+
+
+        public ListaDesplegableController(IListaDesplegableMapper map, IListaDesplegableService service, ICamposPersonalizadosService pCamposPersonalizados)
         {
             this.service = service;
             this.map = map;
+            this.pCamposPersonalizados = pCamposPersonalizados;
         }
        [HttpGet]
         public IActionResult CrearLista()
-        {
 
-            
-            return PartialView("_CrearEditar", new TbCrListaDesplegables());
+       {
+
+            ViewBag.id = 0;
+            CamposPersonalizadosViewModelSingle domain2 = new CamposPersonalizadosViewModelSingle();
+
+            return PartialView("_CrearEditar",domain2 );
         }
         public JsonResult CrearCampos(CamposPersonalizadosViewModelSingle model1)
         {
             TbCrCamposPersonalizados vd = new TbCrCamposPersonalizados();
            vd = this.map.Save(model1);
             return new JsonResult(vd);
+        }
+        public ActionResult EditCampos(int id)
+        { 
+            try
+            {
+                ViewBag.id = 1;
+                TbCrCamposPersonalizados contactoMap = new TbCrCamposPersonalizados();
+                contactoMap = this.pCamposPersonalizados.getById(id);
+                CamposPersonalizadosViewModelSingle domain2 = new CamposPersonalizadosViewModelSingle();
+                domain2.Id = Convert.ToInt32(contactoMap.Id);
+                domain2.Nombre = contactoMap.Nombre;
+                domain2.Tipo = contactoMap.Tipo;
+                domain2.Estado = contactoMap.Estado;
+                return PartialView("_CrearEditar", domain2);
+            }
+            catch
+            {
+
+            }
+
+            return new JsonResult(true);
         }
         public JsonResult CrearCamposRelacionLista(IList<ListaViewModel> lista)
         {

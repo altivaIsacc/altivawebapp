@@ -10,7 +10,10 @@ namespace AltivaWebApp.Mappers
     {
         TbCrCamposPersonalizados Save(CamposPersonalizadosViewModelSingle domain);
         TbCrCamposPersonalizados viewModelCampos(CamposPersonalizadosViewModelSingle domain);
+  
         void SaveRange(IList<ListaViewModel> domain);
         IList<TbCrListaDesplegables> viewModelCamposLista(IList<ListaViewModel> domain);
+
+
     }
 }

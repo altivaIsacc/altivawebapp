@@ -1,4 +1,4 @@
-﻿@model AltivaWebApp.Domains.TbCrListaDesplegables
+﻿@model AltivaWebApp.ViewModels.CamposPersonalizadosViewModelSingle
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -13,22 +13,33 @@
     <div class="col-md-4 ">
 
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div><label>Campo de tipo:</label> @Model.Tipo</div>
+        <div class="form-group">
+            <input type="text" asp-for="@Model.Id" id="id" hidden />
+        </div>
+        <div class="form-group">
+            <input type="text" asp-for="@Model.Tipo" id="Tipo" hidden />
+        </div>
+        <div class="form-group">
+            <input type="text" asp-for="@Model.Estado" id="Estado" hidden />
+        </div>
         <div class="form-group">
             <label lass="control-label">Digite el nombre de la Lista</label>
-            <input type="text" class="form-control" id="nombreLista" />
+            <input type="text" class="form-control" id="nombreLista" asp-for="Nombre" />
             <div id="mensaje"></div>
         </div>
+
         <div class="form-group">
             <label lass="control-label">Tipo</label>
             <input type="text" class="form-control" disabled="disabled" placeholder="Lista Desplegable" id="tipo" />
-          
+
         </div>
         <div class="form-group">
             <table class="table table-bordered">
                 <tr>
                     <th><button class="btn btn-link" id="AgregarLista">Agregar Campo </button></th>
 
-                   
+
                 </tr>
                 <tr>
                     <th>  <div id="mensaje1"></div></th>
@@ -38,21 +49,76 @@
 
 
     </div>
-    <div class="col-md-8">
-        Nombre de las opciones :
-        <div class="  pre-scrollable" id="camposLista">
+    Nombre de las opciones :
+    <div class="col-md-8" id="pa">
+      
+        <div class="  pre-scrollable " id="camposLista">
+            <table class="table table-hover">
+                <tbody id="uls">
+                    <tr>
 
+                        <th>Nombre de la opcion</th>
+                        <td>Accion</td>
+                    </tr>
+
+
+                </tbody>
+
+            </table>
         </div>
     </div>
 
 </div>
 
 <script>
-       var i = 0;
+   
+    var i;
+    if (@ViewBag.id == 1) {
+        
+   $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "POST",
+
+
+                    url: '@Url.Action("GetCampos", "ListaDesplegable")',
+
+          data: {id:@Model.Id},
+
+                    success: function (data1) {
+                      
+                        for (i = 0; i < data1.length; i++) {
+                            
+                            $('#uls').append('<tr><th class="col-md-8" id="li' + i + '"><input type="text" disabled class="form-control" id="c' + i + '" value="' + data1[i].valor + '" /><div  id="mensajeLi' + i + '"></div> </th><td><button class="btn btn-link" onclick="EditarLista(' + data1[i].valor +')"><i class="fas fa-edit"></i></button><button class="btn btn-link" onclick="eliminarCampo(' + i + ');"><i class="fas fa-trash"></i></button></td></tr>');
+
+                        }
+
+
+                    
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+                }
+    
+    
     $('#AgregarLista').on('click', function () {
-        $('#camposLista').append('<div class="col-md-8" id="li' + i + '"><label>Digite el Nombre de la opcion ' + (i + 1) + ' </label><input type="text" class="form-control" id="c' + i + '"/> <div class="col-md-12" id="mensajeLi' + i + '"></div></div><div class="col-md-1"  id="li' + i +'"><label>Eliminar</label><button class="btn btn-link" onclick="eliminarCampo(' + i + ');"><i class="fas fa-trash"></i></button></div>');
-           i++;
+      
+        $('#uls').append('<tr id="li' + i + '"><th class="col-md-8" ><input type="text" class="form-control" id="c' + i + '"/> <div  id="mensajeLi' + i + '"></div></th><td><button class="btn btn-link" onclick="eliminarCampo(' + i + ');"><i class="fas fa-trash"></i></button></td></tr>');
+        
+        i++;
     });
+    function EditarLista(id) {
+
+        $('#campo').val(id);
+    
+        $('#myModal4').modal('show');
+      
+    }
     function eliminarCampo(id) {
         var opcion = confirm("<span>Esta seguro que desea eliminar el campo?</span>");
         var mensaje;
@@ -74,6 +140,8 @@
 
 
     });
+ 
+
          //guardar la lista desplegable.
         $('#guardarLista').on('click', function () {
             var nombreLista = $('#nombreLista').val();
@@ -98,7 +166,7 @@
             var opcion = confirm("<span>Esta seguro que desea guardar los cambios?</span>");
             if (opcion == true) {
                 var model1 = {
-
+                    id:0,
                     nombre: nombreLista,
                     tipo: "lista",
                     valor: "Inactivo"
