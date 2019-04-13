@@ -13,7 +13,7 @@
     <div class="col-md-4 ">
 
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <div><label hidden>Campo de tipo:</label> @Model.Tipo</div>
+        <div hidden><label hidden>Campo de tipo:</label> @Model.Tipo</div>
         <div class="form-group">
             <input type="text" asp-for="@Model.Id" id="id" hidden />
         </div>
@@ -38,8 +38,6 @@
             <table class="table table-bordered">
                 <tr>
                     <th><button class="btn btn-link" id="AgregarLista"><i style="font-size:2rem;" class="fas fa-plus"></i></button></th>
-
-
                 </tr>
                 <tr>
                     <th>  <div id="mensaje1"></div></th>
@@ -92,13 +90,17 @@
 </div>
 
     <script>
-    var l = 0;
+        var l = 0;
 
     $(document).ready(function () {
+      
+        if (@ViewBag.id == 1) {
 
-    if (@ViewBag.id == 1) {
-
-   $.ajax({
+            tableListaDesplegable();        }
+      
+        });
+        function tableListaDesplegable() {
+              $.ajax({
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
@@ -129,8 +131,6 @@
                 });
         }
         var i = 0;
-    });
-
     $('#AgregarLista').on('click', function () {
 
         $('#uls').append('<tr id="li' + i + '"><th id="li' + i + '" class="col-md-8" ><input type="text" class="form-control" id="c' + i + '"/> <div  id="mensajeLi1' + i + '"></div></th><td id="li' + i + '"><button id="li' + i + '" class="btn btn-link" onclick="eliminarCampo(' + i + ');"><i id="li' + i + '" class="fas fa-trash"></i></button></td></tr>');
@@ -171,9 +171,9 @@
                     url: '@Url.Action("Delete", "ListaDesplegable")',
 
                     data: { id: id },
-                    success: function (data) {
-                        var urls = '@Url.Action("Create", "CamposPersonalizados")';
-                                    window.location.href = urls;
+              success: function (data) {
+                  $('#uls').empty();
+                        tableListaDesplegable();
 
                     },
 
@@ -223,6 +223,7 @@
             }
 
         }
+      
                 $.ajax({
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
@@ -294,6 +295,8 @@
                                 data: { lista: ArrayLista1 },
                                 success: function (data) {
                                     $('#ul').empty();
+                                    $('#uls').empty();
+                                    
                                     cargarTable();
                                     $('#crearLista').modal('hide');
                                 },
@@ -305,6 +308,7 @@
                             });
                          } else {
                              $('#ul').empty();
+                             $('#uls').empty();
                                cargarTable();
                                     $('#crearLista').modal('hide');
                         }
@@ -392,7 +396,9 @@
                data: { lista: ArrayLista },
                success: function (data) {
                    $('#ul').empty();
+                   $('#uls').empty();
                    cargarTable();
+               
                    $('#crearLista').modal('hide');
 
                     },

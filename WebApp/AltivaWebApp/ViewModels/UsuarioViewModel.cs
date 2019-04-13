@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,7 +32,10 @@ namespace AltivaWebApp.ViewModels
 
         [Required(ErrorMessage = "Inicales es requerido")]
         public string contrasena { get; set; }
-
+        [NotMapped]
+        [Required(ErrorMessage = "Confirm Password required")]
+        [CompareAttribute("contrasena", ErrorMessage = "No son iguales")]
+        public string ConfirmPassowrd { get; set; }
         [StringLength(50, MinimumLength = 4)]
         [Required(ErrorMessage = "Inicales es requerido")]
         public string correo { get; set; }

@@ -226,7 +226,7 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
-                return View(string.Empty, "Error al crear el usuario");
+                
                 throw;                
             }
         }
