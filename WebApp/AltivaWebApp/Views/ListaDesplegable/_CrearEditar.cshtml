@@ -9,7 +9,7 @@
 
 
 <hr />
-<div class="row ">
+<div class="row "  id="empty2">
     <div class="col-md-4 ">
 
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -25,7 +25,7 @@
         </div>
         <div class="form-group">
             <label lass="control-label">Digite el nombre de la Lista</label>
-            <input type="text" class="form-control" id="nombreLista" asp-for="Nombre" />
+            <input type="text" class="form-control" id="nombreLista" asp-for="@Model.Nombre" />
             <div id="mensaje"></div>
         </div>
 
@@ -48,10 +48,10 @@
         </div>
 
 
+
     </div>
-    Nombre de las opciones :
     <div class="col-md-8" id="pa">
-      
+
         <div class="  pre-scrollable " id="camposLista">
             <table class="table table-hover">
                 <tbody id="uls">
@@ -67,13 +67,37 @@
             </table>
         </div>
     </div>
+    <div class="form-group">
+        <div class="col-md-12">
+            @if (ViewBag.id ==1)
+            {
 
+                <button type="button" onclick="EditarListaCampo()" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+
+            }
+            else if(ViewBag.id == 0)
+            {
+
+                <button type="submit" onclick="guardar()" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+
+
+            }
+
+        </div>
+    </div>
 </div>
 
-<script>
+    <script>
     var l = 0;
+
+    $(document).ready(function () {
+
     if (@ViewBag.id == 1) {
-        
+
    $.ajax({
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
@@ -87,15 +111,15 @@
 
        success: function (data1) {
 
-     
+
                         for (l= 0; l < data1.length; l++) {
-                            
+
                             $('#uls').append('<tr><th class="col-md-8"><input hidden type="text" value="' + data1[l].idListaDesplegable + '"  id="l' + l + '" /><input type="text"  id="cam' + l + '"  value="' + data1[l].idCampoPersonalizado + '" hidden/><input type="text"  class="form-control" id="e' + l + '" value="' + data1[l].valor + '" /><div  id="mensajeLi' + l + '"></div> </th><td><button class="btn btn-link" onclick="EliminarCamposListaDesplegable(' + data1[l].idCampoPersonalizado + ');"><i class="fas fa-trash"></i></button></td></tr>');
 
                         }
 
 
-                    
+
                     },
 
                     error: function (err, scnd) {
@@ -103,18 +127,19 @@
                     }
 
                 });
-                }
-    
-        var i=0;
+        }
+        var i = 0;
+    });
+
     $('#AgregarLista').on('click', function () {
-  
+
         $('#uls').append('<tr id="li' + i + '"><th id="li' + i + '" class="col-md-8" ><input type="text" class="form-control" id="c' + i + '"/> <div  id="mensajeLi1' + i + '"></div></th><td id="li' + i + '"><button id="li' + i + '" class="btn btn-link" onclick="eliminarCampo(' + i + ');"><i id="li' + i + '" class="fas fa-trash"></i></button></td></tr>');
-        
+
         i++;
     });
-  
-   
-    
+
+
+
 
      function eliminarCampo(id) {
         var opcion = confirm("<span>Esta seguro que desea eliminar el campo?</span>");
@@ -142,14 +167,14 @@
                     type: "POST",
 
 
-                
+
                     url: '@Url.Action("Delete", "ListaDesplegable")',
 
                     data: { id: id },
                     success: function (data) {
                         var urls = '@Url.Action("Create", "CamposPersonalizados")';
                                     window.location.href = urls;
-                      
+
                     },
 
                     error: function (err, scnd) {
@@ -167,7 +192,7 @@
                 $('#mensaje').append('<span class="text-danger">El nombre es requerido.</span>');
                 return false;
         }
-        
+
             for (var j = 0; j < l; j++) {
                 if ($('#e' + j + '').val() == "") {
                     $('#mensajeLi' + j + '').empty();
@@ -175,8 +200,8 @@
                     return false;
                 }
             }
-           
-        if (l <= 0) {
+
+        if (l < 0) {
             $('#mensaje1').empty();
             $('#mensaje1').append('<span class="text-danger">Debes seleccionar un campo.</span>');
             return false;
@@ -205,13 +230,13 @@
                     type: "POST",
 
 
-                
+
                     url: '@Url.Action("Editar", "CamposPersonalizados")',
 
                     data: { model1: domain1 },
                     success: function (data) {
                         EditarListaCamposPersonalizados();
-                      
+
                     },
 
                     error: function (err, scnd) {
@@ -219,7 +244,7 @@
                     }
 
                 });
-           
+
     }
  function EditarListaCamposPersonalizados(){
      var ArrayLista = [];
@@ -247,7 +272,7 @@
                     success: function (data) {
                          if (i != 0) {
 
-                          
+
                             for (var j = 0; j < i; j++) {
 
                                 var model2 = {
@@ -268,9 +293,9 @@
 
                                 data: { lista: ArrayLista1 },
                                 success: function (data) {
-
-                                    var urls = '@Url.Action("Create", "CamposPersonalizados")';
-                                    window.location.href = urls;
+                                    $('#ul').empty();
+                                    cargarTable();
+                                    $('#crearLista').modal('hide');
                                 },
 
                                 error: function (err, scnd) {
@@ -278,9 +303,10 @@
                                 }
 
                             });
-                        } else {
-                                var urls = '@Url.Action("Create", "CamposPersonalizados")';
-                        window.location.href = urls;
+                         } else {
+                             $('#ul').empty();
+                               cargarTable();
+                                    $('#crearLista').modal('hide');
                         }
                     },
 
@@ -294,7 +320,7 @@
         //guardar la lista desplegable.
         function guardar() {
             var nombreLista = $('#nombreLista').val();
-    
+
             if (nombreLista == "") {
                 $('#mensaje').empty();
                 $('#mensaje').append('<span class="text-danger">El nombre es requerido.</span>');
@@ -312,14 +338,14 @@
                 $('#mensaje1').append('<span class="text-danger">Debes seleccionar un campo.</span>');
                 return false;
             }
-         
+
                 var model1 = {
                     id:0,
                     nombre: nombreLista,
                     tipo: "lista",
                     valor: "Inactivo"
                 };
-            
+
                 $.ajax({
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
@@ -340,13 +366,13 @@
                     }
 
                 });
-           
+
         }
         //agrega relacion con el campo personalizado
         function agregarRelacionLista(data) {
             var ArrayLista = [];
             for (var j = 0; j < i; j++) {
-             
+
                 var model2 = {
 
                     idCamposPersonalizados: data.id,
@@ -365,9 +391,10 @@
 
                data: { lista: ArrayLista },
                success: function (data) {
-          
-                        var urls = '@Url.Action("Create", "CamposPersonalizados")';
-                        window.location.href = urls;
+                   $('#ul').empty();
+                   cargarTable();
+                   $('#crearLista').modal('hide');
+
                     },
 
                     error: function (err, scnd) {
@@ -376,6 +403,6 @@
 
                 });
         }
-</script>
+    </script>
 
 
