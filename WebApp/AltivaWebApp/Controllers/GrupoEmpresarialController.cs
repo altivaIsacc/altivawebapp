@@ -68,11 +68,8 @@ namespace AltivaWebApp.Controllers
                 }
             }
 
-            var ge = user.TbGeGrupoEmpresarial.FirstOrDefault();
-            if ( ge != null)
-                ViewData["grupoEmpresas"] = ge;
-            else
-                ViewData["grupoEmpresas"] = new TbGeGrupoEmpresarial();
+            
+           ViewData["grupoEmpresas"] = service.GetGE();
 
 
             return View(empresas);

@@ -17,8 +17,8 @@ namespace AltivaWebApp.Controllers
         public IActionResult Index(string estado)
 
         {
-            if (estado == "error") 
-                ViewBag.error = "El nombre de grupo es inválido, intentelo de nuevo y verifique la sintaxis";
+            if (estado == "error")
+                ViewBag.error = 1;//"Nombre de Grupo Empresas Inválido.";
 
             return View();
         }
