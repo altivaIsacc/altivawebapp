@@ -25,6 +25,11 @@ namespace AltivaWebApp.Services
             return this.ContactoRepository.Update(domain);
         }
 
+        public TbCrContactoRelacion EditarRelacion(EditarRelacionContactoViewModel domain)
+        {
+            return this.IContactoRelacionRepository.Update(viewModelEditarRelacion(domain));
+        }
+
         public IList<TbCrContacto> GetAll()
         {
             return this.ContactoRepository.GetAll();
@@ -94,6 +99,15 @@ namespace AltivaWebApp.Services
         public TbCrContacto Save(TbCrContacto domain)
         {
             return this.ContactoRepository.Save(domain) ;
+        }
+
+        public TbCrContactoRelacion viewModelEditarRelacion(EditarRelacionContactoViewModel domain)
+        {
+            TbCrContactoRelacion cr = new TbCrContactoRelacion();
+            cr = this.IContactoRelacionRepository.GetById(Convert.ToInt32(domain.IdRelacion));
+
+            cr.NotaRelacion = domain.Nota;
+            return cr;
         }
     }
 }

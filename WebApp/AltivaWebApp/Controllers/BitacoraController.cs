@@ -25,9 +25,9 @@ namespace AltivaWebApp.Controllers
         }
 
        
-        [HttpGet("/Bitacora/Index")]
+        [HttpGet("/Bitacora/ListaBitacora")]
 
-        public ActionResult Index()
+        public ActionResult ListaBitacora()
         {
             List<TbSeUsuario> usuariosAsociados = new List<TbSeUsuario>();
 
@@ -40,7 +40,7 @@ namespace AltivaWebApp.Controllers
             return View();
         }
         
-        public   ActionResult FindById(BitacoraViewModel valor)
+        public   ActionResult BuscarPorUsuario(BitacoraViewModel valor)
         {
           List<BitacoraViewModel> bitacora = new List<BitacoraViewModel>();
             bitacora =   IBitacoraService.GetByName(Convert.ToInt32(valor.IdUsuario));
@@ -48,12 +48,22 @@ namespace AltivaWebApp.Controllers
             return View();
         }
 
-        public ActionResult FindByDate(BitacoraViewModel valor)
+        public JsonResult FindByDat(DateTime fecha1,DateTime fecha2)
         {
             List<BitacoraViewModel> bitacora = new List<BitacoraViewModel>();
-            bitacora = IBitacoraService.GetByDate(valor.Fecha1, valor.Fecha2);
-            ViewData["bitacora"] = bitacora;
-            return View();
+            bitacora = IBitacoraService.GetByDate(fecha1, fecha2);
+      
+            return Json(new { fecha= fecha1,fecha3 = fecha2} );
+
+        }
+        public ActionResult BuscarPorFecha(BitacoraViewModel domain)
+        {
+            List<BitacoraViewModel> bitacora = new List<BitacoraViewModel>();
+           
+                bitacora = IBitacoraService.GetByDate(domain.Fecha1, domain.Fecha2);
+                ViewData["FindByDate"] = bitacora;
+                return View();
+            
 
         }
         // GET: Bitacora/Details/5
@@ -77,7 +87,7 @@ namespace AltivaWebApp.Controllers
             {
                 // TODO: Add insert logic here
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(ListaBitacora));
             }
             catch
             {
@@ -100,7 +110,7 @@ namespace AltivaWebApp.Controllers
             {
                 // TODO: Add update logic here
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(ListaBitacora));
             }
             catch
             {
@@ -123,7 +133,7 @@ namespace AltivaWebApp.Controllers
             {
                 // TODO: Add delete logic here
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(ListaBitacora));
             }
             catch
             {

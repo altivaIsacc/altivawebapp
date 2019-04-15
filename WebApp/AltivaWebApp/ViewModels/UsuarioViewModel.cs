@@ -30,11 +30,11 @@ namespace AltivaWebApp.ViewModels
         [Required(ErrorMessage = "Inicales es requerido")]
         public string iniciales { get; set; }
 
-        [Required(ErrorMessage = "Inicales es requerido")]
+        [Required(ErrorMessage = "Contraseña es requerido")]
         public string contrasena { get; set; }
         [NotMapped]
-        [Required(ErrorMessage = "Confirm Password required")]
-        [CompareAttribute("contrasena", ErrorMessage = "No son iguales")]
+        [Required(ErrorMessage = "Confirmar Contraseña es requerido.")]
+        [CompareAttribute("contrasena", ErrorMessage = "Las contraseñas no coinciden.")]
         public string ConfirmPassowrd { get; set; }
         [StringLength(50, MinimumLength = 4)]
         [Required(ErrorMessage = "Inicales es requerido")]

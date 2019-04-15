@@ -23,5 +23,8 @@ namespace AltivaWebApp.Services
         TbCrContacto GetByCedulaContacto(string cedula);
         IList<TbCeCanton> GetCantones(int idProvincia);
         IList<TbCeDistrito> GetDistrito(int idCanton, int idProvincia);
+        TbCrContactoRelacion EditarRelacion(EditarRelacionContactoViewModel domain);
+        TbCrContactoRelacion viewModelEditarRelacion(EditarRelacionContactoViewModel domain);
+
     }
 }
