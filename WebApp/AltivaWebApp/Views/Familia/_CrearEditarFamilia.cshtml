@@ -1,4 +1,5 @@
 ﻿@model AltivaWebApp.ViewModels.FamiliaViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -7,7 +8,7 @@
     }
 }
 
-@{ 
+@{
 
     Layout = null;
 }
@@ -21,12 +22,12 @@
                 <span asp-validation-for="Id" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label data-translate="descripcion" asp-for="Descripcion" class="control-label">Descripción</label>
+                <label asp-for="Descripcion" class="control-label">@SharedLocalizer["descripcion"]</label>
                 <input asp-for="Descripcion" class="form-control" />
-                <span hidden id="validatedTextDescripcion" class="text-danger" data-translate="descripcionRequerida">Descripción es requerída.</span>
+                <span hidden id="validatedTextDescripcion" class="text-danger">@SharedLocalizer["descripcionRequerida"]Descripción es requerída.</span>
             </div>
             <div class="form-group" hidden>
-                <label data-translate="fechaCreación" asp-for="FechaCreacion" class="control-label">Fecha de Creación</label>
+                <label data-translate="fechaCreacion" asp-for="FechaCreacion" class="control-label">Fecha de Creación</label>
                 <input asp-for="FechaCreacion" class="form-control" />
                 <span asp-validation-for="FechaCreacion" class="text-danger"></span>
             </div>
@@ -39,7 +40,7 @@
                 <div class="form-check">
                     <input id="esSubfamilia" type="checkbox" class="form-check-input" />
                     <label data-translate="esSubfamilia" class="form-check-label">
-                        Es una Subfamilia?
+                        @SharedLocalizer["esSubFamilia"]
                     </label>
                 </div>
             </div>
@@ -57,10 +58,16 @@
                 </select>
             </div>
         </form>
-        <div class="form-group">
-            <button data-translate="guardar" id="submitFrmFamilia" class="btn btn-primary">Guardar</button>
-            <button data-translate="cancelar" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <div class="form-group row">
+            <div class="col-md-6">
+                <button id="submitFrmFamilia" class="btn btn-success"><span data-translate="guardar">@SharedLocalizer["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
+            </div>
+            <div class="col-md-6">
+                <button data-translate="cancelar" class="btn btn-default" data-dismiss="modal">@SharedLocalizer["Cancelar"]</button>
+            </div>
+
         </div>
+
     </div>
 </div>
 
@@ -69,11 +76,11 @@
     $(document).ready(function () {
 
 
-        
+
         var familiaPadre = $('#familiaPadreSelect').val();
         var familia = familiaPadre;
         $('#familiaPadre').hide();
-       
+
         if (familiaPadre != 'null') {
             $('#familiaPadre').show();
             $('#esSubfamilia').prop('checked', true);
@@ -108,7 +115,7 @@
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
-                url: '/Familias/CrearEditar-Familia/' + @Model.Id,
+                url: '../Familias/CrearEditar-Familia/' + @Model.Id,
                 data: $('#frmFamilia').serialize(),
                 success: function (data) {
 
@@ -127,11 +134,11 @@
                     ///valida si es subfamilia
                     else if (model[4].value != null && @Model.Id != 0) {
                         //alert();
-                         //$("#familias option:selected").remove();                          
+                         //$("#familias option:selected").remove();
                          $("#familias").val(model[4].value);
-                    }                      
-                                                                                                               
-                                      
+                    }
+
+
                     $("#familias").trigger('change');
                     $('#modalFamilia').modal('hide');
                 },
@@ -145,7 +152,7 @@
 
 
         function validarForm(model) {
-            
+
 
             if (model[1].value != '') {
                 return true;
@@ -160,6 +167,6 @@
 
     });
 
-   
+
 
 </script>

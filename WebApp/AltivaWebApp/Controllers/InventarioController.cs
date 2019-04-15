@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AltivaWebApp.Controllers
 {
-    [Route("Inventario")]
+    [Route("{culture}/Inventario")]
     public class InventarioController : Controller
     {
         readonly IInventarioService service;

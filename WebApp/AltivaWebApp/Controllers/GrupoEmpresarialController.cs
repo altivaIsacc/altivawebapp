@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Hosting;
 namespace AltivaWebApp.Controllers
 {
     [Authorize]
-    [Route("Grupo")]
+    [Route("{culture}/Grupo")]
     public class GrupoEmpresarialController : Controller
     {
         // GET: GrupoEmpresarial
@@ -84,7 +84,7 @@ namespace AltivaWebApp.Controllers
             if (model != null)
             {
                 StringFactory.SetStringEmpresas(model.Bd);
-                Session.Session.SetIdEmpresa(HttpContext.Session,(int) model.Id);
+                Sesion.Sesion.SetIdEmpresa(HttpContext.Session,(int) model.Id);
                 try
                 {
                     using (SqlConnection conn = new SqlConnection(StringFactory.StringEmpresas))
@@ -114,8 +114,7 @@ namespace AltivaWebApp.Controllers
         }
 
         // POST: GrupoEmpresarial/Create
-        [HttpPost("Nueva-Empresa")]
-        [ValidateAntiForgeryToken]
+        [HttpPost("Nueva-Empresa")]        
         public IActionResult CrearEmpresa(EmpresaViewModel model)
         {
 
@@ -134,14 +133,13 @@ namespace AltivaWebApp.Controllers
 
                         return RedirectToAction(nameof(ListarEmpresas));
                     }
-
                     else
                     {
                         ///eliminar datos si la bd no se crea
                         var em = service.GetEmpresaById((int)result.Id);
 
                         var deleted = service.EliminarEmpresa(em);
-                        ModelState.AddModelError(string.Empty, "Lo sentimos, tuvimos un problema al crear la empresa, intentelo de nuevo o pongase en contacto con soporte!");
+                        ModelState.AddModelError(string.Empty, "Lo sentimos, tuvimos un problema al crear la base de datos, intentelo de nuevo o pongase en contacto con soporte.");
                         return View(model);
                     }
 
@@ -149,16 +147,16 @@ namespace AltivaWebApp.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Lo sentimos, tuvimos un problema al crear la empresa, intentelo de nuevo o pongase en contacto con soporte!");
+                    ModelState.AddModelError(string.Empty, "Lo sentimos, tuvimos un problema al crear la empresa, intentelo de nuevo o pongase en contacto con soporte.");
                     return View(model);
                 }
 
             }
             catch
             {
-                ModelState.AddModelError(string.Empty, "Lo sentimos, tuvimos un problema al crear la empresa, intentelo de nuevo o pongase en contacto con soporte!");
-                return View(model);
-                //throw;
+                //ModelState.AddModelError(string.Empty, "Lo sentimos, tuvimos un problema al procesar tu solicitud.");
+                //return View(model);
+                throw;
             }
         }
 
@@ -192,23 +190,19 @@ namespace AltivaWebApp.Controllers
         }
 
         [Route("CambiarEstado-Empresa/(id)")]
-        public ActionResult CambiarEstadoEmpresa(int id, EmpresaViewModel viewModel)
+        public ActionResult CambiarEstadoEmpresa(int id)
         {
             try
             {
-                // TODO: Add delete logic here
-                if (!ModelState.IsValid)
-                {
-                    return RedirectToAction(nameof(ListarEmpresas));
-                }
 
                 var empresa = service.GetEmpresaById(id);
                 empresa.Estado = false;
-                return RedirectToAction(nameof(ListarEmpresas));
+                var res = service.Update(empresa);
+                return Json(new { success = true });
             }
             catch
             {
-                return View();
+                return BadRequest();
             }
         }
 

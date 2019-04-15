@@ -14,7 +14,7 @@ using AltivaWebApp.GEDomain;
 namespace AltivaWebApp.Controllers
 {
 
-    [Route("Usuarios")]
+    [Route("{culture}/Usuarios")]
     public class ManejoUsuariosController : Controller
     {
        

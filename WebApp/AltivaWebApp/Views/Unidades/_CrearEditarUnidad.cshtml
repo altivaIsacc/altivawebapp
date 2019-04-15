@@ -1,4 +1,5 @@
 ﻿@model AltivaWebApp.ViewModels.UnidadViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -16,14 +17,14 @@
                 <span asp-validation-for="Id" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label data-translate="nombre" asp-for="Nombre" class="control-label">Nombre</label>
+                <label data-translate="nombre" asp-for="Nombre" class="control-label">@SharedLocalizer["nombre"]</label>
                 <input maxlength="20" asp-for="Nombre" class="form-control" />
-                <span hidden id="validatedTextNombre" class="text-danger" data-translate="nombreRequerido">Nombre es requerido</span>
+                <span hidden id="validatedTextNombre" class="text-danger" data-translate="nombreRequerido">@SharedLocalizer["nombreRequerido"]</span>
             </div>
             <div class="form-group">
-                <label data-translate="abreviatura" asp-for="Abreviatura" class="control-label">Abreviatura</label>
+                <label data-translate="abreviatura" asp-for="Abreviatura" class="control-label">@SharedLocalizer["Abreviatura"]</label>
                 <input maxlength="4" asp-for="Abreviatura" class="form-control" />
-                <span hidden id="validatedTextAbreviatura" class="text-danger">Abrevaitura es requerida</span>
+                <span hidden id="validatedTextAbreviatura" class="text-danger">@SharedLocalizer["abreviaturaRequerida"]</span>
             </div>
             <div class="form-group" hidden>
                 <label asp-for="IdUsuario" class="control-label"></label>
@@ -32,9 +33,14 @@
             </div>
         </form>
 
-        <div class="form-group">
-            <button data-translate="guardar"  id="submitFrmUnidad" class="btn btn-primary">Guardar</button>
-            <button data-translate="cancelar"  class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <div class="form-group row">
+            <div class="col-md-6">
+                <button id="submitFrmUnidad" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
+            </div>
+            <div class="col-md-6">
+                <button class="btn btn-default" data-dismiss="modal"><span>@SharedLocalizer["Cancelar"]</span></button>
+            </div>
+
         </div>
     </div>
 </div>
@@ -44,7 +50,7 @@
 
         $("#submitFrmUnidad").click(function (e) {
 
-            
+
             if (validarForm()) {
                var url = '@Url.Action("CrearEditarUnidad", "Unidades")';
 
@@ -63,34 +69,34 @@
                     var text = data.nombre + ' - ' + data.abreviatura
                     var o = new Option(text, data.id);
                     $(o).attr('selected',  true);
-                    $("#unidades").append(o);                   
+                    $("#unidades").append(o);
                     $("#unidades").trigger('change');
                     $('#modalUnidad').modal('hide');
                 },
                 error: function (err, scnd) {
                     console.log(err.statusText);
                 }
-            }); 
+            });
             }
-            
+
         });
 
         function validarForm() {
             var model = $('#frmUnidad').serializeArray();
 
             if (model[1].value != '' && model[2].value != '') {
-                
+
                 return true;
             }
             else {
-                
+
                 $('#validatedTextNombre').attr('hidden', false);
                 $('#validatedTextAbreviatura').attr('hidden', false);
                 return false;
             }
-               
 
-            
+
+
         }
 
 

@@ -1,14 +1,18 @@
 using AltivaWebApp.App_Start;﻿
 using AltivaWebApp.Context;
+using AltivaWebApp.Filter;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Server.IIS;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.IO; // for using Directory
 
 namespace AltivaWebApp
@@ -65,31 +69,44 @@ namespace AltivaWebApp
                     });
 
             services.AddAntiforgery(o => o.HeaderName = "XSRF-TOKEN");
-
-            services.AddDistributedMemoryCache();
+           
 
             services.AddSession(options =>
             {
                 // Set a short timeout for easy testing.
-                //options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.IdleTimeout = TimeSpan.FromDays(360);
                 options.Cookie.HttpOnly = true;
                 // Make the session cookie essential
                 options.Cookie.IsEssential = true;
             });
 
-            services.AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1); 
+            var supportedCultures = new[] { "es-CR", "en-US" };
+            var localizationOptions = new RequestLocalizationOptions();
+            localizationOptions.AddSupportedCultures(supportedCultures)
+                .AddSupportedUICultures(supportedCultures)
+                .SetDefaultCulture(supportedCultures[0])
+                .RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider() { Options = localizationOptions });
+            services.AddSingleton(localizationOptions);
+            services.AddLocalization(opt => opt.ResourcesPath = "Resources");
+
+            services.AddMvc(mvcOptions =>
+            {
+                mvcOptions.Filters.Add(typeof(CultureRedirectFilter));
+                mvcOptions.Filters.Add(new MiddlewareFilterAttribute(typeof(LocalizationPipeline)));
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+                .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+                .AddDataAnnotationsLocalization();
 
             services.Configure<IISServerOptions>(options =>
             {
                 options.AutomaticAuthentication = false;
             });
 
-
+            services.AddDistributedMemoryCache();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, RequestLocalizationOptions options)
         {
             if (env.IsDevelopment())
             {
@@ -108,19 +125,23 @@ namespace AltivaWebApp
             app.UseSession();
 
 
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=home}/{action=index}");
-            });
+            //app.UseMvc(routes =>
+            //{
+            //    routes.MapRoute(
+            //        name: "default",
+            //        template: "{controller=home}/{action=index}");
+            //});
 
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
-                  name: "areas",
-                  template: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
-                );
+                    name: "default",
+                    template: "{culture:regex(^[a-z]{{2}}(\\-[A-Z]{{2}})?$)}/{controller=home}/{action=index}"
+                    );
+                routes.MapRoute(
+                    name: "defaultWithoutLanguage",
+                    template: "{controller=home}/{action=index}"
+                    );
             });
 
         }

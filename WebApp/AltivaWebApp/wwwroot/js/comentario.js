@@ -1,6 +1,7 @@
 ﻿
 function GetComentarios(referencia, idRefernecia) {
 
+    
 
     var comentarioModel = {
         mensaje: '',
@@ -11,11 +12,8 @@ function GetComentarios(referencia, idRefernecia) {
 
 
     $.ajax({
-        type: "GET",
-        //headers: {
-        //    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-        //},
-        url: '/Mensajes/Nuevo-Comentario',
+        type: "POST",
+        url: '../../Mensajes/Nuevo-Comentario',
         data: comentarioModel,
         success: function (data) {
             $('#comentarios').html(data);

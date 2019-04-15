@@ -1,4 +1,5 @@
 ﻿@model TbPrUnidadMedida
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -24,27 +25,27 @@
         conversiones.Add(item);
     }
 }
-<h4 data-translate="conversiones">Conversiones</h4>
+<h4 >@SharedLocalizer["conversiones"]</h4>
 <table class="table table-bordered" id="tblConversiones">
     <thead>
         <tr>
             <th>
-                <span data-translate="unidadOrigen">Unidad Origen</span>
+                <span >@SharedLocalizer["unidadOrigen"]</span>
             </th>
             <th>
-                <span data-translate="unidadDestino">Unidad Destino</span>
+                <span >@SharedLocalizer["unidadDestino"]</span>
             </th>
             <th>
-                <span data-translate="equivalencia">Equivalencia</span>
+                <span >@SharedLocalizer["equivalencia"]</span>
             </th>
             <th>
-                <span data-translate="fechaCreacion">Fecha de Creación</span>
+                <span >@SharedLocalizer["fechaCreacion"]</span>
             </th>
             <th>
-                <span data-translate="usuario">Usuario</span>
+                <span >@SharedLocalizer["usuario"]</span>
             </th>
 
-            <th><span data-translate="accion">Acción</span></th>
+            <th><span >@SharedLocalizer["accion"]</span></th>
         </tr>
     </thead>
     <tbody>
@@ -64,7 +65,7 @@
                     @Html.DisplayFor(modelItem => item.FechaCreacion)
                 </td>
                 <td>
-                    @{ 
+                    @{
                         var nombre = usuarios.FirstOrDefault(u => u.Id == item.IdUsuario).Nombre;
                         var codigo = usuarios.FirstOrDefault(u => u.Id == item.IdUsuario).Codigo;
                     }
@@ -85,7 +86,7 @@
             <td>
 
                 <select class="form-control form-control-sm search-key" id="cmbUnidadD">
-                    <option selected value="0">Seleccione</option>
+                    <option selected value="0">@SharedLocalizer["seleccione"]</option>
                     @{
                         foreach (var item in unidades)
                         {
@@ -102,17 +103,17 @@
             </td>
             <td>
                 <div class="form-group">
-                    <input pattern="^[0-9]+([.][0-9]+)?$" type="number" min="0" value="0" class="form-control form-control-sm" id="txtEquivalencia" placeholder="Equivalencia">
+                    <input pattern="^[0-9]+([.][0-9]+)?$" type="number" min="0" value="0" class="form-control form-control-sm" id="txtEquivalencia" placeholder="@SharedLocalizer["equivalencia"]">
                 </div>
             </td>
             <td>
                 <div class="form-group" hidden>
-                    <input type="text" min="0" class="form-control form-control-sm" id="fecha" placeholder="Fecha de Creacion">
+                    <input type="text" min="0" class="form-control form-control-sm" id="fecha" placeholder="@SharedLocalizer["fechaCreacion"]">
                 </div>
             </td>
             <td>
                 <div class="form-group" hidden>
-                    <input type="text" min="0" class="form-control form-control-sm" id="exampleFormControlInput1" placeholder="Usuario">
+                    <input type="text" min="0" class="form-control form-control-sm" id="exampleFormControlInput1" placeholder="@SharedLocalizer["usuario"]">
                 </div>
             </td>
             <td>
@@ -125,7 +126,7 @@
 <script>
     $(document).ready(function () {
 
-             
+
         $("#guardarConversion").attr("disabled", true);
         $("#txtEquivalencia").attr("disabled", true);
 
@@ -143,8 +144,8 @@
             else
                 $("#txtEquivalencia").attr("disabled", true);
         });
-      
-        $("#txtEquivalencia").keyup(function () {           
+
+        $("#txtEquivalencia").keyup(function () {
             if ($(this).val() != 0)
                 $("#guardarConversion").attr("disabled", false);
             else
@@ -156,7 +157,7 @@
 
             var url = '@Url.Action("CrearConversion", "Unidades")';
 
-            var equivalencia = $("#txtEquivalencia").val().toString().replace(/\./g, ','); 
+            var equivalencia = $("#txtEquivalencia").val().toString().replace(/\./g, ',');
 
             console.log(equivalencia);
 
@@ -195,7 +196,7 @@
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
                     url: 'Eliminar-Conversion/' + $(this).val(),
-                    
+
                     success: function (data) {
                         if (data.data) {
                             cargarTabla()
@@ -229,6 +230,7 @@
                     data: { id: @Model.Id},
                     success: function (data) {
                         $('#conversiones').html(data);
+                        setIdioma();
                     },
                     error: function (err, scnd) {
                         console.log(err.statusText);

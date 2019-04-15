@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 namespace AltivaWebApp.Controllers
 {
   
-    [Route("Home")]
+    [Route("/{culture}/Home")]
     public class HomeController : Controller
     {
         [Route("")]
@@ -22,9 +22,9 @@ namespace AltivaWebApp.Controllers
 
             return View();
         }
-        
-       [Route("Login")] 
-       public IActionResult Login(string grupo)
+
+        [Route("Login")]
+        public IActionResult Login(string grupo)
        {
          
 

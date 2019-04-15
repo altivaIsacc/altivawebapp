@@ -16,7 +16,7 @@ using Newtonsoft.Json;
 
 namespace AltivaWebApp.Controllers
 {
-    [Route("Mensajes")]
+    [Route("{culture}/Mensajes")]
     public class MensajesController : Controller
     {
 
@@ -71,7 +71,7 @@ namespace AltivaWebApp.Controllers
             this.IMensajeReceptorService = pIMensajeReceptorService;
         }
 
-        [Route("Nuevo-Comentario")]
+        [HttpPost("Nuevo-Comentario")]
         public ActionResult CrearComentario(MensajeViewModel model)
         {
             return PartialView("_CrearComentario", model);

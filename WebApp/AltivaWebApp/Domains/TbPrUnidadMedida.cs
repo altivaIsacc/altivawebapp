@@ -10,7 +10,7 @@ namespace AltivaWebApp.Domains
             TbPrConversionIdUnidadDestinoNavigation = new HashSet<TbPrConversion>();
             TbPrConversionIdUnidadOrigenNavigation = new HashSet<TbPrConversion>();
         }
-
+       
         public long Id { get; set; }
         public DateTime FechaCreacion { get; set; }
         public long IdUsuario { get; set; }

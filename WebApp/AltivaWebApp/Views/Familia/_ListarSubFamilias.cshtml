@@ -1,4 +1,5 @@
 ﻿@model TbPrFamilia
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -12,22 +13,22 @@
 
 }
 
-<h5 data-tranlate="subFamilias">Sub-Familias</h5>
+<h5>@SharedLocalizer["subFamilias"]</h5>
 
 <table class="table">
     <thead>
         <tr>
             <th>
-                <span data-tranlate="descripcion">Descripción</span>
+                <span>@SharedLocalizer["descripcion"]</span>
             </th>
             <th>
-                <span data-tranlate="fechaCreacion">Fecha de Creación</span>
+                <span>@SharedLocalizer["fechaCreacion"]</span>
             </th>
             <th>
-                <span data-tranlate="familia">Familia</span>
+                <span>@SharedLocalizer["familia"]</span>
             </th>
             <th>
-                <span data-tranlate="usuario">Usuario</span>
+                <span>@SharedLocalizer["usuario"]</span>
             </th>
             <th></th>
         </tr>
@@ -35,34 +36,34 @@
     <tbody>
         @foreach (var item in Model.InverseIdFamiliaNavigation)
         {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Descripcion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FechaCreacion)
-            </td>
-            <td>
-                @Model.Descripcion
-            </td>
-            <td>
-                @{
-                    var nombre = usuarios.FirstOrDefault(u => u.Id == item.IdUsuario).Nombre;
-                    var codigo = usuarios.FirstOrDefault(u => u.Id == item.IdUsuario).Codigo;
-                }
-                <a href="@Url.Action("CuentaUsuario", "ManejoUsuarios", new { codigo = codigo })">@nombre</a>
-            </td>
-            <td>               
-                <button class="btn btn-link crearEditarSubFamilia" value="@item.Id" ><span ><i class="fas fa-edit"></i></span></button>
-                <button class="btn btn-link eliminarSubFamilia" value="@item.Id"><span ><i class="fas fa-trash"></i></span></button>
-            </td>
-        </tr>
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Descripcion)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FechaCreacion)
+                </td>
+                <td>
+                    @Model.Descripcion
+                </td>
+                <td>
+                    @{
+                        var nombre = usuarios.FirstOrDefault(u => u.Id == item.IdUsuario).Nombre;
+                        var codigo = usuarios.FirstOrDefault(u => u.Id == item.IdUsuario).Codigo;
+                    }
+                    <a href="@Url.Action("CuentaUsuario", "ManejoUsuarios", new { codigo = codigo })">@nombre</a>
+                </td>
+                <td>
+                    <button class="btn btn-link crearEditarSubFamilia" value="@item.Id"><span><i class="fas fa-edit"></i></span></button>
+                    <button class="btn btn-link eliminarSubFamilia" value="@item.Id"><span><i class="fas fa-trash"></i></span></button>
+                </td>
+            </tr>
         }
         <tr>
-            <td><strong> <span data-tranlate="descripcion">Descripción</span></strong></td>
-            <td> <strong><span data-tranlate="fechaCreacion"> Fecha de Creación</span></strong></td>
-            <td><strong><span data-tranlate="familia">Familia</span></strong></td>
-            <td><strong><span data-tranlate="usuario">Usuario</span></strong></td>
+            <td><strong> <span>@SharedLocalizer["descripcion"]</span></strong></td>
+            <td> <strong><span>@SharedLocalizer["fechaCreacion"]</span></strong></td>
+            <td><strong><span>@SharedLocalizer["familia"]</span></strong></td>
+            <td><strong><span>@SharedLocalizer["usuario"]</span></strong></td>
             <td>
                 <button class="btn btn-link crearEditarSubFamilia" value="0"><span><i class="fas fa-plus"></i></span></button>
             </td>
@@ -74,7 +75,7 @@
 
     $(document).ready(function () {
 
-        if ($('#familias').val() != 0) 
+        if ($('#familias').val() != 0)
             $(".crearEditarSubFamilia").attr("disabled", false);
         else
             $(".crearEditarSubFamilia").attr("disabled", true);
@@ -85,7 +86,7 @@
             var url = 'Crear-SubFamilia/' + $('#familias').val();
             if ($(this).val() != 0)
                 url = 'Editar-SubFamilia/' + $(this).val();
-        
+
          $.ajax({
              type: "GET",
              headers: {
@@ -114,7 +115,7 @@
                     url: 'Eliminar-Familia/' + $(this).val(),
 
                     success: function (data) {
-                        if (data.data) {                           
+                        if (data.data) {
                             $("#familias").trigger('change');
                         }
                         else
@@ -128,6 +129,6 @@
 
         });
 
-       
+
     });
 </script>
