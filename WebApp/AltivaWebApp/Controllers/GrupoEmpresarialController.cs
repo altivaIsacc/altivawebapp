@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Localization;
 
 namespace AltivaWebApp.Controllers
 {
@@ -27,12 +28,14 @@ namespace AltivaWebApp.Controllers
         private IGEService service;
         private IUserService userService;
         private IGEMap geMap;
+        private readonly IStringLocalizer<SharedResources> _sharedLocalizer;
 
-        public GrupoEmpresarialController(IUserService userService, IGEService service, IGEMap geMap)
+        public GrupoEmpresarialController(IStringLocalizer<SharedResources> sharedLocalizer, IUserService userService, IGEService service, IGEMap geMap)
         {
             this.service = service;
             this.geMap = geMap;
             this.userService = userService;
+            this._sharedLocalizer = sharedLocalizer;
         }
         
         [HttpGet("Empresas")]
@@ -91,8 +94,8 @@ namespace AltivaWebApp.Controllers
                     {
                         conn.Open();
                         conn.Close();
-                        HttpContext.Session.SetString("empresa", "The Doctor");
                         HttpContext.Session.SetInt32("idEmpresa", (int)model.Id);
+                        //Sesion.Sesion.SetIdEmpresa((int)model.Id);
                         return View(model);
                     }
                 }
@@ -118,10 +121,22 @@ namespace AltivaWebApp.Controllers
         public IActionResult CrearEmpresa(EmpresaViewModel model)
         {
 
-            if (!ModelState.IsValid)
-                return View(model);
+
             try
             {
+
+                var existeEmpresaN = service.GetEmpresaByNombre(model.Nombre);
+                if(existeEmpresaN != null)
+                {
+                    return Json(new { success = _sharedLocalizer["yaExisteEmpresaN"].ToString() });
+                }
+                var existeEmpresaC = service.GetByCedula(model.CedJuridica);
+                if (existeEmpresaN != null)
+                {
+
+                    return Json(new { success = _sharedLocalizer["yaExisteEmpresaC"].ToString() });
+                }
+
 
                 var result = geMap.Create(model);
                 if (result != null)
@@ -131,7 +146,7 @@ namespace AltivaWebApp.Controllers
                     {
                         service.AgregarUsuarios((int)result.Id);
 
-                        return RedirectToAction(nameof(ListarEmpresas));
+                        return Json(new { success = true });
                     }
                     else
                     {
@@ -139,24 +154,21 @@ namespace AltivaWebApp.Controllers
                         var em = service.GetEmpresaById((int)result.Id);
 
                         var deleted = service.EliminarEmpresa(em);
-                        ModelState.AddModelError(string.Empty, "Lo sentimos, tuvimos un problema al crear la base de datos, intentelo de nuevo o pongase en contacto con soporte.");
-                        return View(model);
+
+                        return Json(new { success = _sharedLocalizer["errorGeneral"].ToString() });
                     }
 
 
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Lo sentimos, tuvimos un problema al crear la empresa, intentelo de nuevo o pongase en contacto con soporte.");
-                    return View(model);
+                    return Json(new { success = _sharedLocalizer["errorGeneral"].ToString() });
                 }
 
             }
             catch
             {
-                //ModelState.AddModelError(string.Empty, "Lo sentimos, tuvimos un problema al procesar tu solicitud.");
-                //return View(model);
-                throw;
+                return BadRequest(new { success = _sharedLocalizer["errorGeneral"].ToString() });
             }
         }
 
@@ -175,17 +187,23 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                // TODO: Add update logic here
-                if (!ModelState.IsValid)
-                    return View("EditarEmpresa", viewModel);
+                var existeEmpresaN = service.GetEmpresaByNombre(viewModel.Nombre);
+                if (existeEmpresaN != null)                
+                    if(viewModel.Id != existeEmpresaN.Id)
+                        return Json(new { success = _sharedLocalizer["yaExisteEmpresaN"].ToString() });
+                
+                var existeEmpresaC = service.GetByCedula(viewModel.CedJuridica);
+                if (existeEmpresaN != null)
+                    if (viewModel.Id != existeEmpresaN.Id)
+                        return Json(new { success = _sharedLocalizer["yaExisteEmpresaC"].ToString() });                
+
 
                 var empresa = geMap.Update(viewModel);
-                return RedirectToAction("DetallesEmpresa", new { nombre = empresa.Nombre});
+                return Json(new { success = true });
             }
             catch
             {
-                ModelState.AddModelError(string.Empty, "Error al editar la empresa");
-                return View("EditarEmpresa", viewModel);
+                return BadRequest(new { success = _sharedLocalizer["errorGeneral"].ToString() });
             }
         }
 
