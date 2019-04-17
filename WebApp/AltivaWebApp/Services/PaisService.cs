@@ -18,6 +18,12 @@ namespace AltivaWebApp.Services
             repository = pPaisRepository;
 
         }
+
+        public bool ConsultarPais(string nombre)
+        {
+            return repository.ConsultarPais(nombre);
+        }
+
         public TbSePais Create(TbSePais collection)
         {
             return repository.Save(collection);

@@ -12,5 +12,6 @@ namespace AltivaWebApp.Services
         TbSePais Delete(int id);
         IList<TbSePais> GetAll();
         TbSePais GetPaisById(int id);
+        bool ConsultarPais(string nombre);
     }
 }

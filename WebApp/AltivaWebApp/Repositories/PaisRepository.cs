@@ -26,19 +26,17 @@ namespace AltivaWebApp.Repositories
             return query;
         }
 
-      /*  public void editar(TbSePais domain)
+        public bool ConsultarPais(string nombre)
         {
-
-            context.TbSePais.Update(domain);
-
-            context.SaveChanges();
-            
+            return context.TbSePais.Any(u => u.NombreEs == nombre || u.NombreEn == nombre);
         }
-        */
+
+ 
         override
       public IList<TbSePais> GetAll()
         {
-            return context.TbSePais.ToList();
+            return context.TbSePais.OrderByDescending(mr => mr.Id).ToList();
+                
         }
 
         public TbSePais GetPaisById(int id)

@@ -250,7 +250,7 @@ namespace AltivaWebApp.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    return RedirectToAction("CuentaUsuario", new { model.codigo });
+                    return RedirectToAction("ListaUsuarios");
                 }
 
                 var domain = userService.GetUsuarioConPerfiles(model.codigo);
@@ -272,13 +272,13 @@ namespace AltivaWebApp.Controllers
 
                 var user = userMap.Update(model);
                 i = user.Codigo;
-                return RedirectToAction("CuentaUsuario", new { user.Codigo });
+                return RedirectToAction("ListaUsuarios");
                 
             }
             catch
             {
                 ModelState.AddModelError(string.Empty, "Lo sentimos, tuvimos un error al procesar tu solicitud");
-                return RedirectToAction("CuentaUsuario", new { i });
+                return RedirectToAction("ListaUsuarios");
             }
            
 

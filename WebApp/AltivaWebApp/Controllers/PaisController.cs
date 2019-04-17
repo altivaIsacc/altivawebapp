@@ -83,7 +83,11 @@ namespace AltivaWebApp.Controllers
             var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             try
             {
-          
+                if (PaisService.ConsultarPais(collection.NombreEs) == true)
+                {
+                    ModelState.AddModelError(string.Empty, "Ya existe un pais con este nombre.");
+                    return View();
+                }
          
                 pais= PaisService.Create(collection);
                 if (pais != null)
