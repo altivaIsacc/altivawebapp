@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using AltivaWebApp.Domains;
 using AltivaWebApp.ViewModels;
+using AltivaWebApp.Helpers;
 
 namespace AltivaWebApp.Context
 
@@ -191,8 +192,7 @@ namespace AltivaWebApp.Context
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=CENTRAL-PC\\FDPRUEBAS;Database=BE_AltivaRedes;user Id= sa; Password= 123");
+                optionsBuilder.UseSqlServer(StringProvider.StringEmpresas);
             }
         }
 

@@ -16,6 +16,7 @@ using AltivaWebApp.Repositories;
 
 namespace AltivaWebApp.Controllers
 {
+    [Route("{culture}/Moneda")]
     public class MonedasController : Controller
     {
 
@@ -51,6 +52,8 @@ namespace AltivaWebApp.Controllers
             this.IMensajeReceptorMap = IMensajeReceptorMap;
             this.IBitacoraMap = IBitacoraMap;
         }
+
+        [Route("Filtrado-Fecha")]
         public ActionResult BuscarByFecha(DateTime fecha)
 
         {
@@ -112,7 +115,7 @@ namespace AltivaWebApp.Controllers
             return RedirectToAction(nameof(Index));
 
         }
-        [HttpPost]
+        [HttpPost("Filtradas")]
         public ActionResult FiltroByFecha(int id, DateTime fecha1, DateTime fecha2)
         {
             ViewBag.estado = 1;
@@ -129,7 +132,8 @@ namespace AltivaWebApp.Controllers
             return View();
 
         }
-        // GET: Monedas
+
+        [Route("Lista-Moneda")]
         public ActionResult Index()
         {
             IList<TbSeMoneda> monedas = new List<TbSeMoneda>();
@@ -170,11 +174,11 @@ namespace AltivaWebApp.Controllers
            IMensajeReceptorRepository.Crear(mensajeReceptor);
         }
 
-  
 
-    // GET: Monedas/Details/5
 
-    public ActionResult Details(int id)
+        // GET: Monedas/Details/5
+        [Route("Detalle-Historial")]
+        public ActionResult Details(int id)
         {
 
           IList<TbSeHistorialMoneda> historial = new List<TbSeHistorialMoneda>();
@@ -183,14 +187,7 @@ namespace AltivaWebApp.Controllers
             ViewBag.id = id;
             return View(historial);
         }
-        
-        // GET: Monedas/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-
+              
 
         public JsonResult insertarNuevaMoneda(int valor, double valorCompra, double valorVenta, String nombre, string simbolo, double valorCompra1, double valorVenta1, String nombre1, string simbolo1, double valorCompra2, double valorVenta2, String nombre2, string simbolo2, DateTime fecha)
 
@@ -224,8 +221,8 @@ namespace AltivaWebApp.Controllers
             return Json(new { model = true });
         }
 
-
-        public ActionResult Editar(int valor, double valorCompra,double valorVenta,String nombre,string simbolo)
+        [Route("Editar-Moneda/{valor}/{valorCompra}/{valorVenta}/{nombre}/{simbolo}")]
+        public ActionResult Editar(int valor, double valorCompra,double valorVenta, string nombre,string simbolo)
            
         {
             var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -280,7 +277,7 @@ namespace AltivaWebApp.Controllers
 
        
 
-
+        [Route("GetTipoCambio")]
         public ActionResult GetTipoCambio(int id)
         {
             if (id !=0) {
@@ -290,8 +287,8 @@ namespace AltivaWebApp.Controllers
                     return Json(new { valorCompra = model.ValorCompra, valorVenta = model.ValorVenta });
                 }
             }
-            
-            return View();
+
+            return Json(new { });
         }
 
         

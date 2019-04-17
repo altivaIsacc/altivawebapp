@@ -29,7 +29,7 @@ namespace AltivaWebApp.Controllers
          
 
 
-            StringFactory.SetStringGE(grupo);
+            StringFactory.SetStringGE(HttpContext.Session, grupo);
 
             try
             {

@@ -18,10 +18,10 @@ namespace AltivaWebApp.Context
 
            
 
-            if(StringFactory.StringGE == null)
-            {               
-                StringFactory.SetStringGE(grupo);
-            }
+            //if(StringFactory.StringGE == null)
+            //{               
+            //    StringFactory.SetStringGE(HttpContex.Session, grupo);
+            //}
 
 
             

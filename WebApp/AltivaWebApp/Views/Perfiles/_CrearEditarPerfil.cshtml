@@ -1,0 +1,100 @@
+﻿@model AltivaWebApp.ViewModels.PerfilViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    var accion = "NuevoPerfil";
+    if (Model.Id != 0)
+    {
+        accion = "EditarPerfil";
+    }
+
+
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <form  id="frmPerfil">
+            <div hidden id="repetidoValid"  class="text-danger"><span >@SharedLocalizer["repetidoValid"]</span></div>
+            <div hidden class="form-group">
+                <input readonly id="id" asp-for="Id" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label data-translate="nombre" class="control-label">@SharedLocalizer["nombre"]:</label>
+                <input id="nombre" asp-for="Nombre" class="form-control" />
+                <span hidden id="nombreValid" class="text-danger">@SharedLocalizer["nombreRequerido"]</span>
+            </div>
+
+        </form>
+        <div class="row">
+            <div class="form-group col-md-6">
+                <button onclick="guardarPerfil()" type="submit" id="guardar" class="btn btn-success"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
+            </div>
+            <div class="form-group col-md-6">
+                <button data-translate="cancelar" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#guardar').attr("disabled", true);
+
+
+    });
+
+
+    $('#nombre').keyup(function () {
+
+        if ($(this).val().replace(/ /g, "") === "") {
+            $('#nombreValid').attr("hidden", false);
+            $('#guardar').attr("disabled", true);
+        }
+        else {
+            $('#guardar').attr("disabled", false);
+            $('#nombreValid').attr("hidden", true);
+        }
+
+
+    });
+
+
+    function guardarPerfil() {
+
+        var model = $('form').serialize();       
+        var url = '@Url.Action("NuevoPerfil", "Perfiles")';
+        if(@Model.Id != 0)
+            url = '@Url.Action("EditarPerfil", "Perfiles" , new { id = Model.Id })';
+        $.ajax({
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+                url: url,
+                data: model,
+                success: function (data) {
+                    console.log(data)
+                    if (!data.success)
+                        $('#repetidoValid').attr("hidden", false);                         
+                    else
+                        setUrl(data.id);
+            },
+            error: function (err, scnd) {
+                console.log(err);
+                }
+            });
+
+    }
+
+    function setUrl(id) {
+           var url = '@Url.Action("ListarPerfiles", "Perfiles", new { id = "__id__"})';
+            window.location.href = url.replace('__id__', id );
+       }
+
+</script>

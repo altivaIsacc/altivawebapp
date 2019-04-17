@@ -8,12 +8,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.AspNetCore.Server.IIS;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.IO; // for using Directory
+using AltivaWebApp.Helpers;
+
 
 namespace AltivaWebApp
 {
@@ -39,17 +38,10 @@ namespace AltivaWebApp
 
             DependencyInjectionConfig.AddScope(services);
 
-            //se agrega el context con un string base en appsettings
 
-            StringFactory.SetStringEmpresas(Configuration.GetConnectionString("EmpresasString"));
+            services.AddDbContext<EmpresasContext>();
+            services.AddDbContext<GrupoEmpresarialContext>();
 
-            services.AddDbContext<EmpresasContext>(options =>
-               options.UseSqlServer(StringFactory.StringEmpresas));
-
-            StringFactory.SetStringGE(Configuration.GetConnectionString("GrupoEmpresarialString") );
-
-            services.AddDbContext<GrupoEmpresarialContext>(options =>
-                    options.UseSqlServer(StringFactory.StringGE));
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -102,6 +94,7 @@ namespace AltivaWebApp
                 options.AutomaticAuthentication = false;
             });
 
+            services.AddHttpContextAccessor();
             services.AddDistributedMemoryCache();
         }
 
@@ -125,6 +118,9 @@ namespace AltivaWebApp
             app.UseSession();
 
 
+
+            AltivaWebApp.Helpers.StringProvider.Configure(app.ApplicationServices
+                      .GetRequiredService<IHttpContextAccessor>());
             //app.UseMvc(routes =>
             //{
             //    routes.MapRoute(

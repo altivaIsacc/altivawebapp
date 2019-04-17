@@ -13,6 +13,7 @@ using System.Security.Claims;
 
 namespace AltivaWebApp.Controllers
 {
+    [Route("{culture}/Bitacora")]
     public class BitacoraController : Controller
     {
         //Variable del usuario
@@ -25,8 +26,7 @@ namespace AltivaWebApp.Controllers
         }
 
        
-        [HttpGet("/Bitacora/Index")]
-
+        [HttpGet("Lista-Bitacora")]
         public ActionResult Index()
         {
             List<TbSeUsuario> usuariosAsociados = new List<TbSeUsuario>();
@@ -40,14 +40,15 @@ namespace AltivaWebApp.Controllers
             return View();
         }
         
-        public   ActionResult FindById(BitacoraViewModel valor)
+        [Route("Bitacora-Usuario")]
+        public ActionResult FindById(BitacoraViewModel valor)
         {
           List<BitacoraViewModel> bitacora = new List<BitacoraViewModel>();
             bitacora =   IBitacoraService.GetByName(Convert.ToInt32(valor.IdUsuario));
             ViewData["bitacora"] = bitacora;
             return View();
         }
-
+        [Route("Bitacora-Fecha")]
         public ActionResult FindByDate(BitacoraViewModel valor)
         {
             List<BitacoraViewModel> bitacora = new List<BitacoraViewModel>();
@@ -56,79 +57,8 @@ namespace AltivaWebApp.Controllers
             return View();
 
         }
-        // GET: Bitacora/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
+        
 
-        // GET: Bitacora/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Bitacora/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add insert logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: Bitacora/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: Bitacora/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add update logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: Bitacora/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: Bitacora/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+      
     }
 }

@@ -83,7 +83,7 @@ namespace AltivaWebApp.Controllers
 
             if (model != null)
             {
-                StringFactory.SetStringEmpresas(model.Bd);
+                StringFactory.SetStringEmpresas(HttpContext.Session, model.Bd);
                 Sesion.Sesion.SetIdEmpresa(HttpContext.Session,(int) model.Id);
                 try
                 {

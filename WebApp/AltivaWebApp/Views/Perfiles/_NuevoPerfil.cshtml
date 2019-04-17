@@ -1,26 +1,47 @@
 ﻿@model AltivaWebApp.ViewModels.PerfilViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-controller="Perfiles" asp-action="NuevoPerfil">
+        <form asp-controller="Perfiles" asp-action="NuevoPerfil" id="frmPerfil">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label data-translate="nombre" asp-for="Nombre" class="control-label"></label>
-                <input asp-for="Nombre" id="nombre" class="form-control" />
-                <span asp-validation-for="Nombre" class="text-danger"></span>
+                <input id="nombre" asp-for="Nombre" class="form-control" />
+                <span hidden id="nombreValid" asp-validation-for="Nombre" class="text-danger">@SharedLocalizer["nombreRequerido"]</span>
             </div>
             <div class="row">
                 <div class="form-group col-md-6">
-                    <button type="submit" class="btn btn-success"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
+                    <button type="submit" id="guardar" class="btn btn-success"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
                 </div>
                 <div class="form-group col-md-6">
                     <button data-translate="cancelar" class="btn btn-default" data-dismiss="modal">Cancelar</button>
                 </div>
             </div>
         </form>
+        
     </div>
 </div>
 
+<script>
 
+    $('#nombre').val("");
+    $('#guardar').attr("disabled", true);
+    $('#nombre').keyup(function () {
+
+        if ($(this).val().replace(/ /g, "") === "") {
+            $('#nombreValid').attr("hidden", false);
+            $('#guardar').attr("disabled", true);
+        }
+        else {
+            $('#guardar').attr("disabled", false);
+            $('#nombreValid').attr("hidden", true);
+        }
+            
+
+    });
+
+
+</script>
 
 

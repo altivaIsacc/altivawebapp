@@ -113,7 +113,7 @@ namespace AltivaWebApp.Controllers
                 //HttpContext.Session.SetString("nombreUsuario", user.Nombre);
 
                 Sesion.Sesion.SetNombreUsuario(HttpContext.Session, user.Nombre);
-                Sesion.Sesion.SetIdioma(HttpContext.Session, user.TbSeUsuarioConfiguraion.First().Idioma);
+                //Sesion.Sesion.SetIdioma(HttpContext.Session, user.TbSeUsuarioConfiguraion.First().Idioma);
                 HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, props).Wait();
 
                 return RedirectToAction("ListarEmpresas", "GrupoEmpresarial");

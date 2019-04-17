@@ -1,5 +1,7 @@
 ﻿using System;
 using AltivaWebApp.GEDomain;
+using AltivaWebApp.Helpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -8,6 +10,7 @@ namespace AltivaWebApp.Context
     public partial class GrupoEmpresarialContext : DbContext
     {       
 
+       
         public GrupoEmpresarialContext(DbContextOptions<GrupoEmpresarialContext> options)
             : base(options)
         {
@@ -30,13 +33,14 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbSeUsuario> TbSeUsuario { get; set; }
         public virtual DbSet<TbSeUsuarioConfiguraion> TbSeUsuarioConfiguraion { get; set; }
 
-//        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//        {
-//            if (!optionsBuilder.IsConfigured)
-//            {
-//                optionsBuilder.UseSqlServer("Server=CENTRAL-PC\\FDPRUEBAS;Database=GE_AltivaPruebas;User Id= sa; Password= 123;");
-//            }
-//        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                //StringFactory.StringGE
+                optionsBuilder.UseSqlServer(StringProvider.StringGE);
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

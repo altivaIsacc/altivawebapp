@@ -41,6 +41,7 @@ namespace AltivaWebApp.Mappers
         {
             PerfilViewModel model = new PerfilViewModel
             {
+                Id = (int)domain.Id,
                 Nombre = domain.Nombre
             };
 
@@ -66,7 +67,8 @@ namespace AltivaWebApp.Mappers
         {
             TbSePerfil domain = new TbSePerfil
             {
-                Nombre = officeViewModel.Nombre,
+                Id = officeViewModel.Id,
+                Nombre = officeViewModel.Nombre
             };
 
             return domain;

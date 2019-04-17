@@ -130,7 +130,7 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IInventarioService, InventarioService>();
             services.AddScoped<IInventarioMap, InventarioMap>();
 
-
+            
 
 
 

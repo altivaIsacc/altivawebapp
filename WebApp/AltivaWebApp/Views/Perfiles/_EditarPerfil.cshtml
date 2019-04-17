@@ -1,5 +1,5 @@
 ﻿@model AltivaWebApp.GEDomain.TbSePerfil
-
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <div class="row">
     <div class="col-md-4">
@@ -7,24 +7,52 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label data-translate="nombre" asp-for="Nombre" class="control-label">Nombre</label>
-                <input asp-for="Nombre" class="form-control" />
-                <span asp-validation-for="Nombre" class="text-danger"></span>
+                <input id="nombreEditar" asp-for="Nombre" class="form-control" />
+                <span hidden id="nombreValidEditar" class="text-danger">@SharedLocalizer["nombreRequerido"]</span>
             </div>
             <div class="form-group" hidden>
                 <label asp-for="Id" class="control-label"></label>
                 <input asp-for="Id" class="form-control" />
                 <span asp-validation-for="Id" class="text-danger"></span>
             </div>
-            <div class="row">
-                <div class="form-group col-md-6">
-                    <button type="submit" class="btn btn-success"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
-                </div>
-                <div class="form-group col-md-6">                
-                    <button data-translate="cancelar" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                </div>
-            </div>
+
         </form>
+        <div class="row">
+            <div class="form-group col-md-6">
+                <button id="guardarEditar" class="btn btn-success"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
+            </div>
+            <div class="form-group col-md-6">
+                <button data-translate="cancelar" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+
+        $('#guardarEditar').attr("disabled", true);
+
+        $('#nombreEditar').keyup(function () {
+
+            if ($(this).val().replace(/ /g, "") === "") {
+                $('#nombreValidEditar').attr("hidden", false);
+                $('#guardarEditar').attr("disabled", true);
+            }
+            else {
+                $('#guardarEditar').attr("disabled", false);
+                $('#nombreValidEditar').attr("hidden", true);
+            }
+
+
+        });
+
+    });
+
+    
+
+</script>
+
+
 
 

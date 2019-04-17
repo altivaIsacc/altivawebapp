@@ -19,7 +19,10 @@ namespace AltivaWebApp.Services
         {
             return perfilRepo.GetSinglePerfil(id);
         }
-
+        public TbSePerfil GetSinglePerfilByNombre(string nombre)
+        {
+            return perfilRepo.GetSinglePerfilByNombre(nombre);
+        }
         public IList<TbSePerfil> GetAll()
         {
             return perfilRepo.GetAll();

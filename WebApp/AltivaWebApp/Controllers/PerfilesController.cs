@@ -224,58 +224,61 @@ namespace AltivaWebApp.Controllers
             
         }
 
+        [HttpGet("CrearEditar-Perfil/{id?}")]
+        public ActionResult CrearEditarPerfil(int id) {
+
+            var model = new PerfilViewModel();
+            if (id != 0)
+                model = perfilMap.DomainToViewModelSingle(perfilService.GetSinglePerfil(id));
+
+            return PartialView("_CrearEditarPerfil", model);
+        }
+
 
         [HttpPost("Nuevo-Perfil")]
-        [ValidateAntiForgeryToken]
-        public ActionResult NuevoPerfil(IFormCollection form)
+        public ActionResult NuevoPerfil(PerfilViewModel model)
         {
             try
             {
-                if (!ModelState.IsValid)
-                    return RedirectToAction(nameof(ListarPerfiles));
+                var existePerfil = perfilService.GetSinglePerfilByNombre(model.Nombre);
 
-                var perfil = new TbSePerfil
+                if (existePerfil != null)
                 {
-                    Nombre = form["Perfil.Nombre"]
-                };
+                    return Json(new { success = false });
+                }
 
-                var p = perfilService.Create(perfil);
+                var perfil = perfilMap.Create(model);
 
-                if (p != null)
-                    return RedirectToAction("ListarPerfiles", new { id = p.Id });
-                else
-                    return View();
+                return Json(new { success = true, id = perfil.Id });
+
             }
             catch
             {
-                return View();
+                return BadRequest();
             }
         }
 
         [HttpPost("Editar-Perfil")]
         [ValidateAntiForgeryToken]
-        public ActionResult EditarPerfil(IFormCollection form)
+        public ActionResult EditarPerfil(PerfilViewModel model)
         {
             try
             {
-                if (!ModelState.IsValid)
-                    return RedirectToAction(nameof(ListarPerfiles));
 
-                var model = new TbSePerfil
-                {
-                    Nombre = form["PerfilFilled.Nombre"],
-                    Id = Convert.ToInt32(form["PerfilFilled.Id"])
-                };
-                var p = perfilService.Update(model);
 
-                if (p != null)
-                    return RedirectToAction("ListarPerfiles", new { id = p.Id });
-                else
-                    return RedirectToAction(nameof(ListarPerfiles));
+                var existePerfil = perfilService.GetSinglePerfilByNombre(model.Nombre);
+
+                if (existePerfil != null)
+                    if (existePerfil.Id != model.Id)
+                        return Json(new { success = false });
+
+                var perfil = perfilMap.Update(model);
+
+                return Json(new { success = true, id = perfil.Id });
             }
             catch
             {
-                return RedirectToAction(nameof(ListarPerfiles));
+                return BadRequest();
             }
         }
 

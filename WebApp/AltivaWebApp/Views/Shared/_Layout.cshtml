@@ -89,7 +89,7 @@
                                 </li>
                               
                                 <li>
-                                    <a><i class="fas fa-boxes"></i><span data-translate="inventario">&nbsp; &nbsp; Inventario</span><span class="fa fa-chevron-down"></span></a>
+                                    <a><i class="fas fa-boxes"></i><span data-translate="inventario">Inventario</span><span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu">
                                         <li><a asp-controller="Bodega" asp-action="ListarBodegas"><span data-translate="bodegas">Bodegas</span></a></li>
                                         <li><a asp-controller="Unidades" asp-action="ListarUnidades"><span data-translate="unidades">Unidades y Conversiones</span></a></li>
@@ -125,8 +125,8 @@
                                 <ul class="dropdown-menu dropdown-usermenu pull-right">
                                     <li><a data-translate="layoutNAVMicuenta" href="@Url.Action("CuentaUsuario", "ManejoUsuarios", new { codigo = User.Identity.Name })">Mi cuenta</a></li>
                                     <li><a asp-controller="Cuenta" asp-action="Logout"> <i class="fa fa-sign-out pull-right"></i><span data-translate="layoutNAVLogout">Cerrar sesion</span></a></li>
-                                    <li><a class="dropdown-item" id="english">EN</a></li>
-                                    <li><a class="dropdown-item" id="spanish">ES</a></li>
+                                    <li><a class="dropdown-item btnIdioma" id="english">EN</a></li>
+                                    <li><a class="dropdown-item btnIdioma" id="spanish">ES</a></li>
                                     <li><a class="dropdown-item" asp-controller="GrupoEmpresarial" asp-action="ListarEmpresas">Empresas</a></li>
                                 </ul>
                             </li>
@@ -195,7 +195,7 @@
 
    
 
-
+    <script src="~/js/guardarConfigUsuario.js"></script>
     <script>
         $(document).ready(function () {
 
@@ -213,7 +213,9 @@
 
 
 
-            setIdioma();
+            if (localStorage.getItem('idioma') != null) {
+                $("[data-translate]").jqTranslate('/../idiomas/altiva', { forceLang: localStorage.getItem('idioma'), asyncLoad: false });
+            }
             
 
             $('#english').click(function () {
@@ -225,6 +227,18 @@
                 localStorage.setItem('idioma', 'es');
             });
 
+            $('.btnIdioma').click(function () {
+                var idiomaActual = localStorage.getItem('idioma');
+                var url = window.location.pathname;
+                guardarConfigUsuario(1);
+
+                if (idiomaActual === 'en')
+                    url = url.replace("es-CR", 'en-US');
+                else if (idiomaActual === 'es')
+                    url = url.replace("en-US", 'es-CR');
+
+                window.location.pathname = url;
+            });
 
 
             //$("#tema").attr('href', '/../css/TemaCombinado.css');
@@ -265,12 +279,6 @@
 
         });
 
-
-        function setIdioma() {
-            if (localStorage.getItem('idioma') != null) {
-                $("[data-translate]").jqTranslate('/../idiomas/altiva', { forceLang: localStorage.getItem('idioma'), asyncLoad: false });
-            }
-        }
     </script>
 
     @RenderSection("Scripts", required: false)

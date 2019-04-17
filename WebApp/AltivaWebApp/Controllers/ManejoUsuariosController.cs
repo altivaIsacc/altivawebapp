@@ -112,8 +112,8 @@ namespace AltivaWebApp.Controllers
             {
                 Idioma = config.Idioma,
                 Tema = config.Tema,
-                IdUsuario = config.IdUsuario
-            };
+                IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value)
+        };
 
             var model = userService.CreateOrUpdateConfiguracion(domain);
 
