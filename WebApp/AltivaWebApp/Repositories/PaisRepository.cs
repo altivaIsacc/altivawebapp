@@ -15,10 +15,10 @@ namespace AltivaWebApp.Repositories
         {
         }
 
-        public TbSePais borrar(int id)
+        public TbSePais borrar(int idPais)
         {
             var query = (from p in context.TbSePais
-                         where p.Id == id
+                         where p.Id == idPais
                          select p).Single();
 
             context.Remove(query);
@@ -39,9 +39,9 @@ namespace AltivaWebApp.Repositories
                 
         }
 
-        public TbSePais GetPaisById(int id)
+        public TbSePais GetPaisById(int idPais)
         {
-            return context.TbSePais.Where(u => u.Id == id).FirstOrDefault();
+            return context.TbSePais.Where(u => u.Id == idPais).FirstOrDefault();
         }
 
        

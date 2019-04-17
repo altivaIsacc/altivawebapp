@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AltivaWebApp.Domains;
+namespace AltivaWebApp.Repositories
+{
+   public interface ITareaRepository
+    {
+         IList<TbFdTarea> GetAll();
+        TbFdTarea Save(TbFdTarea tarea);
+        TbFdTarea Update(TbFdTarea tarea);
+        bool Delete(TbFdTarea tarea);
+        TbFdTarea GetById(int idTarea);
+    }
+}

@@ -33,9 +33,9 @@ namespace AltivaWebApp.Repositories
             throw new NotImplementedException();
         }
 
-        public TbSeMoneda GetMonedaById(int id)
+        public TbSeMoneda GetMonedaById(int idMoneda)
         {
-            return context.TbSeMoneda.Find(id);
+            return context.TbSeMoneda.Find(idMoneda);
         }
 
        

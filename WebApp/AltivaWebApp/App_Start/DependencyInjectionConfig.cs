@@ -15,11 +15,19 @@ namespace AltivaWebApp.App_Start
         public static void AddScope(IServiceCollection services)
 
         {
+            //tareas.
+            services.AddScoped<ITareaMapper, TareaMapper>();
+            services.AddScoped<ITareaService, TareaService>();
+            services.AddScoped<ITareaRepository, TareaRepository>();
+
+
+
+            //Lista desplegable
             services.AddScoped<IListaDesplegableMapper, ListaDesplegableMapper>();
             services.AddScoped<IListaDesplegableService, ListaDesplegableService>();
             services.AddScoped<IListaDespegableRepository, ListaDesplegableRepository>();
-            //
-           // services.AddScoped<FotosService>();
+            
+         
             services.AddScoped<FotosService>();
             //
             services.AddScoped< IcontactoCamposMap, ContactosCamposMap>();

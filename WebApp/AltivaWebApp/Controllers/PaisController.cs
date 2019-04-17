@@ -152,7 +152,25 @@ namespace AltivaWebApp.Controllers
         public ActionResult Delete(int id)
         {
 
-            return View(PaisService.GetPaisById(id));
+            try
+            {
+                TbSePais pais;
+                TbSeMensaje msj = new TbSeMensaje("Has Eliminado un Pais");
+                // Email("Se Elimino un Pais", msj);
+                pais = PaisService.Delete(id);
+                if (pais != null)
+                {
+                    var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+
+                    this.IBitacoraMap.CrearBitacora(Convert.ToInt32(ids), "Elimino un pais", pais.Id, "Pais");
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View();
+            }
         }
 
         // POST: Pais/Delete/5

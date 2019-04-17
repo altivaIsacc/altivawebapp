@@ -17,6 +17,10 @@ namespace AltivaWebApp.Context
             : base(options)
         {
         }
+        public virtual DbSet<TbFdTarea> TbFdTarea { get; set; }
+        public virtual DbSet<TbFdTareaEstado> TbFdTareaEstado { get; set; }
+        public virtual DbSet<TbFdTareaTipo> TbFdTareaTipo { get; set; }
+        public virtual DbSet<TbFdUsuarioCosto> TbFdUsuarioCosto { get; set; }
         public virtual DbSet<TbCrListaDesplegables> TbCrListaDesplegables { get; set; }
         public virtual DbSet<TbCrCamposPersonalizados> TbCrCamposPersonalizados { get; set; }
         public virtual DbSet<TbCrContacto> TbCrContacto { get; set; }
@@ -216,7 +220,73 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(50)
                     .IsUnicode(false);
             });
+            modelBuilder.Entity<TbFdTarea>(entity =>
+            {
+                entity.ToTable("tb_FD_Tarea");
 
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaFinal).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaInicio).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaLimite).HasColumnType("datetime");
+
+                entity.Property(e => e.Titulo)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdEstadoNavigation)
+                    .WithMany(p => p.TbFdTarea)
+                    .HasForeignKey(d => d.IdEstado)
+                    .HasConstraintName("FK_tb_FD_Tarea_FD_TareaEstado");
+
+                entity.HasOne(d => d.IdTipoNavigation)
+                    .WithMany(p => p.TbFdTarea)
+                    .HasForeignKey(d => d.IdTipo)
+                    .HasConstraintName("FK_tb_FD_Tarea_tb_FD_TareaTipo");
+            });
+
+            modelBuilder.Entity<TbFdTareaEstado>(entity =>
+            {
+                entity.ToTable("tb_FD_TareaEstado");
+
+                entity.Property(e => e.Color)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.Titulo)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<TbFdTareaTipo>(entity =>
+            {
+                entity.ToTable("tb_FD_TareaTipo");
+
+                entity.Property(e => e.Color)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.Titulo)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+            });
+            modelBuilder.Entity<TbFdUsuarioCosto>(entity =>
+            {
+                entity.ToTable("tb_FD_UsuarioCosto");
+            });
             modelBuilder.Entity<TbCrContacto>(entity =>
             {
                 entity.HasKey(e => e.IdContacto)

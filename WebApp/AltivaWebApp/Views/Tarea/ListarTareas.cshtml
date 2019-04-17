@@ -1,0 +1,183 @@
+﻿@model IEnumerable<AltivaWebApp.Domains.TbFdTarea>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+<div class="row">
+    <div class="col-md-2">
+        <h3>Lista de tareas</h3>
+    </div>
+    <div class="col-md-2" style="margin-left:1rem; padding-top:0.7rem">
+
+        <button class=" btn btn-primary " id="btnNuevaTarea"><span>Agregar <i class="fas fa-plus-circle "></i></span></button>
+    </div>
+    <div class="col-md-2" style="margin-left:1rem; padding-top:0.7rem">
+
+        <select class="form-control">
+            <option>Costos*</option>
+            <option>Rendimiento*</option>
+
+        </select>
+    </div>
+</div>
+
+
+<table class="table" style="width:100%;">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Titulo)
+            </th>
+            <th>
+                Asignado
+            </th>
+            <th>
+                Contacto
+            </th>
+
+            <th>
+                Fecha de Creación
+            </th>
+            <th>
+                Fecha Limite
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Descripcion)
+            </th>
+            <th>
+                Dias Estimados
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DiasReales)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CostoEstimado)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CostoReal)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.FechaInicio)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaFinal)
+            </th>
+            <th>
+                Estado tarea
+            </th>
+            <th>
+                Tipo tarea
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Titulo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IdUsuario)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IdContacto)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.FechaCreacion)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FechaLimite)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Descripcion)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DiasEstimados)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DiasReales)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CostoEstimado)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CostoReal)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.FechaInicio)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FechaFinal)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IdEstadoNavigation.Titulo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IdTipoNavigation.Titulo)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<!--Modal de ingresar nueva e editar nueva tarea-->
+<!-- The Modal -->
+<div class="modal fade" id="nuevaTarea">
+    <div class="modal-dialog modal-dialog-centered ">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title" id="titleTarea"></h4>
+
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body" id="infoAgregarTarea">
+
+
+            </div>
+
+           
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    //llamar al modal para ingresar nueva tarea
+    $('#btnNuevaTarea').on('click', function () {
+
+          $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+              url: '/Tarea/NuevaTarea/' ,
+             
+               success: function (data) {
+                   $('#nuevaTarea').modal('show');
+                   $('#titleTarea').html('Nueva Tarea');
+                   $('#infoAgregarTarea').html(data);
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+
+      
+    });
+</script>

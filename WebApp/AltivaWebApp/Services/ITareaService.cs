@@ -1,0 +1,12 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AltivaWebApp.Domains;
+namespace AltivaWebApp.Services
+{
+    public interface ITareaService
+    {
+        IList<TbFdTarea> GetAll();
+    }
+}

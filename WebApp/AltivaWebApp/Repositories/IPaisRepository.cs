@@ -9,13 +9,13 @@ namespace AltivaWebApp.Repositories
 {
   public  interface IPaisRepository
     {
-        TbSePais Save(TbSePais domain);
-        TbSePais borrar(int domian);
+        TbSePais Save(TbSePais pais);
+        TbSePais borrar(int idPais);
 
-        TbSePais Update(TbSePais domain);
+        TbSePais Update(TbSePais pais);
         IList<TbSePais> GetAll();
-        TbSePais GetPaisById(int id);
-        bool ConsultarPais(string nombre);
+        TbSePais GetPaisById(int idPais);
+        bool ConsultarPais(string nombrePais);
 
     }
 }
