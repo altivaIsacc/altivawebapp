@@ -10,8 +10,29 @@ namespace AltivaWebApp.Services
 {
     public class FotosService
     {
+        public static string SubirFotoUsuarios1(IFormFile file)
+        {
+            if (file != null)
+            {
+                    var fileName = GetUniqueName(file.FileName);
+                    var path = $"wwwroot\\uploads\\{fileName}";
+                    using (var stream = new FileStream(path, FileMode.Create))
+                    {
+                        file.CopyTo(stream);
+                    }
+
+                    return $"/uploads/{fileName}";
+                
+            }
+            else
+            {
+                return "/avatars/ninja.png";
+            }
+           
+        }
         public static string SubirFotoUsuario(IFormFile file)
         {
+
                 if (file.Length > 0)
                 {
                 var fileName = GetUniqueName(file.FileName);

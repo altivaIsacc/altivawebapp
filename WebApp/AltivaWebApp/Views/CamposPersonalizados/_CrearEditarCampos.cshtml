@@ -12,23 +12,40 @@
 }
 
 <div class="row">
-    <div class="col-md-6 ">
+    <div class="col-md-6 " id="empty">
         <div hidden><label hidden>Campo de tipo:</label> @Model.Tipo</div>
         <div class="form-group">
-            <input type="text" asp-for="@Model.Id" id="id" hidden />
+            <input type="text" asp-for="@Model.Id" id="id1" hidden />
         </div>
         <div class="form-group">
-            <input type="text" asp-for="@Model.Tipo" id="Tipo" hidden />
+            <input type="text" asp-for="@Model.Tipo" id="tipo1" hidden />
         </div>
         <div class="form-group">
-            <input type="text" asp-for="@Model.Estado" id="Estado" hidden />
+            <input type="text" asp-for="@Model.Estado" id="Estado1" hidden />
         </div>
         <div class="form-group">
             <label>Nombre del campo</label>
-            <input type="text" asp-for="Nombre" id="Nombre" class="form-control" />
+            <input type="text" asp-for="Nombre" id="Nombre1" class="form-control" />
             <div id="alertNombre"></div>
         </div>
+        <div class="form-group">
 
+            @if (ViewBag.id == 1)
+            {
+
+                <button type="button" id="editarCampo" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            }
+            else if (ViewBag.id ==0)
+            {
+
+                <button type="button" id="guardarCampo" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            }
+        </div>
 
     </div>
         </div>
@@ -44,10 +61,10 @@
             }
 
             var domain1 = {
-                id: $('#id').val(),
-                nombre: $('#Nombre').val(),
-                tipo: $('#Tipo').val(),
-                estado: $('#Estado').val()
+                id: $('#id1').val(),
+                nombre: $('#Nombre1').val(),
+                tipo: $('#tipo1').val(),
+                estado: $('#Estado1').val()
             };
 
                 $.ajax({
@@ -61,9 +78,10 @@
 
                     data: { model1: domain1 },
                     success: function (data) {
-                      
-                        var urls = '@Url.Action("Create", "CamposPersonalizados")';
-                        window.location.href = urls;
+                        $('#ul').empty();
+                        $('#myModal1').modal('hide');
+                        cargarTable();
+  
                     },
 
                     error: function (err, scnd) {
@@ -80,9 +98,9 @@
         }
 
         var domain = {
-            nombre: $('#Nombre').val(),
-            tipo: $('#Tipo').val(),
-            estado: $('#Estado').val()
+            nombre: $('#Nombre1').val(),
+            tipo: $('#tipo1').val(),
+            estado: $('#Estado1').val()
         };
             $.ajax({
                     headers: {
@@ -94,9 +112,16 @@
                     url: '@Url.Action("CrearNuevoCamposPersonalizados", "CamposPersonalizados")',
 
                     data: { domain: domain },
-                    success: function (data) {
+                success: function (data) {
+                    $('#crearCampos').remove();
+                    $('.panelCrearCampo').append('<div id="crearCampos"></div>');
+
+                    $('#ul').empty();
                         $('#myModal1').modal('hide');
-                        window.location.reload();
+                       
+                    
+                            cargarTable();
+                     
                     },
 
                     error: function (err, scnd) {

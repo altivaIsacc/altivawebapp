@@ -21,7 +21,7 @@ namespace AltivaWebApp.GEDomain
         public string GentilicioEn { get; set; }
       
         [StringLength(30, MinimumLength = 2)]
-        [Required(ErrorMessage = "Iniciales es Requerido")]
+        [Required(ErrorMessage = "Iniciales es requerido")]
         public string Iniciales { get; set; }
         public bool Inactivo { get; set; }
     }

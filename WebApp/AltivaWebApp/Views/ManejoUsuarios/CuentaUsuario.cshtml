@@ -79,13 +79,13 @@
             </div>
             <div class="form-group">
                 <label data-translate="codigo" asp-for="codigo" class="control-label">Codigo:</label>
-                <input asp-for="codigo" class="form-control" />
-                <span asp-validation-for="codigo" class="text-danger"></span>
+                <input asp-for="codigo" id="codigo" class="form-control" />
+                <div id="codigoValidation" ></div>
             </div>
             <div class="form-group">
                 <label data-translate="nombre" asp-for="nombre" class="control-label">Nombre:</label>
                 <input asp-for="nombre" class="form-control" />
-                <span asp-validation-for="nombre" class="text-danger"></span>
+                <div id="nombreValidation"></div>
             </div>
             <div class="form-group">
                 <label data-translate="estado" asp-for="estado" class="control-label">Estado:</label>
@@ -98,17 +98,22 @@
             <div class="form-group">
                 <label data-translate="iniciales" asp-for="iniciales" class="control-label">Iniciales:</label>
                 <input asp-for="iniciales" class="form-control" />
-                <span asp-validation-for="iniciales" class="text-danger"></span>
+                <div id="inicialesValidation"></div>
             </div>
             <div class="form-group">
-                <label data-translate="contrasena" asp-for="contrasena" class="control-label">Contraseña:</label>
+                <label asp-for="contrasena" class="control-label">Contraseña: (Una Mayuscula y un caracter especial)</label>
                 <input pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" title="Es necesario que contenga al menos un número, una mayúsculay un caracter especial" asp-for="contrasena" class="form-control" />
-                <span asp-validation-for="contrasena" class="text-danger"></span>
+                <div id="passwordValidation"></div>
+            </div> 
+            <div class="form-group">
+                <label class="control-label">Confirmar Contraseña:</label>
+                <input asp-for="ConfirmPassowrd" class="form-control" />
+                <div id="passwordConfirmValidation"></div>
             </div>
             <div class="form-group">
                 <label data-translate="correo" asp-for="correo" class="control-label">Correo:</label>
                 <input type="email" asp-for="correo" class="form-control" />
-                <span asp-validation-for="correo" class="text-danger"></span>
+                <div id="correoValidation"></div>
             </div>
             <div class="form-group" hidden>
                 <label asp-for="Id_Usuario" class="control-label">Id usuario:</label>
@@ -116,8 +121,8 @@
                 <span asp-validation-for="Id_Usuario" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <button type="submit" data-translate="guardar" class="btn btn-success"><span>Guardar </span><span><i class="fas fa-save"></i></span></button>
-                <a class="btn btn-default btnAtras" data-translate="atras">Atrás</a>
+                <button type="submit" id="btnEditarUsuario" data-translate="guardar" class="btn btn-success"><span>Guardar </span><span><i class="fas fa-save"></i></span></button>
+                <a class="btn btn-default btnAtras" >Cancelar</a>
             </div>
         </form>
 
@@ -264,9 +269,64 @@
 
 <script src="~/js/guardarConfigUsuario.js"></script>
 <script type="text/javascript">
+    //validaciones de campos editar usuario
+    $('#btnEditarUsuario').on('click', function () {
+        if ($('#codigo').val() == "") {
+           
+            $('#codigoValidation').empty();
+            $('#codigoValidation').append('<span class="text-danger">Código es requerido.</span>');
 
+            return false;
+        }
 
+        if ($('#nombre').val() == "") {
+            $('#nombreValidation').empty();
+            $('#nombreValidation').append('<span class="text-danger">Nombre es requerido.</span>');
 
+            return false;
+        }
+        if ($('#iniciales').val() == "") {
+            $('#inicialesValidation').empty();
+            $('#inicialesValidation').append('<span class="text-danger">Iniciales es requerido.</span>');
+
+            return false;
+        }
+        if ($('#contrasena').val() == "") {
+            $('#passwordValidation').empty();
+            $('#passwordValidation').append('<span class="text-danger">Contraseña es requerido.</span>');
+
+            return false;
+        }
+        if ($('#ConfirmPassowrd').val() == "") {
+            $('#passwordConfirmValidation').empty();
+            $('#passwordConfirmValidation').append('<span class="text-danger">Confirmar contraseña es requerido.</span>');
+
+            return false;
+        } if ($('#correo').val() == "") {
+            $('#correoValidation').empty();
+            $('#correoValidation').append('<span class="text-danger">El correo es requerido.</span>');
+
+            return false;
+        }
+        if ($('#contrasena').val() != $('#ConfirmPassowrd').val()) {
+            $('#passwordConfirmValidation').empty();
+            $('#passwordConfirmValidation').append('<span class="text-danger">Las contraseñas no coinciden.</span>');
+            $('#passwordValidation').empty();
+            $('#passwordValidation').append('<span class="text-danger">Las contraseñas no coinciden.</span>');
+
+            return false;
+        }
+        
+
+    });
+    function validarPassword(email) {
+        var i = '(?=^.{ 8, } $) ((?=.*\d)| (?=.*\W +)) (? ![.\n])(?=.* [A - Z])(?=.* [a - z]).* $';
+        if (!i.test(email)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
     $(document).ready(function () {
 
         GetComentarios('Usuario', @Model.id);

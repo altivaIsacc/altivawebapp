@@ -226,7 +226,7 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
-                return View(string.Empty, "Error al crear el usuario");
+                
                 throw;                
             }
         }
@@ -244,12 +244,13 @@ namespace AltivaWebApp.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult EditarUsuario(UsuarioViewModel model)
         {
+            string i = "";
             
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    return View();
+                    return RedirectToAction("ListaUsuarios");
                 }
 
                 var domain = userService.GetUsuarioConPerfiles(model.codigo);
@@ -270,14 +271,17 @@ namespace AltivaWebApp.Controllers
                     }
 
                 var user = userMap.Update(model);
-                return RedirectToAction("CuentaUsuario", new { user.Codigo });
+                i = user.Codigo;
+                return RedirectToAction("ListaUsuarios");
                 
             }
             catch
             {
                 ModelState.AddModelError(string.Empty, "Lo sentimos, tuvimos un error al procesar tu solicitud");
-                return View(model);
+                return RedirectToAction("ListaUsuarios");
             }
+           
+
         }
 
 

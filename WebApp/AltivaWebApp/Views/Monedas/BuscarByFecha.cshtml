@@ -11,96 +11,63 @@
 
 
 <h3 data-translate="MHistorialMoneda">Historial de Moneda</h3>
-<p>@ViewBag.fecha</p>   
-@if (Model != null)
-{
-    <table class="table fk" >
-
-        <thead>
-
-            <tr>
-                <th >
-                    <span data-translate="name">Nombre</span>
-                </th>
-                <th >
-                    <span data-translate="simbolo">Simbolo</span>
-                </th>
-                <th >
-                    <span data-translate="compra">ValorCompra</span>
-                </th>
-                <th >
-                    <span data-translate="venta">ValorVenta</span>
-                </th>
-
-                <th  data-translate="fecha">
-                    @Html.DisplayNameFor(Model => Model.Fecha)
-                </th>
-               <th>Accion</th>
-            </tr>
-
-
-        </thead>
-
-        <tbody>
-
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-
-
-                        <input value="@item.Nombre " class="form-control" onkeypress="return validar(event)"  id="nombres" disabled="disabled" type="text" />
-                    </td>
-                    <td>
-
-                        <input value="@item.Simbolo" id="simbolos" disabled="disabled" class="form-control "  />
-                    </td>
-
-                    <td>
-                        <input value="@Html.DisplayFor(modelItem => item.ValorCompra)" required maxlength="6"  style="font-family: Arial; font-size: 16pt"  id="compra" type="text" class="form-control valorCo" onkeypress="return filterFloat(event,this);" />
-                    </td>
-                    <td>
-                        <input value="@Html.DisplayFor(modelItem => item.ValorVenta)" required maxlength="6"  style="font-family: Arial; font-size: 16pt"  id="venta" type="text" onkeypress="return filterFloat(event,this);" class="form-control valorVe " />
-                    </td>
-
-                    <td>
-                        <input value="@Html.DisplayFor(modelItem => item.Fecha)"  id="fechaHistorial" disabled="disabled"  class="form-control  " />
-
-    
-                    </td>
-                    <td >
-                        <button onclick="modificarHistorial(@item.Codigo,@item.ValorCompra.ToString().Replace(",","."),@item.ValorVenta.ToString().Replace(",","."))" class="btn btn-success" >
-                           Guardar <i class="fas fa-save"></i>
-                        </button>
-                    </td>
+<p>@ViewBag.fecha</p>
+<table class="table fk">
+   
+    <thead>
+        <tr>
+    <th >
+        Nombre
+    </th>
+    <th scope="col"> Simbolo</th>
+    <th scope="col"> ValorCompra</th>
+    <th scope="col">ValorVenta</th>
+    <th scope="col">Fecha</th>
+    <th>Accion</th>
+    </tr >
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <br />  <input class="form-control" value="Colones"
+                               onkeypress="return validar(event)" id="nombre" maxlength="16" type="text" />
+                <br /><input class="form-control" value="Dolar" onkeypress="return validar(event)" id="nombreDolar" disabled="disabled" type="text" />
+                <br /> <input class="form-control"
+                              value="Euro" onkeypress="return validar(event)" id="nombreEuro" disabled="disabled" type="text" />
+            </td>
+            <td>
+                <br /> <input value="₡" id="simbolo" required maxlength="1" class="form-control " />
+                <br />   <input id="simbolodolar" value="$" disabled="disabled" class="form-control " />
+                <br />  <input value="€" id="simboloEuro" disabled="disabled"
+                               class="form-control " />
+            </td>
+            <td>
+                <br /><input value="1" id="compraNormal" class="form-control " disabled="disabled" onkeypress="return filterFloat(event,this);" />
+                <br />  <input value="" id="compraDolar" class="form-control " onkeypress="return filterFloat(event,this);" />
+                <br /> <input value="" id="compraEuro" class="form-control " onkeypress="return filterFloat(event,this);" />
+            </td>
+            <td>
+                <br /> <input value="1" disabled="disabled" id="ventaColones" onkeypress="return filterFloat(event,this);"
+                              class="form-control  " /> <br />
+                <input value="" id="ventaDolar" onkeypress="return filterFloat(event,this);" class="form-control  " />
+                <br />  <input value="" id="ventaEuro" onkeypress="return filterFloat(event,this);" class="form-control  " />
+            </td>
+            <td>
+                <br /><input value="@ViewBag.fecha" class="form-control " id="fecha" disabled="disabled" />
+                <br />  <input value="@ViewBag.fecha" id="fecha" class="form-control " disabled="disabled" />
+                <br />  <input value="@ViewBag.fecha" class="form-control " disabled="disabled" />
+            </td>
+            <td>
+                <button id="btnGuarda" onclick="Moneda1()" class="btn btn-success">
+                    Guardar <i class="fas fa-save"></i>
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>
 
 
-                </tr>
-
-
-            }
-        </tbody>
-
-    </table>
-}
-else
-{
-    
-        <span data-translate="MErrorHitorialMoneda" class="alert alert-danger " id="spanDanger">No existen registros con dicha fecha</span>
-    
-    <!---->
-    <button data-translate="MHNuevo" class="btn btn-primary " id="agregarNuevo">
-        Agregar un nuevo historial, con la fecha seleccionada.
-    </button>
-    <br />
-
-    <div  id="divNewtable">
-     
-    </div>
-
-
-}
-<a data-translate="atras" asp-controller="Monedas" asp-action="Index" class="btn btn-default"  >Atrás</a>
+<a data-translate="atras" asp-controller="Monedas" asp-action="Index" class="btn btn-default">Atrás</a>
 <script type="text/javascript">
 
     function filterFloat(evt, input) {
@@ -137,24 +104,24 @@ else
         }
 
     }
-    
+
 </script>
 <script>
    var valorCompra;
     var valorVenta;
     var nombre ;
     var simbolo ;
-   
+
 
 
     function modificarHistorial(id, pvalorCompra, pvalorVenta) {
-    
+
 
             if (id == 1) {
 
             nombre = $("#nombres").val();
                 simbolo = $("#simbolos").val();
-             
+
                 nombre = $("#nombres").val();
                 simbolo = $("#simbolos").val();
                 if ($("#nombres").val() == "") {
@@ -208,11 +175,11 @@ else
         }
         if (valorCompra == null) {
             valorCompra = pvalorCompra;
-            
+
         }
-    
+
         var fecha = $("#fechaHistorial").val();
-        
+
           $.ajax({
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
@@ -236,13 +203,13 @@ else
     }
 
 
-    
-   
-    
-    
-  
-   
-      
+
+
+
+
+
+
+
     $(document).ready(function () {
        function validar(){
             if (tecla == 8) return true; // 3
@@ -260,8 +227,8 @@ else
             tecla_final = String.fromCharCode(tecla);
             return patron.test(tecla_final);
         }
-          $("#agregarNuevo").click(function () { 
-              $("#divNewtable").append('<table class="table fk" ><tr><thead> <th scope="col"> Nombre</th > <th scope="col"> Simbolo</th> <th scope="col"> ValorCompra</th> <th scope="col">ValorVenta</th> <th scope="col">Fecha</th> <th>Accion</th></tr></thead><tbody><tr> <td><input class="form-control" value="Colones" onkeypress="return validar(event)" id="nombre"  maxlength="16" type="text" /> <input class="form-control" value="Dolar" onkeypress="return validar(event)" id="nombreDolar" disabled="disabled" type="text" /> <input class="form-control" value="Euro" onkeypress="return validar(event)" id="nombreEuro" disabled="disabled" type="text" /> </td><td><input value="₡" id="simbolo" required maxlength="1" class="form-control " />    <input  id="simbolodolar" value="$" disabled="disabled" class="form-control " />    <input value="€" id="simboloEuro" disabled="disabled" class="form-control " />    </td><td><input value="1" id="compraNormal" class="form-control " disabled="disabled"  onkeypress="return filterFloat(event,this);"  /> <input value=""  id="compraDolar" class="form-control "  onkeypress="return filterFloat(event,this);"  /><input value="" id="compraEuro" class="form-control "  onkeypress="return filterFloat(event,this);"  />   </td> <td><input value="1" disabled="disabled" id="ventaColones"  onkeypress="return filterFloat(event,this);"  class="form-control  " /><input value="" id="ventaDolar"  onkeypress="return filterFloat(event,this);"  class="form-control  " /><input value="" id="ventaEuro"  onkeypress="return filterFloat(event,this);"  class="form-control  " /></td > <td> <input value="@ViewBag.fecha" class="form-control " id="fecha" disabled="disabled" /> <input value="@ViewBag.fecha" id="fecha" class="form-control " disabled="disabled" /> <input value="@ViewBag.fecha" class="form-control " disabled="disabled"/></td > <td> <button id="btnGuarda" onclick="Moneda1()" class="btn btn-success">Guardar <i class="fas fa-save"></i> </button></td></tr> </tbody ></table > ');
+          $("#agregarNuevo").click(function () {
+              $("#divNewtable").append('');
               $(".table").DataTable({
 
                   scrollY: '50rem',
@@ -309,7 +276,7 @@ else
 
               });
 
-           
+
             $(this).hide(); //y que oculte este elemento clickeado
             $("#spanDanger").css('visibility', 'hidden');
 
@@ -434,10 +401,10 @@ else
             alert("Verifique que sus datos sean correctos");
             return;
         }
-       
+
         insertarNuevoHistorial(valor, pNombre, pSimbolo, pCompra, pVenta, pNombre1, pSimbolo1, pCompra1, pVenta1, pNombre2, pSimbolo2, pCompra2, pVenta2);
 
-    }       
+    }
     function insertarNuevoHistorial(valor, nombre, simbolo, valorCompra, valorVenta,pNombre1, pSimbolo1, pCompra1, pVenta1, pNombre2, pSimbolo2,pCompra2, pVenta2) {
         var fecha = $("#fecha").val();
         //alert(fecha);
@@ -446,7 +413,7 @@ else
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
                 type: "GET",
-                
+
                 url: '@Url.Action("GuardarHistorial", "HistorialMoneda")',
 
               data: {

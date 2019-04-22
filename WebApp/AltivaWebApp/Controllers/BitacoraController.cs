@@ -52,9 +52,19 @@ namespace AltivaWebApp.Controllers
         public ActionResult FindByDate(BitacoraViewModel valor)
         {
             List<BitacoraViewModel> bitacora = new List<BitacoraViewModel>();
-            bitacora = IBitacoraService.GetByDate(valor.Fecha1, valor.Fecha2);
-            ViewData["bitacora"] = bitacora;
-            return View();
+            bitacora = IBitacoraService.GetByDate(fecha1, fecha2);
+      
+            return Json(new { fecha= fecha1,fecha3 = fecha2} );
+
+        }
+        public ActionResult BuscarPorFecha(BitacoraViewModel domain)
+        {
+            List<BitacoraViewModel> bitacora = new List<BitacoraViewModel>();
+           
+                bitacora = IBitacoraService.GetByDate(domain.Fecha1, domain.Fecha2);
+                ViewData["FindByDate"] = bitacora;
+                return View();
+            
 
         }
         

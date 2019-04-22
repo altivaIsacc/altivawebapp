@@ -10,6 +10,12 @@ namespace AltivaWebApp.Repositories
     {
         public ContactoRelacionRepository(EmpresasContext context) : base(context)
         {
+
+           
+        }
+        public TbCrContactoRelacion GetById(int id)
+        {
+            return context.TbCrContactoRelacion.Where(u => u.Id == id).FirstOrDefault();
         }
     }
 }

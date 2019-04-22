@@ -15,7 +15,7 @@ namespace AltivaWebApp.Repositories
         TbSePais Update(TbSePais domain);
         IList<TbSePais> GetAll();
         TbSePais GetPaisById(int id);
-
+        bool ConsultarPais(string nombre);
 
     }
 }

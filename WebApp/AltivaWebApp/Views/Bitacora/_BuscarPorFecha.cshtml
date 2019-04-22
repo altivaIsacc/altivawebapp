@@ -1,0 +1,98 @@
+﻿
+@model IEnumerable< AltivaWebApp.ViewModels.BitacoraViewModel>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+
+    var module = new List<TbSeUsuario>();
+
+    module = ViewData["usuarios"] as List<TbSeUsuario>;
+    var module1 = new List<BitacoraViewModel>();
+
+    module1 = ViewData["FindByDate"] as List<BitacoraViewModel>;
+}
+
+<div class="container">
+
+    <table class="display table table-bordered" id="tablita" style="width:100px;">
+        <thead id="head">
+            <tr>
+                <th><span data-translate="nombre">Nombre</span></th>
+                <th><span data-translate="descripcion">Descripcion</span></th>
+                <th><span data-translate="fecha">Fecha</span></th>
+                <th>Usuario</th>
+                <th>Referencia</th>
+            </tr>
+        </thead>
+        <tbody id="body">
+            @foreach (var j in Model)
+            {
+                <tr>
+                    <td>@j.nombre</td>
+                    <td>@j.Descripcion</td>
+                    <td>@j.Fecha</td>
+                    <td>@j.nombreUsuario</td>
+                    <td>@j.TipoReferencia</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+    <a class="btn btn-default" asp-action="ListaBitacora" asp-controller="Bitacora">Atrás</a>
+</div>
+
+<script>
+
+
+    $('#tablita').DataTable({
+        dom: 'Bfrtip',
+        scrollX: '50rem',
+        info: false,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+
+            "infoPostFix": "",
+            "thousands": ",",
+
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "<a ><i  class='fas fa-search ' ></i></a>",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        buttons: [
+            {
+                extend: 'copyHtml5',
+                text: '<i class="fas fa-copy   " ></i>',
+                titleAttr: 'Copy'
+            },
+            {
+                extend: 'excelHtml5',
+                text: '<i class="fas fa-file-excel  "></i>',
+                titleAttr: 'Excel'
+            },
+
+            {
+                extend: 'pdfHtml5',
+                text: '<i class="fas fa-file-pdf   "></i>',
+                titleAttr: 'PDF'
+            }
+        ]
+
+    });
+
+
+
+</script>

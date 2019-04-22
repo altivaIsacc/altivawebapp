@@ -33,6 +33,15 @@ namespace AltivaWebApp.Controllers
 
             return PartialView("_CrearEditar",domain2 );
         }
+
+        [HttpGet]
+        public IActionResult GetLista(int id)
+        {
+            IList<ListaDesplegableGETViewModel> vs = new List<ListaDesplegableGETViewModel>();
+            vs = this.service.GetCampos(id);
+
+            return PartialView("ListasDesplegables", vs);
+        }
         public JsonResult CrearCampos(CamposPersonalizadosViewModelSingle model1)
         {
             TbCrCamposPersonalizados vd = new TbCrCamposPersonalizados();

@@ -24,7 +24,7 @@ namespace AltivaWebApp.Controllers
         public IMensajeService ImensajeService;
         public IMensajeReceptor IMensajeReceptorMap;
         public IMensajeReceptorRepository IMensajeReceptorRepository;
-
+        public IHistorialMonedaRepository Historialrepo;
 
         //variable de interfaz mapper 
         public IMensajeMap IMensajeMap;
@@ -37,9 +37,10 @@ namespace AltivaWebApp.Controllers
 
         private IBitacoraMapper IBitacoraMap;
 
-        public MonedasController(IBitacoraMapper IBitacoraMap,IMensajeReceptorRepository IMensajeReceptorRepository,IMensajeMap IMensajeMap, IUserRepository IUserRepository, IMensajeService ImensajeService, IMensajeReceptor IMensajeReceptorMap, IMonedaMap monedaMap, IMonedaService monedaService, IHistorialMonedaService pHistorialService, IHistorialMonedaMap pHistorialMap, EmailSender emailSender)
+        public MonedasController(IHistorialMonedaRepository Historialrepo,IBitacoraMapper IBitacoraMap,IMensajeReceptorRepository IMensajeReceptorRepository,IMensajeMap IMensajeMap, IUserRepository IUserRepository, IMensajeService ImensajeService, IMensajeReceptor IMensajeReceptorMap, IMonedaMap monedaMap, IMonedaService monedaService, IHistorialMonedaService pHistorialService, IHistorialMonedaMap pHistorialMap, EmailSender emailSender)
         {
-            
+
+            this.Historialrepo = Historialrepo;
             this.monedaMap = monedaMap;
             this.monedaService = monedaService;
             this.historialService = pHistorialService;
@@ -268,6 +269,17 @@ namespace AltivaWebApp.Controllers
                 Simbolo=simbolo
             };
           TbSeMoneda m =  monedaMap.Update(model);
+            List<TbSeHistorialMoneda> Lista = new List<TbSeHistorialMoneda>();
+            TbSeHistorialMoneda historial = new TbSeHistorialMoneda();
+            historial.CodigoMoneda = m.Codigo;
+            historial.Fecha = DateTime.Today;
+            historial.IdUsuario = Convert.ToInt32(ids);
+            historial.ValorCompra = m.ValorCompra;
+            historial.ValorVenta = m.ValorVenta;
+            
+            
+            Lista.Add(historial);
+            this.Historialrepo.GuardarHistorial(Lista);
             CrearNotificacion("Has editado una moneda");
         
                 return RedirectToAction(nameof(Index));

@@ -1,0 +1,262 @@
+﻿@model AltivaWebApp.ViewModels.BitacoraViewModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+
+    var module = new List<TbSeUsuario>();
+
+    module = ViewData["usuarios"] as List<TbSeUsuario>;
+    var module1 = new List<BitacoraViewModel>();
+
+    module1 = ViewData["bitacora"] as List<BitacoraViewModel>;
+}
+<link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.dataTables.min.css" rel="stylesheet" />
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <div><h3 data-translate="bitacora">Bitacora Centralizada</h3></div>
+        </div>
+        <div class="col-md-12" style="margin-left:1rem; padding-top:0.7rem">
+
+            <div class="form-group col-sm-1 col-md-12 ">
+
+                <label class="control-label ">Buscar:</label>
+            </div>
+            <div class="form-group col-md-6">
+                <select class="form-control col-md-1" id="sel1">
+                    <option selected data-translate="selecciones">Seleccione</option>
+                    <option data-translate="porUsuario">PorUsuario</option>
+                    <option data-translate="porFecha">PorFecha</option>
+
+                </select>
+            </div>
+
+        </div>
+    </div>
+
+    <hr />
+    <div class=" row col-sm-9">
+
+
+
+
+        <div class=" form-group col-md-4" id="buscadorUsuario" hidden>
+            <form asp-action="BuscarPorUsuario" asp-controller="Bitacora" method="post" enctype="multipart/form-data">
+                <select class="form-control" id="" name="idUsuario">
+                    @foreach (var item in module)
+                    {
+                        <option value="@item.Id"> @item.Nombre</option>
+                    }
+                </select>
+                <br />
+                <div style="text-align:center;">
+                    <button type="submit" hidden id="btn" class="btn btn-link" style="font-size:2rem;"><i class="fas fa-search"></i></button>
+                </div>
+            </form>
+        </div>
+        <div class=" form-group col-md-4 form-in" id="buscadorFecha" hidden>
+            <form asp-action="BuscarPorFecha" asp-controller="Bitacora" method="post" enctype="multipart/form-data">
+                <div class="form-group col-sm-2 ">
+                    <span data-translate="desde">Desde:</span>
+                </div>
+                <div class="form-group col-md-11 ">
+                    <input class="form-control " name="Fecha1" type="datetime-local" id="desde" />
+                </div>
+
+                <div class="form-group col-md-2 ">
+                    <span data-translate="hasta">Hasta:</span>
+                </div>
+                <div class="form-group col-md-11 ">
+                    <input class="form-control " name="Fecha2" type="datetime-local" id="hasta" />
+                </div>
+                <br />
+                <div style="text-align:center;">
+                    <button class="btn btn-link" id="btn1" type="submit" hidden style="font-size:2rem;"><i class="fas fa-search"></i></button>
+                </div>
+            </form>
+
+        </div>
+
+        <div class="row col-md-10" id="mensajeError">
+
+        </div>
+
+
+    </div>
+
+
+
+</div>
+
+<div class="row ">
+
+
+    <table class=" table table-striped table-bordered dt-responsive nowrap " id="TablaBitacora" style="width:100%">
+
+        <thead>
+            <tr>
+
+                <th>Descripción</th>
+                <th>Fecha</th>
+                <th>Usuario</th>
+                <th>Referencia</th>
+            </tr>
+
+
+        </thead>
+        <tbody>
+            @foreach (var j in module1)
+            {
+                <tr>
+
+                    <td>@j.Descripcion</td>
+                    <td>@j.Fecha</td>
+                    <td>@j.nombreUsuario</td>
+                    <td>@j.TipoReferencia</td>
+                </tr>
+            }
+
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Descripción</th>
+                <th>Fecha</th>
+                <th>Usuario</th>
+                <th>Referencia</th>
+
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.flash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.print.min.js"></script>
+
+
+<script>
+
+
+    $(document).ready(function () {
+        $("#btn1").on('click', function () {
+
+            var fecha1 = $("#desde").val();
+            var fecha2 = $("#hasta").val();
+            if (fecha1 == "" || fecha2 == "") {
+                $("#mensajeError").empty();
+                $("#mensajeError").append("<span class='text-danger'>Campos requeridos,no puede continuar si deja un campo en blanco.</span>");
+
+
+                $("#desde").val("");
+                $("#hasta").val("");
+                return false;
+            } else
+                if (fecha2 < fecha1 || fecha1 > fecha2) {
+                    $("#desde").val("");
+                    $("#hasta").val("");
+                    $("#mensajeError").empty();
+                    $("#mensajeError").append("<span >Formato incorrecto al ingresar las fechas.</span>");
+                    return false;
+                }
+        });
+
+
+
+
+
+
+        $('#sel1').change(function () {
+            if ($(this).val() == 'PorUsuario' || $(this).val() == 'ByUser') {
+                $("#buscadorUsuario").show();
+                $("#buscadorFecha").hide();
+
+                $("#btn").show();
+                $("#btn1").hide();
+
+            }
+            else if ($(this).val() == 'PorFecha' || $(this).val() == 'ByDate') {
+                $("#buscadorFecha").show();
+                $("#buscadorUsuario").hide();
+                $("#btn").hide();
+                $("#btn1").show();
+
+            } else if ($(this).val() == 'Seleccione' || $(this).val() == 'select') {
+                $("#buscadorFecha").hide();
+                $("#buscadorUsuario").hide();
+                $("#btn").hide();
+                $("#btn1").hide();
+            }
+        });
+
+    });
+
+    $('#TablaBitacora').DataTable({
+        dom: 'Bfrtip',
+        info: false,
+        scrollY: '50rem',
+
+        scrollX: '50rem',
+        paging: false,
+
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "<i class='fas fa-search'></i>",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        buttons: [
+            {
+                extend: 'copyHtml5',
+                text: '<i class="fas fa-copy   " ></i>',
+                titleAttr: 'Copy'
+            },
+            {
+                extend: 'excelHtml5',
+                text: '<i class="fas fa-file-excel  "></i>',
+                titleAttr: 'Excel'
+            },
+
+            {
+                extend: 'pdfHtml5',
+                text: '<i class="fas fa-file-pdf   "></i>',
+                titleAttr: 'PDF'
+            }
+        ]
+    });
+
+
+
+
+
+
+
+
+</script>

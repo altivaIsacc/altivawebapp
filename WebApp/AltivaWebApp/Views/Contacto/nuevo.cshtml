@@ -27,8 +27,7 @@
 <link href="~/css/Code.css" />
 <div class="col-md-12"><div class="col-md-6 alert alert-success" hidden id=" Mensaje"> Se ha creado un contacto exitosamente</div></div>
 <div class="container ">
-    <h4>Contactos</h4>
-    <div id="atras" hidden><button id="atrass" class="btn btn-link">Atras</button></div>
+  <h3>Contactos</h3>
     <div class="row">
         <div class="col-md-3">
             <label class="radio-inline"><input type="radio" name="radio" checked="@Model.Persona" value="Persona" id="radio" />Persona</label>
@@ -114,7 +113,7 @@
 
     <div class="row">
         <div class="col-md-4">
-            <label class="control-label"> Telefono:</label>
+            <label class="control-label"> Teléfono:</label>
             <input class="form-control " placeholder="00000000" asp-for="Telefono" size=30 required type="text" id="tel" />
             <div id="nombreAlert9"></div>
         </div>
@@ -276,37 +275,43 @@
                                     <th hidden>idRelacion</th>
                                     <th hidden>id</th>
                                     <th class="col-md-2">Nombre</th>
-                                    <th class="col-md-2">NombreComercial</th>
-                                    <th class="col-md-2">Cedula</th>
-                                    <th class="col-md-2">Nota de relacion</th>
+                                    <th class="col-md-2">Nombre Comercial</th>
+                                    <th class="col-md-2">Cédula</th>
+                                    <th class="col-md-2">Nota de relación</th>
                                 </tr>
                             </thead>
                             <tbody id="tr">
+                                @{ 
+                                    int x = 0;
+                                }
                                 @foreach (var cr in contactoRelacion)
                                 {
-                                    <tr>
-                                        <td hidden>@cr.Id</td>
-                                        <td hidden>@cr.IdContactoHijo</td>
-                                        @if (cr.Nombre != null)
-                                        {
-                                            <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.Nombre</button></td>
-                                        }
-                                        else
-                                        {
-                                            <td>---</td>
-                                        }
-                                        @if (cr.NombreComercial != null)
-                                        {
-                                            <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.NombreComercial</button></td>
-                                        }
-                                        else
-                                        {
-                                            <td>---</td>
-                                        }
+                                <tr>
+                                    <td hidden>@cr.Id</td>
+                                    <td hidden>@cr.IdContactoHijo</td>
+                                    @if (cr.Nombre != null)
+                                    {
+                                        <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.Nombre</button></td>
+                                    }
+                                    else
+                                    {
+                                        <td>---</td>
+                                    }
+                                    @if (cr.NombreComercial != null)
+                                    {
+                                        <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.NombreComercial</button></td>
+                                    }
+                                    else
+                                    {
+                                        <td>---</td>
+                                    }
 
-                                        <td>@cr.Cedula</td>
-                                        <td><button class="btn btn-link" onclick="EditarRelacion(@cr.Id)">@cr.NotaRelacion</button> </td>
-                                    </tr>
+                                    <td>@cr.Cedula</td>
+
+                                    <td id="nota @x" ><button class="btn btn-link" id="nota @x" onclick="EditarRelacionLista(@cr.Id,@x)">@cr.NotaRelacion</button><input hidden type="text" id="as_@x" value="@cr.NotaRelacion "/> </td>
+                                    
+                                </tr>
+                                    x++;
                                 }
                             </tbody>
                         </table>
@@ -429,19 +434,19 @@
                                 <td id="nombreComercial">             </td>
                             </tr>
                             <tr>
-                                <th class="col-md-4"> Nombre Juridico:    </th>
+                                <th class="col-md-4"> Nombre Jurídico:    </th>
                                 <td id="nombreJuridico">    </td>
                             </tr>
                             <tr>
-                                <th class="col-md-4">   Tipo Cedula:   </th>
+                                <th class="col-md-4">   Tipo Cédula:   </th>
                                 <td id="tipoCedula">           </td>
                             </tr>
                             <tr>
-                                <th class="col-md-4">    Cedula:   </th>
+                                <th class="col-md-4">    Cédula:   </th>
                                 <td id="cedula">           </td>
                             </tr>
                             <tr>
-                                <th class="col-md-4">  Telefono: </th>
+                                <th class="col-md-4">  Teléfono: </th>
                                 <td id="tele">       </td>
                             </tr>
                             <tr>
@@ -458,11 +463,11 @@
                             </tr>
 
                             <tr>
-                                <th class="col-md-4">  Canton:  </th>
+                                <th class="col-md-4">  Cantón:  </th>
                                 <td id="cantones">          </td>
                             </tr>
                             <tr>
-                                <th class="col-md-4">     Distrito: </th>
+                                <th class="col-md-4">     Distríto: </th>
                                 <td id="distritos">           </td>
                             </tr>
                             <tr>
@@ -555,13 +560,13 @@
 
             <!-- Modal body -->
             <div class="modal-body">
-                <input type="number" value="" id="Padre" hidden />
-                <input type="number" id="Hijo" hidden />
-                <input type="text" maxlength="30" id="nota" placeholder="Nota sobre la relacion" class="form-control col-sm-4" />
+                <input type="number"  id="idRelacion" hidden />
+              
+                <input type="text" maxlength="30" id="nota1" value="" placeholder="Nota sobre la relacion" class="form-control col-sm-4" />
                 <div id="alertNota"></div>
                 <br />
                 <br />
-                <button class="btn btn-success" id="editarRelacion">Guardar <i style="font-size:2rem;" class="fas fa-save"></i></button>
+                <button class="btn btn-success"  onclick="editarRelacion()">Guardar <i style="font-size:2rem;" class="fas fa-save"></i></button>
             </div>
 
             <!-- Modal footer -->
@@ -590,27 +595,59 @@
 
 
     $(document).ready(function () {
+       
         GetComentarios("Contacto", @Model.Id);
     });
 
-    function EditarRelacion(id) {
-
+    function EditarRelacionLista(id,x) {
+      
         $("#editarRelacion").modal('show');
-        var idContactoPadre = $('#Padre').val();
-        var idCOntactoHijo = $('#Hijo').val();
-        var nota = $('#nota').val();
+        
+        var nota = $('#as_' + x + '').val();
+        
+        $('#nota1').val(nota);
+        $('#idRelacion').val(id);
+        
+       
+
+    }
+    function editarRelacion() {
+        var idRelacion = $('#idRelacion').val();
+        var nota = $('#nota1').val();
+
+
+    
         if (nota == "") {
             $('#alertNota').append('<span class="text-danger">La nota es requerida.</span>');
 
             return false;
         }
-        var ContactoRelacion = {
+        var ContactoRelacionEditar = {
 
-            idContactoPadre: idContactoPadre,
-            idContactoHijo: idCOntactoHijo,
-            notaRelacion: nota
+            idRelacion: idRelacion,
+                        nota: nota
         };
+        console.log(ContactoRelacionEditar);
+         $.ajax({
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            type: "POST",
+            
+            url: '@Url.Action("EditarRelacion", "Contacto")',
+             data: { domain: ContactoRelacionEditar },
 
+            success: function (data) {
+           
+                window.location.reload();
+
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
     }
     $('#edit').on('click',function () {
 
@@ -927,7 +964,7 @@
                 return false;
             } if (distrito == "Seleccione") {
                 $("#nombreAlert14").empty();
-                $("#nombreAlert14").append('     <span class="text-danger " >El dsitrito es requerido. </span>');
+                $("#nombreAlert14").append('     <span class="text-danger " >El distrito es requerido. </span>');
 
                 return false;
             }

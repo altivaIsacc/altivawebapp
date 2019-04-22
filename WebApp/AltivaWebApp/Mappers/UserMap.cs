@@ -117,7 +117,7 @@ namespace AltivaWebApp.Mappers
             if (officeViewModel.Foto != null && domain.Avatar != null)
             {
                
-                domain.Avatar = FotosService.SubirFotoUsuario(officeViewModel.Foto);
+                domain.Avatar = FotosService.SubirFotoUsuarios1(officeViewModel.Foto);
             }
 
             return domain;
@@ -164,7 +164,7 @@ namespace AltivaWebApp.Mappers
                 Iniciales = officeViewModel.iniciales,
                 FechaMod = DateTime.Now,
                 IdUsuario = officeViewModel.Id_Usuario,
-                Avatar = FotosService.SubirFotoUsuario(officeViewModel.Foto)
+                Avatar = FotosService.SubirFotoUsuarios1(officeViewModel.Foto)
             };
 
             
