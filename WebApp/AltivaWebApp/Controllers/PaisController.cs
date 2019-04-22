@@ -34,14 +34,38 @@ namespace AltivaWebApp.Controllers
         }
         // GET: Pais
         [HttpGet("/Paises/")]
-        public ActionResult Index()
+        public ActionResult Index(string mensaje)
         {
+
+            var PaisesFiltrados =new List<TbSePais>();
             IList<TbSePais> paises = new List<TbSePais>();
-
             paises = PaisService.GetAll();
+            if (mensaje == null)
+            {
+                ViewBag.estado = 1;
+                foreach (var item in paises)
+                {
+                    if (item.Inactivo == false)
+                    {
+                        PaisesFiltrados.Add(item);
+                    }
+                }
+            }
+            else
+            {
+                ViewBag.estado = 2;
+                foreach (var item in paises)
+                {
+                    if (item.Inactivo == true)
+                    {
+                        PaisesFiltrados.Add(item);
+                    }
+            }
+            }
+       
+           
 
-
-            return View(paises);
+            return View(PaisesFiltrados);
 
         }
        

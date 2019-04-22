@@ -43,6 +43,11 @@ namespace AltivaWebApp.Services
             return historialMonedaRepository.GetByDate(fecha);
         }
 
+        public TbSeHistorialMoneda GetById(long id)
+        {
+            return this.historialMonedaRepository.GetById(id);
+        }
+
         public IList<TbSeHistorialMoneda> GetHistorialById(int id)
         {
             return historialMonedaRepository.GetHistoriaByIdMoneda(id);
@@ -63,11 +68,16 @@ namespace AltivaWebApp.Services
             this.historialMonedaRepository.GuardarHistorial(historial);
         }
 
+        public void ModificarHistorial(List<TbSeHistorialMoneda> domain)
+        {
+            this.historialMonedaRepository.ModificarHistoirial(domain);
+        }
+
         public TbSeHistorialMoneda Update(TbSeHistorialMoneda domain)
         {
             throw new NotImplementedException();
         }
 
-        
+      
     }
 }

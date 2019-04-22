@@ -52,7 +52,7 @@ namespace AltivaWebApp.Controllers
             this.IMensajeReceptorMap = IMensajeReceptorMap;
             this.IBitacoraMap = IBitacoraMap;
         }
-        public ActionResult BuscarByFecha(DateTime fecha)
+        public ActionResult CrearEditarHistorial(DateTime fecha)
 
         {
             var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -275,7 +275,7 @@ namespace AltivaWebApp.Controllers
             List<TbSeHistorialMoneda> Lista = new List<TbSeHistorialMoneda>();
             TbSeHistorialMoneda historial = new TbSeHistorialMoneda();
             historial.CodigoMoneda = m.Codigo;
-            historial.Fecha = DateTime.Today;
+            historial.Fecha = DateTime.Now;
             historial.IdUsuario = Convert.ToInt32(ids);
             historial.ValorCompra = m.ValorCompra;
             historial.ValorVenta = m.ValorVenta;

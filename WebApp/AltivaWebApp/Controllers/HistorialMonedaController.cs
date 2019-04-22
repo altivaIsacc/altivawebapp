@@ -18,9 +18,9 @@ namespace AltivaWebApp.Controllers
     {
         IHistorialMonedaService HistorialService;
         IHistorialMonedaMap HistorialMap;
-      public  IHistorialMonedaRepository HistorialRepo;
+        public IHistorialMonedaRepository HistorialRepo;
         public EmailSender email;
-        public HistorialMonedaController(EmailSender email,IHistorialMonedaService pHistorialService, IHistorialMonedaMap pHistorialMap, IHistorialMonedaRepository pHistorialRepo)
+        public HistorialMonedaController(EmailSender email, IHistorialMonedaService pHistorialService, IHistorialMonedaMap pHistorialMap, IHistorialMonedaRepository pHistorialRepo)
         {
             this.HistorialService = pHistorialService;
             this.HistorialMap = pHistorialMap;
@@ -37,11 +37,18 @@ namespace AltivaWebApp.Controllers
             historial = HistorialService.GetAllByFecha(orderDate);
             return View(historial);
         }
-       
+        [HttpPost]
+        public JsonResult EditarHistorialMoneda(List<EditarHistorialMonedaViewModel> domain)
+        {
+            List<TbSeHistorialMoneda> historial = new List<TbSeHistorialMoneda>();
+           this.HistorialMap.ModificarHistorialMoneda(domain);
+
+            return new JsonResult(true);
+        }
         public JsonResult GuardarHistorial(int valor, double valorCompra, double valorVenta, String nombre, string simbolo, double valorCompra1, double valorVenta1, String nombre1, string simbolo1, double valorCompra2, double valorVenta2, String nombre2, string simbolo2, string fecha)
         {
 
-            DateTime fe =  DateTime.Parse( fecha);
+            DateTime fe = DateTime.Parse(fecha);
             Console.Write(fe);
             var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             IList<TbSeHistorialMoneda> historial = new List<TbSeHistorialMoneda>();
@@ -68,16 +75,16 @@ namespace AltivaWebApp.Controllers
 
             this.HistorialRepo.GuardarHistorial(historial);
             notificar("Se ha ingresado un nuevo historial");
-            return Json(new { success=1});
+            return Json(new { success = 1 });
         }
         public void GuardarDiario()
         {
             DateTime fecha = new DateTime();
-        
+
             IList<TbSeHistorialMoneda> historial = new List<TbSeHistorialMoneda>();
             fecha = DateTime.Today.AddDays(-1);
             historial = HistorialService.GetByDate(fecha.AddDays(-1));
-           if(HistorialService.Guardar(historial)==1)
+            if (HistorialService.Guardar(historial) == 1)
             {
                 Console.WriteLine("exitoso");
             }
@@ -85,7 +92,7 @@ namespace AltivaWebApp.Controllers
             {
                 Console.WriteLine("error");
             }
-            
+
         }
         // GET: HistorialMoneda/Details/5
         public ActionResult Details(int id)
@@ -97,9 +104,9 @@ namespace AltivaWebApp.Controllers
             IList<HistorialMonedaViewModel> historial = new List<HistorialMonedaViewModel>();
 
             historial = HistorialService.GetAllByFecha(fecha);
-            return PartialView("~/Views/HistorialMoneda/Index.cshmtl",historial);
-            
-           
+            return PartialView("~/Views/HistorialMoneda/Index.cshmtl", historial);
+
+
         }
         // GET: HistorialMoneda/Create
         public ActionResult Create()
@@ -129,10 +136,10 @@ namespace AltivaWebApp.Controllers
             //email.insertarNotificacion(int.Parse(id), mensaje);
 
         }
-        public ActionResult Guardar(int valor, double Compra, double Venta, String nombres, string simbolos,String fechas)
+        public ActionResult Guardar(int valor, double Compra, double Venta, String nombres, string simbolos, String fechas)
         {
             DateTime enteredDate = DateTime.Parse(String.Format("{0:d/M/yyyyTHH:mm:ss}", fechas));
-            
+
             if (valor == 2)
             {
                 if (nombres != null)
@@ -164,13 +171,13 @@ namespace AltivaWebApp.Controllers
                 ValorVenta = Venta,
                 Nombre = nombres,
                 Simbolo = simbolos,
-              Fecha = enteredDate
+                Fecha = enteredDate
             };
 
             HistorialMap.Create(model);
             notificar("Se ha ingresado un nuevo historial");
             return RedirectToAction(nameof(Index));
-          
+
         }
         // GET: HistorialMoneda/Edit/5
         public ActionResult Edit(int id)

@@ -7,6 +7,7 @@ namespace AltivaWebApp.ViewModels
 {
     public partial class HistorialMonedaViewModel
     {
+        public long Id { get; set; }
         public int Codigo { get; set; }
         public string Nombre { get; set; }
         public bool Activa { get; set; }

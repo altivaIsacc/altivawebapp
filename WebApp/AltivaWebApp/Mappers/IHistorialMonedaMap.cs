@@ -14,8 +14,10 @@ namespace AltivaWebApp.Mappers
         TbSeHistorialMoneda Create(HistorialMonedaViewModel viewModel);
 
         TbSeHistorialMoneda Update(HistorialMonedaViewModel viewModel);
+     void ModificarHistorialMoneda(List<EditarHistorialMonedaViewModel> domain);
 
         TbSeHistorialMoneda ViewModelToDomain(HistorialMonedaViewModel officeViewModel);
+        List<TbSeHistorialMoneda> ViewModelToDomainUpdate(List<EditarHistorialMonedaViewModel> domain);
         
     }
 }
