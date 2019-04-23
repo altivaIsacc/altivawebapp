@@ -132,6 +132,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbPrAjuste> TbPrAjuste { get; set; }
         public virtual DbSet<TbPrAjustesInventario> TbPrAjustesInventario { get; set; }
         public virtual DbSet<TbPrBodega> TbPrBodega { get; set; }
+        public virtual DbSet<TbPrEquivalencia> TbPrEquivalencia { get; set; }
         public virtual DbSet<TbPrCompra> TbPrCompra { get; set; }
         public virtual DbSet<TbPrCompraInventario> TbPrCompraInventario { get; set; }
         public virtual DbSet<TbPrContacto> TbPrContacto { get; set; }
@@ -3387,6 +3388,28 @@ namespace AltivaWebApp.Context
                     .IsRequired()
                     .HasMaxLength(100)
                     .IsUnicode(false);
+            });
+
+
+            modelBuilder.Entity<TbPrEquivalencia>(entity =>
+            {
+                entity.ToTable("tb_PR_Equivalencia");
+
+                entity.Property(e => e.Observaciones).HasMaxLength(250);
+
+                entity.Property(e => e.Unilateral).HasDefaultValueSql("((0))");
+
+                entity.HasOne(d => d.IdEquivalenciaNavigation)
+                    .WithMany(p => p.TbPrEquivalenciaIdEquivalenciaNavigation)
+                    .HasForeignKey(d => d.IdEquivalencia)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_Equivalencia_tb_PR_Inventario1");
+
+                entity.HasOne(d => d.IdInventarioNavigation)
+                    .WithMany(p => p.TbPrEquivalenciaIdInventarioNavigation)
+                    .HasForeignKey(d => d.IdInventario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_Equivalencia_tb_PR_Inventario");
             });
 
             modelBuilder.Entity<TbPrBodega>(entity =>

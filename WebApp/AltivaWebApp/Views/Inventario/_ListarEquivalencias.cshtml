@@ -1,0 +1,165 @@
+﻿@model TbPrInventario
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <span>Item</span>
+            </th>
+            <th>
+                <span>@SharedLocalizer["Observaciones"]</span>
+            </th>
+            <th>
+                <span>@SharedLocalizer["Costo"]</span>
+            </th>
+            <th>
+                <span>@SharedLocalizer["Unilateral"]</span>
+            </th>
+            <th>
+                <span>@SharedLocalizer["Accion"]</span>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in ViewData["equivalencias"] as IList<TbPrEquivalencia>)
+        {
+            <tr>
+                <td>
+                    @if (item.IdEquivalencia != Model.IdInventario)
+                    {
+                        <p>@item.IdEquivalenciaNavigation.Descripcion - @item.IdEquivalenciaNavigation.Codigo</p>
+                    }
+                    else if(!item.Unilateral)
+                    {
+                        <p>@item.IdInventarioNavigation.Descripcion - @item.IdInventarioNavigation.Codigo</p>
+                    }
+                </td>
+                <td>
+                    <p>@item.Observaciones</p>
+                </td>
+                <td>
+                    <p>@item.IdEquivalenciaNavigation.CostoPromedioGeneral</p>
+                </td>
+                <td>
+                    <p><input class="form-check-input" type="checkbox" disabled checked="@item.Unilateral"></p>
+                </td>
+                <td><span><button class="btn btn-link" onclick="eliminarEquivalencia(@item.Id)"><i class="fas fa-trash"></i></button></span></td>
+            </tr>
+        }
+            <tr>
+                <td>
+                    <select class="selectpicker" id="equivalente" >
+                        @{ foreach (var item in ViewData["items"] as IList<TbPrInventario>)
+                            {
+                                if (item.IdInventario != Model.IdInventario)
+                                {
+                                    <option data-subtext="@item.Codigo" value="@item.IdInventario">@item.Descripcion</option>
+                                }
+                            }
+                        }
+                    </select>
+                </td>
+                <td><textarea id="observaciones" placeholder="@SharedLocalizer["Observaciones"]"></textarea></td>
+                <td><span id="costoPromedio"></span></td>
+                <td><input id="unilateral" class="form-check-input" type="checkbox" /></td>
+                <td><button class="btn btn-link" id="agregarEquivalencia" onclick="guardarEquivalencia()"><i class="fas fa-save"></i></button></td>
+            </tr>
+    </tbody>
+</table>
+
+
+<script>
+    $(document).ready(function () {
+        $('.selectpicker').selectpicker({
+            liveSearch: true,
+            showSubtext: true
+        });
+    });
+
+
+
+    function guardarEquivalencia() {
+
+
+            var model = {
+                idEquivalencia: $('#equivalente').val(),
+                idInventario: @Model.IdInventario,
+                observaciones: $('#observaciones').val(),
+                unilateral: $('#unilateral').prop('checked')
+            };
+
+        console.log(model);
+            $.ajax({
+                        type: "post",
+                        headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        url: '@Url.Action("CrearEquivalencia", "Inventario")',
+                        data: model,
+                        success: function (data) {
+                            getEquivalencias();
+                        },
+                        error: function (err, scnd) {
+                            console.log(err.statusText);
+                        }
+             });
+    }
+
+    function eliminarEquivalencia(id) {
+        var url = '../Eliminar-Equivalencia/' + id;;
+
+        bootbox.confirm("@SharedLocalizer["confirmaEliminar"]", function(result) {
+           if (result)
+             $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+                    getEquivalencias();
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+           
+        });
+
+
+    }
+
+
+
+    function getEquivalencias() {
+
+            var url = '@Url.Action("_ListarEquivalencias", "Inventario")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: {id: @Model.IdInventario},
+                success: function (data) {
+                    $('#equivalencias').html(data);
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+        }
+
+</script>

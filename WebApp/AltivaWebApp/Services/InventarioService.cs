@@ -59,5 +59,24 @@ namespace AltivaWebApp.Services
         {
             return repository.EliminarInventarioBodega(id);
         }
+
+        public bool SaveEquivalencia(TbPrEquivalencia domain)
+        {
+            return repository.SaveEquivalencia(domain);
+        }
+        public bool DeleteEquivalencia(int id)
+        {
+            return repository.DeleteEquivalencia(id);
+        }
+
+        public IList<TbPrEquivalencia> GetEquivalenciasPorInventario(int idInventario)
+        {
+            return repository.GetEquivalenciasPorInventario(idInventario);
+        }
+
+        public bool ExisteEquivalencia(TbPrEquivalencia domain)
+        {
+            return repository.ExisteEquivalencia(domain);
+        }
     }
 }

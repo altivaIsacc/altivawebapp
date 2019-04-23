@@ -1,4 +1,5 @@
 ﻿@model AltivaWebApp.ViewModels.InventarioViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -286,12 +287,14 @@ else
 
             <ul class="nav nav-tabs " id="tabs">
                 <li class="nav-item active">
-                    <a class="nav-link" data-translate="bodegas" data-toggle="tab" href="#bodegas">Bodegas</a>
+                    <a class="nav-link" data-translate="bodegas" data-toggle="tab" href="#bodegas">@SharedLocalizer["Bodegas"]</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-toggle="tab" data-translate="comentarios" href="#inventarioComentarios">Comentarios</a>
+                    <a class="nav-link" data-toggle="tab" href="#inventarioEquivalencias">@SharedLocalizer["Equivalencias"]</a>
                 </li>
-
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" data-translate="comentarios" href="#inventarioComentarios">@SharedLocalizer["Comentarios"]</a>
+                </li>
             </ul>
 
             <!-- Tab panes -->
@@ -371,6 +374,16 @@ else
                     </div>
                 </div>
 
+                <div id="inventarioEquivalencias" class="container tab-pane">
+                    <br>
+
+                    <div class="col-md-6">
+                        <div id="equivalencias">
+
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -379,7 +392,7 @@ else
 
         <div class="form-group">
             <button id="btnGuardar" class="btn btn-success"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
-            <a  class="btn btn-default btnAtras" data-translate="cancelar">Cancelar</a>
+            <a class="btn btn-default btnAtras" data-translate="cancelar">Cancelar</a>
         </div>
     </div>
 </div>
@@ -419,7 +432,7 @@ else
 
         if(@Model.IdInventario != 0)
             GetComentarios("Inventario", @Model.IdInventario);
-        
+
 
         if ($('#habilitaVenta').prop('checked'))
             $('.ventaDirectaForm').collapse('toggle');
@@ -432,6 +445,7 @@ else
         if (@Model.IdInventario != 0) {
             $('#unidades').attr('disabled', true);
             getBodegas();
+            getEquivalencias();
         }
         else
             $('.habilitaEdicionGroup').attr('hidden', true);
@@ -442,7 +456,7 @@ else
                 $('#unidades').attr('disabled', false);
             else
                 $('#unidades').attr('disabled', true);
-                
+
 
         });
 
@@ -711,6 +725,29 @@ else
             });
         }
 
+        function getEquivalencias() {
+
+            var url = '@Url.Action("_ListarEquivalencias", "Inventario")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: {id: @Model.IdInventario},
+                success: function (data) {
+                    $('#equivalencias').html(data);
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+        }
+
+
+        
+
         function guardarRelacionIB(id) {
 
 
@@ -729,7 +766,7 @@ else
                 },
                 error: function (err, scnd) {
 
-                    cargarAlert("Lo sentimos, tuvimos un problema al procesar tu solicitud");
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
                     console.log(err.statusText);
                 }
             });
@@ -862,7 +899,7 @@ else
                             },
                             error: function (err, scnd) {
                                 console.log(err.statusText);
-                                cargarAlert("Lo sentimos, tuvimos un problema al procesar tu solicitud");
+                                cargarAlert('@SharedLocalizer["errorGeneral"]');
                             }
                         });
                     else
