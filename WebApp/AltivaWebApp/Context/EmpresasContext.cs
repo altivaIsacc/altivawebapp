@@ -20,7 +20,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdTarea> TbFdTarea { get; set; }
         public virtual DbSet<TbFdTareaEstado> TbFdTareaEstado { get; set; }
         public virtual DbSet<TbFdTareaTipo> TbFdTareaTipo { get; set; }
-        public virtual DbSet<TbFdUsuarioCosto> TbFdUsuarioCosto { get; set; }
+    
         public virtual DbSet<TbCrListaDesplegables> TbCrListaDesplegables { get; set; }
         public virtual DbSet<TbCrCamposPersonalizados> TbCrCamposPersonalizados { get; set; }
         public virtual DbSet<TbCrContacto> TbCrContacto { get; set; }
@@ -283,10 +283,7 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(100)
                     .IsUnicode(false);
             });
-            modelBuilder.Entity<TbFdUsuarioCosto>(entity =>
-            {
-                entity.ToTable("tb_FD_UsuarioCosto");
-            });
+           
             modelBuilder.Entity<TbCrContacto>(entity =>
             {
                 entity.HasKey(e => e.IdContacto)

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AltivaWebApp.GEDomain
+namespace AltivaWebApp.Models
 {
     public partial class TbSeUsuario
     {
@@ -28,8 +28,8 @@ namespace AltivaWebApp.GEDomain
         public long? IdUsuario { get; set; }
         public string Correo { get; set; }
         public string Avatar { get; set; }
-        public virtual ICollection<TbFdUsuarioCosto> TbFdUsuarioCosto { get; set; }
 
+        public virtual ICollection<TbFdUsuarioCosto> TbFdUsuarioCosto { get; set; }
         public virtual ICollection<TbGeGrupoEmpresarial> TbGeGrupoEmpresarial { get; set; }
         public virtual ICollection<TbSeBitacora> TbSeBitacora { get; set; }
         public virtual ICollection<TbSeEmpresaUsuario> TbSeEmpresaUsuario { get; set; }

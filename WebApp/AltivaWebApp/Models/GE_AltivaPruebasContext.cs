@@ -1,22 +1,28 @@
 ﻿using System;
-using AltivaWebApp.GEDomain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace AltivaWebApp.Context
+namespace AltivaWebApp.Models
 {
-    public partial class GrupoEmpresarialContext : DbContext
-    {       
+    public partial class GE_AltivaPruebasContext : DbContext
+    {
+        public GE_AltivaPruebasContext()
+        {
+        }
 
-        public GrupoEmpresarialContext(DbContextOptions<GrupoEmpresarialContext> options)
+        public GE_AltivaPruebasContext(DbContextOptions<GE_AltivaPruebasContext> options)
             : base(options)
         {
         }
+
         public virtual DbSet<TbFdUsuarioCosto> TbFdUsuarioCosto { get; set; }
         public virtual DbSet<TbGeEmpresa> TbGeEmpresa { get; set; }
         public virtual DbSet<TbGeGrupoEmpresarial> TbGeGrupoEmpresarial { get; set; }
         public virtual DbSet<TbSeAdjunto> TbSeAdjunto { get; set; }
         public virtual DbSet<TbSeBitacora> TbSeBitacora { get; set; }
+        public virtual DbSet<TbSeCamposPersonalizados> TbSeCamposPersonalizados { get; set; }
+        public virtual DbSet<TbSeContacto> TbSeContacto { get; set; }
+        public virtual DbSet<TbSeContactosCamposPersonalizados> TbSeContactosCamposPersonalizados { get; set; }
         public virtual DbSet<TbSeEmpresaUsuario> TbSeEmpresaUsuario { get; set; }
         public virtual DbSet<TbSeHistorialMoneda> TbSeHistorialMoneda { get; set; }
         public virtual DbSet<TbSeMensaje> TbSeMensaje { get; set; }
@@ -30,17 +36,19 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbSeUsuario> TbSeUsuario { get; set; }
         public virtual DbSet<TbSeUsuarioConfiguraion> TbSeUsuarioConfiguraion { get; set; }
 
-//        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//        {
-//            if (!optionsBuilder.IsConfigured)
-//            {
-//                optionsBuilder.UseSqlServer("Server=CENTRAL-PC\\FDPRUEBAS;Database=GE_AltivaPruebas;User Id= sa; Password= 123;");
-//            }
-//        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Server=.;Database=GE_AltivaPruebas;Trusted_Connection=True;");
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.3-servicing-35854");
+
             modelBuilder.Entity<TbFdUsuarioCosto>(entity =>
             {
                 entity.ToTable("tb_FD_UsuarioCosto");
@@ -50,7 +58,6 @@ namespace AltivaWebApp.Context
                     .HasForeignKey(d => d.IdUsuario)
                     .HasConstraintName("FK_tb_FD_UsuarioCosto_tb_SE_Usuario");
             });
-
 
             modelBuilder.Entity<TbGeEmpresa>(entity =>
             {
@@ -183,6 +190,99 @@ namespace AltivaWebApp.Context
                     .HasForeignKey(d => d.IdUsuario)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_SE_Bitacora_tb_SE_Usuario");
+            });
+
+            modelBuilder.Entity<TbSeCamposPersonalizados>(entity =>
+            {
+                entity.ToTable("tb_SE_CamposPersonalizados");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Tipo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Valor)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<TbSeContacto>(entity =>
+            {
+                entity.HasKey(e => e.IdContacto);
+
+                entity.ToTable("tb_SE_Contacto");
+
+                entity.Property(e => e.IdContacto).ValueGeneratedNever();
+
+                entity.Property(e => e.Apellidos)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Canton)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Cedula)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Correo)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Distrito)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.NombreComercial)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.NombreJuridico)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Pais)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Provincia)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TipoCedula)
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<TbSeContactosCamposPersonalizados>(entity =>
+            {
+                entity.ToTable("tb_SE_ContactosCamposPersonalizados");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.HasOne(d => d.IdCampoPersonalizadosNavigation)
+                    .WithMany(p => p.TbSeContactosCamposPersonalizados)
+                    .HasForeignKey(d => d.IdCampoPersonalizados)
+                    .HasConstraintName("FK_tb_SE_ContactosCamposPersonalizados_tb_SE_CamposPersonalizados1");
+
+                entity.HasOne(d => d.IdContactoNavigation)
+                    .WithMany(p => p.TbSeContactosCamposPersonalizados)
+                    .HasForeignKey(d => d.IdContacto)
+                    .HasConstraintName("FK_tb_SE_ContactosCamposPersonalizados_tb_SE_CamposPersonalizados");
             });
 
             modelBuilder.Entity<TbSeEmpresaUsuario>(entity =>

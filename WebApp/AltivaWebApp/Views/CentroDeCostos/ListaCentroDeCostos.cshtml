@@ -1,0 +1,93 @@
+﻿
+@model IEnumerable<AltivaWebApp.GEDomain.TbSeUsuario>
+
+@{
+    ViewData["Title"] = "Costos por Usuario";
+}
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+<h2>Costos de usuario por hora:</h2>
+<div id="table" class="row col-md-8">
+
+</div>
+<div class="modal fade" id="usuarioCostos">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body panelCrearCampo">
+                <div id="crearEditarCostos">
+
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+</div>
+<script>
+      $(document).ready(function () {
+          $('#table').empty();
+          cargarTableCostos();
+    });
+     function cargarTableCostos() {
+            $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("ListaCostos", "CentroDeCostos")',
+
+                success: function (data) {
+                    $('#table').html(data);
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+        }
+    //Metodo que llama datos dentro de un modal, para crear o editar un costo a un usuario
+
+
+    function crearEditarCostos(idUsuario) {
+
+
+     $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "GET",
+
+
+                    url: '@Url.Action("CrearEditarCostos", "CentroDeCostos")',
+
+         data: { idUsuario: idUsuario },
+                    success: function (data) {
+                        $('#crearEditarCostos').html(data);
+                        $('#usuarioCostos').modal('show');
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+    }
+</script>
