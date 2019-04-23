@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace AltivaWebApp.Domains
+namespace AltivaWebApp.ViewModels
 {
-    public partial class TbFdTareaTipo
+    public class TipoTareaViewModel
     {
-        public TbFdTareaTipo()
-        {
-            TbFdTarea = new HashSet<TbFdTarea>();
-            this.Activo = true;
-        }
-
         public long Id { get; set; }
         public string Titulo { get; set; }
         public string Color { get; set; }
@@ -18,8 +14,6 @@ namespace AltivaWebApp.Domains
         public double? DiasFechaLimite { get; set; }
         public bool? EsTipoDefecto { get; set; }
         public bool? Activo { get; set; }
-        public DateTime? FechaCreacion { get; set; }
-
-        public virtual ICollection<TbFdTarea> TbFdTarea { get; set; }
+        
     }
 }

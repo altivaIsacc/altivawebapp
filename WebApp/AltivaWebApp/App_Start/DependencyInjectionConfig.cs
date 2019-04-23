@@ -15,7 +15,11 @@ namespace AltivaWebApp.App_Start
         public static void AddScope(IServiceCollection services)
 
         {
-            //estados
+            //tipos
+            services.AddScoped<ITipoTareaService, TipoTareaService>();
+            services.AddScoped<ITipoTareaRepository,    TipoTareaRepository>();
+            services.AddScoped<ITipoTareaMapper,    TipoTareaMapper>();
+            //costos
             services.AddScoped<ICentroCostosRepository, CentroCostosRepository>();
             services.AddScoped<ICentroCostosService, CentroCostosService>();
             services.AddScoped<ICostoUsuarioMapper, CostoUsuarioMapper>();
