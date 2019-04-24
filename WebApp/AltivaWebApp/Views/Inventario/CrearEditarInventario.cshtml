@@ -392,7 +392,7 @@ else
 
         <div class="form-group">
             <button id="btnGuardar" class="btn btn-success"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
-            <a class="btn btn-default btnAtras" data-translate="cancelar">Cancelar</a>
+            <a class="btn btn-default" id="btnCancelar" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
         </div>
     </div>
 </div>
@@ -478,11 +478,7 @@ else
 
 
         $('#btnCancelar').click(function () {
-
-            if (confirm("Está seguro que desea cancelar"))
-                window.location.href = "@Url.Action("ListarInventario")";
-
-
+            bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) { if (result) window.location.href = "@Url.Action("ListarInventario")"; });
         });
 
         $('#habilitaVenta').change(function () {
@@ -510,7 +506,7 @@ else
 
             for (var i = 0; i < inventarioBodega.length; i++) {
                 if (bodega === inventarioBodega[i].idBodega) {
-                    cargarAlert("No se puede agregar dos veces la misma bodega");
+                    cargarAlert("@SharedLocalizer["errorDuplicacion"]");
                     flag = true;
 
                 }
@@ -537,12 +533,12 @@ else
                 if (model.existenciaMinima > 0 && model.existenciaMedia > 0 && model.existenciaMaxima > 0) {
 
                     if (model.existenciaMinima >= model.existenciaMedia) {
-                        cargarAlert("La existencia minima debe ser menor a la media");
+                        cargarAlert('@SharedLocalizer["minimaValid"]');
                         flag2 = false;
                     }
 
                     else if (model.existenciaMedia >= model.existenciaMaxima) {
-                        cargarAlert("La existencia media debe ser menor a la máxima");
+                        cargarAlert('@SharedLocalizer["mediaValid"]');
                         flag2 = false;
                     }
 
@@ -558,7 +554,7 @@ else
 
                 }
                 else {
-                    cargarAlert("Las existencias deben ser mayor a 0");
+                    cargarAlert("@SharedLocalizer["existenciaValid"]");
                 }
 
 
@@ -606,7 +602,7 @@ else
                         }
                     });
                else
-                    cargarAlert("El ítem no se puede agregar sin una bodega asignada");
+                    cargarAlert("@SharedLocalizer["bodegaSinItemValid"]");
 
 
 
@@ -659,6 +655,7 @@ else
 
                 },
                 error: function (err, scnd) {
+                    cargarAlert("@SharedLocalizer["errorGeneral"]");
                     console.log(err.statusText);
                 }
             });
@@ -696,7 +693,7 @@ else
                 },
                 error: function (err, scnd) {
                     console.log(err.statusText);
-                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                    cargarAlert("@SharedLocalizer["errorGeneral"]");
                 }
             });
         }
@@ -719,7 +716,7 @@ else
 
                 },
                 error: function (err, scnd) {
-                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                    cargarAlert("@SharedLocalizer["errorGeneral"]");
                     console.log(err.statusText);
                 }
             });
@@ -807,7 +804,7 @@ else
             $('#presentacionValid').attr('hidden', false);
             flag = false;
         }
-        if (array[3].value === "")
+        if (array[3].value.replace(/ /g, "") === "")
             array[3].value = 0;
         if (array[11].value === "")
             array[11].value = 0;
@@ -829,11 +826,11 @@ else
             array[20].value = 0;
         if (array[21].value === "")
             array[21].value = 0;
-        if (array[4].value === "") {
+        if (array[4].value.replace(/ /g, "") === "") {
             $('#codigoValid').attr('hidden', false);
             flag = false;
         }
-        if (array[7].value === "") {
+        if (array[7].value.replace(/ /g, "") === "") {
             $('#descripcionValid').attr('hidden', false);
             flag = false;
         }
@@ -872,7 +869,9 @@ else
 
     function eliminarBodegaInventario(fila, idRelacion) {
 
-        if (confirm('Está seguro que desea eliminar esta bodega?')) {
+        bootbox.confirm("@SharedLocalizer["confirmEliminar"]", function (result) {
+
+            if (result) {
             var flag = false;
 
             for (var i = 0; i < inventarioBodega.length; i++) {
@@ -903,7 +902,7 @@ else
                             }
                         });
                     else
-                        cargarAlert("No puede eliminar la bodega de este inventario si tiene existencias");
+                        cargarAlert("@SharedLocalizer["eliminarInventario"]");
 
                 }
                 else {
@@ -913,11 +912,14 @@ else
 
             }
             else {
-                cargarAlert("Inventario debe tener al menos una bodega asignada");
+                cargarAlert("@SharedLocalizer["bodegaAsignada"]");
             }
 
 
         }
+
+        });
+      
 
 
     }

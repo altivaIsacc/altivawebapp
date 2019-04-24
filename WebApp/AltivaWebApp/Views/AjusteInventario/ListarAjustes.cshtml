@@ -1,0 +1,162 @@
+﻿@model IEnumerable<AltivaWebApp.Domains.TbPrAjuste>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@{
+    ViewData["Title"] = "ListarAjustes";
+
+    var usuarios = ViewData["usuarios"] as IList<TbSeUsuario>;
+}
+
+
+<div class="row">
+    <div class="col-md-2">
+        <h3>ListarAjustes</h3>
+    </div>
+    <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
+        <p>
+            <a asp-action="CrearAjuste" class="btn btn-primary"><span data-translate="agregar">@SharedLocalizer["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+        </p>
+    </div>
+
+</div>
+
+<div class="row">
+
+    <div class="col-md-2">
+        <label>@SharedLocalizer["buscarPorDescripcion"]:</label>
+        <input type="text" id="filtroBuscar" class="form-control" />
+    </div>
+
+    <div class="form-group col-md-2 col-md-offset-1">
+        <label for="desde">@SharedLocalizer["Desde"]:</label>
+        <input class="form-control " name="desde" type="datetime-local" id="desde" />
+    </div>
+    <div class="form-group col-md-2">
+        <label for="hasta">@SharedLocalizer["Hasta"]:</label>
+        <input class="form-control " name="hasta" type="datetime-local" id="hasta" />
+    </div>
+
+    <div class="col-md-2  col-md-offset-1">
+        <label>@SharedLocalizer["buscarItem"]:</label>
+        <input type="text" id="filtroBuscar" class="form-control" />
+    </div>
+
+</div>
+<br />
+<div class="row">
+
+    <div class="col-md-10  table-responsive">
+        <table class="table table-bordered" style="width:100%" id="tblAjustes">
+            <thead>
+                <tr>
+                    <th>
+                        <span>@SharedLocalizer["Fecha"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["Descripción"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["Saldo"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["Anulada"]</span>
+                    </th>
+                    <th><span>@SharedLocalizer["accion"]</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @*@foreach (var item in Model)
+                    {
+                        <tr>
+                            <td hidden>
+                                @Html.DisplayFor(modelItem => item.Id)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FechaDocumento)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SaldoAjuste)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Anulada)
+                            </td>
+                            <td>
+                                <a class="btn btn-link" asp-action="EditarAjuste" asp-route-id="@item.Id"><span><i class="fas fa-edit"></i></span></a>
+                            </td>
+                        </tr>
+                    }*@
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+
+<script>
+    var ajustes = [];
+    var tblAjustes;
+
+    $(document).ready(function () {
+
+
+        getInventario();
+
+    });
+
+    function getInventario() {
+            ///get ajustes
+            $.ajax({
+
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+                url: 'Get-Ajustes',
+                success: function (data) {
+
+                    console.log(data);
+                    ajustes = JSON.parse(JSON.stringify(data));
+
+                    cargarDatos(data);
+            },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+            }
+            });
+        }
+    function cargarDatos(data) {
+
+        var contadorFila = 0;
+        $("#tblAjustes > tbody").remove();
+
+        $('#tblAjustes').append('<tbody></tbody>');
+
+        for (var i = 0; i < data.length; i++) {
+
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td><p style="padding-top:1rem">' + data[i].fechaDocumento + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + data[i].descripcion + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + data[i].saldoAjuste + '</p></td>'
+                + '<td><p style="padding-top:1rem"><input disabled type="checkbox" check="' + data[i].anulada + '"/></p></td>'
+                + '<td>  <button value="' + data[i].id + '" onclick="editarAjuste(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+            $('#tblAjustes > tbody').append(body);
+            contadorFila++;
+        }
+
+        $('#tblAjustes').DataTable({
+
+        });
+
+    }
+</script>
+

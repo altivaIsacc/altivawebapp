@@ -26,39 +26,54 @@
                 <span>@SharedLocalizer["Unilateral"]</span>
             </th>
             <th>
-                <span>@SharedLocalizer["Accion"]</span>
+                <span>@SharedLocalizer["accion"]</span>
             </th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in ViewData["equivalencias"] as IList<TbPrEquivalencia>)
         {
-            <tr>
-                <td>
-                    @if (item.IdEquivalencia != Model.IdInventario)
-                    {
-                        <p>@item.IdEquivalenciaNavigation.Descripcion - @item.IdEquivalenciaNavigation.Codigo</p>
-                    }
-                    else if(!item.Unilateral)
-                    {
-                        <p>@item.IdInventarioNavigation.Descripcion - @item.IdInventarioNavigation.Codigo</p>
-                    }
-                </td>
-                <td>
-                    <p>@item.Observaciones</p>
-                </td>
-                <td>
-                    <p>@item.IdEquivalenciaNavigation.CostoPromedioGeneral</p>
-                </td>
-                <td>
-                    <p><input class="form-check-input" type="checkbox" disabled checked="@item.Unilateral"></p>
-                </td>
-                <td><span><button class="btn btn-link" onclick="eliminarEquivalencia(@item.Id)"><i class="fas fa-trash"></i></button></span></td>
-            </tr>
+            if (item.IdEquivalencia != Model.IdInventario)
+            {
+                <tr>
+                    <td>
+                        <a href="@Url.Action("EditarInventario", "Inventario", new { id= item.IdEquivalenciaNavigation.IdInventario })">@item.IdEquivalenciaNavigation.Descripcion - @item.IdEquivalenciaNavigation.Codigo</a>
+                    </td>
+                    <td>
+                        <p>@item.Observaciones</p>
+                    </td>
+                    <td>
+                        <p>@item.IdEquivalenciaNavigation.CostoPromedioGeneral</p>
+                    </td>
+                    <td>
+                        <p><input class="form-check-input" type="checkbox" disabled checked="@item.Unilateral"></p>
+                    </td>
+                    <td><span><button class="btn btn-link" onclick="eliminarEquivalencia(@item.Id)"><i class="fas fa-trash"></i></button></span></td>
+                </tr>
+            }
+            else if (!item.Unilateral)
+            {
+
+                <tr>
+                    <td>
+                        <a href="@Url.Action("EditarInventario", "Inventario", new { id= item.IdInventarioNavigation.IdInventario })">@item.IdInventarioNavigation.Descripcion - @item.IdInventarioNavigation.Codigo</a>
+                    </td>
+                    <td>
+                        <p>@item.Observaciones</p>
+                    </td>
+                    <td>
+                        <p>@item.IdInventarioNavigation.CostoPromedioGeneral</p>
+                    </td>
+                    <td>
+                        <p><input class="form-check-input" type="checkbox" disabled checked="@item.Unilateral"></p>
+                    </td>
+                    <td><span><button class="btn btn-link" onclick="eliminarEquivalencia(@item.Id)"><i class="fas fa-trash"></i></button></span></td>
+                </tr>
+            }
         }
             <tr>
                 <td>
-                    <select class="selectpicker" id="equivalente" >
+                    <select class="selectpicker" id="equivalente">
                         @{ foreach (var item in ViewData["items"] as IList<TbPrInventario>)
                             {
                                 if (item.IdInventario != Model.IdInventario)
@@ -74,7 +89,7 @@
                 <td><input id="unilateral" class="form-check-input" type="checkbox" /></td>
                 <td><button class="btn btn-link" id="agregarEquivalencia" onclick="guardarEquivalencia()"><i class="fas fa-save"></i></button></td>
             </tr>
-    </tbody>
+        </tbody>
 </table>
 
 
@@ -100,25 +115,29 @@
 
         console.log(model);
             $.ajax({
-                        type: "post",
-                        headers: {
-                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                        },
-                        url: '@Url.Action("CrearEquivalencia", "Inventario")',
-                        data: model,
-                        success: function (data) {
-                            getEquivalencias();
-                        },
-                        error: function (err, scnd) {
-                            console.log(err.statusText);
-                        }
+                type: "post",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: '@Url.Action("CrearEquivalencia", "Inventario")',
+                data: model,
+                success: function (data) {
+                    if (data.existe)
+                        cargarAlert("@SharedLocalizer["errorDuplicacion"]");
+                    else
+                        getEquivalencias();
+                    },
+                error: function (err, scnd) {
+                    cargarAlert("@SharedLocalizer["errorGeneral"]");
+                    console.log(err.statusText);
+                 }
              });
     }
 
     function eliminarEquivalencia(id) {
         var url = '../Eliminar-Equivalencia/' + id;;
 
-        bootbox.confirm("@SharedLocalizer["confirmaEliminar"]", function(result) {
+        bootbox.confirm("@SharedLocalizer["confirmEliminar"]", function(result) {
            if (result)
              $.ajax({
                 type: "get",
@@ -160,6 +179,6 @@
                     console.log(err.statusText);
                 }
             });
-        }
+    }
 
 </script>

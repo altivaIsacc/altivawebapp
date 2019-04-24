@@ -203,12 +203,18 @@ namespace AltivaWebApp.Controllers
             try
             {
 
-                var res = service.SaveEquivalencia(model);
-                return Json( new { success = res });
+                var res = true;
+                var existeEquivalencia = service.ExisteEquivalencia(model);
+
+                if (!existeEquivalencia)
+                    res = service.SaveEquivalencia(model);
+
+
+                return Json( new { success = res, existe = existeEquivalencia });
             }
             catch (Exception)
             {
-                //return BadRequest();
+                return BadRequest();
                 throw;
             }
         }
