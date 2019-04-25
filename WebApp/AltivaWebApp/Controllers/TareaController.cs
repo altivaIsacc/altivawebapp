@@ -16,9 +16,15 @@ namespace AltivaWebApp.Controllers
 
         public ITareaService TareaServiceInterface;
 
-        public TareaController(ITareaService pTareaServiceInterface)
+        //
+        public IContactoService IContactosService;
+        //
+        public IUserService IUserService;
+        public TareaController(ITareaService pTareaServiceInterface, IContactoService IContactosService, IUserService IUserService)
         {
             this.TareaServiceInterface = pTareaServiceInterface;
+            this.IContactosService = IContactosService;
+            this.IUserService = IUserService;
         }
         [Route("ListarTareas")]
         public IActionResult ListarTareas()
@@ -32,6 +38,11 @@ namespace AltivaWebApp.Controllers
         [Route("NuevaTarea")]
         public ActionResult PartialNuevaTarea()
         {
+
+            //llamar alos contactos
+            ViewData["Contactos"] = this.IContactosService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
+            //llamar alos asignados
 
 
             return PartialView("_PartialNuevaEditarTarea");

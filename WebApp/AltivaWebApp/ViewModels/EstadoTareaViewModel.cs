@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace AltivaWebApp.Domains
+namespace AltivaWebApp.ViewModels
 {
-    public partial class TbFdTareaEstado
+    public class EstadoTareaViewModel
     {
-        public TbFdTareaEstado()
-        {
-            this.Activo = true;
-            TbFdTarea = new HashSet<TbFdTarea>();
-        }
-
         public long Id { get; set; }
         public string Titulo { get; set; }
         public string Color { get; set; }
@@ -18,8 +14,8 @@ namespace AltivaWebApp.Domains
         public bool? EsInicial { get; set; }
         public bool? EsFinal { get; set; }
         public bool? Activo { get; set; }
-        public DateTime? FechaCreacion { get; set; }
 
-        public virtual ICollection<TbFdTarea> TbFdTarea { get; set; }
+    
+
     }
 }

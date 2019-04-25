@@ -4,90 +4,181 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
+using AltivaWebApp.Services;
+using AltivaWebApp.Domains;
+using AltivaWebApp.ViewModels;
+using AltivaWebApp.Mappers;
 namespace AltivaWebApp.Controllers
 {
+
+    [Route("EstadoTarea")]
     public class EstadoTareaController : Controller
     {
+        public IEstadoTareaService IEstadoService;
+
+        //variable mapper
+        public IEstadoTareaMapper IEstadoMapper;
+
+        public EstadoTareaController(IEstadoTareaService IEstadoService, IEstadoTareaMapper IEstadoMapper)
+        {
+            this.IEstadoService = IEstadoService;
+            this.IEstadoMapper = IEstadoMapper;
+        }
+        [HttpGet("Lisar-Estados")]
         // GET: EstadoTarea
-        public ActionResult Index()
+        public ActionResult ListarEstados()
         {
+            
+
             return View();
         }
-
-        // GET: EstadoTarea/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
+        [HttpGet("ListarEstadosTareas/{inactivo?}")]
+        [HttpGet]
+        public IActionResult ListarEstadosTareas(string inactivo) {
+            IList<TbFdTareaEstado> te = new List<TbFdTareaEstado>();
+  IList<TbFdTareaEstado> tpL = new List<TbFdTareaEstado>();
+           
+            te = this.IEstadoService.GetAll();
+           
+            if (inactivo == null)
+            {
+                ViewBag.estado = 1;
+                foreach (var item in te)
+                {
+                    if (item.Activo == true)
+                    {
+                        tpL.Add(item);
+                    }
+                }
+            }
+            else
+            {
+                ViewBag.estado = 2;
+                foreach (var item in te)
+                {
+                    if (item.Activo == false)
+                    {
+                        tpL.Add(item);
+                    }
+                }
+            }
+            return PartialView("_ListarEstados", tpL);
         }
-
-        // GET: EstadoTarea/Create
-        public ActionResult Create()
+        [HttpGet("CrearEstadoVista")]
+        [HttpGet]
+        public IActionResult CrearEstadoVista()
         {
-            return View();
-        }
+            var EstadoTarea = new TbFdTareaEstado();
 
-        // POST: EstadoTarea/Create
+            return PartialView("_CrearEditarEstados", EstadoTarea);
+        }
+        [HttpGet("EditarEstadoVista/{idEstado?}")]
+        [HttpGet]
+        public IActionResult EditarEstadoVista(int idEstado)
+        {
+            var EstadoTarea = new TbFdTareaEstado();
+            EstadoTarea = this.IEstadoService.GetById(idEstado);
+
+            return PartialView("_CrearEditarEstados", EstadoTarea);
+        }
+        [HttpPost("EditarEstado")]
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public IActionResult EditarEstado(EstadoTareaViewModel domain)
+        {
+            TbFdTareaEstado estadoTarea = new TbFdTareaEstado();
+            TbFdTareaEstado titulo = new TbFdTareaEstado();
+            TbFdTareaEstado color = new TbFdTareaEstado();
+            TbFdTareaEstado porDefecto = new TbFdTareaEstado();
+            titulo = this.IEstadoService.GetTitulo(domain.Titulo);
+            color = this.IEstadoService.GetColor(domain.Color);
+            porDefecto = this.IEstadoService.GetDefecto(true);
+            if (this.IEstadoService.GetByTitulo(domain.Titulo))
+            {
+                if (titulo.Id != domain.Id)
+                {
+                    return Json(new { titulo = true });
+                }
+            }
+            if (this.IEstadoService.GetByColor(domain.Color))
+            {
+                if (color.Id != domain.Id)
+                {
+                    return Json(new { color = true });
+
+                }
+            }
+            if (this.IEstadoService.GetByDefecto(domain.EsDefecto) == true)
+            {
+                if (domain.EsDefecto == true)
+                {
+                    if (porDefecto.Id != domain.Id)
+                    {
+                        return Json(new { defecto = true });
+                    }
+                }
+            }
+
+        
+                estadoTarea = this.IEstadoMapper.Update(domain);
+            return Json(new { titulo = false, color = false, defecto = false });
+        }
+        [HttpPost("CrearEstado")]
+        [HttpPost]
+        public JsonResult CrearEstado(EstadoTareaViewModel domain)
         {
             try
             {
-                // TODO: Add insert logic here
+                if (this.IEstadoService.GetByTitulo(domain.Titulo))
+                {
+                    return Json(new { titulo = true });
+                }
+                else if (this.IEstadoService.GetByColor(domain.Color))
+                {
+                    return Json(new { color = true });
+                }
+                else if (domain.EsDefecto != false)
+                {
 
-                return RedirectToAction(nameof(Index));
+                    if (this.IEstadoService.GetByDefecto(domain.EsDefecto) == true)
+                    {
+                        return Json(new { defecto = true });
+                    }
+                }
+                else
+                {
+                    TbFdTareaEstado estadoTarea = new TbFdTareaEstado();
+                    estadoTarea = this.IEstadoMapper.Save(domain);
+                }
             }
             catch
             {
-                return View();
+                throw;
             }
-        }
 
-        // GET: EstadoTarea/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
+            return Json(new { titulo = false, color = false, defecto = false });
         }
-
-        // POST: EstadoTarea/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        [HttpGet("Eliminar-Estado")]
+        public JsonResult Delete(int idEstado)
         {
+
             try
             {
-                // TODO: Add update logic here
+                TbFdTareaEstado te = new TbFdTareaEstado();
+                te = this.IEstadoService.GetById(idEstado);
+                bool flag = this.IEstadoService.Delete(te);
+                if (flag)
+                {
+                    return new JsonResult(true);
+                }
 
-                return RedirectToAction(nameof(Index));
+
             }
             catch
             {
-                return View();
+                return new JsonResult(false);
             }
-        }
 
-        // GET: EstadoTarea/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: EstadoTarea/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            return new JsonResult(true);
         }
     }
 }

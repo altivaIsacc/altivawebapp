@@ -1,0 +1,165 @@
+﻿@model IEnumerable<AltivaWebApp.Domains.TbFdTareaEstado>
+
+@{
+    ViewData["Title"] = "ListarEstados";
+}
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+<div class="row dt-responsive">
+
+    <table class="table table-striped table-bordered  nowrap dataTable" id="tablaEstadoTarea" style="width:100%;">
+        <thead>
+            <tr>
+                <th>
+                    Título
+                </th>
+                <th>
+                    Color
+                </th>
+                <th>
+                    Es Defecto
+                </th>
+                <th>
+                    Es Inicial
+                </th>
+                <th>
+                    Es Final.
+                </th>
+                <th>
+                    Activo
+                </th>
+                <th>
+                    Fecha creación
+                </th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Titulo)
+                    </td>
+                    <td bgcolor=" @item.Color"></td>
+                    <td>
+                        <input type="checkbox" disabled checked="@item.EsDefecto" />
+                    </td>
+                    <td>
+                        <input type="checkbox" disabled checked="@item.EsInicial" />
+
+                    </td>
+                    <td>
+                        <input type="checkbox" disabled checked="@item.EsFinal" />
+
+                    </td>
+                    <td>
+                        <input type="checkbox" disabled checked="@item.Activo" />
+
+                    </td>
+                    <td>
+
+                        @Html.DisplayFor(modelItem => item.FechaCreacion)
+                    </td>
+                    <td>
+                        <button onclick="EditarEstadoTarea(@item.Id)" class="btn btn-link"> <i class="fas fa-edit dark"></i></button>
+                        <button onclick="EliminarEstado(@item.Id)" class="btn btn-link"><i class="fas fa-trash dark"></i></button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script>
+    function EliminarEstado(idEstado) {
+ bootbox.confirm({
+
+            message: "<h4 class='text-center'><span >Esta usted seguro que desea continuar?</span></h4>",
+            buttons: {
+
+                confirm: {
+                    label: '<i class="fa fa-check"></i> Aceptar'
+                },
+                cancel: {
+                    label: '<i class="fa fa-times"></i> Cancelar'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+
+                       $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "GET",
+
+
+                           url: '@Url.Action("Delete", "EstadoTarea")',
+                           data: { idEstado: idEstado },
+                    success: function (data) {
+                        $('#tablaEstados').empty();
+
+                        $('#ModalEstados').modal('hide');
+                        if ($("#activos").css("display") == "block") {
+
+                            $("#inactivos").css("display", "none");
+                            $("#activos").css("display", "block");
+                            VerInactivos("inactivos");
+                        } else {
+                            $("#inactivos").css("display", "block");
+                            $("#activos").css("display", "none");
+                            verActivos(null);
+
+                        }
+
+                        return false;
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+        });
+
+                  
+                } else {
+                    return;
+                }
+            }
+        });    }
+    $("#tablaEstadoTarea").DataTable({
+        scrollY: '50rem',
+        scrollX: '50rem',
+        scrollCollapse: true,
+        paging: false,
+        info: false,
+        "ordering": false,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "<i class='fas fa-search'></i>",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        }
+
+    });
+
+</script>

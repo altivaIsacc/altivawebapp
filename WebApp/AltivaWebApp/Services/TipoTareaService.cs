@@ -23,7 +23,10 @@ namespace AltivaWebApp.Services
 
         public bool Delete(int idTipo)
         {
-            return this.ITipoTareaRepository.Delete(idTipo);
+            TbFdTareaTipo tp = new TbFdTareaTipo();
+            tp = this.ITipoTareaRepository.GetById(idTipo);
+            
+            return this.ITipoTareaRepository.Delete(tp);
         }
 
         public IList<TbFdTareaTipo> GetAll()

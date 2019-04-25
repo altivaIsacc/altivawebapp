@@ -11,7 +11,7 @@ namespace AltivaWebApp.Repositories
         TbFdTareaTipo Save(TbFdTareaTipo domain);
         TbFdTareaTipo Update(TbFdTareaTipo domain);
         TbFdTareaTipo GetById(int idTipo);
-        bool Delete(int idTipo);
+        bool Delete(TbFdTareaTipo domain);
         bool GetByTitulo(string titulo);
         bool GetByColor(string color);
         bool GetByDefecto(bool? defecto);

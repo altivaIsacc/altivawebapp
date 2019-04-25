@@ -21,7 +21,7 @@ namespace AltivaWebApp.Repositories
 
         public bool GetByColor(string color)
         {
-            return context.TbFdTareaTipo.Any(u => u.Color == color && u.Color  != "#858585");
+            return context.TbFdTareaTipo.Any(u => u.Color == color && u.Color != "#858585");
         }
 
         public bool GetByDefecto(bool? defecto)
@@ -42,7 +42,7 @@ namespace AltivaWebApp.Repositories
 
         public TbFdTareaTipo GetColor(string color)
         {
-            return context.TbFdTareaTipo.FirstOrDefault(i => i.Color == color && i.Color != "#858585");
+            return context.TbFdTareaTipo.FirstOrDefault(i => i.Color == color );
         }
         public TbFdTareaTipo GetDefecto(bool flag)
         {
