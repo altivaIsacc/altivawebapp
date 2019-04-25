@@ -15,7 +15,11 @@ namespace AltivaWebApp.Repositories
         {
 
         }
-
+        
+        public IList<TbPrAjuste> GetAllAjustes()
+        {
+            return context.TbPrAjuste.Include(a => a.TbPrAjusteInventario).ThenInclude(a => a.IdInventarioNavigation).ToList();
+        }
        
         public TbPrAjuste GetAjusteById(int id)
         {

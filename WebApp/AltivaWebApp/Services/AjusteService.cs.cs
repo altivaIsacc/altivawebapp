@@ -28,9 +28,9 @@ namespace AltivaWebApp.Services
         {
             return repository.Delete(domain);
         }
-        public IList<TbPrAjuste> GetAll()
+        public IList<TbPrAjuste> GetAllAjustes()
         {
-            return repository.GetAll();
+            return repository.GetAllAjustes();
         }
         public TbPrAjuste GetAjusteById(int id)
         {

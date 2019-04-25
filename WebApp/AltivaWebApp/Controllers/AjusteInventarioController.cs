@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
@@ -16,12 +17,14 @@ namespace AltivaWebApp.Controllers
         private readonly IAjusteService service;
         private readonly IAjusteMap map;
         private readonly IUserService userService;
+        private readonly IBodegaService bodegaService;
 
-        public AjusteInventarioController(IAjusteService service, IAjusteMap map, IUserService userService)
+        public AjusteInventarioController(IBodegaService bodegaService, IAjusteService service, IAjusteMap map, IUserService userService)
         {
             this.service = service;
             this.map = map;
             this.userService = userService;
+            this.bodegaService = bodegaService;
         }
 
         [HttpGet("Lista-Ajustes")]
@@ -33,13 +36,15 @@ namespace AltivaWebApp.Controllers
         [Route("Nuevo-Ajuste")]
         public ActionResult CrearAjuste()
         {
-            return View();
+            ViewData["bodegas"] = bodegaService.GetAllActivas();
+            return View("CrearEditarAjuste", new AjusteViewModel());
         }
 
         [Route("Editar-Ajuste/{id}")]
         public ActionResult EditarAjuste(int id)
         {
-            return View(map.DomainToViewModel(service.GetAjusteById(id)));
+            ViewData["bodegas"] = bodegaService.GetAllActivas();
+            return View("CrearEditarAjuste", map.DomainToViewModel(service.GetAjusteById(id)));
         }
 
         [HttpPost("CrearEditar-Ajuste")]
@@ -48,13 +53,17 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                // TODO: Add insert logic here
+                var ajuste = new TbPrAjuste();
+                if (viewModel.Id != 0)
+                    ajuste = map.Update(viewModel);
+                else
+                    ajuste = map.Create(viewModel);
 
-                return null;
+                return Json(new { success = true });
             }
             catch
             {
-                return View();
+                return BadRequest();
             }
         }
 
@@ -98,7 +107,17 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var ajuste = service.GetAll();
+                var ajuste = service.GetAllAjustes();
+
+                foreach (var item in ajuste)
+                {
+                    foreach (var i in item.TbPrAjusteInventario)
+                    {
+                        i.IdAjusteNavigation = null;
+                        i.IdInventarioNavigation.TbPrAjusteInventario = null;
+                    } 
+                }
+
                 return Ok(ajuste);
             }
             catch

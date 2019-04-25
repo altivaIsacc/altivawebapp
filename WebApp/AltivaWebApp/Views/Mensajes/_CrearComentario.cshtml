@@ -1,4 +1,5 @@
 ﻿@model AltivaWebApp.ViewModels.MensajeViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -8,11 +9,11 @@
 }
 
 <div class="row">
-    
+
     <div class="col-md-6">
         <br />
         <form id="frmComentario">
-            
+
             <div class="form-group">
                 <label asp-for="mensaje" class="control-label">Comentario:</label>
                 <textarea id="txtMensaje" asp-for="mensaje" class="form-control" rows="4"> </textarea>
@@ -38,7 +39,7 @@
             </div>
         </form>
         <div class="form-group">
-            <button class="btn btn-primary" onclick="guardarComentario()" id="btnGuardarComentario">Guardar <i class="fas fa-paper-plane"></i></button>
+            <button class="btn btn-primary" onclick="guardarComentario()" id="btnGuardarComentario">@SharedLocalizer["Enviar"] <i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
@@ -60,7 +61,7 @@
         };
 
     $(document).ready(function () {
-     
+
         model.idReferencia= @Model.id;
         model.tipoReferencia = '@Model.tipoReferencia';
 
@@ -72,15 +73,15 @@
 
     function guardarComentario() {
         //$('#frmComentario').serialize()
-        
+
         var formData = new FormData();
         var file = [];
         var files = $('#fileUpload')[0].files;
 
-        for (var i = 0; i < files.length; i++) {           
+        for (var i = 0; i < files.length; i++) {
             formData.append("files", files[i]);
         }
-       
+
 
         formData.append('mensaje', $('#txtMensaje').val());
         formData.append('tipoMensaje', $('#txtTipoMensaje').val());
@@ -146,16 +147,16 @@
              data: model,
              success: function (data) {
                  $('#contenido').remove();
-                 $('#listaComentarios').html('<div id=contenido></div>');  
-                 $('#contenido').html(data);   
-                                      
+                 $('#listaComentarios').html('<div id=contenido></div>');
+                 $('#contenido').html(data);
+
              },
              error: function (err, scnd) {
 
                 alert("Lo sentimos, tuvimos un problema al procesar tu solicitud.");
                 console.log(err.statusText);
 
-             }           
+             }
 
          });
     }

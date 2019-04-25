@@ -18,54 +18,131 @@ else
 
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form>
+    <form class="frmAjuste">
+        @Html.HiddenFor(x => x.Id)
+        @Html.HiddenFor(x => x.Anulada)
+        @Html.HiddenFor(x => x.IdUsuario)
+        @Html.HiddenFor(x => x.FechaCreacion)
 
-            <div class="form-group">
-                <label asp-for="Id" class="control-label"></label>
-                <input asp-for="Id" class="form-control" />
-                <span hidden class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <div class="checkbox">
-                    <label>
-                        <input asp-for="Anulada" /> @Html.DisplayNameFor(model => model.Anulada)
-                    </label>
+        <div class="form-group col-md-2">
+            @*<label for="fecha">@SharedLocalizer["Fecha"]:</label>
+        <input class="form-control " name="fecha" value="FechaDocumento.ToString()" type="text" id="fecha" />*@
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls">
+                        
+                        <div class="col-md-12 xdisplay_inputx form-group has-feedback">
+                            <label for="single_cal4">@SharedLocalizer["Fecha"]:</label>
+                            <input type="text" class="form-control has-feedback-left "  id="single_cal4" >
+                            <span class="fas fa-calendar-o form-control-feedback left" aria-hidden="true"></span>
+                            <span id="inputSuccess2Status4" class="sr-only">(success)</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label asp-for="TotalEntrada" class="control-label"></label>
-                <input asp-for="TotalEntrada" class="form-control" />
-                <span asp-validation-for="TotalEntrada" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TotalSalida" class="control-label"></label>
-                <input asp-for="TotalSalida" class="form-control" />
-                <span asp-validation-for="TotalSalida" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SaldoAjuste" class="control-label"></label>
-                <input asp-for="SaldoAjuste" class="form-control" />
-                <span asp-validation-for="SaldoAjuste" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IdUsuario" class="control-label"></label>
-                <input asp-for="IdUsuario" class="form-control" />
-                <span asp-validation-for="IdUsuario" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IdBodega" class="control-label"></label>
-                <input asp-for="IdBodega" class="form-control" />
-                <span asp-validation-for="IdBodega" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
-        </form>
+            </fieldset>
+        </div>
+
+        <div class="form-group col-md-2">
+            <label asp-for="IdBodega" class="control-label">@SharedLocalizer["Bodega"]:</label>
+            <select class="form-control" asp-for="IdBodega">
+                @{foreach (var item in ViewData["bodegas"] as IList<TbPrBodega>)
+                    {
+                        <option value="@item.Id">@item.Nombre</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="form-group col-md-5">
+            <label asp-for="Descripcion" class="control-label">@SharedLocalizer["Descripción"]:</label>
+            <textarea asp-for="Descripcion" rows="4" class="form-control"></textarea>
+        </div>
+
+        <div class="form-group col-md-3">
+            <label class="control-label">@SharedLocalizer["Usuario"]:</label>
+            <input type="text" readonly class="form-control" value="@Context.Session.GetString("nombreUsuario")" />
+        </div>
+
+    </form>
+
+
+    <form class="col-md-3 col-md-offset-9 frmAjuste">
+
+        <div class="form-group">
+            <label asp-for="TotalEntrada" class="control-label">@SharedLocalizer["Entradas"]</label>
+            <input asp-for="TotalEntrada" class="form-control" type="number" />
+            <span asp-validation-for="TotalEntrada" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="TotalSalida" class="control-label">@SharedLocalizer["Salidas"]</label>
+            <input asp-for="TotalSalida" class="form-control" type="number" />
+            <span asp-validation-for="TotalSalida" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="SaldoAjuste" class="control-label">@SharedLocalizer["Saldo"]</label>
+            <input asp-for="SaldoAjuste" class="form-control" type="number" />
+            <span asp-validation-for="SaldoAjuste" class="text-danger"></span>
+        </div>
+    </form>
+
+    <div class="form-group col-md-2">
+        <button class="btn btn-success">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+        <a asp-action="ListarAjustes" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
+
     </div>
+    <div class="col-md-10">
+        <div id="comentarios">
+
+        </div>
+    </div>
+
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<script src="~/js/comentario.js"></script>
+
+<script>
+    $(document).ready(function () {
+        if(@Model.Id !=0)
+            GetComentarios("Ajuste", @Model.Id);
+
+        $('.fecha').datetimepicker({
+           format: 'L'
+            //locale: 'es'
+            @*"locale": {
+                "format": "@SharedLocalizer["DD/MM/YYYY"]",
+                "separator": " - ",
+                "applyLabel": "@SharedLocalizer["Aplicar"]",
+                "cancelLabel": "@SharedLocalizer["Cancelar"]",
+                "fromLabel": "@SharedLocalizer["DE"]",
+                "toLabel": "@SharedLocalizer["Hasta"]",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "@SharedLocalizer["Dom"]",
+                    "@SharedLocalizer["Lun"]",
+                    "@SharedLocalizer["Mar"]",
+                    "@SharedLocalizer["Mie"]",
+                    "@SharedLocalizer["Jue"]",
+                    "@SharedLocalizer["Vie"]",
+                    "@SharedLocalizer["Sáb"]"
+                ],
+                "monthNames": [
+                    "Enero",
+                    "Febrero",
+                    "Marzo",
+                    "Abril",
+                    "Mayo",
+                    "Junio",
+                    "Julio",
+                    "Agosto",
+                    "Septiembre",
+                    "Octubre",
+                    "Noviembre",
+                    "Diciembre"
+                ],
+                "firstDay": 1
+            }*@
+        });
+
+    });
+
+</script>
 

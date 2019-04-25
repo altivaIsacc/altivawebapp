@@ -38,7 +38,8 @@ namespace AltivaWebApp.Mappers
                 IdUsuario = domain.IdUsuario,
                 SaldoAjuste = domain.SaldoAjuste,
                 TotalEntrada = domain.TotalEntrada,
-                TotalSalida = domain.TotalSalida
+                TotalSalida = domain.TotalSalida,
+                Descripcion = domain.Descripcion
             };
         }
 
@@ -46,18 +47,22 @@ namespace AltivaWebApp.Mappers
         {
             var domain = new TbPrAjuste
             {
+                //Id = viewModel.Id,
                 Anulada = viewModel.Anulada,
                 IdBodega = viewModel.IdBodega,
-                FechaDocumento = DateTime.Now,
+                FechaDocumento = viewModel.FechaDocumento,
                 IdUsuario = viewModel.IdUsuario,
                 SaldoAjuste = viewModel.SaldoAjuste,
                 TotalEntrada = viewModel.TotalEntrada,
                 TotalSalida = viewModel.TotalSalida,
-                TbPrAjusteInventario = AIViewModelToDomain(viewModel.AjusteInventario)
+                TbPrAjusteInventario = AIViewModelToDomain(viewModel.AjusteInventario),
+                Descripcion = viewModel.Descripcion
             };
 
             if (viewModel.Id < 1)
                 domain.FechaCreacion = DateTime.Now;
+            else
+                domain.FechaCreacion = viewModel.FechaCreacion;
                
 
             return domain;

@@ -11,7 +11,7 @@ namespace AltivaWebApp.Services
         TbPrAjuste Save(TbPrAjuste domain);
         TbPrAjuste Update(TbPrAjuste domain);
         bool Delete(TbPrAjuste domain);
-        IList<TbPrAjuste> GetAll();
+        IList<TbPrAjuste> GetAllAjustes();
         TbPrAjuste GetAjusteById(int id);
         TbPrAjusteInventario SaveAjusteInventario(TbPrAjusteInventario domain);
         void DeleteAjusteInventario(int id);

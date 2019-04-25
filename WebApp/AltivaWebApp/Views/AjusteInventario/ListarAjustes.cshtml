@@ -29,24 +29,36 @@
 
 <div class="row">
 
-    <div class="col-md-2">
+    <div class="col-md-2" style="margin-top: 0.2rem">
         <label>@SharedLocalizer["buscarPorDescripcion"]:</label>
         <input type="text" id="filtroBuscar" class="form-control" />
     </div>
 
-    <div class="form-group col-md-2 col-md-offset-1">
-        <label for="desde">@SharedLocalizer["Desde"]:</label>
-        <input class="form-control " name="desde" type="datetime-local" id="desde" />
-    </div>
-    <div class="form-group col-md-2">
-        <label for="hasta">@SharedLocalizer["Hasta"]:</label>
-        <input class="form-control " name="hasta" type="datetime-local" id="hasta" />
+    <div class="col-md-2">
+        <label style="padding-top: 0.2rem">@SharedLocalizer["buscarItem"]:</label>
+        <input type="text" id="filtroItem" class="form-control" />
     </div>
 
-    <div class="col-md-2  col-md-offset-1">
-        <label>@SharedLocalizer["buscarItem"]:</label>
-        <input type="text" id="filtroBuscar" class="form-control" />
+    <div class="col-md-3">
+        <input type="checkbox" id="habilitaFiltroFecha" />
+        <label for="habilitaFiltroFecha">@SharedLocalizer["FiltroFecha"]</label>
+        <form id="frmFecha" class="form-horizontal">
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="input-prepend input-group">
+                            <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="24/04/2019 - 24/04/2019" />
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+
     </div>
+
+
 
 </div>
 <br />
@@ -72,26 +84,7 @@
                 </tr>
             </thead>
             <tbody>
-                @*@foreach (var item in Model)
-                    {
-                        <tr>
-                            <td hidden>
-                                @Html.DisplayFor(modelItem => item.Id)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.FechaDocumento)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.SaldoAjuste)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Anulada)
-                            </td>
-                            <td>
-                                <a class="btn btn-link" asp-action="EditarAjuste" asp-route-id="@item.Id"><span><i class="fas fa-edit"></i></span></a>
-                            </td>
-                        </tr>
-                    }*@
+               
             </tbody>
         </table>
 
@@ -99,15 +92,74 @@
 
 </div>
 
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>
 
 <script>
     var ajustes = [];
+    var ajusteFiltrado = [];
     var tblAjustes;
+    var hasta;
+    var desde;
+
 
     $(document).ready(function () {
 
-
         getInventario();
+
+        $('#filtroFecha').attr('disabled', true);
+
+        $('#filtroFecha').daterangepicker({
+            opens: 'left',
+           
+            "locale": {
+                format: "@SharedLocalizer["DD/MM/YYYY"]",
+                "separator": " - ",
+                "applyLabel": "@SharedLocalizer["Aplicar"]",
+                "cancelLabel": "@SharedLocalizer["Cancelar"]",
+                "fromLabel": "@SharedLocalizer["DE"]",
+                "toLabel": "@SharedLocalizer["Hasta"]",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "@SharedLocalizer["Dom"]",
+                    "@SharedLocalizer["Lun"]",
+                    "@SharedLocalizer["Mar"]",
+                    "@SharedLocalizer["Mie"]",
+                    "@SharedLocalizer["Jue"]",
+                    "@SharedLocalizer["Vie"]",
+                    "@SharedLocalizer["Sáb"]"
+                ],
+                "monthNames": [
+                    "Enero",
+                    "Febrero",
+                    "Marzo",
+                    "Abril",
+                    "Mayo",
+                    "Junio",
+                    "Julio",
+                    "Agosto",
+                    "Septiembre",
+                    "Octubre",
+                    "Noviembre",
+                    "Diciembre"
+                ],
+                "firstDay": 1
+            }
+                },
+            function (start, end, label) {
+
+                desde = start.format('YYYY-MM-DD');
+                hasta = end.format('YYYY-MM-DD');
+                cargarFiltros();
+                //filtroFecha(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+
+            });
+
 
     });
 
@@ -115,36 +167,37 @@
             ///get ajustes
             $.ajax({
 
-            type: "get",
+                    type: "get",
             headers: {
-                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
             },
             dataType: "json",
                 url: 'Get-Ajustes',
                 success: function (data) {
 
-                    console.log(data);
-                    ajustes = JSON.parse(JSON.stringify(data));
+                            console.log(data);
+                            ajustes = JSON.parse(JSON.stringify(data));
 
-                    cargarDatos(data);
-            },
+                            cargarDatos(data);
+                        },
                 error: function (err, scnd) {
-                    cargarAlert('@SharedLocalizer["errorGeneral"]');
-                    console.log(err.statusText);
-            }
-            });
-        }
-    function cargarDatos(data) {
+                            cargarAlert('@SharedLocalizer["errorGeneral"]');
+                            console.log(err.statusText);
+                        }
+                    });
+                }
 
-        var contadorFila = 0;
+                function cargarDatos(data) {
+
+                    var contadorFila = 0;
         $("#tblAjustes > tbody").remove();
 
         $('#tblAjustes').append('<tbody></tbody>');
 
-        for (var i = 0; i < data.length; i++) {
+                    for (var i = 0; i < data.length; i++) {
 
-            var body = '<tr class="fila' + contadorFila + ' filas">'
-                + '<td><p style="padding-top:1rem">' + data[i].fechaDocumento + '</p></td>'
+                        var body = '<tr class="fila' + contadorFila + ' filas">'
+                            + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaDocumento) + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + data[i].descripcion + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + data[i].saldoAjuste + '</p></td>'
                 + '<td><p style="padding-top:1rem"><input disabled type="checkbox" check="' + data[i].anulada + '"/></p></td>'
@@ -153,10 +206,151 @@
             contadorFila++;
         }
 
-        $('#tblAjustes').DataTable({
+        $('#tblAjustes').DataTable().destroy();
 
+        tblAjustes = $('#tblAjustes').DataTable({
+            "info": false,
+            
+            language: {
+                "decimal": "",
+                "emptyTable": "@SharedLocalizer["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                "paginate": {
+                    "first": "@SharedLocalizer["Primero"]",
+                    "last": "@SharedLocalizer["Último"]",
+                    "next": "@SharedLocalizer["Sguiente"]",
+                    "previous": "@SharedLocalizer["Anterior"]"
+                }
+            }
         });
 
+        $(".dataTables_searching").hide();
+
+    }
+
+    function editarAjuste(id) {
+
+        var url = '@Url.Action("EditarAjuste", "AjusteInventario", new { id = "__id__" })';
+
+        window.location.href = url.replace("__id__", id);
+    }
+
+    function recuperarFecha(_fecha) {
+
+        var fecha = _fecha.substr(0, 10);
+        //var date = new Date();
+        //console.log(fecha);
+
+        return new Date(fecha).toLocaleDateString(); //fecha.replace(/-/g, "/");
+
+    }
+
+    /////////////////////filtros//////////////////
+
+
+    $("#filtroBuscar").on("keyup", function () {
+        tblAjustes
+            .columns(1)
+            .search(this.value)
+            .draw();
+    });
+
+    $("#filtroItem").on("keyup", function () {
+        //cadena.indexOf($(this).val());
+
+        cargarFiltros();
+       
+
+    });
+
+    $('#habilitaFiltroFecha').change(function () {
+
+        if (!$(this).prop('checked')) {
+            cargarFiltros();
+            $('#filtroFecha').attr('disabled', true);
+        }
+
+        else {
+            $('#filtroFecha').attr('disabled',false);
+            cargarFiltros();
+        }
+            
+    });
+
+    function cargarFiltros() {
+
+        ajusteFiltrado = JSON.parse(JSON.stringify(ajustes));
+
+        ajusteFiltrado = filtroItem();
+
+        ajusteFiltrado = filtroFecha(desde, hasta);
+
+        cargarDatos(ajusteFiltrado);
+
+    }
+  
+    function filtroFecha(_desde, _hasta) {
+
+
+        var arrayAjustes = JSON.parse(JSON.stringify(ajusteFiltrado));
+
+
+        var desdeLocal = new Date(_desde).getTime();
+        var hastaLocal = new Date(_hasta).getTime();
+
+
+        if ($('#habilitaFiltroFecha').prop('checked'))
+            for (var i = 0; i < ajustes.length; i++) {
+
+                var documento = new Date(ajustes[i].fechaDocumento).getTime();
+                var flag = false;
+              
+                if (documento >= desdeLocal && documento <= hastaLocal)
+                    flag = true;
+
+                // else flag = true;
+
+                if (!flag) 
+                    arrayAjustes.splice(i, 1);                
+            }
+
+
+        return arrayAjustes;
+
+    }
+    
+    
+
+    function filtroItem() {
+
+        var arrayAjustes = JSON.parse(JSON.stringify(ajusteFiltrado));//JSON.parse(JSON.stringify(ajustes));
+
+        var keyword = $("#filtroItem").val();
+
+        if (keyword.replace(/""/g, "") != "")
+            for (var i = 0; i < ajustes.length; i++) {
+
+                for (var j = 0; j < arrayAjustes[i].tbPrAjusteInventario.length; j++) {
+                    if (arrayAjustes[i].tbPrAjusteInventario[j].idInventarioNavigation.codigo.indexOf(keyword) < 0) {
+                        arrayAjustes.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+
+        console.log(arrayAjustes);
+        //cargarDatos(arrayAjustes);
+
+        return arrayAjustes;
     }
 </script>
 
