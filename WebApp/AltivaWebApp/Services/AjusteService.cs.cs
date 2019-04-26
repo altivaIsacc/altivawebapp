@@ -36,13 +36,13 @@ namespace AltivaWebApp.Services
         {
             return repository.GetAjusteById(id);
         }
-        public TbPrAjusteInventario SaveAjusteInventario(TbPrAjusteInventario domain)
+        public bool SaveAjusteInventario(IList<TbPrAjusteInventario> domain)
         {
             return repository.SaveAjusteInventario(domain);
         }
-        public void DeleteAjusteInventario(int id)
+        public void DeleteAjusteInventario(IList<int> id, int idAjuste)
         {
-            repository.DeleteAjusteInventario(id);
+            repository.DeleteAjusteInventario(id, idAjuste);
         }
 
 

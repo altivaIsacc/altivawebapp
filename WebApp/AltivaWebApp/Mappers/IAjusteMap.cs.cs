@@ -12,6 +12,7 @@ namespace AltivaWebApp.Mappers
         TbPrAjuste Create(AjusteViewModel viewModel);
         TbPrAjuste Update(AjusteViewModel viewModel);
         AjusteViewModel DomainToViewModel(TbPrAjuste domain);
+        ICollection<TbPrAjusteInventario> AIViewModelToDomain(IList<AjusteInventarioViewModel> viewModel);
 
 
     }

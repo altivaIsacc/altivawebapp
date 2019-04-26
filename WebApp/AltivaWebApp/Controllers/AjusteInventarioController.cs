@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
@@ -58,11 +59,16 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
+
                 var ajuste = new TbPrAjuste();
                 if (viewModel.Id != 0)
                     ajuste = map.Update(viewModel);
                 else
+                {
+                    viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     ajuste = map.Create(viewModel);
+                }
+                    
 
                 return Json(new { success = true });
             }
@@ -73,18 +79,31 @@ namespace AltivaWebApp.Controllers
         }
 
 
-        [HttpGet("Eliminar-AjusteInventario/{id}")]
-        public ActionResult EliminarAjusteInventario(int id)
+        [HttpPost("Eliminar-AjusteInventario/{idAjuste}")]
+        public ActionResult EliminarAjusteInventario(int idAjuste, IList<int> id)
         {
             try
             {
-                // TODO: Add update logic here
-
-                return null;
+                service.DeleteAjusteInventario(id, idAjuste);
+                return Json(new { success = true });
             }
             catch
             {
-                return View();
+                return BadRequest();
+            }
+        }
+
+        [HttpPost("Crear-AjusteInventario/{idAjuste}")]
+        public ActionResult CrearAjusteInventario(int idAjuste, IList<AjusteInventarioViewModel> viewModel)
+        {
+            try
+            {
+                service.SaveAjusteInventario(map.AIViewModelToDomain(viewModel).ToList());
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return BadRequest();
             }
         }
 

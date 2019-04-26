@@ -51,13 +51,13 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public TbPrAjusteInventario SaveAjusteInventario(TbPrAjusteInventario domain)
+        public bool SaveAjusteInventario(IList<TbPrAjusteInventario> domain)
         {
             try
             {
-                context.TbPrAjusteInventario.Add(domain);
+                context.TbPrAjusteInventario.AddRange(domain);
                 context.SaveChanges();
-                return domain;
+                return true;
             }
             catch (Exception)
             {
@@ -65,12 +65,24 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public void DeleteAjusteInventario(int id)
+        public void DeleteAjusteInventario(IList<int> id, int idAjuste)
         {
             try
             {
-                var ai = context.TbPrAjusteInventario.FirstOrDefault(a => a.Id == id);
-                context.TbPrAjusteInventario.Remove(ai);
+                var ai = context.TbPrAjuste.Include(a => a.TbPrAjusteInventario).FirstOrDefault(a => a.Id == idAjuste);
+
+                var aiEliminar = new List<TbPrAjusteInventario>();
+
+                foreach (var item in ai.TbPrAjusteInventario)
+                {
+                    foreach (var i in id)
+                    {
+                        if (item.Id == i)
+                            aiEliminar.Add(item);
+                    }
+                }
+
+                context.TbPrAjusteInventario.RemoveRange(aiEliminar);
                 context.SaveChanges();
 
             }

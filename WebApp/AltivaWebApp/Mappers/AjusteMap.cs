@@ -23,7 +23,7 @@ namespace AltivaWebApp.Mappers
 
         public TbPrAjuste Update(AjusteViewModel viewModel)
         {
-            return service.Update(ViewModelToDomain(viewModel));
+            return service.Update(ViewModelToDomainEditar(viewModel));
         }
 
 
@@ -68,6 +68,25 @@ namespace AltivaWebApp.Mappers
                
 
             return domain;
+        }
+        public TbPrAjuste ViewModelToDomainEditar(AjusteViewModel viewModel)
+        {
+            var ajuste = service.GetAjusteById((int)viewModel.Id);
+
+
+            ajuste.Anulada = viewModel.Anulada;
+            ajuste.IdBodega = viewModel.IdBodega;
+            ajuste.FechaDocumento = viewModel.FechaDocumento;
+            ajuste.IdUsuario = viewModel.IdUsuario;
+            ajuste.SaldoAjuste = viewModel.SaldoAjuste;
+            ajuste.TotalEntrada = viewModel.TotalEntrada;
+            ajuste.TotalSalida = viewModel.TotalSalida;
+            //TbPrAjusteInventario = AIViewModelToDomain(viewModel.AjusteInventario),
+            ajuste.Descripcion = viewModel.Descripcion;
+      
+
+
+            return ajuste;
         }
 
         public TbPrAjusteInventario AIViewModelToDomainSingle(AjusteInventarioViewModel viewModel)
