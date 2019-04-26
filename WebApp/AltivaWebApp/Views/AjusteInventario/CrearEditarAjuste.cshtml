@@ -1,6 +1,12 @@
 ﻿@model AltivaWebApp.ViewModels.AjusteViewModel
 @inject IStringLocalizer<SharedResources> SharedLocalizer
-
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
 
 @{
     ViewData["Title"] = "CrearEditarAjuste";
@@ -17,26 +23,34 @@ else
 }
 
 <hr />
-<div class="row">
+<div class="row well">
     <form class="frmAjuste">
         @Html.HiddenFor(x => x.Id)
         @Html.HiddenFor(x => x.Anulada)
         @Html.HiddenFor(x => x.IdUsuario)
         @Html.HiddenFor(x => x.FechaCreacion)
 
-        <div class="form-group col-md-2">
+        <div class="form-group col-md-3">
             @*<label for="fecha">@SharedLocalizer["Fecha"]:</label>
-        <input class="form-control " name="fecha" value="FechaDocumento.ToString()" type="text" id="fecha" />*@
+                <input class="form-control " name="fecha" value="FechaDocumento.ToString()" type="text" id="fecha" />*@
             <fieldset>
-                <div class="control-group">
+                @*<div class="control-group" style="width:80%">
                     <div class="controls">
-                        
                         <div class="col-md-12 xdisplay_inputx form-group has-feedback">
-                            <label for="single_cal4">@SharedLocalizer["Fecha"]:</label>
-                            <input type="text" class="form-control has-feedback-left "  id="single_cal4" >
+                            <label for="fecha">@SharedLocalizer["Fecha"]:</label>
+                            <input type="text" class="form-control has-feedback-left" asp-for="FechaDocumento" value="@Model.FechaDocumento.ToString()" id="fecha">
                             <span class="fas fa-calendar-o form-control-feedback left" aria-hidden="true"></span>
                             <span id="inputSuccess2Status4" class="sr-only">(success)</span>
                         </div>
+                    </div>
+                </div>*@
+                <div class="form-group">
+                    <label for="fecha">@SharedLocalizer["Fecha"]:</label>
+                    <div class='input-group date' id='fechaPicker'>
+                        <input type='text' class="form-control" id="fecha" />
+                        <span class="input-group-addon">
+                            <span class="fas fa-calendar"></span>
+                        </span>
                     </div>
                 </div>
             </fieldset>
@@ -44,12 +58,8 @@ else
 
         <div class="form-group col-md-2">
             <label asp-for="IdBodega" class="control-label">@SharedLocalizer["Bodega"]:</label>
-            <select class="form-control" asp-for="IdBodega">
-                @{foreach (var item in ViewData["bodegas"] as IList<TbPrBodega>)
-                    {
-                        <option value="@item.Id">@item.Nombre</option>
-                    }
-                }
+            <select class="form-control" asp-for="IdBodega" id="bodegas">
+                @*<option value="0">@SharedLocalizer["Seleccione"]</option>*@
             </select>
         </div>
         <div class="form-group col-md-5">
@@ -64,85 +74,471 @@ else
 
     </form>
 
+    <div class="col-md-12 table-responsive">
+        <table class="table" id="tblAjusteInventario">
+            <thead>
+                <tr>
+                    <th>
+                        <span>@SharedLocalizer["Item"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["Descripción"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["Movimiento"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["Cantidad"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["Costo Promedio"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["Total"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["CuentaContable"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["CuentaCosto"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["accion"]</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="lineaForm">
+                    <td style="width:18rem;"><select class="form-control" id="items"></select></td>
+                    <td><input class="form-control" type="text" id="descripcionLinea" /></td>
+                    <td>
+                        <select class="form-control" id="movimiento">
+                            <option value="true">@SharedLocalizer["Entrada"]</option>
+                            <option value="false">@SharedLocalizer["Salida"]</option>
+                        </select>
+                    </td>
+                    <td style="width:11rem;"><input id="cantidad" class="form-control" type="number" min="1" value="1" /></td>
+                    <td style="width:15rem;"><input id="costoPromedio" class="form-control" type="number" min="0" /></td>
+                    <td style="width:15rem;"><input type="text" class="form-control" readonly id="total" /></td>
+                    <td>
+                        <select class="form-control" id="cuentaContable">
+                            @{foreach (var item in ViewData["cuentaContable"] as IList<TbCoCuentaContable>)
+                                {
+                                    <option value="@item.Id">@item.CuentaContable</option>
+                                }
+                            }
 
-    <form class="col-md-3 col-md-offset-9 frmAjuste">
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-control" id="cuentaCosto">
+                            @{foreach (var item in ViewData["cuentaCosto"] as IList<TbCoCentrosDeGastos>)
+                                {
+                                    <option value="@item.Id">@item.Nombre</option>
+                                }
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <button class="btn btn-link" onclick="guardarLinea()"><i class="fas fa-save"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <form class="col-md-3 col-md-offset-9 frmAjuste2">
 
         <div class="form-group">
             <label asp-for="TotalEntrada" class="control-label">@SharedLocalizer["Entradas"]</label>
-            <input asp-for="TotalEntrada" class="form-control" type="number" />
+            <input readonly id="entradas"  class="form-control" type="text" />
             <span asp-validation-for="TotalEntrada" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label asp-for="TotalSalida" class="control-label">@SharedLocalizer["Salidas"]</label>
-            <input asp-for="TotalSalida" class="form-control" type="number" />
+            <input readonly id="salidas"  class="form-control" type="text" />
             <span asp-validation-for="TotalSalida" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label asp-for="SaldoAjuste" class="control-label">@SharedLocalizer["Saldo"]</label>
-            <input asp-for="SaldoAjuste" class="form-control" type="number" />
+            <input readonly id="saldo"  class="form-control" type="text" />
             <span asp-validation-for="SaldoAjuste" class="text-danger"></span>
         </div>
     </form>
 
     <div class="form-group col-md-2">
-        <button class="btn btn-success">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+        <button class="btn btn-success" onclick="guardarAjuste()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
         <a asp-action="ListarAjustes" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
 
     </div>
+
+</div>
+
+<div class="row">
+
     <div class="col-md-10">
         <div id="comentarios">
 
         </div>
     </div>
-
 </div>
 
 <script src="~/js/comentario.js"></script>
 
-<script>
-    $(document).ready(function () {
-        if(@Model.Id !=0)
-            GetComentarios("Ajuste", @Model.Id);
 
-        $('.fecha').datetimepicker({
-           format: 'L'
-            //locale: 'es'
-            @*"locale": {
-                "format": "@SharedLocalizer["DD/MM/YYYY"]",
-                "separator": " - ",
-                "applyLabel": "@SharedLocalizer["Aplicar"]",
-                "cancelLabel": "@SharedLocalizer["Cancelar"]",
-                "fromLabel": "@SharedLocalizer["DE"]",
-                "toLabel": "@SharedLocalizer["Hasta"]",
-                "customRangeLabel": "Custom",
-                "daysOfWeek": [
-                    "@SharedLocalizer["Dom"]",
-                    "@SharedLocalizer["Lun"]",
-                    "@SharedLocalizer["Mar"]",
-                    "@SharedLocalizer["Mie"]",
-                    "@SharedLocalizer["Jue"]",
-                    "@SharedLocalizer["Vie"]",
-                    "@SharedLocalizer["Sáb"]"
-                ],
-                "monthNames": [
-                    "Enero",
-                    "Febrero",
-                    "Marzo",
-                    "Abril",
-                    "Mayo",
-                    "Junio",
-                    "Julio",
-                    "Agosto",
-                    "Septiembre",
-                    "Octubre",
-                    "Noviembre",
-                    "Diciembre"
-                ],
-                "firstDay": 1
-            }*@
+<script>
+
+    var bodegas = [];
+    var arrayItems = [];
+    var lineas = [];
+    var lineasEliminadas = [];
+
+    var frmAjuste = $('.frmAjuste');
+    var frmAjuste2 = $('.frmAjuste2');
+    var items = $('#items');
+    var movimiento = $('#movimiento');
+    var descripcionLinea = $('#descripcionLinea');
+    var cantidad = $('#cantidad');
+    var costoPromedio = $('#costoPromedio');
+    var total = $('#total');
+    var cuentaContable = $('#cuentaContable');
+    var cuentaCosto = $('#cuentaCosto');
+    var entradas = $('#entradas');
+    var salidas = $('#salidas');
+    var saldo = $('#saldo');
+
+
+    $(document).ready(function () {
+        if (@Model.Id != 0) {
+            GetComentarios("Ajuste", @Model.Id);
+        }
+            
+
+        getBodegasInventario();
+        getAjusteInventario();
+        inicializaTabla();
+
+        $('#fechaPicker').datetimepicker({
+            defaultDate: new Date(),
+            locale: localStorage.getItem("idioma")
         });
+
+        
+
+
 
     });
 
+    function getAjusteInventario() {
+        if(@Model.Id != 0)
+        $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("GetAjusteinventario", "AjusteInventario")',
+            data: {id: @Model.Id},
+            success: function (data) {
+                cargarLineas(data);
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function guardarAjuste() {
+
+        $.ajax({
+              type: "POST",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("CrearEditarAjuste", "AjusteInventario")',
+            data: crearModelo(),
+            success: function (data) {
+                console.log(data);
+                
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+
+    }
+
+    function crearModelo() {
+
+        console.log(frmAjuste.serializeArray());
+        var frm = frmAjuste.serializeArray();
+
+        var ajusteModel = {
+            id: @Model.Id,
+            anulada: frm[1].value,
+            totalEntrada: entradas.val(),
+            totalSalida: salidas.val(),
+            saldoAjuste: saldo.val(),
+            idUsuario: frm[2].value,
+            idBodega: frm[5].value,
+            descripcion: frm[6].value,
+            fechaDocumento: frm[4].value,
+            ajusteInventario: lineas
+        };
+
+        return ajusteModel;
+
+    }
+
+    function eliminarLinea(id) {
+        lineas.splice(id - 1, 1);
+        lineasEliminadas.push(lineas[id]);
+        cargarTabla(lineas);
+    }
+
+    function guardarLinea() {
+
+        var model = {
+            id: 0,
+            idAjuste: @Model.Id,
+            idInventario: items.val(),
+            descripcion: descripcionLinea.val(),
+            movimiento: movimiento.val(),
+            cantidad: cantidad.val(),
+            costoPromedio: costoPromedio.val(),
+            totalMovimiento: total.val(),
+            idCuentaContable: cuentaContable.val(),
+            idCentroGastos: cuentaCosto.val(),
+            cuentaContable: $('#cuentaContable option:selected').text().replace(/ /g, ""),
+            cuentaCosto: $('#cuentaCosto option:selected').text().replace(/ /g, ""),
+            nombreItem: $('#items option:selected').text().replace(/ /g, ""),
+        };
+
+        if (!existeItem(model.idInventario, model.movimiento)) {
+            lineas.push(model);
+            cargarTabla(lineas);
+        }
+        else
+            cargarAlert('@SharedLocalizer["duplicacionValid"]');
+        
+        
+    }
+
+    function cargarLineas(array) {
+
+        var data = array.tbPrAjusteInventario;
+
+        for (var i = 0; i < data.length; i++) {
+            var model = {
+                id: data[i].id,
+                idAjuste: @Model.Id,
+                idInventario: data[i].idInventario,
+                descripcion: data[i].descripcion,
+                movimiento: data[i].movimiento.toString(),
+                cantidad: data[i].cantidad,
+                costoPromedio: data[i].costoPromedio,
+                totalMovimiento: data[i].totalMovimiento,
+                idCuentaContable: data[i].idCuentaContableNavigation.id,
+                idCentroGastos: data[i].idCentroGastosNavigation.id,
+                cuentaContable: data[i].idCuentaContableNavigation.cuentaContable,
+                cuentaCosto: data[i].idCentroGastosNavigation.nombre,
+                nombreItem: data[i].idInventarioNavigation.descripcion
+            };
+
+            lineas.push(model);
+        }
+
+        cargarTabla(lineas);
+
+    }
+
+    function getBodegasInventario() {
+
+          $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetBodegaInventario", "AjusteInventario")',
+              success: function (data) {
+                  bodegas = data;
+                  cargarBodegas(data);
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    $("#bodegas").change(function () {
+
+        for (var i = 0; i < bodegas.length; i++) {
+            if (bodegas[i].id === parseInt($(this).val()))
+                cargarItems(bodegas[i].tbPrInventarioBodega);
+        }
+
+    });
+
+    items.change(function () {
+
+        cargarCostoPromedio(arrayItems);
+
+    });
+
+
+    cantidad.on("keyup change", function () {
+
+        if (parseInt(cantidad.val()) < 1)
+            cantidad.val(1);
+
+        total.val(calcularTotalMovimiento());
+
+    });
+
+    function cargarTabla(data) {
+        $('.filasCargadas').remove();
+
+        contadorFila = 0;
+
+        for (var i = 0; i < data.length; i++) {
+            contadorFila++;
+            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td>' + data[i].nombreItem + '</td>'
+                + '<td>' + data[i].descripcion + '</td>'
+                + '<td>' + getMovimiento(data[i].movimiento) + ' </td>'
+                + '<td>' + data[i].cantidad + '</td>'               
+                + '<td>' + data[i].costoPromedio + '</td>'
+                + '<td>' + data[i].totalMovimiento + '</td>'
+                + '<td>' + data[i].cuentaContable + '</td>'
+                + '<td>' + data[i].cuentaCosto + '</td>'
+                + '<td><button class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value)" ><i class="fas fa-trash"></i></button></td></tr>';
+
+            $('.lineaForm').before(body);
+
+        }
+
+        calcularTotales();
+        inicializaTabla();
+    }
+
+    function cargarBodegas(data) {
+
+
+        for (var i = 0; i < data.length; i++) {
+            var o = new Option(data[i].nombre, data[i].id);
+            $("#bodegas").append(o);
+        }
+
+        cargarItems(data[0].tbPrInventarioBodega);
+    }
+
+    function cargarItems(data) {
+
+        $('#items option').remove();
+
+        arrayItems = [];
+
+        for (var i = 0; i < data.length; i++) {
+            var o = new Option(data[i].idInventarioNavigation.descripcion, data[i].idInventarioNavigation.idInventario);
+            items.append(o);
+            arrayItems.push(data[i].idInventarioNavigation);
+        }
+
+        cargarCostoPromedio(arrayItems);
+
+    }
+
+    function cargarCostoPromedio(data) {
+
+        for (var i = 0; i < data.length; i++) {
+            if (parseInt(items.val()) === data[i].idInventario) {
+                costoPromedio.val(data[i].costoPromedioGeneral);
+                break;
+            }
+        }
+
+        total.val(calcularTotalMovimiento());
+    }
+    function calcularTotalMovimiento() {
+
+        var res = parseInt(cantidad.val()) * parseFloat(costoPromedio.val());
+        if (cantidad.val() === '')
+            res = 1 * parseFloat(costoPromedio.val());
+        return res;
+    }
+
+    function existeItem(id, mov) {
+
+        var flag = false;
+        for (var i = 0; i < lineas.length; i++) {
+            console.log(lineas[i].movimiento, mov);
+            if (parseInt(lineas[i].idInventario) === parseInt(id) && lineas[i].movimiento.toString() === mov)
+                flag = true;           
+        }
+        return flag;
+    }
+
+    function getMovimiento(key) {
+        if (key === "true")
+            return "@SharedLocalizer["Entrada"]";
+        else
+            return "@SharedLocalizer["Salida"]";
+    }
+
+    function calcularTotales() {
+
+        entradas.val("");
+        salidas.val("");
+
+        var e = 0;
+        var s = 0;
+        for (var i = 0; i < lineas.length; i++) {
+            if (lineas[i].movimiento === "true")
+                e += parseFloat(lineas[i].totalMovimiento);
+            else
+                s += parseFloat(lineas[i].totalMovimiento);
+        }
+
+        entradas.val(e);
+        salidas.val(s);
+        saldo.val(parseFloat(entradas.val()) - parseFloat(salidas.val()));
+    }
+
+    function inicializaTabla() {
+        $('#tblAjusteInventario').DataTable().destroy();
+
+        $('#tblAjusteInventario').DataTable({
+            "info": false,
+            
+            language: {
+                "decimal": "",
+                "emptyTable": "@SharedLocalizer["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                "paginate": {
+                    "first": "@SharedLocalizer["Primero"]",
+                    "last": "@SharedLocalizer["Último"]",
+                    "next": "@SharedLocalizer["Sguiente"]",
+                    "previous": "@SharedLocalizer["Anterior"]"
+                }
+            }
+        });
+
+        $(".dataTables_searching").hide();
+    }
+
 </script>
+
 

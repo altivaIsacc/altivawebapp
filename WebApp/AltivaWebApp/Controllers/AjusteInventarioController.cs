@@ -36,19 +36,24 @@ namespace AltivaWebApp.Controllers
         [Route("Nuevo-Ajuste")]
         public ActionResult CrearAjuste()
         {
-            ViewData["bodegas"] = bodegaService.GetAllActivas();
+            //ViewData["bodegas"] = bodegaService.GetAllActivas();
+            ViewData["cuentaContable"] = service.GetAllCC();
+            ViewData["cuentaCosto"] = service.GetAllCG();
             return View("CrearEditarAjuste", new AjusteViewModel());
         }
 
         [Route("Editar-Ajuste/{id}")]
         public ActionResult EditarAjuste(int id)
         {
-            ViewData["bodegas"] = bodegaService.GetAllActivas();
+            //ViewData["bodegas"] = bodegaService.GetAllActivas();
+            ViewData["cuentaContable"] = service.GetAllCC();
+            ViewData["cuentaCosto"] = service.GetAllCG();
+
             return View("CrearEditarAjuste", map.DomainToViewModel(service.GetAjusteById(id)));
         }
 
         [HttpPost("CrearEditar-Ajuste")]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public ActionResult CrearEditarAjuste(AjusteViewModel viewModel)
         {
             try
@@ -101,7 +106,8 @@ namespace AltivaWebApp.Controllers
 
 
         ////get auxiliares
-       
+
+
         [HttpGet("Get-Ajustes")]
         public ActionResult GetAjuste()
         {
@@ -133,7 +139,41 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var ajuste = service.GetAjusteById(id);
+
+                ajuste.IdBodegaNavigation.TbPrInventarioBodega = null;
+                ajuste.IdBodegaNavigation.TbPrAjuste = null;
+                foreach (var item in ajuste.TbPrAjusteInventario)
+                {
+                    item.IdAjusteNavigation = null;
+                    item.IdCentroGastosNavigation.TbPrAjusteInventario = null;
+                    item.IdCuentaContableNavigation.TbPrAjusteInventario = null;
+                    item.IdInventarioNavigation.TbPrAjusteInventario = null;
+                  
+                  
+                }
                 return Ok(ajuste);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+        [HttpGet("Get-BodegaInventario")]
+        public ActionResult GetBodegaInventario()
+        {
+            try
+            {
+                var bodegas = bodegaService.GetAllBodegasConInventario();
+                foreach (var item in bodegas)
+                {
+                    foreach (var i in item.TbPrInventarioBodega)
+                    {
+                        i.IdBodegaNavigation = null;
+                        i.IdInventarioNavigation.TbPrInventarioBodega = null;
+                    }
+                }
+
+                return Ok(bodegas);
             }
             catch
             {

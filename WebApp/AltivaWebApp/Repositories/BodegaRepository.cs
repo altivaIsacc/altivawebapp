@@ -1,5 +1,6 @@
 ﻿using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,11 @@ namespace AltivaWebApp.Repositories
         public IList<TbPrBodega> GetAllInactivas()
         {
             return context.TbPrBodega.Where(b => b.Estado == false).ToList();
+        }
+
+        public IList<TbPrBodega> GetAllBodegasConInventario()
+        {
+            return context.TbPrBodega.Include(ib => ib.TbPrInventarioBodega).ThenInclude(i => i.IdInventarioNavigation).Where(b => b.Estado == true).ToList();
         }
 
     }

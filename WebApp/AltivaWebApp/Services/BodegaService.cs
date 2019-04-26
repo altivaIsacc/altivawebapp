@@ -44,6 +44,9 @@ namespace AltivaWebApp.Services
             return repository.GetBodegaByNombre(nombre);
         }
 
-
+        public IList<TbPrBodega> GetAllBodegasConInventario()
+        {
+            return repository.GetAllBodegasConInventario();
+        }
     }
 }

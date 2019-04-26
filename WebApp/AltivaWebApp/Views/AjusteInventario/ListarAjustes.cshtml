@@ -165,39 +165,35 @@
 
     function getInventario() {
             ///get ajustes
-            $.ajax({
-
-                    type: "get",
+        $.ajax({
+            type: "get",
             headers: {
                             "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
             },
             dataType: "json",
-                url: 'Get-Ajustes',
-                success: function (data) {
+            url: 'Get-Ajustes',
+            success: function (data) {
+                console.log(data);
+                ajustes = JSON.parse(JSON.stringify(data));
+                cargarDatos(data);
+            },
+            error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
 
-                            console.log(data);
-                            ajustes = JSON.parse(JSON.stringify(data));
+    function cargarDatos(data) {
 
-                            cargarDatos(data);
-                        },
-                error: function (err, scnd) {
-                            cargarAlert('@SharedLocalizer["errorGeneral"]');
-                            console.log(err.statusText);
-                        }
-                    });
-                }
-
-                function cargarDatos(data) {
-
-                    var contadorFila = 0;
+        var contadorFila = 0;
         $("#tblAjustes > tbody").remove();
-
         $('#tblAjustes').append('<tbody></tbody>');
 
-                    for (var i = 0; i < data.length; i++) {
+        for (var i = 0; i < data.length; i++) {
 
-                        var body = '<tr class="fila' + contadorFila + ' filas">'
-                            + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaDocumento) + '</p></td>'
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaDocumento) + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + data[i].descripcion + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + data[i].saldoAjuste + '</p></td>'
                 + '<td><p style="padding-top:1rem"><input disabled type="checkbox" check="' + data[i].anulada + '"/></p></td>'
@@ -247,10 +243,14 @@
     function recuperarFecha(_fecha) {
 
         var fecha = _fecha.substr(0, 10);
+        var y = fecha.substr(0, 4);
+        var m = fecha.substr(5, 2);
+        var d = fecha.substr(8, 3);
+   
         //var date = new Date();
         //console.log(fecha);
 
-        return new Date(fecha).toLocaleDateString(); //fecha.replace(/-/g, "/");
+        return d + "-" + m + "-" + y + " " + _fecha.substr(-8, 8);///new Date(fecha).toLocaleDateString(); //fecha.replace(/-/g, "/");
 
     }
 

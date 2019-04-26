@@ -39,7 +39,9 @@ namespace AltivaWebApp.Mappers
                 SaldoAjuste = domain.SaldoAjuste,
                 TotalEntrada = domain.TotalEntrada,
                 TotalSalida = domain.TotalSalida,
-                Descripcion = domain.Descripcion
+                Descripcion = domain.Descripcion,
+                FechaDocumento = domain.FechaDocumento,
+                FechaCreacion = domain.FechaCreacion
             };
         }
 

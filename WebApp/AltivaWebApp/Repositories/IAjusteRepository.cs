@@ -15,5 +15,8 @@ namespace AltivaWebApp.Repositories
         TbPrAjuste GetAjusteById(int id);
         TbPrAjusteInventario SaveAjusteInventario(TbPrAjusteInventario domain);
         void DeleteAjusteInventario(int id);
+        IList<TbCoCuentaContable> GetAllCC();
+        IList<TbCoCentrosDeGastos> GetAllCG();
+
     }
 }
