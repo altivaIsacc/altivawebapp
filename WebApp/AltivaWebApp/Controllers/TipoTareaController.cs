@@ -23,8 +23,16 @@ namespace AltivaWebApp.Controllers
             this.ITipoTareaService = ITipoTarea;
             this.ITipoTareaMapper = ITipoTareaMapper;
         }
+        [HttpGet]
+        public JsonResult GEtTipos()
+        {
+            IList<TbFdTareaTipo> tp = new List<TbFdTareaTipo>();
+            tp = this.ITipoTareaService.GetAll();
 
-        public IActionResult ListarTipos()
+            return new JsonResult(tp);
+
+        }
+            public IActionResult ListarTipos()
         {
          
             return View();

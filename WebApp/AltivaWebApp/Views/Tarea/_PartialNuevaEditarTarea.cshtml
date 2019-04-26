@@ -1,147 +1,371 @@
 ﻿@model AltivaWebApp.Domains.TbFdTarea
-<div class="row  ">
-    <div class="form-group row ">
-
-        <div class=" col-md-12">
-            <label class="col-form-label">Título:</label><br />
-            <input type="text" class="form-control">
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+<style>
+    .color {
+        color: #fff;
+    }
+</style>
+<div class="container">
+    <div class=" row ">
+        <div class="form-group">
+            <div class=" col-md-12">
+                <label class="col-form-label">Título:</label><br />
+                <input type="text" class="form-control" id="titulo">
+                <div id="AlertTitulo"> </div>
+            </div>
         </div>
     </div>
-    <div class=" form-group row">
-        <div class=" col-md-6">
-            <label class="col-form-label ">Contacto:</label><br />
+    <div class="row ">
 
-            <select class="selectpicker form-control" data-live-search="true">
-                @foreach (var contactos in ViewData["contactos"] as IList<TbCrContacto>)
-                {
-                    @if (contactos.Persona == true)
+        <div class=" form-group ">
+            <div class=" col-md-6">
+                <label class="col-form-label ">Contacto:</label><br />
+
+                <select class="selectpicker form-control" data-live-search="true" id="contacto">
+                     <option value="seleccione">Seleccione</option>
+                    @foreach (var contactos in ViewData["contactos"] as IList<TbCrContacto>)
                     {
-                        <option value="@contactos.IdContacto">@contactos.Nombre</option>
+                        @if (contactos.Persona == true)
+                        {
+                            <option value="@contactos.IdContacto">@contactos.Nombre</option>
+                        }
+                        else
+                        {
+                            <option value="@contactos.IdContacto">@contactos.NombreComercial</option>
+                        }
                     }
-                    else
+                </select>
+
+                <div id="AlertContacto"></div>
+            </div>
+
+            <div class=" col-md-6">
+                <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
+                <select class="selectpicker form-control" data-live-search="true" id="asignado">
+                    <option>Seleccione</option>
+                    @foreach (var asignados in ViewData["asignados"] as IList<TbSeUsuario>)
                     {
-                        <option value="@contactos.IdContacto">@contactos.NombreComercial</option>
+                        <option value="@asignados.Id">@asignados.Nombre</option>
                     }
-                }
-            </select>
-        </div>
-
-        <div class=" col-md-6">
-            <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
-            <select class="selectpicker form-control" data-live-search="true">
-                @foreach (var asignados in ViewData["asignados"] as IList<TbSeUsuario>)
-                {
-                    <option value="@asignados.Id">@asignados.Nombre</option>
-                }
-            </select>
-        </div>
-    </div>
-   
-    <div class="form-group row ">
-       
-        <div class="col-md-1">
-            <label for="staticEmail" class=" col-form-label">Ver más:</label><br/>
-            <input type="checkbox" id="verMasCampos" />
-        </div>
-    </div>
-
-    <div id="divVerMas" class=" card card-body collapse collapseCamposTareas">
-        <div class="form-group row">
-
-            <div class="col-md-4">
-                <label class=" col-form-label">Tipo:</label><br />
-                <select class="form-control">
-                    <option></option>
                 </select>
             </div>
-
-            <div class="col-md-2">
-                <button class="btn-link"><i class="fas fa-plus-circle dark" style="font-size:2rem;"></i></button>
-                <button class=" btn-link"> <i class="fas fa-edit dark" style="font-size:2rem;"></i></button>
-
-            </div>
-            <div class="col-md-4">
-                <label class=" col-form-label">Estado:</label><br />
-                <select class="form-control">
-                    <option></option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button class=" btn-link"><i class="fas fa-plus-circle dark" style="font-size:2rem;"></i></button>
-                <button class="btn-link"> <i class="fas fa-edit dark" style="font-size:2rem;"></i></button>
-            </div>
-            </div>
-
-
-            <!--Va depender si en el tipo desea controlar la fecha Limite por fedecto 3 dias-->
-            <div class="form-group row">
-
-                <div class=" col-md-4">
-                    <label class=" col-form-label">Fecha Limite:</label><br />
-                    <input type="datetime-local" class="form-control" />
-                </div>
-            </div>
-
-
-            <div class="form-group row">
-
-                <div class=" col-md-6">
-                    <label class=" col-form-label">Días estimados:</label><br />
-                    <input type="text" class="form-control" />
-                </div>
-                <div class=" col-md-6">
-                    <label class="col-form-label">Días reales:</label><br />
-
-                    <input type="text" class="form-control" />
-                </div>
-            </div>
-
-            <div class="form-group row">
-                <div class="col-md-6">
-                    <label class=" col-form-label">Costo estimado:</label><br />
-
-                    <input type="text" class="form-control" />
-                </div>
-
-                <div class=" col-md-6">
-                    <label class="col-form-label">Costo real:</label><br />
-                    <input type="text" class="form-control" />
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class=" col-md-12">
-                    <label class="col-form-label">Descripción:</label>
-                    <br />
-                    <textarea class="form-control"></textarea>
-                </div>
-            </div>
-            <div class="form-group row">
-
-                <div class="col-md-1">
-                    <label for="staticEmail" class=" col-form-label">Es cobrado:</label><br />
-                    <input type="checkbox" />
-                </div>
-
-            </div>
-            <div class="form-group row">
-                <label class="col-sm-2 col-form-label">Monto Cobrado:</label>
-                <div class="col-sm-10 col-md-4">
-                    <input type="text" disabled="disabled" class="form-control" />
-                </div>
-
-            </div>
-
         </div>
+    </div>
+    <div class="row ">
+
+        <div class=" col-md-3">
+            <div class="form-group">
+                <label for="staticEmail" class="col-form-label">Ver más:</label><br />
+                <input type="checkbox" id="verMasCampos" />
+            </div>
+        </div>
+    </div>
+    <!--collapse-->
+
+    <div id="divVerMas" class="collapse collapseCamposTareas">
+
+        <div class="row ">
+            <div class="form-group">
+                <div class="col-md-4">
+                    <label class=" col-form-label">Tipo:</label>
+                    <select class=" form-control" id="tipos"></select>
+
+                </div>
+                <div class="col-md-2" style="margin-top:25px;">
+
+                    <button class="btn-link" onclick="crearTipos()"><i class="fas fa-plus-circle dark" style="font-size:1.5rem;"></i></button>
+                    <button class=" btn-link" onclick="EditarTipo()"> <i class="fas fa-edit dark" style="font-size:1.5rem;"></i></button>
+                </div>
+
+
+
+                <div class="col-md-4">
+                    <label class=" col-form-label">Estado:</label>
+                    <select class=" form-control" id="estados">
+                        <option>Seleccione</option>
+                    </select>
+
+                </div>
+                <div class="col-md-2" style="margin-top:25px;">
+
+                    <button class=" btn-link" onclick="CrearEstado()"><i class="fas fa-plus-circle dark" style="font-size:1.5rem;"></i></button>
+                    <button class="btn-link" onclick="EditarEstadoTarea()"> <i class="fas fa-edit dark" style="font-size:1.5rem;"></i></button>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <div class=" row">
+
+            <div class="form-group col-md-6">
+                <label class=" col-form-label">Días estimados:</label><br />
+                <input type="text" class="form-control" value="0" id="diasEstimados" />
+            </div>
+            <div class="form-group col-md-6">
+                <label class="col-form-label">Días reales:</label><br />
+
+                <input type="text" class="form-control" value="0" id="diasReales" />
+            </div>
+        </div>
+
+        <div class=" row">
+            <div class="form-group col-md-6">
+                <label class=" col-form-label">Costo estimado:</label><br />
+
+                <input type="text" class="form-control" value="0" id="costoEstimado" />
+            </div>
+
+            <div class="form-group col-md-6">
+                <label class="col-form-label">Costo real:</label><br />
+                <input type="text" class="form-control" value="0" id="costoReal" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group  col-md-12">
+                <label class="col-form-label">Descripción:</label>
+                <br />
+                <textarea class="form-control" id="descripcion"></textarea>
+            </div>
+        </div><!--Va depender si en el tipo desea controlar la fecha Limite por fedecto 3 dias-->
+
+        <div class="row">
+            <div class="form-group col-md-4">
+                <label class=" col-form-label">Fecha Limite:</label>
+                <input type="datetime-local" class="form-control" id="fechaLimite" />
+            </div>
+
+
+
+            <div class=" form-group col-md-2">
+                <label for="staticEmail" class="col-form-label">Es cobrado:</label>
+                <input type="checkbox" id="esCobrado" />
+            </div>
+
+
+
+
+            <div class=" form-group col-md-6">
+                <label class="col-form-label">Monto Cobrado:</label>
+                <input type="text" disabled="disabled" class="form-control" id="montoCobrado" value="0" />
+            </div>
+        </div>
+
+
+
+    </div>
     <div class="row">
-        <button type="submit" id="btnGuardarTarea" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
-        <button type="submit" id="btnCancelarTarea" class="btn btn-default">Cancelar</button>
+        <div class="col-md-12">
+            <button type="submit" id="btnGuardarTarea" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+            <button type="submit" id="btnCancelarTarea" class="btn btn-default">Cancelar</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Full Height Modal Right -->
+<div class="modal fade modal-lg" id="sideModalTR" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+
+    <!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
+    <div class="modal-dialog modal-full-height modal-right" role="document">
+
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title w-100" id="myModalLabel">Modal title</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body " id="tiposTareas">
+
+            </div>
+
+        </div>
     </div>
 </div>
 
+<!--modal estados-->
+<div class="modal fade modal-lg" id="ModalEstados" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+
+    <!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
+    <div class="modal-dialog modal-full-height modal-right" role="document">
+
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title w-100" id="myModalLabel">Modal title</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body " id="EstadosTarea">
+
+            </div>
+
+        </div>
+    </div>
+</div>
 <script>
-    $(function () {
-        $('.selectpicker').selectpicker();
+
+    //metodo que permiter guardar la tarea
+    $('#btnGuardarTarea').on('click', function () {
+        if (ValidarDatos() == true) {
+            var fechaLimite = $('#fechaLimite').val();
+            var descripcion = $('#descripcion').val();
+            var idEstado = $('#estados').val();
+            var idTipo = $('#tipos').val();
+            var diasEstimados = $('#diasEstimados').val();
+            var diasReales = $('#diasReales').val();
+            var costoEstimado = $('#costoEstimado').val();
+            var costoReal = $('#costoReal').val();
+            var cobrado = $('#esCobrado').val();
+            var montoCobrad = $('#montoCobrado').val();
+
+            if ($('#esCobrado').prop('checked')) {
+                cobrado = true;
+            } else {
+                cobrado = false;
+            }
+
+
+          
+            var TareaViewModel = {
+                id: null,
+                titulo: $('#titulo').val(),
+                idContacto: $('#contacto').val(),
+                idUsuario: $('#asignado').val(),
+                idEstado: idEstado,
+                idTipo: idTipo,
+                eliminada:null,
+                fechaLimite: fechaLimite,
+                descripcion: descripcion,
+                diasEstimados: diasEstimados,
+                diasReales: diasReales,
+                costoEstimado: costoEstimado,
+                costoReal: costoReal,
+                cobrado: cobrado,
+                montoCobrad: montoCobrad  
+            };
+            console.log(TareaViewModel);
+              $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "POST",
+
+
+                    url: '@Url.Action("CrearTarea", "Tarea")',
+                  data: { domain: TareaViewModel},
+                  success: function (data) {
+                      $('#nuevaTarea').modal('hide');
+                      window.location.reload();
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+        }
     });
+    function CrearEstado() {
+           $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "GET",
+
+
+                    url: '@Url.Action("CrearEstadoVista", "EstadoTarea")',
+
+                    success: function (data) {
+                        $('#EstadosTarea').html(data);
+                        $('#ModalEstados').modal('show');
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+    }
+    $('#sideModalTR').on('hidden.bs.modal', function () {
+     
+        getTipos();
+
+    });
+    $('#ModalEstados').on('hidden.bs.modal', function () {
+     
+        getEstados();
+
+    });
+
+    //llamar vista parcial para editar los estados
+    function EditarEstadoTarea() {
+        var idEstado = $('#estados').val();
+         $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "GET",
+
+
+             url: '@Url.Action("EditarEstadoVista", "EstadoTarea")',
+             data: { idEstado: idEstado },
+                    success: function (data) {
+                        $('#EstadosTarea').html(data);
+                        $('#ModalEstados').modal('show');
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+    }
+    tipoTareas = [];
+    $("#tipos").on('click', function () {
+      
+        var posicion = document.getElementById('tipos').options.selectedIndex; //posicion
+        var realPosicion = document.getElementById('tipos').options[posicion].text;
+        console.log(tipoTareas);
+        if (tipoTareas[posicion] == true) {
+             
+                $('#fechaLimite').attr('disabled', true);
+            } else {
+                $('#fechaLimite').attr('disabled', false);
+            }
+        
+    });
+    $(document).ready(function () {
+     
+
+       
+        $("#esCobrado").click(function () {
+        //valida que si cobrado habilita el campo
+            if ($(this).is(":checked"))
+            {
+                $('#montoCobrado').attr('disabled', false);
+            } else {
+                $('#montoCobrado').attr('disabled', true);
+                $('#montoCobrado').val(0);
+            }
+        })
+        $('.selectpicker').selectpicker();
+        getTipos();
+        getEstados();
+    });
+
     //Mostrar div con la opcion ver mas
     $(document).ready(function () {
         $('#divVerMas').attr("hidden", true);
@@ -157,4 +381,158 @@
         });
 
     });
+
+    function getEstados() {
+
+         var url = '@Url.Action("GEtEstados", "EstadoTarea")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+             
+                    $("#estados option").remove();
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].activo == true) {
+                            if (data[i].esDefecto == true) {
+                                var o = new Option(data[i].titulo, data[i].id);
+                                o.setAttribute("style", "background:" + data[i].color);
+                                o.setAttribute("class", "color");
+                                o.setAttribute("selected", "selected");
+                                $("#estados").append(o);
+                              
+                            } else {
+                                var o = new Option(data[i].titulo, data[i].id);
+                                o.setAttribute("style", "background:" + data[i].color);
+                                o.setAttribute("class", "color");
+                                $("#estados").append(o);
+                            }
+                        }
+                    }
+
+                    $("#estados").trigger('change');
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+    }
+     function getTipos() {
+
+            var url = '@Url.Action("GEtTipos", "TipoTarea")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+                    tipoTareas = [];
+                    $("#tipos option").remove();
+                    for (var i = 0; i < data.length; i++) {
+                     
+                        if (data[i].activo == true) {
+                           
+                            tipoTareas.push(JSON.parse(JSON.stringify(data[i].controlaFechaLimite)));
+                            if (data[i].esTipoDefecto == true) {
+                                var o = new Option(data[i].titulo, data[i].id);
+                                o.setAttribute("style", "background:" + data[i].color);
+                                o.setAttribute("class", "color");
+                                o.setAttribute("selected", "selected");
+                                $("#tipos").append(o);
+                                if (data[i].controlaFechaLimite == true) {
+                                    $('#fechaLimite').attr('disabled', true);
+                                }
+                            } else {
+                                var o = new Option(data[i].titulo, data[i].id);
+                                o.setAttribute("style", "background:" + data[i].color);
+                                o.setAttribute("class", "color");
+                                if (data[i].controlaFechaLimite == true) {
+                                    $('#fechaLimite').attr('disabled', true);
+                                }
+                                $("#tipos").append(o);
+                            }
+                        }
+                    }
+                    console.log(tipoTareas);
+
+    $("#tipos").trigger('change');
+
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+        }
+
+      function crearTipos() {
+             $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "GET",
+
+
+                    url: '@Url.Action("CrearTipos", "TipoTarea")',
+
+                 success: function (data) {
+                
+                        $('#tiposTareas').html(data);
+                        $('#sideModalTR').modal('show');
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+    }
+      //llamar vista parcial para editar..
+    function EditarTipo() {
+        var idTipoTarea = $('#tipos').val();
+             $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "GET",
+
+
+                    url: '@Url.Action("EditarTipo", "TipoTarea")',
+                 data: { idTipoTarea: idTipoTarea},
+                 success: function (data) {
+               
+                        $('#tiposTareas').html(data);
+                        $('#sideModalTR').modal('show');
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+    }
+
+    function ValidarDatos() {
+        if ($('#titulo').val() == "") {
+
+                        $('#AlertTitulo').empty();
+            $('#AlertTitulo').append('<span class="text-danger">Título es requerido.</span>');
+                         $('#AlertContacto').empty();
+            $('#AlertContacto').append('<span class="text-danger">Contacto es requerido.</span>');
+
+            return false;
+        }
+
+        if ($("#contacto").val()== "seleccione") {
+            $('#AlertContacto').empty();
+            $('#AlertContacto').append('<span class="text-danger">Contacto es requerido.</span>');
+
+            return false;
+        }
+        return true;
+    }
 </script>

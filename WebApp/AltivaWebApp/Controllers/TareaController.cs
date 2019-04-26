@@ -6,12 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using AltivaWebApp.Domains;
 using AltivaWebApp.Services;
 using AltivaWebApp.Mappers;
+using AltivaWebApp.ViewModels;
 namespace AltivaWebApp.Controllers
 {
     [Route("Tarea")]
     public class TareaController : Controller
     {
-
+        //variable mapper
+        public ITareaMapper ITareaMapper;
         //varivale tareas services.
 
         public ITareaService TareaServiceInterface;
@@ -20,13 +22,14 @@ namespace AltivaWebApp.Controllers
         public IContactoService IContactosService;
         //
         public IUserService IUserService;
-        public TareaController(ITareaService pTareaServiceInterface, IContactoService IContactosService, IUserService IUserService)
+        public TareaController(ITareaMapper ITareaMapper,ITareaService pTareaServiceInterface, IContactoService IContactosService, IUserService IUserService)
         {
             this.TareaServiceInterface = pTareaServiceInterface;
             this.IContactosService = IContactosService;
             this.IUserService = IUserService;
+            this.ITareaMapper = ITareaMapper;
         }
-        [Route("ListarTareas")]
+        [HttpGet("ListarTareas")]
         public IActionResult ListarTareas()
         {
 
@@ -35,7 +38,7 @@ namespace AltivaWebApp.Controllers
             return View(tareas);
         }
 
-        [Route("NuevaTarea")]
+        [HttpGet("NuevaTarea")]
         public ActionResult PartialNuevaTarea()
         {
 
@@ -46,6 +49,29 @@ namespace AltivaWebApp.Controllers
 
 
             return PartialView("_PartialNuevaEditarTarea");
+        }
+
+        public IActionResult CrearEditarTareas()
+        {
+            ViewData["Contactos"] = this.IContactosService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
+            return View();
+        }
+        [HttpPost("CrearTarea")]
+        public JsonResult CrearTarea(TareaViewModel domain)
+        {
+
+            TbFdTarea tbTarea = new TbFdTarea();
+            tbTarea = this.ITareaMapper.Save(domain);
+            if (tbTarea != null)
+            {
+                return new JsonResult(true);
+            }
+            else
+            {
+                return new JsonResult(false);
+            }
+           
         }
     }
 }

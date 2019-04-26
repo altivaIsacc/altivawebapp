@@ -24,6 +24,16 @@ namespace AltivaWebApp.Controllers
             this.IEstadoService = IEstadoService;
             this.IEstadoMapper = IEstadoMapper;
         }
+
+        [HttpGet("ListarEstados")]
+        public JsonResult GetEstados()
+        {
+            IList<TbFdTareaEstado> te = new List<TbFdTareaEstado>();
+
+            te = this.IEstadoService.GetAll();
+            return new JsonResult(te);
+        }
+
         [HttpGet("Lisar-Estados")]
         // GET: EstadoTarea
         public ActionResult ListarEstados()

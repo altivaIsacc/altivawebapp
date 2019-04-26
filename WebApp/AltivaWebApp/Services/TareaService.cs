@@ -16,9 +16,30 @@ namespace AltivaWebApp.Services
             this.TareaRepository = pTareaRepository;
         }
 
+        public TbFdTarea Delete(TbFdTarea domain)
+        {
+            throw new NotImplementedException();
+        }
+
         public IList<TbFdTarea> GetAll()
         {
             return this.TareaRepository.GetAll();
+        }
+
+        public TbFdTarea GetById(int idTarea)
+        {
+            return this.TareaRepository.GetById(idTarea);
+        }
+
+        public TbFdTarea Save(TbFdTarea domain)
+        {
+            return this.TareaRepository.Save(domain);
+        }
+
+        public TbFdTarea Update(TbFdTarea domain)
+        {
+
+            return this.TareaRepository.Update(domain);
         }
     }
 }
