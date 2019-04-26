@@ -42,6 +42,7 @@ namespace AltivaWebApp.Mappers
             tbTarea.IdContacto = domain.IdContacto;
             tbTarea.IdUsuario = domain.IdUsuario;
             tbTarea.FechaCreacion = DateTime.Now;
+            tbTarea.FechaLimite = domain.FechaLimite;
             tbTarea.DiasEstimados = domain.DiasEstimados;
             tbTarea.CostoEstimado = domain.CostoEstimado;
             tbTarea.Cobrado = domain.Cobrado;

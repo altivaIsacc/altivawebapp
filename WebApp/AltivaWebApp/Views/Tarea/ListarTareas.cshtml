@@ -7,6 +7,12 @@
     }
 }
 
+<style>
+
+    .red {
+        background: red;
+    }
+</style>
 <div class="row">
     <div class="col-md-2">
         <h3>Lista de tareas</h3>
@@ -23,12 +29,84 @@
 
         </select>
     </div>
+    <br />
+    <div class="row col-md-12">
+
+        <div class="col-md-2" style="margin-top: 0.2rem">
+
+            <label>Buscar por Titulo:</label>
+
+            <input type="text" id="filtroByTitulo" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <label style="padding-top: 0.2rem">Contactos:</label>
+            <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroContacto">
+                <option value="0" selected="selected">Seleccione</option>
+                @foreach (var contactos in ViewData["contactos"] as IList<TbCrContacto>)
+                {
+                    @if (contactos.Persona == true)
+                    {
+                        <option value="@contactos.IdContacto">@contactos.Nombre</option>
+                    }
+                    else
+                    {
+                        <option value="@contactos.IdContacto">@contactos.NombreComercial</option>
+                    }
+                }
+            </select>
+        </div> <div class="col-md-2">
+            <label style="padding-top: 0.2rem">Estados:</label>
+            <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroEstados">
+                <option value="0" selected="selected">Seleccione</option>
+                @foreach (var estados in ViewData["estados"] as IList<TbFdTareaEstado>)
+                {
+                    @if (estados.Activo == true)
+                    {
+                        <option value="@estados.Id" style="background:@estados.Color;color:black;">@estados.Titulo</option>
+
+                    }
+                }
+            </select>
+        </div><div class="col-md-2">
+            <label style="padding-top: 0.2rem">Tipos:</label>
+            <select class=" selectpicker form-control selectFiltro" data-live-search="true" id="filtroTipos">
+                <option value="0" selected="selected">Seleccione</option>
+                @foreach (var tipos in ViewData["tipos"] as IList<TbFdTareaTipo>)
+                {
+                    @if (tipos.Activo == true)
+                    {
+                        <option value="@tipos.Id" style="background:@tipos.Color;color:black;">@tipos.Titulo</option>
+
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+
+            <label>Filtrar por fecha:</label>
+            <form id="frmFecha">
+                <fieldset>
+                    <div class="control-group">
+                        <div class="controls">
+                            <div class="input-prepend input-group">
+                                <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                                <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="24/04/2019 - 24/04/2019" />
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+
+    </div>
+
 </div>
 
 
-<table class="table" style="width:100%;">
+<table class="table TablaTareas" style="width:100%;" id="TablaTareas">
     <thead>
         <tr>
+            <th>Prioridad</th>
             <th>
                 @Html.DisplayNameFor(model => model.Titulo)
             </th>
@@ -39,9 +117,7 @@
                 Contacto
             </th>
 
-            <th>
-                Fecha de Creación
-            </th>
+
             <th>
                 Fecha Limite
             </th>
@@ -76,78 +152,20 @@
             <th></th>
         </tr>
     </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Titulo)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IdUsuario)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IdContacto)
-                </td>
-
-                <td>
-                    @Html.DisplayFor(modelItem => item.FechaCreacion)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FechaLimite)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Descripcion)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DiasEstimados)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DiasReales)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CostoEstimado)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CostoReal)
-                </td>
-
-                <td>
-                    @Html.DisplayFor(modelItem => item.FechaInicio)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FechaFinal)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IdEstadoNavigation.Titulo)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IdTipoNavigation.Titulo)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
+    <tbody></tbody>
 </table>
-<!-- Full Height Modal Right -->
 
-<!-- Full Height Modal Right -->
-<!--Modal de ingresar nueva e editar nueva tarea-->
-<!-- The Modal -->
+
 <div class="modal fade right" id="nuevaTarea">
     <div class="modal-dialog modal-dialog-centered big">
         <div class="modal-content">
 
-            <!-- Modal Header -->
             <div class="modal-header">
                 <h4 class="modal-title" id="titleTarea"></h4>
 
             </div>
 
-            <!-- Modal body -->
+
             <div class="modal-body" id="infoAgregarTarea">
 
 
@@ -161,6 +179,318 @@
 </div>
 
 <script>
+    var tareas = [];
+    var TareasMostrar = [];
+    var hasta;
+    var desde;
+    //inicializacion
+    $(function () {
+        $('.selectpicker').selectpicker();
+    });
+
+    //cargar datos de las tareas..
+    function cargarDatos(data) {
+        var contadorFila = 0;
+
+
+        $("#TablaTareas > tbody").remove();
+        $('table').append('<tbody></tbody>');
+        var dt = new Date();
+        var fecha = +dt.getDate() + "/" + (dt.getMonth() + 01) + "/" + dt.getFullYear() + " " + 0 +0  + ":" + 0+0 + ":" + 0+0;
+        var fecha1 = +dt.getDate() + "/" + (dt.getMonth() + 01) + "/" + dt.getFullYear();
+
+        for (var i = 0; i < data.length; i++) {
+
+            var color = "";
+            //alert(fecha);
+            alert(recuperarFechaSinHora(data[i].fechaLimite) + fecha1);
+
+            if (recuperarFecha(data[i].fechaLimite) < fecha) {
+           
+                color = "#dc4a46";
+            } else
+                if (recuperarFecha(data[i].fechaLimite) == fecha || recuperarFechaSinHora(data[i].fechaLimite) == Date.format(fecha1)) {
+
+                color = "#f3da0b";
+            }
+
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td><button><i class="fas fa-chevron-up"></i></button><button><i class="fas fa-chevron-down"></i></button></td>'
+                + '<td>' + data[i].titulo + '</td>'
+                + '<td>' + data[i].idUsuario + ' </td>'
+                + '<td>' + data[i].idContactoNavigation.correo + '</td>'
+                + '<td bgColor='+color+'>' + recuperarFecha(data[i].fechaLimite) + '</td>'
+            
+                + '<td>' + data[i].descripcion + '</td>'
+                + '<td>' + data[i].diasEstimados + '</td>'
+                + '<td>' + data[i].diasReales + '</td>'
+                + '<td>' + data[i].costoEstimado + '</td>'
+                + '<td>' + data[i].costoReal + '</td>'
+                + '<td>' + data[i].fechaInicio + '</td>'
+                + '<td>' + data[i].fechaFinal + '</td>'
+                + '<td bgColor="' + data[i].idEstadoNavigation.color + '" style="color:black;">' + data[i].idEstadoNavigation.titulo + '</td>'
+                + '<td bgColor="' + data[i].idTipoNavigation.color + '" style="color:black;">' + data[i].idTipoNavigation.titulo + '</td>'
+
+                + '<td>  <button value="' + data[i].id + '" onclick="editarInventario(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="cambiarEstadoInventario(value ' + "," + contadorFila + ')" class="btn btn-link">Eliminar</button></td></tr>';
+            $('#TablaTareas > tbody').append(body);
+            contadorFila++;
+        }
+        $('#TablaTareas').DataTable().destroy();
+
+        TablaTareas = $('#TablaTareas').DataTable({
+            "info": false,
+            info: false,
+            scrollY: '50rem',
+
+            scrollX: '50rem',
+            paging: false,
+            language: {
+                "decimal": "",
+                "emptyTable": "NoDatos",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "sinResultados",
+                "paginate": {
+                    "first": " Primero",
+                    "last": "Último",
+                    "next": "Sguiente]",
+                    "previous": "Anterior"
+                }
+            }
+        });
+    }
+    /////////////////////filtros//////////////////
+
+
+    $("#filtroByTitulo").on("keyup", function () {
+        TablaTareas
+            .columns(0)
+            .search(this.value)
+            .draw();
+    });
+    /////////////////////////////////////////
+    function cargarFiltros() {
+
+        TareasMostrar = JSON.parse(JSON.stringify(tareas));
+
+        TareasMostrar = filtroContacto(TareasMostrar);
+        TareasMostrar = filtroEstado(TareasMostrar);
+        TareasMostrar = filtroTipos(TareasMostrar);
+        TareasMostrar = filtroFecha(desde, hasta);
+        cargarDatos(TareasMostrar);
+
+    }
+    function filtroEstado(TareasMostrar) {
+        //getInventario();
+
+        var IdEstado = parseInt($('#filtroEstados').val());
+
+        var EstadosFiltrado = [];
+
+
+        if (IdEstado === 0) {
+            return TareasMostrar;
+        }
+        else {
+
+            for (var i = 0; i < TareasMostrar.length; i++) {
+                var estados = TareasMostrar[i].idEstadoNavigation;
+
+                if (estados.id === IdEstado) {
+
+                    EstadosFiltrado.push(TareasMostrar[i]);
+
+
+
+
+
+                }
+            }
+
+            return EstadosFiltrado;
+
+        }
+
+    }
+    function filtroTipos(TareasMostrar) {
+        var IdTipo = parseInt($('#filtroTipos').val());
+
+        var tiposFiltrado = [];
+
+
+        if (IdTipo === 0) {
+            return TareasMostrar;
+        }
+        else {
+
+            for (var i = 0; i < TareasMostrar.length; i++) {
+                var tipos = TareasMostrar[i].idTipoNavigation;
+
+                if (tipos.id === IdTipo) {
+
+                    tiposFiltrado.push(TareasMostrar[i]);
+
+
+
+
+
+                }
+            }
+
+            return tiposFiltrado;
+
+        }
+    }
+    $('.selectFiltro').change(function () {
+
+        cargarFiltros();
+
+    });
+    function filtroFecha(_desde, _hasta) {
+
+
+        var arrayTareas = JSON.parse(JSON.stringify(TareasMostrar));
+
+
+        var desdeLocal = new Date(_desde).getTime();
+        var hastaLocal = new Date(_hasta).getTime();
+
+
+
+        for (var i = 0; i < tareas.length; i++) {
+
+            var documento = new Date(tareas[i].fechaLimite).getTime();
+            var flag = false;
+
+            if (documento >= desdeLocal && documento <= hastaLocal)
+                flag = true;
+
+            // else flag = true;
+
+            if (!flag)
+                arrayTareas.splice(i, 1);
+        }
+
+
+        return arrayTareas;
+
+    }
+
+    function filtroContacto(TareasMostrar) {
+
+        //getInventario();
+
+        var IdContacto = parseInt($('#filtroContacto').val());
+
+        var TareasFiltrado = [];
+
+
+        if (IdContacto === 0) {
+            return TareasMostrar;
+        }
+        else {
+
+            for (var i = 0; i < TareasMostrar.length; i++) {
+                var contacto = TareasMostrar[i].idContactoNavigation;
+
+                if (contacto.idContacto === IdContacto) {
+
+                    TareasFiltrado.push(TareasMostrar[i]);
+
+
+
+
+
+                }
+            }
+
+            return TareasFiltrado;
+
+        }
+
+
+    }
+    $(document).ready(function () {
+        cargarTabla();
+        $('#filtroFecha').daterangepicker({
+            opens: 'left',
+
+            "locale": {
+                format: "DD/MM/YYYY",
+                "separator": " - ",
+                "applyLabel": "Aplicar",
+                "cancelLabel":"Cancelar",
+                "fromLabel": "DE",
+                "toLabel": "Hasta",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "Dom",
+                  "Lun",
+                    "Mar",
+                   "Mie",
+                   "Jue",
+                   "Vie",
+                    "Sáb"
+                ],
+                "monthNames": [
+                    "Enero",
+                    "Febrero",
+                    "Marzo",
+                    "Abril",
+                    "Mayo",
+                    "Junio",
+                    "Julio",
+                    "Agosto",
+                    "Septiembre",
+                    "Octubre",
+                    "Noviembre",
+                    "Diciembre"
+                ],
+                "firstDay": 1
+            }
+                },
+            function (start, end, label) {
+
+                desde = start.format('YYYY-MM-DD');
+                hasta = end.format('YYYY-MM-DD');
+                cargarFiltros();
+                //filtroFecha(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+
+            });
+    });
+    //cargar tabla
+    function cargarTabla() {
+        $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+              url: '/Tarea/GetTareas/' ,
+            dataType: "json",
+
+            success: function (data) {
+                tareas = JSON.parse(JSON.stringify(data));
+
+                cargarDatos(tareas);
+
+
+                },
+            error: function (err, scnd) {
+                alert('error');
+                        console.log(err.statusText);
+                }
+            });
+    }
+
+
+
     //llamar al modal para ingresar nueva tarea
 
     $('#btnNuevaTarea').on('click', function () {
@@ -172,7 +502,8 @@
                     },
               url: '/Tarea/NuevaTarea/' ,
 
-               success: function (data) {
+              success: function (data) {
+                  alert('muerdase');
                    $('#nuevaTarea').modal('show');
                    $('#titleTarea').html('Nueva Tarea');
                    $('#infoAgregarTarea').html(data);
@@ -184,4 +515,30 @@
 
 
     });
+    function recuperarFecha(_fecha) {
+
+        var fecha = _fecha.substr(0, 10);
+        var y = fecha.substr(0, 4);
+        var m = fecha.substr(6, 1);
+        var d = fecha.substr(8, 3);
+
+        //var date = new Date();
+        //console.log(fecha);
+
+        return d + "/" + m + "/" + y + " " + _fecha.substr(-8, 8);
+
+    }
+    function recuperarFechaSinHora(_fecha) {
+
+        var fecha = _fecha.substr(0, 10);
+        var y = fecha.substr(0, 4);
+        var m = fecha.substr(6, 1);
+        var d = fecha.substr(8, 3);
+
+        //var date = new Date();
+        //console.log(fecha);
+
+        return d + "/" + m + "/" + y + " " ;
+
+    }
 </script>

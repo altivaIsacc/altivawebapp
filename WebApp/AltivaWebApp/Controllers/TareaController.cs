@@ -21,13 +21,34 @@ namespace AltivaWebApp.Controllers
         //
         public IContactoService IContactosService;
         //
+        public IEstadoTareaService IEstadoService;
+
+        public ITipoTareaService ITipoService;
         public IUserService IUserService;
-        public TareaController(ITareaMapper ITareaMapper,ITareaService pTareaServiceInterface, IContactoService IContactosService, IUserService IUserService)
+        public TareaController(ITipoTareaService ITipoService,IEstadoTareaService IEstadoService,ITareaMapper ITareaMapper,ITareaService pTareaServiceInterface, IContactoService IContactosService, IUserService IUserService)
         {
             this.TareaServiceInterface = pTareaServiceInterface;
             this.IContactosService = IContactosService;
             this.IUserService = IUserService;
             this.ITareaMapper = ITareaMapper;
+            this.IEstadoService = IEstadoService;
+            this.ITipoService = ITipoService;
+        }
+        [HttpGet("GetTareas")]
+        [HttpGet]
+        public IActionResult GetTareas()
+        {
+
+            IList<TbFdTarea> listaTareas = new List<TbFdTarea>();
+            listaTareas = this.TareaServiceInterface.GetTareas();
+            foreach (var item in listaTareas)
+            {
+
+                item.IdContactoNavigation.TbFdTarea = null;
+                item.IdEstadoNavigation.TbFdTarea = null;
+                item.IdTipoNavigation.TbFdTarea = null;
+            }
+            return Ok(listaTareas);
         }
         [HttpGet("ListarTareas")]
         public IActionResult ListarTareas()
@@ -35,6 +56,11 @@ namespace AltivaWebApp.Controllers
 
             IList<TbFdTarea> tareas = new List<TbFdTarea>();
             tareas = this.TareaServiceInterface.GetAll();
+            //llamar alos contactos
+            ViewData["Contactos"] = this.IContactosService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
+            ViewData["estados"] = this.IEstadoService.GetAll();
+            ViewData["tipos"] = this.ITipoService.GetAll();
             return View(tareas);
         }
 

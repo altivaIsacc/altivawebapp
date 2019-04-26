@@ -8,6 +8,7 @@ namespace AltivaWebApp.Services
     public interface ITareaService
     {
         IList<TbFdTarea> GetAll();
+        IList<TbFdTarea> GetTareas();
         TbFdTarea Save(TbFdTarea domain);
         TbFdTarea Update(TbFdTarea domain);
         TbFdTarea GetById(int idTarea);

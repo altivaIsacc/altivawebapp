@@ -8,6 +8,7 @@ namespace AltivaWebApp.Repositories
    public interface ITareaRepository
     {
          IList<TbFdTarea> GetAll();
+        IList<TbFdTarea> GetTareas();
         TbFdTarea Save(TbFdTarea tarea);
         TbFdTarea Update(TbFdTarea tarea);
         bool Delete(TbFdTarea tarea);

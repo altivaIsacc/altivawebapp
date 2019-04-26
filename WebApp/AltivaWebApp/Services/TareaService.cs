@@ -31,6 +31,11 @@ namespace AltivaWebApp.Services
             return this.TareaRepository.GetById(idTarea);
         }
 
+        public IList<TbFdTarea> GetTareas()
+        {
+            return this.TareaRepository.GetTareas();
+        }
+
         public TbFdTarea Save(TbFdTarea domain)
         {
             return this.TareaRepository.Save(domain);

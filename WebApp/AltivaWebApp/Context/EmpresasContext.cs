@@ -241,6 +241,12 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
+                entity.HasOne(d => d.IdContactoNavigation)
+                    .WithMany(p => p.TbFdTarea)
+                    .HasForeignKey(d => d.IdContacto)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FD_Tarea_tb_CR_Contacto");
+
                 entity.HasOne(d => d.IdEstadoNavigation)
                     .WithMany(p => p.TbFdTarea)
                     .HasForeignKey(d => d.IdEstado)
