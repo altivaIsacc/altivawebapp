@@ -13,6 +13,7 @@ namespace AltivaWebApp.Services
         TbFdTarea Update(TbFdTarea domain);
         TbFdTarea GetById(int idTarea);
         TbFdTarea Delete(TbFdTarea domain);
-
+        void UpdateRange(IList<TbFdTarea> domain);
+        TbFdTarea GetByPosicion(int posicion);
     }
 }

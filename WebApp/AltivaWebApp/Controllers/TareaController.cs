@@ -61,6 +61,7 @@ namespace AltivaWebApp.Controllers
             ViewData["Asignados"] = this.IUserService.GetAll();
             ViewData["estados"] = this.IEstadoService.GetAll();
             ViewData["tipos"] = this.ITipoService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
             return View(tareas);
         }
 
@@ -98,6 +99,48 @@ namespace AltivaWebApp.Controllers
                 return new JsonResult(false);
             }
            
+        }
+        [HttpGet("DarPrioridad/{IdTarea?}")]
+        public IActionResult DarPrioridad(int IdTarea)
+        {
+            int Posicion ;
+           
+            TbFdTarea tarea = new TbFdTarea();
+            TbFdTarea tarea2 = new TbFdTarea();
+           IList<TbFdTarea> tareaLista = new List<TbFdTarea>();
+        tarea =  this.TareaServiceInterface.GetById(IdTarea);
+        Posicion =Convert.ToInt32( tarea.Posicion );
+           
+                int p = (Posicion - 1);
+                tarea2 = this.TareaServiceInterface.GetByPosicion(p);
+                tarea.Posicion = tarea2.Posicion;
+                tarea2.Posicion = Posicion;
+                tareaLista.Add(tarea);
+                tareaLista.Add(tarea2);
+                this.TareaServiceInterface.UpdateRange(tareaLista);
+                return Ok(true);
+            
+        }
+        [HttpGet("QuitarPrioridad/{IdTarea?}")]
+     public   IActionResult QuitarPrioridad(int IdTarea)
+        {
+            int Posicion;
+
+            TbFdTarea tarea = new TbFdTarea();
+            TbFdTarea tarea2 = new TbFdTarea();
+            IList<TbFdTarea> tareaLista = new List<TbFdTarea>();
+            tarea = this.TareaServiceInterface.GetById(IdTarea);
+            Posicion = Convert.ToInt32(tarea.Posicion);
+
+            int p = (Posicion + 1);
+            tarea2 = this.TareaServiceInterface.GetByPosicion(p);
+            tarea.Posicion = tarea2.Posicion;
+            tarea2.Posicion = Posicion;
+            tareaLista.Add(tarea);
+            tareaLista.Add(tarea2);
+            this.TareaServiceInterface.UpdateRange(tareaLista);
+            return Ok(true);
+            
         }
     }
 }

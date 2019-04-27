@@ -31,6 +31,11 @@ namespace AltivaWebApp.Services
             return this.TareaRepository.GetById(idTarea);
         }
 
+        public TbFdTarea GetByPosicion(int posicion)
+        {
+            return TareaRepository.GetByPosicion(posicion);
+        }
+
         public IList<TbFdTarea> GetTareas()
         {
             return this.TareaRepository.GetTareas();
@@ -45,6 +50,11 @@ namespace AltivaWebApp.Services
         {
 
             return this.TareaRepository.Update(domain);
+        }
+
+        public void UpdateRange(IList<TbFdTarea> domain)
+        {
+             this.TareaRepository.UpdateRange(domain);
         }
     }
 }

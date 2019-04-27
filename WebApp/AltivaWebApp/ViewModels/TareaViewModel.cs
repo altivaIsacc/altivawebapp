@@ -22,7 +22,7 @@ namespace AltivaWebApp.ViewModels
         public double? CostoReal { get; set; }
         public bool? Cobrado { get; set; }
         public double? MontoCobrad { get; set; }
-
+        public long Posicion { get; set; }
 
     }
 }

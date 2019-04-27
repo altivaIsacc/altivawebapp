@@ -30,13 +30,32 @@
         </select>
     </div>
     <br />
+  <div class="row">
+      <div class="col-md-12">
+          <div class="form-group col-md-4">
+              <label>Buscar por Titulo:</label>
+
+              <input type="text" id="filtroByTitulo" class="form-control" value="" />
+          </div>
+      </div>
+  </div>
     <div class="row col-md-12">
 
-        <div class="col-md-2" style="margin-top: 0.2rem">
+      
+        <div class="col-md-2">
+            <label style="padding-top: 0.2rem">Asignados:</label>
+            <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroAsignado">
+                <option value="0" selected>Seleccione</option>
+                <option value="na">No Asignados</option>
+                @foreach (var asignados in ViewData["Asignados"] as IList<TbSeUsuario>)
+                {
 
-            <label>Buscar por Titulo:</label>
 
-            <input type="text" id="filtroByTitulo" class="form-control" value="0"/>
+                    <option value="@asignados.Id">@asignados.Nombre</option>
+
+
+                }
+            </select>
         </div>
         <div class="col-md-2">
             <label style="padding-top: 0.2rem">Contactos:</label>
@@ -57,7 +76,7 @@
         </div> <div class="col-md-2">
             <label style="padding-top: 0.2rem">Estados:</label>
             <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroEstados">
-                <option value="0" selected >Seleccione</option>
+                <option value="0" selected>Seleccione</option>
                 @foreach (var estados in ViewData["estados"] as IList<TbFdTareaEstado>)
                 {
                     @if (estados.Activo == true)
@@ -70,7 +89,7 @@
         </div><div class="col-md-2">
             <label style="padding-top: 0.2rem">Tipos:</label>
             <select class=" selectpicker form-control selectFiltro" data-live-search="true" id="filtroTipos">
-                <option value="0" selected >Seleccione</option>
+                <option value="0" selected>Seleccione</option>
                 @foreach (var tipos in ViewData["tipos"] as IList<TbFdTareaTipo>)
                 {
                     @if (tipos.Activo == true)
@@ -90,7 +109,7 @@
                         <div class="controls">
                             <div class="input-prepend input-group">
                                 <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
-                                <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control"  />
+                                <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" />
                             </div>
                         </div>
                     </div>
@@ -108,7 +127,7 @@
         <tr>
             <th>Prioridad</th>
             <th>
-                @Html.DisplayNameFor(model => model.Titulo)
+              Título
             </th>
             <th>
                 Asignado
@@ -122,26 +141,26 @@
                 Fecha Limite
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Descripcion)
+               Descripción
             </th>
             <th>
-                Dias Estimados
+                Dias estimados
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DiasReales)
+                Dias reales
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CostoEstimado)
+               Costo estimado
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CostoReal)
+          Costo Real
             </th>
 
             <th>
-                @Html.DisplayNameFor(model => model.FechaInicio)
+              Fecha inicio
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FechaFinal)
+              Fecha final
             </th>
             <th>
                 Estado tarea
@@ -149,7 +168,7 @@
             <th>
                 Tipo tarea
             </th>
-            <th></th>
+            <th>Acción</th>
         </tr>
     </thead>
     <tbody></tbody>
@@ -186,7 +205,7 @@
     //inicializacion
     $(function () {
         cargarTabla();
-        $('.selectpicker').selectpicker(null);
+        $('.selectpicker').selectpicker();
     });
 
     //cargar datos de las tareas..
@@ -201,12 +220,17 @@
          fecha = +dt.getDate() + "/" + (dt.getMonth() + 01) + "/" + dt.getFullYear() + " " + 0 +0  + ":" + 0+0 + ":" + 0+0;
          fecha1 = +dt.getDate()+"/"+(dt.getMonth() +01)+"/"+dt.getFullYear();
         var color = "";
+        var icono = "";
+        var icono2 = "";
+     
         for (var i = 0; i < data.length; i++) {
 
-           
-            //alert(fecha);
-          //  alert(recuperarFechaSinHora(data[i].fechaLimite) + recuperarFechaSinHora(fecha));
-
+            if (data[i].posicion == 1) {
+              
+                icono = "";
+            } else {
+                icono = "<i class='fas fa-chevron-up'></i>";
+            }
             if (recuperarFecha(data[i].fechaLimite) < fecha) {
 
                 color = "#dc4a46";
@@ -217,9 +241,13 @@
                 } else {
                     color = "";
                 }
-
+            if (data[i].posicion == data.length) {
+                icono2 = "";
+            } else {
+                icono2 = "<i class='fas fa-chevron-down'>";
+            }
             var body = '<tr class="fila' + contadorFila + ' filas">'
-                + '<td><button><i class="fas fa-chevron-up"></i></button><button><i class="fas fa-chevron-down"></i></button></td>'
+                + '<td><button class="btn btn-link dark" onclick="darPrioridad(' + data[i].id + ')">' + icono + '</button><button class="btn btn-link dark" onclick="quitarPrioridad(' + data[i].id + ')">' + icono2 + '</i></button></td>'
                 + '<td>' + data[i].titulo + '</td>'
                 + '<td>' + data[i].idUsuario + ' </td>'
                 + '<td>' + data[i].idContactoNavigation.correo + '</td>'
@@ -230,7 +258,7 @@
                 + '<td>' + data[i].diasReales + '</td>'
                 + '<td>' + data[i].costoEstimado + '</td>'
                 + '<td>' + data[i].costoReal + '</td>'
-                + '<td>' + data[i].fechaInicio + '</td>'
+                + '<td>' + data[i].fechaInicio+ '</td>'
                 + '<td>' + data[i].fechaFinal + '</td>'
                 + '<td bgColor="' + data[i].idEstadoNavigation.color + '" style="color:black;">' + data[i].idEstadoNavigation.titulo + '</td>'
                 + '<td bgColor="' + data[i].idTipoNavigation.color + '" style="color:black;">' + data[i].idTipoNavigation.titulo + '</td>'
@@ -245,7 +273,7 @@
             "info": false,
             info: false,
             scrollY: '50rem',
-
+            "ordering": false,
             scrollX: '50rem',
             paging: false,
             language: {
@@ -270,12 +298,56 @@
             }
         });
     }
+    //metodosdarPrioridad
+    function darPrioridad(idTarea) {
+       
+        $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: '/Tarea/DarPrioridad/' + idTarea,
+           
+
+            success: function (data) {
+
+                cargarTabla();
+
+
+                },
+            error: function (err, scnd) {
+                alert('error');
+                        console.log(err.statusText);
+                }
+            });
+    }
+    //metodosquitarPrioridad
+    function quitarPrioridad(idTarea) {
+        $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: '/Tarea/QuitarPrioridad/' + idTarea,
+          
+
+            success: function (data) {
+                cargarTabla();
+
+
+                },
+            error: function (err, scnd) {
+                alert('error');
+                        console.log(err.statusText);
+                }
+            });
+    }
     /////////////////////filtros//////////////////
 
 
     $("#filtroByTitulo").on("keyup", function () {
         TablaTareas
-            .columns(0)
+            .columns(1)
             .search(this.value)
             .draw();
     });
@@ -288,6 +360,7 @@
         TareasMostrar = filtroEstado(TareasMostrar);
         TareasMostrar = filtroTipos(TareasMostrar);
         TareasMostrar = filtroFecha(desde, hasta);
+        TareasMostrar = FistroAsignados(TareasMostrar);
         cargarDatos(TareasMostrar);
 
     }
@@ -359,7 +432,7 @@
 
 
         var arrayTareas = JSON.parse(JSON.stringify(TareasMostrar));
-        if (_desde == null) {
+        if (_desde == _hasta || _desde ===null) {
            
             return TareasMostrar;
         } else {
@@ -387,11 +460,41 @@
      
 
     }
+    function FistroAsignados(TareasMostrar){
 
+        var IdAsignado = parseInt($('#filtroAsignado').val());
+
+        var AsignadosFiltrado = [];
+      
+
+        if (IdAsignado === 0) {
+           
+            return TareasMostrar;
+        }
+        else {
+
+            for (var i = 0; i < TareasMostrar.length; i++) {
+
+                if (TareasMostrar[i].idUsuario != 0) {
+                   
+                    var asignados = TareasMostrar[i].idUsuario;
+                                
+                    if (asignados === IdAsignado) {
+
+                        AsignadosFiltrado.push(TareasMostrar[i]);
+                        console.log(AsignadosFiltrado);
+                    }
+                }
+
+            }
+           
+            return AsignadosFiltrado;
+
+        }
+    }
     function filtroContacto(TareasMostrar) {
 
-        //getInventario();
-
+       
         var IdContacto = parseInt($('#filtroContacto').val());
 
         var TareasFiltrado = [];
@@ -422,9 +525,8 @@
         
         $('#filtroFecha').daterangepicker({
             opens: 'left',
-            autoUpdateInput: false,
-            "startDate": "",
-            "endDate": "",
+         
+           
             "locale": {
                 format: "DD/MM/YYYY",
                 "separator": " - ",
@@ -506,7 +608,7 @@
               url: '/Tarea/NuevaTarea/' ,
 
               success: function (data) {
-                  alert('muerdase');
+            
                    $('#nuevaTarea').modal('show');
                    $('#titleTarea').html('Nueva Tarea');
                    $('#infoAgregarTarea').html(data);

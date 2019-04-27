@@ -23,7 +23,7 @@ namespace AltivaWebApp.Domains
         public double? MontoCobrad { get; set; }
         public DateTime? FechaInicio { get; set; }
         public DateTime? FechaFinal { get; set; }
-        public long? Posicion { get; set; }
+        public long Posicion { get; set; }
 
         public virtual TbCrContacto IdContactoNavigation { get; set; }
         public virtual TbFdTareaEstado IdEstadoNavigation { get; set; }

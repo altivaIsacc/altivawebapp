@@ -13,5 +13,7 @@ namespace AltivaWebApp.Repositories
         TbFdTarea Update(TbFdTarea tarea);
         bool Delete(TbFdTarea tarea);
         TbFdTarea GetById(int idTarea);
+        void UpdateRange(IList<TbFdTarea> domain);
+        TbFdTarea GetByPosicion(int posicion);
     }
 }

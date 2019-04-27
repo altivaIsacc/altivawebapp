@@ -37,6 +37,8 @@ namespace AltivaWebApp.Mappers
 
         public TbFdTarea viewToModelSave(TareaViewModel domain)
         {
+            TbFdTareaEstado tTbFdTareaEstado = new TbFdTareaEstado();
+            TbFdTareaTipo tbTipo = new TbFdTareaTipo();
             TbFdTarea tbTarea = new TbFdTarea();
             tbTarea.Titulo = domain.Titulo;
             tbTarea.IdContacto = domain.IdContacto;
@@ -49,6 +51,25 @@ namespace AltivaWebApp.Mappers
             tbTarea.MontoCobrad = domain.MontoCobrad;
             tbTarea.IdEstado = domain.IdEstado;
             tbTarea.IdTipo = domain.IdTipo;
+            tbTarea.Posicion = domain.Posicion;
+            tTbFdTareaEstado = this.IEstadoTareaService.GetById(Convert.ToInt32(domain.IdEstado));
+            if (tTbFdTareaEstado.EsInicial == true)
+            {
+                tbTarea.FechaInicio = DateTime.Now;
+            }
+            else
+            {
+                tbTarea.FechaInicio = null;
+            }
+            if (tTbFdTareaEstado.EsFinal == true)
+            {
+                tbTarea.FechaFinal = DateTime.Now;
+            }
+            else
+            {
+
+                tbTarea.FechaFinal = null;
+            }
             return tbTarea;
         }
 
