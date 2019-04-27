@@ -36,12 +36,12 @@
 
             <label>Buscar por Titulo:</label>
 
-            <input type="text" id="filtroByTitulo" class="form-control" />
+            <input type="text" id="filtroByTitulo" class="form-control" value="0"/>
         </div>
         <div class="col-md-2">
             <label style="padding-top: 0.2rem">Contactos:</label>
             <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroContacto">
-                <option value="0" selected="selected">Seleccione</option>
+                <option value="0" selected>Seleccione</option>
                 @foreach (var contactos in ViewData["contactos"] as IList<TbCrContacto>)
                 {
                     @if (contactos.Persona == true)
@@ -57,7 +57,7 @@
         </div> <div class="col-md-2">
             <label style="padding-top: 0.2rem">Estados:</label>
             <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroEstados">
-                <option value="0" selected="selected">Seleccione</option>
+                <option value="0" selected >Seleccione</option>
                 @foreach (var estados in ViewData["estados"] as IList<TbFdTareaEstado>)
                 {
                     @if (estados.Activo == true)
@@ -70,7 +70,7 @@
         </div><div class="col-md-2">
             <label style="padding-top: 0.2rem">Tipos:</label>
             <select class=" selectpicker form-control selectFiltro" data-live-search="true" id="filtroTipos">
-                <option value="0" selected="selected">Seleccione</option>
+                <option value="0" selected >Seleccione</option>
                 @foreach (var tipos in ViewData["tipos"] as IList<TbFdTareaTipo>)
                 {
                     @if (tipos.Activo == true)
@@ -90,7 +90,7 @@
                         <div class="controls">
                             <div class="input-prepend input-group">
                                 <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
-                                <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="24/04/2019 - 24/04/2019" />
+                                <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control"  />
                             </div>
                         </div>
                     </div>
@@ -185,19 +185,21 @@
     var desde;
     //inicializacion
     $(function () {
-        $('.selectpicker').selectpicker();
+        cargarTabla();
+        $('.selectpicker').selectpicker(null);
     });
 
     //cargar datos de las tareas..
     function cargarDatos(data) {
         var contadorFila = 0;
-
-
+        var fecha1 = ""
+        var fecha = "";
+        var dt = null;
         $("#TablaTareas > tbody").remove();
         $('table').append('<tbody></tbody>');
-        var dt = new Date();
-        var fecha = +dt.getDate() + "/" + (dt.getMonth() + 01) + "/" + dt.getFullYear() + " " + 0 +0  + ":" + 0+0 + ":" + 0+0;
-        var fecha1 = +dt.getDate()+"/"+(dt.getMonth() +01)+"/"+dt.getFullYear();
+         dt = new Date();
+         fecha = +dt.getDate() + "/" + (dt.getMonth() + 01) + "/" + dt.getFullYear() + " " + 0 +0  + ":" + 0+0 + ":" + 0+0;
+         fecha1 = +dt.getDate()+"/"+(dt.getMonth() +01)+"/"+dt.getFullYear();
         var color = "";
         for (var i = 0; i < data.length; i++) {
 
@@ -279,9 +281,9 @@
     });
     /////////////////////////////////////////
     function cargarFiltros() {
-
+        
         TareasMostrar = JSON.parse(JSON.stringify(tareas));
-
+        console.log(TareasMostrar);
         TareasMostrar = filtroContacto(TareasMostrar);
         TareasMostrar = filtroEstado(TareasMostrar);
         TareasMostrar = filtroTipos(TareasMostrar);
@@ -304,9 +306,9 @@
 
             for (var i = 0; i < TareasMostrar.length; i++) {
                 var estados = TareasMostrar[i].idEstadoNavigation;
-
+             ;
                 if (estados.id === IdEstado) {
-
+                    console.log(IdEstado)
                     EstadosFiltrado.push(TareasMostrar[i]);
 
 
@@ -315,11 +317,11 @@
 
                 }
             }
-
+            console.log(EstadosFiltrado);
             return EstadosFiltrado;
 
         }
-
+       
     }
     function filtroTipos(TareasMostrar) {
         var IdTipo = parseInt($('#filtroTipos').val());
@@ -339,19 +341,17 @@
 
                     tiposFiltrado.push(TareasMostrar[i]);
 
-
-
-
-
                 }
+                
             }
 
             return tiposFiltrado;
 
         }
+      
     }
     $('.selectFiltro').change(function () {
-
+        
         cargarFiltros();
 
     });
@@ -359,29 +359,32 @@
 
 
         var arrayTareas = JSON.parse(JSON.stringify(TareasMostrar));
+        if (_desde == null) {
+           
+            return TareasMostrar;
+        } else {
+
+            var desdeLocal = new Date(_desde).getTime();
+            var hastaLocal = new Date(_hasta).getTime();
 
 
-        var desdeLocal = new Date(_desde).getTime();
-        var hastaLocal = new Date(_hasta).getTime();
 
+            for (var i = 0; i < tareas.length; i++) {
 
+                var documento = new Date(tareas[i].fechaLimite).getTime();
+                var flag = false;
 
-        for (var i = 0; i < tareas.length; i++) {
+                if (documento >= desdeLocal && documento <= hastaLocal)
+                    flag = true;
 
-            var documento = new Date(tareas[i].fechaLimite).getTime();
-            var flag = false;
+                // else flag = true;
 
-            if (documento >= desdeLocal && documento <= hastaLocal)
-                flag = true;
-
-            // else flag = true;
-
-            if (!flag)
-                arrayTareas.splice(i, 1);
+                if (!flag)
+                    arrayTareas.splice(i, 1);
+            }
+            return arrayTareas;
         }
-
-
-        return arrayTareas;
+     
 
     }
 
@@ -401,18 +404,14 @@
 
             for (var i = 0; i < TareasMostrar.length; i++) {
                 var contacto = TareasMostrar[i].idContactoNavigation;
-
+              
                 if (contacto.idContacto === IdContacto) {
-
+                    console.log(contacto.idContacto);
                     TareasFiltrado.push(TareasMostrar[i]);
-
-
-
-
 
                 }
             }
-
+            console.log(TareasFiltrado);
             return TareasFiltrado;
 
         }
@@ -420,10 +419,12 @@
 
     }
     $(document).ready(function () {
-        cargarTabla();
+        
         $('#filtroFecha').daterangepicker({
             opens: 'left',
-
+            autoUpdateInput: false,
+            "startDate": "",
+            "endDate": "",
             "locale": {
                 format: "DD/MM/YYYY",
                 "separator": " - ",
