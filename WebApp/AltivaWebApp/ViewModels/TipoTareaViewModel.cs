@@ -11,7 +11,7 @@ namespace AltivaWebApp.ViewModels
         public string Titulo { get; set; }
         public string Color { get; set; }
         public bool? ControlaFechaLimite { get; set; }
-        public double? DiasFechaLimite { get; set; }
+        public double DiasFechaLimite { get; set; }
         public bool? EsTipoDefecto { get; set; }
         public bool? Activo { get; set; }
         

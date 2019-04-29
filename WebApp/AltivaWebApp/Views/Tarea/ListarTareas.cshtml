@@ -75,7 +75,7 @@
             </select>
         </div> <div class="col-md-2">
             <label style="padding-top: 0.2rem">Estados:</label>
-            <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroEstados">
+            <select class=" form-control selectFiltro" data-live-search="true" id="filtroEstados">
                 <option value="0" selected>Seleccione</option>
                 @foreach (var estados in ViewData["estados"] as IList<TbFdTareaEstado>)
                 {
@@ -88,7 +88,7 @@
             </select>
         </div><div class="col-md-2">
             <label style="padding-top: 0.2rem">Tipos:</label>
-            <select class=" selectpicker form-control selectFiltro" data-live-search="true" id="filtroTipos">
+            <select class="  form-control selectFiltro" data-live-search="true" id="filtroTipos">
                 <option value="0" selected>Seleccione</option>
                 @foreach (var tipos in ViewData["tipos"] as IList<TbFdTareaTipo>)
                 {
@@ -217,8 +217,8 @@
         $("#TablaTareas > tbody").remove();
         $('table').append('<tbody></tbody>');
          dt = new Date();
-         fecha = +dt.getDate() + "/" + (dt.getMonth() + 01) + "/" + dt.getFullYear() + " " + 0 +0  + ":" + 0+0 + ":" + 0+0;
-         fecha1 = +dt.getDate()+"/"+(dt.getMonth() +01)+"/"+dt.getFullYear();
+         fecha = +dt.getDate() + "/" + (dt.getMonth()+1) + "/" + dt.getFullYear()+" "+ 0 +0+":"+0+0+":"+0+0;
+         fecha1 = +dt.getDate()+"/"+(dt.getMonth()+1)+"/"+dt.getFullYear();
         var color = "";
         var icono = "";
         var icono2 = "";
@@ -231,15 +231,19 @@
             } else {
                 icono = "<i class='fas fa-chevron-up'></i>";
             }
+            if (recuperarFecha(data[i].fechaLimite) > fecha) {
+
+                color = "";
+            }else
             if (recuperarFecha(data[i].fechaLimite) < fecha) {
 
                 color = "#dc4a46";
-            } else
+            }
+            else
+   
                 if (recuperarFechaSinHora(data[i].fechaLimite) == fecha1) {
 
                     color = "#f3da0b";
-                } else {
-                    color = "";
                 }
             if (data[i].posicion == data.length) {
                 icono2 = "";
@@ -255,15 +259,15 @@
             
                 + '<td>' + data[i].descripcion + '</td>'
                 + '<td>' + data[i].diasEstimados + '</td>'
-                + '<td>' + data[i].diasReales + '</td>'
-                + '<td>' + data[i].costoEstimado + '</td>'
+                + '<td>' +  data[i].diasReales + '</td>'
+                + '<td>' +  data[i].costoEstimado + '</td>'
                 + '<td>' + data[i].costoReal + '</td>'
                 + '<td>' + data[i].fechaInicio+ '</td>'
                 + '<td>' + data[i].fechaFinal + '</td>'
                 + '<td bgColor="' + data[i].idEstadoNavigation.color + '" style="color:black;">' + data[i].idEstadoNavigation.titulo + '</td>'
                 + '<td bgColor="' + data[i].idTipoNavigation.color + '" style="color:black;">' + data[i].idTipoNavigation.titulo + '</td>'
 
-                + '<td>  <button value="' + data[i].id + '" onclick="editarInventario(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="cambiarEstadoInventario(value ' + "," + contadorFila + ')" class="btn btn-link">Eliminar</button></td></tr>';
+                + '<td>  <button value="' + data[i].id + '" onclick="editarTarea(' + data[i].id+')" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="cambiarEstadoInventario(value ' + "," + contadorFila + ')" class="btn btn-link">Eliminar</button></td></tr>';
             $('#TablaTareas > tbody').append(body);
             contadorFila++;
         }
@@ -297,6 +301,27 @@
                 }
             }
         });
+    }
+    //metodo que llamar ala partial de editar
+    function editarTarea(id) {
+        
+          $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+              url: '/Tarea/EditarTarea/'+ id ,
+
+              success: function (data) {
+            
+                   $('#nuevaTarea').modal('show');
+                   $('#titleTarea').html('Nueva Tarea');
+                   $('#infoAgregarTarea').html(data);
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
     }
     //metodosdarPrioridad
     function darPrioridad(idTarea) {
@@ -630,7 +655,7 @@
         //var date = new Date();
         //console.log(fecha);
 
-        return d + "/" + m + "/" + y + " " + _fecha.substr(-8, 8);
+        return d+"/"+m+"/"+y+" "+_fecha.substr(-8, 8);
 
     }
     function recuperarFechaSinHora(_fecha) {

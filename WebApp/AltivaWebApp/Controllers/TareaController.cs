@@ -62,6 +62,7 @@ namespace AltivaWebApp.Controllers
             ViewData["estados"] = this.IEstadoService.GetAll();
             ViewData["tipos"] = this.ITipoService.GetAll();
             ViewData["Asignados"] = this.IUserService.GetAll();
+            ViewBag.fecha = DateTime.Today;
             return View(tareas);
         }
 
@@ -75,7 +76,20 @@ namespace AltivaWebApp.Controllers
             //llamar alos asignados
 
 
-            return PartialView("_PartialNuevaEditarTarea");
+            var tbTarea = new TbFdTarea();
+            return PartialView("_PartialNuevaEditarTarea", tbTarea);
+        }
+        [HttpGet("EditarTarea/{id}")]
+        public IActionResult EditarTarea(int id)
+        {
+
+            //llamar alos contactos
+            ViewData["Contactos"] = this.IContactosService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
+            //llamar alos asignados
+            var TbFdTarea = this.TareaServiceInterface.GetById(id);
+
+            return PartialView("_PartialNuevaEditarTarea", TbFdTarea);
         }
 
         public IActionResult CrearEditarTareas()
@@ -99,6 +113,22 @@ namespace AltivaWebApp.Controllers
                 return new JsonResult(false);
             }
            
+        }
+        [HttpPost("EditarTareaPost")]
+        public JsonResult EditarTareaPost(TareaViewModel domain)
+        {
+
+            TbFdTarea tbTarea = new TbFdTarea();
+            tbTarea = this.ITareaMapper.Update(domain);
+            if (tbTarea != null)
+            {
+                return new JsonResult(true);
+            }
+            else
+            {
+                return new JsonResult(false);
+            }
+
         }
         [HttpGet("DarPrioridad/{IdTarea?}")]
         public IActionResult DarPrioridad(int IdTarea)

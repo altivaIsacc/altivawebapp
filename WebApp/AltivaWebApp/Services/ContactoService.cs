@@ -91,6 +91,11 @@ namespace AltivaWebApp.Services
            return this.ContactoRepository.GetProvincias();
         }
 
+        public TbCrContacto GetTareas(int idContacto)
+        {
+            return this.ContactoRepository.GetTareas(idContacto);
+        }
+
         public TbCrContactoRelacion InsertarRelacion(TbCrContactoRelacion domain)
         {
             return this.IContactoRelacionRepository.Save(domain);

@@ -30,12 +30,17 @@ namespace AltivaWebApp.Controllers
         public IContactoMap contactoMap;
         // GET: Contacto
         public IcontactoCamposMap pContactoCamposMap;
+     
+        //
+        public IEstadoTareaService IEstadoService;
 
+        public ITipoTareaService ITipoService;
+        public IUserService IUserService;
         //metodo usuasrios del sitemas
         public IUserRepository userMap;
         //variable de contactosCamposPersonalizadosService:
         public IContactoCamposService ICCService;
-        public ContactoController(FotosService pFotos, IUserRepository IUserRepository, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IcontactoCamposMap pContactoCamposMap, IcontactoCamposMap pContactoMap)
+        public ContactoController(IUserService IUserService, ITipoTareaService ITipoService,IEstadoTareaService IEstadoService,FotosService pFotos, IUserRepository IUserRepository, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IcontactoCamposMap pContactoCamposMap, IcontactoCamposMap pContactoMap)
         {
             this.contactoService = contactoService;
             this.contactoMap = contactoMap;
@@ -44,6 +49,11 @@ namespace AltivaWebApp.Controllers
             this.ICCService = ICCService;
             this.userMap = IUserRepository;
             this.Fotos = pFotos;
+            this.IUserService = IUserService;
+            this.ITipoService = ITipoService;
+            this.IEstadoService = IEstadoService;
+            
+            
         }
 
 
@@ -175,6 +185,11 @@ namespace AltivaWebApp.Controllers
             USER = this.userMap.GetAllByIdUsuario(int.Parse(id));
             IList<TbCrContacto> contactos = new List<TbCrContacto>();
             contactos = this.contactoService.GetAll();
+            ViewData["Contactos"] = this.contactoService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
+            ViewData["estados"] = this.IEstadoService.GetAll();
+            ViewData["tipos"] = this.ITipoService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
             ViewData["Usuarios"] = USER;
             ViewData["contactos"] = contactos;
             return View();
@@ -276,7 +291,11 @@ namespace AltivaWebApp.Controllers
             var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             IList<TbCrContacto> contactos = new List<TbCrContacto>();
             contactos = this.contactoService.GetAll();
-
+            ViewData["Contactos"] = this.contactoService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
+            ViewData["estados"] = this.IEstadoService.GetAll();
+            ViewData["tipos"] = this.ITipoService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
             ViewData["contactoRelacion"] = cr;
             ViewData["contactos"] = contactos;
             IList<TbSeUsuario> USER = new List<TbSeUsuario>();
@@ -412,5 +431,23 @@ namespace AltivaWebApp.Controllers
             
             return new JsonResult(true);
         }
+
+        [HttpGet]
+        public IActionResult GetTareas(int idContacto)
+        {
+            TbCrContacto ccT = new TbCrContacto();
+            ccT = this.contactoService.GetTareas(idContacto);
+            IList<TbFdTarea> tarea = new List<TbFdTarea>();
+            foreach (var item in ccT.TbFdTarea)
+            {
+                item.IdContactoNavigation = null;
+                item.IdEstadoNavigation.TbFdTarea = null;
+                item.IdTipoNavigation.TbFdTarea = null;
+                tarea.Add(item);
+            }
+            return Ok(tarea);
+        }
     }
+
+    
 }

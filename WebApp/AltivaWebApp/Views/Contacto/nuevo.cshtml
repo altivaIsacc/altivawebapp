@@ -246,6 +246,9 @@
         <li class="nav-item">
             <a class="nav-link  disabledTab" data-toggle="tab" data-translate="comentarios" href="#contactoComentarios">Comentarios</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link  disabledTab" data-toggle="tab" data-translate="comentarios" href="#contactostTareas">Tareas relacionadas</a>
+        </li>
     </ul>
 
     <!-- Tab panes -->
@@ -281,36 +284,36 @@
                                 </tr>
                             </thead>
                             <tbody id="tr">
-                                @{ 
+                                @{
                                     int x = 0;
                                 }
                                 @foreach (var cr in contactoRelacion)
                                 {
-                                <tr>
-                                    <td hidden>@cr.Id</td>
-                                    <td hidden>@cr.IdContactoHijo</td>
-                                    @if (cr.Nombre != null)
-                                    {
-                                        <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.Nombre</button></td>
-                                    }
-                                    else
-                                    {
-                                        <td>---</td>
-                                    }
-                                    @if (cr.NombreComercial != null)
-                                    {
-                                        <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.NombreComercial</button></td>
-                                    }
-                                    else
-                                    {
-                                        <td>---</td>
-                                    }
+                                    <tr>
+                                        <td hidden>@cr.Id</td>
+                                        <td hidden>@cr.IdContactoHijo</td>
+                                        @if (cr.Nombre != null)
+                                        {
+                                            <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.Nombre</button></td>
+                                        }
+                                        else
+                                        {
+                                            <td>---</td>
+                                        }
+                                        @if (cr.NombreComercial != null)
+                                        {
+                                            <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.NombreComercial</button></td>
+                                        }
+                                        else
+                                        {
+                                            <td>---</td>
+                                        }
 
-                                    <td>@cr.Cedula</td>
+                                        <td>@cr.Cedula</td>
 
-                                    <td id="nota @x" ><button class="btn btn-link" id="nota @x" onclick="EditarRelacionLista(@cr.Id,@x)">@cr.NotaRelacion</button><input hidden type="text" id="as_@x" value="@cr.NotaRelacion "/> </td>
-                                    
-                                </tr>
+                                        <td id="nota @x"><button class="btn btn-link" id="nota @x" onclick="EditarRelacionLista(@cr.Id,@x)">@cr.NotaRelacion</button><input hidden type="text" id="as_@x" value="@cr.NotaRelacion " /> </td>
+
+                                    </tr>
                                     x++;
                                 }
                             </tbody>
@@ -329,7 +332,137 @@
                 </div>
             </div>
         </div>
-    </div>
+        <div id="contactostTareas" class="container tab-pane">
+            <br>
+
+            <div class="col-md-12">
+                <div id="tareas">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group col-md-4">
+                                <label>Buscar por Titulo:</label>
+
+                                <input type="text" id="filtroByTitulo" class="form-control" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row col-md-12">
+
+
+                        <div class="col-md-2">
+                            <label style="padding-top: 0.2rem">Asignados:</label>
+                            <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroAsignado">
+                                <option value="0" selected>Seleccione</option>
+                                <option value="na">No Asignados</option>
+                                @foreach (var asignados in ViewData["Asignados"] as IList<TbSeUsuario>)
+                                {
+
+
+                                    <option value="@asignados.Id">@asignados.Nombre</option>
+
+
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label style="padding-top: 0.2rem">Contactos:</label>
+                            <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroContacto">
+                                <option value="0" selected>Seleccione</option>
+                                @foreach (var contacto in ViewData["contactos"] as IList<TbCrContacto>)
+                                {
+                                    @if (contacto.Persona == true)
+                                    {
+                                        <option value="@contacto.IdContacto">@contacto.Nombre</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@contacto.IdContacto">@contacto.NombreComercial</option>
+                                    }
+                                }
+                            </select>
+                        </div> <div class="col-md-2">
+                            <label style="padding-top: 0.2rem">Estados:</label>
+                            <select class=" form-control selectFiltro" data-live-search="true" id="filtroEstados">
+                                <option value="0" selected>Seleccione</option>
+                                @foreach (var estados in ViewData["estados"] as IList<TbFdTareaEstado>)
+                                {
+                                    @if (estados.Activo == true)
+                                    {
+                                        <option value="@estados.Id" style="background:@estados.Color;color:black;">@estados.Titulo</option>
+
+                                    }
+                                }
+                            </select>
+                        </div><div class="col-md-2">
+                            <label style="padding-top: 0.2rem">Tipos:</label>
+                            <select class="  form-control selectFiltro" data-live-search="true" id="filtroTipos">
+                                <option value="0" selected>Seleccione</option>
+                                @foreach (var tipos in ViewData["tipos"] as IList<TbFdTareaTipo>)
+                                {
+                                    @if (tipos.Activo == true)
+                                    {
+                                        <option value="@tipos.Id" style="background:@tipos.Color;color:black;">@tipos.Titulo</option>
+
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+
+                            <label>Filtrar por fecha:</label>
+                            <form id="frmFecha">
+                                <fieldset>
+                                    <div class="control-group">
+                                        <div class="controls">
+                                            <div class="input-prepend input-group">
+                                                <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                                                <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                        <table class="table table-bordered dt-responsive nowrap " id="TablaTareasContacto" style="width:100%">
+                            <thead>
+                                <tr>
+
+                                    <th>
+                                        Título
+                                    </th>
+                                    <th>
+                                        Asignado
+                                    </th>
+                                    <th>
+                                        Contacto
+                                    </th>
+
+
+                                    <th>
+                                        Fecha Limite
+                                    </th>
+
+                                    <th>
+                                        Estado tarea
+                                    </th>
+                                    <th>
+                                        Tipo tarea
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                 
+                      
+            
+
+                </div>
+            </div>
+          
+        </div>
 </div>
 <div id="divBotones">
 
@@ -592,13 +725,236 @@
 <script src="~/js/comentario.js"></script>
 
 <script>
-
+    var contactoTareas = [];
+    var TareasMostrar = [];
 
     $(document).ready(function () {
        
         GetComentarios("Contacto", @Model.Id);
     });
+    $("#filtroByTitulo").on("keyup", function () {
+        TablaTareas
+            .columns(0)
+            .search(this.value)
+            .draw();
+    });
+    $('.selectFiltro').change(function () {
+        alert('filtross');
+        cargarFiltros();
 
+    });
+    function cargarFiltros() {
+
+        TareasMostrar = JSON.parse(JSON.stringify(contactoTareas));
+     
+        TareasMostrar = filtroContacto(TareasMostrar);
+        TareasMostrar = filtroEstado(TareasMostrar);
+        TareasMostrar = filtroTipos(TareasMostrar);
+        TareasMostrar = filtroFecha(desde, hasta);
+        TareasMostrar = FistroAsignados(TareasMostrar);
+        cargarDatos(TareasMostrar);
+
+    }
+    function filtroEstado(TareasMostrar) {
+        //getInventario();
+
+        var IdEstado = parseInt($('#filtroEstados').val());
+
+        var EstadosFiltrado = [];
+
+
+        if (IdEstado === 0) {
+            return TareasMostrar;
+        }
+        else {
+
+            for (var i = 0; i < TareasMostrar.length; i++) {
+                var estados = TareasMostrar[i].idEstadoNavigation;
+                ;
+                if (estados.id === IdEstado) {
+                    console.log(IdEstado)
+                    EstadosFiltrado.push(TareasMostrar[i]);
+
+
+
+
+
+                }
+            }
+            console.log(EstadosFiltrado);
+            return EstadosFiltrado;
+
+        }
+
+    }
+    function filtroTipos(TareasMostrar) {
+        var IdTipo = parseInt($('#filtroTipos').val());
+
+        var tiposFiltrado = [];
+
+
+        if (IdTipo === 0) {
+            return TareasMostrar;
+        }
+        else {
+
+            for (var i = 0; i < TareasMostrar.length; i++) {
+                var tipos = TareasMostrar[i].idTipoNavigation;
+
+                if (tipos.id === IdTipo) {
+
+                    tiposFiltrado.push(TareasMostrar[i]);
+
+                }
+
+            }
+
+            return tiposFiltrado;
+
+        }
+
+    } function filtroFecha(_desde, _hasta) {
+
+
+        var arrayTareas = JSON.parse(JSON.stringify(TareasMostrar));
+        if (_desde == _hasta || _desde === null) {
+
+            return TareasMostrar;
+        } else {
+
+            var desdeLocal = new Date(_desde).getTime();
+            var hastaLocal = new Date(_hasta).getTime();
+
+
+
+            for (var i = 0; i < tareas.length; i++) {
+
+                var documento = new Date(tareas[i].fechaLimite).getTime();
+                var flag = false;
+
+                if (documento >= desdeLocal && documento <= hastaLocal)
+                    flag = true;
+
+                // else flag = true;
+
+                if (!flag)
+                    arrayTareas.splice(i, 1);
+            }
+            return arrayTareas;
+        }
+
+
+    }
+    function FistroAsignados(TareasMostrar) {
+
+        var IdAsignado = parseInt($('#filtroAsignado').val());
+
+        var AsignadosFiltrado = [];
+
+
+        if (IdAsignado === 0) {
+
+            return TareasMostrar;
+        }
+        else {
+
+            for (var i = 0; i < TareasMostrar.length; i++) {
+
+                if (TareasMostrar[i].idUsuario != 0) {
+
+                    var asignados = TareasMostrar[i].idUsuario;
+
+                    if (asignados === IdAsignado) {
+
+                        AsignadosFiltrado.push(TareasMostrar[i]);
+                        console.log(AsignadosFiltrado);
+                    }
+                }
+
+            }
+
+            return AsignadosFiltrado;
+
+        }
+    }
+    function filtroContacto(TareasMostrar) {
+
+
+        var IdContacto = parseInt($('#filtroContacto').val());
+
+        var TareasFiltrado = [];
+
+
+        if (IdContacto === 0) {
+            return TareasMostrar;
+        }
+        else {
+
+            for (var i = 0; i < TareasMostrar.length; i++) {
+                var contacto = TareasMostrar[i].idContactoNavigation;
+
+                if (contacto.idContacto === IdContacto) {
+                    console.log(contacto.idContacto);
+                    TareasFiltrado.push(TareasMostrar[i]);
+
+                }
+            }
+            console.log(TareasFiltrado);
+            return TareasFiltrado;
+
+        }
+
+
+    }
+    $(document).ready(function () {
+
+        $('#filtroFecha').daterangepicker({
+            opens: 'left',
+
+
+            "locale": {
+                format: "DD/MM/YYYY",
+                "separator": " - ",
+                "applyLabel": "Aplicar",
+                "cancelLabel": "Cancelar",
+                "fromLabel": "DE",
+                "toLabel": "Hasta",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "Dom",
+                    "Lun",
+                    "Mar",
+                    "Mie",
+                    "Jue",
+                    "Vie",
+                    "Sáb"
+                ],
+                "monthNames": [
+                    "Enero",
+                    "Febrero",
+                    "Marzo",
+                    "Abril",
+                    "Mayo",
+                    "Junio",
+                    "Julio",
+                    "Agosto",
+                    "Septiembre",
+                    "Octubre",
+                    "Noviembre",
+                    "Diciembre"
+                ],
+                "firstDay": 1
+            }
+        },
+            function (start, end, label) {
+
+                desde = start.format('YYYY-MM-DD');
+                hasta = end.format('YYYY-MM-DD');
+                cargarFiltros();
+                //filtroFecha(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+
+            });
+    });
     function EditarRelacionLista(id,x) {
       
         $("#editarRelacion").modal('show');
@@ -980,6 +1336,139 @@
   }else{
     return true;
   }
-}
+    }
+    //metodo para cargar tareas en los contactos
+    $(function () {
+        cargarTabla();
+     //   $('.selectpicker').selectpicker();
+    });
+    //cargar tabla
+    function cargarTabla() {
+        $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+          
+                    url: '@Url.Action("GetTareas", "Contacto")',
+
+
+            data: { idContacto:@Model.Id },
+          
+
+            success: function (data) {
+                contactoTareas = JSON.parse(JSON.stringify(data));
+
+                cargarDatos(contactoTareas);
+
+                },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+                alert('error');
+                }
+            });
+    }
+    //cargar datos de las tareas..
+    function cargarDatos(data) {
+        var contadorFila = 0;
+        var fecha1 = ""
+        var fecha = "";
+      
+        $("#TablaTareasContacto > tbody").remove();
+        $('#TablaTareasContacto').append('<tbody></tbody>');
+        dt = new Date();
+        fecha = +dt.getDate() + "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear() + " " + 0 + 0 + ":" + 0 + 0 + ":" + 0 + 0;
+        fecha1 = +dt.getDate() + "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear();
+        var color = "";
+        var icono = "";
+        var icono2 = "";
+
+        for (var i = 0; i < data.length; i++) {
+
+            
+            if (recuperarFecha(data[i].fechaLimite) > fecha) {
+
+                color = "";
+            } else
+                if (recuperarFecha(data[i].fechaLimite) < fecha) {
+
+                    color = "#dc4a46";
+                }
+                else
+
+                    if (recuperarFechaSinHora(data[i].fechaLimite) == fecha1) {
+
+                        color = "#f3da0b";
+                    } else {
+                        color = "";
+                    }
+           
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td>' + data[i].titulo + '</td>'
+                + '<td>' + data[i].idUsuario + ' </td>'
+                + '<td>' +" @Model.Correo" + '</td>'
+                + '<td bgColor="' + color + '">' + recuperarFecha(data[i].fechaLimite) + '</td>'
+                + '<td bgColor="' + data[i].idEstadoNavigation.color + '" style="color:black;">' + data[i].idEstadoNavigation.titulo + '</td>'
+                + '<td bgColor="' + data[i].idTipoNavigation.color + '" style="color:black;">' + data[i].idTipoNavigation.titulo + '</td>'
+
+            $('#TablaTareasContacto > tbody').append(body);
+            contadorFila++;
+        }
+        $('#TablaTareasContacto').DataTable().destroy();
+
+        TablaTareas = $('#TablaTareasContacto').DataTable({
+       
+            info: false,
+        
+            "ordering": false,
+          
+            language: {
+                "decimal": "",
+                "emptyTable": "NoDatos",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "sinResultados",
+                "paginate": {
+                    "first": " Primero",
+                    "last": "Último",
+                    "next": "Sguiente]",
+                    "previous": "Anterior"
+                }
+            }
+        });
+    }
+    function recuperarFecha(_fecha) {
+
+        var fecha = _fecha.substr(0, 10);
+        var y = fecha.substr(0, 4);
+        var m = fecha.substr(6, 1);
+        var d = fecha.substr(8, 3);
+
+        //var date = new Date();
+        //console.log(fecha);
+
+        return d + "/" + m + "/" + y + " " + _fecha.substr(-8, 8);
+
+    }
+    function recuperarFechaSinHora(_fecha) {
+
+        var fecha = _fecha.substr(0, 10);
+        var y = fecha.substr(0, 4);
+        var m = fecha.substr(6, 1);
+        var d = fecha.substr(8, 3);
+
+        //var date = new Date();
+        //console.log(fecha);
+
+        return d + "/" + m + "/" + y;
+
+    }
 </script>
 

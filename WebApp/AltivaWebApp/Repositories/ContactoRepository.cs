@@ -14,7 +14,13 @@ namespace AltivaWebApp.Repositories
         public ContactoRepository(EmpresasContext context) : base(context)
         {
         }
-
+        public TbCrContacto GetTareas(int idContacto)
+        {
+            return context.TbCrContacto
+              .Include(c => c.TbFdTarea).ThenInclude(c => c.IdTipoNavigation).Include(c => c.TbFdTarea).
+              ThenInclude(c => c.IdEstadoNavigation)
+              .FirstOrDefault(c => c.IdContacto == idContacto);
+        }
         public IList<TbCrContacto> GetAllEmpresas()
         {
             return context.TbCrContacto.Where(u => u.Empresa == true).ToList();
