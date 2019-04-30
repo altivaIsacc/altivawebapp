@@ -67,20 +67,8 @@ namespace AltivaWebApp.Mappers
             }
             var usuariCostos = this.ICentroDeCostos.GetById(Convert.ToInt32(domain.IdUsuario));
             tbTarea.DiasEstimados = domain.DiasEstimados;
-            if (domain.IdUsuario != null)
-            {
-                if (domain.CostoEstimado == 0)
-                {
 
-                    tbTarea.CostoEstimado = usuariCostos.Costo;
-                }
-                else
-                {
-                    tbTarea.CostoEstimado = (usuariCostos.Costo * domain.DiasEstimados);
-                    tbTarea.CostoReal = (usuariCostos.Costo * 0);
-                }
-            }
-            tbTarea.DiasReales = 0;
+          
          
             tbTarea.Cobrado = domain.Cobrado;
             tbTarea.MontoCobrad = domain.MontoCobrad;
@@ -106,12 +94,27 @@ namespace AltivaWebApp.Mappers
             if (tTbFdTareaEstado.EsFinal == true)
             {
                 tbTarea.FechaFinal = DateTime.Now;
-                tbTarea.DiasReales = 0;
+                TimeSpan difFechas = (tbTarea.FechaInicio.Value.Date - tbTarea.FechaFinal.Value.Date);
+                int dias = difFechas.Days;
+                tbTarea.DiasReales = dias;
             }
             else
             {
 
                 tbTarea.FechaFinal = null;
+            }
+            if (domain.IdUsuario != null)
+            {
+                if (domain.CostoEstimado == 0)
+                {
+
+                    tbTarea.CostoEstimado = usuariCostos.Costo;
+                }
+                else
+                {
+                    tbTarea.CostoEstimado = (usuariCostos.Costo * domain.DiasEstimados);
+                    tbTarea.CostoReal = (usuariCostos.Costo * tbTarea.DiasReales);
+                }
             }
             return tbTarea;
         }
@@ -126,7 +129,7 @@ namespace AltivaWebApp.Mappers
             tbTarea.Titulo = domain.Titulo;
             tbTarea.IdContacto = domain.IdContacto;
             tbTarea.IdUsuario = domain.IdUsuario;
-
+           
             if (domain.FechaLimite == null)
             {
                 tbTipo = this.ITipoTareaService.GetById(Convert.ToInt32(domain.IdTipo));
@@ -181,15 +184,17 @@ namespace AltivaWebApp.Mappers
             tTbFdTareaEstado = this.IEstadoTareaService.GetById(Convert.ToInt32(domain.IdEstado));
             if (tTbFdTareaEstado.EsInicial == true)
             {
-                tbTarea.FechaInicio = DateTime.Today;
+                tbTarea.FechaInicio = DateTime.Now;
             }
        else
             if (tTbFdTareaEstado.EsFinal == true)
             {
-                tbTarea.FechaFinal = DateTime.Today;
+                tbTarea.FechaFinal = DateTime.Now;
                 if (tbTarea.FechaInicio.ToString() != "") {
                     var a = tbTarea.FechaFinal - tbTarea.FechaInicio;
-                    tbTarea.DiasReales = 0;
+                    TimeSpan difFechas = ( tbTarea.FechaFinal.Value.Date - tbTarea.FechaInicio.Value.Date );
+                    int dias = difFechas.Days;
+                    tbTarea.DiasReales = dias;
                 }
                 else
                 {
@@ -197,6 +202,7 @@ namespace AltivaWebApp.Mappers
                 }
                 if (domain.IdUsuario != null) {
                     tbTarea.CostoReal = (usuariCostos.Costo * tbTarea.DiasReales);
+                   
                 }
             }
             else
