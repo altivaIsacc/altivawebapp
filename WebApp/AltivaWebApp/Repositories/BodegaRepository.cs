@@ -18,7 +18,8 @@ namespace AltivaWebApp.Repositories
 
         public TbPrBodega GetBodegaById(int id)
         {
-            return context.TbPrBodega.FirstOrDefault(b => b.Id == id);
+            return context.TbPrBodega.Include(b => b.TbPrInventarioBodega).FirstOrDefault(b => b.Id == id);
+
         }
         public TbPrBodega GetBodegaByNombre(string nombre)
         {
@@ -36,6 +37,20 @@ namespace AltivaWebApp.Repositories
         public IList<TbPrBodega> GetAllBodegasConInventario()
         {
             return context.TbPrBodega.Include(ib => ib.TbPrInventarioBodega).ThenInclude(i => i.IdInventarioNavigation).Where(b => b.Estado == true).ToList();
+        }
+
+
+        public void UpdateInventarioBodega(IList<TbPrInventarioBodega> inventarioBodega)
+        {
+            try
+            {
+                context.UpdateRange(inventarioBodega);
+                context.SaveChanges();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
     }

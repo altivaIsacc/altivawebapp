@@ -12,9 +12,9 @@ namespace AltivaWebApp.ViewModels
         public long IdInventario { get; set; }
         public string Descripcion { get; set; }
         public bool Movimiento { get; set; }
-        public double Cantidad { get; set; }
-        public double CostoPromedio { get; set; }
-        public double TotalMovimiento { get; set; }
+        public float Cantidad { get; set; }
+        public float CostoPromedio { get; set; }
+        public float TotalMovimiento { get; set; }
         public long IdCuentaContable { get; set; }
         public long IdCentroGastos { get; set; }
     }

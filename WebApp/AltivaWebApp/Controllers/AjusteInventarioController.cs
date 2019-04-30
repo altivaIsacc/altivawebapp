@@ -93,12 +93,35 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        [HttpPost("Crear-AjusteInventario/{idAjuste}")]
-        public ActionResult CrearAjusteInventario(int idAjuste, IList<AjusteInventarioViewModel> viewModel)
+        [HttpPost("Crear-AjusteInventario/{idBodega}")]
+        public ActionResult CrearAjusteInventario(int idBodega, IList<AjusteInventarioViewModel> viewModel)
         {
             try
             {
+                var existencia = new List<TbPrInventarioBodega>();
+
                 service.SaveAjusteInventario(map.AIViewModelToDomain(viewModel).ToList());
+
+                var bodegainventario = bodegaService.GetBodegaById(idBodega);
+
+                foreach (var item in bodegainventario.TbPrInventarioBodega)
+                {
+                    foreach (var i in viewModel)
+                    {
+                        if (item.IdInventario == i.IdInventario)
+                        {
+                            if(i.Movimiento)
+                                item.ExistenciaBodega += i.Cantidad;
+                            else
+                                item.ExistenciaBodega -= i.Cantidad;
+                            existencia.Add(item);
+                        }
+                            
+                    }
+                }
+
+                bodegaService.UpdateInventarioBodega(existencia);
+                
                 return Json(new { success = true });
             }
             catch

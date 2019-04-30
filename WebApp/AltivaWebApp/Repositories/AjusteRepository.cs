@@ -65,10 +65,12 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+
         public void DeleteAjusteInventario(IList<int> id, int idAjuste)
         {
             try
             {
+                var existencia = new List<TbPrInventarioBodega>();
                 var ai = context.TbPrAjuste.Include(a => a.TbPrAjusteInventario).FirstOrDefault(a => a.Id == idAjuste);
 
                 var aiEliminar = new List<TbPrAjusteInventario>();
@@ -82,6 +84,27 @@ namespace AltivaWebApp.Repositories
                     }
                 }
 
+                var bodegaI = context.TbPrBodega.Include(b => b.TbPrInventarioBodega).FirstOrDefault(b => b.Id == ai.IdBodega);
+
+                foreach (var item in bodegaI.TbPrInventarioBodega)
+                {
+                    foreach (var i in aiEliminar)
+                    {
+                        if (item.IdInventario == i.IdInventario)
+                        {
+                            if (i.Movimiento)
+                                item.ExistenciaBodega -= i.Cantidad;
+                            else
+                                item.ExistenciaBodega += i.Cantidad;
+                            existencia.Add(item);
+                        }
+                       
+
+                    }
+                }
+
+
+                context.TbPrInventarioBodega.UpdateRange(existencia);
                 context.TbPrAjusteInventario.RemoveRange(aiEliminar);
                 context.SaveChanges();
 

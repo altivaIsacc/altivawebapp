@@ -16,5 +16,6 @@ namespace AltivaWebApp.Repositories
         TbPrBodega GetBodegaByNombre(string nombre);
         IList<TbPrBodega> GetAllInactivas();
         IList<TbPrBodega> GetAllBodegasConInventario();
+        void UpdateInventarioBodega(IList<TbPrInventarioBodega> inventarioBodega);
     }
 }

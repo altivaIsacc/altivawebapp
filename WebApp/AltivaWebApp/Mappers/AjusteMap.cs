@@ -121,15 +121,15 @@ namespace AltivaWebApp.Mappers
             return new AjusteInventarioViewModel
             {
                 Id = domain.Id,
-                Cantidad = domain.Cantidad,
-                CostoPromedio = domain.CostoPromedio,
+                Cantidad = (float)domain.Cantidad,
+                CostoPromedio = (float)domain.CostoPromedio,
                 Descripcion = domain.Descripcion,
                 IdAjuste = domain.IdAjuste,
                 IdCentroGastos = domain.IdCentroGastos,
                 IdCuentaContable = domain.IdCuentaContable,
                 IdInventario = domain.IdInventario,
                 Movimiento = domain.Movimiento,
-                TotalMovimiento = domain.TotalMovimiento
+                TotalMovimiento =(float) domain.TotalMovimiento
             };
         }
 
