@@ -23,25 +23,26 @@
     </div>
     <div class="col-md-2" style="margin-left:1rem; padding-top:0.7rem">
 
-        <select class="form-control">
-            <option>Costos*</option>
-            <option>Rendimiento*</option>
+        <select class="form-control" id="reportes">
+            <option selected="selected" value="0">Seleccione</option>
+            <option value="1">Costos*</option>
+            <option value="2">Rendimiento*</option>
 
         </select>
     </div>
     <br />
-  <div class="row">
-      <div class="col-md-12">
-          <div class="form-group col-md-4">
-              <label>Buscar por Titulo:</label>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group col-md-4">
+                <label>Buscar por Titulo:</label>
 
-              <input type="text" id="filtroByTitulo" class="form-control" value="" />
-          </div>
-      </div>
-  </div>
+                <input type="text" id="filtroByTitulo" class="form-control" value="" />
+            </div>
+        </div>
+    </div>
     <div class="row col-md-12">
 
-      
+
         <div class="col-md-2">
             <label style="padding-top: 0.2rem">Asignados:</label>
             <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroAsignado">
@@ -127,47 +128,50 @@
         <tr>
             <th>Prioridad</th>
             <th>
-              Título
+                Tipo tarea
             </th>
             <th>
-                Asignado
-            </th>
-            <th>
-                Contacto
-            </th>
-
-
-            <th>
-                Fecha Limite
-            </th>
-            <th>
-               Descripción
-            </th>
-            <th>
-                Dias estimados
-            </th>
-            <th>
-                Dias reales
-            </th>
-            <th>
-               Costo estimado
-            </th>
-            <th>
-          Costo Real
-            </th>
-
-            <th>
-              Fecha inicio
-            </th>
-            <th>
-              Fecha final
+                Título
             </th>
             <th>
                 Estado tarea
             </th>
             <th>
-                Tipo tarea
+                Contacto
             </th>
+            <th>
+                Fecha Limite
+            </th>
+            <th hidden>
+                Asignado
+            </th>
+
+
+
+            <th hidden>
+                Descripción
+            </th>
+            <th hidden>
+                Dias estimados
+            </th>
+            <th hidden>
+                Dias reales
+            </th>
+            <th hidden>
+                Costo estimado
+            </th>
+            <th hidden>
+                Costo Real
+            </th>
+
+            <th hidden>
+                Fecha inicio
+            </th>
+            <th hidden>
+                Fecha final
+            </th>
+
+
             <th>Acción</th>
         </tr>
     </thead>
@@ -207,7 +211,21 @@
         cargarTabla();
         $('.selectpicker').selectpicker();
     });
+    //reportes redireccionar
+    $('#reportes').change(function () {
+        if ($(this).val() == 1) {
+            var url = '/Tarea/ReporteCostos/';
+            $(location).attr('href', url);
 
+
+        } else if ($(this).val() == 2) {
+            var url = '/Tarea/ReporteRendimiento/';
+            $(location).attr('href', url);
+
+        } else {
+            return false;
+        }
+    });
     //cargar datos de las tareas..
     function cargarDatos(data) {
         var contadorFila = 0;
@@ -222,11 +240,11 @@
         var color = "";
         var icono = "";
         var icono2 = "";
-     
+
         for (var i = 0; i < data.length; i++) {
 
             if (data[i].posicion == 1) {
-              
+
                 icono = "";
             } else {
                 icono = "<i class='fas fa-chevron-up'></i>";
@@ -240,7 +258,7 @@
                 color = "#dc4a46";
             }
             else
-   
+
                 if (recuperarFechaSinHora(data[i].fechaLimite) == fecha1) {
 
                     color = "#f3da0b";
@@ -252,20 +270,23 @@
             }
             var body = '<tr class="fila' + contadorFila + ' filas">'
                 + '<td><button class="btn btn-link dark" onclick="darPrioridad(' + data[i].id + ')">' + icono + '</button><button class="btn btn-link dark" onclick="quitarPrioridad(' + data[i].id + ')">' + icono2 + '</i></button></td>'
+                + '<td ><div  style="background: ' + data[i].idTipoNavigation.color + '; color:white;">' + data[i].idTipoNavigation.titulo + '</div></td>'
+
                 + '<td>' + data[i].titulo + '</td>'
-                + '<td>' + data[i].idUsuario + ' </td>'
+                + '<td ><div style="background:' + data[i].idEstadoNavigation.color +';color:white;">' + data[i].idEstadoNavigation.titulo + '</div></td>'
                 + '<td>' + data[i].idContactoNavigation.correo + '</td>'
-                + '<td bgColor='+color+'>' + recuperarFecha(data[i].fechaLimite) + '</td>'
-            
-                + '<td>' + data[i].descripcion + '</td>'
-                + '<td>' + data[i].diasEstimados + '</td>'
-                + '<td>' +  data[i].diasReales + '</td>'
-                + '<td>' +  data[i].costoEstimado + '</td>'
-                + '<td>' + data[i].costoReal + '</td>'
-                + '<td>' + data[i].fechaInicio+ '</td>'
-                + '<td>' + data[i].fechaFinal + '</td>'
-                + '<td bgColor="' + data[i].idEstadoNavigation.color + '" style="color:black;">' + data[i].idEstadoNavigation.titulo + '</td>'
-                + '<td bgColor="' + data[i].idTipoNavigation.color + '" style="color:black;">' + data[i].idTipoNavigation.titulo + '</td>'
+                + '<td bgColor=' + color + '>' + recuperarFecha(data[i].fechaLimite) + '</td>'
+
+                + '<td hidden>' + data[i].idUsuario + ' </td>'
+           
+              
+                + '<td hidden>' + data[i].descripcion + '</td>'
+                + '<td hidden>' + data[i].diasEstimados + '</td>'
+                + '<td hidden>' + data[i].diasReales + '</td>'
+                + '<td hidden>' + data[i].costoEstimado + '</td>'
+                + '<td hidden>' + data[i].costoReal + '</td>'
+                + '<td hidden>' + data[i].fechaInicio+ '</td>'
+                + '<td hidden>' + data[i].fechaFinal + '</td>'
 
                 + '<td>  <button value="' + data[i].id + '" onclick="editarTarea(' + data[i].id+')" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="cambiarEstadoInventario(value ' + "," + contadorFila + ')" class="btn btn-link">Eliminar</button></td></tr>';
             $('#TablaTareas > tbody').append(body);
@@ -274,37 +295,62 @@
         $('#TablaTareas').DataTable().destroy();
 
         TablaTareas = $('#TablaTareas').DataTable({
-            "info": false,
-            info: false,
+            dom: 'Bfrtip',
+          
             scrollY: '50rem',
             "ordering": false,
             scrollX: '50rem',
-            paging: false,
+          
             language: {
                 "decimal": "",
-                "emptyTable": "NoDatos",
-                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
-                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
-                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "emptyTable": "No hay información",
+
                 "infoPostFix": "",
                 "thousands": ",",
-                "lengthMenu": "Mostrar _MENU_Entradas",
+
                 "loadingRecords": "Cargando...",
                 "processing": "Procesando...",
-                "search": "<i class='fas fa-search'></i>",
-                "zeroRecords": "sinResultados",
+                "search": "<a ><i  class='fas fa-search ' ></i></a>",
+                "zeroRecords": "Sin resultados encontrados",
                 "paginate": {
-                    "first": " Primero",
-                    "last": "Último",
-                    "next": "Sguiente]",
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
                     "previous": "Anterior"
                 }
-            }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   " ></i>',
+                    titleAttr: 'Copy',
+                    title: 'tareas',
+                    pageSize: 'LEGAL'
+                   
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: 'tareas',
+                    pageSize: 'LEGAL'
+                    
+                },
+
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: 'Tareas',
+                    pageSize: 'LEGAL',
+                    orientation: 'landscape',
+                }
+            ]
         });
     }
     //metodo que llamar ala partial de editar
     function editarTarea(id) {
-        
+
           $.ajax({
                     type: "get",
                     headers: {
@@ -313,7 +359,7 @@
               url: '/Tarea/EditarTarea/'+ id ,
 
               success: function (data) {
-            
+
                    $('#nuevaTarea').modal('show');
                    $('#titleTarea').html('Nueva Tarea');
                    $('#infoAgregarTarea').html(data);
@@ -325,14 +371,14 @@
     }
     //metodosdarPrioridad
     function darPrioridad(idTarea) {
-       
+
         $.ajax({
                     type: "get",
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
             },
             url: '/Tarea/DarPrioridad/' + idTarea,
-           
+
 
             success: function (data) {
 
@@ -354,7 +400,7 @@
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
             },
             url: '/Tarea/QuitarPrioridad/' + idTarea,
-          
+
 
             success: function (data) {
                 cargarTabla();
@@ -378,7 +424,7 @@
     });
     /////////////////////////////////////////
     function cargarFiltros() {
-        
+
         TareasMostrar = JSON.parse(JSON.stringify(tareas));
         console.log(TareasMostrar);
         TareasMostrar = filtroContacto(TareasMostrar);
@@ -419,7 +465,7 @@
             return EstadosFiltrado;
 
         }
-       
+
     }
     function filtroTipos(TareasMostrar) {
         var IdTipo = parseInt($('#filtroTipos').val());
@@ -440,25 +486,19 @@
                     tiposFiltrado.push(TareasMostrar[i]);
 
                 }
-                
+
             }
 
             return tiposFiltrado;
 
         }
-      
-    }
-    $('.selectFiltro').change(function () {
-        
-        cargarFiltros();
 
-    });
-    function filtroFecha(_desde, _hasta) {
+    } function filtroFecha(_desde, _hasta) {
 
 
         var arrayTareas = JSON.parse(JSON.stringify(TareasMostrar));
-        if (_desde == _hasta || _desde ===null) {
-           
+        if (_desde == _hasta || _desde === null) {
+
             return TareasMostrar;
         } else {
 
@@ -482,18 +522,24 @@
             }
             return arrayTareas;
         }
-     
+
 
     }
+    $('.selectFiltro').change(function () {
+
+        cargarFiltros();
+
+    });
+
     function FistroAsignados(TareasMostrar){
 
         var IdAsignado = parseInt($('#filtroAsignado').val());
 
         var AsignadosFiltrado = [];
-      
+
 
         if (IdAsignado === 0) {
-           
+
             return TareasMostrar;
         }
         else {
@@ -501,9 +547,9 @@
             for (var i = 0; i < TareasMostrar.length; i++) {
 
                 if (TareasMostrar[i].idUsuario != 0) {
-                   
+
                     var asignados = TareasMostrar[i].idUsuario;
-                                
+
                     if (asignados === IdAsignado) {
 
                         AsignadosFiltrado.push(TareasMostrar[i]);
@@ -512,14 +558,14 @@
                 }
 
             }
-           
+
             return AsignadosFiltrado;
 
         }
     }
     function filtroContacto(TareasMostrar) {
 
-       
+
         var IdContacto = parseInt($('#filtroContacto').val());
 
         var TareasFiltrado = [];
@@ -532,7 +578,7 @@
 
             for (var i = 0; i < TareasMostrar.length; i++) {
                 var contacto = TareasMostrar[i].idContactoNavigation;
-              
+
                 if (contacto.idContacto === IdContacto) {
                     console.log(contacto.idContacto);
                     TareasFiltrado.push(TareasMostrar[i]);
@@ -547,11 +593,11 @@
 
     }
     $(document).ready(function () {
-        
+
         $('#filtroFecha').daterangepicker({
             opens: 'left',
-         
-           
+
+
             "locale": {
                 format: "DD/MM/YYYY",
                 "separator": " - ",
@@ -633,7 +679,7 @@
               url: '/Tarea/NuevaTarea/' ,
 
               success: function (data) {
-            
+
                    $('#nuevaTarea').modal('show');
                    $('#titleTarea').html('Nueva Tarea');
                    $('#infoAgregarTarea').html(data);

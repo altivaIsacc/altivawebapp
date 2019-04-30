@@ -172,5 +172,29 @@ namespace AltivaWebApp.Controllers
             return Ok(true);
             
         }
+
+        [HttpGet("ReporteRendimiento")]
+        public IActionResult ReporteRendimiento()
+        {
+            ViewData["Contactos"] = this.IContactosService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
+            ViewData["estados"] = this.IEstadoService.GetAll();
+            ViewData["tipos"] = this.ITipoService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
+            ViewBag.fecha = DateTime.Now;
+            return View();
+        }
+        [HttpGet("ReporteCostos")]
+        public IActionResult ReporteCostos()
+        {
+            ViewData["Contactos"] = this.IContactosService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
+            ViewData["estados"] = this.IEstadoService.GetAll();
+            ViewData["tipos"] = this.ITipoService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
+            ViewBag.fecha = DateTime.Now;
+            return View();
+            
+        }
     }
 }
