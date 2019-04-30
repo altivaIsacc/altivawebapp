@@ -20,7 +20,8 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdTarea> TbFdTarea { get; set; }
         public virtual DbSet<TbFdTareaEstado> TbFdTareaEstado { get; set; }
         public virtual DbSet<TbFdTareaTipo> TbFdTareaTipo { get; set; }
-    
+        public virtual DbSet<TbFdConfiguracionFiltros> TbFdConfiguracionFiltros { get; set; }
+        public virtual DbSet<TbFdSubtareas> TbFdSubtareas { get; set; }
         public virtual DbSet<TbCrListaDesplegables> TbCrListaDesplegables { get; set; }
         public virtual DbSet<TbCrCamposPersonalizados> TbCrCamposPersonalizados { get; set; }
         public virtual DbSet<TbCrContacto> TbCrContacto { get; set; }
@@ -204,6 +205,12 @@ namespace AltivaWebApp.Context
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.3-servicing-35854");
 
+            modelBuilder.Entity<TbFdConfiguracionFiltros>(entity =>
+            {
+                entity.ToTable("tb_FD_ConfiguracionFiltros");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+            });
             modelBuilder.Entity<TbCrCamposPersonalizados>(entity =>
             {
                 entity.ToTable("tb_CR_CamposPersonalizados");
@@ -450,7 +457,19 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.SaldoInicial).HasColumnType("numeric(18, 6)");
             });
+            modelBuilder.Entity<TbFdSubtareas>(entity =>
+            {
+                entity.ToTable("TB_FD_Subtareas");
 
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdTareaNavigation)
+                    .WithMany(p => p.TbFdSubtareas)
+                    .HasForeignKey(d => d.IdTarea)
+                    .HasConstraintName("FK_SubTareas_Tareas");
+            });
             modelBuilder.Entity<TbBaMovimientoBancarios>(entity =>
             {
                 entity.HasKey(e => e.IdMovimiento);

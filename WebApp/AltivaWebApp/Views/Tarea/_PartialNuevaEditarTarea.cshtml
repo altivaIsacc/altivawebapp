@@ -11,7 +11,7 @@
         color: #fff;
     }
 </style>
-<div class="container">
+<div class="container" style=" overflow-y: scroll; height:60rem;">
     <div class=" row ">
         <div hidden="hidden" class="form-group">
             <input type="text" class="form-control" id="Id" asp-for="Id" hidden>
@@ -31,7 +31,7 @@
                 <label class="col-form-label ">Contacto:</label><br />
 
                 <select class="selectpicker form-control" data-live-search="true" id="contacto" asp-for="IdContacto">
-                    <option value="seleccione">Seleccione</option>
+                    <option selected value="0">Seleccione</option>
                     @foreach (var contactos in ViewData["contactos"] as IList<TbCrContacto>)
                     {
                         @if (contactos.Persona == true)
@@ -51,7 +51,7 @@
             <div class=" col-md-6">
                 <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
                 <select class="selectpicker form-control" data-live-search="true" id="asignado" asp-for="IdUsuario">
-                    <option>Seleccione</option>
+                    <option selected value="0">Seleccione</option>
                     @foreach (var asignados in ViewData["asignados"] as IList<TbSeUsuario>)
                     {
                         <option value="@asignados.Id">@asignados.Nombre</option>
@@ -164,6 +164,7 @@
 
 
     </div>
+
     @if (Model.Titulo == null)
     {
         <div class="row col-md-8">
@@ -178,6 +179,15 @@
     }
     else
     {
+        <div><label>Subtareas:</label><button class="btn btn-link" id="AgregarLista"><i style="font-size:2rem;" class="fas fa-plus"></i></button></div>
+        <div class="row">
+
+            <div id="uls" >
+
+            </div>
+
+        </div>
+        <br />
         <div class="row col-md-9">
             <div class="col-md-4">
                 <button type="submit" id="btnEditarTarea" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
@@ -244,16 +254,231 @@
     </div>
 </div>
 <script>
-   
+    //cerrar modal
+    $('#btnCancelarTarea').on('click', function () {
+        var titulo = $('#titulo').val();
+        var idContacto = $('#contacto').val();
+        var idUsuario = $('#asignado').val();
+
+        if (titulo != "" && idContacto != 0 && idUsuario != 0) {
+            bootbox.confirm({
+
+                message: "<h4 class='text-center'><span >Esta seguro que desea Continuar?</span></h4>",
+                buttons: {
+
+                    confirm: {
+                        label: '<i class="fa fa-check"></i> Aceptar'
+                    },
+                    cancel: {
+                        label: '<i class="fa fa-times"></i> Cancelar'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        $('#nuevaTarea').modal('hide');
+                        cargarTabla();
+                        return;
+                    } else {
+                        return;
+                    }
+
+                }
+            });
+        } else {
+            $('#nuevaTarea').modal('hide');
+            cargarTabla();
+        }
+    });
+    var i = 0;
+    $('#AgregarLista').on('click', function () {
+
+        $('#uls').append('<div class="form-group" id="subEliminar'+i+'"><div class="col-md-10"><label>Título:</label><input id="st' + i +'" type="text" class="form-control"/></div><div class=" col-md-2" style="margin-top:20px;"><button class="btn btn-link" onclick="eliminarCampo('+i+')"><i class="fas fa-trash dark"></i></button></div></div>');
+
+        i++;
+    });
      $(document).ready(function () {
 
-        GetComentarios("Tareas", @Model.Id);
+         GetComentarios("Tareas", @Model.Id);
+
+         GetSubTareas();
 
     });
-   
+    //editar subtareas:
+    function EditarSubTareas(idTarea) {
+        var SubTareas = [];
+
+        for (var e = 0; e < l; e++) {
+
+            var subtarea = {
+                id: $("#is" + e + "").val(),
+                idTarea: idTarea,
+                descripcion: $("#s" + e + "").val()
+
+            };
+
+            SubTareas.push(subtarea);
+        }
+         $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "POST",
+
+
+             url: '@Url.Action("EditarSubTareas", "Tarea")',
+             data: { domain: SubTareas },
+                success: function (data) {
+
+                    cargarTabla();
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+    }
+
+    //eliminar subtareas nuevas
+    function eliminarCampo(id) {
+
+        bootbox.confirm({
+
+            message: "<h4 class='text-center'><span >Esta seguro que desea eliminar la subTarea?</span></h4>",
+            buttons: {
+
+                confirm: {
+                    label: '<i class="fa fa-check"></i> Aceptar'
+                },
+                cancel: {
+                    label: '<i class="fa fa-times"></i> Cancelar'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $("#subEliminar" + id + "").remove();
+
+                    i--;
+                    return;
+                } else {
+                    return;
+                }
+
+            }
+        });
+
+
+    }
+    //eliminar subtarea
+    function EliminarSubTarea(idSubTarea) {
+        bootbox.confirm({
+
+            message: "<h4 class='text-center'><span >Esta seguro que desea eliminar la subTarea?</span></h4>",
+            buttons: {
+
+                confirm: {
+                    label: '<i class="fa fa-check"></i> Aceptar'
+                },
+                cancel: {
+                    label: '<i class="fa fa-times"></i> Cancelar'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                  $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "GET",
+
+      url: '/Tarea/EliminarSubTarea/' + idSubTarea,
+
+
+                      success: function (data1) {
+                          $('#uls').empty();
+                          GetSubTareas();
+           return;
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+                } else {
+                    return;
+                }
+
+            }
+        });
+  
+    }
+    //agregar subtarea
+    function AgregarSubtarea(idTarea ) {
+        var SubTareas = [];
+        for (var e = 0; e < i; e++) {
+            var subtarea = {
+                idTarea: idTarea,
+                descripcion: $("#st" + e + "").val()
+
+            };
+            SubTareas.push(subtarea);
+        }
+         $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "POST",
+
+
+             url: '@Url.Action("AgregarSubTarea", "Tarea")',
+             data: { domain: SubTareas },
+                success: function (data) {
+                    $('#uls').empty();
+                    cargarTabla();
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+
+    }
+    var l = 0;
+    //getSubTareas.
+     function GetSubTareas() {
+              $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "GET",
+
+                  url: '/Tarea/GetSubTareas/' + @Model.Id,
+
+
+       success: function (data1) {
+
+
+                        for (l= 0; l < data1.length; l++) {
+
+                            $('#uls').append('<div class= "form-group" ><div class= "form-group" hidden > <input type="text" id="is' + l + '" value="' + data1[l].id + '"/></div> <div class="col-md-10"><label>Título:</label><input id="s' + l + '" type="text" class="form-control" value=" ' + data1[l].descripcion + ' " /></div> <div class=" col-md-2" style="margin-top:20px;"><button class="btn btn-link" onclick="EliminarSubTarea(' + data1[l].id + ')"><i class="fas fa-trash dark"></i></button></div></div>');
+
+                        }
+
+
+
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+        }
     //editando
     $('#btnEditarTarea').on('click', function () {
-       
+
         if (ValidarDatos() == true) {
             var fechaLimite = $('#fechaLimite').val();
             var descripcion = $('#descripcion').val();
@@ -303,6 +528,12 @@
                 url: '@Url.Action("EditarTareaPost", "Tarea")',
                 data: { domain: TareaViewModel },
                 success: function (data) {
+                    if (l != 0) {
+                        EditarSubTareas(data);
+                    }
+                    if (i != 0) {
+                        AgregarSubtarea(data);
+                    }
                     $('#nuevaTarea').modal('hide');
                     cargarTabla();
                 },
@@ -318,7 +549,7 @@
     });
     //metodo que permiter guardar la tarea
     $('#btnGuardarTarea').on('click', function () {
-     
+
         if (ValidarDatos() == true) {
             var fechaLimite = $('#fechaLimite').val();
             var descripcion = $('#descripcion').val();
@@ -338,7 +569,7 @@
             }
 
 
-      
+
             var TareaViewModel = {
                 id: null,
                 titulo: $('#titulo').val(),
@@ -368,6 +599,7 @@
                     url: '@Url.Action("CrearTarea", "Tarea")',
                   data: { domain: TareaViewModel},
                   success: function (data) {
+
                       $('#nuevaTarea').modal('hide');
                       cargarTabla();
                     },
@@ -401,12 +633,12 @@
                 });
     }
     $('#sideModalTR').on('hidden.bs.modal', function () {
-     
+
         getTipos();
 
     });
     $('#ModalEstados').on('hidden.bs.modal', function () {
-     
+
         getEstados();
 
     });
@@ -436,22 +668,22 @@
     }
     tipoTareas = [];
     $("#tipos").on('click', function () {
-      
+
         var posicion = document.getElementById('tipos').options.selectedIndex; //posicion
         var realPosicion = document.getElementById('tipos').options[posicion].text;
         console.log(tipoTareas);
         if (tipoTareas[posicion] == true) {
-             
+
                 $('#fechaLimite').attr('disabled', true);
             } else {
                 $('#fechaLimite').attr('disabled', false);
             }
-        
+
     });
     $(document).ready(function () {
-     
 
-       
+
+
         $("#esCobrado").click(function () {
         //valida que si cobrado habilita el campo
             if ($(this).is(":checked"))
@@ -493,7 +725,7 @@
                 },
                 url: url,
                 success: function (data) {
-             
+
                     $("#estados option").remove();
                     for (var i = 0; i < data.length; i++) {
                         if (data[i].activo == true) {
@@ -503,7 +735,7 @@
                                 o.setAttribute("class", "color");
                                 o.setAttribute("selected", "selected");
                                 $("#estados").append(o);
-                              
+
                             } else {
                                 var o = new Option(data[i].titulo, data[i].id);
                                 o.setAttribute("style", "background:" + data[i].color);
@@ -534,9 +766,9 @@
                     tipoTareas = [];
                     $("#tipos option").remove();
                     for (var i = 0; i < data.length; i++) {
-                     
+
                         if (data[i].activo == true) {
-                           
+
                             tipoTareas.push(JSON.parse(JSON.stringify(data[i].controlaFechaLimite)));
                             if (data[i].esTipoDefecto == true) {
                                 var o = new Option(data[i].titulo, data[i].id);
@@ -581,7 +813,7 @@
                     url: '@Url.Action("CrearTipos", "TipoTarea")',
 
                  success: function (data) {
-                
+
                         $('#tiposTareas').html(data);
                         $('#sideModalTR').modal('show');
                     },
@@ -605,7 +837,7 @@
                     url: '@Url.Action("EditarTipo", "TipoTarea")',
                  data: { idTipoTarea: idTipoTarea},
                  success: function (data) {
-               
+
                         $('#tiposTareas').html(data);
                         $('#sideModalTR').modal('show');
                     },
@@ -622,7 +854,7 @@
 
                         $('#AlertTitulo').empty();
             $('#AlertTitulo').append('<span class="text-danger">Título es requerido.</span>');
-             
+
 
             return false;
         }

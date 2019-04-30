@@ -21,6 +21,14 @@ namespace AltivaWebApp.Services
             throw new NotImplementedException();
         }
 
+        public TbFdTarea EliminarTarea(int idContacto)
+        {
+            TbFdTarea eliminarTarea = new TbFdTarea();
+            eliminarTarea = this.GetById(idContacto);
+            eliminarTarea.Eliminada = true;
+            return this.TareaRepository.Update(eliminarTarea);
+        }
+
         public IList<TbFdTarea> GetAll()
         {
             return this.TareaRepository.GetAll();
@@ -36,14 +44,29 @@ namespace AltivaWebApp.Services
             return TareaRepository.GetByPosicion(posicion);
         }
 
+        public IList<TbFdSubtareas> GetSubTareas(int idTarea)
+        {
+            return this.TareaRepository.GetSubTareas(idTarea);
+        }
+
         public IList<TbFdTarea> GetTareas()
         {
             return this.TareaRepository.GetTareas();
         }
 
+        public TbFdSubtareas RemoveSubtareas(int SubTarea)
+        {
+            return this.TareaRepository.RemoveSubtareas(SubTarea);
+        }
+
         public TbFdTarea Save(TbFdTarea domain)
         {
             return this.TareaRepository.Save(domain);
+        }
+
+        public void SaveRange(IList<TbFdSubtareas> domain)
+        {
+             this.TareaRepository.SaveRange(domain);
         }
 
         public TbFdTarea Update(TbFdTarea domain)
@@ -55,6 +78,11 @@ namespace AltivaWebApp.Services
         public void UpdateRange(IList<TbFdTarea> domain)
         {
              this.TareaRepository.UpdateRange(domain);
+        }
+
+        public void UpdateRange(IList<TbFdSubtareas> domain)
+        {
+            this.TareaRepository.UpdateRangeSubTareas(domain);
         }
     }
 }

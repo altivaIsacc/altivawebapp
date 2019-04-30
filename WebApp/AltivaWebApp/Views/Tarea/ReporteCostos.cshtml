@@ -9,7 +9,7 @@
 
     <div class=" container">
         <div id="tareas">
-
+            <h3>Reporte de costos:</h3>
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group col-md-2">
@@ -131,10 +131,10 @@
                         <th hidden>
                             Dias reales
                         </th>
-                        <th hidden>
+                        <th >
                             Costo estimado
                         </th>
-                        <th hidden>
+                        <th >
                             Costo Real
                         </th>
 
@@ -409,41 +409,31 @@
             var color = "";
             var icono = "";
             var icono2 = "";
-
+            var nombre = "";
             for (var i = 0; i < data.length; i++) {
-
-                if (data[i].posicion == 1) {
-
-                    icono = "";
+                if (data[i].idContactoNavigation.persona == true) {
+                    nombre = data[i].idContactoNavigation.nombre;
                 } else {
-                    icono = "<i class='fas fa-chevron-up'></i>";
+                    nombre = data[i].idContactoNavigation.nombreComercial;
                 }
-                if (recuperarFecha(data[i].fechaLimite) > fecha) {
+
+                if (data[i].costoReal <= data[i].costoEstimado ) {
 
                     color = "";
                 } else
-                    if (recuperarFecha(data[i].fechaLimite) < fecha) {
+                    if (data[i].costoReal > data[i].costoEstimado) {
 
                         color = "#dc4a46";
                     }
-                    else
-
-                        if (recuperarFechaSinHora(data[i].fechaLimite) == fecha1) {
-
-                            color = "#f3da0b";
-                        }
-                if (data[i].posicion == data.length) {
-                    icono2 = "";
-                } else {
-                    icono2 = "<i class='fas fa-chevron-down'>";
-                }
-                var body = '<tr class="fila' + contadorFila + ' filas">'
+                    
+                
+                var body = '<tr class="fila' + contadorFila + ' filas" >'
                     + '<td ><div  style="background: ' + data[i].idTipoNavigation.color + '; color:white;">' + data[i].idTipoNavigation.titulo + '</div></td>'
 
                     + '<td>' + data[i].titulo + '</td>'
                     + '<td ><div style="background:' + data[i].idEstadoNavigation.color + ';color:white;">' + data[i].idEstadoNavigation.titulo + '</div></td>'
-                    + '<td>' + data[i].idContactoNavigation.correo + '</td>'
-                    + '<td bgColor=' + color + '>' + recuperarFecha(data[i].fechaLimite) + '</td>'
+                    + '<td>' + nombre + '</td>'
+                    + '<td >' + recuperarFecha(data[i].fechaLimite) + '</td>'
 
                     + '<td hidden>' + data[i].idUsuario + ' </td>'
 
@@ -451,10 +441,10 @@
                     + '<td hidden>' + data[i].descripcion + '</td>'
                     + '<td hidden>' + data[i].diasEstimados + '</td>'
                     + '<td hidden>' + data[i].diasReales + '</td>'
-                    + '<td hidden>' + data[i].costoEstimado + '</td>'
-                    + '<td hidden>' + data[i].costoReal + '</td>'
-                    + '<td hidden>' + data[i].fechaInicio + '</td>'
-                    + '<td hidden>' + data[i].fechaFinal + '</td>'
+                    + '<td >' + data[i].costoEstimado + '</td>'
+                    + '<td bgColor=' + color + '>' + data[i].costoReal + '</td>'
+                    + '<td hidden hidden>' + data[i].fechaInicio + '</td>'
+                    + '<td hidden hidden>' + data[i].fechaFinal + '</td>'
 
                 $('#TablaTareas > tbody').append(body);
                 contadorFila++;
@@ -528,7 +518,7 @@
             success: function (data) {
                 reportes = JSON.parse(JSON.stringify(data));
 
-                cargarDatos(reportes    );
+                cargarDatos(reportes );
 
 
                 },

@@ -30,10 +30,38 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbFdTarea.OrderBy(afg => afg.Posicion)
                .Include(c => c.IdContactoNavigation)
-               
+
                .Include(e => e.IdEstadoNavigation)
                    .Include(t => t.IdTipoNavigation)
                    .ToList();
+        }
+
+        public void SaveRange(IList<TbFdSubtareas> domain)
+        {
+            context.TbFdSubtareas.AddRange(domain);
+            context.SaveChanges();
+        }
+
+        public IList<TbFdSubtareas> GetSubTareas(int idTarea)
+        {
+            return context.TbFdSubtareas.Where(su => su.IdTarea == idTarea).Include( su => su.IdTareaNavigation).ToList();
+        }
+
+        public void UpdateRangeSubTareas(IList<TbFdSubtareas> domain)
+        {
+            context.TbFdSubtareas.UpdateRange(domain);
+            context.SaveChanges();
+        }
+        //borrar subtareas...
+        public TbFdSubtareas RemoveSubtareas(int SubTarea)
+        {
+            var query = (from p in context.TbFdSubtareas
+                         where p.Id == SubTarea
+                         select p).Single();
+
+            context.Remove(query);
+            context.SaveChanges();
+            return query;
         }
     }
 }

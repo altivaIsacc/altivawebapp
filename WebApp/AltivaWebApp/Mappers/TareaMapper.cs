@@ -94,7 +94,7 @@ namespace AltivaWebApp.Mappers
             if (tTbFdTareaEstado.EsFinal == true)
             {
                 tbTarea.FechaFinal = DateTime.Now;
-                TimeSpan difFechas = (tbTarea.FechaInicio.Value.Date - tbTarea.FechaFinal.Value.Date);
+                TimeSpan difFechas = ( tbTarea.FechaFinal.Value.Date - tbTarea.FechaInicio.Value.Date );
                 int dias = difFechas.Days;
                 tbTarea.DiasReales = dias;
             }

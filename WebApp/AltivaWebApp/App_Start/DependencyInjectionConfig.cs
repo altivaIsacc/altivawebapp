@@ -15,6 +15,9 @@ namespace AltivaWebApp.App_Start
         public static void AddScope(IServiceCollection services)
 
         {
+            //configuracion de filtros
+            services.AddScoped<IConfiguracionFiltrosRepository, ConfiguracionFiltrosRepository>();
+            services.AddScoped<IConfiguracionFiltrosService, ConfiguracionFiltrosServices>();
 
             //estados
             services.AddScoped<IEstadoTareaService, EstadoTareaService>();
