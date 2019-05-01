@@ -174,8 +174,8 @@ namespace AltivaWebApp.Controllers
             
             catch
             {
-                
-                return BadRequest();
+                throw;
+                //return BadRequest();
             }
         }
 

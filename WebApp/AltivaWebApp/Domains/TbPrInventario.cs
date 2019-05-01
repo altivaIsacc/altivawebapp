@@ -11,6 +11,7 @@ namespace AltivaWebApp.Domains
             TbPrEquivalenciaIdEquivalenciaNavigation = new HashSet<TbPrEquivalencia>();
             TbPrEquivalenciaIdInventarioNavigation = new HashSet<TbPrEquivalencia>();
             TbPrInventarioBodega = new HashSet<TbPrInventarioBodega>();
+            TbPrOrdenDetalle = new HashSet<TbPrOrdenDetalle>();
         }
 
         public long IdInventario { get; set; }
@@ -48,8 +49,6 @@ namespace AltivaWebApp.Domains
         public virtual ICollection<TbPrEquivalencia> TbPrEquivalenciaIdEquivalenciaNavigation { get; set; }
         public virtual ICollection<TbPrEquivalencia> TbPrEquivalenciaIdInventarioNavigation { get; set; }
         public virtual ICollection<TbPrInventarioBodega> TbPrInventarioBodega { get; set; }
+        public virtual ICollection<TbPrOrdenDetalle> TbPrOrdenDetalle { get; set; }
     }
 }
-
-
-

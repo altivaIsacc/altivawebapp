@@ -9,6 +9,8 @@
 }
 
 @{
+
+    var estado = "disabled";
     ViewData["Title"] = "CrearEditarAjuste";
 }
 
@@ -24,6 +26,19 @@ else
 
 <hr />
 <div class="row well">
+
+    <div class="col-md-12 text-left">
+        @if (Model.Id != 0 && !Model.Anulada)
+        {
+            <button class="btn btn-danger btn-sm" onclick="anularAjuste()">@SharedLocalizer["Anular"]</button>
+            estado = "";
+        }
+        else if(Model.Id != 0)
+        {
+            <h5 class="text-danger">@SharedLocalizer["AjusteAnulado"]</h5>
+        }
+    </div>
+
     <form class="frmAjuste">
         @Html.HiddenFor(x => x.Id)
         @Html.HiddenFor(x => x.Anulada)
@@ -71,8 +86,8 @@ else
     </div>
 
 
-    <div class="col-md-12 table-responsive">
-        <table class="table" id="tblAjusteInventario">
+    <div class="col-md-12 table-responsive" >
+        <table class="table" id="tblAjusteInventario" >
             <thead>
                 <tr>
                     <th>
@@ -136,7 +151,7 @@ else
                         </select>
                     </td>
                     <td>
-                        <button class="btn btn-link" onclick="guardarLinea()"><i class="fas fa-save"></i></button>
+                        <button class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button>
                     </td>
                 </tr>
             </tbody>
@@ -165,8 +180,8 @@ else
     </form>
 
     <div class="form-group col-md-2">
-        <button class="btn btn-success" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
-        <a asp-action="ListarAjustes" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
+        <button class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+        <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
     </div>
 
 </div>
@@ -216,12 +231,13 @@ else
             GetComentarios("Ajuste", @Model.Id);
             $('#bodegas').attr('disabled', true);
         }
-
-
+        
 
         getBodegasInventario();
         getAjusteInventario();
         inicializaTabla();
+
+        validaAnulacion();
 
         $('#fechaPicker').datetimepicker({
             defaultDate: new Date(),
@@ -241,6 +257,7 @@ else
 
 
     });
+
 
     function getAjusteInventario() {
         if(@Model.Id != 0)
@@ -332,24 +349,34 @@ else
     }
 
     function eliminarLinea(_id, idLinea) {
-        var id = _id - 1;
 
-        if (validarExistencia(id)) {
-            if (idLinea != 0)
-                lineasEliminadas.push(lineas[id].id);
-            else
-                lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
+        bootbox.confirm("@SharedLocalizer["confirmEliminarLinea"]", function (result) {
 
-            //la linea hay que convertirla a salida para que se reste
-            lineas[id].movimiento = "false";
-            recalcularExistencias(lineas[id]);
+            if (result) {
 
-            lineas.splice(id, 1);
-        
-            console.log(lineasAgregadas);
+                var id = _id - 1;
 
-            cargarTabla(lineas);
-        }
+                if (validarExistencia(id)) {
+                    if (idLinea != 0)
+                        lineasEliminadas.push(lineas[id].id);
+                    else
+                        lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
+
+                    //la linea hay que convertirla a salida para que se reste
+                    lineas[id].movimiento = "false";
+                    recalcularExistencias(lineas[id]);
+
+                    lineas.splice(id, 1);
+
+                    console.log(lineasAgregadas);
+
+                    cargarTabla(lineas);
+                }
+
+
+            }
+
+        });
 
 
     }
@@ -522,7 +549,7 @@ else
                 + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].totalMovimiento + '"/></td>'
                 + '<td style="padding-top:2rem;">' + data[i].cuentaContable + '</td>'
                 + '<td style="padding-top:2rem;">' + data[i].cuentaCosto + '</td>'
-                + '<td><button class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                + '<td><button  @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
 
             $('.lineaForm').before(body);
 
@@ -561,7 +588,7 @@ else
         arrayItems = [];
 
         for (var i = 0; i < data.length; i++) {
-            var o = new Option(data[i].idInventarioNavigation.descripcion, data[i].idInventarioNavigation.idInventario);
+            var o = new Option(data[i].idInventarioNavigation.codigo + ' - ' + data[i].idInventarioNavigation.descripcion, data[i].idInventarioNavigation.idInventario);
             items.append(o);
             //$('#items').selectpicker('refresh');
             arrayItems.push(data[i].idInventarioNavigation);
@@ -673,8 +700,8 @@ else
             url: '@Url.Action("CrearEditarAjuste", "AjusteInventario")',
             data: crearModelo(),
             success: function (data) {
-                console.log(data);
-
+                //console.log(data);
+                window.location.href = "@Url.Action("ListarAjustes","AjusteInventario")";
                },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -694,11 +721,13 @@ else
             url: '@Url.Action("CrearEditarAjuste", "AjusteInventario")',
             data: crearModeloEditar(),
             success: function (data) {
-                console.log(data);
+                //console.log(data);
                 if (lineasAgregadas.length > 0)
                     guardarAjusteInventario();
                 if (lineasEliminadas > 0)
                     eliminarAjusteInventario();
+
+                window.location.href = "@Url.Action("ListarAjustes","AjusteInventario")";
                },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -722,7 +751,7 @@ else
             url: '@Url.Action("CrearAjusteInventario", "AjusteInventario", new { idBodega = Model.IdBodega })',
             data: { viewModel: lineasAgregadas},
             success: function (data) {
-                console.log(data);
+                //console.log(data);
 
                },
               error: function (err, scnd) {
@@ -741,7 +770,7 @@ else
             url: '@Url.Action("EliminarAjusteInventario", "AjusteInventario", new { idAjuste = Model.Id })',
             data: { id: lineasEliminadas },
             success: function (data) {
-                console.log(data);
+               // console.log(data);
 
                },
               error: function (err, scnd) {
@@ -761,9 +790,9 @@ else
         var ajusteModel = {
               id: @Model.Id,
             anulada: frm[1].value,
-            totalEntrada: entradas.val(),
-            totalSalida: salidas.val(),
-            saldoAjuste: saldo.val(),
+            totalEntrada: entradas,
+            totalSalida: salidas,
+            saldoAjuste: saldo,
             idUsuario: frm[2].value,
             idBodega: $('#bodegas').val(),
             descripcion: frm[4].value,
@@ -810,11 +839,76 @@ else
 
     function inicializaCampos(linea) {
 
-        console.log(linea);
+        //console.log(linea);
         $('#items').trigger('change.select2');
         descripcionLinea.val("");
         cantidad.val(1);
-        movimiento.val(linea.movimiento);
+        calcularTotalMovimiento();
+
+        if (linea != undefined)
+            movimiento.val(linea.movimiento);
+    }
+
+    function cancelar() {
+        bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) {
+
+            if (result)
+                window.location.href = "@Url.Action("ListarAjustes","AjusteInventario")";
+
+        });
+    }
+
+    function anularAjuste() {
+
+        bootbox.prompt({
+            title: "@SharedLocalizer["confirmAnularAjuste"]",
+            message: '<p>@SharedLocalizer["Justificación"]</p>',
+            inputType: 'textarea',
+            callback: function (result) {
+                
+                if (result.replace(/ /g, "") != "") {
+
+                    cargarJustificacion(result);
+                    $.ajax({
+                        type: "get",
+                        headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        dataType: "json",
+                        url: '@Url.Action("AnularAjuste", "AjusteInventario", new { id = Model.Id })',
+                        success: function (data) {
+                            cargarJustificacion(result);
+                            cargarAlert('@SharedLocalizer["AjusteAnulado"]');
+                            window.location.href = "@Url.Action("ListarAjustes","AjusteInventario")";
+
+                        },
+                        error: function (err, scnd) {
+                            cargarAlert('@SharedLocalizer["errorGeneral"]');
+                            console.log(err.statusText);
+                        }
+                    });
+
+                }
+                else
+                    cargarAlert('@SharedLocalizer["JustificacionInvalida"]');
+            }
+        });
+
+    }
+    function validaAnulacion() {
+
+        if ('@Model.Anulada' === 'True') {
+            $('input').attr('readonly', 'readonly');
+            $('textarea').attr('disabled', 'true');
+            $('select').attr('disabled', 'true');
+            $('.btnAccion').attr('disabled', 'true');           
+        }
+            
+
+    }
+
+    function cargarJustificacion(mensaje) {
+        setMensajeFromOut(mensaje);
     }
 
 </script>

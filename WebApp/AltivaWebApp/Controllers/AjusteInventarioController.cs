@@ -67,6 +67,28 @@ namespace AltivaWebApp.Controllers
                 {
                     viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     ajuste = map.Create(viewModel);
+
+                    var bodegainventario = bodegaService.GetBodegaById((int)viewModel.IdBodega);
+                    var existencia = new List<TbPrInventarioBodega>();
+
+                    foreach (var item in bodegainventario.TbPrInventarioBodega)
+                    {
+                        foreach (var i in viewModel.AjusteInventario)
+                        {
+                            if (item.IdInventario == i.IdInventario)
+                            {
+                                if (i.Movimiento)
+                                    item.ExistenciaBodega += i.Cantidad;
+                                else
+                                    item.ExistenciaBodega -= i.Cantidad;
+                                existencia.Add(item);
+                            }
+
+                        }
+                    }
+
+                    bodegaService.UpdateInventarioBodega(existencia);
+
                 }
                     
 
@@ -131,18 +153,45 @@ namespace AltivaWebApp.Controllers
         }
 
         // POST: AjusteInventario/Delete/5
-        [HttpPost("Anular-Ajuste")]
-        public ActionResult AnularAjuste(AjusteViewModel viewModel)
+        [HttpGet("Anular-Ajuste/{id}")]
+        public ActionResult AnularAjuste(int id)
         {
             try
             {
-                // TODO: Add delete logic here
+                var ajuste = service.GetAjusteById(id);
 
-                return null;
+                ajuste.Anulada = true;
+                service.Update(ajuste);
+
+
+                var actExistencia = new List<TbPrInventarioBodega>();
+
+                var bodega = bodegaService.GetBodegaById((int)ajuste.IdBodega);
+
+                foreach (var item in ajuste.TbPrAjusteInventario)
+                {                    
+                    foreach (var i in bodega.TbPrInventarioBodega)
+                    {
+                        if (i.IdInventarioNavigation.IdInventario == item.IdInventario)
+                        {
+                            if (item.Movimiento)
+                                i.ExistenciaBodega -= item.Cantidad;
+                            else
+                                i.ExistenciaBodega += item.Cantidad;
+
+                            actExistencia.Add(i);
+                        }
+                        
+                    }
+                }
+
+                bodegaService.UpdateInventarioBodega(actExistencia);
+
+                return Json( new { success = true });
             }
             catch
             {
-                return View();
+                return BadRequest();
             }
         }
 

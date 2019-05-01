@@ -76,6 +76,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdComisionesSobreVentaPagoDetalle> TbFdComisionesSobreVentaPagoDetalle { get; set; }
         public virtual DbSet<TbFdComisionionesSobreVentaPago> TbFdComisionionesSobreVentaPago { get; set; }
         public virtual DbSet<TbFdConfiguracionCorreo> TbFdConfiguracionCorreo { get; set; }
+        public virtual DbSet<TbFdConfiguracionFiltros> TbFdConfiguracionFiltros { get; set; }
         public virtual DbSet<TbFdContrato> TbFdContrato { get; set; }
         public virtual DbSet<TbFdContratoDescuento> TbFdContratoDescuento { get; set; }
         public virtual DbSet<TbFdContratoHospedaje> TbFdContratoHospedaje { get; set; }
@@ -146,6 +147,8 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbPrInventario> TbPrInventario { get; set; }
         public virtual DbSet<TbPrInventarioBodega> TbPrInventarioBodega { get; set; }
         public virtual DbSet<TbPrKardex> TbPrKardex { get; set; }
+        public virtual DbSet<TbPrOrden> TbPrOrden { get; set; }
+        public virtual DbSet<TbPrOrdenDetalle> TbPrOrdenDetalle { get; set; }
         public virtual DbSet<TbPrPreciosInventarios> TbPrPreciosInventarios { get; set; }
         public virtual DbSet<TbPrPreciosInventariosAutomaticos> TbPrPreciosInventariosAutomaticos { get; set; }
         public virtual DbSet<TbPrPreciosInventariosAutomaticosDetalle> TbPrPreciosInventariosAutomaticosDetalle { get; set; }
@@ -1961,6 +1964,13 @@ namespace AltivaWebApp.Context
                     .HasDefaultValueSql("(' ')");
             });
 
+            modelBuilder.Entity<TbFdConfiguracionFiltros>(entity =>
+            {
+                entity.ToTable("tb_FD_ConfiguracionFiltros");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+            });
+
             modelBuilder.Entity<TbFdContrato>(entity =>
             {
                 entity.ToTable("tb_FD_Contrato");
@@ -3116,6 +3126,12 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
+                entity.HasOne(d => d.IdContactoNavigation)
+                    .WithMany(p => p.TbFdTarea)
+                    .HasForeignKey(d => d.IdContacto)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FD_Tarea_tb_CR_Contacto");
+
                 entity.HasOne(d => d.IdEstadoNavigation)
                     .WithMany(p => p.TbFdTarea)
                     .HasForeignKey(d => d.IdEstado)
@@ -3348,11 +3364,11 @@ namespace AltivaWebApp.Context
             {
                 entity.ToTable("tb_PR_Ajuste");
 
+                entity.Property(e => e.Descripcion).HasMaxLength(250);
+
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(((15)/(1))/(2015))");
-
-                entity.Property(e => e.Descripcion).HasMaxLength(250);
 
                 entity.Property(e => e.FechaDocumento).HasColumnType("datetime");
 
@@ -3691,6 +3707,72 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(4)
                     .IsUnicode(false)
                     .HasDefaultValueSql("(' ')");
+            });
+
+            modelBuilder.Entity<TbPrOrden>(entity =>
+            {
+                entity.ToTable("tb_PR_Orden");
+
+                entity.Property(e => e.Fecha).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.Observacion)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.PorcIs).HasColumnName("PorcIS");
+
+                entity.Property(e => e.PorcIva).HasColumnName("PorcIVA");
+
+                entity.Property(e => e.TotalIvabase).HasColumnName("TotalIVABase");
+
+                entity.Property(e => e.TotalIvadolar).HasColumnName("TotalIVADolar");
+
+                entity.Property(e => e.TotalIvaeuro).HasColumnName("TotalIVAEuro");
+
+                entity.HasOne(d => d.IdProveedorNavigation)
+                    .WithMany(p => p.TbPrOrden)
+                    .HasForeignKey(d => d.IdProveedor)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_Orden_tb_PR_Contacto");
+            });
+
+            modelBuilder.Entity<TbPrOrdenDetalle>(entity =>
+            {
+                entity.ToTable("tb_PR_OrdenDetalle");
+
+                entity.Property(e => e.NombreInventario)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.PorcIs).HasColumnName("PorcIS");
+
+                entity.Property(e => e.PorcIva).HasColumnName("PorcIVA");
+
+                entity.Property(e => e.TotalIsbase).HasColumnName("TotalISBase");
+
+                entity.Property(e => e.TotalIsdolar).HasColumnName("TotalISDolar");
+
+                entity.Property(e => e.TotalIseuro).HasColumnName("TotalISEuro");
+
+                entity.Property(e => e.TotalIvabase).HasColumnName("TotalIVABase");
+
+                entity.Property(e => e.TotalIvadolar).HasColumnName("TotalIVADolar");
+
+                entity.Property(e => e.TotalIvaeuro).HasColumnName("TotalIVAEuro");
+
+                entity.HasOne(d => d.IdInventarioNavigation)
+                    .WithMany(p => p.TbPrOrdenDetalle)
+                    .HasForeignKey(d => d.IdInventario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_OrdenDetalle_tb_PR_Inventario");
+
+                entity.HasOne(d => d.IdOrdenNavigation)
+                    .WithMany(p => p.TbPrOrdenDetalle)
+                    .HasForeignKey(d => d.IdOrden)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_OrdenDetalle_tb_PR_Orden");
             });
 
             modelBuilder.Entity<TbPrPreciosInventarios>(entity =>

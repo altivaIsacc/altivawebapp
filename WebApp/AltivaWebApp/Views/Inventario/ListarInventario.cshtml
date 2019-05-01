@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<AltivaWebApp.Domains.TbPrInventario>
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -15,7 +16,7 @@
     <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
         <p>
             <a asp-action="CrearInventario" class="btn btn-primary"><span data-translate="agregar">Agregar </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
-        </p>    
+        </p>
     </div>
 
 </div>
@@ -25,12 +26,12 @@
 <div class="row">
     <div class="col-md-12">
         <button value="0" class="btn btn-dark btnEstado" id="btnInactivo"><span data-translate="verInactivos">Ver Inactivas</span></button>
-        <button value="1" class="btn btn-dark btnEstado" id="btnActivo"><span data-translate="verActivos">Ver Activas</span></button>        
+        <button value="1" class="btn btn-dark btnEstado" id="btnActivo"><span data-translate="verActivos">Ver Activas</span></button>
     </div>
-    
+
     <div class="col-md-2">
         <label data-translate="buscar">Buscar:</label>
-        <input type="text" id="filtroBuscar" class="form-control"/>
+        <input type="text" id="filtroBuscar" class="form-control" />
     </div>
     <div class="col-md-2">
         <label for="filtroFamilia">Familia</label>
@@ -65,8 +66,8 @@
                     <option value="2" data-translate="media" selected>Media</option>
                     <option value="3" data-translate="maxima" selected>Máxima</option>
                 </select>
-            </div>                     
-        </div>        
+            </div>
+        </div>
     </div>
     <div class="col-md-2">
         <label for="filtroBodega">Bodegas</label>
@@ -85,44 +86,45 @@
 
 <hr />
 
-<table class="table tblCatalogo">
-    <thead>
-        <tr>
-            <th>
-                <span data-translate="codigo">Código</span>
-            </th>
-            <th>
-                <span data-translate="descripcion">Descripción</span>
-            </th>
-            <th>
-                <span data-translate="presentación">Presentación</span>
-            </th>
-            <th>
-                <span data-translate="precioUnitario">Precio Unitario</span>
-            </th>
-            <th>
-                <span data-translate="eistenciaGeneral">Existencia</span>
-            </th>
-            <th>
-                <span data-translate="minima">Mínima</span>
-            </th>
-            <th>
-                <span data-translate="media">Media</span>
-            </th>
-            <th>
-                <span data-translate="maxima">Máxima</span>
-            </th>
-            <th>
-                <span data-translate="estado">Estado</span>
-            </th>
-            <th>
-                <span data-translate="accion">Acción</span>
-            </th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
-
+<div class="table-responsive">
+    <table class="table" id="tblCatalogo">
+        <thead>
+            <tr>
+                <th>
+                    <span data-translate="codigo">Código</span>
+                </th>
+                <th>
+                    <span data-translate="descripcion">Descripción</span>
+                </th>
+                <th>
+                    <span data-translate="presentación">Presentación</span>
+                </th>
+                <th>
+                    <span data-translate="precioUnitario">Precio Unitario</span>
+                </th>
+                <th>
+                    <span data-translate="eistenciaGeneral">Existencia</span>
+                </th>
+                <th>
+                    <span data-translate="minima">Mínima</span>
+                </th>
+                <th>
+                    <span data-translate="media">Media</span>
+                </th>
+                <th>
+                    <span data-translate="maxima">Máxima</span>
+                </th>
+                <th>
+                    <span data-translate="estado">Estado</span>
+                </th>
+                <th>
+                    <span data-translate="accion">Acción</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
 
 <script>
 
@@ -136,12 +138,13 @@
     $(document).ready(function () {
 
 
-        
+
 
         $('.selectExistencia').attr('disabled', true);
         $('#filtroSubFamilias').attr('disabled', true);
 
         $('#btnActivo').hide();
+        
 
 
         /////////////////////////get Familias//////////////////////////
@@ -174,15 +177,14 @@
         getInventario();
         
 
+        //$('.tblCatalogo').DataTable({
 
-        $('.tblCatalogo').DataTable({
-
-            "paging": false,
-            "ordering": false,
-            "info": false,
-            "bLengthChange": false,
-            "bFilter": false
-        });
+        //    "paging": false,
+        //    "ordering": false,
+        //    "info": false,
+        //    "bLengthChange": false,
+        //    "bFilter": false
+        //});
 
         $('#filtroExistencia').change(function () {
             //selectExistencia
@@ -215,25 +217,26 @@
 
         });
 
-        $('.btnEstado').click(function () {           
+        $('.btnEstado').click(function () {
 
             $(this).hide();
 
             if ($(this).val() === '1') {
-                estadoItem = false;               
+                estadoItem = false;
                 $('#btnInactivo').show();
-            }                
+            }
             else {
                 estadoItem = true;
                 $('#btnActivo').show();
             }
-                
+
 
             cargarFiltros();
+            
 
         });
 
-        
+
 
 
         function getInventario() {
@@ -247,7 +250,7 @@
             dataType: "json",
             url: 'Lista-Inventario/todo',
                 success: function (data) {
-                    
+                    console.log(data);
                 inventario = JSON.parse(JSON.stringify(data));
                 //console.log(data);
                 cargarDatos(data);
@@ -283,32 +286,65 @@
 
 
         }
-               
+
 
     });
 
 
+    function inicializarTabla() {
 
-    
+         $('#tblCatalogo').DataTable().destroy();
+
+        $('#tblCatalogo').DataTable({
+            "info": false,
+            
+            language: {
+                "decimal": "",
+                "emptyTable": "@SharedLocalizer["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                "paginate": {
+                    "first": "@SharedLocalizer["Primero"]",
+                    "last": "@SharedLocalizer["Último"]",
+                    "next": "@SharedLocalizer["Sguiente"]",
+                    "previous": "@SharedLocalizer["Anterior"]"
+                }
+            }
+        });
+
+        $(".dataTables_searching").hide();
+
+    }
+
+
+
+
     var contadorFila = 0;
     function cargarDatos(data) {
 
         contadorFila = 0;
 
-
-        $(".tblCatalogo > tbody").remove();
+        $("#tblCatalogo > tbody").remove();
 
         $('table').append('<tbody></tbody>');
 
         for (var i = 0; i < data.length; i++) {
-            
+
             var estado = "Activa";
             var icono = '<i class="fas fa-trash"></i>';
             if (data[i].inactiva === true) {
                 icono = '<i class="fas fa-trash-restore"></i>';
                 estado = "Inactiva";
             }
-                
+
             if (data[i].inactiva === estadoItem) {
                 var body = '<tr class="fila' + contadorFila + ' filas"><td>' + data[i].codigo + '</td>'
                     + '<td>' + data[i].descripcion + '</td>'
@@ -320,18 +356,20 @@
                     + '<td>' + calcularExistenciaMaxima(data[i].tbPrInventarioBodega) + '</td>'
                     + '<td>' + estado + '</td>'
                     + '<td>  <button value="' + data[i].idInventario + '" onclick="editarInventario(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].idInventario + '" onclick="cambiarEstadoInventario(value ' + "," + contadorFila + ')" class="btn btn-link">' + icono + '</button></td></tr>';
-                $('.tblCatalogo > tbody').append(body);
+                $('#tblCatalogo > tbody').append(body);
                 contadorFila++;
             }
-           
 
             
 
+
         }
+
+        inicializarTabla();
 
 
     }
-    
+
 
     var counter = 0;
 
@@ -371,11 +409,11 @@
             }
 
             contador++;
-        }               
+        }
     }
 
     function cambiarEstadoInventario(id) {
-                   
+
         $.ajax({
 
             type: "get",
@@ -384,9 +422,9 @@
             },
             dataType: "json",
             url: 'CambiarEstado-Inventario/' + id,
-            success: function (data) {                   
+            success: function (data) {
                 cambiarEstadoInventarioLocal(id);
-                
+
             },
             error: function (err, scnd) {
                 console.log(err.statusText);
@@ -454,7 +492,7 @@
     function cargarFiltros() {
 
         inventarioMostrar = JSON.parse(JSON.stringify(inventario));
-  
+
         inventarioMostrar = filtroFamilia(inventarioMostrar);
         inventarioMostrar = filtroSubFamilia(inventarioMostrar);
         inventarioMostrar = filtroExistencia(inventarioMostrar);
