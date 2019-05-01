@@ -13,6 +13,9 @@ namespace AltivaWebApp.Controllers
     [Route("Tarea")]
     public class TareaController : Controller
     {
+        
+        //mensaje service
+        public IMensajeService ImensajeSerive;
         //variable mapper
         public ITareaMapper ITareaMapper;
         //varivale tareas services.
@@ -28,11 +31,14 @@ namespace AltivaWebApp.Controllers
 
         //service user
         public IUserService IUserService;
-
+        public IMensajeReceptor IMensajeReceptorMap;
+        public IMensajeReceptorService IMensajeReceptorService;
         //service conf filtros
         public IConfiguracionFiltrosService IConfigService;
-        public TareaController(IConfiguracionFiltrosService IConfigService,ITipoTareaService ITipoService,IEstadoTareaService IEstadoService,ITareaMapper ITareaMapper,ITareaService pTareaServiceInterface, IContactoService IContactosService, IUserService IUserService)
+        public TareaController(IMensajeReceptorService IMensajeReceptorService,IMensajeReceptor IMensajeReceptorMap,IMensajeService ImensajeSerive,IConfiguracionFiltrosService IConfigService,ITipoTareaService ITipoService,IEstadoTareaService IEstadoService,ITareaMapper ITareaMapper,ITareaService pTareaServiceInterface, IContactoService IContactosService, IUserService IUserService)
         {
+            this.IMensajeReceptorMap = IMensajeReceptorMap;
+            this.IMensajeReceptorService = IMensajeReceptorService;
             this.TareaServiceInterface = pTareaServiceInterface;
             this.IContactosService = IContactosService;
             this.IUserService = IUserService;
@@ -40,6 +46,7 @@ namespace AltivaWebApp.Controllers
             this.IEstadoService = IEstadoService;
             this.ITipoService = ITipoService;
             this.IConfigService = IConfigService;
+            this.ImensajeSerive = ImensajeSerive;
         }
         [HttpGet("GetTareas")]
         [HttpGet]
@@ -113,10 +120,10 @@ namespace AltivaWebApp.Controllers
             tbTarea = this.ITareaMapper.Save(domain);
             if (tbTarea != null)
             {
-                if (tbTarea.IdUsuario != null) {
+                if (tbTarea.IdUsuario != 0) {
                    
                     TbSeMensaje mensaje = new TbSeMensaje("Se le ha asignado una tarea. Titulo: " +tbTarea.Titulo+"", "ME", tbTarea.IdUsuario);
-
+                    this.ImensajeSerive.create(mensaje);
                 }
                 return new JsonResult(tbTarea);
             }
@@ -134,12 +141,16 @@ namespace AltivaWebApp.Controllers
             tbTarea = this.ITareaMapper.Update(domain);
             if (tbTarea != null)
             {
-                if (tbTarea.IdUsuario != null)
+                if (tbTarea.IdUsuario != 0)
                 {
-                   
+                    List<TbSeMensajeReceptor> mr = new List<TbSeMensajeReceptor>();
                     TbSeMensaje mensaje = new TbSeMensaje("Se le ha asignado una tarea a realizar. Titulo: " + tbTarea.Titulo + "", "ME", tbTarea.IdUsuario);
-
-                }
+                    this.ImensajeSerive.create(mensaje);
+                    
+                    mr.Add(this.IMensajeReceptorMap.Crear(mensaje.Id,Convert.ToInt32(tbTarea.IdUsuario)));
+                
+                this.IMensajeReceptorService.Crear(mr);
+            }
                 return  Ok(tbTarea.Id);
             }
             else
