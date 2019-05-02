@@ -7,18 +7,17 @@ namespace AltivaWebApp.Domains
     {
         public TbFdTipoCliente()
         {
-            TbFdCliente = new HashSet<TbFdCliente>();
+            InverseIdPadreNavigation = new HashSet<TbFdTipoCliente>();
         }
 
         public long Id { get; set; }
+        public long? IdPadre { get; set; }
         public string Nombre { get; set; }
-        public string Descripcion { get; set; }
-        public bool Inactivo { get; set; }
-        public int IdCuentaContableCre { get; set; }
-        public int IdCuentaContablePre { get; set; }
-        public string CuentaContable { get; set; }
-        public string NombreCuenta { get; set; }
+        public bool? Inactivo { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public long? IdUsuario { get; set; }
 
-        public virtual ICollection<TbFdCliente> TbFdCliente { get; set; }
+        public virtual TbFdTipoCliente IdPadreNavigation { get; set; }
+        public virtual ICollection<TbFdTipoCliente> InverseIdPadreNavigation { get; set; }
     }
 }

@@ -60,7 +60,9 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbCpGastos> TbCpGastos { get; set; }
         public virtual DbSet<TbCpPago> TbCpPago { get; set; }
         public virtual DbSet<TbCpPagoDetallado> TbCpPagoDetallado { get; set; }
-   
+        public virtual DbSet<TbFdTipoCliente> TbFdTipoCliente { get; set; }
+
+        public virtual DbSet<TbFdTipoProveedor> TbFdTipoProveedor { get; set; }
         public virtual DbSet<TbFdAjusteSaldoMenor> TbFdAjusteSaldoMenor { get; set; }
         public virtual DbSet<TbFdAperturaCaja> TbFdAperturaCaja { get; set; }
         public virtual DbSet<TbFdArchivosAdjuntos> TbFdArchivosAdjuntos { get; set; }
@@ -129,7 +131,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdTemporada> TbFdTemporada { get; set; }
         public virtual DbSet<TbFdTemporadaGrupo> TbFdTemporadaGrupo { get; set; }
         public virtual DbSet<TbFdTemporadaRango> TbFdTemporadaRango { get; set; }
-        public virtual DbSet<TbFdTipoCliente> TbFdTipoCliente { get; set; }
+
         public virtual DbSet<TbFdTipoHabitacion> TbFdTipoHabitacion { get; set; }
         public virtual DbSet<TbFdTipoServicio> TbFdTipoServicio { get; set; }
         public virtual DbSet<TbFdTipoTarifa> TbFdTipoTarifa { get; set; }
@@ -264,7 +266,38 @@ namespace AltivaWebApp.Context
                     .HasForeignKey(d => d.IdTipo)
                     .HasConstraintName("FK_tb_FD_Tarea_tb_FD_TareaTipo");
             });
+            modelBuilder.Entity<TbFdTipoCliente>(entity =>
+            {
+                entity.ToTable("TB_FD_TipoCliente");
 
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdPadreNavigation)
+                    .WithMany(p => p.InverseIdPadreNavigation)
+                    .HasForeignKey(d => d.IdPadre)
+                    .HasConstraintName("FK_FD_Cliente_FD_Cliente");
+            });
+
+            modelBuilder.Entity<TbFdTipoProveedor>(entity =>
+            {
+                entity.ToTable("TB_FD_TipoProveedor");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdPadreNavigation)
+                    .WithMany(p => p.InverseIdPadreNavigation)
+                    .HasForeignKey(d => d.IdPadre)
+                    .HasConstraintName("FK_TB_FD_TipoProveedor_TB_FD_TipoProveedor");
+            });
             modelBuilder.Entity<TbFdTareaEstado>(entity =>
             {
                 entity.ToTable("tb_FD_TareaEstado");
@@ -1821,188 +1854,6 @@ namespace AltivaWebApp.Context
                     .HasConstraintName("FK_tb_FD_CierreCaja_tb_FD_ArqueoCaja");
             });
 
-            modelBuilder.Entity<TbFdCliente>(entity =>
-            {
-                entity.ToTable("tb_FD_Cliente");
-
-                entity.Property(e => e.Id).HasColumnName("ID");
-
-                entity.Property(e => e.Contacto)
-                    .IsRequired()
-                    .HasMaxLength(1000)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.DigitosTarjetaGarantia)
-                    .IsRequired()
-                    .HasMaxLength(4)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Direccion1)
-                    .IsRequired()
-                    .HasMaxLength(1000)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Direccion2)
-                    .IsRequired()
-                    .HasMaxLength(1000)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Email1)
-                    .IsRequired()
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Email2)
-                    .IsRequired()
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Email3)
-                    .IsRequired()
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.EmailContacto)
-                    .IsRequired()
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Fax1)
-                    .IsRequired()
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Fax2)
-                    .IsRequired()
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.FechaCreacion)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
-
-                entity.Property(e => e.FechaNacimiento)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
-
-                entity.Property(e => e.Identificacion)
-                    .IsRequired()
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Nombre)
-                    .IsRequired()
-                    .HasMaxLength(1000)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.NombreJuridico)
-                    .IsRequired()
-                    .HasMaxLength(1000)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.NumTarjetaGarantia)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Observaciones)
-                    .IsRequired()
-                    .HasMaxLength(1000)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.OtroContacto)
-                    .IsRequired()
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.ReferenciaCrediticia)
-                    .IsRequired()
-                    .HasColumnType("text")
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Telefono1)
-                    .IsRequired()
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Telefono2)
-                    .IsRequired()
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Telefono3)
-                    .IsRequired()
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.TelefonoContacto)
-                    .IsRequired()
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.TipoId)
-                    .IsRequired()
-                    .HasColumnName("TipoID")
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('NO TRIBUTARIO')");
-
-                entity.Property(e => e.TipoReferencia)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.VenceTarjetaGarantia)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.WebSite1)
-                    .IsRequired()
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.WebSite2)
-                    .IsRequired()
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.HasOne(d => d.IdContratoNavigation)
-                    .WithMany(p => p.TbFdCliente)
-                    .HasForeignKey(d => d.IdContrato)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_tb_FD_Cliente_tb_FD_Contrato1");
-
-                entity.HasOne(d => d.IdTipoClienteNavigation)
-                    .WithMany(p => p.TbFdCliente)
-                    .HasForeignKey(d => d.IdTipoCliente)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_tb_FD_Cliente_tb_FD_TipoCliente1");
-            });
 
             modelBuilder.Entity<TbFdComisionSobreVentasDetalle>(entity =>
             {
@@ -3325,38 +3176,7 @@ namespace AltivaWebApp.Context
                     .HasConstraintName("FK_tb_FD_TemporadaRango_tb_FD_Temporada");
             });
 
-            modelBuilder.Entity<TbFdTipoCliente>(entity =>
-            {
-                entity.ToTable("tb_FD_TipoCliente");
-
-                entity.Property(e => e.CuentaContable)
-                    .IsRequired()
-                    .HasMaxLength(60)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Descripcion)
-                    .IsRequired()
-                    .HasMaxLength(200)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.IdCuentaContableCre).HasColumnName("Id_CuentaContableCre");
-
-                entity.Property(e => e.IdCuentaContablePre).HasColumnName("Id_CuentaContablePre");
-
-                entity.Property(e => e.Nombre)
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.NombreCuenta)
-                    .IsRequired()
-                    .HasMaxLength(200)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-            });
+          
 
             modelBuilder.Entity<TbFdTipoHabitacion>(entity =>
             {

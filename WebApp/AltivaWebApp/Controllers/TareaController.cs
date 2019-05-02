@@ -125,7 +125,7 @@ namespace AltivaWebApp.Controllers
                     TbSeMensaje mensaje = new TbSeMensaje("Se le ha asignado una tarea. Titulo: " +tbTarea.Titulo+"", "ME", tbTarea.IdUsuario);
                     this.ImensajeSerive.create(mensaje);
                 }
-                return new JsonResult(tbTarea);
+                return new JsonResult(true);
             }
             else
             {
