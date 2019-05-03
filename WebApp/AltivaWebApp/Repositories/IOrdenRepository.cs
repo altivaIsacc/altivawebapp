@@ -15,7 +15,8 @@ namespace AltivaWebApp.Repositories
         TbPrOrden GetOrdenById(int id);
         TbPrOrden GetAllOrdenDetalleByOrdenId(int id);
         bool SaveOrdenDetalle(IList<TbPrOrdenDetalle> domain);
-        bool DeleteOrdenDetalle(IList<TbPrOrdenDetalle> domain);
+        bool DeleteOrdenDetalle(IList<int> domain, int idOrden);
+        bool UpdateOrdenDetalle(IList<TbPrOrdenDetalle> domain);
 
     }
 }

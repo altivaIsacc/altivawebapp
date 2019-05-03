@@ -71,11 +71,40 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public bool DeleteOrdenDetalle(IList<TbPrOrdenDetalle> domain)
+        public bool UpdateOrdenDetalle(IList<TbPrOrdenDetalle> domain)
         {
             try
             {
-                context.TbPrOrdenDetalle.RemoveRange(domain);
+                context.TbPrOrdenDetalle.UpdateRange(domain);
+                context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public bool DeleteOrdenDetalle(IList<int> domain, int idOrden)
+        {
+            try
+            {
+                var od = context.TbPrOrden.Include(o => o.TbPrOrdenDetalle).FirstOrDefault(o => o.Id == idOrden);
+
+                var eliminados = new List<TbPrOrdenDetalle>();
+
+                foreach (var item in od.TbPrOrdenDetalle)
+                {
+                    foreach (var i in domain)
+                    {
+                        if (item.Id == i)
+                            eliminados.Add(item);
+                    }
+                }
+
+                context.TbPrOrdenDetalle.RemoveRange(eliminados);
                 context.SaveChanges();
 
                 return true;

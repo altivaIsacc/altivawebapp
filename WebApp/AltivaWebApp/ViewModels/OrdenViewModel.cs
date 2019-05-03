@@ -21,6 +21,7 @@ namespace AltivaWebApp.ViewModels
         public double TipoCambioDolar { get; set; }
         public double TipoCambioEuro { get; set; }
 
-        public IList<OrdenDetalleViewModel> OrdenDetalle; 
+        public IList<OrdenDetalleViewModel> OrdenDetalle { get; set; }
+
     }
 }

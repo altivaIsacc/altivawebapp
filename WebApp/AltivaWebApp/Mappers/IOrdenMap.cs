@@ -13,5 +13,6 @@ namespace AltivaWebApp.Mappers
         TbPrOrden Update(OrdenViewModel viewModel);
         bool CreateOD(OrdenViewModel viewModel);
         OrdenViewModel DomainToViewModel(TbPrOrden domain);
+        bool UpdateOD(OrdenViewModel viewModel);
     }
 }

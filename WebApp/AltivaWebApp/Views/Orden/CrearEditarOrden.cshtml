@@ -11,7 +11,14 @@
 @{
     ViewData["Title"] = "CrearEditarOrden";
     var usuario = ViewData["usuario"] as TbSeUsuario;
-    var estado = "disabled";
+
+    var estado = "";
+
+    if (Model.Anulado)
+    {
+        estado = "disabled";
+    }
+
 }
 
 @if (Model.Id != 0)
@@ -23,13 +30,13 @@ else
     <h3>@SharedLocalizer["nuevaOrden"]</h3>
 }
 
-<hr />
 
-<div class="col-md-12 text-left">
-    @if (Model.Id != 0 && !Model.Anulado)
+    <hr />
+
+<div class="row text-left">
+    @if (Model.Id != 0)
     {
         <button class="btn btn-danger btn-sm" onclick="anularOrden()">@SharedLocalizer["Anular"]</button>
-        estado = "";
     }
     else if (Model.Id != 0)
     {
@@ -37,8 +44,10 @@ else
     }
 </div>
 
+
+
 <div class="row well">
-    <div class="col-md-12">
+    <div>
         <form id="frmOrden">
 
             @Html.HiddenFor(x => x.Id)
@@ -48,7 +57,7 @@ else
 
             <div class="form-group col-md-2 col-xs-12">
                 <label asp-for="IdProveedor" class="control-label">@SharedLocalizer["Proveedor"]</label>
-                <select class="form-control" id="proveedores">
+                <select class="form-control selectItems" id="proveedores">
                     @foreach (var item in ViewData["proveedores"] as IList<TbCrContacto>)
                     {
                         <option value="@item.IdContacto">@item.Nombre</option>
@@ -71,27 +80,30 @@ else
             </div>
             <div class="form-group col-md-2 col-xs-12">
                 <label asp-for="IdUsuario" class="control-label">@SharedLocalizer["Usuario"]</label>
-                <select class="form-control"><option value="@usuario.Id">@usuario.Nombre</option></select>
+                <select disabled class="form-control"><option value="@usuario.Id">@usuario.Nombre</option></select>
             </div>
-            <div class="form-group col-md-2 col-xs-12">
+            <div class="form-group col-md-1 col-xs-12">
                 <label asp-for="IdMoneda" class="control-label">@SharedLocalizer["Moneda"]</label>
-                <select asp-for="IdMoneda" id="moneda" class="form-control">
+                <select onchange="recalcularPrecio()" asp-for="IdMoneda" id="moneda" class="form-control tipoMoneda">
                     <option value="1">@SharedLocalizer["CRC"]</option>
                     <option value="2">@SharedLocalizer["USD"]</option>
                     <option value="3">@SharedLocalizer["EUR"]</option>
                 </select>
             </div>
-            <div class="form-group col-md-2 col-xs-12">
-                <label asp-for="Observacion" class="control-label"></label>
-                <textarea asp-for="Observacion" class="form-control"></textarea>
+            <div class="form-group col-md-4 col-xs-12">
+                <label asp-for="Observacion" class="control-label">@SharedLocalizer["Observación"]</label>
+                <textarea asp-for="Observacion" rows="4" class="form-control"></textarea>
                 <span hidden id="observacionValid" class="text-danger">@SharedLocalizer["observacionValid"]</span>
             </div>
 
         </form>
     </div>
-    <div class="col-md-12">
 
-        <table class="table">
+    <br />
+
+    <div class="col-md-12 table-responsive">
+
+        <table class="table table-bordered table-striped">
             <thead>
                 <tr>
                     <th><span>@SharedLocalizer["Item"]</span></th>
@@ -128,26 +140,26 @@ else
 
             <div class="form-group">
                 <label class="control-label">@SharedLocalizer["SubTotal"]</label>
-                <input id="subTotalExcento" class="form-control" />
+                <input readonly id="subTotalExcento" class="form-control currency" />
             </div>
             <div class="form-group">
                 <label class="control-label">@SharedLocalizer["Impuesto"]</label>
-                <input id="totalImpuesto" class="form-control" />
+                <input readonly id="totalImpuesto" class="form-control currency" />
             </div>
             <div class="form-group" hidden>
                 <label class="control-label">@SharedLocalizer["SubTotal"]</label>
-                <input id="subTotalGrabado" class="form-control" />
+                <input readonly id="subTotalGrabado" class="form-control currency" />
             </div>
 
             <div class="form-group">
                 <label class="control-label">@SharedLocalizer["Total"]</label>
-                <input id="total" class="form-control" />
+                <input readonly id="total" class="form-control currency" />
             </div>
 
 
         </form>
     </div>
-    
+
 </div>
 <div class="row">
     <div class="form-group col-md-3">
@@ -167,6 +179,8 @@ else
     var $moneda = $('#moneda');
     var $cantidad = $('#cantidad');
 
+    var $proveedores = $('#proveedores');
+    var $fecha = $('#fecha');
     var $subTotalExcento = $('#subTotalExcento');
     var $totalImpuesto = $('#totalImpuesto');
     var $subTotalGrabado = $('#subTotalGrabado');
@@ -185,30 +199,50 @@ else
 
 
     $(document).ready(function () {
+
+        var date = new Date();
+        if (@Model.Id != 0)
+            date = new Date('@Model.Fecha'.replace(/\//g, "-"));
+
+
         $('#fechaPicker').datetimepicker({
-            defaultDate: new Date(),
+            defaultDate: date,
             locale: localStorage.getItem("idioma")
         });
 
-        getInventario();
-        
-        
+        console.log(recuperarFecha('@Model.Fecha'));
+
+        getInventario();    
+
 
         $('.selectItems').select2({ width: null, language: localStorage.getItem("idioma") });
 
         $('#item').on('change.select2', function () {
+
             var itemInfo = getItem($(this).val());
-            console.log(itemInfo);
+
             $descripcion.val(itemInfo.descripcion);
-            $precio.val(itemInfo.costoPromedioGeneral);
+            $precio.val(getPrecioAlCambio(itemInfo));
             $cantidad.val(1);
             $iva.val(itemInfo.impuestoVenta);
-
             calcularSubTotalLinea();
         });
-      
+
     });
 
+    function recuperarFecha(_fecha) {
+        //var fecha = _fecha.replace(/\//g, "-");
+
+        var fecha = _fecha;
+        var d = fecha.substr(0, 2);
+        var m = fecha.substr(3, 5);
+        var y = fecha.substr(7, 11);
+
+
+        return d + "-" + m + "-" + y + " " + _fecha.substr(-8, 8);///new Date(fecha).toLocaleDateString(); //fecha.replace(/-/g, "/");
+
+
+    }
 
     $cantidad.on('keyup, change, focusout', function () {
         calcularSubTotalLinea();
@@ -235,6 +269,8 @@ else
         $totalLinea.val(calcularSubtotalGrabadoLinea());
     }
 
+
+
     function getOrdenDetalle() {
         if(@Model.Id != 0)
         $.ajax({
@@ -244,7 +280,7 @@ else
               },
               dataType: "json",
             url: '@Url.Action("GetOrdenDetalle")',
-            
+
             success: function (data) {
                 ordenDetalleBD = JSON.parse(JSON.stringify(data));
                 cargarLineas(data);
@@ -268,8 +304,8 @@ else
                 idMonedaOD: @Model.IdMoneda,
                 cantidad: data[i].cantidad,
                 precio: recuperarPrecio(data[i]),
-                subtotalGrabado: recuperarSubTotal(data[i]),
-                subtotalExcento: recuperarSubTotal(data[i]),               
+                subTotalGrabado: recuperarSubTotal(data[i]),
+                subTotalExcento: recuperarSubTotal(data[i]),
                 porcIva: data[i].porcIva,
                 porcIs: 0,
                 totalIs: 0,
@@ -286,42 +322,76 @@ else
 
     function guardarLinea() {
 
-       var model = {
+        console.log($subtotal.val());
+
+
+        var model = {
             id: 0,
-           idOrden: @Model.Id,
-           idInventario: $item.val(),
-           nombreInventario: $descripcion.val(),
-           idMonedaOD: $moneda.val(),
-           cantidad: $cantidad.val(),
-           precio: $precio.val(),
-           subtotalGrabado: calcularSubtotalGrabadoLinea(),
-           subtotalExcento: $subtotal.val(),
-           porcIva: $iva.val(),
-           porcIs: 0,
-           totalIs: 0,
-           totalIva: calcularTotalIvaLinea(),
-           total: $totalLinea.val()
+            idOrden: @Model.Id,
+            idInventario: $item.val(),
+            nombreInventario: $descripcion.val(),
+            idMonedaOD: parseInt($('.tipoMoneda').val()),
+            cantidad: parseFloat($cantidad.val()),
+            precio: parseFloat($precio.val()),
+            subTotalGrabado: calcularSubtotalGrabadoLinea(),
+            subTotalExcento: parseFloat($subtotal.val()),
+            porcIva: parseFloat($iva.val()),
+            porcIs: 0,
+            totalIs: 0,
+            totalIva: calcularTotalIvaLinea(),
+            total: parseFloat($totalLinea.val())
 
         };
 
+
+        lineasAgregadas.push(model);
         lineas.push(model);
 
         cargarTabla(lineas);
 
     }
 
+    function eliminarLinea(_id, idLinea) {
+
+        bootbox.confirm("@SharedLocalizer["confirmEliminarLinea"]", function (result) {
+
+            if (result) {
+
+                var id = _id - 1;
+
+
+                if (idLinea != 0)
+                    lineasEliminadas.push(lineas[id].id);
+                else
+                    lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
+
+                lineas.splice(id, 1);
+
+                console.log(lineasAgregadas);
+
+                cargarTabla(lineas);
+
+
+            }
+
+        });
+
+
+    }
+
     function calcularTotales() {
 
         console.log(lineas);
+
         subTotal = 0;
         totalImpuesto = 0;
         subTotalGravado = 0;
         totalOrden = 0;
 
         for (var i = 0; i < lineas.length; i++) {
-            subTotal += parseFloat(lineas[i].subtotalExcento);
+            subTotal += parseFloat(lineas[i].subTotalExcento);
             totalImpuesto += parseFloat(lineas[i].totalIva);
-            subTotalGravado += parseFloat(lineas[i].subtotalGrabado);
+            subTotalGravado += parseFloat(lineas[i].subTotalGrabado);
             totalOrden += parseFloat(lineas[i].total);
         }
 
@@ -355,23 +425,29 @@ else
                 + '<td style="padding-top:2rem;">' + data[i].nombreInventario + '</td>'
                 + '<td style="padding-top:2rem;">' + data[i].cantidad + ' </td>'
                 + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].precio + '"/></td>'
-                + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].subtotalExcento + '"/></td>'
+                + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].subTotalExcento + '"/></td>'
                 + '<td style="padding-top:2rem;">' + data[i].porcIva + '%</td>'
                 + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].total + '"/></td>'
-                + '<td><button  @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
 
             $('.lineaForm').before(body);
 
         }
 
         calcularTotales();
+        var simbolo = "₡";
+        if (parseInt($('.tipoMoneda').val()) === 2)
+            simbolo = "$";
+        else if (parseInt($('.tipoMoneda').val()) === 3)
+            simbolo = "€";
+
         $(".currency").inputmask('currency', {
-            prefix: "₡",
+            prefix: simbolo,
             rightAlign: true
         });
 
 
-        
+
     }
 
     function getInventario() {
@@ -420,47 +496,274 @@ else
         });
     }
 
+    function guardarCambios() {   
+        guardarOrden();
+    }
+
+    function guardarOrden() {
+
+        $.ajax({
+              type: "POST",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("CrearEditarOrden")',
+            data: crearModelo(),
+            success: function (data) {
+                if (lineasEliminadas.length > 0)
+                    eliminarOrdenDetalle();
+                window.location.href = "@Url.Action("ListarOrdenes")";
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+
+    }
+
+    @*function guardarDetalle(idOrden) {
+
+        var url = '@Url.Action("CrearOrdenDetalle", new { id = "__id__" })';
+        url = url.replace("__id__", idOrden);
+
+        $.ajax({
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: url,
+            data: { model: lineasAgregadas },
+            success: function (data) {
+                //console.log(data);
+                window.location.href = "@Url.Action("ListarOrden")";
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+    }*@
+
+    function eliminarOrdenDetalle() {
+
+
+        $.ajax({
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("EliminarOrdenDetalle", new { id = Model.Id })',
+            data: { viewModel: lineasEliminadas },
+            success: function (data) {
+               // console.log(data);
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function crearModelo() {
+        var frmOrden = $('#frmOrden').serializeArray();
+
+        var ordenModel = {
+            id: @Model.Id,
+            idProveedor: $proveedores.val(),
+            fecha: $fecha.val(),
+            idUsuario: 1,
+            Anulado: frmOrden[1].value,
+            IdMoneda: parseInt(frmOrden[4].value),
+            observacion: frmOrden[5].value,
+            subTotalGrabado: subTotalGravado.toString().replace(".", ","),
+            subTotalExcento: subTotal.toString().replace(".", ","),
+            totalIva: totalImpuesto.toString().replace(".", ","),
+            total: totalOrden.toString().replace(".", ","),
+            tipoCambioDolar: '@Model.TipoCambioDolar',
+            tipoCambioEuro: '@Model.TipoCambioEuro',
+            ordenDetalle: crearModeloDetalle(lineasAgregadas)
+
+        };
+
+        console.log(ordenModel);
+        return ordenModel;
+    }
+
+    function crearModeloDetalle(model) {
+
+        for (var i = 0; i < model.length; i++) {
+            model[i].cantidad = model[i].cantidad.toString().replace(".", ",");
+            model[i].precio = model[i].precio.toString().replace(".", ",");
+            model[i].subTotalGrabado = model[i].subTotalGrabado.toString().replace(".", ",");
+            model[i].subTotalExcento = model[i].subTotalExcento.toString().replace(".", ",");
+            model[i].porcIva = model[i].porcIva.toString().replace(".", ",");
+            model[i].totalIva = model[i].totalIva.toString().replace(".", ",");
+            model[i].total = model[i].total.toString().replace(".", ",");
+
+        }
+
+        return model;
+    }
+
+
     function recuperarPrecio(data) {
-        if (@Model.IdMoneda === 1)
+
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        if (moneda === 1)
             return data.precioBase;
-        else if (@Model.IdMoneda === 2)
+        else if (moneda === 2)
             return data.precioDolar;
-        else if (@Model.IdMoneda === 3)
+        else if (moneda === 3)
             return data.precioEuro;
     }
 
     function recuperarSubTotal(data) {
-        if (@Model.IdMoneda === 1)
+
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        if (moneda === 1)
             return data.subTotalExcentoBase;
-        else if (@Model.IdMoneda === 2)
+        else if (moneda === 2)
             return data.subTotalExcentoDolar;
-        else if (@Model.IdMoneda === 3)
+        else if (moneda === 3)
             return data.subTotalExcentoEuro;
     }
 
     function recuperarTotal(data) {
-        if (@Model.IdMoneda === 1)
+
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        if (moneda === 1)
             return data.totalBase;
-        else if (@Model.IdMoneda === 2)
+        else if (moneda === 2)
             return data.totalDolar;
-        else if (@Model.IdMoneda === 3)
+        else if (moneda === 3)
             return data.totalEuro;
     }
 
     function recuperarIva(data) {
-        if (@Model.IdMoneda === 1)
+
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        if (moneda === 1)
             return data.totalIvabase;
-        else if (@Model.IdMoneda === 2)
+        else if (moneda === 2)
             return data.totalIvadolar;
-        else if (@Model.IdMoneda === 3)
+        else if (moneda === 3)
             return data.totalIvauro;
     }
     function recuperarIs(data) {
-        if (@Model.IdMoneda === 1)
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        if (moneda === 1)
             return data.totalIsbase;
-        else if (@Model.IdMoneda === 2)
+        else if (moneda === 2)
             return data.totalIsdolar;
-        else if (@Model.IdMoneda === 3)
+        else if (moneda === 3)
             return data.totalIseuro;
     }
+
+    function recalcularPrecio() {
+
+        for (var i = 0; i < lineas.length; i++) {
+
+            lineas[i].precio = getPrecioAlCambioLocal(lineas[i]);
+            lineas[i].idMonedaOD = parseInt($('.tipoMoneda').val());
+            lineas[i].subTotalExcento = lineas[i].precio * lineas[i].cantidad;
+            lineas[i].totalIva = (lineas[i].porcIva / 100) * lineas[i].subTotalExcento;
+            lineas[i].total = lineas[i].subTotalExcento + lineas[i].totalIva;
+            lineas[i].subTotalGrabado = lineas[i].total;
+        }
+
+        if (lineasAgregadas.length > 0)
+            for (var i = 0; i < lineasAgregadas.length; i++) {
+
+                lineasAgregadas[i].precio = getPrecioAlCambioLocal(lineasAgregadas[i]);
+                lineasAgregadas[i].idMonedaOD = parseInt($('.tipoMoneda').val());
+                lineasAgregadas[i].subTotalExcento = lineasAgregadas[i].precio * lineasAgregadas[i].cantidad;
+                lineasAgregadas[i].totalIva = (lineasAgregadas[i].porcIva / 100) * lineasAgregadas[i].subTotalExcento;
+                lineasAgregadas[i].total = lineasAgregadas[i].subTotalExcento + lineasAgregadas[i].totalIva;
+                lineasAgregadas[i].subTotalGrabado = lineasAgregadas[i].total;
+            }
+
+        $('#item').trigger('change.select2');
+        cargarTabla(lineas);
+
+    }
+
+    function getPrecioAlCambio(item) {
+
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        var dolar = '@Model.TipoCambioDolar';
+        dolar = dolar.replace(",", ".");
+        dolar = parseFloat(dolar);
+
+        var euro = '@Model.TipoCambioEuro';
+        euro = euro.replace(",", ".");
+        euro = parseFloat(euro);
+
+
+        if (moneda === 1 && item.codigoMoneda === 1)
+            return item.costoPromedioGeneral;
+        else if (moneda === 1 && item.codigoMoneda === 2)
+            return item.costoPromedioGeneral * dolar;
+        else if (moneda === 1 && item.codigoMoneda === 3)
+            return item.costoPromedioGeneral * euro;
+        else if (moneda === 2 && item.codigoMoneda === 1)
+            return item.costoPromedioGeneral / dolar;
+        else if (moneda === 2 && item.codigoMoneda === 2)
+            return item.costoPromedioGeneral;
+        else if (moneda === 2 && item.codigoMoneda === 3)
+            return (item.costoPromedioGeneral * euro) / dolar;
+        else if (moneda === 3 && item.codigoMoneda === 1)
+            return item.costoPromedioGeneral / euro;
+        else if (moneda === 3 && item.codigoMoneda === 2)
+            return (item.costoPromedioGeneral * dolar) / euro;
+        else if (moneda === 3 && item.codigoMoneda === 3)
+            return item.costoPromedioGeneral;
+
+    }
+
+    function getPrecioAlCambioLocal(item) {
+
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        var dolar = '@Model.TipoCambioDolar';
+        dolar = dolar.replace(",", ".");
+        dolar = parseFloat(dolar);
+
+        var euro = '@Model.TipoCambioEuro';
+        euro = euro.replace(",", ".");
+        euro = parseFloat(euro);
+
+
+
+        if (moneda === 1 && item.idMonedaOD === 1)
+            return item.precio;
+        else if (moneda === 1 && item.idMonedaOD === 2)
+            return item.precio * dolar;
+        else if (moneda === 1 && item.idMonedaOD === 3)
+            return item.precio * euro;
+        else if (moneda === 2 && item.idMonedaOD === 1)
+            return item.precio / dolar;
+        else if (moneda === 2 && item.idMonedaOD === 2)
+            return item.precio;
+        else if (moneda === 2 && item.idMonedaOD === 3)
+            return (item.precio * euro) / dolar;
+        else if (moneda === 3 && item.idMonedaOD === 1)
+            return item.precio / euro;
+        else if (moneda === 3 && item.idMonedaOD === 2)
+            return (item.precio * dolar) / euro;
+        else if (moneda === 3 && item.idMonedaOD === 3)
+            return item.precio;
+
+    }
+
+
 </script> 

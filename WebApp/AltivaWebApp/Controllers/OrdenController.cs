@@ -20,14 +20,16 @@ namespace AltivaWebApp.Controllers
         private readonly IContactoService contactoService;
         private readonly IUserService userService;
         private readonly IInventarioService inventarioService;
+        private readonly IMonedaService monedaService;
 
-        public OrdenController(IOrdenService service, IOrdenMap map, IContactoService contactoService, IUserService userService, IInventarioService inventarioService)
+        public OrdenController(IMonedaService monedaService, IOrdenService service, IOrdenMap map, IContactoService contactoService, IUserService userService, IInventarioService inventarioService)
         {
             this.service = service;
             this.map = map;
             this.contactoService = contactoService;
             this.userService = userService;
             this.inventarioService = inventarioService;
+            this.monedaService = monedaService;
         }
 
         [Route("Listar-Ordenes")]
@@ -36,12 +38,18 @@ namespace AltivaWebApp.Controllers
             return View();
         }
 
-        [Route("Nuevo-Orden")]
+        [Route("Nueva-Orden")]
         public ActionResult CrearOrden()
         {
             ViewData["proveedores"] = contactoService.GetAllProveedores();
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
-            return View("CrearEditarOrden", new OrdenViewModel());
+
+            var tipoCambio = monedaService.GetAll(); 
+            var model = new OrdenViewModel();
+            model.TipoCambioDolar = tipoCambio.FirstOrDefault(m => m.Codigo == 2).ValorCompra;
+            model.TipoCambioEuro = tipoCambio.FirstOrDefault(m => m.Codigo == 3).ValorCompra;
+
+            return View("CrearEditarOrden", model);
         }
 
         [Route("Editar-Orden/{id}")]
@@ -62,23 +70,74 @@ namespace AltivaWebApp.Controllers
                 if(viewModel.Id != 0)
                 {
                     var orden = map.Update(viewModel);
+                    if (viewModel.OrdenDetalle != null && viewModel.OrdenDetalle.Count() > 0)
+                        map.CreateOD(viewModel);
                 }
                 else
                 {
                     viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     var orden = map.Create(viewModel);
+                   
                 }
 
                 return Json(new { success = true });
             }
             catch
             {
+                throw;
                 return BadRequest();
             }
         }
 
 
+        //POST: Orden/Create
+       [HttpPost("Crear-OrdenDetalle")]
+        public ActionResult CrearOrdenDetalle(OrdenViewModel viewModel)
+        {
+            try
+            {
+                var res = map.CreateOD(viewModel);
 
+                return Json(new { success = true });
+            }
+            catch
+            {
+                throw;
+                return BadRequest();
+            }
+        }
+
+        [HttpPost("Editar-OrdenDetalle")]
+        public ActionResult EditarOrdenDetalle(OrdenViewModel viewModel)
+        {
+            try
+            {
+                var res = map.UpdateOD(viewModel);
+
+                return Json(new { success = true });
+            }
+            catch
+            {
+                throw;
+                return BadRequest();
+            }
+        }
+
+        [HttpPost("Eliminar-OrdenDetalle/{id}")]
+        public ActionResult EliminarOrdenDetalle(IList<int> viewModel, int id)
+        {
+            try
+            {
+                var res = service.DeleteOrdenDetalle(viewModel, id);
+
+                return Json(new { success = true });
+            }
+            catch
+            {
+                throw;
+                return BadRequest();
+            }
+        }
 
 
         /// get auxiliares

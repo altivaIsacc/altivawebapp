@@ -44,9 +44,13 @@ namespace AltivaWebApp.Services
         {
             return repository.SaveOrdenDetalle(domain);
         }
-        public bool DeleteOrdenDetalle(IList<TbPrOrdenDetalle> domain)
+        public bool UpdateOrdenDetalle(IList<TbPrOrdenDetalle> domain)
         {
-            return repository.DeleteOrdenDetalle(domain);
+            return repository.UpdateOrdenDetalle(domain);
+        }
+        public bool DeleteOrdenDetalle(IList<int> domain, int idOrden)
+        {
+            return repository.DeleteOrdenDetalle(domain, idOrden);
         }
 
 

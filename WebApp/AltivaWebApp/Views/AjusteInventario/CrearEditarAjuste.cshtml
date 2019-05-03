@@ -9,9 +9,14 @@
 }
 
 @{
-
-    var estado = "disabled";
     ViewData["Title"] = "CrearEditarAjuste";
+
+    var estado = "";
+
+    if (Model.Anulada)
+    {
+        estado = "disabled";
+    }
 }
 
 
@@ -25,19 +30,21 @@ else
 }
 
 <hr />
+
+<div class="row text-left">
+    @if (Model.Id != 0)
+    {
+        <button class="btn btn-danger btn-sm" onclick="anularAjuste()">@SharedLocalizer["Anular"]</button>
+    }
+    else if (Model.Id != 0)
+    {
+        <h5 class="text-danger">@SharedLocalizer["AjusteAnulado"]</h5>
+    }
+</div>
+
 <div class="row well">
 
-    <div class="col-md-12 text-left">
-        @if (Model.Id != 0 && !Model.Anulada)
-        {
-            <button class="btn btn-danger btn-sm" onclick="anularAjuste()">@SharedLocalizer["Anular"]</button>
-            estado = "";
-        }
-        else if(Model.Id != 0)
-        {
-            <h5 class="text-danger">@SharedLocalizer["AjusteAnulado"]</h5>
-        }
-    </div>
+
 
     <form class="frmAjuste">
         @Html.HiddenFor(x => x.Id)
@@ -86,8 +93,8 @@ else
     </div>
 
 
-    <div class="col-md-12 table-responsive" >
-        <table class="table" id="tblAjusteInventario" >
+    <div class="col-md-12 table-responsive">
+        <table class="table table-striped table-bordered" id="tblAjusteInventario">
             <thead>
                 <tr>
                     <th>
@@ -130,7 +137,7 @@ else
                         </select>
                     </td>
                     <td style="width:11rem;"><input id="cantidad" class="form-control" type="number" min="1" value="1" /></td>
-                    <td style="width:15rem;"><input id="costoPromedio" class="form-control moneda" type="number"  /></td>
+                    <td style="width:15rem;"><input id="costoPromedio" class="form-control moneda" type="number" /></td>
                     <td style="width:15rem;"><input type="text" class="form-control moneda" readonly id="total" /></td>
                     <td>
                         <select class="form-control" id="cuentaContable">
@@ -179,12 +186,15 @@ else
 
     </form>
 
-    <div class="form-group col-md-2">
-        <button class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
-        <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
-    </div>
+    
 
 </div>
+<div class="form-group row">
+    <button class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+    <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
+</div>
+
+<hr />
 
 <div class="row">
     <div class="col-md-10">
@@ -231,7 +241,7 @@ else
             GetComentarios("Ajuste", @Model.Id);
             $('#bodegas').attr('disabled', true);
         }
-        
+
 
         getBodegasInventario();
         getAjusteInventario();
@@ -249,7 +259,7 @@ else
             'alias': 'decimal',
             rightAlign: true,
         });
-       
+
 
         $('#items').on('change.select2', function () {
             cargarCostoPromedio(arrayItems);
@@ -316,7 +326,7 @@ else
                  idCentroGastos: cuentaCosto.val(),
                  cuentaContable: $('#cuentaContable option:selected').text().replace(/ /g, ""),
                  cuentaCosto: $('#cuentaCosto option:selected').text().replace(/ /g, ""),
-                 nombreItem: $('#items option:selected').text().replace(/ /g, " "),       
+                 nombreItem: $('#items option:selected').text().replace(/ /g, " "),
             };
 
              var model2 = {
@@ -332,12 +342,12 @@ else
                  idCentroGastos: cuentaCosto.val(),
                  cuentaContable: $('#cuentaContable option:selected').text().replace(/ /g, ""),
                  cuentaCosto: $('#cuentaCosto option:selected').text().replace(/ /g, ""),
-                 nombreItem: $('#items option:selected').text().replace(/ /g, ""),       
+                 nombreItem: $('#items option:selected').text().replace(/ /g, ""),
              };
 
             if (!existeItem(model.idInventario, model.movimiento)) {
                 recalcularExistencias(model);
-                lineas.push(model);               
+                lineas.push(model);
                 cargarTabla(lineas);
                 console.log(model);
                 lineasAgregadas.push(model2);
@@ -563,7 +573,7 @@ else
         calcularTotales();
         inicializaTabla();
         inicializaCampos(data[data.length -1]);
-        
+
     }
 
     function cargarBodegas(data) {
@@ -724,7 +734,7 @@ else
                 //console.log(data);
                 if (lineasAgregadas.length > 0)
                     guardarAjusteInventario();
-                if (lineasEliminadas > 0)
+                if (lineasEliminadas.length > 0)
                     eliminarAjusteInventario();
 
                 window.location.href = "@Url.Action("ListarAjustes","AjusteInventario")";
@@ -788,7 +798,7 @@ else
 
 
         var ajusteModel = {
-              id: @Model.Id,
+            id: @Model.Id,
             anulada: frm[1].value,
             totalEntrada: entradas,
             totalSalida: salidas,
@@ -865,7 +875,7 @@ else
             message: '<p>@SharedLocalizer["Justificación"]</p>',
             inputType: 'textarea',
             callback: function (result) {
-                
+
                 if (result.replace(/ /g, "") != "") {
 
                     cargarJustificacion(result);
@@ -901,9 +911,9 @@ else
             $('input').attr('readonly', 'readonly');
             $('textarea').attr('disabled', 'true');
             $('select').attr('disabled', 'true');
-            $('.btnAccion').attr('disabled', 'true');           
+            $('.btnAccion').attr('disabled', 'true');
         }
-            
+
 
     }
 
