@@ -120,8 +120,15 @@ namespace AltivaWebApp.Mappers
                 }
                 else
                 {
-                    tbTarea.CostoEstimado = (usuariCostos.Costo * tbTarea.DiasEstimados);
-                    tbTarea.CostoReal = (usuariCostos.Costo * tbTarea.DiasReales);
+                    if (usuariCostos != null) {
+                        tbTarea.CostoEstimado = (usuariCostos.Costo * tbTarea.DiasEstimados);
+                        tbTarea.CostoReal = (usuariCostos.Costo * tbTarea.DiasReales);
+                    }
+                    else
+                    {
+                        tbTarea.CostoEstimado = (0 * tbTarea.DiasEstimados);
+                        tbTarea.CostoReal = (0 * tbTarea.DiasReales);
+                    }
                 }
             }
             return tbTarea;
@@ -168,7 +175,13 @@ namespace AltivaWebApp.Mappers
                 }
                 else
                 {
-                    tbTarea.CostoEstimado = (usuariCostos.Costo * domain.DiasEstimados);
+                    if (usuariCostos != null) {
+                        tbTarea.CostoEstimado = (usuariCostos.Costo * domain.DiasEstimados);
+                    }
+                    else
+                    {
+                        tbTarea.CostoEstimado = (0 * domain.DiasEstimados);
+                    }
                 }
             }
             else
@@ -210,7 +223,12 @@ namespace AltivaWebApp.Mappers
                 }
                 if (domain.IdUsuario != null) {
                     tbTarea.CostoReal = (usuariCostos.Costo * tbTarea.DiasReales);
-                   
+
+                }
+                else
+                {
+                    tbTarea.CostoReal = (0 * tbTarea.DiasReales);
+
                 }
             }
             else
