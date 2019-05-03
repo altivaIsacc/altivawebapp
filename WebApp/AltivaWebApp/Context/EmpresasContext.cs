@@ -277,10 +277,6 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
-                entity.HasOne(d => d.IdPadreNavigation)
-                    .WithMany(p => p.InverseIdPadreNavigation)
-                    .HasForeignKey(d => d.IdPadre)
-                    .HasConstraintName("FK_FD_Cliente_FD_Cliente");
             });
 
             modelBuilder.Entity<TbFdTipoProveedor>(entity =>
@@ -293,10 +289,7 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
-                entity.HasOne(d => d.IdPadreNavigation)
-                    .WithMany(p => p.InverseIdPadreNavigation)
-                    .HasForeignKey(d => d.IdPadre)
-                    .HasConstraintName("FK_TB_FD_TipoProveedor_TB_FD_TipoProveedor");
+           
             });
             modelBuilder.Entity<TbFdTareaEstado>(entity =>
             {

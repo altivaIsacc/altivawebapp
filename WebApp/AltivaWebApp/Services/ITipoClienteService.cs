@@ -12,6 +12,8 @@ namespace AltivaWebApp.Services
         TbFdTipoCliente Updtae(TbFdTipoCliente domain);
         IList<TbFdTipoCliente> GetAll();
         bool Delete(TbFdTipoCliente domain);
-
+        IList<TbFdTipoCliente> GetTipoCliente();
+        IList<TbFdTipoCliente> GetFamiliaTipoCliente(int IdTipoCLiente);
+        IList<TbFdTipoCliente> GetSubFamilia(int IdTipoCliente);
     }
 }

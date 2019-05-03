@@ -9,8 +9,12 @@ namespace AltivaWebApp.Services
     {
         TbFdTipoProveedor Save(TbFdTipoProveedor domain);
         TbFdTipoProveedor GetById(int IdTipoCliente);
-        TbFdTipoCliente Updtae(TbFdTipoProveedor domain);
+        TbFdTipoProveedor Updtae(TbFdTipoProveedor domain);
         IList<TbFdTipoProveedor> GetAll();
         bool Delete(TbFdTipoProveedor domain);
+        IList<TbFdTipoProveedor> GetTipoProveedor();
+        IList<TbFdTipoProveedor> GetFamiliaTipoProveedor(int IdTipoProveedor);
+        IList<TbFdTipoProveedor> GetSubFamiliaProveedor(int IdTipoProveedor);
+
     }
 }

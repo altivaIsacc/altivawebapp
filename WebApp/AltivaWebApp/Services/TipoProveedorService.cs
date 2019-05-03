@@ -3,20 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AltivaWebApp.Domains;
-
+using AltivaWebApp.Repositories;
 namespace AltivaWebApp.Services
 {
     public class TipoProveedorService : ITipoProveedorService
     {
+        //variable que instacia al repositorio de tipos de proveedores'
+        public ITipoProveedorRepository ITipoProveedor;
         //constructor
-        public TipoProveedorService()
+        public TipoProveedorService(ITipoProveedorRepository ITipoProveedor)
         {
-
+            this.ITipoProveedor = ITipoProveedor;
         }
 
         public bool Delete(TbFdTipoProveedor domain)
         {
-            throw new NotImplementedException();
+            return this.ITipoProveedor.Delete(domain);
         }
 
         public IList<TbFdTipoProveedor> GetAll()
@@ -26,17 +28,32 @@ namespace AltivaWebApp.Services
 
         public TbFdTipoProveedor GetById(int IdTipoCliente)
         {
-            throw new NotImplementedException();
+            return this.ITipoProveedor.GetById(IdTipoCliente);
         }
+
+        public IList<TbFdTipoProveedor> GetFamiliaTipoProveedor(int IdTipoProveedor)
+        {
+            return this.ITipoProveedor.GetFamiliaTipoProveedor(IdTipoProveedor);
+        }
+
+        public IList<TbFdTipoProveedor> GetSubFamiliaProveedor(int IdTipoProveedor)
+        {
+            return this.ITipoProveedor.GetSubFamiliaProveedor(IdTipoProveedor);
+                }
+
+        public IList<TbFdTipoProveedor> GetTipoProveedor()
+        {
+            return this.ITipoProveedor.GetTipoProveedor();
+                }
 
         public TbFdTipoProveedor Save(TbFdTipoProveedor domain)
         {
-            throw new NotImplementedException();
+            return this.ITipoProveedor.Save(domain);
         }
 
-        public TbFdTipoCliente Updtae(TbFdTipoProveedor domain)
+        public TbFdTipoProveedor Updtae(TbFdTipoProveedor domain)
         {
-            throw new NotImplementedException();
+            return this.ITipoProveedor.Update(domain);
         }
     }
 }

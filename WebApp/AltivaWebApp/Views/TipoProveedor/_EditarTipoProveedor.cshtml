@@ -9,82 +9,46 @@
 <div class="container">
     <div class="col-md-12">
         <div class="row">
-            @{
-                        
-                        if (Model.Nombre == null)
-                        {
-
-                         
-                    <h2>Tipo de cliente:</h2>
 
 
 
-                        }
-                        else if (Model.IdPadre == 0)
-                        {
-                          
-                    <h2>Familia:</h2>
-                    <div class="form-group">
-                        <label>Tipo:</label>
-                        <div hidden><input type="text" asp-for="Id" id="idFamilia"/>
-                        <input type="text" asp-for="IdPadre" id="idPadre" />
-                        </div>
-                        <input type="text" disabled="disabled" value="@Model.Nombre" class="form-control" />
-                    </div>
-                }
-                else
-                {
-                    
-                    <h2>Sub-Familia:</h2>
-                    <div class="form-group">
-                        <div hidden>
-                            <input type="text" asp-for="Id" id="idSubFamilia" />
-                            <input type="text" asp-for="IdPadre" id="idIdPadreFamiliaPadre" />
-                        </div>
-                        <label>Familia:</label>
-                        <input type="text" disabled="disabled" value="@Model.Nombre" class="form-control" />
-                    </div>
-                }
-            }
+
+
+
 
             <div class="form-group">
                 <label> Nombre:</label>
-                <input type="text" class="form-control" id="nombre"  />
+                <div hidden>
+                    <input type="text" asp-for="Id" id="idCliente" />
+
+                </div>
+                <input type="text" class="form-control" id="nombre" asp-for="Nombre" />
             </div>
-            
+
         </div>
         <div class="row">
-            @if (Model.Nombre == null)
-            {
-                <button class="btn btn-success" onclick="btnGuardarTipoCliente()" type="submit">Guardar</button>
-            }
-            else if (Model.IdPadre == 0)
-            {
-                <button class="btn btn-success" onclick="btnGuardarFamilia()" type="submit">Guardar</button>
 
-            }
-            else
-            {
-                <button class="btn btn-success" onclick="btnGuardarSubFamilias()" type="button">Guardar</button>
+            <button class="btn btn-success" onclick="btnEditarTipoCliente()" type="submit">Guardar</button>
 
-            }
+
+
             <button class="btn btn-default">Cerrar</button>
         </div>
     </div>
 </div>
 <script>
-    //guardar subfamilia en base alas familias de los tipos
-    function btnGuardarSubFamilias() {
+//guardar subfamilia en base alas familias de los tipos
+    function btnEditarSubFamilias() {
         var nombre = "";
         var nombre = "";
         nombre = $("#nombre").val();
         var TipoClienteViewModels = {
-            id: null,
-            idPadre: $('#idSubFamilia').val(),
+            id: $('#idCliente').val(),
+            idPadre: null,
             nombre: nombre,
             inactivo: false
         };
-                var urls = '@Url.Action("CrearTipoCliente", "TipoCliente")';
+                var urls = '@Url.Action("EditarTipoProveedor", "TipoProveedor")';
             $.ajax({
                 type: "POST",
                 headers: {
@@ -102,17 +66,17 @@
         });
     }
     //guardar familia del tipo del cliente
-    function btnGuardarFamilia() {
+    function btnEditarFamilia() {
 
         var nombre = "";
         nombre = $("#nombre").val();
         var TipoClienteViewModels = {
-            id: null,
-            idPadre: $('#idFamilia').val(),
+            id: $('#idCliente').val(),
+            idPadre: null,
             nombre: nombre,
             inactivo: false
         };
-        var urls = '@Url.Action("CrearTipoCliente", "TipoCliente")';
+        var urls = '@Url.Action("EditarTipoProveedor", "TipoProveedor")';
             $.ajax({
                 type: "POST",
                 headers: {
@@ -129,12 +93,12 @@
             }
         });
     }
-    
+
     //guardar tipo cliente
 
-    function btnGuardarTipoCliente() {
+    function btnEditarTipoCliente() {
         //agregar familia
-      
+
         var nombre = "";
         nombre = $("#nombre").val();
         /*
@@ -147,17 +111,17 @@
                 inactivo: false
             };
         } else if ($('#IdPadreFamilia').val() != 0 && nombre != true) {
-          
+
 
         }*/
-     
+
         var TipoClienteViewModel = {
-            id: null,
+            id: $('#idCliente').val(),
             idPadre: 0,
             nombre: nombre,
             inactivo: false
         };
-        var url = '@Url.Action("CrearTipoCliente", "TipoCliente")';
+        var url = '@Url.Action("EditarTipoProveedor", "TipoProveedor")';
             $.ajax({
                 type: "POST",
                 headers: {
@@ -166,7 +130,10 @@
                 url: url,
                 data: { domain: TipoClienteViewModel},
                 success: function (data) {
+
                     getTiposClientes();
+                    getFamilias(data);
+                    getSubFamilias(data);
                 $('#modalTipoCliente').modal('hide');
             },
             error: function (err, scnd) {
@@ -174,5 +141,5 @@
             }
         });
     }
-   
+
 </script>

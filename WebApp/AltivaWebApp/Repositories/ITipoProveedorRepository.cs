@@ -12,5 +12,8 @@ namespace AltivaWebApp.Repositories
         TbFdTipoProveedor Update(TbFdTipoProveedor domain);
         TbFdTipoProveedor GetById(int idTipoProveedor);
         bool Delete(TbFdTipoProveedor domain);
+        IList<TbFdTipoProveedor> GetTipoProveedor();
+        IList<TbFdTipoProveedor> GetFamiliaTipoProveedor(int IdTipoProveedor);
+        IList<TbFdTipoProveedor> GetSubFamiliaProveedor(int IdTipoProveedor);
     }
 }

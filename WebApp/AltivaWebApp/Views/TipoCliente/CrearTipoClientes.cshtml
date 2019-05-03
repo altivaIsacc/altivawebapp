@@ -14,9 +14,8 @@
         <div class="col-md-12"><h3>Tipo de clientes:</h3></div>
         <div class="col-md-2">
             <label>TIpo Cliente:</label>
-            <select id="familias" class="form-control search-key">
-                <option selected value="0" data-translate="selecciones">Seleccione</option>
-
+            <select id="tipoClientes" class="form-control search-key">
+              
 
             </select>
         </div>
@@ -26,10 +25,10 @@
             <button class="btn btn-link " id="AgregarTipoCliente" value="crear">
                 <span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span>
             </button>
-            <button class="btn btn-link crearEditarFamilia" id="editarFamilia" value="editar">
+            <button class="btn btn-link " disabled id="editarTipoCliente" value="editar">
                 <span style="font-size: 2rem"><i class="fas fa-edit"></i></span>
             </button>
-            <button id="eliminarFamilia" data-toggle="confirmation" class="btn btn-link">
+            <button id="eliminarFamilia" disabled data-toggle="confirmation" class="btn btn-link">
                 <span style="font-size: 2rem"><i class="fas fa-trash"></i></span>
             </button>
         </div>
@@ -43,19 +42,19 @@
         </div>
         <div class="col-md-2">
             <br />
-            <button class="btn btn-link crearEditarFamilia" value="crear">
+            <button class="btn btn-link " disabled id="CrearEditarFamilias" value="crear">
                 <span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span>
             </button>
-            <button class="btn btn-link crearEditarFamilia" id="editarFamilia" value="editar">
+            <button class="btn btn-link " disabled id="editarFamilia" value="editar">
                 <span style="font-size: 2rem"><i class="fas fa-edit"></i></span>
             </button>
-            <button id="eliminarFamilia" data-toggle="confirmation" class="btn btn-link">
+            <button id="eliminarSubFamilia" disabled data-toggle="confirmation" class="btn btn-link">
                 <span style="font-size: 2rem"><i class="fas fa-trash"></i></span>
             </button>
         </div>
         <div class="col-md-2">
             <label>Sub-Familia:</label>
-            <select id="subfamlia" class="form-control search-key">
+            <select id="subFamilia" class="form-control search-key">
                 <option selected value="0" data-translate="selecciones">Seleccione</option>
 
 
@@ -63,13 +62,13 @@
         </div>
         <div class="col-md-2">
             <br />
-            <button class="btn btn-link crearEditarFamilia" value="crear">
+            <button class="btn btn-link " disabled id="CrearEditarSubFamilias" value="crear">
                 <span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span>
             </button>
-            <button class="btn btn-link crearEditarFamilia" id="editarFamilia" value="editar">
+            <button class="btn btn-link " disabled id="editarSubFamilia" value="editar">
                 <span style="font-size: 2rem"><i class="fas fa-edit"></i></span>
             </button>
-            <button id="eliminarFamilia" data-toggle="confirmation" class="btn btn-link">
+            <button id="eliminarSubFamilia" disabled data-toggle="confirmation" class="btn btn-link">
                 <span style="font-size: 2rem"><i class="fas fa-trash"></i></span>
             </button>
         </div>
@@ -81,7 +80,7 @@
 </div>
 <!--Modal agregar tipo cliente-->
 
-<div class="modal fade right" id="modalTipoCliente" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+<div class="modal fade" id="modalTipoCliente" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
 
     <div class="modal-dialog modal-full-height modal-right" role="document">
@@ -103,6 +102,186 @@
 </div>
 
 <script>
+    //jquery
+    $(document).ready(function () {
+        getTiposClientes();
+      
+       
+    });
+    //accion del select tipo cliente que llama ala familia..
+    $("#tipoClientes").change(function () {
+        if ($(this).val() != 0) {
+          
+            
+            $('#editarFamilia').attr("disabled", true);
+            $('#editarTipoCliente').attr("disabled", true);
+
+            $('#editarTipoCliente').attr("disabled", false);
+            $('#CrearEditarFamilias').attr("disabled", false);
+            getFamilias($(this).val());
+          
+        } else {
+            $("#subFamilia option").remove();
+            $("#familia option").remove();
+           
+            $('#editarTipoCliente').attr("disabled", true);
+            $('#editarFamilia').attr("disabled", true);
+            $('#CrearEditarFamilias').attr("disabled", true);
+          
+
+   
+        }
+    });
+    //accion del select familia que devuelve alas subfamilias:
+    $("#familia").change(function () {
+        if ($(this).val() != 0) {
+            getSubFamilias($(this).val());
+          
+            $('#editarSubFamilia').attr("disabled", true);
+
+            $('#CrearEditarSubFamilias').attr("disabled", false);
+            $('#editarFamilia').attr("disabled", false);
+            $('#eliminarSubFamilia').attr("disabled", true);
+            $('#CrearEditarFamilias').attr("disabled", false);
+        } else {    
+            $("#subFamilia option").remove();
+            $('#editarFamilia').attr("disabled", true);
+            $('#editarSubFamilia').attr("disabled", true);
+            $('#CrearEditarSubFamilias').attr("disabled", true);
+            $('#CrearEditarFamilias').attr("disabled", false);
+
+         
+        }
+    });
+
+    $("#subFamilia").change(function () {
+        if ($(this).val() != 0) {
+          
+            $('#CrearEditarSubFamilias').attr("disabled", false);
+            $('#editarSubFamilia').attr("disabled", false);
+            $('#eliminarSubFamilia').attr("disabled", false);
+        } else {
+            $('#editarFamilia').attr("disabled", false);
+           $('#CrearEditarSubFamilias').attr("disabled", false);
+            $('#editarSubFamilia').attr("disabled", true);
+            $('#eliminarSubFamilia').attr("disabled", true);
+        }
+    });
+    //function que devuelte las subfamilias por iD
+    function getSubFamilias(idTipoCliente) {
+         var url = '@Url.Action("GetSubFamilias", "TipoCliente")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { idCliente: idTipoCliente },
+                success: function (data) {
+
+                    $("#subFamilia option").remove();
+                    var option = new Option("Seleccione", 0);
+                    option.setAttribute("selected", "selected");
+                    $("#subFamilia").append(option);
+                    for (var i = 0; i < data.length; i++) {
+                      
+                        
+                                var o = new Option(data[i].nombre, data[i].id);
+                               
+                       
+                        $("#subFamilia").append(o);
+
+                            }
+                    
+                    $("#subFamilia").trigger('change');
+
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+    }
+    //function que devuelve las familias por ID
+    function getFamilias(idTipoCliente) {
+         var url = '@Url.Action("GetFamiliasTipoCliente", "TipoCliente")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { idCliente: idTipoCliente },
+                success: function (data) {
+
+                    $("#familia option").remove();
+                  
+                    var option = new Option("Seleccione", 0);
+                    option.setAttribute("selected", "selected");
+                    $("#familia").append(option);
+                    for (var i = 0; i < data.length; i++) {
+                      
+                        
+                                var o = new Option(data[i].nombre, data[i].id);
+                               
+                       
+                        $("#familia").append(o);
+
+                            }
+                    
+                    $("#familia").trigger('change');
+
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+    }
+    $('#modalTipoCliente').on('hidden.bs.modal', function () {
+
+        getTiposClientes();
+     
+
+    });
+    //cargar los tipos de clientes
+     function getTiposClientes() {
+
+            var url = '@Url.Action("GetTiposClientes", "TipoCliente")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+
+                    $("#tipoClientes option").remove();
+                 
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#tipoClientes").append(option);
+                    
+                    for (var i = 0; i < data.length; i++) {
+                         
+                                var o = new Option(data[i].nombre, data[i].id);
+                               
+                                $("#tipoClientes").append(o);
+
+                            
+                        $("#tipoClientes").append(o);
+                            }
+                    
+                    $("#tipoClientes").trigger('change');
+
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+        }
+
     //function para llamar a vista parcial
     $('#AgregarTipoCliente').on("click", function () {
            $.ajax({
@@ -111,6 +290,117 @@
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
                url: '/TipoCliente/PartialCrearTipoCliente/',
+
+              success: function (data) {
+
+                  $('#modalTipoCliente').modal('show');
+                  
+                  $('#tipoCliente').html(data);
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+    });
+
+    //function que llama a vista parcial para crear una familia de un tipo de cliente
+    $('#CrearEditarFamilias').on("click", function () {
+        var idTipoCliente = $('#tipoClientes').val();
+           $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+               },
+               url: '/TipoCliente/PartialCrearTipoCliente/' + idTipoCliente,
+
+              success: function (data) {
+
+                  $('#modalTipoCliente').modal('show');
+                  
+                  $('#tipoCliente').html(data);
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+    });
+
+    //function que llama ala vista parcial para ingresar una subfamilia
+    
+    //function que llama a vista parcial para crear una familia de un tipo de cliente
+    $('#CrearEditarSubFamilias').on("click", function () {
+       
+        var idFamiliaTipoCliente = $('#familia').val();
+           $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+               },
+               url: '/TipoCliente/PartialCrearTipoCliente/' + idFamiliaTipoCliente,
+
+              success: function (data) {
+
+                  $('#modalTipoCliente').modal('show');
+                  
+                  $('#tipoCliente').html(data);
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+    });
+    //editar editarTipoCliente
+    $('#editarTipoCliente').on("click", function () {
+       
+        var idTipoCliente = $('#tipoClientes').val();
+           $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+               },
+               url: '/TipoCliente/PartialEditarTipoCliente/' + idTipoCliente,
+
+              success: function (data) {
+
+                  $('#modalTipoCliente').modal('show');
+                  
+                  $('#tipoCliente').html(data);
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+    });
+    $('#editarFamilia').on("click", function () {
+       
+        var idFamiliaCliente = $('#familia').val();
+           $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+               },
+               url: '/TipoCliente/PartialEditarTipoCliente/' + idFamiliaCliente,
+
+              success: function (data) {
+
+                  $('#modalTipoCliente').modal('show');
+                  
+                  $('#tipoCliente').html(data);
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+    });
+   $('#editarSubFamilia').on("click", function () {
+       
+       var idSubFamiliaCliente = $('#subFamilia').val();
+           $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+               },
+               url: '/TipoCliente/PartialEditarTipoCliente/' + idSubFamiliaCliente,
 
               success: function (data) {
 

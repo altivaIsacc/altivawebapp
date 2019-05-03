@@ -12,5 +12,9 @@ namespace AltivaWebApp.Repositories
         TbFdTipoCliente Update(TbFdTipoCliente domain);
         TbFdTipoCliente GetById(int idTipoCliente);
         bool Delete(TbFdTipoCliente domain);
+        IList<TbFdTipoCliente> GetTipoCliente();
+        IList<TbFdTipoCliente> GetFamiliaTipoCliente(int IdTipoCLiente);
+        IList<TbFdTipoCliente> GetSubFamilia(int IdTipoCliente);
+
     }
 }

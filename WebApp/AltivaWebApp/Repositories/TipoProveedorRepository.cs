@@ -16,5 +16,21 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbFdTipoProveedor.FirstOrDefault(tc => tc.Id == idTipoProveedor);
         }
+
+        public IList<TbFdTipoProveedor> GetFamiliaTipoProveedor(int IdTipoProveedor)
+        {
+            return context.TbFdTipoProveedor.Where(a => a.IdPadre == IdTipoProveedor).ToList();
+        }
+
+        public IList<TbFdTipoProveedor> GetSubFamiliaProveedor(int IdTipoProveedor)
+        {
+            return context.TbFdTipoProveedor.Where(a => a.IdPadre == IdTipoProveedor).ToList();
+        }
+
+        public IList<TbFdTipoProveedor> GetTipoProveedor()
+        {
+            return context.TbFdTipoProveedor.Where(a => a.IdPadre == 0).ToList();
+
+        }
     }
 }

@@ -13,10 +13,16 @@ namespace AltivaWebApp.Controllers
     [Route("TipoCliente")]
     public class TipoClienteController : Controller
     {
-        //controlador
-        public TipoClienteController()
-        {
 
+        //variable que instacia a al servicio del tipo cliente:
+        public ITipoClienteService ITipoClientes;
+        //variable para mappear datos de la vista por seguridad de la aplicacion.
+        public ITipoClienteMapper ITipoMapper;
+        //controlador
+        public TipoClienteController(ITipoClienteService ITipoClientes, ITipoClienteMapper ITipoMapper)
+        {
+            this.ITipoClientes = ITipoClientes;
+            this.ITipoMapper = ITipoMapper;
         }
      
 
@@ -26,10 +32,13 @@ namespace AltivaWebApp.Controllers
 
             return View();
         }
-        [HttpGet("PartialCrearTipoCliente")]
-        public IActionResult PartialCrearETipoCliente()
+        [HttpGet("PartialCrearTipoCliente/{idCliente?}")]
+        public IActionResult PartialCrearTipoCliente(int idCliente)
         {
             TbFdTipoCliente tc = new TbFdTipoCliente();
+            if (idCliente != 0) {
+                tc = this.ITipoClientes.GetById(idCliente);
+            }
             return PartialView("_CrearEditarTipoCliente",tc);
         }
 
@@ -38,62 +47,75 @@ namespace AltivaWebApp.Controllers
         public IActionResult PartialEditarTipoCliente(int idCliente)
         {
             TbFdTipoCliente tc = new TbFdTipoCliente();
-            return PartialView("_CrearEditarTipoCliente",tc);
+            if (idCliente != 0)
+            {
+                tc = this.ITipoClientes.GetById(idCliente);
+            }
+            else
+            {
+
+                tc = this.ITipoClientes.GetById(idCliente);
+            }
+            return PartialView("_EditarTipoCliente",tc);
         }
+        //metodo para guardar los tipos de clientes
         [HttpPost("CrearTipoCliente")]
         public IActionResult CrearTipoCliente(TipoClienteViewModel domain)
         {
-
+            try
+            {
+                TbFdTipoCliente tc = new TbFdTipoCliente();
+                tc = this.ITipoMapper.Save(domain);
+                if (tc != null)
+                {
+                    return Ok(true);
+                }
+            }
+            catch
+            {
+                throw;
+            }
             return Ok();
         }
-        // POST: TipoCliente/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        [HttpPost("EditarTipoCliente")]
+        public IActionResult EditarTipoCliente(TipoClienteViewModel domain)
         {
             try
             {
-           
-
-                
+                TbFdTipoCliente tc = new TbFdTipoCliente();
+                tc = this.ITipoMapper.Update(domain);
+                if (tc != null)
+                {
+                    return Ok(tc.IdPadre);
+                }
             }
             catch
             {
-                return View();
+                throw;
             }
-            return View();
+            return Ok();
         }
-
-        // GET: TipoCliente/Edit/5
-        public ActionResult Edit(int id)
+        [HttpGet("GetTiposDeClientes")]
+        public IActionResult GetTiposClientes()
         {
-            return View();
+            IList<TbFdTipoCliente> TipoClientes = new List<TbFdTipoCliente>();
+            TipoClientes = this.ITipoClientes.GetTipoCliente();
+            return new JsonResult(TipoClientes);
         }
-
-        // POST: TipoCliente/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        [HttpGet("GetFamiliasTipoCliente/{idCliente?}")]
+        public IActionResult GetFamiliasTipoCliente(int idCliente)
         {
-            try
-            {
-                // TODO: Add update logic here
-
-                
-            }
-            catch
-            {
-             
-            }
-            return View();
+            IList<TbFdTipoCliente> TipoClientes = new List<TbFdTipoCliente>();
+            TipoClientes = this.ITipoClientes.GetFamiliaTipoCliente(idCliente);
+            return new JsonResult(TipoClientes);
         }
-
-        // GET: TipoCliente/Delete/5
-        public ActionResult Delete(int id)
+        [HttpGet("GetSubFamilias/{idCliente?}")]
+        public IActionResult GetSubFamilias(int idCliente)
         {
-            return View();
+            IList<TbFdTipoCliente> TipoClientes = new List<TbFdTipoCliente>();
+            TipoClientes = this.ITipoClientes.GetSubFamilia(idCliente);
+            return new JsonResult(TipoClientes);
         }
 
-        
     }
 }

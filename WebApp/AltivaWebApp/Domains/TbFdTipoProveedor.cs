@@ -7,7 +7,6 @@ namespace AltivaWebApp.Domains
     {
         public TbFdTipoProveedor()
         {
-            InverseIdPadreNavigation = new HashSet<TbFdTipoProveedor>();
         }
 
         public long Id { get; set; }
@@ -17,7 +16,6 @@ namespace AltivaWebApp.Domains
         public DateTime? FechaCreacion { get; set; }
         public long? IdUsuario { get; set; }
 
-        public virtual TbFdTipoProveedor IdPadreNavigation { get; set; }
-        public virtual ICollection<TbFdTipoProveedor> InverseIdPadreNavigation { get; set; }
+        
     }
 }

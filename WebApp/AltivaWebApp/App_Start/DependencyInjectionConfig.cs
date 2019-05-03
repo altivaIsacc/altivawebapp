@@ -15,6 +15,14 @@ namespace AltivaWebApp.App_Start
         public static void AddScope(IServiceCollection services)
 
         {
+            //tipos de proveedores
+            services.AddScoped<ITipoProveedorMapper, TipoProveedorMapper>();
+            services.AddScoped<ITipoProveedorRepository, TipoProveedorRepository>();
+            services.AddScoped<ITipoProveedorService, TipoProveedorService>();
+            //tipos de clientes
+            services.AddScoped<ITipoClienteMapper, TipoClienteMapper>();
+            services.AddScoped<ITipoClienteRepository, TipoClienteRepository>();
+            services.AddScoped<ITipoClienteService, TipoClienteService>();
             //configuracion de filtros
             services.AddScoped<IConfiguracionFiltrosRepository, ConfiguracionFiltrosRepository>();
             services.AddScoped<IConfiguracionFiltrosService, ConfiguracionFiltrosServices>();

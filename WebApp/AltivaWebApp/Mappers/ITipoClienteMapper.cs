@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AltivaWebApp.Domains;
+using AltivaWebApp.ViewModels;
 namespace AltivaWebApp.Mappers
 {
     public interface ITipoClienteMapper
     {
-        TbFdTipoCliente Save(TbFdTipoCliente domain);
-        TbFdTipoCliente ViewModelToSave(TbFdTipoCliente domain);
-        TbFdTipoCliente Update(TbFdTipoCliente domain);
-        TbFdTipoCliente ViewModelToUpdate(TbFdTipoCliente domain);
+        TbFdTipoCliente Save(TipoClienteViewModel domain);
+        TbFdTipoCliente ViewModelToSave(TipoClienteViewModel domain);
+        TbFdTipoCliente Update(TipoClienteViewModel domain);
+        TbFdTipoCliente ViewModelToUpdate(TipoClienteViewModel domain);
     }
 }
