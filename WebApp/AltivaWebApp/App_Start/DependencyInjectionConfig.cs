@@ -136,7 +136,11 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IAjusteService, AjusteService>();
             services.AddScoped<IAjusteMap, AjusteMap>();
 
+            //orden
 
+            services.AddScoped<IOrdenRepository, OrdenRepository>();
+            services.AddScoped<IOrdenService, OrdenService>();
+            services.AddScoped<IOrdenMap, OrdenMap>();
 
 
 

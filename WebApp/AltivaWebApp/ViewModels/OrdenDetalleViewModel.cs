@@ -12,7 +12,7 @@ namespace AltivaWebApp.ViewModels
         public long IdOrden { get; set; }
         public long IdInventario { get; set; }
         public string NombreInventario { get; set; }
-        public int IdMonedaOD { get; set; };
+        public int IdMonedaOD { get; set; }
         public double Cantidad { get; set; }
         public double Precio { get; set; }
         public double SubTotalGrabado { get; set; }

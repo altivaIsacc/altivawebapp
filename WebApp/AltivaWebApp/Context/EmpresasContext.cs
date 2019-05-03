@@ -3719,11 +3719,7 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.Observacion)
                     .IsRequired()
-                    .HasMaxLength(500);
-
-                entity.Property(e => e.PorcIs).HasColumnName("PorcIS");
-
-                entity.Property(e => e.PorcIva).HasColumnName("PorcIVA");
+                    .HasMaxLength(500);               
 
                 entity.Property(e => e.TotalIvabase).HasColumnName("TotalIVABase");
 

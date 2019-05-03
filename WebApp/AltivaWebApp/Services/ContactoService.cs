@@ -25,6 +25,11 @@ namespace AltivaWebApp.Services
             return this.ContactoRepository.Update(domain);
         }
 
+        public IList<TbCrContacto> GetAllProveedores()
+        {
+            return ContactoRepository.GetAllProveedores();
+        }
+
         public TbCrContactoRelacion EditarRelacion(EditarRelacionContactoViewModel domain)
         {
             return this.IContactoRelacionRepository.Update(viewModelEditarRelacion(domain));

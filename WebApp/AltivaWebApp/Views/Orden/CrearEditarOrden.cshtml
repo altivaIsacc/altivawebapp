@@ -1,0 +1,466 @@
+﻿@model AltivaWebApp.ViewModels.OrdenViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+    ViewData["Title"] = "CrearEditarOrden";
+    var usuario = ViewData["usuario"] as TbSeUsuario;
+    var estado = "disabled";
+}
+
+@if (Model.Id != 0)
+{
+    <h3>@SharedLocalizer["editarOrden"]</h3>
+}
+else
+{
+    <h3>@SharedLocalizer["nuevaOrden"]</h3>
+}
+
+<hr />
+
+<div class="col-md-12 text-left">
+    @if (Model.Id != 0 && !Model.Anulado)
+    {
+        <button class="btn btn-danger btn-sm" onclick="anularOrden()">@SharedLocalizer["Anular"]</button>
+        estado = "";
+    }
+    else if (Model.Id != 0)
+    {
+        <h5 class="text-danger">@SharedLocalizer["OrdenAnulado"]</h5>
+    }
+</div>
+
+<div class="row well">
+    <div class="col-md-12">
+        <form id="frmOrden">
+
+            @Html.HiddenFor(x => x.Id)
+            @Html.HiddenFor(x => x.Anulado)
+            @Html.HiddenFor(x => x.TipoCambioDolar)
+            @Html.HiddenFor(x => x.TipoCambioEuro)
+
+            <div class="form-group col-md-2 col-xs-12">
+                <label asp-for="IdProveedor" class="control-label">@SharedLocalizer["Proveedor"]</label>
+                <select class="form-control" id="proveedores">
+                    @foreach (var item in ViewData["proveedores"] as IList<TbCrContacto>)
+                    {
+                        <option value="@item.IdContacto">@item.Nombre</option>
+                    }
+
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="fecha">@SharedLocalizer["Fecha"]:</label>
+                        <div class='input-group date' id='fechaPicker'>
+                            <input type='text' class="form-control" id="fecha" />
+                            <span class="input-group-addon">
+                                <span class="fas fa-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="form-group col-md-2 col-xs-12">
+                <label asp-for="IdUsuario" class="control-label">@SharedLocalizer["Usuario"]</label>
+                <select class="form-control"><option value="@usuario.Id">@usuario.Nombre</option></select>
+            </div>
+            <div class="form-group col-md-2 col-xs-12">
+                <label asp-for="IdMoneda" class="control-label">@SharedLocalizer["Moneda"]</label>
+                <select asp-for="IdMoneda" id="moneda" class="form-control">
+                    <option value="1">@SharedLocalizer["CRC"]</option>
+                    <option value="2">@SharedLocalizer["USD"]</option>
+                    <option value="3">@SharedLocalizer["EUR"]</option>
+                </select>
+            </div>
+            <div class="form-group col-md-2 col-xs-12">
+                <label asp-for="Observacion" class="control-label"></label>
+                <textarea asp-for="Observacion" class="form-control"></textarea>
+                <span hidden id="observacionValid" class="text-danger">@SharedLocalizer["observacionValid"]</span>
+            </div>
+
+        </form>
+    </div>
+    <div class="col-md-12">
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><span>@SharedLocalizer["Item"]</span></th>
+                    <th><span>@SharedLocalizer["Descripción"]</span></th>
+                    <th><span>@SharedLocalizer["Cantidad"]</span></th>
+                    <th><span>@SharedLocalizer["PrecioUnitario"]</span></th>
+                    <th><span>@SharedLocalizer["SubTotal"]</span></th>
+                    <th><span>@SharedLocalizer["IVA"]</span></th>
+                    <th><span>@SharedLocalizer["Total"]</span></th>
+                    <th><span>@SharedLocalizer["Acción"]</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="lineaForm">
+                    <td class="col-md-1">
+                        <select class="form-control selectItems" id="item"></select>
+                    </td>
+                    <td class="col-md-3">
+                        <input readonly class="form-control" id="descripcion" />
+                    </td>
+                    <td class="col-md-1"><input class="form-control" type="number" min="0" id="cantidad" /></td>
+                    <td><input class="form-control" type="number" min="1" id="precio" /></td>
+                    <td><input class="form-control" readonly type="text" id="subtotal" /></td>
+                    <td><input class="form-control" readonly type="number" id="iva" /></td>
+                    <td><input class="form-control" readonly type="text" id="totalLinea" /></td>
+                    <td><button class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+    <div class="col-md-3 col-md-offset-9">
+        <form id="frmOrden2">
+
+            <div class="form-group">
+                <label class="control-label">@SharedLocalizer["SubTotal"]</label>
+                <input id="subTotalExcento" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">@SharedLocalizer["Impuesto"]</label>
+                <input id="totalImpuesto" class="form-control" />
+            </div>
+            <div class="form-group" hidden>
+                <label class="control-label">@SharedLocalizer["SubTotal"]</label>
+                <input id="subTotalGrabado" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">@SharedLocalizer["Total"]</label>
+                <input id="total" class="form-control" />
+            </div>
+
+
+        </form>
+    </div>
+    
+</div>
+<div class="row">
+    <div class="form-group col-md-3">
+        <button class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+        <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
+    </div>
+</div>
+
+<script>
+
+    var $item = $('#item');
+    var $descripcion = $('#descripcion');
+    var $subtotal = $('#subtotal');
+    var $precio = $('#precio');
+    var $iva = $('#iva');
+    var $totalLinea = $('#totalLinea');
+    var $moneda = $('#moneda');
+    var $cantidad = $('#cantidad');
+
+    var $subTotalExcento = $('#subTotalExcento');
+    var $totalImpuesto = $('#totalImpuesto');
+    var $subTotalGrabado = $('#subTotalGrabado');
+    var $total = $('#total');
+
+    var subTotal = 0;
+    var totalImpuesto = 0;
+    var subTotalGravado = 0;
+    var totalOrden = 0;
+
+    var ordenDetalleBD = [];
+    var lineas = [];
+    var items = [];
+    var lineasAgregadas = [];
+    var lineasEliminadas = [];
+
+
+    $(document).ready(function () {
+        $('#fechaPicker').datetimepicker({
+            defaultDate: new Date(),
+            locale: localStorage.getItem("idioma")
+        });
+
+        getInventario();
+        
+        
+
+        $('.selectItems').select2({ width: null, language: localStorage.getItem("idioma") });
+
+        $('#item').on('change.select2', function () {
+            var itemInfo = getItem($(this).val());
+            console.log(itemInfo);
+            $descripcion.val(itemInfo.descripcion);
+            $precio.val(itemInfo.costoPromedioGeneral);
+            $cantidad.val(1);
+            $iva.val(itemInfo.impuestoVenta);
+
+            calcularSubTotalLinea();
+        });
+      
+    });
+
+
+    $cantidad.on('keyup, change, focusout', function () {
+        calcularSubTotalLinea();
+    });
+
+    $precio.on('keyup, change, focusout', function () {
+        calcularSubTotalLinea();
+
+    });
+
+    function calcularSubTotalLinea() {
+
+        var precio = parseFloat($precio.val());
+        var cantidad = parseFloat($cantidad.val());
+
+        $subtotal.val(cantidad * precio);
+
+        calcularTotalLinea();
+
+    }
+
+    function calcularTotalLinea() {
+
+        $totalLinea.val(calcularSubtotalGrabadoLinea());
+    }
+
+    function getOrdenDetalle() {
+        if(@Model.Id != 0)
+        $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("GetOrdenDetalle")',
+            
+            success: function (data) {
+                ordenDetalleBD = JSON.parse(JSON.stringify(data));
+                cargarLineas(data);
+                console.log(data);
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function cargarLineas(data) {
+
+        for (var i = 0; i < data.length; i++) {
+            var model = {
+                id: data[i].id,
+                idOrden: @Model.Id,
+                idInventario: data[i].idInventario,
+                nombreInventario: data[i].nombreInventario,
+                idMonedaOD: @Model.IdMoneda,
+                cantidad: data[i].cantidad,
+                precio: recuperarPrecio(data[i]),
+                subtotalGrabado: recuperarSubTotal(data[i]),
+                subtotalExcento: recuperarSubTotal(data[i]),               
+                porcIva: data[i].porcIva,
+                porcIs: 0,
+                totalIs: 0,
+                totalIva: recuperarIva(data[i]),
+                total: recuperarTotal(data[i])
+
+            };
+            lineas.push(model);
+        }
+
+        cargarTabla(lineas);
+
+    }
+
+    function guardarLinea() {
+
+       var model = {
+            id: 0,
+           idOrden: @Model.Id,
+           idInventario: $item.val(),
+           nombreInventario: $descripcion.val(),
+           idMonedaOD: $moneda.val(),
+           cantidad: $cantidad.val(),
+           precio: $precio.val(),
+           subtotalGrabado: calcularSubtotalGrabadoLinea(),
+           subtotalExcento: $subtotal.val(),
+           porcIva: $iva.val(),
+           porcIs: 0,
+           totalIs: 0,
+           totalIva: calcularTotalIvaLinea(),
+           total: $totalLinea.val()
+
+        };
+
+        lineas.push(model);
+
+        cargarTabla(lineas);
+
+    }
+
+    function calcularTotales() {
+
+        console.log(lineas);
+        subTotal = 0;
+        totalImpuesto = 0;
+        subTotalGravado = 0;
+        totalOrden = 0;
+
+        for (var i = 0; i < lineas.length; i++) {
+            subTotal += parseFloat(lineas[i].subtotalExcento);
+            totalImpuesto += parseFloat(lineas[i].totalIva);
+            subTotalGravado += parseFloat(lineas[i].subtotalGrabado);
+            totalOrden += parseFloat(lineas[i].total);
+        }
+
+        $subTotalExcento.val(subTotal);
+        $totalImpuesto.val(totalImpuesto);
+        $subTotalGrabado.val(subTotalGravado);
+        $total.val(totalOrden);
+    }
+
+    function calcularSubtotalGrabadoLinea() {
+        var iva = parseFloat($iva.val());
+        var subtotal = parseFloat($subtotal.val());
+        return ((iva / 100) * subtotal) + subtotal;
+    }
+
+    function calcularTotalIvaLinea() {
+        var iva = parseFloat($iva.val());
+        var subtotal = parseFloat($subtotal.val());
+        return (iva / 100) * subtotal;
+    }
+
+    function cargarTabla(data) {
+
+        $('.filasCargadas').remove();
+
+        contadorFila = 0;
+
+        for (var i = 0; i < data.length; i++) {
+            contadorFila++;
+            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + getItem(data[i].idInventario).codigo + '</td>'
+                + '<td style="padding-top:2rem;">' + data[i].nombreInventario + '</td>'
+                + '<td style="padding-top:2rem;">' + data[i].cantidad + ' </td>'
+                + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].precio + '"/></td>'
+                + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].subtotalExcento + '"/></td>'
+                + '<td style="padding-top:2rem;">' + data[i].porcIva + '%</td>'
+                + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].total + '"/></td>'
+                + '<td><button  @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+
+            $('.lineaForm').before(body);
+
+        }
+
+        calcularTotales();
+        $(".currency").inputmask('currency', {
+            prefix: "₡",
+            rightAlign: true
+        });
+
+
+        
+    }
+
+    function getInventario() {
+
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetAllInventario", "Inventario")',
+             success: function (data) {
+                 items = data;
+                 cargarItems(data);
+                 getOrdenDetalle();
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function getItem(id) {
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].idInventario == parseInt(id))
+                return items[i];
+        }
+    }
+
+    function cargarItems(data) {
+        for (var i = 0; i < data.length; i++) {
+            var o = new Option(data[i].codigo, data[i].idInventario);
+            $("#item").append(o);
+
+        }
+
+        $("#item").trigger('change');
+    }
+
+    function cancelar() {
+        bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) {
+            if (result)
+                window.location.href = "@Url.Action("ListarOrdenes")";
+
+        });
+    }
+
+    function recuperarPrecio(data) {
+        if (@Model.IdMoneda === 1)
+            return data.precioBase;
+        else if (@Model.IdMoneda === 2)
+            return data.precioDolar;
+        else if (@Model.IdMoneda === 3)
+            return data.precioEuro;
+    }
+
+    function recuperarSubTotal(data) {
+        if (@Model.IdMoneda === 1)
+            return data.subTotalExcentoBase;
+        else if (@Model.IdMoneda === 2)
+            return data.subTotalExcentoDolar;
+        else if (@Model.IdMoneda === 3)
+            return data.subTotalExcentoEuro;
+    }
+
+    function recuperarTotal(data) {
+        if (@Model.IdMoneda === 1)
+            return data.totalBase;
+        else if (@Model.IdMoneda === 2)
+            return data.totalDolar;
+        else if (@Model.IdMoneda === 3)
+            return data.totalEuro;
+    }
+
+    function recuperarIva(data) {
+        if (@Model.IdMoneda === 1)
+            return data.totalIvabase;
+        else if (@Model.IdMoneda === 2)
+            return data.totalIvadolar;
+        else if (@Model.IdMoneda === 3)
+            return data.totalIvauro;
+    }
+    function recuperarIs(data) {
+        if (@Model.IdMoneda === 1)
+            return data.totalIsbase;
+        else if (@Model.IdMoneda === 2)
+            return data.totalIsdolar;
+        else if (@Model.IdMoneda === 3)
+            return data.totalIseuro;
+    }
+</script> 

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Mappers
 {
-    public class OrdenMap
+    public class OrdenMap : IOrdenMap
     {
         private readonly IOrdenService service;
         private readonly IMonedaService monedaService;
@@ -34,6 +34,47 @@ namespace AltivaWebApp.Mappers
             return service.SaveOrdenDetalle(ViewModelToDomainOD(viewModel));
         }
 
+        public OrdenViewModel DomainToViewModel(TbPrOrden domain)
+        {
+            var viewModel = new OrdenViewModel
+            {
+                Anulado = domain.Anulado,
+                Fecha = domain.Fecha,
+                Id = domain.Id,
+                IdMoneda = domain.IdMoneda,
+                IdProveedor = domain.IdProveedor,
+                IdUsuario = domain.IdUsuario,
+                Observacion = domain.Observacion,
+                TipoCambioDolar = domain.TipoCambioDolar,
+                TipoCambioEuro = domain.TipoCambioEuro
+            };
+
+            if(domain.IdMoneda == 1)
+            {
+                viewModel.SubTotalExcento = domain.SubTotalExcentoBase;
+                viewModel.SubTotalGrabado = domain.SubTotalGrabadoBase;
+                viewModel.Total = domain.TotalBase;
+                viewModel.TotalIva = domain.TotalIvabase;
+            }
+            else if(domain.IdMoneda == 2)
+            {
+                viewModel.SubTotalExcento = domain.SubTotalExcentoDolar;
+                viewModel.SubTotalGrabado = domain.SubTotalGrabadoDolar;
+                viewModel.Total = domain.TotalDolar;
+                viewModel.TotalIva = domain.TotalIvadolar;
+            }
+            else if(domain.IdMoneda == 3)
+            {
+                viewModel.SubTotalExcento = domain.SubTotalExcentoEuro;
+                viewModel.SubTotalGrabado = domain.SubTotalGrabadoEuro;
+                viewModel.Total = domain.TotalEuro;
+                viewModel.TotalIva = domain.TotalIvaeuro;
+            }
+
+            
+            return viewModel;
+        }
+
         public TbPrOrden ViewModelToDomain(OrdenViewModel viewModel)
         {
 
@@ -45,11 +86,9 @@ namespace AltivaWebApp.Mappers
             domain.IdProveedor = viewModel.IdProveedor;
             domain.IdUsuario = viewModel.IdUsuario;
             domain.Observacion = viewModel.Observacion;
-            domain.PorcIs = viewModel.PorcIs;
-            domain.PorcIva = viewModel.PorcIva;
             domain.Anulado = false;
             domain.FechaCreacion = DateTime.Now;
-                        
+
 
             domain.TipoCambioDolar = viewModel.TipoCambioDolar; //moneda.FirstOrDefault(m => m.Codigo == 2).ValorCompra;
             domain.TipoCambioEuro = viewModel.TipoCambioEuro;//moneda.FirstOrDefault(m => m.Codigo == 3).ValorCompra;
@@ -95,7 +134,7 @@ namespace AltivaWebApp.Mappers
             }
             else if (viewModel.IdMoneda == 3)
             {
-                
+
                 domain.SubTotalExcentoBase = viewModel.SubTotalExcento / domain.TipoCambioEuro;
                 domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase * domain.TipoCambioDolar;
                 domain.SubTotalExcentoEuro = viewModel.SubTotalExcento;
@@ -125,8 +164,6 @@ namespace AltivaWebApp.Mappers
             domain.IdProveedor = viewModel.IdProveedor;
             domain.IdUsuario = viewModel.IdUsuario;
             domain.Observacion = viewModel.Observacion;
-            domain.PorcIs = viewModel.PorcIs;
-            domain.PorcIva = viewModel.PorcIva;
             domain.Anulado = viewModel.Anulado;
 
             var moneda = monedaService.GetAll();
@@ -202,10 +239,10 @@ namespace AltivaWebApp.Mappers
 
             return domain;
         }
-        
+
         public TbPrOrdenDetalle ViewModelToDomainSingleOD(OrdenDetalleViewModel viewModel, OrdenViewModel orden)
         {
-            var domain =  new TbPrOrdenDetalle
+            var domain = new TbPrOrdenDetalle
             {
                 Cantidad = viewModel.Cantidad,
                 Id = viewModel.Id,
@@ -213,11 +250,11 @@ namespace AltivaWebApp.Mappers
                 IdOrden = viewModel.IdOrden,
                 NombreInventario = viewModel.NombreInventario,
                 PorcIs = viewModel.PorcIs,
-                PorcIva = viewModel.PorcIva,               
+                PorcIva = viewModel.PorcIva,
             };
 
-            float dolar =(float) orden.TipoCambioDolar;
-            float euro =(float) orden.TipoCambioEuro;
+            float dolar = (float)orden.TipoCambioDolar;
+            float euro = (float)orden.TipoCambioEuro;
 
             if (viewModel.IdMonedaOD == 1)
             {
@@ -241,7 +278,7 @@ namespace AltivaWebApp.Mappers
                 domain.TotalDolar = domain.TotalBase * dolar;
                 domain.TotalEuro = domain.TotalEuro * euro;
 
-                
+
 
                 domain.PrecioBase = viewModel.Precio;
                 domain.PrecioDolar = viewModel.Precio * dolar;
@@ -304,8 +341,8 @@ namespace AltivaWebApp.Mappers
 
             return domain;
         }
-        
- 
+
+
 
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Services
 {
-    public class OrdenService
+    public class OrdenService: IOrdenService
     {
         private readonly IOrdenRepository repository;
 

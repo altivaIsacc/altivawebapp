@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Repositories
 {
-    public class OrdenRepository: BaseRepository<TbPrOrden>      
+    public class OrdenRepository: BaseRepository<TbPrOrden>, IOrdenRepository     
     {
         public OrdenRepository(EmpresasContext context) : base(context)
         {
@@ -19,7 +19,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbPrOrden.Include(o => o.IdProveedorNavigation).ToList();
+                return context.TbPrOrden.Include(o => o.IdProveedorNavigation).Include(o => o.TbPrOrdenDetalle).ThenInclude(od => od.IdInventarioNavigation).ToList();
             }
             catch (Exception)
             {
@@ -46,7 +46,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbPrOrden.Include(o => o.TbPrOrdenDetalle).FirstOrDefault(o => o.Id == id);
+                return context.TbPrOrden.Include(o => o.TbPrOrdenDetalle).ThenInclude(od => od.IdInventarioNavigation).FirstOrDefault(o => o.Id == id);
             }
             catch (Exception)
             {

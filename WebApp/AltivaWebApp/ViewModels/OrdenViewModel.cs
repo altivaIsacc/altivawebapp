@@ -16,8 +16,6 @@ namespace AltivaWebApp.ViewModels
         public string Observacion { get; set; }
         public double SubTotalGrabado { get; set; }       
         public double SubTotalExcento { get; set; }       
-        public double PorcIva { get; set; }
-        public double PorcIs { get; set; }
         public double TotalIva { get; set; }
         public double Total { get; set; }
         public double TipoCambioDolar { get; set; }

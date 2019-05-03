@@ -11,7 +11,7 @@ namespace AltivaWebApp.Services
         TbPrOrden Save(TbPrOrden domain);
         TbPrOrden Update(TbPrOrden domain);
         bool Delete(TbPrOrden domain);
-        IList<TbPrOrden> GetAllAjustes();
+        IList<TbPrOrden> GetAllOrdenes();
         TbPrOrden GetOrdenById(int id);
         TbPrOrden GetAllOrdenDetalleByOrdenId(int id);
         bool SaveOrdenDetalle(IList<TbPrOrdenDetalle> domain);

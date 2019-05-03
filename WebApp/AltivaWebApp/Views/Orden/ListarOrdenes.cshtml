@@ -1,4 +1,5 @@
-﻿@model IEnumerable<AltivaWebApp.Domains.TbPrAjuste>
+﻿@model IEnumerable<AltivaWebApp.Domains.TbPrOrden>
+
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -9,18 +10,19 @@
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @{
-
-    var usuarios = ViewData["usuarios"] as IList<TbSeUsuario>;
+    ViewData["Title"] = "ListarOrdenes";
 }
+
+
 
 
 <div class="row">
     <div class="col-md-2">
-        <h3>@SharedLocalizer["AjusteManual"]</h3>
+        <h3>@SharedLocalizer["OrdenesCompra"]</h3>
     </div>
     <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
         <p>
-            <a asp-action="CrearAjuste" class="btn btn-primary"><span data-translate="agregar">@SharedLocalizer["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+            <a asp-action="CrearOrden" class="btn btn-primary"><span data-translate="agregar">@SharedLocalizer["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
         </p>
     </div>
 
@@ -29,7 +31,7 @@
 <div class="row">
 
     <div class="col-md-2" style="margin-top: 0.2rem">
-        <label>@SharedLocalizer["buscarPorDescripcion"]:</label>
+        <label>@SharedLocalizer["buscarPorProveedor"]:</label>
         <input type="text" id="filtroBuscar" class="form-control" />
     </div>
 
@@ -64,36 +66,37 @@
 <br />
 
 <div class="row">
-
     <div class="col-md-10  table-responsive">
-        <table class="display table table-bordered" style="width:100%" id="tblAjustes">
+        <table class="display table table-bordered" id="tblOrdenes">
             <thead>
                 <tr>
-                    
+                    <th>
+                        <span>@SharedLocalizer["Orden"]</span>
+                    </th>
                     <th>
                         <span>@SharedLocalizer["Fecha"]</span>
                     </th>
                     <th>
-                        <span>@SharedLocalizer["Descripción"]</span>
+                        <span>@SharedLocalizer["Proveedor"]</span>
                     </th>
                     <th>
-                        <span>@SharedLocalizer["Saldo"]</span>
+                        <span>@SharedLocalizer["Moneda"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["Total"]</span>
                     </th>
                     <th>
                         <span>@SharedLocalizer["Anulada"]</span>
                     </th>
-                    <th><span>@SharedLocalizer["accion"]</span></th>
+                    <th>
+                        <span>@SharedLocalizer["Acción"]</span>
+                    </th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
-
     </div>
-
 </div>
-
-
-
 <style>
     .dataTables_wrapper .dataTables_filter {
         float: right;
@@ -102,18 +105,18 @@
     }
 </style>
 
-
 <script>
-    var ajustes = [];
-    var ajusteFiltrado = [];
-    var tblAjustes;
+    var ordenes = [];
+    var ordenFiltrado = [];
+    var tblOrdenes;
     var hasta;
     var desde;
 
 
     $(document).ready(function () {
 
-        getAjustes();
+
+        getOrdenes();
 
         $('#filtroFecha').attr('disabled', true);
 
@@ -163,21 +166,21 @@
 
             });
 
-
     });
 
-    function getAjustes() {
-            ///get ajustes
+
+    function getOrdenes() {
+            ///get ordenes
         $.ajax({
             type: "get",
             headers: {
                             "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
             },
             dataType: "json",
-            url: 'Get-Ajustes',
+            url: 'Get-Ordenes',
             success: function (data) {
-                //console.log(data);
-                ajustes = JSON.parse(JSON.stringify(data));
+                console.log(data);
+                ordenes = JSON.parse(JSON.stringify(data));
                 cargarDatos(data);
             },
             error: function (err, scnd) {
@@ -189,35 +192,37 @@
 
     function cargarDatos(data) {
 
-        var estado = "";
+
         var contadorFila = 0;
-        $("#tblAjustes > tbody").remove();
-        $('#tblAjustes').append('<tbody></tbody>');
+        $("#tblOrdenes > tbody").remove();
+        $('#tblOrdenes').append('<tbody></tbody>');
 
         for (var i = 0; i < data.length; i++) {
 
-            if (!data[i].anulada)
-                estado = '@SharedLocalizer["No"]';
-            else
-                estado = '@SharedLocalizer["Si"]';
 
             var body = '<tr class="fila' + contadorFila + ' filas">'
-                + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaDocumento) + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].descripcion + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].saldoAjuste + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + estado + '</p></td>'
-                + '<td>  <button value="' + data[i].id + '" onclick="editarAjuste(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
-            $('#tblAjustes > tbody').append(body);
+                + '<td><p style="padding-top:1rem">' + data[i].id + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fecha) + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + data[i].idProveedorNavigation.nombre + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + recuperarMoneda(data[i].idMoneda) + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + recuperarTotal(data[i]) + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + recuperarEstado(data[i].anulado) + '</p></td>'
+                + '<td>  <button value="' + data[i].id + '" onclick="editarOrden(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+            $('#tblOrdenes > tbody').append(body);
             contadorFila++;
         }
 
         inicializarTabla();
 
     }
-    function inicializarTabla() {
-        $('#tblAjustes').DataTable().destroy();
 
-        tblAjustes = $('#tblAjustes').DataTable({
+    
+
+    function inicializarTabla() {
+
+        $('#tblOrdenes').DataTable().destroy();
+
+        tblOrdenes =  $('#tblOrdenes').DataTable({
             "info": false,
             dom: 'Bfrtip',
             language: {
@@ -245,9 +250,9 @@
                     extend: 'copyHtml5',
                     text: '<i class="fas fa-copy   " ></i>',
                     titleAttr: 'Copy',
-                    title: '@SharedLocalizer["AjusteManual"]',
+                    title: '@SharedLocalizer["OrdenesCompra"]',
                     exportOptions: {
-                        columns: [0, 1, 3]
+                        columns: [0, 1, 3, 4, 5]
                     }
                    
                 },
@@ -255,9 +260,9 @@
                     extend: 'excelHtml5',
                     text: '<i class="fas fa-file-excel  "></i>',
                     titleAttr: 'Excel',
-                    title: '@SharedLocalizer["AjusteManual"]',
+                    title: '@SharedLocalizer["OrdenesCompra"]',
                     exportOptions: {
-                        columns: [0, 1, 3]
+                        columns: [0, 1, 3, 4, 5]
                     }
                     
                 },
@@ -266,22 +271,15 @@
                     extend: 'pdfHtml5',
                     text: '<i class="fas fa-file-pdf   "></i>',
                     titleAttr: 'PDF',
-                    title: '@SharedLocalizer["AjusteManual"]',
+                    title: '@SharedLocalizer["OrdenesCompra"]',
                     exportOptions: {
-                        columns: [0, 1, 3]
+                        columns: [0, 1, 3, 4, 5]
                     }
                 }
             ]
         });
 
         $(".dataTables_searching").hide();
-    }
-
-    function editarAjuste(id) {
-
-        var url = '@Url.Action("EditarAjuste", "AjusteInventario", new { id = "__id__" })';
-
-        window.location.href = url.replace("__id__", id);
     }
 
     function recuperarFecha(_fecha) {
@@ -291,19 +289,43 @@
         var m = fecha.substr(5, 2);
         var d = fecha.substr(8, 3);
 
-        //var date = new Date();
-        //console.log(fecha);
 
         return d + "-" + m + "-" + y + " " + _fecha.substr(-8, 8);///new Date(fecha).toLocaleDateString(); //fecha.replace(/-/g, "/");
 
     }
 
+    function recuperarEstado(estado) {
+        if (estado)
+            return "@SharedLocalizer["Si"]"
+        else
+            return "@SharedLocalizer["No"]";
+    }
+
+    function recuperarMoneda(cod) {
+        if (cod === 1)
+            return "@SharedLocalizer["CRC"]";
+        else if (cod === 2)
+            return "@SharedLocalizer["USD"]";
+        else if (cod === 3)
+            return "@SharedLocalizer["EUR"]";
+    }
+
+    function recuperarTotal(data) {
+        if (data.idMoneda === 1)
+            return data.totalBase;
+        else if (data.idMoneda === 2)
+            return data.totalDolar;
+        else if (data.idMoneda === 3)
+            return data.totalEuro;
+    }
+
+
     /////////////////////filtros//////////////////
 
 
     $("#filtroBuscar").on("keyup", function () {
-        tblAjustes
-            .columns(1)
+        tblOrdenes
+            .columns(2)
             .search(this.value)
             .draw();
     });
@@ -320,28 +342,30 @@
         }
 
         else {
-            $('#filtroFecha').attr('disabled',false);
+            $('#filtroFecha').attr('disabled', false);
             cargarFiltros();
         }
 
     });
 
+
     function cargarFiltros() {
 
-        ajusteFiltrado = JSON.parse(JSON.stringify(ajustes));
+        ordenFiltrado = JSON.parse(JSON.stringify(ordenes));
 
-        ajusteFiltrado = filtroItem();
+        ordenFiltrado = filtroItem();
 
-        ajusteFiltrado = filtroFecha(desde, hasta);
+        ordenFiltrado = filtroFecha(desde, hasta);
 
-        cargarDatos(ajusteFiltrado);
+        cargarDatos(ordenFiltrado);
 
     }
+
 
     function filtroFecha(_desde, _hasta) {
 
 
-        var arrayAjustes = JSON.parse(JSON.stringify(ajusteFiltrado));
+        var arrayOrdenes = JSON.parse(JSON.stringify(ordenFiltrado));
 
 
         var desdeLocal = new Date(_desde).getTime();
@@ -349,22 +373,20 @@
 
 
         if ($('#habilitaFiltroFecha').prop('checked'))
-            for (var i = 0; i < ajustes.length; i++) {
+            for (var i = 0; i < ordenes.length; i++) {
 
-                var documento = new Date(ajustes[i].fechaDocumento).getTime();
+                var documento = new Date(ordenes[i].fecha).getTime();
                 var flag = false;
 
                 if (documento >= desdeLocal && documento <= hastaLocal)
                     flag = true;
 
-                // else flag = true;
-
                 if (!flag)
-                    arrayAjustes.splice(i, 1);
+                    arrayOrdenes.splice(i, 1);
             }
 
 
-        return arrayAjustes;
+        return arrayOrdenes;
 
     }
 
@@ -372,25 +394,28 @@
 
     function filtroItem() {
 
-        var arrayAjustes = JSON.parse(JSON.stringify(ajusteFiltrado));//JSON.parse(JSON.stringify(ajustes));
+        var arrayOrdenes = JSON.parse(JSON.stringify(ordenFiltrado));//JSON.parse(JSON.stringify(ajustes));
 
         var keyword = $("#filtroItem").val();
 
-        if (keyword.replace(/""/g, "") != "")
-            for (var i = 0; i < ajustes.length; i++) {
-
-                for (var j = 0; j < arrayAjustes[i].tbPrAjusteInventario.length; j++) {
-                    if (arrayAjustes[i].tbPrAjusteInventario[j].idInventarioNavigation.codigo.indexOf(keyword) < 0) {
-                        arrayAjustes.splice(i, 1);
+        if (keyword.replace(/ /g, "") != "")
+            for (var i = 0; i < ordenes.length; i++) {
+                for (var j = 0; j < arrayOrdenes[i].tbPrOrdenDetalle.length; j++) {
+                    if (arrayOrdenes[i].tbPrOrdenDetalle[j].idInventarioNavigation.codigo.indexOf(keyword) < 0) {
+                        arrayOrdenes.splice(i, 1);
                         break;
                     }
                 }
             }
 
-        console.log(arrayAjustes);
-        //cargarDatos(arrayAjustes);
-
-        return arrayAjustes;
+        return arrayOrdenes;
     }
-</script>
 
+    function editarOrden(value) {
+        var url = '@Url.Action("EditarOrden", new { id = "__id__"})';
+
+        window.location.href = url.replace("__id__", value);
+    }
+
+</script>
+   

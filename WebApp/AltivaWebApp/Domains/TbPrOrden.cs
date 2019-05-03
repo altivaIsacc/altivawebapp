@@ -23,9 +23,7 @@ namespace AltivaWebApp.Domains
         public double SubTotalGrabadoEuro { get; set; }
         public double SubTotalExcentoBase { get; set; }
         public double SubTotalExcentoDolar { get; set; }
-        public double SubTotalExcentoEuro { get; set; }
-        public double PorcIva { get; set; }
-        public double PorcIs { get; set; }
+        public double SubTotalExcentoEuro { get; set; }      
         public double TotalIvabase { get; set; }
         public double TotalIvadolar { get; set; }
         public double TotalIvaeuro { get; set; }
