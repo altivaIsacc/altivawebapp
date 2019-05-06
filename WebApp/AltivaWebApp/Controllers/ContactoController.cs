@@ -438,14 +438,20 @@ namespace AltivaWebApp.Controllers
             TbCrContacto ccT = new TbCrContacto();
             ccT = this.contactoService.GetTareas(idContacto);
             IList<TbFdTarea> tarea = new List<TbFdTarea>();
-            foreach (var item in ccT.TbFdTarea)
-            {
-                item.IdContactoNavigation = null;
-                item.IdEstadoNavigation.TbFdTarea = null;
-                item.IdTipoNavigation.TbFdTarea = null;
-                tarea.Add(item);
+            if (tarea.Count() > 0) {
+                foreach (var item in ccT.TbFdTarea)
+                {
+                    item.IdContactoNavigation = null;
+                    item.IdEstadoNavigation.TbFdTarea = null;
+                    item.IdTipoNavigation.TbFdTarea = null;
+                    tarea.Add(item);
+                }
+                return Ok(tarea);
             }
-            return Ok(tarea);
+            else
+            {
+                return Ok(false);
+            }
         }
     }
 

@@ -40,5 +40,13 @@ namespace AltivaWebApp.ViewModels
         public IFormFile Foto { get; set; }
         public long? IdUsuario { get; set; } 
         public string Ruta { get; set; }
+        public string WebLink { get; set; }
+        public string MapLink { get; set; }
+        public long? IdTipoCliente { get; set; }
+        public long? IdFamiliaCliente { get; set; }
+        public long? IdSubFamiliaCliente { get; set; }
+        public long? IdTipoProveedor { get; set; }
+        public long? IdFamiliaProveedor { get; set; }
+        public long? IdSubFamiliaProveedor { get; set; }
     }
 }

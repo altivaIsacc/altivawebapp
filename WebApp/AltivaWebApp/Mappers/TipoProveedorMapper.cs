@@ -31,6 +31,7 @@ namespace AltivaWebApp.Mappers
         {
             TbFdTipoProveedor tp = new TbFdTipoProveedor();
             tp.Nombre = domain.Nombre;
+            tp.IdPadre = domain.IdPadre;
             tp.Inactivo = domain.Inactivo;
             tp.FechaCreacion = DateTime.Now;
 
@@ -43,7 +44,7 @@ namespace AltivaWebApp.Mappers
 
             tp = this.ITipoProveedor.GetById(Convert.ToInt32(domain.Id));
             tp.Nombre = domain.Nombre;
-            tp.Inactivo = domain.Inactivo;
+         
           
 
             return tp;

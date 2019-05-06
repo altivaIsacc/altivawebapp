@@ -40,7 +40,7 @@ namespace AltivaWebApp.Controllers
             TbFdTipoProveedor tc = new TbFdTipoProveedor();
             if (idProveedor != 0)
             {
-           //     tc = this.ITipoClientes.GetById(idCliente);
+               tc = this.ITipoProveedorService.GetById(idProveedor);
             }
             return PartialView("_CrearTipoProveedor", tc);
         }
@@ -112,8 +112,8 @@ namespace AltivaWebApp.Controllers
            TipoClientes = this.ITipoProveedorService.GetFamiliaTipoProveedor(idProveedor);
             return new JsonResult(TipoClientes);
         }
-        [HttpGet("GetSubFamilias/{idProveedor?}")]
-        public IActionResult GetSubFamilias(int idProveedor)
+        [HttpGet("GetSubFamiliasProveedor/{idProveedor?}")]
+        public IActionResult GetSubFamiliasProveedor(int idProveedor)
         {
             IList<TbFdTipoProveedor> TipoClientes = new List<TbFdTipoProveedor>();
            TipoClientes = this.ITipoProveedorService.GetSubFamiliaProveedor(idProveedor);

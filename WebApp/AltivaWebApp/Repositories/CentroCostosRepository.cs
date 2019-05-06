@@ -19,7 +19,7 @@ namespace AltivaWebApp.Repositories
         //devuelve el costo de cada usuario..
         public TbFdUsuarioCosto GetById(int idUsuarioCosto)
         {
-           return context.TbFdUsuarioCosto.Where(cont => cont.IdUsuario == idUsuarioCosto).FirstOrDefault();
+           return context.TbFdUsuarioCosto.FirstOrDefault(cont => cont.IdUsuario == idUsuarioCosto);
 
         }
 

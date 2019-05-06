@@ -71,7 +71,9 @@ namespace AltivaWebApp.Repositories
                             juridica = con.Cedula,
                             dimex = con.Cedula,
                             nite = con.Cedula,
-                            IdUsuario = con.IdUsuario
+                            IdUsuario = con.IdUsuario,
+                            WebLink = con.WebLink,
+                            MapLink = con.MapLink
 
                             
                          }

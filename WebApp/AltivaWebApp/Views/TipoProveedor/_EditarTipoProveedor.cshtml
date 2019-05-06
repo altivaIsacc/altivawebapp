@@ -1,4 +1,4 @@
-﻿@model AltivaWebApp.Domains.TbFdTipoCliente
+﻿@model AltivaWebApp.Domains.TbFdTipoProveedor
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -19,16 +19,16 @@
             <div class="form-group">
                 <label> Nombre:</label>
                 <div hidden>
-                    <input type="text" asp-for="Id" id="idCliente" />
+                    <input type="text" asp-for="Id" id="idProveedor" />
 
                 </div>
-                <input type="text" class="form-control" id="nombre" asp-for="Nombre" />
+                <input type="text" class="form-control" id="nombreProveedor" asp-for="Nombre" />
             </div>
 
         </div>
         <div class="row">
 
-            <button class="btn btn-success" onclick="btnEditarTipoCliente()" type="submit">Guardar</button>
+            <button class="btn btn-success" onclick="btnEditarTipoProveedor()" type="submit">Guardar</button>
 
 
 
@@ -37,70 +37,14 @@
     </div>
 </div>
 <script>
-//guardar subfamilia en base alas familias de los tipos
-    function btnEditarSubFamilias() {
-        var nombre = "";
-        var nombre = "";
-        nombre = $("#nombre").val();
-        var TipoClienteViewModels = {
-            id: $('#idCliente').val(),
-            idPadre: null,
-            nombre: nombre,
-            inactivo: false
-        };
-                var urls = '@Url.Action("EditarTipoProveedor", "TipoProveedor")';
-            $.ajax({
-                type: "POST",
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                url: urls,
-                data: { domain: TipoClienteViewModels},
-                success: function (data) {
-                    getSubFamilias($('#familia').val());
-                $('#modalTipoCliente').modal('hide');
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
-            }
-        });
-    }
-    //guardar familia del tipo del cliente
-    function btnEditarFamilia() {
-
-        var nombre = "";
-        nombre = $("#nombre").val();
-        var TipoClienteViewModels = {
-            id: $('#idCliente').val(),
-            idPadre: null,
-            nombre: nombre,
-            inactivo: false
-        };
-        var urls = '@Url.Action("EditarTipoProveedor", "TipoProveedor")';
-            $.ajax({
-                type: "POST",
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                url: urls,
-                data: { domain: TipoClienteViewModels},
-                success: function (data) {
-                    getFamilias($('#tipoClientes').val());
-                $('#modalTipoCliente').modal('hide');
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
-            }
-        });
-    }
 
     //guardar tipo cliente
 
-    function btnEditarTipoCliente() {
+    function btnEditarTipoProveedor() {
         //agregar familia
 
         var nombre = "";
-        nombre = $("#nombre").val();
+        nombre = $("#nombreProveedor").val();
         /*
         if ($('#idPadre').val() == 0 && nombre != true) {
 
@@ -116,7 +60,7 @@
         }*/
 
         var TipoClienteViewModel = {
-            id: $('#idCliente').val(),
+            id: $('#idProveedor').val(),
             idPadre: 0,
             nombre: nombre,
             inactivo: false
@@ -131,9 +75,9 @@
                 data: { domain: TipoClienteViewModel},
                 success: function (data) {
 
-                    getTiposClientes();
-                    getFamilias(data);
-                    getSubFamilias(data);
+                    getTiposProveedor();
+                    getfamiliaProveedors(data);
+                    getSubfamiliaProveedors(data);
                 $('#modalTipoCliente').modal('hide');
             },
             error: function (err, scnd) {

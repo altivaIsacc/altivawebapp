@@ -59,7 +59,11 @@ namespace AltivaWebApp.Mappers
                         tbTarea.FechaLimite = DateTime.Now.AddDays(tbTipo.DiasFechaLimite.Value);
                     }
                 }
-             
+                else
+                {
+                    tbTarea.FechaLimite = DateTime.Now.AddDays(3);
+                }
+
             }
             else
             {
@@ -159,6 +163,11 @@ namespace AltivaWebApp.Mappers
                         tbTarea.FechaLimite = DateTime.Now.AddDays(tbTipo.DiasFechaLimite.Value);
                     }
                 }
+                else
+                {
+                    tbTarea.FechaLimite = DateTime.Now.AddDays(3);
+                }
+               
 
             }
             else
@@ -170,8 +179,10 @@ namespace AltivaWebApp.Mappers
             if (domain.IdUsuario != null) {
                 if (domain.CostoEstimado == 0)
                 {
-
-                    tbTarea.CostoEstimado = usuariCostos.Costo;
+                    if (usuariCostos != null)
+                    {
+                        tbTarea.CostoEstimado = usuariCostos.Costo;
+                    }
                 }
                 else
                 {
@@ -221,7 +232,7 @@ namespace AltivaWebApp.Mappers
                 {
                     tbTarea.DiasReales = 0;
                 }
-                if (domain.IdUsuario != null) {
+                if (domain.IdUsuario != null && usuariCostos != null) {
                     tbTarea.CostoReal = (usuariCostos.Costo * tbTarea.DiasReales);
 
                 }

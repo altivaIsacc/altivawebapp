@@ -322,7 +322,7 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(100)
                     .IsUnicode(false);
             });
-           
+
             modelBuilder.Entity<TbCrContacto>(entity =>
             {
                 entity.HasKey(e => e.IdContacto)
@@ -345,6 +345,10 @@ namespace AltivaWebApp.Context
                     .IsUnicode(false);
 
                 entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
+
+                entity.Property(e => e.MapLink)
+                    .HasMaxLength(8000)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.Nombre)
                     .HasMaxLength(50)
@@ -375,6 +379,10 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.TipoCedula)
                     .IsRequired()
                     .HasMaxLength(120)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.WebLink)
+                    .HasMaxLength(8000)
                     .IsUnicode(false);
             });
             modelBuilder.Entity<TbCrContactoRelacion>(entity =>
