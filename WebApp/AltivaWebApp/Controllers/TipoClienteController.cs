@@ -100,21 +100,43 @@ namespace AltivaWebApp.Controllers
         {
             IList<TbFdTipoCliente> TipoClientes = new List<TbFdTipoCliente>();
             TipoClientes = this.ITipoClientes.GetTipoCliente();
-            return new JsonResult(TipoClientes);
+            if (TipoClientes.Count() > 0) {
+                return new JsonResult(TipoClientes);
+            }
+            else
+            {
+                return new JsonResult(false);
+            }
         }
         [HttpGet("GetFamiliasTipoCliente/{idCliente?}")]
         public IActionResult GetFamiliasTipoCliente(int idCliente)
         {
             IList<TbFdTipoCliente> TipoClientes = new List<TbFdTipoCliente>();
             TipoClientes = this.ITipoClientes.GetFamiliaTipoCliente(idCliente);
-            return new JsonResult(TipoClientes);
+
+            if (TipoClientes.Count() > 0)
+            {
+                return new JsonResult(TipoClientes);
+            }
+            else
+            {
+                return new JsonResult(false);
+            }
         }
         [HttpGet("GetSubFamilias/{idCliente?}")]
         public IActionResult GetSubFamilias(int idCliente)
         {
             IList<TbFdTipoCliente> TipoClientes = new List<TbFdTipoCliente>();
             TipoClientes = this.ITipoClientes.GetSubFamilia(idCliente);
-            return new JsonResult(TipoClientes);
+           
+            if (TipoClientes.Count() > 0)
+            {
+                return new JsonResult(TipoClientes);
+            }
+            else
+            {
+                return new JsonResult(false);
+            }
         }
 
     }
