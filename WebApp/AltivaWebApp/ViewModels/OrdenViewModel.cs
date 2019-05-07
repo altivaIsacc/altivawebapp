@@ -15,7 +15,8 @@ namespace AltivaWebApp.ViewModels
         public long IdMoneda { get; set; }
         public string Observacion { get; set; }
         public double SubTotalGrabado { get; set; }       
-        public double SubTotalExcento { get; set; }       
+        public double SubTotalExcento { get; set; }
+        public double SubTotalNeto { get; set; }
         public double TotalIva { get; set; }
         public double Total { get; set; }
         public double TipoCambioDolar { get; set; }

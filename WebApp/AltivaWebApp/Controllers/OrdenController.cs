@@ -84,14 +84,33 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
-                throw;
                 return BadRequest();
             }
         }
 
 
+        [HttpGet("CambiarEstado-Orden/{id}")]
+        public ActionResult CambiarEstadoOrden(int id)
+        {
+            try
+            {
+                var orden = service.GetOrdenById(id);
+                if (orden.Anulado)
+                    orden.Anulado = false;
+                else
+                    orden.Anulado = true;
+
+                orden  = service.Update(orden);
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
         //POST: Orden/Create
-       [HttpPost("Crear-OrdenDetalle")]
+        [HttpPost("Crear-OrdenDetalle")]
         public ActionResult CrearOrdenDetalle(OrdenViewModel viewModel)
         {
             try
@@ -102,7 +121,6 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
-                throw;
                 return BadRequest();
             }
         }
@@ -118,7 +136,6 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
-                throw;
                 return BadRequest();
             }
         }
@@ -134,7 +151,6 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
-                throw;
                 return BadRequest();
             }
         }

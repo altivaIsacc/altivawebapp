@@ -337,67 +337,69 @@
 
         ajusteFiltrado = JSON.parse(JSON.stringify(ajustes));
 
-        ajusteFiltrado = filtroItem();
+        ajusteFiltrado = filtroItem(ajusteFiltrado);
 
-        ajusteFiltrado = filtroFecha(desde, hasta);
+        ajusteFiltrado = filtroFecha(ajusteFiltrado, desde, hasta);
 
         cargarDatos(ajusteFiltrado);
 
     }
 
-    function filtroFecha(_desde, _hasta) {
+    function filtroFecha(array ,_desde, _hasta) {
 
 
-        var arrayAjustes = JSON.parse(JSON.stringify(ajusteFiltrado));
+        var arrayAjustes = [];
 
+        if ($('#habilitaFiltroFecha').prop('checked')) {
+            var desdeLocal = new Date(_desde).getTime();
+            var hastaLocal = new Date(_hasta).getTime();
 
-        var desdeLocal = new Date(_desde).getTime();
-        var hastaLocal = new Date(_hasta).getTime();
+            for (var i = 0; i < array.length; i++) {
 
-
-        if ($('#habilitaFiltroFecha').prop('checked'))
-            for (var i = 0; i < ajustes.length; i++) {
-
-                var documento = new Date(ajustes[i].fechaDocumento).getTime();
+                var documento = new Date(array[i].fechaDocumento).getTime();
                 var flag = false;
 
                 if (documento >= desdeLocal && documento <= hastaLocal)
-                    flag = true;
-
-                // else flag = true;
-
-                if (!flag)
-                    arrayAjustes.splice(i, 1);
+                    arrayAjustes.push(array[i]);
             }
+            return arrayAjustes;
+        }
+        else
+            return array;
+            
 
 
-        return arrayAjustes;
+        
 
     }
 
 
 
-    function filtroItem() {
+    function filtroItem(array) {
 
-        var arrayAjustes = JSON.parse(JSON.stringify(ajusteFiltrado));//JSON.parse(JSON.stringify(ajustes));
+        var arrayAjustes = [];//JSON.parse(JSON.stringify(ajustes));
 
         var keyword = $("#filtroItem").val();
 
-        if (keyword.replace(/""/g, "") != "")
-            for (var i = 0; i < ajustes.length; i++) {
+        if (keyword.replace(/ /g, "") != "") {
+            for (var i = 0; i < array.length; i++) {
 
-                for (var j = 0; j < arrayAjustes[i].tbPrAjusteInventario.length; j++) {
-                    if (arrayAjustes[i].tbPrAjusteInventario[j].idInventarioNavigation.codigo.indexOf(keyword) < 0) {
-                        arrayAjustes.splice(i, 1);
+                for (var j = 0; j < array[i].tbPrAjusteInventario.length; j++) {
+                    if (array[i].tbPrAjusteInventario[j].idInventarioNavigation.codigo.indexOf(keyword) > -1) {
+                        arrayAjustes.push(array[i]);
                         break;
                     }
                 }
             }
 
-        console.log(arrayAjustes);
-        //cargarDatos(arrayAjustes);
+            return arrayAjustes
+            
+        }
+        else
+            return array;
+            
 
-        return arrayAjustes;
+        
     }
 </script>
 

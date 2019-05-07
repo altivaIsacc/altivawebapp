@@ -32,12 +32,12 @@
 
     <div class="col-md-2" style="margin-top: 0.2rem">
         <label>@SharedLocalizer["buscarPorProveedor"]:</label>
-        <input type="text" id="filtroBuscar" class="form-control" />
+        <input type="text" id="filtroBuscar" class="form-control" placeholder="@SharedLocalizer["Nombre"]" />
     </div>
 
     <div class="col-md-2">
         <label style="padding-top: 0.2rem">@SharedLocalizer["buscarItem"]:</label>
-        <input type="text" id="filtroItem" class="form-control" />
+        <input type="text" id="filtroItem" class="form-control" placeholder="@SharedLocalizer["Código"]"/>
     </div>
 
     <div class="col-md-3">
@@ -115,7 +115,6 @@
 
     $(document).ready(function () {
 
-
         getOrdenes();
 
         $('#filtroFecha').attr('disabled', true);
@@ -162,7 +161,6 @@
             desde = start.format('YYYY-MM-DD');
             hasta = end.format('YYYY-MM-DD');
             cargarFiltros();
-                //filtroFecha(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
 
             });     
 
@@ -206,7 +204,6 @@
 
     function cargarDatos(data) {
 
-        console.log(data);
 
         var contadorFila = 0;
         $("#tblOrdenes > tbody").remove();
@@ -380,64 +377,73 @@
 
     function cargarFiltros() {
 
-        ordenFiltrado = JSON.parse(JSON.stringify(ordenes));
+        ordenFiltrado = ordenes;//JSON.parse(JSON.stringify(ordenes));
 
-        ordenFiltrado = filtroItem();
+        ordenFiltrado = filtroItem(ordenFiltrado);
 
-        ordenFiltrado = filtroFecha(desde, hasta);
+        
+
+        ordenFiltrado = filtroFecha(ordenFiltrado, desde, hasta);
+
+        
 
         cargarDatos(ordenFiltrado);
 
     }
 
 
-    function filtroFecha(_desde, _hasta) {
+    function filtroFecha(array, _desde, _hasta) {
+      
 
+        var arrayOrdenes = [];
 
-        var arrayOrdenes = JSON.parse(JSON.stringify(ordenFiltrado));
+        if ($('#habilitaFiltroFecha').prop('checked')) {
 
+            var desdeLocal = new Date(_desde).getTime();
+            var hastaLocal = new Date(_hasta).getTime();
 
-        var desdeLocal = new Date(_desde).getTime();
-        var hastaLocal = new Date(_hasta).getTime();
+            for (var i = 0; i < array.length; i++) {
 
-
-        if ($('#habilitaFiltroFecha').prop('checked'))
-            for (var i = 0; i < ordenes.length; i++) {
-
-                var documento = new Date(ordenes[i].fecha).getTime();
-                var flag = false;
+                var documento = new Date(array[i].fecha).getTime();
 
                 if (documento >= desdeLocal && documento <= hastaLocal)
-                    flag = true;
+                    arrayOrdenes.push(ordenes[i]);
 
-                if (!flag)
-                    arrayOrdenes.splice(i, 1);
             }
-
-
-        return arrayOrdenes;
+            return arrayOrdenes;
+        }
+        else
+            return array;
+            
 
     }
 
 
 
-    function filtroItem() {
+    function filtroItem(array) {
 
-        var arrayOrdenes = JSON.parse(JSON.stringify(ordenFiltrado));//JSON.parse(JSON.stringify(ajustes));
-
+        var arrayOrdenes = [];//JSON.parse(JSON.stringify(ordenFiltrado));
         var keyword = $("#filtroItem").val();
 
-        if (keyword.replace(/ /g, "") != "")
-            for (var i = 0; i < ordenes.length; i++) {
-                for (var j = 0; j < arrayOrdenes[i].tbPrOrdenDetalle.length; j++) {
-                    if (arrayOrdenes[i].tbPrOrdenDetalle[j].idInventarioNavigation.codigo.indexOf(keyword) < 0) {
-                        arrayOrdenes.splice(i, 1);
+        
+
+        if (keyword.replace(/ /g, "") != "") {
+            for (var i = 0; i < array.length; i++) {
+                for (var j = 0; j < array[i].tbPrOrdenDetalle.length; j++) {
+                    if (array[i].tbPrOrdenDetalle[j].idInventarioNavigation.codigo.indexOf(keyword) > -1) {
+                        arrayOrdenes.push(ordenes[i]);
                         break;
                     }
                 }
             }
 
-        return arrayOrdenes;
+            return arrayOrdenes;
+        }
+        else
+            return array;
+            
+
+            
     }
 
     function editarOrden(value) {

@@ -19,6 +19,9 @@ namespace AltivaWebApp.Models
         public double SubTotalExcentoBase { get; set; }
         public double SubTotalExcentoDolar { get; set; }
         public double SubTotalExcentoEuro { get; set; }
+        public double SubTotalNetoBase { get; set; }
+        public double SubTotalNetoDolar { get; set; }
+        public double SubTotalNetoEuro { get; set; }
         public double PorcIva { get; set; }
         public double PorcIs { get; set; }
         public double TotalIvabase { get; set; }
