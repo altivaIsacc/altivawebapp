@@ -3364,7 +3364,7 @@ namespace AltivaWebApp.Context
             {
                 entity.ToTable("tb_PR_Ajuste");
 
-                entity.Property(e => e.Descripcion).HasMaxLength(250);
+                entity.Property(e => e.Descripcion).HasMaxLength(500);
 
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
@@ -3719,7 +3719,7 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.Observacion)
                     .IsRequired()
-                    .HasMaxLength(500);               
+                    .HasMaxLength(500);
 
                 entity.Property(e => e.TotalIvabase).HasColumnName("TotalIVABase");
 

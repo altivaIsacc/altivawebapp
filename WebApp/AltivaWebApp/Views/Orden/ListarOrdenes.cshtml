@@ -67,7 +67,7 @@
 
 <div class="row">
     <div class="col-md-10  table-responsive">
-        <table class="display table table-bordered" id="tblOrdenes">
+        <table class="table table-bordered" id="tblOrdenes">
             <thead>
                 <tr>
                     <th>
@@ -156,17 +156,31 @@
                 ],
                 "firstDay": 1
             }
-                },
-            function (start, end, label) {
+        },
+        function (start, end, label) {
 
-                desde = start.format('YYYY-MM-DD');
-                hasta = end.format('YYYY-MM-DD');
-                cargarFiltros();
+            desde = start.format('YYYY-MM-DD');
+            hasta = end.format('YYYY-MM-DD');
+            cargarFiltros();
                 //filtroFecha(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
 
-            });
+            });     
+
+        
 
     });
+
+
+    function darFormato(idMoneda) {      
+
+        if (idMoneda === 1)
+            return "colon";
+        else if (idMoneda === 2)
+            return "dolar"
+        else if (idMoneda === 3)
+            return "euro"
+
+    }
 
 
     function getOrdenes() {
@@ -192,6 +206,7 @@
 
     function cargarDatos(data) {
 
+        console.log(data);
 
         var contadorFila = 0;
         $("#tblOrdenes > tbody").remove();
@@ -199,18 +214,32 @@
 
         for (var i = 0; i < data.length; i++) {
 
-
+            //<input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].precio + '"/>
             var body = '<tr class="fila' + contadorFila + ' filas">'
                 + '<td><p style="padding-top:1rem">' + data[i].id + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fecha) + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + data[i].idProveedorNavigation.nombre + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + recuperarMoneda(data[i].idMoneda) + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + recuperarTotal(data[i]) + '</p></td>'
+                + '<td class="col-md-2"><input style="padding-top:1rem; border:0; background-color : #F7F7F7" class="' + darFormato(data[i].idMoneda) + '" value="' + recuperarTotal(data[i]) + '"/></td>'
                 + '<td><p style="padding-top:1rem">' + recuperarEstado(data[i].anulado) + '</p></td>'
                 + '<td>  <button value="' + data[i].id + '" onclick="editarOrden(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
             $('#tblOrdenes > tbody').append(body);
             contadorFila++;
         }
+
+        ///inicializa formato
+        $(".colon").inputmask('currency', {
+            prefix: "₡",
+            rightAlign: true
+        });
+        $(".dolar").inputmask('currency', {
+            prefix: "$",
+            rightAlign: true
+        });
+        $(".euro").inputmask('currency', {
+            prefix: "€",
+            rightAlign: true
+        });
 
         inicializarTabla();
 

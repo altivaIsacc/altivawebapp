@@ -234,7 +234,7 @@ namespace AltivaWebApp.Context
                     .IsRequired()
                     .HasMaxLength(2);
 
-                entity.Property(e => e.TipoReferencia).HasMaxLength(10);
+                entity.Property(e => e.TipoReferencia).HasMaxLength(50);
 
                 entity.HasOne(d => d.IdUsuarioNavigation)
                     .WithMany(p => p.TbSeMensaje)

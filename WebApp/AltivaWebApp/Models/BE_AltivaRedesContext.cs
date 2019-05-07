@@ -119,6 +119,7 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbFdRespaldoHabitacionAsignada> TbFdRespaldoHabitacionAsignada { get; set; }
         public virtual DbSet<TbFdRespaldoHabitacionesAsignadasAllotment> TbFdRespaldoHabitacionesAsignadasAllotment { get; set; }
         public virtual DbSet<TbFdServicio> TbFdServicio { get; set; }
+        public virtual DbSet<TbFdSubtareas> TbFdSubtareas { get; set; }
         public virtual DbSet<TbFdTarea> TbFdTarea { get; set; }
         public virtual DbSet<TbFdTareaEstado> TbFdTareaEstado { get; set; }
         public virtual DbSet<TbFdTareaTipo> TbFdTareaTipo { get; set; }
@@ -127,6 +128,7 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbFdTemporadaRango> TbFdTemporadaRango { get; set; }
         public virtual DbSet<TbFdTipoCliente> TbFdTipoCliente { get; set; }
         public virtual DbSet<TbFdTipoHabitacion> TbFdTipoHabitacion { get; set; }
+        public virtual DbSet<TbFdTipoProveedor> TbFdTipoProveedor { get; set; }
         public virtual DbSet<TbFdTipoServicio> TbFdTipoServicio { get; set; }
         public virtual DbSet<TbFdTipoTarifa> TbFdTipoTarifa { get; set; }
         public virtual DbSet<TbFdUsuarioCosto> TbFdUsuarioCosto { get; set; }
@@ -1233,6 +1235,10 @@ namespace AltivaWebApp.Models
 
                 entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
 
+                entity.Property(e => e.MapLink)
+                    .HasMaxLength(8000)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.Nombre)
                     .HasMaxLength(50)
                     .IsUnicode(false);
@@ -1262,6 +1268,10 @@ namespace AltivaWebApp.Models
                 entity.Property(e => e.TipoCedula)
                     .IsRequired()
                     .HasMaxLength(120)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.WebLink)
+                    .HasMaxLength(8000)
                     .IsUnicode(false);
             });
 
@@ -3103,6 +3113,20 @@ namespace AltivaWebApp.Models
                     .HasDefaultValueSql("('')");
             });
 
+            modelBuilder.Entity<TbFdSubtareas>(entity =>
+            {
+                entity.ToTable("TB_FD_Subtareas");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdTareaNavigation)
+                    .WithMany(p => p.TbFdSubtareas)
+                    .HasForeignKey(d => d.IdTarea)
+                    .HasConstraintName("FK_SubTareas_Tareas");
+            });
+
             modelBuilder.Entity<TbFdTarea>(entity =>
             {
                 entity.ToTable("tb_FD_Tarea");
@@ -3234,35 +3258,14 @@ namespace AltivaWebApp.Models
 
             modelBuilder.Entity<TbFdTipoCliente>(entity =>
             {
-                entity.ToTable("tb_FD_TipoCliente");
+                entity.ToTable("TB_FD_TipoCliente");
 
-                entity.Property(e => e.CuentaContable)
-                    .IsRequired()
-                    .HasMaxLength(60)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Descripcion)
-                    .IsRequired()
-                    .HasMaxLength(200)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.IdCuentaContableCre).HasColumnName("Id_CuentaContableCre");
-
-                entity.Property(e => e.IdCuentaContablePre).HasColumnName("Id_CuentaContablePre");
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
 
                 entity.Property(e => e.Nombre)
                     .IsRequired()
                     .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.NombreCuenta)
-                    .IsRequired()
-                    .HasMaxLength(200)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<TbFdTipoHabitacion>(entity =>
@@ -3305,6 +3308,17 @@ namespace AltivaWebApp.Models
                     .HasMaxLength(3)
                     .IsUnicode(false)
                     .HasDefaultValueSql("((0))");
+            });
+
+            modelBuilder.Entity<TbFdTipoProveedor>(entity =>
+            {
+                entity.ToTable("TB_FD_TipoProveedor");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<TbFdTipoServicio>(entity =>
@@ -3362,7 +3376,9 @@ namespace AltivaWebApp.Models
             {
                 entity.ToTable("tb_PR_Ajuste");
 
-                entity.Property(e => e.Descripcion).HasMaxLength(250);
+                entity.Property(e => e.Descripcion)
+                    .IsRequired()
+                    .HasMaxLength(500);
 
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
@@ -3718,10 +3734,6 @@ namespace AltivaWebApp.Models
                 entity.Property(e => e.Observacion)
                     .IsRequired()
                     .HasMaxLength(500);
-
-                entity.Property(e => e.PorcIs).HasColumnName("PorcIS");
-
-                entity.Property(e => e.PorcIva).HasColumnName("PorcIVA");
 
                 entity.Property(e => e.TotalIvabase).HasColumnName("TotalIVABase");
 

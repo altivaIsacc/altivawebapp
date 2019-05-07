@@ -21,6 +21,7 @@ namespace AltivaWebApp.Domains
         public double SubTotalExcentoEuro { get; set; }
         public double PorcIva { get; set; }
         public double PorcIs { get; set; }
+        public double PorcDesc { get; set; }
         public double TotalIvabase { get; set; }
         public double TotalIvadolar { get; set; }
         public double TotalIvaeuro { get; set; }
@@ -30,6 +31,9 @@ namespace AltivaWebApp.Domains
         public double TotalBase { get; set; }
         public double TotalDolar { get; set; }
         public double TotalEuro { get; set; }
+        public double TotalDescuentoBase { get; set; }
+        public double TotalDescuentoDolar { get; set; }
+        public double TotalDescuentoEuro { get; set; }
 
         public virtual TbPrInventario IdInventarioNavigation { get; set; }
         public virtual TbPrOrden IdOrdenNavigation { get; set; }

@@ -30,6 +30,10 @@ namespace AltivaWebApp.Models
         public double TotalBase { get; set; }
         public double TotalDolar { get; set; }
         public double TotalEuro { get; set; }
+        public double PorcDesc { get; set; }
+        public double TotalDescuentoBase { get; set; }
+        public double TotalDescuentoDolar { get; set; }
+        public double TotalDescuentoEuro { get; set; }
 
         public virtual TbPrInventario IdInventarioNavigation { get; set; }
         public virtual TbPrOrden IdOrdenNavigation { get; set; }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AltivaWebApp.Models
+namespace AltivaWebApp.Domains
 {
     public partial class TbFdConfiguracionFiltros
     {

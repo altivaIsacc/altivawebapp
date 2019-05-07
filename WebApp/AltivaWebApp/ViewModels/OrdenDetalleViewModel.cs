@@ -19,8 +19,10 @@ namespace AltivaWebApp.ViewModels
         public double SubTotalExcento { get; set; }
         public double PorcIva { get; set; }
         public double PorcIs { get; set; }
+        public double PorcDesc { get; set; }
         public double TotalIva { get; set; }
         public double TotalIs { get; set; }
+        public double TotalDescuento { get; set; }
         public double Total { get; set; }
 
     }

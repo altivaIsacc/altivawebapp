@@ -60,6 +60,7 @@ namespace AltivaWebApp.Mappers
                 viewModel.SubTotalGrabado = domain.SubTotalGrabadoBase;
                 viewModel.Total = domain.TotalBase;
                 viewModel.TotalIva = domain.TotalIvabase;
+                viewModel.TotalDescuento = domain.TotalDescuentoBase;
             }
             else if(domain.IdMoneda == 2)
             {
@@ -67,6 +68,7 @@ namespace AltivaWebApp.Mappers
                 viewModel.SubTotalGrabado = domain.SubTotalGrabadoDolar;
                 viewModel.Total = domain.TotalDolar;
                 viewModel.TotalIva = domain.TotalIvadolar;
+                viewModel.TotalDescuento = domain.TotalDescuentoDolar;
             }
             else if(domain.IdMoneda == 3)
             {
@@ -74,6 +76,7 @@ namespace AltivaWebApp.Mappers
                 viewModel.SubTotalGrabado = domain.SubTotalGrabadoEuro;
                 viewModel.Total = domain.TotalEuro;
                 viewModel.TotalIva = domain.TotalIvaeuro;
+                viewModel.TotalDescuento = domain.TotalDescuentoEuro;
             }
 
             
@@ -119,6 +122,10 @@ namespace AltivaWebApp.Mappers
                 domain.TotalDolar = domain.TotalBase / domain.TipoCambioDolar;
                 domain.TotalEuro = domain.TotalEuro / domain.TipoCambioEuro;
 
+                domain.TotalDescuentoBase = viewModel.TotalDescuento;
+                domain.TotalDescuentoDolar = domain.TotalDescuentoBase / domain.TotalDescuentoDolar;
+                domain.TotalDescuentoEuro = domain.TotalDescuentoBase / domain.TotalDescuentoEuro;
+
             }
             else if (viewModel.IdMoneda == 2)
             {
@@ -137,6 +144,10 @@ namespace AltivaWebApp.Mappers
                 domain.TotalBase = viewModel.Total * domain.TipoCambioDolar;
                 domain.TotalDolar = viewModel.Total;
                 domain.TotalEuro = domain.TotalBase / domain.TipoCambioEuro;
+
+                domain.TotalDescuentoBase = viewModel.TotalDescuento * domain.TipoCambioDolar;
+                domain.TotalDescuentoDolar = viewModel.TotalDescuento;
+                domain.TotalDescuentoEuro = domain.TotalDescuentoBase / domain.TipoCambioEuro;
             }
             else if (viewModel.IdMoneda == 3)
             {
@@ -156,6 +167,10 @@ namespace AltivaWebApp.Mappers
                 domain.TotalBase = viewModel.Total * domain.TipoCambioEuro;
                 domain.TotalDolar = domain.TotalBase / domain.TipoCambioDolar;
                 domain.TotalEuro = viewModel.Total;
+
+                domain.TotalDescuentoBase = viewModel.TotalDescuento * domain.TipoCambioEuro;
+                domain.TotalDescuentoDolar = domain.TotalDescuentoBase / domain.TipoCambioDolar;
+                domain.TotalEuro = viewModel.TotalDescuento;
             }
 
             return domain;
@@ -171,6 +186,7 @@ namespace AltivaWebApp.Mappers
             domain.IdUsuario = viewModel.IdUsuario;
             domain.Observacion = viewModel.Observacion;
             domain.Anulado = viewModel.Anulado;
+            domain.Fecha = viewModel.Fecha;
 
             var moneda = monedaService.GetAll();
 
@@ -192,6 +208,10 @@ namespace AltivaWebApp.Mappers
                 domain.TotalDolar = domain.TotalBase / domain.TipoCambioDolar;
                 domain.TotalEuro = domain.TotalEuro / domain.TipoCambioEuro;
 
+                domain.TotalDescuentoBase = viewModel.TotalDescuento;
+                domain.TotalDescuentoDolar = domain.TotalDescuentoBase / domain.TotalDescuentoDolar;
+                domain.TotalDescuentoEuro = domain.TotalDescuentoBase / domain.TotalDescuentoEuro;
+
             }
             else if (viewModel.IdMoneda == 2)
             {
@@ -210,6 +230,10 @@ namespace AltivaWebApp.Mappers
                 domain.TotalBase = viewModel.Total * domain.TipoCambioDolar;
                 domain.TotalDolar = viewModel.Total;
                 domain.TotalEuro = domain.TotalBase / domain.TipoCambioEuro;
+
+                domain.TotalDescuentoBase = viewModel.TotalDescuento * domain.TipoCambioDolar;
+                domain.TotalDescuentoDolar = viewModel.TotalDescuento;
+                domain.TotalDescuentoEuro = domain.TotalDescuentoBase / domain.TipoCambioEuro;
             }
             else if (viewModel.IdMoneda == 3)
             {
@@ -229,6 +253,10 @@ namespace AltivaWebApp.Mappers
                 domain.TotalBase = viewModel.Total * domain.TipoCambioEuro;
                 domain.TotalDolar = domain.TotalBase / domain.TipoCambioDolar;
                 domain.TotalEuro = viewModel.Total;
+
+                domain.TotalDescuentoBase = viewModel.TotalDescuento * domain.TipoCambioEuro;
+                domain.TotalDescuentoDolar = domain.TotalDescuentoBase / domain.TipoCambioDolar;
+                domain.TotalEuro = viewModel.TotalDescuento;
             }
 
             return domain;
@@ -290,6 +318,11 @@ namespace AltivaWebApp.Mappers
                 domain.PrecioDolar = viewModel.Precio / dolar;
                 domain.PrecioEuro = viewModel.Precio / euro;
 
+                domain.TotalDescuentoBase = viewModel.TotalDescuento;
+                domain.TotalDescuentoDolar = viewModel.TotalDescuento / dolar;
+                domain.TotalDescuentoEuro = viewModel.TotalDescuento / euro;
+                
+
             }
             else if (viewModel.IdMonedaOD == 2)
             {
@@ -316,6 +349,10 @@ namespace AltivaWebApp.Mappers
                 domain.PrecioBase = viewModel.Precio * dolar;
                 domain.PrecioDolar = viewModel.Precio;
                 domain.PrecioEuro = domain.PrecioBase / euro;
+
+                domain.TotalDescuentoBase = viewModel.TotalDescuento * dolar;
+                domain.TotalDescuentoDolar = viewModel.TotalDescuento;
+                domain.TotalDescuentoEuro = domain.TotalDescuentoBase / euro;
             }
             else if (viewModel.IdMonedaOD == 3)
             {
@@ -343,6 +380,10 @@ namespace AltivaWebApp.Mappers
                 domain.PrecioBase = viewModel.Precio * euro;
                 domain.PrecioDolar = domain.PrecioBase / dolar;
                 domain.PrecioEuro = viewModel.Precio;
+
+                domain.TotalDescuentoBase = viewModel.TotalDescuento * euro;
+                domain.TotalDescuentoDolar = domain.TotalDescuentoBase / dolar;
+                domain.TotalDescuentoEuro = viewModel.TotalDescuento;
             }
 
             return domain;

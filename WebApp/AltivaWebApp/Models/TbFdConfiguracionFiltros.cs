@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AltivaWebApp.Domains
+namespace AltivaWebApp.Models
 {
     public partial class TbFdConfiguracionFiltros
     {
@@ -10,5 +10,6 @@ namespace AltivaWebApp.Domains
         public int? IdContacto { get; set; }
         public int? IdEstado { get; set; }
         public int? IdTipo { get; set; }
+        public bool? Estado { get; set; }
     }
 }

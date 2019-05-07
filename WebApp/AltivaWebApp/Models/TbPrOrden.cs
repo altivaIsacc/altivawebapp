@@ -24,8 +24,6 @@ namespace AltivaWebApp.Models
         public double SubTotalExcentoBase { get; set; }
         public double SubTotalExcentoDolar { get; set; }
         public double SubTotalExcentoEuro { get; set; }
-        public double PorcIva { get; set; }
-        public double PorcIs { get; set; }
         public double TotalIvabase { get; set; }
         public double TotalIvadolar { get; set; }
         public double TotalIvaeuro { get; set; }
@@ -34,6 +32,9 @@ namespace AltivaWebApp.Models
         public double TotalEuro { get; set; }
         public double TipoCambioDolar { get; set; }
         public double TipoCambioEuro { get; set; }
+        public double TotalDescuentoBase { get; set; }
+        public double TotalDescuentoDolar { get; set; }
+        public double TotalDescuentoEuro { get; set; }
 
         public virtual TbCrContacto IdProveedorNavigation { get; set; }
         public virtual ICollection<TbPrOrdenDetalle> TbPrOrdenDetalle { get; set; }

@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AltivaWebApp.Domains
+namespace AltivaWebApp.Models
 {
     public partial class TbFdTarea
     {
+        public TbFdTarea()
+        {
+            TbFdSubtareas = new HashSet<TbFdSubtareas>();
+        }
+
         public long Id { get; set; }
         public string Titulo { get; set; }
         public long? IdUsuario { get; set; }
@@ -28,5 +33,6 @@ namespace AltivaWebApp.Domains
         public virtual TbCrContacto IdContactoNavigation { get; set; }
         public virtual TbFdTareaEstado IdEstadoNavigation { get; set; }
         public virtual TbFdTareaTipo IdTipoNavigation { get; set; }
+        public virtual ICollection<TbFdSubtareas> TbFdSubtareas { get; set; }
     }
 }
