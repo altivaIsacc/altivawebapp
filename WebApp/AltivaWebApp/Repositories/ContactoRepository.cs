@@ -73,7 +73,13 @@ namespace AltivaWebApp.Repositories
                             nite = con.Cedula,
                             IdUsuario = con.IdUsuario,
                             WebLink = con.WebLink,
-                            MapLink = con.MapLink
+                            MapLink = con.MapLink,
+                            IdTipoCliente = Convert.ToInt32( con.IdTipoCliente),
+                            IdSubFamiliaProveedor = Convert.ToInt32(con.IdSubFamiliaProveedor),
+                            IdFamiliaCliente = Convert.ToInt32(con.IdFamiliaCliente),
+                            IdSubFamiliaCliente = Convert.ToInt32(con.IdSubFamiliaCliente),
+                            IdTipoProveedor = Convert.ToInt32(con.IdTipoProveedor),
+                            IdFamiliaProveedor = Convert.ToInt32(con.IdFamiliaProveedor)
 
                             
                          }
