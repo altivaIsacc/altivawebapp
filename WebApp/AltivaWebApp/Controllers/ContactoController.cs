@@ -521,7 +521,7 @@ namespace AltivaWebApp.Controllers
             TbCrContacto ccT = new TbCrContacto();
             ccT = this.contactoService.GetTareas(idContacto);
             IList<TbFdTarea> tarea = new List<TbFdTarea>();
-            if (tarea.Count() > 0) {
+            if (ccT.TbFdTarea.Count() > 0) {
                 foreach (var item in ccT.TbFdTarea)
                 {
                     item.IdContactoNavigation = null;

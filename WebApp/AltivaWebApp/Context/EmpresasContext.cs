@@ -19,7 +19,7 @@ namespace AltivaWebApp.Context
         }
         public virtual DbSet<TbFdCuentasBancarias> TbFdCuentasBancarias { get; set; }
         public virtual DbSet<TbFdCondicionesDePago> TbFdCondicionesDePago { get; set; }
-
+        public virtual DbSet<TbPrFamiliaVentaOnline> TbPrFamiliaVentaOnline { get; set; }
         public virtual DbSet<TbFdTarea> TbFdTarea { get; set; }
         public virtual DbSet<TbFdTareaEstado> TbFdTareaEstado { get; set; }
         public virtual DbSet<TbFdTareaTipo> TbFdTareaTipo { get; set; }
@@ -231,6 +231,19 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.Estado)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+            });
+            modelBuilder.Entity<TbPrFamiliaVentaOnline>(entity =>
+            {
+                entity.ToTable("TB_PR_FamiliaVentaOnline");
+
+                entity.Property(e => e.Descripcion).HasMaxLength(150);
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.HasOne(d => d.IdFamiliaNavigation)
+                    .WithMany(p => p.InverseIdFamiliaNavigation)
+                    .HasForeignKey(d => d.IdFamilia)
+                    .HasConstraintName("FK_TB_PR_FamiliaVentaOnline_TB_PR_FamiliaVentaOnline");
             });
             modelBuilder.Entity<TbFdCuentasBancarias>(entity =>
             {
