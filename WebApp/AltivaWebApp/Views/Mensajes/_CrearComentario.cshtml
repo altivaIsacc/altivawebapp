@@ -1,4 +1,5 @@
 ﻿@model AltivaWebApp.ViewModels.MensajeViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -8,21 +9,21 @@
 }
 
 <div class="row">
-    
+
     <div class="col-md-6">
         <br />
         <form id="frmComentario">
-            
+
             <div class="form-group">
                 <label asp-for="mensaje" class="control-label">Comentario:</label>
                 <textarea id="txtMensaje" asp-for="mensaje" class="form-control" rows="4"> </textarea>
-                <span hidden data-translate="comentarioValid" id="comentarioValid" class="text-danger">Comentario no puede ir vacío</span>
+                <span hidden data-translate="comentarioValid" id="comentarioValid" class="text-danger">Comentario no puede ir vacío.</span>
             </div>
             <div class="form-group">
                 <span data-translate="cargaArchivos" class="input-group-text" id="inputGroup-sizing-sm">Adjuntar Archivos</span>
                 <input type="file" asp-for="Files" class="form-control" multiple="multiple" id="fileUpload">
-                <span hidden class="text-danger" data-translate="tamanoArchivoValid" id="tamanoArchivos">El tamaño máximo del archivo es de 25MB</span>
-                <span hidden data-translate="cantidadArchivosValid" id="cantidadArchivos" class="text-danger">No puede agregar más de 5 archivos</span>
+                <span hidden class="text-danger" data-translate="tamanoArchivoValid" id="tamanoArchivos">El tamaño máximo del archivo es de 25MB.</span>
+                <span hidden data-translate="cantidadArchivosValid" id="cantidadArchivos" class="text-danger">No puede agregar más de 5 archivos.</span>
             </div>
             <div class="form-group" hidden>
                 <label asp-for="tipoMensaje" class="control-label"></label>
@@ -38,7 +39,7 @@
             </div>
         </form>
         <div class="form-group">
-            <button class="btn btn-primary" onclick="guardarComentario()" id="btnGuardarComentario">Guardar <i class="fas fa-paper-plane"></i></button>
+            <button class="btn btn-primary" onclick="guardarComentario()" id="btnGuardarComentario">@SharedLocalizer["Enviar"] <i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
@@ -60,7 +61,7 @@
         };
 
     $(document).ready(function () {
-     
+
         model.idReferencia= @Model.id;
         model.tipoReferencia = '@Model.tipoReferencia';
 
@@ -68,19 +69,19 @@
 
     });
 
-
+    
 
     function guardarComentario() {
         //$('#frmComentario').serialize()
-        
+
         var formData = new FormData();
         var file = [];
         var files = $('#fileUpload')[0].files;
 
-        for (var i = 0; i < files.length; i++) {           
+        for (var i = 0; i < files.length; i++) {
             formData.append("files", files[i]);
         }
-       
+
 
         formData.append('mensaje', $('#txtMensaje').val());
         formData.append('tipoMensaje', $('#txtTipoMensaje').val());
@@ -93,13 +94,14 @@
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
-                url: '/Mensajes/Crear-ComentrioPost',
+                url: '../../Mensajes/Crear-ComentrioPost',
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 data: formData,
                 success: function (data) {
                     $('#txtMensaje').val("");
+                    $('#fileUpload').val('');
                     GetComentarios(model);
                     $('#comentarioValid').attr('hidden', true);
                     $('#tamanoArchivos').attr('hidden', true);
@@ -121,9 +123,9 @@
         for (var i = 0; i < this.files.length; i++) {
 
             e = + this.files[i].size;
-            if (e > 25000) {
+            if (e > 250000) {
                 $('#tamanoArchivos').attr('hidden', false);
-                $(this).attr("value", "");
+                $(this).val('');
                 break;
             }
         }
@@ -131,13 +133,13 @@
         if (this.files.length > 5) {
             $(this).attr("value", "");
             $('#cantidadArchivos').attr('hidden', false);
-          
+            $(this).val('');
         }
     });
 
     function GetComentarios(model) {
          $.ajax({
-             type: "GET",
+             type: "POST",
              headers: {
                 "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
              },
@@ -145,17 +147,22 @@
              data: model,
              success: function (data) {
                  $('#contenido').remove();
-                 $('#listaComentarios').html('<div id=contenido></div>');  
-                 $('#contenido').html(data);   
-                                      
+                 $('#listaComentarios').html('<div id=contenido></div>');
+                 $('#contenido').html(data);
+
              },
              error: function (err, scnd) {
 
                 alert("Lo sentimos, tuvimos un problema al procesar tu solicitud.");
                 console.log(err.statusText);
 
-             }           
+             }
 
          });
+    }
+
+    function setMensajeFromOut(mensaje) {
+        $('#txtMensaje').val(mensaje);
+        guardarComentario();
     }
 </script>

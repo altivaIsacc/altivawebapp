@@ -1,4 +1,5 @@
 ﻿@model AltivaWebApp.ViewModels.InventarioViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -62,7 +63,7 @@ else
                 </div>
                 <div class="form-group col-md-2">
                     <label data-translate="unidadMedida" asp-for="IdUnidadMedida" class="control-label">Unidad de Medida</label>
-                    <select asp-for="IdUnidadMedida" id="unidades" class="form-control search-key">
+                    <select asp-for="IdUnidadMedida" id="unidades"  class="form-control">
                         @{
                             foreach (var item in ViewData["unidades"] as IList<TbPrUnidadMedida>)
                             {
@@ -70,6 +71,9 @@ else
                             }
                         }
                     </select>
+                </div>
+                <div class="form-group col-md-2" hidden>                  
+                    <input required asp-for="IdUnidadMedida" id="unidadesInput" class="form-control" />                  
                 </div>
                 <div class="form-group col-md-4">
                     <div class="row">
@@ -292,13 +296,13 @@ else
 
             <ul class="nav nav-tabs " id="tabs">
                 <li class="nav-item active">
-                    <a class="nav-link" data-translate="bodegas" data-toggle="tab" href="#bodegas">Bodegas</a>
+                    <a class="nav-link" data-translate="bodegas" data-toggle="tab" href="#bodegas">@SharedLocalizer["Bodegas"]</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-toggle="tab" data-translate="comentarios" href="#inventarioComentarios">Comentarios</a>
+                    <a class="nav-link" data-toggle="tab" href="#inventarioEquivalencias">@SharedLocalizer["Equivalencias"]</a>
                 </li>
-                <li class="nav-item" id="ventaOnline">
-                    <a  class="nav-link" data-toggle="tab"  href="#ventaOnline">Venta Online</a>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" data-translate="comentarios" href="#inventarioComentarios">@SharedLocalizer["Comentarios"]</a>
                 </li>
             </ul>
 
@@ -349,12 +353,12 @@ else
 
                                             </select>
                                         </td>
-                                        <td><input min="0" pattern="^[0-9]+" type="number" id="minima" /></td>
-                                        <td><input min="0" pattern="^[0-9]+" type="number" id="media" /></td>
-                                        <td><input min="1" pattern="^[0-9]+" type="number" id="maxima" /></td>
-                                        <td><input readonly value="0" type="number" id="actual" /></td>
-                                        <td><input readonly value="0" type="number" id="costoPromedio" /></td>
-                                        <td><input readonly value="0" type="number" id="saldo" /></td>
+                                        <td><input class="form-control" min="0" pattern="^[0-9]+" type="number" id="minima" /></td>
+                                        <td><input class="form-control" min="0" pattern="^[0-9]+" type="number" id="media" /></td>
+                                        <td><input class="form-control" min="1" pattern="^[0-9]+" type="number" id="maxima" /></td>
+                                        <td><input class="form-control" readonly value="0" type="number" id="actual" /></td>
+                                        <td><input class="form-control" readonly value="0" type="number" id="costoPromedio" /></td>
+                                        <td><input class="form-control" readonly value="0" type="number" id="saldo" /></td>
                                         <td><button class="btn btn-link" id="agregarBodega"><i class="fas fa-save"></i></button></td>
                                     </tr>
 
@@ -380,8 +384,16 @@ else
                 </div>
                 <div id="ventaOnline" class="container tab-pane">
 
-                    Agregando venta online..
+                <div id="inventarioEquivalencias" class="container tab-pane">
+                    <br>
+
+                    <div class="col-md-6">
+                        <div id="equivalencias">
+
+                        </div>
                     </div>
+                </div>
+
             </div>
         </div>
 
@@ -390,7 +402,7 @@ else
 
         <div class="form-group">
             <button id="btnGuardar" class="btn btn-success"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
-            <a  class="btn btn-default btnAtras" data-translate="cancelar">Cancelar</a>
+            <a class="btn btn-default" id="btnCancelar" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
         </div>
     </div>
 </div>
@@ -427,9 +439,10 @@ else
 
 
     $(document).ready(function () {
-       // $('#ventaOnline').tab('hide');
-        GetComentarios("Inventario", @Model.IdInventario);
-        
+
+        if(@Model.IdInventario != 0)
+            GetComentarios("Inventario", @Model.IdInventario);
+
 
         if ($('#habilitaVenta').prop('checked'))
             $('.ventaDirectaForm').collapse('toggle');
@@ -442,6 +455,7 @@ else
         if (@Model.IdInventario != 0) {
             $('#unidades').attr('disabled', true);
             getBodegas();
+            getEquivalencias();
         }
         else
             $('.habilitaEdicionGroup').attr('hidden', true);
@@ -452,7 +466,7 @@ else
                 $('#unidades').attr('disabled', false);
             else
                 $('#unidades').attr('disabled', true);
-                
+
 
         });
 
@@ -474,11 +488,7 @@ else
 
 
         $('#btnCancelar').click(function () {
-
-            if (confirm("Está seguro que desea cancelar"))
-                window.location.href = "@Url.Action("ListarInventario")";
-
-
+            bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) { if (result) window.location.href = "@Url.Action("ListarInventario")"; });
         });
 
         $('#habilitaVenta').change(function () {
@@ -493,7 +503,9 @@ else
         });
 
 
-
+        $('#unidades').change(function () {
+            $('#unidadesInput').val($(this).val());
+        });
 
 
         $('#agregarBodega').click(function () {
@@ -506,7 +518,7 @@ else
 
             for (var i = 0; i < inventarioBodega.length; i++) {
                 if (bodega === inventarioBodega[i].idBodega) {
-                    cargarAlert("No se puede agregar dos veces la misma bodega");
+                    cargarAlert("@SharedLocalizer["errorDuplicacion"]");
                     flag = true;
 
                 }
@@ -533,12 +545,12 @@ else
                 if (model.existenciaMinima > 0 && model.existenciaMedia > 0 && model.existenciaMaxima > 0) {
 
                     if (model.existenciaMinima >= model.existenciaMedia) {
-                        cargarAlert("La existencia minima debe ser menor a la media");
+                        cargarAlert('@SharedLocalizer["minimaValid"]');
                         flag2 = false;
                     }
 
                     else if (model.existenciaMedia >= model.existenciaMaxima) {
-                        cargarAlert("La existencia media debe ser menor a la máxima");
+                        cargarAlert('@SharedLocalizer["mediaValid"]');
                         flag2 = false;
                     }
 
@@ -554,7 +566,7 @@ else
 
                 }
                 else {
-                    cargarAlert("Las existencias deben ser mayor a 0");
+                    cargarAlert("@SharedLocalizer["existenciaValid"]");
                 }
 
 
@@ -572,6 +584,8 @@ else
             var model = $('#formInventario').serialize();
             //console.log(inventarioBodega.length);
 
+            var url = '@Url.Action("CrearEditarInventario", "Inventario", new { id = Model.IdInventario })';
+
             if (formIsValid())
                 if (inventarioBodega.length > 0)
                      $.ajax({
@@ -579,7 +593,7 @@ else
                         headers: {
                             "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                         },
-                        url: '/Inventario/CrearEditar-Inventario/' + @Model.IdInventario,
+                        url: url,
                         data: model,
                          success: function (data) {
 
@@ -597,12 +611,13 @@ else
                              }
 
                         },
-                        error: function (err, scnd) {
+                         error: function (err, scnd) {
+                            cargarAlert("@SharedLocalizer["errorGeneral"]")
                             console.log(err.statusText);
                         }
                     });
                else
-                    cargarAlert("El ítem no se puede agregar sin una bodega asignada");
+                    cargarAlert("@SharedLocalizer["bodegaSinItemValid"]");
 
 
 
@@ -611,28 +626,28 @@ else
 
         $('#editarFamilia').click(function () {
 
-            var url = '/Familias/Editar-Familia/' + $('#familias').val();
+            var url = '../Familias/Editar-Familia/' + $('#familias').val();
             crearEditarFamilia(url);
 
         });
 
         $('#crearFamilia').click(function () {
 
-            var url = '/Familias/Crear-Familia/';
+            var url = '../Familias/Crear-Familia/';
             crearEditarFamilia(url);
 
         });
 
         $('#editarSubFamilia').click(function () {
 
-            var url = '/Familias/Editar-Familia/' + $('#subFamilias').val();
+            var url = '../Familias/Editar-Familia/' + $('#subFamilias').val();
             crearEditarFamilia(url);
 
         });
 
         $('#crearSubFamilia').click(function () {
 
-            var url = '/Familias/Crear-Familia/';
+            var url = '../Familias/Crear-Familia/';
             crearEditarFamilia(url);
 
         });
@@ -655,6 +670,7 @@ else
 
                 },
                 error: function (err, scnd) {
+                    cargarAlert("@SharedLocalizer["errorGeneral"]");
                     console.log(err.statusText);
                 }
             });
@@ -692,7 +708,7 @@ else
                 },
                 error: function (err, scnd) {
                     console.log(err.statusText);
-                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                    cargarAlert("@SharedLocalizer["errorGeneral"]");
                 }
             });
         }
@@ -715,16 +731,41 @@ else
 
                 },
                 error: function (err, scnd) {
-                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                    cargarAlert("@SharedLocalizer["errorGeneral"]");
                     console.log(err.statusText);
                 }
             });
         }
 
+        function getEquivalencias() {
+
+            var url = '@Url.Action("_ListarEquivalencias", "Inventario")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: {id: @Model.IdInventario},
+                success: function (data) {
+                    $('#equivalencias').html(data);
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+        }
+
+
+        
+
         function guardarRelacionIB(id) {
 
 
-            var url = "/Inventario/CrearEditar-InventarioBodega/" + id;
+            var url = "@Url.Action("CrearInventarioBodega", "Inventario", new { id = "__id__" })";
+
+            url = url.replace("__id__", id);
 
             $.ajax({
                 type: "post",
@@ -739,7 +780,7 @@ else
                 },
                 error: function (err, scnd) {
 
-                    cargarAlert("Lo sentimos, tuvimos un problema al procesar tu solicitud");
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
                     console.log(err.statusText);
                 }
             });
@@ -780,7 +821,7 @@ else
             $('#presentacionValid').attr('hidden', false);
             flag = false;
         }
-        if (array[3].value === "")
+        if (array[3].value.replace(/ /g, "") === "")
             array[3].value = 0;
         if (array[11].value === "")
             array[11].value = 0;
@@ -802,11 +843,11 @@ else
             array[20].value = 0;
         if (array[21].value === "")
             array[21].value = 0;
-        if (array[4].value === "") {
+        if (array[4].value.replace(/ /g, "") === "") {
             $('#codigoValid').attr('hidden', false);
             flag = false;
         }
-        if (array[7].value === "") {
+        if (array[7].value.replace(/ /g, "") === "") {
             $('#descripcionValid').attr('hidden', false);
             flag = false;
         }
@@ -845,7 +886,9 @@ else
 
     function eliminarBodegaInventario(fila, idRelacion) {
 
-        if (confirm('Está seguro que desea eliminar esta bodega?')) {
+        bootbox.confirm("@SharedLocalizer["confirmEliminar"]", function (result) {
+
+            if (result) {
             var flag = false;
 
             for (var i = 0; i < inventarioBodega.length; i++) {
@@ -857,7 +900,8 @@ else
 
 
                 if (idRelacion != 0) {
-                    var url = '/Inventario/EliminarInventarioBodega/' + idRelacion;
+                    var url = "@Url.Action("EliminarInventarioBodega", "Inventario", new { id = "__id__" })";
+                    url = url.replace("__id__", idRelacion);
 
                     if (!flag)
                         $.ajax({
@@ -872,11 +916,11 @@ else
                             },
                             error: function (err, scnd) {
                                 console.log(err.statusText);
-                                cargarAlert("Lo sentimos, tuvimos un problema al procesar tu solicitud");
+                                cargarAlert('@SharedLocalizer["errorGeneral"]');
                             }
                         });
                     else
-                        cargarAlert("No puede eliminar la bodega de este inventario si tiene existencias");
+                        cargarAlert("@SharedLocalizer["eliminarInventario"]");
 
                 }
                 else {
@@ -886,11 +930,14 @@ else
 
             }
             else {
-                cargarAlert("Inventario debe tener al menos una bodega asignada");
+                cargarAlert("@SharedLocalizer["bodegaAsignada"]");
             }
 
 
         }
+
+        });
+      
 
 
     }

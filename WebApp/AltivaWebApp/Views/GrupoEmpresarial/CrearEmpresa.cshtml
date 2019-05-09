@@ -1,93 +1,100 @@
 ﻿@model AltivaWebApp.ViewModels.EmpresaViewModel
-
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @{
     Layout = "_HomeLayout";
 }
 
 <div class="row">
     <div class="col-md-12">
-        <h4>Nueva Empresa</h4>
+        <h4>@SharedLocalizer["nuevaEmpresa"]</h4>
     </div>
 
     <br />
 
     <div class="col-md-10">
-       
 
-        <form id="frm_empresa" asp-action="CrearEmpresa" method="post" enctype="multipart/form-data">
+
+        <form id="frm_empresa" method="post" enctype="multipart/form-data">
             <div class="row">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label asp-for="@Model.Nombre" class="control-label"></label>
+                        <label asp-for="@Model.Nombre" class="control-label">@SharedLocalizer["Nombre"]:</label>
                         <input asp-for="@Model.Nombre" id="txt_nombre" class="form-control" />
-                        <span asp-validation-for="@Model.Nombre" class="text-danger"></span>
+                        <span hidden id="nombreValid" class="text-danger">@SharedLocalizer["nombreRequerido"]</span>
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="@Model.Correo" class="control-label"></label>
-                        <input asp-for="@Model.Correo" class="form-control" />
-                        <span asp-validation-for="@Model.Correo" class="text-danger"></span>
+                        <label asp-for="@Model.Correo" class="control-label">@SharedLocalizer["Correo"]:</label>
+                        <input asp-for="@Model.Correo" type="email" id="txtCorreo" class="form-control" />
+                        <span hidden id="correoValid" class="text-danger">@SharedLocalizer["correoRequerido"]</span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label asp-for="@Model.Telefono1" class="control-label"></label>
-                        <input asp-for="@Model.Telefono1" class="form-control" />
-                        <span asp-validation-for="@Model.Telefono1" class="text-danger"></span>
+                        <label asp-for="@Model.Telefono1" class="control-label">@SharedLocalizer["Teléfono"] 1:</label>
+                        <input asp-for="@Model.Telefono1" id="txtTelefono1" class="form-control" />
+                        <span hidden id="telefonoValid" class="text-danger">@SharedLocalizer["telefonoRequerido"]</span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="@Model.Telefono2" class="control-label"></label>
-                        <input asp-for="@Model.Telefono2" class="form-control" />
-                        <span asp-validation-for="@Model.Telefono2" class="text-danger"></span>
+                        <label asp-for="@Model.Telefono2" class="control-label">@SharedLocalizer["Teléfono"] 2:</label>
+                        <input asp-for="@Model.Telefono2" id="txtTelefono2" class="form-control" />
+                        
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label asp-for="@Model.CedJuridica" class="control-label"></label>
-                        <input asp-for="@Model.CedJuridica" class="form-control" />
-                        <span asp-validation-for="@Model.CedJuridica" class="text-danger"></span>
+                        <label asp-for="@Model.CedJuridica" class="control-label">@SharedLocalizer["cedulaJuridica"]:</label>
+                        <input asp-for="@Model.CedJuridica" id="txtCedJuridica" class="form-control" />
+                        <span hidden id="cedJuridicaValid" class="text-danger">@SharedLocalizer["cedulaRequerido"]</span>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" hidden>
                         <label asp-for="@Model.Bd" class="control-label"></label>
                         <input readonly asp-for="@Model.Bd" id="txt_bd" class="form-control" />
-                        <span asp-validation-for="@Model.Bd" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label asp-for="@Model.Direccion" class="control-label"></label>
-                        <input asp-for="@Model.Direccion" class="form-control" />
-                        <span asp-validation-for="@Model.Direccion" class="text-danger"></span>
+                        <label asp-for="@Model.Direccion" class="control-label">@SharedLocalizer["Dirección"]:</label>
+                        <input asp-for="@Model.Direccion" id="txtDireccion" class="form-control" />
+                        <span hidden id="direccionValid" class="text-danger">@SharedLocalizer["direccionRequerido"]</span>
                     </div>
                     <div class="form-group" hidden>
                         <div class="checkbox">
                             <label>
-                                <input value="true" asp-for="@Model.Estado" /> Activa
+                                <input readonly value="true" asp-for="@Model.Estado" />
                             </label>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <span class="input-group-text" id="inputGroup-sizing-sm">Subir foto</span>
-                        <input type="file" asp-for="@Model.Foto" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                        <span class="input-group-text" id="inputGroup-sizing-sm">@SharedLocalizer["cargarFoto"]:</span>
+                        <input id="fileUpload" type="file" accept="image/*" asp-for="@Model.Foto" class="form-control" placeholder="@SharedLocalizer["noSeleccionadoArchivo"]">
+                        <span hidden id="fotoValid" class="text-danger">@SharedLocalizer["fotoRequerida"]</span>
+                        <span hidden id="tamanoArchivo" class="text-danger">@SharedLocalizer["tamanoArchivo"]</span>
+                        <span hidden id="tipoArchivo" class="text-danger">@SharedLocalizer["tipoArchivo"]</span>
                     </div>
                     <div class="form-group" hidden>
-                        <label asp-for="@Model.Id_GE" class="control-label"></label>
-                        <input asp-for="@Model.Id_GE" value="1" class="form-control" />
-                        <span asp-validation-for="@Model.Id_GE" class="text-danger"></span>
+                        <input readonly asp-for="@Model.Id_GE" value="1" class="form-control" />    
                     </div>
                 </div>
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <input type="submit" id="crearEmpresa" value="Crear" class="btn btn-default" />
-                        <a href="@Url.Action("ListarEmpresas")" class="btn btn-secondary" data-dismiss="modal">Cancelar</a>
-                    </div>
-                </div>
+
             </div>
         </form>
-
+        <div class="row">
+            <div class="form-group col-md-4">
+                <button id="crearEmpresa" class="btn btn-success" onclick="formValid()"><span>@SharedLocalizer["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
+                <a href="@Url.Action("ListarEmpresas")" class="btn btn-default" data-dismiss="modal">Cancelar</a>
+            </div>
+        </div>
     </div>
 </div>
 <div class="row" id="error">
@@ -97,11 +104,122 @@
 
     $(document).ready(function () {
 
-        $('#txt_nombre').keyup(function () {            
-            var nombre = $(this).val(); 
+        $('#txt_nombre').keyup(function () {
+            var nombre = $(this).val();
             $('#txt_bd').val('BE_' + nombre.replace(/ /g, ""));
         });
 
+
+        $('#txtCedJuridica').mask('0-0000-00000');
+        $('#txtTelefono1').mask('0000-0000');
+        $('#txtTelefono2').mask('0000-0000');
+
     });
+
+    function formValid() {
+
+        var flag = true;
+
+        var nombre = $('#txt_nombre').val().replace(/ /g, "");
+        var correo = $('#txtCorreo').val().replace(/ /g, "");
+        var telefono1 = $('#txtTelefono1').val().replace(/ /g, "");
+        var telefono2 = $('#txtTelefono2').val().replace(/ /g, "");
+        var direccion = $('#txtDireccion').val().replace(/ /g, ""); 
+        var cedJuridica = $('#txtCedJuridica').val().replace(/ /g, "");
+        var foto = $('#fileUpload');
+
+        if (nombre.length < 1) {
+            $('#nombreValid').attr('hidden', false);
+            flag = false;
+        }            
+        if (correo.length < 1) {
+            $('#correoValid').attr('hidden', false);
+            flag = false;
+        }            
+        if (telefono1.length < 1) {
+            $('#telefonoValid').attr('hidden', false);
+            flag = false;
+        }            
+        if (direccion.length < 1) {
+            $('#direccionValid').attr('hidden', false);
+            flag = false;
+        }           
+        if (cedJuridica.length < 1) {
+            $('#cedJuridicaValid').attr('hidden', false);
+            flag = false;
+        }
+        if (foto.length < 1) {
+            $('#fotoValid').attr('hidden', false);
+            flag = false;
+        }
+            
+
+        if (flag)
+            guardarEmpresa();
+    }
+
+    $('#fileUpload').bind('change', function () {
+
+        var file = $(this)[0].files[0];
+
+        var e = 0;
+        e = + file.size;
+        if (e > 6000) {
+            $('#tamanoArchivo').attr('hidden', false);
+            $(this).val('');
+        }
+        
+        if (!(/\.(jpg|png|gif)$/i).test(file.name)) {
+            $('#tipoArchivo').attr('hidden', false);
+            $(this).val('');
+        }
+        
+    });
+
+
+    function guardarEmpresa() {
+
+  
+        var model = $('form').serializeArray();
+
+        var formData = new FormData();
+        var file = $('#fileUpload')[0].files[0];        
+
+        formData.append('nombre', model[0].value);
+        formData.append('correo', model[1].value);
+        formData.append('telefono1', model[2].value);
+        formData.append('telefono2', model[3].value);
+        formData.append('cedJuridica', model[4].value);
+        formData.append("bd", model[5].value);
+        formData.append("direccion", model[6].value);
+        formData.append("estado", model[7].value);
+        formData.append("id_ge", model[8].value);
+        formData.append("foto", file);
+
+
+         $.ajax({
+                type: "post",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+             url: '@Url.Action("CrearEmpresa","GrupoEmpresarial")',
+             dataType: 'json',
+             contentType: false,
+             processData: false,
+             data: formData,
+             success: function (data) {
+                 if (data.success === true) {
+                     window.location.href = '@Url.Action("ListarEmpresas", "GrupoEmpresarial")';
+                 }
+                 else 
+                     alert(data.success);
+
+                },
+             error: function (err) {
+                 console.log(err.success);
+             }
+            });
+
+    }
 
 </script>

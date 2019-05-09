@@ -5,6 +5,11 @@ namespace AltivaWebApp.Domains
 {
     public partial class TbCoCentrosDeGastos
     {
+        public TbCoCentrosDeGastos()
+        {
+            TbPrAjusteInventario = new HashSet<TbPrAjusteInventario>();
+        }
+
         public long Id { get; set; }
         public string Nombre { get; set; }
         public DateTime FechaCreacion { get; set; }
@@ -17,5 +22,7 @@ namespace AltivaWebApp.Domains
         public string Observacion { get; set; }
         public string Codigo { get; set; }
         public DateTime Fecha { get; set; }
+
+        public virtual ICollection<TbPrAjusteInventario> TbPrAjusteInventario { get; set; }
     }
 }

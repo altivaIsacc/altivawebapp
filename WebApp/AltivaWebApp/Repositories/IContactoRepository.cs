@@ -23,7 +23,7 @@ public interface IContactoRepository
         TbCrContacto GetByCedulaContacto(string cedula);
         TbCrContacto GetTareas(int idContacto);
         IList<ContactoRelacionGETViewModel> GetContactosRelacion(int id);
-
+        IList<TbCrContacto> GetAllProveedores();
         IList<TbCeDistrito> GetDistrito(int idCanton,int idProvincia);
     }
 }

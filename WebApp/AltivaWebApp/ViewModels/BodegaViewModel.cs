@@ -8,7 +8,7 @@ namespace AltivaWebApp.ViewModels
 {
     public class BodegaViewModel
     {
-        [Required(ErrorMessage = "Nombre es requerido")]
+        [Required(ErrorMessage = "Nombre es requerido.")]
         [StringLength(50, MinimumLength = 1)]
         public string Nombre { get; set; }
         public bool Produccion { get; set; }
@@ -16,7 +16,7 @@ namespace AltivaWebApp.ViewModels
         public bool SuministrosInternos { get; set; }
         public bool Consignacion { get; set; }
         public bool Estado { get; set; }
-        [Required(ErrorMessage = "Usuario encargado es requerido")]
+        [Required(ErrorMessage = "Usuario encargado es requerido.")]
         public int UsuarioEncargado { get; set; }
         public string Observaciones { get; set; }
     }

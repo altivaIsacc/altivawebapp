@@ -5,15 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-namespace AltivaWebApp.Session
+using Microsoft.AspNetCore.Mvc;
+namespace AltivaWebApp.Sesion
 {
-    public static class Session
+    public static class Sesion
     {
         public static string _KEYBDGE = "stringGE";
         public static string _KEYBDBE = "stringBE";
         public static string _KEYnombreUsuario = "nombreUsuario";
         public static string _KEYIdEmpresa = "idEmpresa";
+        public static string _KEYIdiomaUsuario = "idioma";
 
         public static void SetStringGE(this ISession session, string value)
         {
@@ -31,6 +32,9 @@ namespace AltivaWebApp.Session
         {
             session.SetInt32(_KEYIdEmpresa, value);
         }
-
+        public static void SetIdioma(this ISession session, string value)
+        {
+            session.SetString(_KEYIdiomaUsuario, value);
+        }
     }
 }

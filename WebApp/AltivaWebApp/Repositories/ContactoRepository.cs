@@ -33,6 +33,19 @@ namespace AltivaWebApp.Repositories
             return context.TbCrContacto.Where(u => u.Persona == true).ToList();
         }
 
+        public IList<TbCrContacto> GetAllProveedores()
+        {
+            try
+            {
+                return context.TbCrContacto.Where(c => c.Proveedor == true).ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public TbCrContacto GetByCedulaContacto(string cedula)
         {
             TbCrContacto con = new TbCrContacto();

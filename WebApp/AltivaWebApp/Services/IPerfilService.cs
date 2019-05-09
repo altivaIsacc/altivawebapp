@@ -15,7 +15,7 @@ namespace AltivaWebApp.Services
         IList<TbSePerfil> GetPerfilByUsuario(int id);
         IList<TbSePerfil> GetPerfilSinAsignarByUsuario(int id);
         bool GetPerfilTieneUsuarios(int idPerfil);
-
+        TbSePerfil GetSinglePerfilByNombre(string nombre);
 
     }
 }

@@ -168,7 +168,24 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IInventarioService, InventarioService>();
             services.AddScoped<IInventarioMap, InventarioMap>();
 
+            //ajuste
 
+            services.AddScoped<IAjusteRepository, AjusteRepository>();
+            services.AddScoped<IAjusteService, AjusteService>();
+            services.AddScoped<IAjusteMap, AjusteMap>();
+
+            //orden
+
+            services.AddScoped<IOrdenRepository, OrdenRepository>();
+            services.AddScoped<IOrdenService, OrdenService>();
+            services.AddScoped<IOrdenMap, OrdenMap>();
+
+
+            //Kardex
+
+            services.AddScoped<IKardexRepository, KardexRepository>();
+            services.AddScoped<IKardexService, KardexService>();
+            services.AddScoped<IKardexMap, KardexMap>();
 
 
 

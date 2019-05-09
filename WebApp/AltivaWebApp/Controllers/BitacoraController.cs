@@ -13,6 +13,7 @@ using System.Security.Claims;
 
 namespace AltivaWebApp.Controllers
 {
+    [Route("{culture}/Bitacora")]
     public class BitacoraController : Controller
     {
         //Variable del usuario
@@ -25,9 +26,8 @@ namespace AltivaWebApp.Controllers
         }
 
        
-        [HttpGet("/Bitacora/ListaBitacora")]
-
-        public ActionResult ListaBitacora()
+        [HttpGet("Lista-Bitacora")]
+        public ActionResult Index()
         {
             List<TbSeUsuario> usuariosAsociados = new List<TbSeUsuario>();
 
@@ -40,7 +40,8 @@ namespace AltivaWebApp.Controllers
             return View();
         }
         
-        public   ActionResult BuscarPorUsuario(BitacoraViewModel valor)
+        [Route("Bitacora-Usuario")]
+        public ActionResult FindById(BitacoraViewModel valor)
         {
           List<BitacoraViewModel> bitacora = new List<BitacoraViewModel>();
             bitacora =   IBitacoraService.GetByName(Convert.ToInt32(valor.IdUsuario));
@@ -48,6 +49,15 @@ namespace AltivaWebApp.Controllers
             return View();
         }
 
+        [Route("Bitacora-Fecha")]
+        public ActionResult FindByDate(BitacoraViewModel viewModel)
+        {
+            List<BitacoraViewModel> bitacora = new List<BitacoraViewModel>();
+            bitacora = IBitacoraService.GetByDate(viewModel.Fecha1, viewModel.Fecha2);
+      
+            return Json(new { fecha= viewModel.Fecha1, fecha3 = viewModel.Fecha2 } );
+
+        }
         public ActionResult BuscarPorFecha(BitacoraViewModel domain)
         {
             List<BitacoraViewModel> bitacora = new List<BitacoraViewModel>();
@@ -58,6 +68,8 @@ namespace AltivaWebApp.Controllers
             
 
         }
-    
+        
+
+      
     }
 }

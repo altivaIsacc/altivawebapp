@@ -17,7 +17,7 @@ using System.Linq;
 
 namespace AltivaWebApp.Controllers
 {
-    [Route("Cuenta")]
+    [Route("{culture}/Cuenta")]
     public class CuentaController : Controller
     {
         
@@ -112,7 +112,8 @@ namespace AltivaWebApp.Controllers
 
                 //HttpContext.Session.SetString("nombreUsuario", user.Nombre);
 
-                Session.Session.SetNombreUsuario(HttpContext.Session, user.Nombre);
+                Sesion.Sesion.SetNombreUsuario(HttpContext.Session, user.Nombre);
+                //Sesion.Sesion.SetIdioma(HttpContext.Session, user.TbSeUsuarioConfiguraion.First().Idioma);
                 HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, props).Wait();
 
                 return RedirectToAction("ListarEmpresas", "GrupoEmpresarial");

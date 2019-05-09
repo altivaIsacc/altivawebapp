@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Hosting.Server;
 
 namespace AltivaWebApp.Controllers
 {
+    [Route("{culture}/Paises")]
     public class PaisController : Controller
     {
         //variable pais service
@@ -33,8 +34,8 @@ namespace AltivaWebApp.Controllers
             
         }
         // GET: Pais
-        [HttpGet("/Paises/")]
-        public ActionResult Index(string mensaje)
+        [HttpGet("Lista-Paises")]
+        public ActionResult Index()
         {
 
             var PaisesFiltrados =new List<TbSePais>();
@@ -75,7 +76,7 @@ namespace AltivaWebApp.Controllers
             email.insertarNotificacion(int.Parse(id),mensaje);
 
         }
-        [HttpGet("/Paises/Detalles")]
+        [HttpGet("Detalles")]
         public ActionResult Details(int id)
         {
             TbSePais pais;
@@ -85,19 +86,14 @@ namespace AltivaWebApp.Controllers
 
         }
 
-        // GET: Pais/Create
+        [Route("Nuevo-Pais")]
         public ActionResult Create()
         {
             return View();
         }
-        public TbSeMensaje Mensaje(string estado)
-        {
-            var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            TbSeMensaje msj = new TbSeMensaje(estado,"notifcacion",int.Parse(id));
-            return msj;
-        }
+        
         // POST: Pais/Create
-        [HttpPost]
+        [HttpPost("Nuevo-Pais")]
         [ValidateAntiForgeryToken]
         public ActionResult Create(TbSePais collection)
         {
@@ -128,12 +124,8 @@ namespace AltivaWebApp.Controllers
                 throw;  
             }
         }
-        public void Email( string encabezado, TbSeMensaje msj)
-        {
-            EmailSender.emailSender("desarrollopymes@altivasoluciones.com", msj.Mensaje,encabezado);
 
-        }
- 
+        [Route("Editar-Pais/{id}")]
         public ActionResult Edit(int id)
         {
             ViewBag.id = id;
@@ -141,7 +133,7 @@ namespace AltivaWebApp.Controllers
         }
 
         // POST: Pais/Edit/5
-        [HttpPost]
+        [HttpPost("Editar-Pais/{id}")]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, PaisViewModel collection)
         {
@@ -172,7 +164,7 @@ namespace AltivaWebApp.Controllers
         }
 
         // GET: Pais/Delete/5
-        [HttpGet("/Paises/Eliminar")]
+        [HttpGet("Eliminar")]
         public ActionResult Delete(int id)
         {
 
