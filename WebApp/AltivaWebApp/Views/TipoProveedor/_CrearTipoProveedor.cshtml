@@ -52,6 +52,7 @@
             <div class="form-group">
                 <label> Nombre:</label>
                 <input type="text" class="form-control" id="nombreProveedor" />
+                <div class="AlertEditarNombre"></div>
             </div>
 
         </div>
@@ -77,104 +78,116 @@
 <script>
     //guardar subfamilia en base alas familias de los tipos
     function btnGuardarSubFamiliasProveedor() {
-        var nombre = "";
-        var nombre = "";
-        nombre = $("#nombreProveedor").val();
-        var TipoClienteViewModels = {
-            id: null,
-            idPadre: $('#idSubFamilia').val(),
-            nombre: nombre,
-            inactivo: false
-        };
-                var urls = '@Url.Action("CrearTipoProveedor", "TipoProveedor")';
+        if (ValidarDatos() == true) {
+            var nombre = "";
+            var nombre = "";
+            nombre = $("#nombreProveedor").val();
+            var TipoClienteViewModels = {
+                id: null,
+                idPadre: $('#idSubFamilia').val(),
+                nombre: nombre,
+                inactivo: false
+            };
+            var urls = '@Url.Action("CrearTipoProveedor", "TipoProveedor")';
             $.ajax({
                 type: "POST",
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
                 url: urls,
-                data: { domain: TipoClienteViewModels},
+                data: { domain: TipoClienteViewModels },
                 success: function (data) {
                     getSubfamiliaProveedors($('#familiaProveedor').val());
-                $('#modalTipoCliente').modal('hide');
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
-            }
-        });
+                    $('#modalTipoCliente').modal('hide');
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+            });
+        }
     }
     //guardar familia del tipo del cliente
     function btnGuardarFamiliaProveedor() {
-
-        var nombre = "";
-        nombre = $("#nombreProveedor").val();
-        var TipoClienteViewModels = {
-            id: null,
-            idPadre: $('#idFamilia').val(),
-            nombre: nombre,
-            inactivo: false
-        };
-        var urls = '@Url.Action("CrearTipoProveedor", "TipoProveedor")';
+        if (ValidarDatos() == true) {
+            var nombre = "";
+            nombre = $("#nombreProveedor").val();
+            var TipoClienteViewModels = {
+                id: null,
+                idPadre: $('#idFamilia').val(),
+                nombre: nombre,
+                inactivo: false
+            };
+            var urls = '@Url.Action("CrearTipoProveedor", "TipoProveedor")';
             $.ajax({
                 type: "POST",
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
                 url: urls,
-                data: { domain: TipoClienteViewModels},
+                data: { domain: TipoClienteViewModels },
                 success: function (data) {
                     getfamiliaProveedors($('#tipoProveedor').val());
-                $('#modalTipoCliente').modal('hide');
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
-            }
-        });
+                    $('#modalTipoCliente').modal('hide');
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+            });
+        }
     }
 
     //guardar tipo cliente
 
     function btnGuardarTipoProveedor() {
         //agregar familia
-
-        var nombre = "";
-        nombre = $("#nombreProveedor").val();
-        /*
-        if ($('#idPadre').val() == 0 && nombre != true) {
+        if (ValidarDatos() == true) {
+            var nombre = "";
+            nombre = $("#nombreProveedor").val();
+            /*
+            if ($('#idPadre').val() == 0 && nombre != true) {
+    
+                var TipoClienteViewModel = {
+                    id: null,
+                    idPadre: $('#idFamilia').val(),
+                    nombre: nombre,
+                    inactivo: false
+                };
+            } else if ($('#IdPadreFamilia').val() != 0 && nombre != true) {
+    
+    
+            }*/
 
             var TipoClienteViewModel = {
                 id: null,
-                idPadre: $('#idFamilia').val(),
+                idPadre: 0,
                 nombre: nombre,
                 inactivo: false
             };
-        } else if ($('#IdPadreFamilia').val() != 0 && nombre != true) {
-
-
-        }*/
-
-        var TipoClienteViewModel = {
-            id: null,
-            idPadre: 0,
-            nombre: nombre,
-            inactivo: false
-        };
-        var url = '@Url.Action("CrearTipoProveedor", "TipoProveedor")';
+            var url = '@Url.Action("CrearTipoProveedor", "TipoProveedor")';
             $.ajax({
                 type: "POST",
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
                 url: url,
-                data: { domain: TipoClienteViewModel},
+                data: { domain: TipoClienteViewModel },
                 success: function (data) {
                     getTiposProveedor();
-                $('#modalTipoCliente').modal('hide');
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
-            }
-        });
+                    $('#modalTipoCliente').modal('hide');
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+            });
+        }
     }
+    function ValidarDatos() {
+        if ($('#nombreProveedor').val() == "") {
+            $('#AlertEditarNombre').empty();
+            $('#AlertEditarNombre').append('<span class="danger-text">El Nombre es requerido.</span>');
+            return false;
+        }
 
+        return true;
+    }
 </script>

@@ -55,8 +55,91 @@ namespace AltivaWebApp.Controllers
             
             
         }
+        //metodo que devuele en el edit las condiciones de pago.
+        [HttpGet]
+        public IActionResult GetCondicionesPago(int idContacto)
+        {
+            IList<TbFdCondicionesDePago> condiciones = new List<TbFdCondicionesDePago>();
+            condiciones = this.contactoService.GetCondiciones(idContacto);
+            if (condiciones.Count() >0)
+            {
+                return new JsonResult(condiciones);
+            }
+            else
+            {
+                return new JsonResult(false);
+            }
+          
+        }
+        //metodo que devuelve los cuentas de un contacto
+
+            [HttpGet]
+
+  public IActionResult GetCuentasByContacto(int idContacto)
+        {
+            IList<TbFdCuentasBancarias> cb = new List<TbFdCuentasBancarias>();
+            cb = this.contactoService.GetByContacto(idContacto);
+            
+            return new JsonResult(cb);
+        }
+        //metodo para agregar condiciones de pago
+        [HttpPost]
+       public IActionResult AddCondicionesPago(TbFdCondicionesDePago domain)
+        {
+            TbFdCondicionesDePago condicionesPago = new TbFdCondicionesDePago();
+            condicionesPago = this.contactoService.AgregarCondicion(domain);
 
 
+            return new JsonResult(true);
+        }
+        [HttpPost]
+        public IActionResult EditCondicionesPago(TbFdCondicionesDePago domain)
+        {
+            TbFdCondicionesDePago condicionesPago = new TbFdCondicionesDePago();
+            condicionesPago = this.contactoService.EditarCondicion(domain);
+
+            return new JsonResult(true);
+        }
+      [HttpPost]
+      public IActionResult AgregarCuentasBancarias(TbFdCuentasBancarias domain)
+        {
+
+            TbFdCuentasBancarias cb = new TbFdCuentasBancarias();
+            cb = this.contactoService.AgregarCuentasBancarias(domain);
+
+            return new JsonResult(true);
+        }
+        [HttpPost]
+        public IActionResult EditarCuentasBancarias(TbFdCuentasBancarias domain)
+        {
+            TbFdCuentasBancarias cb = new TbFdCuentasBancarias();
+            cb = this.contactoService.EditarCuentas(domain);
+            return new JsonResult(true);
+        }
+        [HttpDelete]
+        public IActionResult DeleteCuentasBancarias(int idCuenta)
+        {
+            TbFdCuentasBancarias tc = new TbFdCuentasBancarias();
+            tc = this.contactoService.GetCuentasById(idCuenta);
+            this.contactoService.DeleteCuentasBancarias(tc);
+            return new JsonResult(true);
+
+        }
+        public IActionResult PartialCrearTipoCuentaBancaria()
+        {
+            TbFdCuentasBancarias tc = new TbFdCuentasBancarias();
+
+            return PartialView("_AgregarEditarCuentasBancarias",tc);
+
+        }
+        [HttpGet]
+        public IActionResult PartialEditarTipoCuentaBancaria(int idCuenta)
+        {
+            TbFdCuentasBancarias tc = new TbFdCuentasBancarias();
+            tc = this.contactoService.GetCuentasById(idCuenta);
+            return PartialView("_AgregarEditarCuentasBancarias", tc);
+
+        }
         public ActionResult Index(string palabra = "All")
         {
 

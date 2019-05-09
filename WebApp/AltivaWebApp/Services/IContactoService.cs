@@ -26,6 +26,15 @@ namespace AltivaWebApp.Services
         TbCrContactoRelacion EditarRelacion(EditarRelacionContactoViewModel domain);
         TbCrContactoRelacion viewModelEditarRelacion(EditarRelacionContactoViewModel domain);
         TbCrContacto GetTareas(int idContacto);
+        TbFdCondicionesDePago AgregarCondicion(TbFdCondicionesDePago domain);
+        TbFdCondicionesDePago EditarCondicion(TbFdCondicionesDePago domain);
+        TbFdCuentasBancarias AgregarCuentasBancarias(TbFdCuentasBancarias domain);
+        IList<TbFdCondicionesDePago> GetCondiciones(int idContacto);
+        TbFdCuentasBancarias AgregarCuentas(TbFdCuentasBancarias domain);
+        TbFdCuentasBancarias EditarCuentas(TbFdCuentasBancarias domain);
+        IList<TbFdCuentasBancarias> GetByContacto(int idContacto);
+        TbFdCuentasBancarias GetCuentasById(int id);
+        bool DeleteCuentasBancarias(TbFdCuentasBancarias domain);
 
     }
 }

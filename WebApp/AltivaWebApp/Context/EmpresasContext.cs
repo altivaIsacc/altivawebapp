@@ -17,6 +17,9 @@ namespace AltivaWebApp.Context
             : base(options)
         {
         }
+        public virtual DbSet<TbFdCuentasBancarias> TbFdCuentasBancarias { get; set; }
+        public virtual DbSet<TbFdCondicionesDePago> TbFdCondicionesDePago { get; set; }
+
         public virtual DbSet<TbFdTarea> TbFdTarea { get; set; }
         public virtual DbSet<TbFdTareaEstado> TbFdTareaEstado { get; set; }
         public virtual DbSet<TbFdTareaTipo> TbFdTareaTipo { get; set; }
@@ -228,6 +231,44 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.Estado)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+            });
+            modelBuilder.Entity<TbFdCuentasBancarias>(entity =>
+            {
+                entity.ToTable("TB_FD_CuentasBancarias");
+
+                entity.Property(e => e.Banco)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.CuentaBancaria)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Moneda)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TipoCuenta)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdContactoNavigation)
+                    .WithMany(p => p.TbFdCuentasBancarias)
+                    .HasForeignKey(d => d.IdContacto)
+                    .HasConstraintName("FK_TB_FD_CuentasBancarias_tb_CR_Contacto");
+            });
+            modelBuilder.Entity<TbFdCondicionesDePago>(entity =>
+            {
+                entity.ToTable("TB_FD_CondicionesDePago");
+
+                entity.Property(e => e.EsCliente).HasColumnName("esCliente");
+
+                entity.Property(e => e.EsProveedor).HasColumnName("esProveedor");
+
+                entity.HasOne(d => d.IdContactoNavigation)
+                    .WithMany(p => p.TbFdCondicionesDePago)
+                    .HasForeignKey(d => d.IdContacto)
+                    .HasConstraintName("FK_TB_FD_CondicionesDePago_tb_CR_Contacto");
             });
             modelBuilder.Entity<TbFdTarea>(entity =>
             {

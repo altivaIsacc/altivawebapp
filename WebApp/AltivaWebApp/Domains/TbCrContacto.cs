@@ -10,6 +10,8 @@ namespace AltivaWebApp.Domains
             TbCrContactoRelacionIdContactoHijoNavigation = new HashSet<TbCrContactoRelacion>();
             TbCrContactoRelacionIdContactoPadreNavigation = new HashSet<TbCrContactoRelacion>();
             TbCrContactosCamposPersonalizados = new HashSet<TbCrContactosCamposPersonalizados>();
+            TbFdCondicionesDePago = new HashSet<TbFdCondicionesDePago>();
+            TbFdCuentasBancarias = new HashSet<TbFdCuentasBancarias>();
             TbFdTarea = new HashSet<TbFdTarea>();
         }
 
@@ -45,6 +47,8 @@ namespace AltivaWebApp.Domains
         public virtual ICollection<TbCrContactoRelacion> TbCrContactoRelacionIdContactoHijoNavigation { get; set; }
         public virtual ICollection<TbCrContactoRelacion> TbCrContactoRelacionIdContactoPadreNavigation { get; set; }
         public virtual ICollection<TbCrContactosCamposPersonalizados> TbCrContactosCamposPersonalizados { get; set; }
+        public virtual ICollection<TbFdCondicionesDePago> TbFdCondicionesDePago { get; set; }
+        public virtual ICollection<TbFdCuentasBancarias> TbFdCuentasBancarias { get; set; }
         public virtual ICollection<TbFdTarea> TbFdTarea { get; set; }
     }
 }

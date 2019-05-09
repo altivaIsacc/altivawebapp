@@ -15,6 +15,11 @@ namespace AltivaWebApp.App_Start
         public static void AddScope(IServiceCollection services)
 
         {
+            //condiciones de pago
+            services.AddScoped<ICondicionesDePagoRepository,CondicionesDePagoRepository>();
+            //cuentas Bancarias
+            services.AddScoped<ICuentasBancariasRepository, CuentasBancariasRepository>();
+
             //tipos de proveedores
             services.AddScoped<ITipoProveedorMapper, TipoProveedorMapper>();
             services.AddScoped<ITipoProveedorRepository, TipoProveedorRepository>();

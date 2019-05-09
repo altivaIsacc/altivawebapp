@@ -8,7 +8,7 @@ namespace AltivaWebApp.Mappers
 {
    public interface IContactoMap
     {
-
+        
         TbCrContacto NuevoContacto(ContactoViewModel domain);
         TbCrContacto viewToModelContacto(ContactoViewModel domain);
         TbCrContacto EditarContacto(ContactoViewModel domain);

@@ -23,6 +23,7 @@
 
                 </div>
                 <input type="text" class="form-control" id="nombreProveedor" asp-for="Nombre" />
+           <div class="AlertEditarNombre"></div>
             </div>
 
         </div>
@@ -42,48 +43,57 @@
 
     function btnEditarTipoProveedor() {
         //agregar familia
-
-        var nombre = "";
-        nombre = $("#nombreProveedor").val();
-        /*
-        if ($('#idPadre').val() == 0 && nombre != true) {
+        if (ValidarDatos() == true) {
+            var nombre = "";
+            nombre = $("#nombreProveedor").val();
+            /*
+            if ($('#idPadre').val() == 0 && nombre != true) {
+    
+                var TipoClienteViewModel = {
+                    id: null,
+                    idPadre: $('#idFamilia').val(),
+                    nombre: nombre,
+                    inactivo: false
+                };
+            } else if ($('#IdPadreFamilia').val() != 0 && nombre != true) {
+    
+    
+            }*/
 
             var TipoClienteViewModel = {
-                id: null,
-                idPadre: $('#idFamilia').val(),
+                id: $('#idProveedor').val(),
+                idPadre: 0,
                 nombre: nombre,
                 inactivo: false
             };
-        } else if ($('#IdPadreFamilia').val() != 0 && nombre != true) {
-
-
-        }*/
-
-        var TipoClienteViewModel = {
-            id: $('#idProveedor').val(),
-            idPadre: 0,
-            nombre: nombre,
-            inactivo: false
-        };
-        var url = '@Url.Action("EditarTipoProveedor", "TipoProveedor")';
+            var url = '@Url.Action("EditarTipoProveedor", "TipoProveedor")';
             $.ajax({
                 type: "POST",
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
                 url: url,
-                data: { domain: TipoClienteViewModel},
+                data: { domain: TipoClienteViewModel },
                 success: function (data) {
 
                     getTiposProveedor();
                     getfamiliaProveedors(data);
                     getSubfamiliaProveedors(data);
-                $('#modalTipoCliente').modal('hide');
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
-            }
-        });
+                    $('#modalTipoCliente').modal('hide');
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+            });
+        }
     }
+    function ValidarDatos() {
+        if ($('#nombreProveedor').val() == "") {
+            $('#AlertEditarNombre').empty();
+            $('#AlertEditarNombre').append('<span class="danger-text">El Nombre es requerido.</span>');
+            return false;
+        }
 
+        return true;
+    }
 </script>

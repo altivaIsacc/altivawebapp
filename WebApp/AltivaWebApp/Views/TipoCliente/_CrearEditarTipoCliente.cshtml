@@ -30,6 +30,7 @@
                         <input type="text" asp-for="IdPadre" id="idPadre" />
                         </div>
                         <input type="text" disabled="disabled" value="@Model.Nombre" class="form-control" />
+                     
                     </div>
                 }
                 else
@@ -47,10 +48,11 @@
                 }
             }
 
-            <div class="form-group">
-                <label> Nombre:</label>
-                <input type="text" class="form-control" id="nombreCliente"  />
-            </div>
+                    <div class="form-group">
+                        <label> Nombre:</label>
+                        <input type="text" class="form-control" id="nombreCliente" />
+                        <div id="AlertNombre"></div>
+                    </div>
             
         </div>
         <div class="row">
@@ -78,56 +80,60 @@
         var nombre = "";
         var nombre = "";
         nombre = $("#nombreCliente").val();
-        var TipoClienteViewModels = {
-            id: null,
-            idPadre: $('#idSubFamilia').val(),
-            nombre: nombre,
-            inactivo: false
-        };
-                var urls = '@Url.Action("CrearTipoCliente", "TipoCliente")';
+        if (ValidarDatos() == true) {
+            var TipoClienteViewModels = {
+                id: null,
+                idPadre: $('#idSubFamilia').val(),
+                nombre: nombre,
+                inactivo: false
+            };
+            var urls = '@Url.Action("CrearTipoCliente", "TipoCliente")';
             $.ajax({
                 type: "POST",
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
                 url: urls,
-                data: { domain: TipoClienteViewModels},
+                data: { domain: TipoClienteViewModels },
                 success: function (data) {
                     getSubFamilias($('#familia').val());
-                $('#modalTipoCliente').modal('hide');
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
-            }
-        });
+                    $('#modalTipoCliente').modal('hide');
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+            });
+        }
     }
     //guardar familia del tipo del cliente
     function btnGuardarFamilia() {
 
         var nombre = "";
         nombre = $("#nombreCliente").val();
-        var TipoClienteViewModels = {
-            id: null,
-            idPadre: $('#idFamilia').val(),
-            nombre: nombre,
-            inactivo: false
-        };
-        var urls = '@Url.Action("CrearTipoCliente", "TipoCliente")';
+        if (ValidarDatos() == true) {
+            var TipoClienteViewModels = {
+                id: null,
+                idPadre: $('#idFamilia').val(),
+                nombre: nombre,
+                inactivo: false
+            };
+            var urls = '@Url.Action("CrearTipoCliente", "TipoCliente")';
             $.ajax({
                 type: "POST",
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
                 url: urls,
-                data: { domain: TipoClienteViewModels},
+                data: { domain: TipoClienteViewModels },
                 success: function (data) {
                     getFamilias($('#tipoClientes').val());
-                $('#modalTipoCliente').modal('hide');
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
-            }
-        });
+                    $('#modalTipoCliente').modal('hide');
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+            });
+        }
     }
     
     //guardar tipo cliente
@@ -150,29 +156,40 @@
           
 
         }*/
-     
-        var TipoClienteViewModel = {
-            id: null,
-            idPadre: 0,
-            nombre: nombre,
-            inactivo: false
-        };
-        var url = '@Url.Action("CrearTipoCliente", "TipoCliente")';
+        if (ValidarDatos() == true) {
+
+
+            var TipoClienteViewModel = {
+                id: null,
+                idPadre: 0,
+                nombre: nombre,
+                inactivo: false
+            };
+            var url = '@Url.Action("CrearTipoCliente", "TipoCliente")';
             $.ajax({
                 type: "POST",
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
                 url: url,
-                data: { domain: TipoClienteViewModel},
+                data: { domain: TipoClienteViewModel },
                 success: function (data) {
                     getTiposClientes();
-                $('#modalTipoCliente').modal('hide');
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
-            }
-        });
+                    $('#modalTipoCliente').modal('hide');
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+            });
+        }
     }
-   
+    function ValidarDatos() {
+        if ($('#nombreCliente').val() == "") {
+            $('#AlertNombre').empty();
+            $('#AlertNombre').append('<span class="danger-text">El Nombre es requerido.</span>');
+            return false;
+        }
+
+        return true;
+    }
 </script>

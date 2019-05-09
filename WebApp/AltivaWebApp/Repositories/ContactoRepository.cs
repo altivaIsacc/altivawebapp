@@ -14,6 +14,8 @@ namespace AltivaWebApp.Repositories
         public ContactoRepository(EmpresasContext context) : base(context)
         {
         }
+
+       
         public TbCrContacto GetTareas(int idContacto)
         {
             return context.TbCrContacto
@@ -74,7 +76,7 @@ namespace AltivaWebApp.Repositories
                             IdUsuario = con.IdUsuario,
                             WebLink = con.WebLink,
                             MapLink = con.MapLink,
-                            IdTipoCliente = Convert.ToInt32( con.IdTipoCliente),
+                            IdTipoCliente = Convert.ToInt32(con.IdTipoCliente),
                             IdSubFamiliaProveedor = Convert.ToInt32(con.IdSubFamiliaProveedor),
                             IdFamiliaCliente = Convert.ToInt32(con.IdFamiliaCliente),
                             IdSubFamiliaCliente = Convert.ToInt32(con.IdSubFamiliaCliente),
