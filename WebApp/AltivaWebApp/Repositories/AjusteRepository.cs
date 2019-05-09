@@ -41,6 +41,7 @@ namespace AltivaWebApp.Repositories
                                 .ThenInclude(a => a.IdCentroGastosNavigation)
                                 .Include(a => a.TbPrAjusteInventario)
                                 .ThenInclude(a => a.IdInventarioNavigation)
+                                .ThenInclude(b => b.TbPrInventarioBodega)
                                 .Include(a => a.TbPrAjusteInventario)
                                 .ThenInclude(a => a.IdCuentaContableNavigation)
                                 .FirstOrDefault(a => a.Id == id);

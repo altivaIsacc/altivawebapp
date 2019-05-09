@@ -143,6 +143,13 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IOrdenMap, OrdenMap>();
 
 
+            //Kardex
+
+            services.AddScoped<IKardexRepository, KardexRepository>();
+            services.AddScoped<IKardexService, KardexService>();
+            services.AddScoped<IKardexMap, KardexMap>();
+
+
 
         }
     }

@@ -32,7 +32,7 @@ else
 <hr />
 
 <div class="row text-left">
-    @if (Model.Id != 0)
+    @if (Model.Id != 0 && !Model.Anulada)
     {
         <button class="btn btn-danger btn-sm" onclick="anularAjuste()">@SharedLocalizer["Anular"]</button>
     }
@@ -126,7 +126,7 @@ else
             </thead>
             <tbody>
                 <tr class="lineaForm">
-                    <td><select style="width:20%" class="form-control" id="items"></select></td>
+                    <td class="col-md-3"><div class="col-md-9"><select class="form-control" id="items"></select></div><div style="padding-top: 1rem" class="col-md-3"><label id="lblItemInfo"></label></div></td>
                     <td>
                         <select class="form-control" id="movimiento">
                             <option value="true">@SharedLocalizer["Entrada"]</option>
@@ -256,7 +256,7 @@ else
 
         $('.selectItem').select2();
         getBodegasInventario();
-        getAjusteInventario();
+        
         inicializaTabla();
 
         validaAnulacion();
@@ -278,9 +278,8 @@ else
 
 
         $('#items').on('change.select2', function () {
+           
             cargarCostoPromedio(arrayItems);
-
-
         });
 
 
@@ -336,7 +335,7 @@ else
                  idInventario: items.val(),
                  descripcion: "n/a",
                  movimiento: movimiento.val(),
-                 cantidad: cantidad.val(),
+                 cantidad: parseFloat(cantidad.val()),
                  costoPromedio: costoPromedio.val(),
                  totalMovimiento: total.val(),
                  idCuentaContable: cuentaContable.val(),
@@ -420,7 +419,7 @@ else
 
         var flag = true;
 
-        if (movimiento.val() === "false" && getItem(items.val())[0].existenciaBodega < parseInt(cantidad.val())) {
+        if (movimiento.val() === "false" && getItem(items.val())[0].existenciaBodega < parseFloat(cantidad.val())) {
                 flag = false;
                 cargarAlert('@SharedLocalizer["cantidaMayorQueExistencias"]');
 
@@ -438,23 +437,17 @@ else
 
         if (linea.movimiento === "true") {
 
-            console.log(linea);
 
             for (var i = 0; i < lineas.length; i++) {
                 if (lineas[i].idInventario === linea.idInventario && lineas[i].movimiento === "false")
                     salida = lineas[i];
             }
-            console.log(salida);
             if (salida === "")
                 return true;
             else {
                 var item = getItem(parseInt(linea.idInventario))[0];
 
-                console.log(item);
-
                 var existencia = item.existenciaBodega - parseInt(linea.cantidad);
-
-                console.log(existencia);
 
                 if (existencia >= parseInt(salida.cantidad))
                     return true;
@@ -477,8 +470,6 @@ else
     function cargarLineas(array) {
 
         var data = array.tbPrAjusteInventario;
-
-        console.log(array.tbPrAjusteInventario);
 
         for (var i = 0; i < data.length; i++) {
             var model = {
@@ -546,8 +537,6 @@ else
 
     movimiento.change(function () {
 
-        console.log($(this).val());
-
         if ($(this).val() === "true") costoPromedio.attr('disabled', false);
         else
             costoPromedio.attr('disabled', true);
@@ -559,10 +548,10 @@ else
 
 
 
-    cantidad.on("keyup, change", function () {
+    cantidad.on("keyup, change, focusout", function () {
 
-        if (parseInt(cantidad.val()) < 1)
-            cantidad.val(1);
+        if (parseFloat(cantidad.val()) < 0)
+            cantidad.val(0);
 
         calcularTotalMovimiento();
 
@@ -572,10 +561,13 @@ else
         $('.filasCargadas').remove();
 
         contadorFila = 0;
+        
 
         for (var i = 0; i < data.length; i++) {
             contadorFila++;
-            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + data[i].nombreItem + '</td>'
+
+
+            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' +  data[i].nombreItem + '</td>'
                 + '<td style="padding-top:2rem;"><input style="width:100%; border:0; background-color : #F7F7F7" value="' + getMovimiento(data[i].movimiento) + '"/></td>'
                 + '<td style="padding-top:2rem;">' + data[i].cantidad + '</td>'
                 + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].costoPromedio + '"/></td>'
@@ -601,15 +593,24 @@ else
 
     function cargarBodegas(data) {
 
+        var flag = true;
 
         for (var i = 0; i < data.length; i++) {
             var o = new Option(data[i].nombre, data[i].id);
-            if (data[i].id === @Model.IdBodega)
+            if (data[i].id === @Model.IdBodega) {
                 $(o).attr('selected', true);
+                cargarItems(data[i].tbPrInventarioBodega);
+                flag = false;
+            }
+                              
             $("#bodegas").append(o);
         }
 
-        cargarItems(data[0].tbPrInventarioBodega);
+        if (flag)
+            cargarItems(data[0].tbPrInventarioBodega);
+
+        getAjusteInventario();
+
     }
 
     function cargarItems(data) {
@@ -623,7 +624,6 @@ else
         for (var i = 0; i < data.length; i++) {
             var o = new Option(data[i].idInventarioNavigation.codigo + ' - ' + data[i].idInventarioNavigation.descripcion, data[i].idInventarioNavigation.idInventario);
             items.append(o);
-            //$('#items').selectpicker('refresh');
             arrayItems.push(data[i].idInventarioNavigation);
         }
 
@@ -631,17 +631,16 @@ else
         cargarCostoPromedio(arrayItems);
 
 
-
-
     }
 
     
     function cargarCostoPromedio(data) {
 
-        console.log(data);
+
         for (var i = 0; i < data.length; i++) {
             if (parseInt(items.val()) === data[i].idInventario) {
                 costoPromedio.val(data[i].costoPromedioGeneral);
+                $('#lblItemInfo').text(getItem(data[i].idInventario)[0].existenciaBodega + " " + data[i].idUnidadMedidaNavigation.abreviatura);
                 break;
             }
         }
@@ -652,7 +651,7 @@ else
 
         var res = parseFloat(cantidad.val()) * parseFloat(costoPromedio.val());
         if (cantidad.val() === '')
-            res = 1 * parseFloat(costoPromedio.val());
+            res = 0;
         total.val(res);
     }
 
@@ -708,7 +707,7 @@ else
 
     function recalcularExistencias(linea) {
 
-        console.log(linea);
+
 
         var item = getItem(parseInt(linea.idInventario))[0];
 
@@ -739,8 +738,9 @@ else
                 //console.log(data);
                 window.location.href = "@Url.Action("ListarAjustes","AjusteInventario")";
                },
-              error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+           error: function (err, scnd) {   
+                var msj = '@SharedLocalizer["errorGeneral"]';
+                  cargarAlert(msj);
                   console.log(err.statusText);
               }
         });
@@ -863,8 +863,6 @@ else
     }
     function validarCampos() {
 
-        console.log(frmAjuste.serializeArray());
-
         var frm = frmAjuste.serializeArray();
         if (frm[4].value.replace(/ /g, "") === "") {
             $('#descripcionAjusteValid').attr('hidden', false);
@@ -878,7 +876,7 @@ else
         //console.log(linea);
         $('#items').trigger('change.select2');
         descripcionLinea.val("");
-        cantidad.val(1);
+        cantidad.val(0);
         calcularTotalMovimiento();
 
         if (linea != undefined)

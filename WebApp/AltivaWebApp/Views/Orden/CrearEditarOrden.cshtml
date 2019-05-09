@@ -38,8 +38,9 @@ else
     {
         <button class="btn btn-danger btn-sm" onclick="cambiarEstadoOrden()">@SharedLocalizer["Anular"]</button>
     }
-    else
+    else if(Model.Id != 0)
     {
+        
         <h5 class="text-danger">@SharedLocalizer["OrdenAnulada"]</h5>
     }
 </div>
@@ -61,7 +62,7 @@ else
                     <div class="form-group">
                         <label for="fecha">@SharedLocalizer["Fecha"]:</label>
                         <div class='input-group date' id='fechaPicker'>
-                            <input readonly type='text' class="form-control" id="fecha" />
+                            <input type='text' class="form-control" id="fecha" />
                             <span class="input-group-addon">
                                 <span class="fas fa-calendar"></span>
                             </span>
@@ -88,19 +89,20 @@ else
             <div class="col-md-2 col-sm-6 col-xs-12">
                 <div class="form-group col-md-12">
                     <label asp-for="IdMoneda" class="control-label">@SharedLocalizer["Moneda"]</label>
-                    <select @estado onchange="recalcularPrecio()" asp-for="IdMoneda" id="moneda" class="form-control tipoMoneda">
+                    <select @estado onchange="recalcularPrecio(), deshabilitaTipoCambio()" asp-for="IdMoneda" id="moneda" class="form-control tipoMoneda">
                         <option value="1">@SharedLocalizer["CRC"]</option>
                         <option value="2">@SharedLocalizer["USD"]</option>
                         <option value="3">@SharedLocalizer["EUR"]</option>
                     </select>
                 </div>
                 <div class="form-group col-md-12">
-                    <label class="control-label" for="dolar">@SharedLocalizer["CambioDolar"]</label>
-                    <input @estado class="form-control moneda"  id="dolar" />
+                    <label class="control-label" for="dolar">@SharedLocalizer["TipoCambio"]</label>
+                    <label class="control-label" for="dolar">@SharedLocalizer["Dolar"]:</label>
+                    <input @estado class="form-control moneda" id="dolar" />
                 </div>
                 <div class="form-group col-md-12">
-                    <label class="control-label" for="euro">@SharedLocalizer["CambioEuro"]</label>
-                    <input @estado class="form-control moneda"  id="euro" />
+                    <label class="control-label" for="euro">@SharedLocalizer["Euro"]:</label>
+                    <input @estado class="form-control moneda" id="euro" />
                 </div>
             </div>
         </form>
@@ -144,7 +146,7 @@ else
         </table>
 
     </div>
-    <div class="col-md-offset-9">
+    <div class="col-md-offset-9 col-md-3">
         <form id="frmOrden2">
 
             <div class="form-group">
@@ -167,10 +169,16 @@ else
         </form>
     </div>
 
+    <br />
+
+    <div class="col-md-12">
+        <label>@SharedLocalizer["AutoizadoPor"]:_________________________</label>
+    </div>
+
 </div>
 <div class="row">
     <div class="form-group col-md-3">
-        <button @estado class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+        <button @estado class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"]<i class="fas fa-save"></i></button>
         <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
     </div>
 </div>
@@ -224,15 +232,18 @@ else
     var lineasAgregadas = [];
     var lineasEliminadas = [];
 
-
     $(document).ready(function () {
 
         var date = new Date();
         if (@Model.Id != 0) {  
             $proveedores.val(@Model.IdProveedor);
             GetComentarios("Orden", @Model.Id);
-            date = new Date('@Model.Fecha'.replace(/\//g, "-"));
+            date = new Date(formatearFecha());
         }
+
+        deshabilitaTipoCambio();
+            
+
 
         $descuento.val(0);
         var d = parseFloat('@Model.TipoCambioDolar'.replace(',', '.'));
@@ -295,6 +306,23 @@ else
             $(this).val(0)
 
     });
+
+    function deshabilitaTipoCambio() {
+        if ($('.tipoMoneda').val() != "1") {
+            $dolar.attr('disabled', true);
+            $euro.attr('disabled', true);
+        }
+        else {
+            $dolar.attr('disabled', false);
+            $euro.attr('disabled', false);
+        }
+    }
+
+    function formatearFecha() {
+
+        return '@Model.Fecha.Month' + "-" + '@Model.Fecha.Day' + "-" + '@Model.Fecha.Year' + " " + '@Model.Fecha.TimeOfDay';
+
+    }
 
 
     ///calculos de línea
@@ -617,7 +645,7 @@ else
 
     function cambiarEstadoOrden() {
         bootbox.prompt({
-            title: "@SharedLocalizer["confirmAnularEstado"]",
+            title: "@SharedLocalizer["confirmAnularOrden"]",
             message: '<p>@SharedLocalizer["Justificación"]</p>',
             inputType: 'textarea',
             callback: function (result) {

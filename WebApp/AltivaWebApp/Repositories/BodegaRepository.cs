@@ -36,7 +36,7 @@ namespace AltivaWebApp.Repositories
 
         public IList<TbPrBodega> GetAllBodegasConInventario()
         {
-            return context.TbPrBodega.Include(ib => ib.TbPrInventarioBodega).ThenInclude(i => i.IdInventarioNavigation).Where(b => b.Estado == true).ToList();
+            return context.TbPrBodega.Include(ib => ib.TbPrInventarioBodega).ThenInclude(i => i.IdInventarioNavigation).ThenInclude(u => u.IdUnidadMedidaNavigation).Where(b => b.Estado == true).ToList();
         }
 
 

@@ -19,13 +19,15 @@ namespace AltivaWebApp.Controllers
         private readonly IAjusteMap map;
         private readonly IUserService userService;
         private readonly IBodegaService bodegaService;
+        private readonly IKardexMap kardexMap;
 
-        public AjusteInventarioController(IBodegaService bodegaService, IAjusteService service, IAjusteMap map, IUserService userService)
+        public AjusteInventarioController(IKardexMap kardexMap, IBodegaService bodegaService, IAjusteService service, IAjusteMap map, IUserService userService)
         {
             this.service = service;
             this.map = map;
             this.userService = userService;
             this.bodegaService = bodegaService;
+            this.kardexMap = kardexMap;
         }
 
         [HttpGet("Lista-Ajustes")]
@@ -67,36 +69,17 @@ namespace AltivaWebApp.Controllers
                 {
                     viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     ajuste = map.Create(viewModel);
-
-                    var bodegainventario = bodegaService.GetBodegaById((int)viewModel.IdBodega);
-                    var existencia = new List<TbPrInventarioBodega>();
-
-                    foreach (var item in bodegainventario.TbPrInventarioBodega)
-                    {
-                        foreach (var i in viewModel.AjusteInventario)
-                        {
-                            if (item.IdInventario == i.IdInventario)
-                            {
-                                if (i.Movimiento)
-                                    item.ExistenciaBodega += i.Cantidad;
-                                else
-                                    item.ExistenciaBodega -= i.Cantidad;
-                                existencia.Add(item);
-                            }
-
-                        }
-                    }
-
-                    bodegaService.UpdateInventarioBodega(existencia);
+                    kardexMap.CreateKardexAM((int)ajuste.Id);
 
                 }
-                    
+
 
                 return Json(new { success = true });
             }
             catch
             {
-                return BadRequest();
+                throw;
+                //return BadRequest();
             }
         }
 
@@ -124,25 +107,25 @@ namespace AltivaWebApp.Controllers
 
                 service.SaveAjusteInventario(map.AIViewModelToDomain(viewModel).ToList());
 
-                var bodegainventario = bodegaService.GetBodegaById(idBodega);
+                //var bodegainventario = bodegaService.GetBodegaById(idBodega);
 
-                foreach (var item in bodegainventario.TbPrInventarioBodega)
-                {
-                    foreach (var i in viewModel)
-                    {
-                        if (item.IdInventario == i.IdInventario)
-                        {
-                            if(i.Movimiento)
-                                item.ExistenciaBodega += i.Cantidad;
-                            else
-                                item.ExistenciaBodega -= i.Cantidad;
-                            existencia.Add(item);
-                        }
+                //foreach (var item in bodegainventario.TbPrInventarioBodega)
+                //{
+                //    foreach (var i in viewModel)
+                //    {
+                //        if (item.IdInventario == i.IdInventario)
+                //        {
+                //            if(i.Movimiento)
+                //                item.ExistenciaBodega += i.Cantidad;
+                //            else
+                //                item.ExistenciaBodega -= i.Cantidad;
+                //            existencia.Add(item);
+                //        }
                             
-                    }
-                }
+                //    }
+                //}
 
-                bodegaService.UpdateInventarioBodega(existencia);
+                //bodegaService.UpdateInventarioBodega(existencia);
                 
                 return Json(new { success = true });
             }
@@ -164,28 +147,28 @@ namespace AltivaWebApp.Controllers
                 service.Update(ajuste);
 
 
-                var actExistencia = new List<TbPrInventarioBodega>();
+                //var actExistencia = new List<TbPrInventarioBodega>();
 
-                var bodega = bodegaService.GetBodegaById((int)ajuste.IdBodega);
+                //var bodega = bodegaService.GetBodegaById((int)ajuste.IdBodega);
 
-                foreach (var item in ajuste.TbPrAjusteInventario)
-                {                    
-                    foreach (var i in bodega.TbPrInventarioBodega)
-                    {
-                        if (i.IdInventarioNavigation.IdInventario == item.IdInventario)
-                        {
-                            if (item.Movimiento)
-                                i.ExistenciaBodega -= item.Cantidad;
-                            else
-                                i.ExistenciaBodega += item.Cantidad;
+                //foreach (var item in ajuste.TbPrAjusteInventario)
+                //{                    
+                //    foreach (var i in bodega.TbPrInventarioBodega)
+                //    {
+                //        if (i.IdInventarioNavigation.IdInventario == item.IdInventario)
+                //        {
+                //            if (item.Movimiento)
+                //                i.ExistenciaBodega -= item.Cantidad;
+                //            else
+                //                i.ExistenciaBodega += item.Cantidad;
 
-                            actExistencia.Add(i);
-                        }
+                //            actExistencia.Add(i);
+                //        }
                         
-                    }
-                }
+                //    }
+                //}
 
-                bodegaService.UpdateInventarioBodega(actExistencia);
+                //bodegaService.UpdateInventarioBodega(actExistencia);
 
                 return Json( new { success = true });
             }
@@ -261,6 +244,9 @@ namespace AltivaWebApp.Controllers
                     {
                         i.IdBodegaNavigation = null;
                         i.IdInventarioNavigation.TbPrInventarioBodega = null;
+                        i.IdInventarioNavigation.IdUnidadMedidaNavigation.TbPrInventario = null;
+                        i.IdInventarioNavigation.IdUnidadMedidaNavigation.TbPrConversionIdUnidadDestinoNavigation = null;
+                        i.IdInventarioNavigation.IdUnidadMedidaNavigation.TbPrConversionIdUnidadOrigenNavigation = null;
                     }
                 }
 
