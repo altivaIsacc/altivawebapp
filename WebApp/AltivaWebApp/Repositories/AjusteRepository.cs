@@ -43,7 +43,7 @@ namespace AltivaWebApp.Repositories
                                 .ThenInclude(a => a.IdInventarioNavigation)
                                 .ThenInclude(b => b.TbPrInventarioBodega)
                                 .Include(a => a.TbPrAjusteInventario)
-                                .ThenInclude(a => a.IdCuentaContableNavigation)
+                                .ThenInclude(a => a.IdCuentaContableNavigation).AsNoTracking()
                                 .FirstOrDefault(a => a.Id == id);
             }
             catch (Exception)
@@ -85,27 +85,7 @@ namespace AltivaWebApp.Repositories
                     }
                 }
 
-                var bodegaI = context.TbPrBodega.Include(b => b.TbPrInventarioBodega).FirstOrDefault(b => b.Id == ai.IdBodega);
-
-                foreach (var item in bodegaI.TbPrInventarioBodega)
-                {
-                    foreach (var i in aiEliminar)
-                    {
-                        if (item.IdInventario == i.IdInventario)
-                        {
-                            if (i.Movimiento)
-                                item.ExistenciaBodega -= i.Cantidad;
-                            else
-                                item.ExistenciaBodega += i.Cantidad;
-                            existencia.Add(item);
-                        }
-                       
-
-                    }
-                }
-
-
-                context.TbPrInventarioBodega.UpdateRange(existencia);
+             
                 context.TbPrAjusteInventario.RemoveRange(aiEliminar);
                 context.SaveChanges();
 

@@ -32,7 +32,7 @@ namespace AltivaWebApp.Controllers
 
         [HttpGet("Lista-Ajustes")]
         public ActionResult ListarAjustes()
-        {           
+        {
             return View();
         }
 
@@ -61,7 +61,6 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-
                 var ajuste = new TbPrAjuste();
                 if (viewModel.Id != 0)
                     ajuste = map.Update(viewModel);
@@ -69,8 +68,7 @@ namespace AltivaWebApp.Controllers
                 {
                     viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     ajuste = map.Create(viewModel);
-                    kardexMap.CreateKardexAM((int)ajuste.Id);
-
+                    kardexMap.CreateKardexAM(null, (int)ajuste.Id);
                 }
 
 
@@ -89,12 +87,30 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
+                var ajuste = new List<TbPrAjusteInventario>();
+
+                var ai = service.GetAjusteById(idAjuste);
+
+                foreach (var i in id)
+                {
+                    foreach (var item in ai.TbPrAjusteInventario)
+                    {
+                        if (item.Id == i)
+                            ajuste.Add(item);
+                    }
+
+                }
+                
                 service.DeleteAjusteInventario(id, idAjuste);
+                ai.TbPrAjusteInventario = ajuste;
+                kardexMap.CreateKardexDeletedAM(ai);
+
                 return Json(new { success = true });
             }
             catch
             {
-                return BadRequest();
+                throw;
+                //return BadRequest();
             }
         }
 
@@ -103,30 +119,13 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var existencia = new List<TbPrInventarioBodega>();
+
+                var ai = service.GetAjusteById((int)viewModel.FirstOrDefault().IdAjuste);
 
                 service.SaveAjusteInventario(map.AIViewModelToDomain(viewModel).ToList());
 
-                //var bodegainventario = bodegaService.GetBodegaById(idBodega);
+                kardexMap.CreateKardexAM(ai, (int)viewModel.FirstOrDefault().IdAjuste);
 
-                //foreach (var item in bodegainventario.TbPrInventarioBodega)
-                //{
-                //    foreach (var i in viewModel)
-                //    {
-                //        if (item.IdInventario == i.IdInventario)
-                //        {
-                //            if(i.Movimiento)
-                //                item.ExistenciaBodega += i.Cantidad;
-                //            else
-                //                item.ExistenciaBodega -= i.Cantidad;
-                //            existencia.Add(item);
-                //        }
-                            
-                //    }
-                //}
-
-                //bodegaService.UpdateInventarioBodega(existencia);
-                
                 return Json(new { success = true });
             }
             catch
@@ -142,35 +141,16 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var ajuste = service.GetAjusteById(id);
-
                 ajuste.Anulada = true;
                 service.Update(ajuste);
-
-
-                //var actExistencia = new List<TbPrInventarioBodega>();
-
-                //var bodega = bodegaService.GetBodegaById((int)ajuste.IdBodega);
-
-                //foreach (var item in ajuste.TbPrAjusteInventario)
-                //{                    
-                //    foreach (var i in bodega.TbPrInventarioBodega)
-                //    {
-                //        if (i.IdInventarioNavigation.IdInventario == item.IdInventario)
-                //        {
-                //            if (item.Movimiento)
-                //                i.ExistenciaBodega -= item.Cantidad;
-                //            else
-                //                i.ExistenciaBodega += item.Cantidad;
-
-                //            actExistencia.Add(i);
-                //        }
-                        
-                //    }
-                //}
-
-                //bodegaService.UpdateInventarioBodega(actExistencia);
-
-                return Json( new { success = true });
+                var res = kardexMap.CreateKardexAM(null, id);
+                if (!res)
+                {
+                    ajuste.Anulada = false;
+                    service.Update(ajuste);
+                }
+                   
+                return Json(new { success = res });
             }
             catch
             {
@@ -195,7 +175,7 @@ namespace AltivaWebApp.Controllers
                     {
                         i.IdAjusteNavigation = null;
                         i.IdInventarioNavigation.TbPrAjusteInventario = null;
-                    } 
+                    }
                 }
 
                 return Ok(ajuste);
@@ -205,7 +185,7 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
-   
+
 
         [HttpGet("Get-AjusteInventario/{id}")]
         public ActionResult GetAjusteinventario(int id)
@@ -222,8 +202,7 @@ namespace AltivaWebApp.Controllers
                     item.IdCentroGastosNavigation.TbPrAjusteInventario = null;
                     item.IdCuentaContableNavigation.TbPrAjusteInventario = null;
                     item.IdInventarioNavigation.TbPrAjusteInventario = null;
-                  
-                  
+                    item.IdInventarioNavigation.TbPrInventarioBodega = null;
                 }
                 return Ok(ajuste);
             }

@@ -214,7 +214,11 @@ namespace AltivaWebApp.Controllers
             {
 
                 var empresa = service.GetEmpresaById(id);
-                empresa.Estado = false;
+                if(empresa.Estado)
+                    empresa.Estado = false;
+                else
+                    empresa.Estado = true;
+
                 var res = service.Update(empresa);
                 return Json(new { success = true });
             }

@@ -8,6 +8,7 @@ namespace AltivaWebApp.Mappers
 {
     public interface IKardexMap
     {
-        void CreateKardexAM(int idAjuste);
+        bool CreateKardexAM(TbPrAjuste ajuste, int idAjuste);
+        bool CreateKardexDeletedAM(TbPrAjuste domain);
     }
 }
