@@ -241,7 +241,7 @@
                 <option value="0" selected> Seleccione</option>
 
             </select>
-
+            <div id="AlertTipoCliente"></div>
         </div>
         <div class="col-md-2">
             <br />
@@ -261,6 +261,7 @@
 
 
             </select>
+            <div id="AlertFamiliaCliente"></div>
         </div>
         <div class="col-md-2">
             <br />
@@ -279,6 +280,7 @@
 
 
             </select>
+            <div id="AlertSubFamiliaCliente"></div>
         </div>
         <div class="col-md-2">
             <br />
@@ -299,6 +301,7 @@
 
                 <option value="0" selected>Seleccione</option>
             </select>
+            <div class="AlertTipoProveedor"></div>
         </div>
         <div class="col-md-2">
             <br />
@@ -318,6 +321,7 @@
 
 
             </select>
+            <div id="AlertFamiliaProveedor"></div>
         </div>
         <div class="col-md-2">
             <br />
@@ -336,6 +340,8 @@
 
 
             </select>
+            <div class="AlertSubFamailiaProveedor"></div>
+
         </div>
         <div class="col-md-2">
             <br />
@@ -1131,51 +1137,7 @@ var proveedor ;
                     }
         });
     });
-    $("#cliente").click(function () {
-        if ($(this).is(':checked')) {
-            $('[href="#CondicionesCliente"]').removeClass ('disabledTab');
-            $('#TiposClientes').attr('hidden', false);
-            $('#tipoClientes').attr('disabled', false);
-            $('#familia').attr('disabled', false);
-            $('#subFamilia').attr('disabled', false);
-            $('#AgregarTipoCliente').attr('disabled', false);
-        } else {
-            $('[href="#CondicionesCliente"]').addClass('disabledTab');
-            $('#tipoClientes').val(0).trigger('click');
-            $('#TiposClientes').attr('hidden', true);
-            $('#tipoClientes').attr('disabled', true);
-            $('#AgregarTipoCliente').attr('disabled', true);
-            $('#familia').attr('disabled', false);
-            $('#subFamilia').attr('disabled', false);
-            
-           
-          
-
-        }
-    });
-
-    $('#proveedor').click(function () {
-        if ($(this).is(':checked')) {
-            $('[href="#CondicionesProveedor"]').removeClass('disabledTab');
-            $('#TiposProveedor').attr('hidden', false);
-            $('#tipoProveedor').attr('disabled', false);
-            $('#familiaProveedor').attr('disabled', false);
-            $('#subFamiliaProveedor').attr('disabled', false);
-            $('#AgregarTipoProveedor').attr('disabled',false);
-        } else {
-            $('[href="#CondicionesProveedor"]').addClass('disabledTab');
-            $('#TiposProveedor').attr('hidden', true);
-
-            $('#tipoProveedor').attr('disabled', true);
-            $('#familiaProveedor').attr('disabled', true);
-            $('#subFamiliaProveedor').attr('disabled', true);
-            $('#AgregarTipoProveedor').attr('disabled', true);
-            $('#tipoProveedor').val(0);
-            $('#familiaProveedor').val(0);
-            $('#subFamiliaProveedor').val(0);
-          
-        }
-    });
+    
     $(document).ready(function () {
 
         GetComentarios("Contacto", @Model.Id);
@@ -1771,8 +1733,29 @@ var proveedor ;
 
                 return false;
             }
+          
         }
+        if ($('#cliente').is(':checked')) {
+            if ($('#tipoClientes').val() != 0) {
+                if ($('#familia').val() == 0) {
+                    return false;
+                } if ($('#subFamilia').val() == 0) {
+                    return false;
+                }
+            } 
+            return true;
+        }
+        if ($('#proveedor').is(':checked')) {
 
+            if ($('#tipoProveedor').val() != 0) {
+                if ($('#familiaProveedor').val() == 0) {
+                    return false;
+                } if ($('#subFamiliaProveedor').val() == 0) {
+                    return false;
+                }
+            } 
+            return true;
+        }
 
         return true;
     }
@@ -1941,6 +1924,56 @@ var proveedor ;
 </div>
 
 <script>
+    $("#cliente").click(function () {
+        if ($(this).is(':checked')) {
+            $('[href="#CondicionesCliente"]').removeClass('disabledTab');
+            $('#TiposClientes').attr('hidden', false);
+            $('#tipoClientes').attr('disabled', false);
+            $('#familia').attr('disabled', false);
+            $('#subFamilia').attr('disabled', false);
+            $('#AgregarTipoCliente').attr('disabled', false);
+        } else {
+            $('[href="#CondicionesCliente"]').addClass('disabledTab');
+            
+            $('#AgregarTipoCliente').attr('disabled', true);
+           
+            $('#TiposClientes').attr('hidden', true);
+          
+          
+            $('#tipoClientes').val(0);
+            $('#familia').val(0);
+            $('#subFamilia').val(0);
+            $('#familia').attr('disabled', true);
+            $('#tipoClientes').attr('disabled', false);
+            $('#subFamilia').attr('disabled', true);
+            $('#AgregarTipoCliente').attr('disabled', true);
+            $('#editarSubFamilia').attr("disabled", true);
+           
+            $('#editarTipoCliente').attr("disabled", true);
+            $('#CrearEditarFamilias').attr("disabled", true);
+            $('#CrearEditarFamilias').attr("disabled", true);
+            $('#CrearEditarSubFamilias').attr("disabled", true);
+            $('#editarFamilia').attr("disabled", true);
+            $('#CrearEditarSubFamilias').attr("disabled", true);
+            $('#editarSubFamilia').attr("disabled", true);
+            $('#eliminarSubFamilia').attr("disabled", true);
+
+            $("#subFamilia option").remove();
+
+            var option = new Option("Seleccione", 0);
+
+            $("#subFamilia").append(option);
+            $("#familia option").remove();
+
+            var option = new Option("Seleccione", 0);
+
+            $("#familia").append(option);
+
+
+        }
+    });
+
+    
     //jquery
     $(document).ready(function () {
         getTiposClientes();
@@ -1987,15 +2020,22 @@ var proveedor ;
             getFamilias($(this).val());
 
         } else {
-            $("#subFamilia option").remove();
-            $("#familia option").remove();
-
+            $('#editarSubFamilia').attr("disabled", true);
             $('#editarTipoCliente').attr("disabled", true);
             $('#editarFamilia').attr("disabled", true);
             $('#CrearEditarFamilias').attr("disabled", true);
 
+            $('#CrearEditarSubFamilias').attr("disabled", true);
+            $("#subFamilia option").remove();
 
+            var option = new Option("Seleccione", 0);
 
+            $("#subFamilia").append(option);
+            $("#familia option").remove();
+
+            var option = new Option("Seleccione", 0);
+
+            $("#familia").append(option);
         }
     });
     //accion del select familia que devuelve alas subfamilias:
@@ -2011,6 +2051,10 @@ var proveedor ;
 
         } else {
             $("#subFamilia option").remove();
+
+            var option = new Option("Seleccione", 0);
+
+            $("#subFamilia").append(option);
             $('#editarFamilia').attr("disabled", true);
             $('#editarSubFamilia').attr("disabled", true);
             $('#CrearEditarSubFamilias').attr("disabled", true);
@@ -2307,6 +2351,51 @@ var proveedor ;
     });
 </script>
 <script>
+    $('#proveedor').click(function () {
+        if ($(this).is(':checked')) {
+            $('[href="#CondicionesProveedor"]').removeClass('disabledTab');
+            $('#TiposProveedor').attr('hidden', false);
+            $('#tipoProveedor').attr('disabled', false);
+            $('#familiaProveedor').attr('disabled', false);
+            $('#subFamiliaProveedor').attr('disabled', false);
+            $('#AgregarTipoProveedor').attr('disabled', false);
+        } else {
+            $('[href="#CondicionesProveedor"]').addClass('disabledTab');
+            $('#TiposProveedor').attr('hidden', true);
+            $("#subFamiliaProveedor option").remove();
+
+            var option = new Option("Seleccione", 0);
+
+            $("#subFamiliaProveedor").append(option);
+            $("#familiaProveedor option").remove();
+
+            var option = new Option("Seleccione", 0);
+
+            $("#familiaProveedor").append(option);
+
+            $('#tipoProveedor').attr('disabled', true);
+            $('#familiaProveedor').attr('disabled', true);
+            $('#subFamiliaProveedor').attr('disabled', true);
+            $('#AgregarTipoProveedor').attr('disabled', true);
+
+            $('#familiaProveedor').attr('disabled', true);
+            $('#subFamiliaProveedor').attr('disabled', true);
+            $('#AgregarTipoProveedor').attr('disabled', true);
+            $('#editarfamiliaProveedor').attr("disabled", true);
+            $('#editarTipoProveedor').attr("disabled", true);
+            $('#CreareditarfamiliaProveedor').attr("disabled", true);
+            $('#CreareditarSubfamiliaProveedor').attr("disabled", true);
+            $('#CreareditarfamiliaProveedor').attr("disabled", true);
+            $('#editarfamiliaProveedor').attr("disabled", true);
+            $('#CreareditarSubfamiliaProveedor').attr("disabled", true);
+            $('#editarSubfamiliaProveedor').attr("disabled", true);
+            $('#eliminarSubfamiliaProveedor').attr("disabled", true);
+            $('#tipoProveedor').val(0);
+            $('#familiaProveedor').val(0);
+            $('#subFamiliaProveedor').val(0);
+
+        }
+    });
     //jquery
     $(document).ready(function () {
         getTiposProveedor();
@@ -2348,14 +2437,22 @@ var proveedor ;
             getfamiliaProveedors($(this).val());
 
         } else {
-            $("#subfamiliaProveedor option").remove();
+            $("#subFamiliaProveedor option").remove();
+
+            var option = new Option("Seleccione", 0);
+
+            $("#subFamiliaProveedor").append(option);
             $("#familiaProveedor option").remove();
+
+            var option = new Option("Seleccione", 0);
+
+            $("#familiaProveedor").append(option);
 
             $('#editarTipoProveedor').attr("disabled", true);
             $('#CreareditarfamiliaProveedor').attr("disabled", true);
             $('#editarfamiliaProveedor').attr("disabled", true);
-
-
+            $('#editarSubfamiliaProveedor').attr("disabled", true);
+            $('#CreareditarSubfamiliaProveedor').attr("disabled", true);
 
         }
     });
@@ -2370,7 +2467,11 @@ var proveedor ;
             getSubfamiliaProveedors($(this).val());
 
         } else {
-            $("#subfamiliaProveedor option").remove();
+            $("#subFamiliaProveedor option").remove();
+
+            var option = new Option("Seleccione", 0);
+
+            $("#subFamiliaProveedor").append(option);   
             $('#editarfamiliaProveedor').attr("disabled", true);
             $('#editarSubfamiliaProveedor').attr("disabled", true);
             $('#CreareditarSubfamiliaProveedor').attr("disabled", true);

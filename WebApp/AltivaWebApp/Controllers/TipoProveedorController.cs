@@ -25,6 +25,52 @@ namespace AltivaWebApp.Controllers
                 
                 
                 }
+        [HttpGet("EliminarSubFamiliaProveedor/{idCliente?}")]
+        public IActionResult EliminarSubFamiliaProveedor(int idCliente)
+        {
+            TbFdTipoProveedor tipoC = new TbFdTipoProveedor();
+            tipoC = this.ITipoProveedorService.GetById(idCliente);
+            bool bandera = this.ITipoProveedorService.Delete(tipoC);
+            return Ok(true);
+
+        }
+        [HttpGet("EliminarFamiliaProveedor/{idCliente?}")]
+        public IActionResult EliminarFamiliaProveedor(int idCliente)
+        {
+
+            IList<TbFdTipoProveedor> tipoCliente = new List<TbFdTipoProveedor>();
+            tipoCliente = this.ITipoProveedorService.GetSubFamiliaProveedor(idCliente);
+            if (tipoCliente.Count() > 0)
+            {
+                return Ok(false);
+            }
+            else
+            {
+                TbFdTipoProveedor tipoC = new TbFdTipoProveedor();
+                tipoC = this.ITipoProveedorService.GetById(idCliente);
+                bool bandera = this.ITipoProveedorService.Delete(tipoC);
+                return Ok(true);
+            }
+
+        }
+        [HttpGet("EliminarTipoProveedor/{idCliente?}")]
+        public IActionResult EliminarTipoProveedor(int idCliente)
+        {
+            IList<TbFdTipoProveedor> tipoCliente = new List<TbFdTipoProveedor>();
+            tipoCliente = this.ITipoProveedorService.GetFamiliaTipoProveedor(idCliente);
+            if (tipoCliente.Count() > 0)
+            {
+                return Ok(false);
+            }
+            else
+            {
+                TbFdTipoProveedor tipoC = new TbFdTipoProveedor();
+                tipoC = this.ITipoProveedorService.GetById(idCliente);
+                bool bandera = this.ITipoProveedorService.Delete(tipoC);
+                return Ok(true);
+            }
+
+        }
         public IActionResult Index()
         {
             return View();

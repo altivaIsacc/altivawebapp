@@ -24,7 +24,52 @@ namespace AltivaWebApp.Controllers
             this.ITipoClientes = ITipoClientes;
             this.ITipoMapper = ITipoMapper;
         }
-     
+        [HttpGet("EliminarSubFamiliaCliente/{idCliente?}")]
+        public IActionResult EliminarSubFamiliaCliente(int idCliente)
+        {
+            TbFdTipoCliente tipoC = new TbFdTipoCliente();
+            tipoC = this.ITipoClientes.GetById(idCliente);
+            bool bandera = this.ITipoClientes.Delete(tipoC);
+            return Ok(true);
+           
+        }
+     [HttpGet("EliminarFamiliaCliente/{idCliente?}")]
+     public IActionResult EliminarFamiliaCliente(int idCliente)
+        {
+
+            IList<TbFdTipoCliente> tipoCliente = new List<TbFdTipoCliente>();
+            tipoCliente = this.ITipoClientes.GetSubFamilia(idCliente);
+            if (tipoCliente.Count() > 0)
+            {
+                return Ok(false);
+            }
+            else
+            {
+                TbFdTipoCliente tipoC = new TbFdTipoCliente();
+                tipoC = this.ITipoClientes.GetById(idCliente);
+                bool bandera = this.ITipoClientes.Delete(tipoC);
+                return Ok(true);
+            }
+         
+        }
+        [HttpGet("EliminarTipoCliente/{idCliente?}")]
+        public IActionResult EliminarTipoCliente(int idCliente)
+        {
+            IList<TbFdTipoCliente> tipoCliente = new List<TbFdTipoCliente>();
+            tipoCliente = this.ITipoClientes.GetFamiliaTipoCliente(idCliente);
+            if (tipoCliente.Count() > 0)
+            {
+                return Ok(false);
+            }
+            else
+            {
+                TbFdTipoCliente tipoC = new TbFdTipoCliente();
+                tipoC = this.ITipoClientes.GetById(idCliente);
+                bool bandera = this.ITipoClientes.Delete(tipoC);
+                return Ok(true);
+            }
+            
+        }
 
      [HttpGet("CrearTipoClientes")]
         public ActionResult CrearTipoClientes()

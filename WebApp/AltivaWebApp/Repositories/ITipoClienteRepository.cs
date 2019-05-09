@@ -8,6 +8,7 @@ namespace AltivaWebApp.Repositories
   public  interface ITipoClienteRepository
     {
         TbFdTipoCliente Save(TbFdTipoCliente domain);
+      
         IList<TbFdTipoCliente> GetAll();
         TbFdTipoCliente Update(TbFdTipoCliente domain);
         TbFdTipoCliente GetById(int idTipoCliente);
