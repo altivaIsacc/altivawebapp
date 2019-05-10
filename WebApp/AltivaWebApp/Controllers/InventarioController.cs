@@ -75,12 +75,11 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception)
             {
-
-                throw;
+                return BadRequest();
+                //throw;
             }
             
         }
-
 
 
         // GET: Inventario/Create
@@ -130,7 +129,8 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                // TODO: Add insert logic here
+                if (model.DescripcionVenta == null)
+                    model.DescripcionVenta = model.Descripcion;
                 var inventario = new TbPrInventario();
 
                 var idInventario = 0;
@@ -174,8 +174,7 @@ namespace AltivaWebApp.Controllers
             
             catch
             {
-                throw;
-                //return BadRequest();
+                return BadRequest();
             }
         }
 
@@ -294,18 +293,27 @@ namespace AltivaWebApp.Controllers
         [HttpGet("get-familias")]
         public IActionResult GetFamilia()
         {
-            var familias = familiaService.GetAllFamilias();
-
-            foreach (var item in familias)
+            try
             {
-                foreach (var i in item.InverseIdFamiliaNavigation)
-                {
-                    i.InverseIdFamiliaNavigation = null;
-                    i.IdFamiliaNavigation = null;
-                }
-            }
+                var familias = familiaService.GetAllFamilias();
 
-            return Ok(familias);
+                foreach (var item in familias)
+                {
+                    foreach (var i in item.InverseIdFamiliaNavigation)
+                    {
+                        i.InverseIdFamiliaNavigation = null;
+                        i.IdFamiliaNavigation = null;
+                    }
+                }
+
+                return Ok(familias);
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+            
         }
     }
 }

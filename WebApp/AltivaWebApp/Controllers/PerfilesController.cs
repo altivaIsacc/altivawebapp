@@ -178,6 +178,11 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
+                if (model.Nota1 == null)
+                    model.Nota1 = "";
+                if (model.Nota2 == null)
+                    model.Nota2 = "";
+
                 var modulo = moduloMap.Update(model);
                 return Json(new { success = true });
             }
@@ -206,7 +211,7 @@ namespace AltivaWebApp.Controllers
         }
 
 
-        [Route("/ExcluirModulos/{id}")]
+        [Route("ExcluirModulos/{id}")]
         public ActionResult ExcluirModulo(IList<int> model)
         {
             try
@@ -259,7 +264,6 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("Editar-Perfil")]
-        [ValidateAntiForgeryToken]
         public ActionResult EditarPerfil(PerfilViewModel model)
         {
             try

@@ -241,24 +241,18 @@ namespace AltivaWebApp.Controllers
 
         }
         [HttpPost("Editar-Usuario/{id?}")]
-        [ValidateAntiForgeryToken]
         public ActionResult EditarUsuario(UsuarioViewModel model)
         {
             string i = "";
             
             try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return RedirectToAction("ListaUsuarios");
-                }
+            {               
 
                 var domain = userService.GetUsuarioConPerfiles(model.codigo);
                 if(userService.ExisteUsuarioPorCodigo(model.codigo))
                     if(domain.Id != model.id)
                     {
-                        ModelState.AddModelError(string.Empty, "El código ya existe en el sistema");
-                        return View(model);
+                        return Json(new { success = false });
                     }
 
                 var domain2 = userService.GetUsuarioConPerfiles(model.correo);
@@ -266,19 +260,17 @@ namespace AltivaWebApp.Controllers
                 if (userService.ExisteUsuarioPorCorreo(model.correo))
                     if (domain2.Id != model.id)
                     {
-                        ModelState.AddModelError(string.Empty, "El correo ya existe en el sistema");
-                        return View(model);
+                        return Json(new { success = false });
                     }
 
                 var user = userMap.Update(model);
                 i = user.Codigo;
-                return RedirectToAction("ListaUsuarios");
+                return Json(new { success = true });
                 
             }
             catch
             {
-                ModelState.AddModelError(string.Empty, "Lo sentimos, tuvimos un error al procesar tu solicitud");
-                return RedirectToAction("ListaUsuarios");
+                return BadRequest();
             }
            
 
