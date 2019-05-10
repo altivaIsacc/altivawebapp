@@ -149,7 +149,7 @@ namespace AltivaWebApp.Controllers
                       
         }
 
-        [HttpGet("/Mensajes/")]
+        [HttpGet("Mensajes")]
         public ActionResult Index()
         {
 
@@ -263,7 +263,7 @@ namespace AltivaWebApp.Controllers
             
             return Json(new { contador = w });
         }
-        [HttpGet("/BandejaDeEntrada/{id?}")]
+        [HttpGet("BandejaDeEntrada/{id?}")]
         public ActionResult Recibidos(int id = 1)
         {
             List<MensajeRecibidoViewModel> MensajeViewModel1 = new List<MensajeRecibidoViewModel>();
@@ -293,7 +293,7 @@ namespace AltivaWebApp.Controllers
             return Json(new { id = 1 });
         }
 
-        [HttpPost("/CrearMensaje/")]
+        [HttpPost("CrearMensaje/")]
         public ActionResult Crear(MensajeViewModel collection)
         {
             try
@@ -369,7 +369,7 @@ namespace AltivaWebApp.Controllers
                 }
             }
         
-                [HttpPost("ModificarEstados")]
+        [HttpPost("ModificarEstados")]
         public ActionResult ModificarEstados(List<int> id)
         {
             var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;

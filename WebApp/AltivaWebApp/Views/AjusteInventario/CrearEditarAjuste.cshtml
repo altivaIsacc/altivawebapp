@@ -23,6 +23,7 @@
 @if (Model.Id != 0)
 {
     <h3>@SharedLocalizer["editarAjuste"]</h3>
+    <div><button onclick="crearPdf()" class="btn btn-link">@SharedLocalizer["Imprimir"]</button></div>
 }
 else
 {
@@ -75,7 +76,7 @@ else
         </div>
         <div class="form-group col-md-5 col-sm-6 col-xs-12">
             <label asp-for="Descripcion" class="control-label">@SharedLocalizer["Descripción"]:</label>
-            <textarea asp-for="Descripcion" rows="6" maxlength="500" class="form-control"></textarea>
+            <textarea asp-for="Descripcion" id="descripcionAjuste" rows="6" maxlength="500" class="form-control"></textarea>
             <span hidden class="text-danger" id="descripcionAjusteValid">@SharedLocalizer["descripcionValid"]</span>
         </div>
 
@@ -820,7 +821,7 @@ else
 
 
         var frm = frmAjuste.serializeArray();
-
+        console.log(frm);
 
 
         var ajusteModel = {
@@ -831,7 +832,7 @@ else
             saldoAjuste: saldo,
             idUsuario: frm[2].value,
             idBodega: $('#bodegas').val(),
-            descripcion: frm[4].value,
+            descripcion: $('#descripcionAjuste').val(),
             fechaDocumento: fechaDocumento.val(),
             ajusteInventario: lineas
         };
@@ -844,6 +845,8 @@ else
 
 
         var frm = frmAjuste.serializeArray();
+
+        
 
         var ajusteModel = {
             id: @Model.Id,
@@ -861,6 +864,77 @@ else
         return ajusteModel;
 
     }
+
+    function crearPdf() {
+
+        generate_cutomPDF(crearModeloPDF());
+
+    }
+
+    function crearModeloPDF() {
+
+        var ajuste = crearModelo();
+
+        var modelo = {
+            empresa: {
+                nombre: "AltivaRedes",
+                telefono: "26660407",
+                correo: "altiva@ejemplo.com",
+                cedJuridica: "3-101-04563",
+                logo: localStorage.getItem("fotoEmpresa"),
+                nombreTitulo: "@SharedLocalizer["Nombre"]:",
+                telTitulo: "@SharedLocalizer["Telefonos"]:",
+                correoTitulo: "@SharedLocalizer["Correo"]:",
+                cedTitulo: "@SharedLocalizer["Cedula Juridica"]:"
+            },
+            entrada: ajuste.totalEntrada,
+            salida: ajuste.totalSalida,
+            saldo: ajuste.saldoAjuste,
+            nombreDoc: '@SharedLocalizer["AjusteManual"]',
+            nombreDescarga: '@SharedLocalizer["ajustemanual"]_' + @Model.Id + '.pdf',
+            columnas: {
+                item: "Item",
+                movimiento: "@SharedLocalizer["Movimiento"]",
+                cantidad: "@SharedLocalizer["Cantidad"]",
+                costo: "@SharedLocalizer["Costo"]",
+                total: "@SharedLocalizer["Total"]",
+                cuentaContable: "@SharedLocalizer["cuentaContable"]",
+                cuentaCosto: "@SharedLocalizer["CuentaCosto"]"
+            },
+            filas: crearFilasPdf(),
+            resumen: {
+                entrada: "@SharedLocalizer["Entrada"]",
+                salida: "@SharedLocalizer["Salida"]",
+                saldo: "@SharedLocalizer["Saldo"]",
+                autorizado: "@SharedLocalizer["Autorizado por"]:______________________"
+            }
+
+        };
+
+        return modelo;
+
+    }
+
+    
+    function crearFilasPdf() {
+
+        var row = [];
+        for (var i = 0; i < lineas.length; i++) {
+            var model = {
+                item: lineas[i].nombreItem,
+                movimiento: lineas[i].movimiento,
+                cantidad: lineas[i].cantidad,
+                costo: lineas[i].costoPromedio,
+                total: lineas[i].totalMovimiento,
+                cuentaContable: lineas[i].cuentaContable.nombre,
+                cuentaCosto: lineas[i].cuentaCosto
+            };
+
+            row.push(model);
+        }
+        return row;
+    }
+
     function validarCampos() {
 
         var frm = frmAjuste.serializeArray();
@@ -884,7 +958,9 @@ else
     }
 
     function cancelar() {
-        bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) {
+        var msj = "@SharedLocalizer["confirmCancelar"]";
+
+        bootbox.confirm(msj, function (result) {
 
             if (result)
                 window.location.href = "@Url.Action("ListarAjustes","AjusteInventario")";
@@ -955,3 +1031,4 @@ else
 </script>
 
 
+<script src="~/lib/vendors/jsPDF/AM.js"></script>
