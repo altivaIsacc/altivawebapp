@@ -109,7 +109,7 @@
                     <p class="card-text"><strong><span>Teléfonos: </span></strong> @item.Telefono1 - @item.Telefono2</p>
                     <p class="card-text"><strong><span>Dirección: </span></strong> @item.Direccion</p>
                     <button @estado onclick="setEmpresa('@item.Nombre', '@item.Foto')" class="btn btn-primary">Ingresar</button>
-                    <button onclick="cambiarEstadoEmpresa(@item.Id)" class="btn btn-link">@btn</button>
+                    <button onclick="cambiarEstadoEmpresa(@item.Id, '@item.Estado')" class="btn btn-link">@btn</button>
                 </div>
             </div>
 
@@ -163,15 +163,27 @@
     });
 
 
-    function cambiarEstadoEmpresa(idEmpresa) {
+    function cambiarEstadoEmpresa(idEmpresa, estado) {
 
+        if (estado === "false")
+            ajaxEstado(idEmpresa);
+        else
+            bootbox.confirm("@SharedLocalizer["confirmDesactivarEmpresa"]", function (result) {
+                if (result) {
+                    ajaxEstado(idEmpresa);
+                }
+               
+            });
 
-        bootbox.confirm("@SharedLocalizer["confirmDesactivarEmpresa"]", function (result) {
+       
 
-            var url = '@Url.Action("CambiarEstadoEmpresa", new { id = "__id__" })';
+    }
+
+    function ajaxEstado(idEmpresa) {
+        var url = '@Url.Action("CambiarEstadoEmpresa", new { id = "__id__" })';
             url = url.replace("__id__", idEmpresa);
 
-             if (result) {
+             
                 $.ajax({
                     type: "get",
                     headers: {
@@ -187,12 +199,7 @@
                     }
                 });
 
-             }
-               
-        });
-
-       
-
+            
     }
 
 </script>
