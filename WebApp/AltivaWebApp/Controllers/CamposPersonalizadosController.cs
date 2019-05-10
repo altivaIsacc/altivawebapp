@@ -11,8 +11,8 @@ using AltivaWebApp.Mappers;
 namespace AltivaWebApp.Controllers
 {
 
-   
-    
+
+    [Route("{culture}/CamposPersonalizadosController")]
     public class CamposPersonalizadosController : Controller
     {
         //variable service
@@ -21,14 +21,14 @@ namespace AltivaWebApp.Controllers
         public IContactoMap IcontactoMap;
         IListaDesplegableMapper map;
         //contructor
-        public CamposPersonalizadosController(IContactoMap IcontactoMap,ICamposPersonalizadosService pCamposPersonalizados, IListaDesplegableMapper map)
+        public CamposPersonalizadosController(IContactoMap IcontactoMap, ICamposPersonalizadosService pCamposPersonalizados, IListaDesplegableMapper map)
         {
             this.pCamposPersonalizados = pCamposPersonalizados;
             this.IcontactoMap = IcontactoMap;
             this.map = map;
         }
-
-        public JsonResult TraerCamposPersonalizados()
+        [HttpGet("TraerCamposPersonalizados")]
+        public IActionResult TraerCamposPersonalizados()
         {
             IList<TbCrCamposPersonalizados> campos = new List<TbCrCamposPersonalizados>();
             campos = this.pCamposPersonalizados.GetCampos();
@@ -36,36 +36,41 @@ namespace AltivaWebApp.Controllers
 
         }
         // GET: CamposPersonalizados
+        [HttpGet("Index")]
         public ActionResult Index()
         {
             IList<TbCrCamposPersonalizados> campos = new List<TbCrCamposPersonalizados>();
-         campos =   this.pCamposPersonalizados.GetAll();
-           return View(campos);
-           // return View(campos);
+            campos = this.pCamposPersonalizados.GetAll();
+            return View(campos);
+            // return View(campos);
         }
 
         // GET: CamposPersonalizados/Details/5
-        public ActionResult Details(int id)
+        [HttpGet("Details/{id?}")]
+        public IActionResult Details(int id)
         {
 
 
             TbCrCamposPersonalizados contactoMap = new TbCrCamposPersonalizados();
             contactoMap = this.pCamposPersonalizados.getById(id);
             return View(contactoMap);
-           
+
         }
-        public ActionResult CrearCamposPersonalizados(CamposPersonalizadosViewModelSingle domain2)
+        [HttpPost("CrearCamposPersonalizados")]
+    
+        public IActionResult CrearCamposPersonalizados(CamposPersonalizadosViewModelSingle domain2)
         {
             ViewBag.id = 0;
             return PartialView("_CrearEditarCampos",domain2);
         }
         // GET: CamposPersonalizados/Create
-        public ActionResult Create()
+        [HttpGet("Create")]
+        public IActionResult Create()
         {
             return View();
         }
-
-        public ActionResult CrearNuevoCamposPersonalizados(CamposPersonalizadosViewModelSingle domain)
+        [HttpPost("CrearNuevoCamposPersonalizados")]
+        public IActionResult CrearNuevoCamposPersonalizados(CamposPersonalizadosViewModelSingle domain)
         {
             List<TbCrCamposPersonalizados> ListaCampos = new List<TbCrCamposPersonalizados>();
           
@@ -82,7 +87,8 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        // GET: CamposPersonalizados/Edit/5
+        // GET: CamposPersonalizados/Ed/it5
+        [HttpGet("EditCampos/{id?}")]
         public ActionResult EditCampos(int id)
         {
             ViewBag.id = 1;
@@ -95,7 +101,7 @@ namespace AltivaWebApp.Controllers
             domain2.Estado = contactoMap.Estado;
             return PartialView("_CrearEditarCampos", domain2);
         }
-
+        [HttpPost("Editar")]
         public ActionResult Editar(CamposPersonalizadosViewModelSingle model1)
         {
             try
@@ -110,7 +116,7 @@ namespace AltivaWebApp.Controllers
                 return View();
             }
         }
-
+        [HttpGet("Delete/{id?}")]
        public ActionResult Delete(int id)
         {
             TbCrCamposPersonalizados cp = new TbCrCamposPersonalizados();

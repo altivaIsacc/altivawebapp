@@ -385,7 +385,7 @@ namespace AltivaWebApp.Controllers
             }
             return Json(new { });
         }
-        public void insertarNotificacion(MensajeViewModel collection, int msjId, List<string> correos)
+        public void InsertarNotificacion(MensajeViewModel collection, int msjId, List<string> correos)
         {
             List<TbSeMensajeReceptor> mensajeReceptor = new List<TbSeMensajeReceptor>();
             TbSeMensaje notificacion = new TbSeMensaje("Se notifica el envio en un mensaje", "NO", msjId);

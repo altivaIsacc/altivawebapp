@@ -9,7 +9,7 @@ using AltivaWebApp.Mappers;
 using AltivaWebApp.ViewModels;
 namespace AltivaWebApp.Controllers
 {
-
+    [Route("{culture}/TipoTareaController")]
     public class TipoTareaController : Controller
     {
         //varable tarea tipo service
@@ -23,7 +23,7 @@ namespace AltivaWebApp.Controllers
             this.ITipoTareaService = ITipoTarea;
             this.ITipoTareaMapper = ITipoTareaMapper;
         }
-        [HttpGet]
+        [HttpGet("GEtTipos")]
         public JsonResult GEtTipos()
         {
             IList<TbFdTareaTipo> tp = new List<TbFdTareaTipo>();
@@ -37,7 +37,7 @@ namespace AltivaWebApp.Controllers
          
             return View();
         }
-        [HttpGet]
+        [HttpGet("ListarTiposTareas/{mensaje?}")]
         public IActionResult ListarTiposTareas(string mensaje= null) {
             IList<TbFdTareaTipo> tp = new List<TbFdTareaTipo>();
             IList<TbFdTareaTipo> tpL = new List<TbFdTareaTipo>();
@@ -66,12 +66,13 @@ namespace AltivaWebApp.Controllers
             }
             return PartialView("ListarTiposTareas", tpL);
         }
-        [HttpGet]
+        [HttpGet("CrearTipos")]
         public IActionResult CrearTipos()
         {
             TbFdTareaTipo tp = new TbFdTareaTipo();
             return PartialView("_CrearEditarTipos", tp);
         }
+        [HttpPost("CrearTipo")]
         public JsonResult CrearTipo(TipoTareaViewModel domain)
         {
             if (this.ITipoTareaService.GetByTitulo(domain.Titulo))
@@ -95,14 +96,14 @@ namespace AltivaWebApp.Controllers
             }
             return Json(new { titulo = false, color= false, defecto = false });
         }
-        [HttpGet]
+        [HttpGet("EditarTipo")]
         public IActionResult EditarTipo(int idTipoTarea)
         {
             TbFdTareaTipo tt = new TbFdTareaTipo();
             tt = this.ITipoTareaService.GetById(idTipoTarea);
             return PartialView("_CrearEditarTipos", tt);
         }
-
+        [HttpGet("Delete/{idTipo?}")]
         public JsonResult Delete(int idTipo)
         {
 
@@ -124,7 +125,7 @@ namespace AltivaWebApp.Controllers
 
             return new JsonResult(true);
         }
-        [HttpPost]
+        [HttpPost("EditarTipoTarea")]
         public JsonResult EditarTipoTarea(TipoTareaViewModel domain)
         {
             TbFdTareaTipo tt = new TbFdTareaTipo();

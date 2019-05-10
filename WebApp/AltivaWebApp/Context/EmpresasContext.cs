@@ -23,12 +23,12 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbPrFamiliaVentaOnline> TbPrFamiliaVentaOnline { get; set; }
         public virtual DbSet<TbFdTarea> TbFdTarea { get; set; }
         public virtual DbSet<TbFdTareaEstado> TbFdTareaEstado { get; set; }
-        public virtual DbSet<TbFdTareaTipo> TbFdTareaTipo { get; set; }
         public virtual DbSet<TbFdConfiguracionFiltros> TbFdConfiguracionFiltros { get; set; }
         public virtual DbSet<TbFdSubtareas> TbFdSubtareas { get; set; }
         public virtual DbSet<TbCrListaDesplegables> TbCrListaDesplegables { get; set; }
         public virtual DbSet<TbCrCamposPersonalizados> TbCrCamposPersonalizados { get; set; }
         public virtual DbSet<TbCrContacto> TbCrContacto { get; set; }
+        public virtual DbSet<TbCrContactoRelacion> TbCrContactoRelacion { get; set; }
         public virtual DbSet<TbCrContactosCamposPersonalizados> TbCrContactosCamposPersonalizados { get; set; }
         public virtual DbSet<TbBaConciliacion> TbBaConciliacion { get; set; }
         public virtual DbSet<TbBaConciliacionDetalle> TbBaConciliacionDetalle { get; set; }
@@ -86,7 +86,6 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdComisionesSobreVentaPagoDetalle> TbFdComisionesSobreVentaPagoDetalle { get; set; }
         public virtual DbSet<TbFdComisionionesSobreVentaPago> TbFdComisionionesSobreVentaPago { get; set; }
         public virtual DbSet<TbFdConfiguracionCorreo> TbFdConfiguracionCorreo { get; set; }
-        public virtual DbSet<TbFdConfiguracionFiltros> TbFdConfiguracionFiltros { get; set; }
         public virtual DbSet<TbFdContrato> TbFdContrato { get; set; }
         public virtual DbSet<TbFdContratoDescuento> TbFdContratoDescuento { get; set; }
         public virtual DbSet<TbFdContratoHospedaje> TbFdContratoHospedaje { get; set; }
@@ -132,8 +131,6 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdRespaldoHabitacionAsignada> TbFdRespaldoHabitacionAsignada { get; set; }
         public virtual DbSet<TbFdRespaldoHabitacionesAsignadasAllotment> TbFdRespaldoHabitacionesAsignadasAllotment { get; set; }
         public virtual DbSet<TbFdServicio> TbFdServicio { get; set; }
-        public virtual DbSet<TbFdTarea> TbFdTarea { get; set; }
-        public virtual DbSet<TbFdTareaEstado> TbFdTareaEstado { get; set; }
         public virtual DbSet<TbFdTareaTipo> TbFdTareaTipo { get; set; }
         public virtual DbSet<TbFdTemporada> TbFdTemporada { get; set; }
         public virtual DbSet<TbFdTemporadaGrupo> TbFdTemporadaGrupo { get; set; }
@@ -142,7 +139,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdTipoHabitacion> TbFdTipoHabitacion { get; set; }
         public virtual DbSet<TbFdTipoServicio> TbFdTipoServicio { get; set; }
         public virtual DbSet<TbFdTipoTarifa> TbFdTipoTarifa { get; set; }
-        public virtual DbSet<TbFdUsuarioCosto> TbFdUsuarioCosto { get; set; }
+       
         public virtual DbSet<TbPrAjuste> TbPrAjuste { get; set; }
         public virtual DbSet<TbPrAjusteInventario> TbPrAjusteInventario { get; set; }
         public virtual DbSet<TbPrBodega> TbPrBodega { get; set; }
@@ -3445,10 +3442,7 @@ namespace AltivaWebApp.Context
                     .HasDefaultValueSql("('')");
             });
 
-            modelBuilder.Entity<TbFdUsuarioCosto>(entity =>
-            {
-                entity.ToTable("tb_FD_UsuarioCosto");
-            });
+         
 
             modelBuilder.Entity<TbPrAjuste>(entity =>
             {

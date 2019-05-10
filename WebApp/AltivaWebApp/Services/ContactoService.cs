@@ -56,6 +56,7 @@ namespace AltivaWebApp.Services
         public TbFdCuentasBancarias EditarCuentas(TbFdCuentasBancarias domain)
         {
             return this.ICuentasBancariasRepository.Update(domain);
+        }
         public IList<TbCrContacto> GetAllProveedores()
         {
             return ContactoRepository.GetAllProveedores();

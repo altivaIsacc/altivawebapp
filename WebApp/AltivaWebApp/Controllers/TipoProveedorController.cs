@@ -9,7 +9,7 @@ using AltivaWebApp.Domains;
 using AltivaWebApp.ViewModels;
 namespace AltivaWebApp.Controllers
 {
-    [Route("TipoProveedor")]
+    [Route("{culture}/TipoProveedor")]
     public class TipoProveedorController : Controller
     {
         //variable service
@@ -25,21 +25,21 @@ namespace AltivaWebApp.Controllers
                 
                 
                 }
-        [HttpGet("EliminarSubFamiliaProveedor/{idCliente?}")]
-        public IActionResult EliminarSubFamiliaProveedor(int idCliente)
+        [HttpGet("EliminarSubFamiliaProveedor/{idProveedor?}")]
+        public IActionResult EliminarSubFamiliaProveedor(int idProveedor)
         {
             TbFdTipoProveedor tipoC = new TbFdTipoProveedor();
-            tipoC = this.ITipoProveedorService.GetById(idCliente);
+            tipoC = this.ITipoProveedorService.GetById(idProveedor);
             bool bandera = this.ITipoProveedorService.Delete(tipoC);
             return Ok(true);
 
         }
-        [HttpGet("EliminarFamiliaProveedor/{idCliente?}")]
-        public IActionResult EliminarFamiliaProveedor(int idCliente)
+        [HttpGet("EliminarFamiliaProveedor/{idProveedor?}")]
+        public IActionResult EliminarFamiliaProveedor(int idProveedor)
         {
 
             IList<TbFdTipoProveedor> tipoCliente = new List<TbFdTipoProveedor>();
-            tipoCliente = this.ITipoProveedorService.GetSubFamiliaProveedor(idCliente);
+            tipoCliente = this.ITipoProveedorService.GetSubFamiliaProveedor(idProveedor);
             if (tipoCliente.Count() > 0)
             {
                 return Ok(false);
@@ -47,17 +47,17 @@ namespace AltivaWebApp.Controllers
             else
             {
                 TbFdTipoProveedor tipoC = new TbFdTipoProveedor();
-                tipoC = this.ITipoProveedorService.GetById(idCliente);
+                tipoC = this.ITipoProveedorService.GetById(idProveedor);
                 bool bandera = this.ITipoProveedorService.Delete(tipoC);
                 return Ok(true);
             }
 
         }
-        [HttpGet("EliminarTipoProveedor/{idCliente?}")]
-        public IActionResult EliminarTipoProveedor(int idCliente)
+        [HttpGet("EliminarTipoProveedor/{idProveedor?}")]
+        public IActionResult EliminarTipoProveedor(int idProveedor)
         {
             IList<TbFdTipoProveedor> tipoCliente = new List<TbFdTipoProveedor>();
-            tipoCliente = this.ITipoProveedorService.GetFamiliaTipoProveedor(idCliente);
+            tipoCliente = this.ITipoProveedorService.GetFamiliaTipoProveedor(idProveedor);
             if (tipoCliente.Count() > 0)
             {
                 return Ok(false);
@@ -65,7 +65,7 @@ namespace AltivaWebApp.Controllers
             else
             {
                 TbFdTipoProveedor tipoC = new TbFdTipoProveedor();
-                tipoC = this.ITipoProveedorService.GetById(idCliente);
+                tipoC = this.ITipoProveedorService.GetById(idProveedor);
                 bool bandera = this.ITipoProveedorService.Delete(tipoC);
                 return Ok(true);
             }

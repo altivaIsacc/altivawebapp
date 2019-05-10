@@ -34,8 +34,8 @@ namespace AltivaWebApp.Controllers
             
         }
         // GET: Pais
-        [HttpGet("Lista-Paises")]
-        public ActionResult Index()
+        [HttpGet("Lista-Paises/{mensaje?}")]
+        public ActionResult Index(string mensaje)
         {
 
             var PaisesFiltrados =new List<TbSePais>();

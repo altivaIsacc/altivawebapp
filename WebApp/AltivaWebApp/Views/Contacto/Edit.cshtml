@@ -60,12 +60,14 @@
 
 
             url: '@Url.Action("GetCuentasByContacto", "Contacto")',
-            dataType: "json",
+        
 
             data: { idContacto: idContacto },
             success: function (data) {
-                var cuentas = JSON.parse(JSON.stringify(data));
-                cargarTablaCuenta(cuentas);
+                if (data != false) {
+                    var cuentas = JSON.parse(JSON.stringify(data));
+                    cargarTablaCuenta(cuentas);
+                }
                     }
         });
     }
@@ -209,7 +211,109 @@
     }
 </script>
 <script>
+     //cargar tabla
+    function cargarTabla() {
+        $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
 
+                    url: '@Url.Action("GetTareas", "Contacto")',
+
+
+            data: { idContacto:@Model.Id },
+
+
+            success: function (data) {
+                if (data != false) {
+                    contactoTareas = JSON.parse(JSON.stringify(data));
+
+                    cargarDatos(contactoTareas);
+                }
+                },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+                alert('error');
+                }
+            });
+    }
+    //cargar datos de las tareas..
+    function cargarDatos(data) {
+        var contadorFila = 0;
+        var fecha1 = ""
+        var fecha = "";
+
+        $("#TablaTareasContacto > tbody").remove();
+        $('#TablaTareasContacto').append('<tbody></tbody>');
+        dt = new Date();
+        fecha = +dt.getDate() + "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear() + " " + 0 + 0 + ":" + 0 + 0 + ":" + 0 + 0;
+        fecha1 = +dt.getDate() + "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear();
+        var color = "";
+        var icono = "";
+        var icono2 = "";
+
+        for (var i = 0; i < data.length; i++) {
+
+
+            if (recuperarFecha(data[i].fechaLimite) > fecha) {
+
+                color = "";
+            } else
+                if (recuperarFecha(data[i].fechaLimite) < fecha) {
+
+                    color = "#dc4a46";
+                }
+                else
+
+                    if (recuperarFechaSinHora(data[i].fechaLimite) == fecha1) {
+
+                        color = "#f3da0b";
+                    } else {
+                        color = "";
+                    }
+
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td>' + data[i].titulo + '</td>'
+                + '<td>' + data[i].idUsuario + ' </td>'
+                + '<td>' +" @Model.Correo" + '</td>'
+                + '<td bgColor="' + color + '">' + recuperarFecha(data[i].fechaLimite) + '</td>'
+                + '<td ><div style="background:' + data[i].idEstadoNavigation.color + ';color:white;">' + data[i].idEstadoNavigation.titulo + '</div></td>'
+                + '<td ><div  style="background: ' + data[i].idTipoNavigation.color + '; color:white;">' + data[i].idTipoNavigation.titulo + '</div></td>'
+
+            $('#TablaTareasContacto > tbody').append(body);
+            contadorFila++;
+        }
+        $('#TablaTareasContacto').DataTable().destroy();
+
+        TablaTareas = $('#TablaTareasContacto').DataTable({
+
+            info: false,
+
+            "ordering": false,
+
+            language: {
+                "decimal": "",
+                "emptyTable": "NoDatos",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "sinResultados",
+                "paginate": {
+                    "first": " Primero",
+                    "last": "Último",
+                    "next": "Sguiente]",
+                    "previous": "Anterior"
+                }
+            }
+        });
+    }
 
 
     if ($("#pais").val() == "CostaRica") {
@@ -444,7 +548,7 @@ $.ajax({
 
     });
     $(document).ready(function () {
-
+        cargarTabla();
         $('#pais').change(function () {
             if ($(this).val() == "CostaRica") {
 
@@ -665,7 +769,7 @@ $.ajax({
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
-                    type: "POST",
+                    type: "GET",
 
 
                     url: '@Url.Action("Usuarios", "Contacto")',
@@ -699,7 +803,7 @@ $.ajax({
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
-                    type: "POST",
+                    type: "GET",
               data: {id:@Model.Id},
 
                     url: '@Url.Action("camposEdit", "Contacto")',
@@ -775,7 +879,7 @@ $.ajax({
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
-                    type: "POST",
+                    type: "GET",
 
 
                     url: '@Url.Action("GetCampos", "ListaDesplegable")',

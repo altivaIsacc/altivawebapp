@@ -6,6 +6,7 @@
         return Xsrf.GetAndStoreTokens(Context).RequestToken;
     }
 }
+
 <style>
     .color {
         color: #fff;
@@ -173,7 +174,7 @@
 
             </div><div class="col-md-4">
 
-                <button type="button" onclick="btnCancelarTarea()"  class="btn btn-default">Cancelar</button>
+                <button type="button" onclick="btnCancelarTarea()" class="btn btn-default">Cancelar</button>
             </div>
         </div>
     }
@@ -182,7 +183,7 @@
         <div><label>Subtareas:</label><button class="btn btn-link" id="AgregarLista"><i style="font-size:2rem;" class="fas fa-plus"></i></button></div>
         <div class="row">
 
-            <div id="uls" >
+            <div id="uls">
 
             </div>
 
@@ -195,7 +196,7 @@
             </div>
             <div class="col-md-4">
 
-                <button type="button" onclick="btnCancelarTarea()"  class="btn btn-default">Cancelar</button>
+                <button type="button" onclick="btnCancelarTarea()" class="btn btn-default">Cancelar</button>
             </div>
         </div>
         <div class="row">
@@ -242,7 +243,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title w-100" id="myModalLabel">Estado</h4>
-                <button type="button" class="close"  id="btnCancelarEstados" >
+                <button type="button" class="close" id="btnCancelarEstados">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -253,6 +254,8 @@
         </div>
     </div>
 </div>
+
+
 <script>
     function btnCancelarTarea() {
         var titulo = $('#titulo').val();
@@ -342,9 +345,38 @@
 
         i++;
     });
+    function GetComentario(referencia, idRefernecia) {
+
+
+
+        var comentarioModel = {
+            mensaje: '',
+            tipoMensaje: 'CO',
+            tipoReferencia: referencia,
+            id: idRefernecia
+        };
+        console.log(comentarioModel);
+
+        $.ajax({
+            type: "POST",
+            url:  '@Url.Action("Nuevo-Comentario", "Mensajes") ',
+            data: comentarioModel,
+            success: function (data) {
+                $('#comentarios').html(data);
+            },
+            error: function (err, scnd) {
+
+                alert("Lo sentimos, tuvimos un problema al procesar tu solicitud.");
+                console.log(err.statusText);
+
+            }
+
+        });
+    }
+
      $(document).ready(function () {
 
-         GetComentarios("Tareas", @Model.Id);
+         GetComentario("Tareas", @Model.Id);
 
          GetSubTareas();
 
@@ -431,13 +463,14 @@
             },
             callback: function (result) {
                 if (result) {
-                  $.ajax({
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                    },
-                    type: "GET",
+                    $.ajax({
+                        headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        type: "GET",
 
-      url: '/Tarea/EliminarSubTarea/' + idSubTarea,
+                        url: '@Url.Action("EliminarSubTarea", "Tarea") ',
+                        data: { idSubContacto:idSubTarea },
 
 
                       success: function (data1) {
@@ -457,7 +490,7 @@
 
             }
         });
-  
+
     }
     //agregar subtarea
     function AgregarSubtarea(idTarea ) {
@@ -494,13 +527,14 @@
     var l = 0;
     //getSubTareas.
      function GetSubTareas() {
-              $.ajax({
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                    },
-                    type: "GET",
+         $.ajax({
+             headers: {
+                 "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+             },
+             type: "GET",
 
-                  url: '/Tarea/GetSubTareas/' + @Model.Id,
+             url: '@Url.Action("GetSubTareas", "Tarea")',
+             data: { idTarea: @Model.Id},
 
 
        success: function (data1) {
@@ -595,7 +629,7 @@
     });
     //metodo que permiter guardar la tarea
     $('#btnGuardarTarea').on('click', function () {
-       
+
         if (ValidarDatos() == true) {
             var fechaLimite = $('#fechaLimite').val();
             var descripcion = $('#descripcion').val();

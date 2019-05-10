@@ -924,11 +924,38 @@
 <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.print.min.js"></script>
 <!--Script que da forma ala tabla de contactos-->
 
-<script src="~/js/comentario.js"></script>
+
 
 <script>
       
-    
+     function GetComentario(referencia, idRefernecia) {
+
+
+
+        var comentarioModel = {
+            mensaje: '',
+            tipoMensaje: 'CO',
+            tipoReferencia: referencia,
+            id: idRefernecia
+        };
+        console.log(comentarioModel);
+
+        $.ajax({
+            type: "POST",
+            url:  '@Url.Action("Nuevo-Comentario", "Mensajes") ',
+            data: comentarioModel,
+            success: function (data) {
+                $('#comentarios').html(data);
+            },
+            error: function (err, scnd) {
+
+                alert("Lo sentimos, tuvimos un problema al procesar tu solicitud.");
+                console.log(err.statusText);
+
+            }
+
+        });
+    }
    
    
     //editar condiciones pago proveedor
@@ -1140,7 +1167,7 @@ var proveedor ;
     
     $(document).ready(function () {
 
-        GetComentarios("Contacto", @Model.Id);
+        GetComentario("Contacto", @Model.Id);
     });
     $("#filtroByTitulo").on("keyup", function () {
         TablaTareas
@@ -1769,112 +1796,10 @@ var proveedor ;
     }
     //metodo para cargar tareas en los contactos
     $(function () {
-        cargarTabla();
+
      //   $('.selectpicker').selectpicker();
     });
-    //cargar tabla
-    function cargarTabla() {
-        $.ajax({
-                    type: "get",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                    },
-
-                    url: '@Url.Action("GetTareas", "Contacto")',
-
-
-            data: { idContacto:@Model.Id },
-
-
-            success: function (data) {
-                if (data != false) {
-                    contactoTareas = JSON.parse(JSON.stringify(data));
-
-                    cargarDatos(contactoTareas);
-                }
-                },
-            error: function (err, scnd) {
-                console.log(err.statusText);
-                alert('error');
-                }
-            });
-    }
-    //cargar datos de las tareas..
-    function cargarDatos(data) {
-        var contadorFila = 0;
-        var fecha1 = ""
-        var fecha = "";
-
-        $("#TablaTareasContacto > tbody").remove();
-        $('#TablaTareasContacto').append('<tbody></tbody>');
-        dt = new Date();
-        fecha = +dt.getDate() + "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear() + " " + 0 + 0 + ":" + 0 + 0 + ":" + 0 + 0;
-        fecha1 = +dt.getDate() + "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear();
-        var color = "";
-        var icono = "";
-        var icono2 = "";
-
-        for (var i = 0; i < data.length; i++) {
-
-
-            if (recuperarFecha(data[i].fechaLimite) > fecha) {
-
-                color = "";
-            } else
-                if (recuperarFecha(data[i].fechaLimite) < fecha) {
-
-                    color = "#dc4a46";
-                }
-                else
-
-                    if (recuperarFechaSinHora(data[i].fechaLimite) == fecha1) {
-
-                        color = "#f3da0b";
-                    } else {
-                        color = "";
-                    }
-
-            var body = '<tr class="fila' + contadorFila + ' filas">'
-                + '<td>' + data[i].titulo + '</td>'
-                + '<td>' + data[i].idUsuario + ' </td>'
-                + '<td>' +" @Model.Correo" + '</td>'
-                + '<td bgColor="' + color + '">' + recuperarFecha(data[i].fechaLimite) + '</td>'
-                + '<td ><div style="background:' + data[i].idEstadoNavigation.color + ';color:white;">' + data[i].idEstadoNavigation.titulo + '</div></td>'
-                + '<td ><div  style="background: ' + data[i].idTipoNavigation.color + '; color:white;">' + data[i].idTipoNavigation.titulo + '</div></td>'
-
-            $('#TablaTareasContacto > tbody').append(body);
-            contadorFila++;
-        }
-        $('#TablaTareasContacto').DataTable().destroy();
-
-        TablaTareas = $('#TablaTareasContacto').DataTable({
-
-            info: false,
-
-            "ordering": false,
-
-            language: {
-                "decimal": "",
-                "emptyTable": "NoDatos",
-                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
-                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
-                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
-                "infoPostFix": "",
-                "thousands": ",",
-                "lengthMenu": "Mostrar _MENU_Entradas",
-                "loadingRecords": "Cargando...",
-                "processing": "Procesando...",
-                "search": "<i class='fas fa-search'></i>",
-                "zeroRecords": "sinResultados",
-                "paginate": {
-                    "first": " Primero",
-                    "last": "Último",
-                    "next": "Sguiente]",
-                    "previous": "Anterior"
-                }
-            }
-        });
-    }
+   
     function recuperarFecha(_fecha) {
 
         var fecha = _fecha.substr(0, 10);
@@ -2220,12 +2145,13 @@ var proveedor ;
 
     //function para llamar a vista parcial
     $('#AgregarTipoCliente').on("click", function () {
+        var url = '@Url.Action("PartialCrearTipoCliente", "TipoCliente")';
            $.ajax({
                     type: "get",
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
-               url: '/TipoCliente/PartialCrearTipoCliente/',
+               url: url,
 
               success: function (data) {
 
@@ -2241,13 +2167,15 @@ var proveedor ;
 
     //function que llama a vista parcial para crear una familia de un tipo de cliente
     $('#CrearEditarFamilias').on("click", function () {
+              var url = '@Url.Action("PartialCrearTipoCliente", "TipoCliente")';
         var idTipoCliente = $('#tipoClientes').val();
            $.ajax({
                     type: "get",
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                },
-               url: '/TipoCliente/PartialCrearTipoCliente/' + idTipoCliente,
+               url: url,
+               data: { idCliente: idTipoCliente},
 
               success: function (data) {
 
@@ -2265,14 +2193,15 @@ var proveedor ;
 
     //function que llama a vista parcial para crear una familia de un tipo de cliente
     $('#CrearEditarSubFamilias').on("click", function () {
-
+          var url = '@Url.Action("PartialCrearTipoCliente", "TipoCliente")';
         var idFamiliaTipoCliente = $('#familia').val();
-           $.ajax({
-                    type: "get",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-               },
-               url: '/TipoCliente/PartialCrearTipoCliente/' + idFamiliaTipoCliente,
+        $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: { idCliente: idFamiliaTipoCliente},
 
               success: function (data) {
 
@@ -2287,14 +2216,15 @@ var proveedor ;
     });
     //editar editarTipoCliente
     $('#editarTipoCliente').on("click", function () {
-
+              var url = '@Url.Action("PartialEditarTipoCliente", "TipoCliente")';
         var idTipoCliente = $('#tipoClientes').val();
-           $.ajax({
-                    type: "get",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-               },
-               url: '/TipoCliente/PartialEditarTipoCliente/' + idTipoCliente,
+        $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: { idCliente: idTipoCliente },
 
               success: function (data) {
 
@@ -2308,14 +2238,15 @@ var proveedor ;
             });
     });
     $('#editarFamilia').on("click", function () {
-
+          var url = '@Url.Action("PartialEditarTipoCliente", "TipoCliente")';
         var idFamiliaCliente = $('#familia').val();
-           $.ajax({
-                    type: "get",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-               },
-               url: '/TipoCliente/PartialEditarTipoCliente/' + idFamiliaCliente,
+        $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: { idCliente: idFamiliaCliente },
 
               success: function (data) {
 
@@ -2329,14 +2260,15 @@ var proveedor ;
             });
     });
    $('#editarSubFamilia').on("click", function () {
-
+         var url = '@Url.Action("PartialEditarTipoCliente", "TipoCliente")';
        var idSubFamiliaCliente = $('#subFamilia').val();
            $.ajax({
                     type: "get",
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                },
-               url: '/TipoCliente/PartialEditarTipoCliente/' + idSubFamiliaCliente,
+               url: url,
+               data: { idCliente: idSubFamiliaCliente},
 
               success: function (data) {
 
@@ -2633,12 +2565,14 @@ var proveedor ;
 
     //function para llamar a vista parcial
     $('#AgregarTipoProveedor').on("click", function () {
+          var url = '@Url.Action("PartialCrearTipoProveedor", "TipoProveedor")';
            $.ajax({
                     type: "get",
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
-               url: '/TipoProveedor/PartialCrearTipoProveedor/',
+               url: url,
+           
 
               success: function (data) {
 
@@ -2653,14 +2587,15 @@ var proveedor ;
     });
     //crear subfamilia
     $('#CreareditarSubfamiliaProveedor').on("click", function () {
-
-        var idTipoCliente = $('#familiaProveedor').val();
-           $.ajax({
-                    type: "get",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-               },
-               url: '/TipoProveedor/PartialCrearTipoProveedor/' + idTipoCliente,
+                  var url = '@Url.Action("PartialCrearTipoProveedor", "TipoProveedor")';
+        var idProveedor = $('#familiaProveedor').val();
+        $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: { idProveedor: idProveedor },
 
               success: function (data) {
 
@@ -2676,13 +2611,15 @@ var proveedor ;
     });
     //function que llama a vista parcial para crear una familiaProveedor de un tipo de cliente
     $('#CreareditarfamiliaProveedor').on("click", function () {
-        var idTipoCliente = $('#tipoProveedor').val();
-           $.ajax({
-                    type: "get",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-               },
-               url: '/TipoProveedor/PartialCrearTipoProveedor/' + idTipoCliente,
+           var url = '@Url.Action("PartialCrearTipoProveedor", "TipoProveedor")';
+        var idProveedor = $('#tipoProveedor').val();
+        $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: { idProveedor: idProveedor },
 
               success: function (data) {
 
@@ -2700,14 +2637,16 @@ var proveedor ;
 
     //function que llama a vista parcial para crear una familiaProveedor de un tipo de cliente
     $('#editarfamiliaProveedor').on("click", function () {
+                   var url = '@Url.Action("PartialCrearTipoProveedor", "TipoProveedor")';
 
         var idfamiliaProveedorTipoCliente = $('#familiaProveedor').val();
-           $.ajax({
-                    type: "get",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-               },
-               url: '/TipoProveedor/PartialCrearTipoProveedor/' + idfamiliaProveedorTipoCliente,
+        $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: { idProveedor: idfamiliaProveedorTipoCliente },
 
               success: function (data) {
 
@@ -2722,14 +2661,15 @@ var proveedor ;
     });
     //editar editarTipoProveedor
     $('#editarTipoProveedor').on("click", function () {
-
-        var idTipoCliente = $('#tipoProveedor').val();
-           $.ajax({
-                    type: "get",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-               },
-               url: '/TipoProveedor/PartialEditarTipoProveedor/' + idTipoCliente,
+                var url = '@Url.Action("PartialEditarTipoProveedor", "TipoProveedor")';
+        var idProveedor = $('#tipoProveedor').val();
+        $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: { idProveedor: idProveedor },
 
               success: function (data) {
 
@@ -2743,14 +2683,15 @@ var proveedor ;
             });
     });
     $('#editarfamiliaProveedor').on("click", function () {
-
+           var url = '@Url.Action("PartialEditarTipoProveedor", "TipoProveedor")';
         var idfamiliaProveedorCliente = $('#familiaProveedor').val();
-           $.ajax({
-                    type: "get",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-               },
-               url: '/TipoProveedor/PartialEditarTipoProveedor/' + idfamiliaProveedorCliente,
+        $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: { idProveedor: idfamiliaProveedorCliente },
 
               success: function (data) {
 
@@ -2764,15 +2705,16 @@ var proveedor ;
             });
     });
    $('#editarSubfamiliaProveedor').on("click", function () {
-
+           var url = '@Url.Action("PartialEditarTipoProveedor", "TipoProveedor")';
        var idSubfamiliaProveedorCliente = $('#subFamiliaProveedor').val();
 
-           $.ajax({
-                    type: "get",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-               },
-               url: '/TipoProveedor/PartialEditarTipoProveedor/' + idSubfamiliaProveedorCliente,
+       $.ajax({
+           type: "get",
+           headers: {
+               "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+           },
+           url: url,
+           data: { idProveedor: idSubfamiliaProveedorCliente },
 
               success: function (data) {
 

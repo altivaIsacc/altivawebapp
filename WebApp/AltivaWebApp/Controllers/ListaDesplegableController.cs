@@ -10,6 +10,7 @@ using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 namespace AltivaWebApp.Controllers
 {
+    [Route("{culture}/ListaDesplegableController")]
     public class ListaDesplegableController : Controller
     {
          IListaDesplegableMapper map;
@@ -23,7 +24,7 @@ namespace AltivaWebApp.Controllers
             this.map = map;
             this.pCamposPersonalizados = pCamposPersonalizados;
         }
-       [HttpGet]
+       [HttpGet("CrearLista")]
         public IActionResult CrearLista()
 
        {
@@ -34,7 +35,7 @@ namespace AltivaWebApp.Controllers
             return PartialView("_CrearEditar",domain2 );
         }
 
-        [HttpGet]
+        [HttpGet("GetLista/{id?}")]
         public IActionResult GetLista(int id)
         {
             IList<ListaDesplegableGETViewModel> vs = new List<ListaDesplegableGETViewModel>();
@@ -42,13 +43,15 @@ namespace AltivaWebApp.Controllers
 
             return PartialView("ListasDesplegables", vs);
         }
-        public JsonResult CrearCampos(CamposPersonalizadosViewModelSingle model1)
+        [HttpPost("CrearCampos")]
+        public IActionResult CrearCampos(CamposPersonalizadosViewModelSingle model1)
         {
             TbCrCamposPersonalizados vd = new TbCrCamposPersonalizados();
            vd = this.map.Save(model1);
             return new JsonResult(vd);
         }
-        public ActionResult EditCampos(int id)
+        [HttpGet("EditCampos/{id?}")]
+        public IActionResult EditCampos(int id)
         { 
             try
             {
@@ -69,24 +72,27 @@ namespace AltivaWebApp.Controllers
 
             return new JsonResult(true);
         }
-        public JsonResult CrearCamposRelacionLista(IList<ListaViewModel> lista)
+        [HttpPost("CrearCamposRelacionLista")]
+        public IActionResult CrearCamposRelacionLista(IList<ListaViewModel> lista)
         {
             this.map.SaveRange(lista);
             return new JsonResult(2);
         }
-        public JsonResult EditarListaCampos(IList<ListaViewModel> domain)
+        [HttpPost("EditarListaCampos")]
+        public IActionResult EditarListaCampos(IList<ListaViewModel> domain)
         {
             this.map.UpdateRange(domain);
             return new JsonResult(true);
         }
-        public JsonResult GetCampos(int id)
+        [HttpGet("GetCampos/{id?}")]
+        public IActionResult GetCampos(int id)
         {
             IList<ListaDesplegableGETViewModel> vs = new List<ListaDesplegableGETViewModel>();
             vs = this.service.GetCampos(id);
             return new JsonResult(vs);
         }
-
-        public JsonResult Delete(int id)
+        [HttpGet("Delete/{id?}")]
+        public IActionResult Delete(int id)
         {
             bool resutl;
             resutl = this.service.Delete(id);

@@ -10,7 +10,7 @@ using AltivaWebApp.Mappers;
 using AltivaWebApp.ViewModels;
 namespace AltivaWebApp.Controllers
 {
-    [Route("Tarea")]
+    [Route("{culture}/Tarea")]
     public class TareaController : Controller
     {
         
@@ -49,7 +49,7 @@ namespace AltivaWebApp.Controllers
             this.ImensajeSerive = ImensajeSerive;
         }
         [HttpGet("GetTareas")]
-        [HttpGet]
+      
         public IActionResult GetTareas()
         {
 
@@ -93,7 +93,7 @@ namespace AltivaWebApp.Controllers
             var tbTarea = new TbFdTarea();
             return PartialView("_PartialNuevaEditarTarea", tbTarea);
         }
-        [HttpGet("EditarTarea/{id}")]
+        [HttpGet("EditarTarea/{id?}")]
         public IActionResult EditarTarea(int id)
         {
 
@@ -105,7 +105,7 @@ namespace AltivaWebApp.Controllers
 
             return PartialView("_PartialNuevaEditarTarea", TbFdTarea);
         }
-
+        [HttpGet("CrearEditarTareas")]
         public IActionResult CrearEditarTareas()
         {
             ViewData["Contactos"] = this.IContactosService.GetAll();
@@ -281,7 +281,7 @@ namespace AltivaWebApp.Controllers
           
             return Ok();
         }
-        [HttpGet("GetSubTareas/{idTarea}")]
+        [HttpGet("GetSubTareas/{idTarea?}")]
         public JsonResult GetSubTareas(int idTarea)
         {
             IList<TbFdSubtareas> subtareas = new List<TbFdSubtareas>();
@@ -293,7 +293,7 @@ namespace AltivaWebApp.Controllers
             }
             return new JsonResult(subtareas);
         }
-        [HttpGet("EliminarSubTarea/{idSubContacto}")]
+        [HttpGet("EliminarSubTarea/{idSubContacto?}")]
         public IActionResult EliminarSubTarea(int idSubContacto)
         {
             TbFdSubtareas sub = new TbFdSubtareas();

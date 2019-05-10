@@ -11,7 +11,7 @@ using AltivaWebApp.Mappers;
 namespace AltivaWebApp.Controllers
 {
 
- 
+    [Route("{culture}/CentroDeCostosController")]
     public class CentroDeCostosController : Controller
     {
         //variable que instancia al service del centro de costos
@@ -24,8 +24,7 @@ namespace AltivaWebApp.Controllers
             this.ICentroCostosService = ICentroCostosService;
             this.ICostoUsuarioMapper = ICostoUsuarioMapper;
         }
-
-        // GET: CentroDeCostos
+        [HttpGet("ListaCentroDeCostos")]
         public ActionResult ListaCentroDeCostos()
         {
            
@@ -34,13 +33,13 @@ namespace AltivaWebApp.Controllers
 
 
 
-        // GET: CentroDeCostos/Create
+      [HttpGet("Create")]
         public ActionResult Create()
         {
             return View();
         }
 
-        [HttpGet]
+        [HttpGet("CrearEditarCostos/{IdUsuario?}")]
         public ActionResult CrearEditarCostos(int IdUsuario)
         {
 
@@ -50,7 +49,7 @@ namespace AltivaWebApp.Controllers
             
             return PartialView("_CrearEditarCostos",domain);
         }
-       [HttpPost]
+       [HttpPost("CrearCosto")]
        public JsonResult CrearCosto(CentroCostosViewModel domain)
         {
             TbFdUsuarioCosto uc = new TbFdUsuarioCosto();
@@ -58,7 +57,7 @@ namespace AltivaWebApp.Controllers
 
             return new JsonResult(true);
         }
-        [HttpPost]
+        [HttpPost("EditarCosto")]
         public JsonResult EditarCosto(CentroCostosViewModel domain)
         {
             TbFdUsuarioCosto uc = new TbFdUsuarioCosto();
@@ -68,7 +67,7 @@ namespace AltivaWebApp.Controllers
             return new JsonResult(true);
         }
 
-        [HttpGet]
+        [HttpGet("ListaCostos")]
         public IActionResult ListaCostos()
         {
             IList<TbSeUsuario> usuarioCosto = new List<TbSeUsuario>();

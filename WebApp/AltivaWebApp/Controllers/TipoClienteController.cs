@@ -10,7 +10,7 @@ using AltivaWebApp.Domains;
 using AltivaWebApp.ViewModels;
 namespace AltivaWebApp.Controllers
 {
-    [Route("TipoCliente")]
+    [Route("{culture}/TipoCliente")]
     public class TipoClienteController : Controller
     {
 

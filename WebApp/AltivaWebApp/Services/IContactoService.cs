@@ -6,7 +6,7 @@ using AltivaWebApp.Domains;
 using AltivaWebApp.ViewModels;
 namespace AltivaWebApp.Services
 {
-   public  interface IContactoService
+    public interface IContactoService
     {
         IList<TbCrContacto> GetAllPersonas();
         IList<TbCrContacto> GetAllEmpresas();
@@ -14,7 +14,7 @@ namespace AltivaWebApp.Services
         TbCrContacto Edit(TbCrContacto domain);
         TbCrContacto Save(TbCrContacto domain);
         ContactoViewModel GetByEdit(int id);
-       ContactoViemModelDetalle getById(int id);
+        ContactoViemModelDetalle getById(int id);
         TbCrContactoRelacion InsertarRelacion(TbCrContactoRelacion domain);
         IList<ContactoRelacionGETViewModel> GetContactosRelacion(int id);
         IList<TbCeProvincias> GetProvincias();

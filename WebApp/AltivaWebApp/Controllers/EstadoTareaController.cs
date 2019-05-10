@@ -11,7 +11,7 @@ using AltivaWebApp.Mappers;
 namespace AltivaWebApp.Controllers
 {
 
-    [Route("EstadoTarea")]
+    [Route("{culture}/EstadoTarea")]
     public class EstadoTareaController : Controller
     {
         public IEstadoTareaService IEstadoService;
@@ -43,7 +43,7 @@ namespace AltivaWebApp.Controllers
             return View();
         }
         [HttpGet("ListarEstadosTareas/{inactivo?}")]
-        [HttpGet]
+
         public IActionResult ListarEstadosTareas(string inactivo) {
             IList<TbFdTareaEstado> te = new List<TbFdTareaEstado>();
   IList<TbFdTareaEstado> tpL = new List<TbFdTareaEstado>();
@@ -133,7 +133,7 @@ namespace AltivaWebApp.Controllers
             return Json(new { titulo = false, color = false, defecto = false });
         }
         [HttpPost("CrearEstado")]
-        [HttpPost]
+      
         public JsonResult CrearEstado(EstadoTareaViewModel domain)
         {
             try
