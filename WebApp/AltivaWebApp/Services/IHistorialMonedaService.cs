@@ -13,11 +13,13 @@ namespace AltivaWebApp.Services
         TbSeHistorialMoneda Create(TbSeHistorialMoneda domain);
         TbSeHistorialMoneda Update(TbSeHistorialMoneda domain);
         IList<TbSeHistorialMoneda> GetAll();
+      void ModificarHistorial(List<TbSeHistorialMoneda> domain);
        int Guardar(IList<TbSeHistorialMoneda> domain);
          IList<TbSeHistorialMoneda> GetByDate(DateTime fecha);
         IList<TbSeHistorialMoneda> GetHistorialById(int id);
         IList<TbSeHistorialMoneda> FiltrarByFecha(DateTime fecha1,DateTime fecha2);
         IList<HistorialMonedaViewModel> GetAllByFecha(DateTime fecha);
         void GuardarHistorial(IList<TbSeHistorialMoneda> historial);
+        TbSeHistorialMoneda GetById(long id);
     }
 }

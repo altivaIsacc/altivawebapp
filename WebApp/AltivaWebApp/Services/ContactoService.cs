@@ -13,11 +13,34 @@ namespace AltivaWebApp.Services
 
         public IContactoRepository ContactoRepository;
         public IContactoRelacionRepository IContactoRelacionRepository;
-
-        public ContactoService(IContactoRepository ContactoRepository, IContactoRelacionRepository IContactoRelacionRepository)
+        public ICondicionesDePagoRepository ICondicionesDePagoRepository;
+        public ICuentasBancariasRepository ICuentasBancariasRepository;
+        public ContactoService(ICondicionesDePagoRepository ICondicionesDePagoRepository,ICuentasBancariasRepository ICuentasBancariasRepository,IContactoRepository ContactoRepository, IContactoRelacionRepository IContactoRelacionRepository)
         {
+            this.ICondicionesDePagoRepository = ICondicionesDePagoRepository;
+            this.ICuentasBancariasRepository = ICuentasBancariasRepository;
             this.ContactoRepository = ContactoRepository;
             this.IContactoRelacionRepository = IContactoRelacionRepository;
+        }
+
+        public TbFdCondicionesDePago AgregarCondicion(TbFdCondicionesDePago domain)
+        {
+            return this.ICondicionesDePagoRepository.Save(domain);
+        }
+
+        public TbFdCuentasBancarias AgregarCuentas(TbFdCuentasBancarias domain)
+        {
+            return this.ICuentasBancariasRepository.Save(domain);
+        }
+
+        public TbFdCuentasBancarias AgregarCuentasBancarias(TbFdCuentasBancarias domain)
+        {
+            return this.ICuentasBancariasRepository.Save(domain);
+        }
+
+        public bool DeleteCuentasBancarias(TbFdCuentasBancarias domain)
+        {
+            return this.ICuentasBancariasRepository.Delete(domain);
         }
 
         public TbCrContacto Edit(TbCrContacto domain)
@@ -25,6 +48,15 @@ namespace AltivaWebApp.Services
             return this.ContactoRepository.Update(domain);
         }
 
+        public TbFdCondicionesDePago EditarCondicion(TbFdCondicionesDePago domain)
+        {
+            return this.ICondicionesDePagoRepository.Update(domain);
+        }
+
+        public TbFdCuentasBancarias EditarCuentas(TbFdCuentasBancarias domain)
+        {
+            return this.ICuentasBancariasRepository.Update(domain);
+        }
         public IList<TbCrContacto> GetAllProveedores()
         {
             return ContactoRepository.GetAllProveedores();
@@ -56,6 +88,11 @@ namespace AltivaWebApp.Services
             return this.ContactoRepository.GetByCedulaContacto(cedula);
         }
 
+        public IList<TbFdCuentasBancarias> GetByContacto(int idContacto)
+        {
+            return this.ICuentasBancariasRepository.GetByContacto(idContacto);
+        }
+
         public ContactoViewModel GetByEdit(int id)
         {
             return this.ContactoRepository.GetByEdit(id);
@@ -81,9 +118,19 @@ namespace AltivaWebApp.Services
             return this.ContactoRepository.GetCantones(idProvincia);
         }
 
+        public IList<TbFdCondicionesDePago> GetCondiciones(int idContacto)
+        {
+            return this.ICondicionesDePagoRepository.GetById(idContacto);
+        }
+
         public IList<ContactoRelacionGETViewModel> GetContactosRelacion(int id)
         {
             return this.ContactoRepository.GetContactosRelacion(id);
+        }
+
+        public TbFdCuentasBancarias GetCuentasById(int id)
+        {
+            return this.ICuentasBancariasRepository.GetById(id);
         }
 
         public IList<TbCeDistrito> GetDistrito(int idDistrito, int idProvincia)
@@ -94,6 +141,11 @@ namespace AltivaWebApp.Services
         public IList<TbCeProvincias> GetProvincias()
         {
            return this.ContactoRepository.GetProvincias();
+        }
+
+        public TbCrContacto GetTareas(int idContacto)
+        {
+            return this.ContactoRepository.GetTareas(idContacto);
         }
 
         public TbCrContactoRelacion InsertarRelacion(TbCrContactoRelacion domain)

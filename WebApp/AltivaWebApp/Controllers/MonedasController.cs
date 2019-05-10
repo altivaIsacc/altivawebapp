@@ -272,7 +272,7 @@ namespace AltivaWebApp.Controllers
             List<TbSeHistorialMoneda> Lista = new List<TbSeHistorialMoneda>();
             TbSeHistorialMoneda historial = new TbSeHistorialMoneda();
             historial.CodigoMoneda = m.Codigo;
-            historial.Fecha = DateTime.Today;
+            historial.Fecha = DateTime.Now;
             historial.IdUsuario = Convert.ToInt32(ids);
             historial.ValorCompra = m.ValorCompra;
             historial.ValorVenta = m.ValorVenta;

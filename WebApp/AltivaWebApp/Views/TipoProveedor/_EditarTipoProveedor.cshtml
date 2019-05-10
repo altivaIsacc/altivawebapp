@@ -1,0 +1,92 @@
+﻿@model AltivaWebApp.Domains.TbFdTipoProveedor
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+<div class="container">
+    <div class="col-md-12">
+        <div class="row">
+            <div class="form-group">
+                <label> Nombre:</label>
+                <div hidden>
+                    <input type="text" asp-for="Id" id="idProveedor" />
+
+                </div>
+                <input type="text" class="form-control" id="nombreProveedor" asp-for="Nombre" />
+           <div class="AlertEditarNombre"></div>
+            </div>
+
+        </div>
+        <div class="row">
+
+            <button class="btn btn-success" onclick="btnEditarTipoProveedor()" type="submit">Guardar</button>
+
+
+
+            <button class=" btn btn-default" data-dismiss="modal">Cerrar</button>
+        </div>
+    </div>
+</div>
+<script>
+
+    //guardar tipo cliente
+
+    function btnEditarTipoProveedor() {
+        //agregar familia
+        if (ValidarDatos() == true) {
+            var nombre = "";
+            nombre = $("#nombreProveedor").val();
+            /*
+            if ($('#idPadre').val() == 0 && nombre != true) {
+    
+                var TipoClienteViewModel = {
+                    id: null,
+                    idPadre: $('#idFamilia').val(),
+                    nombre: nombre,
+                    inactivo: false
+                };
+            } else if ($('#IdPadreFamilia').val() != 0 && nombre != true) {
+    
+    
+            }*/
+
+            var TipoClienteViewModel = {
+                id: $('#idProveedor').val(),
+                idPadre: 0,
+                nombre: nombre,
+                inactivo: false
+            };
+            var url = '@Url.Action("EditarTipoProveedor", "TipoProveedor")';
+            $.ajax({
+                type: "POST",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { domain: TipoClienteViewModel },
+                success: function (data) {
+
+                    getTiposProveedor();
+                    getfamiliaProveedors(data);
+                    getSubfamiliaProveedors(data);
+                    $('#modalTipoCliente').modal('hide');
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+            });
+        }
+    }
+    function ValidarDatos() {
+        if ($('#nombreProveedor').val() == "") {
+            $('#AlertEditarNombre').empty();
+            $('#AlertEditarNombre').append('<span class="danger-text">El Nombre es requerido.</span>');
+            return false;
+        }
+
+        return true;
+    }
+</script>

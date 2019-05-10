@@ -8,6 +8,7 @@ namespace AltivaWebApp.Domains
         public TbFdTareaTipo()
         {
             TbFdTarea = new HashSet<TbFdTarea>();
+            this.Activo = true;
         }
 
         public long Id { get; set; }

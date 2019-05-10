@@ -1,0 +1,167 @@
+﻿@model AltivaWebApp.Domains.TbFdCuentasBancarias
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+
+<div class="row ">
+    <div class="col-md-10">
+        <div hidden>
+            <input type="text" asp-for="Id"/>
+        </div>
+        <div class="form-group">
+            <label>Tipo Cuenta:</label>
+            <select class="form-control" id="tipoCuenta" asp-for="TipoCuenta">
+                <option selected value="0">Seleccione</option>
+                <option value="Corriente">Corriente</option>
+                <option value="Ahorros">Ahorros</option>
+            </select>
+         
+            <div id="alertTipoCuenta"></div>
+        </div> <div class="form-group">
+    <label>Cuenta Bancaria:</label>
+    <input type="text" maxlength="30" class="form-control" id="cuentaBancaria" asp-for="CuentaBancaria"/>
+    <div id="alertCuentaBancaria"></div>
+</div> <div class="form-group">
+    <label>Banco:</label>
+    <input type="text" class="form-control" maxlength="30" id="banco" asp-for="Banco"/>
+    <div id="alertBanco"></div>
+</div><div class="form-group">
+    <label>Moneda:</label>
+        <select class="form-control" maxlength="30" asp-for="Moneda">
+            <option selected value="0">Seleccione</option>
+            <option value="Colon">Colon</option>
+            <option value="Dolar">Dolar</option>
+            <option value="Euro">Euro</option>
+        </select>
+  
+    <div class="alertMoneda"></div>
+</div>
+        <div class="form-group">
+            @if (@Model.Banco == null)
+            {
+                <div class="form-group">
+                    <button type="button" id="GuardarCuentas" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+
+
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                </div>
+            }
+            else
+            {
+                <div class="form-group">
+                    <button type="button" id="EditarCuentas" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+
+
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                </div>
+            }
+
+
+        </div>
+    </div>
+</div>
+<script>
+     //validar datos
+    function ValidarDatosCuenta() {
+
+        if ($('#tipoCuenta').val() == 0) {
+
+            $('#alertTipoCuenta').empty();
+            $('#alertTipoCuenta').append('<span class="text-danger">Tipo cuenta es requerido.</span>');
+            return false;
+        }
+        if ($('#cuentaBancaria').val() == "") {
+            $('#alertCuentaBancaria').empty();
+            $('#alertCuentaBancaria').append('<span class="text-danger">Cuenta bancaria es requerido.</span>');
+        return false;
+        } if ($('#banco').val() == "") {
+            $('#alertBanco').empty();
+            $('#alertBanco').append('<span class="text-danger">Banco es requerido.</span>');
+            return false;
+        }
+        return true;
+    }
+
+
+    //ingresar datos
+    $('#GuardarCuentas').on("click", function () {
+   
+        if (ValidarDatosCuenta() == true) {
+
+            var cuentas = {
+                Id: null,
+                tipoCuenta: $('#tipoCuenta').val(),
+                cuentaBancaria: $('#cuentaBancaria').val(),
+                banco: $('#banco').val(),
+                moneda: $('#Moneda').val(),
+                idContacto: $('#ContactoCuentas').val()
+            };
+            $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "POST",
+
+
+                url: '@Url.Action("AgregarCuentasBancarias", "Contacto")',
+
+
+                data: { domain: cuentas },
+                success: function (data) {
+                      GetCuentasContacto($('#ContactoCuentas').val());
+                    $('#cuentasBancarias').modal('hide');
+
+
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+            });
+        }
+    });
+
+    //editar cuenta de proveedor
+    $('#EditarCuentas').on("click", function () {
+   
+        if (ValidarDatosCuenta() == true) {
+
+            var cuentas = {
+                Id: $('#Id').val(),
+                tipoCuenta: $('#tipoCuenta').val(),
+                cuentaBancaria: $('#cuentaBancaria').val(),
+                banco: $('#banco').val(),
+                moneda: $('#Moneda').val(),
+                idContacto: $('#ContactoCuentas').val()
+            };
+            $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "POST",
+
+
+                url: '@Url.Action("EditarCuentasBancarias", "Contacto")',
+
+
+                data: { domain: cuentas },
+                success: function (data) {
+                      GetCuentasContacto($('#ContactoCuentas').val());
+                    $('#cuentasBancarias').modal('hide');
+
+
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+            });
+        }
+    });
+</script>

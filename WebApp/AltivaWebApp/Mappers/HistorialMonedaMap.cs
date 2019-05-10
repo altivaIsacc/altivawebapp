@@ -35,6 +35,11 @@ namespace AltivaWebApp.Mappers
             return domain;
         }
 
+        public void ModificarHistorialMoneda(List<EditarHistorialMonedaViewModel> domain)
+        {
+             this.HistorialService.ModificarHistorial( ViewModelToDomainUpdate(domain));
+        }
+
         public TbSeHistorialMoneda Update(HistorialMonedaViewModel viewModel)
         {
             throw new NotImplementedException();
@@ -51,6 +56,23 @@ namespace AltivaWebApp.Mappers
             domain.IdUsuario = 45;
             return domain;
 
+        }
+
+        public List<TbSeHistorialMoneda> ViewModelToDomainUpdate(List<EditarHistorialMonedaViewModel> domain)
+        {
+            TbSeHistorialMoneda historial;
+            List<TbSeHistorialMoneda> historialArray = new List<TbSeHistorialMoneda>();
+            foreach (var item in domain)
+            {
+                historial = this.HistorialService.GetById(item.Id);
+                historial.ValorCompra = item.Compra;
+                historial.ValorVenta = item.Venta;
+
+                historialArray.Add(historial);
+
+            }
+
+            return historialArray;
         }
     }
 }

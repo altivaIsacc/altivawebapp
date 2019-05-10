@@ -7,6 +7,7 @@ namespace AltivaWebApp.Domains
     {
         public TbFdTareaEstado()
         {
+            this.Activo = true;
             TbFdTarea = new HashSet<TbFdTarea>();
         }
 

@@ -1,0 +1,368 @@
+﻿@model AltivaWebApp.Domains.TbFdTareaTipo
+
+@{
+    ViewData["Title"] = "Costos por usuario";
+}
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+<link href="~/lib/vendors/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css" rel="stylesheet">
+<script src="~/lib/vendors/mjolnic-bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js"></script>
+
+
+<div class="row">
+  
+    <div class="form-group col-md-12" hidden>
+        <label>Id:</label>
+        <input type="text" class="form-control" asp-for="Id" id="Id2" />
+    </div>
+    <div class="form-group col-md-12">
+        <label>Título:</label>
+        <input type="text" class="form-control" asp-for="Titulo" id="Titulo2" />
+        <div id="AlertTitulo2"></div>
+    </div>
+
+
+    <div class="form-group col-md-4">
+        <label>Color:</label>
+
+        <input type="text" class=" form-control colorpicker" id="Color2" asp-for="Color" />
+        <div id="AlertColor"> </div>
+    </div>
+    <div class="form-group col-sm-4 col-md-12">
+        <label>Controla fecha limite: <span><i class="fas fa-question"></i></span></label>
+        <div>
+            <input type="checkbox" id="controlaFecha" checked="@Model.ControlaFechaLimite" />
+        </div>
+    </div>
+    <div id="campoDiasLimite" class=" card card-body collapse collapseTiposTareas">
+        <div class="form-group col-sm-4 col-md-4">
+            <label>Días fecha limte:</label>
+            <div>
+                <input type="number" class=" form-control " id="DiasLimite"  asp-for="DiasFechaLimite" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group col-sm-4 col-md-12">
+        <label>Es por defecto: <span><i class="fas fa-question"></i></span></label>
+        <div>
+            <input type="checkbox" id="defecto" checked="@Model.EsTipoDefecto" />
+            <div id="AlertDefecto"></div>
+        </div>
+    </div>
+    <div class="form-group col-sm-4 col-md-12">
+        <label>Activo: <span><i class="fas fa-question"></i></span></label>
+        <div>
+            <input type="checkbox" checked="@Model.Activo" id="activo" />
+        </div>
+    </div>
+    @if (Model.Titulo == null)
+    {
+        <div class="form-group col-sm-4 col-md-12">
+            <button type="button" id="GuardarTipo" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+
+
+            <button type="submit" class="btn btn-default" id="btnCancelar">Cancelar</button>
+        </div>
+    }
+    else
+    {
+        <div class="form-group col-sm-4 col-md-12">
+            <button type="button" id="EditarTipoTarea" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+
+
+            <button type="button" class="btn btn-default " onclick="btnCancelar()"  >Cancelar</button>
+        </div>
+    }
+</div>
+<script>
+    function btnCancelar() {
+        var titulo = $('#Titulo2').val();
+        var color = $('#Color2').val();
+
+        var diasFechaLimite = $('#DiasLimite').val();
+        if (titulo != "" && color != "" || diasFechaLimite != "") {
+            bootbox.confirm({
+
+                message: "<h4 class='text-center'><span >Esta seguro que desea Continuar?</span></h4>",
+                buttons: {
+
+                    confirm: {
+                        label: '<i class="fa fa-check"></i> Aceptar'
+                    },
+                    cancel: {
+                        label: '<i class="fa fa-times"></i> Cancelar'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        $('#sideModalTR').modal('hide');
+
+                        $('#head').empty();
+                        $('#head').append('  <h4 class="modal-title w-100" id="myModalLabel">Modal title</h4><button type ="button" class="close" id ="btnCancelar" ><span aria-hidden="true">&times;</span></button>');
+                        return;
+                    } else {
+                        return;
+                    }
+
+                }
+            });
+        } else {
+            $('#sideModalTR').modal('hide');
+        }
+    }
+    //cerrar modal
+    $('#btnCancelar').on('click', function () {
+      
+        var titulo = $('#Titulo2').val();
+        var color = $('#Color2').val();
+       
+        var diasFechaLimite = $('#DiasLimite').val();
+        if (titulo != "" && color != "" || diasFechaLimite != "") {
+            bootbox.confirm({
+
+                message: "<h4 class='text-center'><span >Esta seguro que desea Continuar?</span></h4>",
+                buttons: {
+
+                    confirm: {
+                        label: '<i class="fa fa-check"></i> Aceptar'
+                    },
+                    cancel: {
+                        label: '<i class="fa fa-times"></i> Cancelar'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        $('#sideModalTR').modal('hide');
+                    
+                        $('#head').empty();
+                        $('#head').append('  <h4 class="modal-title w-100" id="myModalLabel">Modal title</h4><button type ="button" class="close" id ="btnCancelar" ><span aria-hidden="true">&times;</span></button>');
+                        return;
+                    } else {
+                        return;
+                    }
+
+                }
+            });
+        } else {
+            $('#sideModalTR').modal('hide');
+        }
+       
+    });
+    //inicializacion del campo color
+    $('.colorpicker').colorpicker();
+    $(document).ready(function () {
+     
+            if ($('#controlaFecha').prop('checked')) {
+
+                $('.collapseTiposTareas').collapse('toggle');
+            }
+            $('#campoDiasLimite').attr("hidden", true);
+
+            $('#controlaFecha').change(function () {
+
+                $('.collapseTiposTareas').collapse('toggle');
+
+                if (!$('#controlaFecha').prop('checked')) {
+
+                }
+
+            });
+                 //metodo para ingresar
+        $('#GuardarTipo').on('click', function () {
+            if (validarCampos() == true) {
+                var controlaFecha;
+                var porDefecto;
+                var activo;
+                if ($('#controlaFecha').prop('checked')) {
+                    controlaFecha = true;
+                } else {
+                    controlaFecha = false;
+
+                }
+                if ($('#defecto').prop('checked')) {
+                    porDefecto = true;
+                } else {
+                    porDefecto = false;
+                }
+                if ($('#activo').prop('checked')) {
+         
+                    activo = true;
+                } else {
+                    activo = false;
+                    $('#Color').val('#858585');
+                }
+                TipoTareaViewModel = {
+                    id: null,
+                    titulo: $('#Titulo2').val(),
+                    color: $('#Color2').val(),
+                    controlaFechaLimite: controlaFecha,
+                    diasFechaLimite: $('#DiasLimite').val(),
+                    esTipoDefecto: porDefecto,
+                    activo: activo
+                };
+                console.log(TipoTareaViewModel);
+                $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "POST",
+
+
+                    url: '@Url.Action("CrearTipo", "TipoTarea")',
+
+                    data: { domain: TipoTareaViewModel },
+                    success: function (data) {
+                        if (data.titulo == true) {
+                            $('#AlertTitulo').empty();
+                            $('#AlertTitulo').append('<span class="text-danger">El título no se puede repetir.</span>');
+                            return false;
+                        }
+                        if (data.color == true) {
+                            $('#AlertColor').empty();
+                            $('#AlertColor').append('<span class="text-danger">Este color no puede ser seleccionado.</span>');
+                            return false;
+                        }
+                        if (data.defecto == true) {
+                            $('#AlertDefecto').empty();
+                            $('#AlertDefecto').append('<span class="text-danger">Solo puede existir un tipo por defecto.</span>');
+                            return false;
+                        }
+                        $('#sideModalTR').modal('hide');
+                        $('#cargarTablaTipos').empty();
+                        if ($("#activos").css("display") == "block") {
+
+                            $("#inactivos").css("display", "none");
+                            $("#activos").css("display", "block");
+                            VerInactivos();
+                        } else {
+                            $("#inactivos").css("display", "block");
+                            $("#activos").css("display", "none");
+                            cargarTablaTipoTareas();
+
+
+                        }
+                     
+                        return false;
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+            }
+        });
+        });
+    //editar tipos de tareas..
+    $('#EditarTipoTarea').on('click', function () {
+        if (validarCampos() == true) {
+            var controlaFecha;
+            var porDefecto;
+            var activo;
+            if ($('#controlaFecha').prop('checked')) {
+                controlaFecha = true;
+            } else {
+
+                controlaFecha = false;
+                $('#fechaLimite').val(0);
+            }
+            if ($('#defecto').prop('checked')) {
+                porDefecto = true;
+            } else {
+                porDefecto = false;
+
+            }
+            if ($('#activo').prop('checked')) {
+                activo = true;
+            } else {
+                activo = false;
+                $('#Color').val('#858585');
+            }
+            TipoTareaViewModel = {
+                id: $('#Id2').val(),
+                titulo: $('#Titulo2').val(),
+                color: $('#Color2').val(),
+                controlaFechaLimite: controlaFecha,
+                diasFechaLimite: $('#DiasLimite').val(),
+                esTipoDefecto: porDefecto,
+                activo: activo
+            };
+            console.log(TipoTareaViewModel);
+            $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "POST",
+
+
+                url: '@Url.Action("EditarTipoTarea", "TipoTarea")',
+
+                data: { domain: TipoTareaViewModel },
+                success: function (data) {
+                    if (data.titulo == true) {
+                        $('#AlertTitulo2').empty();
+                        $('#AlertTitulo2').append('<span class="text-danger">El título no se puede repetir.</span>');
+                        return false;
+                    }
+                    if (data.color == true) {
+                        $('#AlertColor').empty();
+                        $('#AlertColor').append('<span class="text-danger">Este color no puede ser repetir.</span>');
+                        return false;
+                    }
+                    if (data.defecto == true) {
+                        $('#AlertDefecto').empty();
+                        $('#AlertDefecto').append('<span class="text-danger">Solo puede existir un tipo por defecto.</span>');
+                        return false;
+                    }
+                    $('#sideModalTR').modal('hide');
+                
+                    $('#cargarTablaTipos').empty();
+                    if ($("#activos").css("display") == "block") {
+
+                        $("#inactivos").css("display", "none");
+                        $("#activos").css("display", "block");
+                        VerInactivos();
+                    } else {
+                        $("#inactivos").css("display", "block");
+                        $("#activos").css("display", "none");
+                        cargarTablaTipoTareas();
+                       
+
+                    }
+                    return false;
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+        }
+        });
+
+
+
+    function validarCampos() {
+
+        if ($('#Titulo2').val() == "") {
+            $('#AlertTitulo2').empty();
+            $('#AlertTitulo2').append('<span class="text-danger">El título es requerido.</span>');
+            return false;
+        }
+
+        if ($('#activo').prop('checked')) {
+            if ($('#Color').val() == '#858585') {
+                $('#AlertColor').empty();
+                $('#AlertColor').append('<span class="text-danger">Este color no puede ser seleccionado.</span>');
+                return false;
+            }
+        }
+        return true;
+    }
+
+</script>

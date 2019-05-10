@@ -24,7 +24,11 @@ namespace AltivaWebApp.Domains
         public DateTime? FechaInicio { get; set; }
         public DateTime? FechaFinal { get; set; }
         public long Posicion { get; set; }
-
+        public TbFdTarea()
+        {
+            TbFdSubtareas = new HashSet<TbFdSubtareas>();
+        }
+        public virtual ICollection<TbFdSubtareas> TbFdSubtareas { get; set; }
         public virtual TbCrContacto IdContactoNavigation { get; set; }
         public virtual TbFdTareaEstado IdEstadoNavigation { get; set; }
         public virtual TbFdTareaTipo IdTipoNavigation { get; set; }

@@ -1,0 +1,125 @@
+﻿@model AltivaWebApp.GEDomain.TbFdUsuarioCosto
+
+@{
+    ViewData["Title"] = "Costos por usuario";
+}
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+<div class="row">
+    <div class="col-md-6 ">
+        <div class="form-group" hidden>
+            <label>id</label>
+            <input type="text" asp-for="Id"  id="Id"/>
+        </div>
+        <div class="form-group" hidden>
+            <label>Nombre:</label>
+            <input type="text" asp-for="IdUsuario" readonly />
+        </div>
+        <div class="form-group ">
+            <label> Costo:</label>
+            <input type="text" asp-for="Costo" class="form-control " id="Costo"/>
+            <div id="alertCosto"></div>
+        </div>
+        @if (Model == null) {
+        <div class="form-group">
+            <button type="button" id="GuardarCosto" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+
+
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        </div>
+        }
+        else
+        {
+        <div class="form-group">
+            <button type="button" id="EditarCosto" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+
+
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        </div>
+        }
+    </div>
+</div>
+<script>
+    //script con metodos para guardar editar y validar los campos para los costos de cada usuario.
+//guardar costo
+    $('#GuardarCosto').on('click', function () {
+        if (validarDatos() == true) {
+            CostoUsuario = {
+                id: null,
+                idUsuario: @ViewBag.id,
+                costo: $('#Costo').val()
+
+            };
+            console.log(CostoUsuario);
+            $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "POST",
+
+
+                url: '@Url.Action("CrearCosto", "CentroDeCostos")',
+
+                data: { domain: CostoUsuario },
+                success: function (data) {
+                    $('#table').empty();
+                    cargarTableCostos();
+                    $('#usuarioCostos').modal('hide');
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+        }
+    });
+    //editar Costos
+    $('#EditarCosto').on('click', function () {
+        if (validarDatos() == true) {
+            CostoUsuarioEditar = {
+                id: $('#Id').val(),
+                idUsuario: @ViewBag.id,
+                costo: $('#Costo').val()
+
+            };
+            console.log(CostoUsuarioEditar);
+            $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "POST",
+
+
+                url: '@Url.Action("EditarCosto", "CentroDeCostos")',
+
+                data: { domain: CostoUsuarioEditar },
+                success: function (data) {
+                    $('#table').empty();
+                    cargarTableCostos();
+                    $('#usuarioCostos').modal('hide');
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+        }
+    });
+
+    function validarDatos() {
+        if ($('#Costo').val() == "") {
+
+            $('#alertCosto').empty();
+            $('#alertCosto').append('<span class="text-danger">Costo requerido.</span>');
+            return false;
+        }
+        return true;
+    }
+</script>

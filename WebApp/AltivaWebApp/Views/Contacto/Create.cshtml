@@ -22,6 +22,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script>
 
 <script>
+   
     $(function () {
 
         $("#btnEditar").hide();
@@ -210,7 +211,7 @@
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
-                    type: "POST",
+                    type: "GET",
 
 
                     url: '@Url.Action("Usuarios", "Contacto")',
@@ -301,7 +302,7 @@
             headers: {
                 "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
             },
-            type: "POST",
+            type: "GET",
 
 
             url: '@Url.Action("TraerCamposPersonalizados", "CamposPersonalizados")',
@@ -355,7 +356,7 @@
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
-                    type: "POST",
+                    type: "GET",
 
 
                     url: '@Url.Action("GetCampos", "ListaDesplegable")',
@@ -400,7 +401,8 @@
             var otrasSenas = $('#otrasSenas').val();
             var idUsuario = $('#usuarioEncargado').val();
             var imagen = $('#imagen').val();
-
+            var WebLink = $('#WebLink').val();
+            var MapLink = $('#MapLink').val();
             var fileUpload = $("#imagen").get(0);
 
             var files = fileUpload.files;
@@ -450,8 +452,15 @@
                 proveedor: proveedor,
 
                 otrasSenas: otrasSenas,
-                idUsuario: idUsuario
-
+                idUsuario: idUsuario,
+                webLink: WebLink,
+                mapLink: MapLink,
+                idTipoCliente: $('#tipoClientes').val(),
+                idFamiliaCliente: $('#familia').val(),
+                idSubFamiliaCliente: $('#subFamilia').val(),
+                idTipoProveedor: $('#tipoProveedor').val(),
+                idFamiliaProveedor: $('#familiaProveedor').val(),
+                idSubFamiliaProveedor: $('#subFamiliaProveedor').val()
             };
             // formData.append('model2', JSON.stringify( model2));
             Contacto.push(model2);
@@ -505,15 +514,20 @@
                     if (data.correo != "correo") {
 
                         if (data.cedula != "cedula") {
-
-
+                            if ($("#cliente").prop('checked')) {
+                           
+                                AgregarCondicionCliente(id);
+                            }
+                            if ($("#proveedor").prop('checked')) {
+                                AgregarCondicionProveedor(id);
+                            }
                             if (imagen != "") {
                                 formData.append('id', data.id);
                                 $.ajax({
                                     headers: {
                                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                                     },
-                                    type: "POST",
+                                    type: "GET",
                                     cache: false,
                                     contentType: false,
                                     processData: false,
@@ -566,8 +580,7 @@
         }
        
     }
-
-
+  
 
 </script>
 

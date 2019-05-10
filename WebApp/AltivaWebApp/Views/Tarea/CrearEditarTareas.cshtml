@@ -1,0 +1,261 @@
+﻿@model AltivaWebApp.Domains.TbFdTarea
+
+@{
+    ViewData["Title"] = "Nueva Tarea";
+}
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+<div class="container">
+    <div class=" row ">
+        <div class="form-group">
+            <div class=" col-md-12">
+                <label class="col-form-label">Título:</label><br />
+                <input type="text" class="form-control">
+            </div>
+        </div>
+    </div>
+    <div class="row ">
+
+        <div class=" form-group ">
+            <div class=" col-md-6">
+                <label class="col-form-label ">Contacto:</label><br />
+
+                <select class="selectpicker form-control" data-live-search="true">
+                    @foreach (var contactos in ViewData["contactos"] as IList<TbCrContacto>)
+                    {
+                        @if (contactos.Persona == true)
+                        {
+                            <option value="@contactos.IdContacto">@contactos.Nombre</option>
+                        }
+                        else
+                        {
+                            <option value="@contactos.IdContacto">@contactos.NombreComercial</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class=" col-md-6">
+                <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
+                <select class="selectpicker form-control" data-live-search="true">
+                    @foreach (var asignados in ViewData["asignados"] as IList<TbSeUsuario>)
+                    {
+                        <option value="@asignados.Id">@asignados.Nombre</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row ">
+
+        <div class=" col-md-1">
+            <div class="form-group">
+                <label for="staticEmail" class="col-form-label">Ver más:</label><br />
+                <input type="checkbox" id="verMasCampos" />
+            </div>
+        </div>
+    </div>
+    <!--collapse-->
+
+    <div id="divVerMas" class="collapse collapseCamposTareas">
+
+        <div class="row ">
+            <div class="form-group">
+                <div class="col-md-4">
+                    <label class=" col-form-label">Tipo:</label>
+                    <select class="form-control">
+                        <option></option>
+                    </select>
+
+                </div>
+                <div class="col-md-2" style="margin-top:20px;">
+
+                    <button class="btn-link" onclick="crearTipos()"><i class="fas fa-plus-circle dark" style="font-size:2rem;"></i></button>
+                    <button class=" btn-link"> <i class="fas fa-edit dark" style="font-size:2rem;"></i></button>
+                </div>
+
+
+
+                <div class="col-md-4">
+                    <label class=" col-form-label">Estado:</label>
+                    <select class="form-control">
+                        <option></option>
+                    </select>
+
+                </div>
+                <div class="col-md-2" style="margin-top:20px;">
+
+                    <button class=" btn-link"><i class="fas fa-plus-circle dark" style="font-size:2rem;"></i></button>
+                    <button class="btn-link"> <i class="fas fa-edit dark" style="font-size:2rem;"></i></button>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <div class=" row">
+
+            <div class="form-group col-md-6">
+                <label class=" col-form-label">Días estimados:</label><br />
+                <input type="text" class="form-control" />
+            </div>
+            <div class="form-group col-md-6">
+                <label class="col-form-label">Días reales:</label><br />
+
+                <input type="text" class="form-control" />
+            </div>
+        </div>
+
+        <div class=" row">
+            <div class="form-group col-md-6">
+                <label class=" col-form-label">Costo estimado:</label><br />
+
+                <input type="text" class="form-control" />
+            </div>
+
+            <div class="form-group col-md-6">
+                <label class="col-form-label">Costo real:</label><br />
+                <input type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group  col-md-12">
+                <label class="col-form-label">Descripción:</label>
+                <br />
+                <textarea class="form-control"></textarea>
+            </div>
+        </div><!--Va depender si en el tipo desea controlar la fecha Limite por fedecto 3 dias-->
+
+        <div class="row">
+            <div class="form-group col-md-5">
+                <label class=" col-form-label">Fecha Limite:</label>
+                <input type="datetime-local" class="form-control" />
+            </div>
+
+
+
+            <div class=" form-group col-md-1">
+                <label for="staticEmail" class="col-form-label">Es cobrado:</label>
+                <input type="checkbox" />
+            </div>
+
+
+
+
+            <div class=" form-group col-md-6">
+                <label class="col-form-label">Monto Cobrado:</label>
+                <input type="text" disabled="disabled" class="form-control" />
+            </div>
+        </div>
+
+
+
+    </div>
+    @if (Model.Titulo != "")
+    {
+        <div class="row">
+            <div class="col-md-4">
+                <button type="submit" id="btnGuardarTarea" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+                <button type="submit" id="btnCancelarTarea" class="btn btn-default">Cancelar</button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-4">
+                <button type="submit" id="btnEditarTarea" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+                <button type="submit" id="btnCancelarTarea" class="btn btn-default">Cancelar</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="comentarios">
+
+                </div>
+            </div>
+        </div>
+
+    }
+</div>
+
+<!-- Full Height Modal Right -->
+<div class="modal fade right" id="sideModalTR" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+
+    <!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
+    <div class="modal-dialog modal-full-height modal-right" role="document">
+
+
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="tiposTareas">
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="~/js/comentario.js"></script>
+
+<script>
+
+
+    $(document).ready(function () {
+
+        GetComentarios("Tareas", @Model.Id);
+
+    });
+
+    $(function () {
+        $('.selectpicker').selectpicker();
+    });
+    //Mostrar div con la opcion ver mas
+    $(document).ready(function () {
+        $('#divVerMas').attr("hidden", true);
+
+        $('#verMasCampos').change(function () {
+
+            $('.collapseCamposTareas').collapse('toggle');
+
+            if (!$('#verMasCampos').prop('checked')) {
+
+            }
+
+        });
+
+    });
+
+      function crearTipos() {
+             $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        type: "GET",
+
+
+                        url: '@Url.Action("CrearTipos", "TipoTarea")',
+
+                        success: function (data) {
+                        $('#tiposTareas').html(data);
+                        $('#sideModalTR').modal('show');
+                        },
+
+                        error: function (err, scnd) {
+                        console.log(err.statusText);
+                        }
+
+                        });
+                        }
+                        </script>

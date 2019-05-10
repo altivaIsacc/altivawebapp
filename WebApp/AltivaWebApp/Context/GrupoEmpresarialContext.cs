@@ -15,7 +15,7 @@ namespace AltivaWebApp.Context
             : base(options)
         {
         }
-
+        public virtual DbSet<TbFdUsuarioCosto> TbFdUsuarioCosto { get; set; }
         public virtual DbSet<TbGeEmpresa> TbGeEmpresa { get; set; }
         public virtual DbSet<TbGeGrupoEmpresarial> TbGeGrupoEmpresarial { get; set; }
         public virtual DbSet<TbSeAdjunto> TbSeAdjunto { get; set; }
@@ -45,7 +45,16 @@ namespace AltivaWebApp.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.3-servicing-35854");
-          
+            modelBuilder.Entity<TbFdUsuarioCosto>(entity =>
+            {
+                entity.ToTable("tb_FD_UsuarioCosto");
+
+                entity.HasOne(d => d.IdUsuarioNavigation)
+                    .WithMany(p => p.TbFdUsuarioCosto)
+                    .HasForeignKey(d => d.IdUsuario)
+                    .HasConstraintName("FK_tb_FD_UsuarioCosto_tb_SE_Usuario");
+            });
+
 
             modelBuilder.Entity<TbGeEmpresa>(entity =>
             {

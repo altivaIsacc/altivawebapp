@@ -15,6 +15,14 @@ namespace AltivaWebApp.Repositories
         {
         }
 
+       
+        public TbCrContacto GetTareas(int idContacto)
+        {
+            return context.TbCrContacto
+              .Include(c => c.TbFdTarea).ThenInclude(c => c.IdTipoNavigation).Include(c => c.TbFdTarea).
+              ThenInclude(c => c.IdEstadoNavigation)
+              .FirstOrDefault(c => c.IdContacto == idContacto);
+        }
         public IList<TbCrContacto> GetAllEmpresas()
         {
             return context.TbCrContacto.Where(u => u.Empresa == true).ToList();
@@ -78,7 +86,15 @@ namespace AltivaWebApp.Repositories
                             juridica = con.Cedula,
                             dimex = con.Cedula,
                             nite = con.Cedula,
-                            IdUsuario = con.IdUsuario
+                            IdUsuario = con.IdUsuario,
+                            WebLink = con.WebLink,
+                            MapLink = con.MapLink,
+                            IdTipoCliente = Convert.ToInt32(con.IdTipoCliente),
+                            IdSubFamiliaProveedor = Convert.ToInt32(con.IdSubFamiliaProveedor),
+                            IdFamiliaCliente = Convert.ToInt32(con.IdFamiliaCliente),
+                            IdSubFamiliaCliente = Convert.ToInt32(con.IdSubFamiliaCliente),
+                            IdTipoProveedor = Convert.ToInt32(con.IdTipoProveedor),
+                            IdFamiliaProveedor = Convert.ToInt32(con.IdFamiliaProveedor)
 
                             
                          }

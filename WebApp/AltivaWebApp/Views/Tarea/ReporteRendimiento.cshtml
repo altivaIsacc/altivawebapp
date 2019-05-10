@@ -1,0 +1,526 @@
+﻿@model IEnumerable<AltivaWebApp.Domains.TbFdTarea>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+<div class=" container">
+    <div id="tareas">
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group col-md-2">
+                    <button class="btn btn-default btnAtras">Atrás</button>
+                </div>
+            </div>
+        </div>
+        <div class="row col-md-12">
+
+
+            <div class="col-md-2">
+                <label style="padding-top: 0.2rem">Asignados:</label>
+                <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroAsignado">
+                    <option value="0" selected>Seleccione</option>
+                    <option value="na">No Asignados</option>
+                    @foreach (var asignados in ViewData["Asignados"] as IList<TbSeUsuario>)
+                    {
+
+
+                        <option value="@asignados.Id">@asignados.Nombre</option>
+
+
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label style="padding-top: 0.2rem">Contactos:</label>
+                <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroContacto">
+                    <option value="0" selected>Seleccione</option>
+                    @foreach (var contacto in ViewData["contactos"] as IList<TbCrContacto>)
+                    {
+                        @if (contacto.Persona == true)
+                        {
+                            <option value="@contacto.IdContacto">@contacto.Nombre</option>
+                        }
+                        else
+                        {
+                            <option value="@contacto.IdContacto">@contacto.NombreComercial</option>
+                        }
+                    }
+                </select>
+            </div> <div class="col-md-2">
+                <label style="padding-top: 0.2rem">Estados:</label>
+                <select class=" form-control selectFiltro" data-live-search="true" id="filtroEstados">
+                    <option value="0" selected>Seleccione</option>
+                    @foreach (var estados in ViewData["estados"] as IList<TbFdTareaEstado>)
+                    {
+                        @if (estados.Activo == true)
+                        {
+                            <option value="@estados.Id" style="background:@estados.Color;color:black;">@estados.Titulo</option>
+
+                        }
+                    }
+                </select>
+            </div><div class="col-md-2">
+                <label style="padding-top: 0.2rem">Tipos:</label>
+                <select class="  form-control selectFiltro" data-live-search="true" id="filtroTipos">
+                    <option value="0" selected>Seleccione</option>
+                    @foreach (var tipos in ViewData["tipos"] as IList<TbFdTareaTipo>)
+                    {
+                        @if (tipos.Activo == true)
+                        {
+                            <option value="@tipos.Id" style="background:@tipos.Color;color:black;">@tipos.Titulo</option>
+
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+
+                <label>Rango entre fechas:</label>
+                <form id="frmFecha">
+                    <fieldset>
+                        <div class="control-group">
+                            <div class="controls">
+                                <div class="input-prepend input-group">
+                                    <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                                    <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control"  />
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+
+        </div>
+
+        <table class="table table-bordered dt-responsive nowrap " id="TablaTareas" style="width:100%">
+            <thead>
+                <tr>
+
+                    <th>
+                        Título
+                    </th>
+                    <th>
+                        Asignado
+                    </th>
+                    <th>
+                        Contacto
+                    </th>
+
+
+                    <th>
+                        Fecha Limite
+                    </th>
+
+                    <th>
+                        Estado tarea
+                    </th>
+                    <th>
+                        Tipo tarea
+                    </th>
+
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+
+    </div>
+    <div class="col-md-5">
+        <label>Porcentaje de tareas terminadas:</label>
+        <input type="text" disabled="disabled" class="form-control" id="rendimiento" />
+    </div>
+</div>
+<script>
+    var reportes = [];
+    var TareasMostrar = [];
+    TareasMostrar = null;
+    var fecha = [];
+    var promedio = 0;
+    var total = 0;
+    var desde;
+    var hasta;
+    $('.selectFiltro').change(function () {
+
+        cargarFiltros();
+
+    });
+    function cargarFiltros() {
+
+
+
+     
+        TareasMostrar = JSON.parse(JSON.stringify(reportes));
+      
+       
+            TareasMostrar = filtroContacto(TareasMostrar);
+            TareasMostrar = FistroAsignados(TareasMostrar);
+            TareasMostrar = filtroEstado(TareasMostrar);
+            TareasMostrar = filtroTipos(TareasMostrar);
+           // TareasMostrar = filtroFecha(desde, hasta);
+        
+          
+        
+        if (TareasMostrar.length > 0) {
+            total = 0;
+            promedio = 0;
+           
+                for (var i = 0; i < TareasMostrar.length; i++) {
+                 
+                    if (recuperarFecha(TareasMostrar[i].fechaLimite) > '@ViewBag.fecha') {
+                      
+                        total++;
+                    }
+                    promedio = ((total * 100) / TareasMostrar.length)
+                }
+                $('#rendimiento').val(null);
+            $('#rendimiento').val(Math.round(promedio) +"%");
+            } else {
+                $('#rendimiento').val(0);
+            }
+        cargarDatos(TareasMostrar); 
+
+    }
+    function filtroEstado(TareasMostrar) {
+    
+
+        var IdEstado = parseInt($('#filtroEstados').val());
+
+        var EstadosFiltrado = [];
+
+
+        if (IdEstado === 0) {
+            return TareasMostrar;
+        }
+        else {
+
+            for (var i = 0; i < TareasMostrar.length; i++) {
+                var estados = TareasMostrar[i].idEstadoNavigation;
+                ;
+                if (estados.id === IdEstado) {
+               
+                    EstadosFiltrado.push(TareasMostrar[i]);
+
+
+
+
+
+                }
+            }
+            console.log( TareasMostrar);
+            return EstadosFiltrado;
+
+        }
+
+    }
+    function filtroTipos(TareasMostrar) {
+        var IdTipo = parseInt($('#filtroTipos').val());
+
+        var tiposFiltrado = [];
+
+
+        if (IdTipo === 0) {
+            return TareasMostrar;
+        }
+        else {
+
+            for (var i = 0; i < TareasMostrar.length; i++) {
+                var tipos = TareasMostrar[i].idTipoNavigation;
+
+                if (tipos.id === IdTipo) {
+
+                    tiposFiltrado.push(TareasMostrar[i]);
+
+                }
+
+            }
+            console.log(tiposFiltrado);
+            return tiposFiltrado;
+
+        }
+
+    }
+    function filtroFecha(_desde, _hasta) {
+
+
+        var arrayTareas = JSON.parse(JSON.stringify(reportes));
+        if (_desde == _hasta || _desde === null) {
+
+            return TareasMostrar;
+        } else {
+
+            var desdeLocal = new Date(_desde).getTime();
+            var hastaLocal = new Date(_hasta).getTime();
+
+
+
+            for (var i = 0; i < reportes.length; i++) {
+
+                var documento = new Date(reportes[i].fechaLimite).getTime();
+                var flag = false;
+
+                if (documento >= desdeLocal && documento <= hastaLocal)
+                    flag = true;
+
+                // else flag = true;
+
+                if (!flag)
+                    arrayTareas.splice(i, 1);
+            }
+            return arrayTareas;
+         
+        }
+           
+
+    }
+    function FistroAsignados(TareasMostrar) {
+
+        var IdAsignado = parseInt($('#filtroAsignado').val());
+
+        var AsignadosFiltrado = [];
+
+
+        if (IdAsignado === 0) {
+
+            return TareasMostrar;
+        }
+        else {
+
+            for (var i = 0; i < TareasMostrar.length; i++) {
+
+                if (TareasMostrar[i].idUsuario != 0) {
+
+                    var asignados = TareasMostrar[i].idUsuario;
+
+                    if (asignados === IdAsignado) {
+
+                        AsignadosFiltrado.push(TareasMostrar[i]);
+                        console.log(AsignadosFiltrado);
+                    }
+                }
+
+            }
+            console.log(AsignadosFiltrado);
+            return AsignadosFiltrado;
+
+        }
+    }
+    function filtroContacto(TareasMostrar) {
+
+
+        var IdContacto = parseInt($('#filtroContacto').val());
+
+        var TareasFiltrado = [];
+
+     
+        if (IdContacto === 0) {
+            return TareasMostrar;
+        }
+        else {
+
+            for (var i = 0; i < TareasMostrar.length; i++) {
+
+                if (TareasMostrar[i].idContacto === IdContacto) {
+                   
+                    TareasFiltrado.push(TareasMostrar[i]);
+
+                }
+            }
+            console.log(TareasFiltrado);
+            return TareasFiltrado;
+
+        }
+
+
+    }
+
+
+
+
+ $(document).ready(function () {
+     cargarTabla();
+     
+        $('#filtroFecha').daterangepicker({
+            opens: 'left',
+            
+
+            "locale": {
+                format: "DD/MM/YYYY",
+                "separator": " - ",
+                "applyLabel": "Aplicar",
+                "cancelLabel":"Cancelar",
+                "fromLabel": "DE",
+                "toLabel": "Hasta",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "Dom",
+                  "Lun",
+                    "Mar",
+                   "Mie",
+                   "Jue",
+                   "Vie",
+                    "Sáb"
+                ],
+                "monthNames": [
+                    "Enero",
+                    "Febrero",
+                    "Marzo",
+                    "Abril",
+                    "Mayo",
+                    "Junio",
+                    "Julio",
+                    "Agosto",
+                    "Septiembre",
+                    "Octubre",
+                    "Noviembre",
+                    "Diciembre"
+                ],
+                "firstDay": 1
+            }
+                },
+            function (start, end, label) {
+
+                desde = start.format('YYYY-MM-DD');
+                hasta = end.format('YYYY-MM-DD');
+               // cargarFiltros();
+                //filtroFecha(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+
+            });
+    });
+    //cargar tabla
+    function cargarTabla() {
+               var url1 = '@Url.Action("GetTareas", "Tarea")';
+        $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        url:url1 ,
+                        dataType: "json",
+
+            success: function (data) {
+                reportes = JSON.parse(JSON.stringify(data));
+
+                cargarDatos(reportes);
+                cargarFiltros();
+
+                        },
+                        error: function (err, scnd) {
+                        alert('error');
+                        console.log(err.statusText);
+                        }
+                        });
+    }
+
+    function cargarDatos(data) {
+        var contadorFila = 0;
+        var fecha1 = ""
+        var fecha = "";
+        var dt = null;
+        $("#TablaTareas > tbody").remove();
+        $('table').append('<tbody></tbody>');
+        dt = new Date();
+        fecha = +dt.getDate() + "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear() + " " + 0 + 0 + ":" + 0 + 0 + ":" + 0 + 0;
+        fecha1 = +dt.getDate() + "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear();
+        var color = "";
+        var icono = "";
+        var icono2 = "";
+        var nombre = "";
+        for (var i = 0; i < data.length; i++) {
+
+            if (data[i].idContactoNavigation.persona == true) {
+                nombre = data[i].idContactoNavigation.nombre;
+            } else {
+                nombre = data[i].idContactoNavigation.nombreComercial;
+            }
+
+            if (recuperarFecha(data[i].fechaLimite) > fecha) {
+
+                color = "";
+            } else
+                if (recuperarFecha(data[i].fechaLimite) < fecha) {
+
+                    color = "#dc4a46";
+                }
+                else
+
+                    if (recuperarFechaSinHora(data[i].fechaLimite) == fecha1) {
+
+                        color = "#f3da0b";
+                    }
+          
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td>' + data[i].titulo + '</td>'
+                + '<td>' + data[i].idUsuario + ' </td>'
+                + '<td>' + nombre + '</td>'
+                + '<td bgColor=' + color + '>' + recuperarFecha(data[i].fechaLimite) + '</td>'
+
+                + '<td ><div style="background:' + data[i].idEstadoNavigation.color + ';color:white;">' + data[i].idEstadoNavigation.titulo + '</div></td>'
+                + '<td ><div  style="background: ' + data[i].idTipoNavigation.color + '; color:white;">' + data[i].idTipoNavigation.titulo + '</div></td>'
+
+            $('#TablaTareas > tbody').append(body);
+            contadorFila++;
+        }
+        $('#TablaTareas').DataTable().destroy();
+
+        TablaTareas = $('#TablaTareas').DataTable({
+          
+            "pageLength": 4,
+            "ordering": false,
+            scrollX: '50rem',
+            info: false,
+            language: {
+                "decimal": "",
+                "emptyTable": "NoDatos",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "sinResultados",
+                "paginate": {
+                    "first": " Primero",
+                    "last": "Último",
+                    "next": "Sguiente]",
+                    "previous": "Anterior"
+                }
+            }
+        });
+    }
+    //cargar datos:
+   
+
+    function recuperarFecha(_fecha) {
+
+        var fecha = _fecha.substr(0, 10);
+        var y = fecha.substr(0, 4);
+        var m = fecha.substr(5, 2);
+        var d = fecha.substr(8, 3);
+
+        //var date = new Date();
+        //console.log(fecha);
+
+        return d + "/" + m + "/" + y + " " + _fecha.substr(-8, 8);
+
+    }
+    function recuperarFechaSinHora(_fecha) {
+
+        var fecha = _fecha.substr(0, 10);
+        var y = fecha.substr(0, 4);
+        var m = fecha.substr(6, 1);
+        var d = fecha.substr(8, 3);
+
+        //var date = new Date();
+        //console.log(fecha);
+
+        return d + "/" + m + "/" + y;
+
+    }
+</script>

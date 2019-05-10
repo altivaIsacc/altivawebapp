@@ -9,7 +9,7 @@ function GetComentarios(referencia, idRefernecia) {
         tipoReferencia: referencia,
         id: idRefernecia
     };
-
+    console.log(comentarioModel);
 
     $.ajax({
         type: "POST",
