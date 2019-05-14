@@ -31,7 +31,6 @@ function generate(modelo) {
 function generate_cutomPDF(modelo) {
 
 
-    console.log(modelo);
     var comapnyJSON = {
         nombre: modelo.empresa.nombre,
         telefono: modelo.empresa.telefono,
@@ -48,8 +47,8 @@ function generate_cutomPDF(modelo) {
         saldo: modelo.saldo
     }
 
-    
 
+    console.log(modelo);
     var company_logo = {
         src: modelo.empresa.logo,
         w: 80,
@@ -95,7 +94,7 @@ function generate_cutomPDF(modelo) {
     
     
     //pdf.addImage(agency_logo.src, 'PNG', logo_sizes.centered_x, _y, logo_sizes.w, logo_sizes.h);
-   // doc.addImage(company_logo.src, 'PNG', startX,startY+=50, company_logo.w,company_logo.h);
+    doc.addImage(company_logo.src, 'JPEG', startX,startY+=50, company_logo.w,company_logo.h);
 
     doc.textAlign(comapnyJSON.nombre, { align: "left" }, startX, startY += 15 + company_logo.h);
     doc.setFontSize(fontSizes.NormalFontSize);
@@ -103,7 +102,6 @@ function generate_cutomPDF(modelo) {
     doc.setFontType('normal');
     // var w = doc.getStringUnitWidth('GSTIN') * NormalFontSize;
     doc.textAlign(comapnyJSON.telefono, { align: "left" }, 85, startY);
-
     
     
     doc.setFontType('bold');
@@ -116,27 +114,30 @@ function generate_cutomPDF(modelo) {
     doc.setFontType('normal');
     doc.textAlign(comapnyJSON.cedJuridica, {align: "left"}, 112, startY);
 
+
+
+    var tempY=InitialstartY;
+
     
+    doc.setFontType('bold');
+    doc.textAlign(modelo.estado, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
 
-   var tempY=InitialstartY;
+    doc.setFontType('bold');
+    doc.textAlign(modelo.fechaTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
+    doc.setFontType('normal');
+    doc.textAlign(modelo.fecha, { align: "left" }, rightStartCol2, tempY);
+
+    doc.setFontType('bold');
+    doc.textAlign(modelo.bodegaTitulo, {align: "left"},  rightStartCol1, tempY+=lineSpacing.NormalSpacing);
+    doc.setFontType('normal');
+    doc.textAlign(modelo.bodega, { align: "left" }, rightStartCol2, tempY);
+
+    //doc.setFontType('bold');
+    //doc.textAlign(modelo.descripcionTitulo, {align: "left"},  rightStartCol1, tempY+=lineSpacing.NormalSpacing);
+    //doc.setFontType('normal');
+    //doc.textAlign(modelo.descripcion, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
 
     
-
-    //doc.setFontType('bold');
-    //doc.textAlign("INVOICE NO: ", { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
-    //doc.setFontType('normal');
-    //doc.textAlign(invoiceJSON.entrada, { align: "left" }, rightStartCol2, tempY);
-
-    //doc.setFontType('bold');
-    //doc.textAlign("INVOICE Date: ", {align: "left"},  rightStartCol1, tempY+=lineSpacing.NormalSpacing);
-    //doc.setFontType('normal');
-    //doc.textAlign(invoiceJSON.salida, { align: "left" }, rightStartCol2, tempY);
-
-    //doc.setFontType('bold');
-    //doc.textAlign("Reference No: ", {align: "left"},  rightStartCol1, tempY+=lineSpacing.NormalSpacing);
-    //doc.setFontType('normal');
-    //doc.textAlign(invoiceJSON.saldo, { align: "left" }, rightStartCol2, tempY);
-
     
    
     doc.setFontType('normal');
@@ -153,7 +154,11 @@ function generate_cutomPDF(modelo) {
     doc.setFontSize(fontSizes.NormalFontSize);
     doc.setFontType('bold');
 
-   
+    
+    doc.setFontType('bold');
+    doc.textAlign(modelo.descripcionTitulo, { align: "left" }, startX, startY += lineSpacing.NormalSpacing);
+    doc.setFontType('normal');
+    doc.textAlign(modelo.descripcion, { align: "left" }, startX, startY += lineSpacing.NormalSpacing);
     
 
 
@@ -166,9 +171,9 @@ function generate_cutomPDF(modelo) {
       //doc.addImage(headerImgData, 'JPEG', data.settings.margin.left, 20, 50, 50);
      // doc.text("Testing Report", 110, 50);
     };
-   // doc.autoTable(res.columns, res.data, {margin: {top:  startY+=30}});
-   doc.setFontSize(8);
-   doc.setFontStyle('normal');
+    // doc.autoTable(res.columns, res.data, {margin: {top:  startY+=30}});
+    doc.setFontSize(8);
+    doc.setFontStyle('normal');
    
     var options = {
       beforePageContent: header,
@@ -182,13 +187,16 @@ function generate_cutomPDF(modelo) {
         columnWidth: 'wrap'
       },
       columnStyles: {
-            1: {columnWidth: 'auto'},
-            2: {columnWidth: 'auto'},
-            3: {columnWidth: 'auto'},
-            4: {columnWidth: 'auto'},
-            5: {columnWidth: 'auto'},
-            6: { columnWidth: 'auto' },
-            7: { columnWidth: 'auto' }
+          1: { columnWidth: 'auto' },
+          2: { columnWidth: 'auto' },
+          3: { columnWidth: 'auto' },
+          4: { columnWidth: 'auto' },
+          5: { columnWidth: 'auto' },
+          6: { columnWidth: 'auto' },
+          7: { columnWidth: 'auto' },
+          8: { columnWidth: 'auto' },
+          9: { columnWidth: 'auto' },
+
       },
       startY: startY+=50
     };
@@ -199,8 +207,10 @@ function generate_cutomPDF(modelo) {
         { title: modelo.columnas.cantidad, dataKey: "cantidad",width: 40}, 
         { title: modelo.columnas.costo, dataKey: "costo",width: 40}, 
         { title: modelo.columnas.total, dataKey: "total",width: 40}, 
-        { title: modelo.columnas.cuentaContable, dataKey: "cuentaContable",width: 40}, 
-        { title: modelo.columnas.cuentaCosto, dataKey: "cuentaCosto",width: 40}
+        { title: modelo.columnas.cuentaContable, dataKey: "cuentaContable", width: 40 }, 
+        { title: modelo.columnas.nombreCuentaContable, dataKey: "nombreCuentaContable", width: 40 }, 
+        { title: modelo.columnas.cuentaCosto, dataKey: "cuentaCosto", width: 40 },
+        { title: modelo.columnas.nombreCuentaCosto, dataKey: "nombreCuentaCosto", width: 40 }
     ];
 
   //var rows = [
@@ -220,8 +230,8 @@ function generate_cutomPDF(modelo) {
 
 
   //-------Invoice Footer---------------------
-  var rightcol1=300;
-  var rightcol2=350;
+  var rightcol1=385;
+  var rightcol2=445;
 
     startY=doc.autoTableEndPosY()+30;
     doc.setFontSize(fontSizes.NormalFontSize);
@@ -251,6 +261,8 @@ function generate_cutomPDF(modelo) {
 
     doc.save(modelo.nombreDescarga);
 }
+
+
 
 //function generate_cutomPDF_landscape() {
   

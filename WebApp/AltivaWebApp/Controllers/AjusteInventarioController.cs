@@ -100,7 +100,7 @@ namespace AltivaWebApp.Controllers
                     }
 
                 }
-                
+
                 service.DeleteAjusteInventario(id, idAjuste);
                 ai.TbPrAjusteInventario = ajuste;
                 kardexMap.CreateKardexDeletedAM(ai);
@@ -149,7 +149,7 @@ namespace AltivaWebApp.Controllers
                     ajuste.Anulada = false;
                     service.Update(ajuste);
                 }
-                   
+
                 return Json(new { success = res });
             }
             catch
@@ -237,5 +237,32 @@ namespace AltivaWebApp.Controllers
             }
         }
 
+        [HttpGet("Get-CuentaCosto")]
+        public ActionResult GetCuentaCosto()
+        {
+            try
+            {
+                return Ok(service.GetAllCG());
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
+        [HttpGet("Get-CuentaContable")]
+        public ActionResult GetCuentaContable()
+        {
+            try
+            {
+                return Ok(service.GetAllCC());
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
     }
 }

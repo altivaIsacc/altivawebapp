@@ -22,8 +22,11 @@
 
 @if (Model.Id != 0)
 {
-    <h3>@SharedLocalizer["editarAjuste"]</h3>
-    <div><button onclick="crearPdf()" class="btn btn-link">@SharedLocalizer["Imprimir"]</button></div>
+    <div class="row">
+        <div class="col-md-3"><h3>@SharedLocalizer["editarAjuste"]</h3></div>
+        <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
+    </div>
+
 }
 else
 {
@@ -32,14 +35,14 @@ else
 
 <hr />
 
-<div class="row text-left">
+<div class="row">
     @if (Model.Id != 0 && !Model.Anulada)
     {
-        <button class="btn btn-danger btn-sm" onclick="anularAjuste()">@SharedLocalizer["Anular"]</button>
+        <div class="col-md-12 text-right"><button class="btn btn-danger btn-sm" onclick="anularAjuste()">@SharedLocalizer["Anular"]</button></div>
     }
     else if (Model.Id != 0)
     {
-        <h5 class="text-danger">@SharedLocalizer["AjusteAnulado"]</h5>
+        <div class="col-md-12 text-left"><h4 class="text-danger">@SharedLocalizer["AjusteAnulado"]</h4></div>
     }
 </div>
 
@@ -76,7 +79,7 @@ else
         </div>
         <div class="form-group col-md-5 col-sm-6 col-xs-12">
             <label asp-for="Descripcion" class="control-label">@SharedLocalizer["Descripción"]:</label>
-            <textarea asp-for="Descripcion" id="descripcionAjuste" rows="6" maxlength="500" class="form-control"></textarea>
+            <textarea data-limit-rows="true" asp-for="Descripcion" id="descripcionAjuste" rows="6" maxlength="500" class="form-control"></textarea>
             <span hidden class="text-danger" id="descripcionAjusteValid">@SharedLocalizer["descripcionValid"]</span>
         </div>
 
@@ -139,20 +142,20 @@ else
                     <td><input type="text" class="form-control moneda" readonly id="total" /></td>
                     <td>
                         <select class="form-control selectItem" id="cuentaContable">
-                            @{foreach (var item in ViewData["CuentaContable"] as IList<TbCoCuentaContable>)
-                                {
-                                    <option value="@item.Id">@item.CuentaContable</option>
-                                }
-                            }
+                            @*@{foreach (var item in ViewData["CuentaContable"] as IList<TbCoCuentaContable>)
+                                    {
+                                        <option value="@item.Id">@item.CuentaContable</option>
+                                    }
+                                }*@
                         </select>
                     </td>
                     <td>
                         <select class="form-control selectItem" id="cuentaCosto">
-                            @{foreach (var item in ViewData["CuentaCosto"] as IList<TbCoCentrosDeGastos>)
-                                {
-                                    <option value="@item.Id">@item.Codigo</option>
-                                }
-                            }
+                            @*@{foreach (var item in ViewData["CuentaCosto"] as IList<TbCoCentrosDeGastos>)
+                                    {
+                                        <option value="@item.Id">@item.Codigo</option>
+                                    }
+                                }*@
                         </select>
                     </td>
                     <td>
@@ -204,6 +207,8 @@ else
     </div>
 </div>
 
+<div hidden><input hidden id="formater" class="currency" type="text" /></div>
+
 <script src="~/js/comentario.js"></script>
 <style>
     input::-webkit-outer-spin-button,
@@ -228,6 +233,8 @@ else
     var lineas = [];
     var lineasEliminadas = [];
     var lineasAgregadas = [];
+    var cuentaCostoArray = [];
+    var cuentaContableArray = [];
 
     var frmAjuste = $('.frmAjuste');
     var frmAjuste2 = $('.frmAjuste2');
@@ -255,9 +262,12 @@ else
             $('#bodegas').attr('disabled', true);
         }
 
+        getCuentaContable();
+        getCuentaCosto();
+
         $('.selectItem').select2();
         getBodegasInventario();
-        
+
         inicializaTabla();
 
         validaAnulacion();
@@ -279,9 +289,21 @@ else
 
 
         $('#items').on('change.select2', function () {
-           
+
             cargarCostoPromedio(arrayItems);
         });
+
+        $('textarea[data-limit-rows=true]')
+            .on('keypress', function (event) {
+                var textarea = $(this),
+                    text = textarea.val(),
+                    numberOfLines = (text.match(/\n/g) || []).length + 1,
+                    maxRows = parseInt(textarea.attr('rows'));
+
+                if (event.which === 13 && numberOfLines === maxRows) {
+                    return false;
+                }
+            });
 
 
     });
@@ -308,6 +330,7 @@ else
               }
           });
     }
+
 
     function guardarCambios() {
 
@@ -423,9 +446,7 @@ else
         if (movimiento.val() === "false" && getItem(items.val())[0].existenciaBodega < parseFloat(cantidad.val())) {
                 flag = false;
                 cargarAlert('@SharedLocalizer["cantidaMayorQueExistencias"]');
-
         }
-
 
         return flag;
 
@@ -562,7 +583,7 @@ else
         $('.filasCargadas').remove();
 
         contadorFila = 0;
-        
+
 
         for (var i = 0; i < data.length; i++) {
             contadorFila++;
@@ -603,7 +624,7 @@ else
                 cargarItems(data[i].tbPrInventarioBodega);
                 flag = false;
             }
-                              
+
             $("#bodegas").append(o);
         }
 
@@ -634,7 +655,7 @@ else
 
     }
 
-    
+
     function cargarCostoPromedio(data) {
 
 
@@ -726,7 +747,7 @@ else
     }
 
     function guardarAjuste() {
-       
+
        $.ajax({
               type: "POST",
               headers: {
@@ -739,7 +760,7 @@ else
                 //console.log(data);
                 window.location.href = "@Url.Action("ListarAjustes","AjusteInventario")";
                },
-           error: function (err, scnd) {   
+           error: function (err, scnd) {
                 var msj = '@SharedLocalizer["errorGeneral"]';
                   cargarAlert(msj);
                   console.log(err.statusText);
@@ -846,7 +867,7 @@ else
 
         var frm = frmAjuste.serializeArray();
 
-        
+
 
         var ajusteModel = {
             id: @Model.Id,
@@ -881,16 +902,16 @@ else
                 telefono: "26660407",
                 correo: "altiva@ejemplo.com",
                 cedJuridica: "3-101-04563",
-                logo: localStorage.getItem("fotoEmpresa"),
+                logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
                 nombreTitulo: "@SharedLocalizer["Nombre"]:",
                 telTitulo: "@SharedLocalizer["Telefonos"]:",
                 correoTitulo: "@SharedLocalizer["Correo"]:",
-                cedTitulo: "@SharedLocalizer["Cedula Juridica"]:"
+                cedTitulo: getTittulos().cedJuridica
             },
-            entrada: ajuste.totalEntrada,
-            salida: ajuste.totalSalida,
-            saldo: ajuste.saldoAjuste,
-            nombreDoc: '@SharedLocalizer["AjusteManual"]',
+            entrada: formatTotales().entradas,//$entradas.val().replace("₡", "CRC.\ \ "),
+            salida: formatTotales().salidas,
+            saldo: formatTotales().saldo,
+            nombreDoc: '@SharedLocalizer["AjusteManual"] ' + '#@Model.Id',
             nombreDescarga: '@SharedLocalizer["ajustemanual"]_' + @Model.Id + '.pdf',
             columnas: {
                 item: "Item",
@@ -899,7 +920,9 @@ else
                 costo: "@SharedLocalizer["Costo"]",
                 total: "@SharedLocalizer["Total"]",
                 cuentaContable: "@SharedLocalizer["cuentaContable"]",
-                cuentaCosto: "@SharedLocalizer["CuentaCosto"]"
+                cuentaCosto: "@SharedLocalizer["CuentaCosto"]",
+                nombreCuentaCosto: "@SharedLocalizer["Nombre"]",
+                nombreCuentaContable: "@SharedLocalizer["Nombre"]"
             },
             filas: crearFilasPdf(),
             resumen: {
@@ -907,32 +930,139 @@ else
                 salida: "@SharedLocalizer["Salida"]",
                 saldo: "@SharedLocalizer["Saldo"]",
                 autorizado: "@SharedLocalizer["Autorizado por"]:______________________"
-            }
+            },
+            bodega: $('#bodegas option:selected').text(),
+            fecha: $('#fecha').val(),
+            descripcion: getDescripcion($('#descripcionAjuste').val()),
+            bodegaTitulo: "@SharedLocalizer["Bodega"]:",
+            descripcionTitulo: getTittulos().desc,
+            fechaTitulo: "@SharedLocalizer["Fecha"]:",
+            estado: getEstado()
 
         };
 
         return modelo;
 
     }
-
     
+
+    function getImgFromUrl(logo_url) {
+        var img = new Image();
+        img.src = logo_url;
+        return getBase64Image(img);       
+        
+    }
+    function getBase64Image(img) {
+
+        var canvas = document.createElement("canvas");
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+        var ctx = canvas.getContext("2d");
+
+        ctx.drawImage(img, 0, 0);
+
+        var dataURL = canvas.toDataURL("image/jpeg");
+
+        return dataURL;
+
+    }
+
+    function formatTotales() {
+        var tam = 0;
+        var space = 0;
+        var s = "";
+        var e = "";
+        var saldo = "";
+
+        if ($salidas.val().length > $entradas.val().length && $salidas.val().length > $saldo.val().length)
+            tam = $salidas.val().length;
+        else if ($entradas.val().length > $salidas.val().length && $entradas.val().length > $saldo.val().length)
+            tam = $entradas.val().length;
+        else if ($saldo.val().length > $salidas.val().length && $saldo.val().length > $entradas.val().length)        
+                tam = $saldo.val().length;      
+            
+        else
+            tam = $saldo.val().length;
+
+        tam = tam - 1;
+        if ($saldo.val().indexOf("-") > -1)
+            tam = tam + 1;
+
+        for (var i = $saldo.val().length; i < tam; i++) {
+            saldo += "\ \ ";
+        }
+        for (var i = $salidas.val().length; i < tam; i++) {
+            s += "\ \ ";
+        }
+        for (var i = $entradas.val().length; i < tam; i++) {
+            e += "\ \ ";
+        }
+
+        
+
+
+        return {
+            salidas: s + $salidas.val().replace("₡", ""),
+            entradas: e + $entradas.val().replace("₡", ""),
+            saldo: saldo + $saldo.val().replace("₡", "")
+        } 
+
+    }
+    function getEstado() {
+        if ('@Model.Anulada' === "True")
+            return "@SharedLocalizer["AjusteAnulado"]";
+        else
+            return "";
+    }
+
+    function getTittulos() {
+        var idioma = localStorage.getItem("idioma");
+        if (idioma === "es")
+            return {
+                desc: "Descripción:",
+                cedJuridica: "Cédula Jurídica:"
+            };
+        else
+            return {
+                desc: "Description:",
+                cedJuridica: "Legal Number:"
+            };
+    }
+
+
+
+
+    function getDescripcion(data) {
+        var desc = data.match(/.{1,125}/g).join("\n");
+        return desc;
+
+    }
+
     function crearFilasPdf() {
 
         var row = [];
         for (var i = 0; i < lineas.length; i++) {
             var model = {
                 item: lineas[i].nombreItem,
-                movimiento: lineas[i].movimiento,
+                movimiento: getMovimiento(lineas[i].movimiento),
                 cantidad: lineas[i].cantidad,
-                costo: lineas[i].costoPromedio,
-                total: lineas[i].totalMovimiento,
+                costo: formatearMoneda(lineas[i].costoPromedio),
+                total: formatearMoneda(lineas[i].totalMovimiento),
                 cuentaContable: lineas[i].cuentaContable.nombre,
-                cuentaCosto: lineas[i].cuentaCosto
+                nombreCuentaContable: getCContInfo(lineas[i].idCuentaContable).descripcion,
+                cuentaCosto: lineas[i].cuentaCosto,
+                nombreCuentaCosto: getCCostInfo(lineas[i].idCentroGastos).nombre
             };
 
             row.push(model);
         }
         return row;
+    }
+
+    function formatearMoneda(val) {
+        $('#formater').val(val);
+        return $('#formater').val().replace("₡", "");
     }
 
     function validarCampos() {
@@ -977,7 +1107,7 @@ else
             callback: function (result) {
 
                 if (result != null) {
-                    if (result.replace(/ /g, "") != "") {                  
+                    if (result.replace(/ /g, "") != "") {
                     $.ajax({
                         type: "get",
                         headers: {
@@ -993,7 +1123,7 @@ else
                             }
                             else
                                 cargarAlert('@SharedLocalizer["anulacionInvalida"]');
-                            
+
 
                         },
                         error: function (err, scnd) {
@@ -1007,7 +1137,7 @@ else
                     cargarAlert('@SharedLocalizer["JustificacionInvalida"]');
                 }
 
-                
+
             }
         });
 
@@ -1026,6 +1156,78 @@ else
 
     function cargarJustificacion(mensaje) {
         setMensajeFromOut(mensaje);
+    }
+
+
+    function getCuentaCosto() {
+
+        $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("GetCuentaCosto", "AjusteInventario")',
+            success: function (data) {
+                cuentaCostoArray = data;
+                for (var i = 0; i < data.length; i++) {
+                    var o = new Option(data[i].codigo, data[i].id);
+                    $("#cuentaCosto").append(o);
+                }
+            },
+            error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+    function getCuentaContable() {
+
+        $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("GetCuentaContable", "AjusteInventario")',
+            success: function (data) {
+                cuentaContableArray = data;
+                for (var i = 0; i < data.length; i++) {
+                    var o = new Option(data[i].cuentaContable, data[i].id);
+                    $("#cuentaContable").append(o);
+                }
+
+            },
+            error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+          });
+    }
+
+
+    function getCContInfo(id) {
+        for (var i = 0; i < cuentaContableArray.length; i++) {
+            if (cuentaContableArray[i].id === id) {
+                return cuentaContableArray[i];
+            }
+        }
+    }
+
+    function getCCostInfo(id) {
+        for (var i = 0; i < cuentaCostoArray.length; i++) {
+            if (cuentaCostoArray[i].id === id) {
+                return cuentaCostoArray[i];
+            }
+        }
+    }
+
+    function encode_utf8(s) {
+        return unescape(encodeURIComponent(s));
+    }
+
+    function decode_utf8(s) {
+        return decodeURIComponent(escape(s));
     }
 
 </script>
