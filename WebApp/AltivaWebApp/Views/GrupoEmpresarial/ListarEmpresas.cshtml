@@ -108,7 +108,7 @@
                     <p class="card-text"><strong><span data-translate="cedulaJuridica">Cédula juídica: </span></strong>@item.CedJuridica</p>
                     <p class="card-text"><strong><span>Teléfonos: </span></strong> @item.Telefono1 - @item.Telefono2</p>
                     <p class="card-text"><strong><span>Dirección: </span></strong> @item.Direccion</p>
-                    <button @estado onclick="setEmpresa('@item.Nombre', '@item.Foto')" class="btn btn-primary">Ingresar</button>
+                    <button @estado onclick="setEmpresa('@item.Nombre', '@item.Foto', '@item.Correo', '@item.Telefono1', '@item.Telefono1', '@item.CedJuridica')" class="btn btn-primary">Ingresar</button>
                     <button onclick="cambiarEstadoEmpresa(@item.Id, '@item.Estado')" class="btn btn-link">@btn</button>
                 </div>
             </div>
@@ -128,10 +128,15 @@
 <script type="text/javascript">
 
 
-    function setEmpresa(empresa, imgEmpresa) {
+    function setEmpresa(empresa, imgEmpresa, correo, tel1, tel2, ced) {
         localStorage.setItem('empresa', empresa);
         localStorage.setItem('fotoEmpresa', imgEmpresa);
-
+        var model = {
+            correo: correo,
+            tel: tel1 + " - " + tel2,
+            ced: ced
+        };
+        localStorage.setItem('empresaInfo', JSON.stringify(model));
         var url = '@Url.Action("DetallesEmpresa", "GrupoEmpresarial", new { nombre = "__nombre__" })'
         window.location.href = url.replace("__nombre__", empresa);
     }

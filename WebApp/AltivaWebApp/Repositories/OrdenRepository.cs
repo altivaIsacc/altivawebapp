@@ -42,11 +42,23 @@ namespace AltivaWebApp.Repositories
             
         }
 
-        public TbPrOrden GetAllOrdenDetalleByOrdenId(int id)
+        //public TbPrOrden GetAllOrdenDetalleByOrdenId(int id)
+        //{
+        //    try
+        //    {
+        //        return context.TbPrOrden.Include(o => o.TbPrOrdenDetalle).ThenInclude(od => od.IdInventarioNavigation).FirstOrDefault(o => o.Id == id);
+        //    }
+        //    catch (Exception)
+        //    {
+
+        //        throw;
+        //    }
+        //}
+        public IList<TbPrOrdenDetalle> GetAllOrdenDetalleByOrdenId(int id)
         {
             try
             {
-                return context.TbPrOrden.Include(o => o.TbPrOrdenDetalle).ThenInclude(od => od.IdInventarioNavigation).FirstOrDefault(o => o.Id == id);
+                return context.TbPrOrdenDetalle.Where(o => o.IdOrdenNavigation.Id == id).ToList();
             }
             catch (Exception)
             {

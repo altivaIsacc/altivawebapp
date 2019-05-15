@@ -187,6 +187,12 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IKardexService, KardexService>();
             services.AddScoped<IKardexMap, KardexMap>();
 
+            //Compra
+
+            services.AddScoped<ICompraRepository, CompraRepository>();
+            services.AddScoped<ICompraService, CompraService>();
+            services.AddScoped<ICompraMap, CompraMap>();
+
 
 
         }

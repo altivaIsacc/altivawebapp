@@ -8,6 +8,7 @@ namespace AltivaWebApp.Domains
         public TbPrBodega()
         {
             TbPrAjuste = new HashSet<TbPrAjuste>();
+            TbPrCompraDetalle = new HashSet<TbPrCompraDetalle>();
             TbPrInventarioBodega = new HashSet<TbPrInventarioBodega>();
         }
 
@@ -23,6 +24,7 @@ namespace AltivaWebApp.Domains
         public string Observaciones { get; set; }
 
         public virtual ICollection<TbPrAjuste> TbPrAjuste { get; set; }
+        public virtual ICollection<TbPrCompraDetalle> TbPrCompraDetalle { get; set; }
         public virtual ICollection<TbPrInventarioBodega> TbPrInventarioBodega { get; set; }
     }
 }

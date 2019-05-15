@@ -210,6 +210,7 @@ else
 <div hidden><input hidden id="formater" class="currency" type="text" /></div>
 
 <script src="~/js/comentario.js"></script>
+<script src="~/js/base64ImageCreator.js"></script>
 <style>
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
@@ -320,7 +321,6 @@ else
             url: '@Url.Action("GetAjusteinventario", "AjusteInventario")',
             data: {id: @Model.Id},
             success: function (data) {
-
                 arrayAjusteFromDB = JSON.parse(JSON.stringify(data.tbPrAjusteInventario));
                 cargarLineas(data);
                },
@@ -644,9 +644,13 @@ else
         arrayItems = [];
 
         for (var i = 0; i < data.length; i++) {
-            var o = new Option(data[i].idInventarioNavigation.codigo + ' - ' + data[i].idInventarioNavigation.descripcion, data[i].idInventarioNavigation.idInventario);
-            items.append(o);
-            arrayItems.push(data[i].idInventarioNavigation);
+
+            if (!data[i].idInventarioNavigation.inactiva) {
+                var o = new Option(data[i].idInventarioNavigation.codigo + ' - ' + data[i].idInventarioNavigation.descripcion, data[i].idInventarioNavigation.idInventario);
+                items.append(o);
+                arrayItems.push(data[i].idInventarioNavigation);
+            }
+
         }
 
         $('#items').select2({ width: null, language: localStorage.getItem("idioma") });
@@ -894,17 +898,17 @@ else
 
     function crearModeloPDF() {
 
-        var ajuste = crearModelo();
+        var empresaModel = JSON.parse(localStorage.getItem("empresaInfo"));
 
         var modelo = {
             empresa: {
-                nombre: "AltivaRedes",
-                telefono: "26660407",
-                correo: "altiva@ejemplo.com",
-                cedJuridica: "3-101-04563",
+                nombre: localStorage.getItem("empresa"),
+                telefono: empresaModel.tel,
+                correo: empresaModel.correo,
+                cedJuridica: empresaModel.ced,
                 logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
                 nombreTitulo: "@SharedLocalizer["Nombre"]:",
-                telTitulo: "@SharedLocalizer["Telefonos"]:",
+                telTitulo: "@SharedLocalizer["Tel"]:",
                 correoTitulo: "@SharedLocalizer["Correo"]:",
                 cedTitulo: getTittulos().cedJuridica
             },
@@ -943,30 +947,8 @@ else
 
         return modelo;
 
-    }
-    
-
-    function getImgFromUrl(logo_url) {
-        var img = new Image();
-        img.src = logo_url;
-        return getBase64Image(img);       
-        
-    }
-    function getBase64Image(img) {
-
-        var canvas = document.createElement("canvas");
-
-        canvas.width = img.width;
-        canvas.height = img.height;
-        var ctx = canvas.getContext("2d");
-
-        ctx.drawImage(img, 0, 0);
-
-        var dataURL = canvas.toDataURL("image/jpeg");
-
-        return dataURL;
-
-    }
+    }   
+   
 
     function formatTotales() {
         var tam = 0;
@@ -998,9 +980,7 @@ else
         for (var i = $entradas.val().length; i < tam; i++) {
             e += "\ \ ";
         }
-
-        
-
+       
 
         return {
             salidas: s + $salidas.val().replace("₡", ""),

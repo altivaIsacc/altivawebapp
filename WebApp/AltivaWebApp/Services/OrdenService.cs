@@ -36,7 +36,11 @@ namespace AltivaWebApp.Services
         {
             return repository.GetOrdenById(id);
         }
-        public TbPrOrden GetAllOrdenDetalleByOrdenId(int id)
+        //public TbPrOrden GetAllOrdenDetalleByOrdenId(int id)
+        //{
+        //    return repository.GetAllOrdenDetalleByOrdenId(id);
+        //}
+        public IList<TbPrOrdenDetalle> GetAllOrdenDetalleByOrdenId(int id)
         {
             return repository.GetAllOrdenDetalleByOrdenId(id);
         }

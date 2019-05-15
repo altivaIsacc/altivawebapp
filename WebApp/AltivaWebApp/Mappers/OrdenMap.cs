@@ -89,7 +89,7 @@ namespace AltivaWebApp.Mappers
         public TbPrOrden ViewModelToDomain(OrdenViewModel viewModel)
         {
 
-            var moneda = monedaService.GetAll();
+            //var moneda = monedaService.GetAll();
             var domain = new TbPrOrden();
 
             domain.Id = viewModel.Id;

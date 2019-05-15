@@ -21,9 +21,14 @@
 
 }
 
+
 @if (Model.Id != 0)
 {
-    <h3>@SharedLocalizer["editarOrden"]</h3>
+    <div class="row">
+        <div class="col-md-3"><h3>@SharedLocalizer["editarOrden"]</h3></div>
+        <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
+    </div>
+
 }
 else
 {
@@ -38,9 +43,9 @@ else
     {
         <button class="btn btn-danger btn-sm" onclick="cambiarEstadoOrden()">@SharedLocalizer["Anular"]</button>
     }
-    else if(Model.Id != 0)
+    else if (Model.Id != 0)
     {
-        
+
         <h5 class="text-danger">@SharedLocalizer["OrdenAnulada"]</h5>
     }
 </div>
@@ -83,7 +88,7 @@ else
 
             <div class="form-group col-md-5 col-sm-6 col-xs-12">
                 <label asp-for="Observacion" class="control-label">@SharedLocalizer["Observación"]</label>
-                <textarea @estado asp-for="Observacion" rows="8" maxlength="500" class="form-control">@Model.Observacion</textarea>
+                <textarea @estado asp-for="Observacion" id="txtObservacion" rows="8" maxlength="500" class="form-control">@Model.Observacion</textarea>
                 <span hidden id="observacionValid" class="text-danger">@SharedLocalizer["observacionValid"]</span>
             </div>
             <div class="col-md-2 col-sm-6 col-xs-12">
@@ -112,7 +117,7 @@ else
 
     <div class="col-md-12 table-responsive">
 
-        <table class="table table-bordered table-striped" style="min-width:900px">
+        <table class="table table-bordered table-striped" id="tblOrdenCompra" style="min-width:900px">
             <thead>
                 <tr>
                     <th><span>@SharedLocalizer["Item"]</span></th>
@@ -171,10 +176,6 @@ else
 
     <br />
 
-    <div class="col-md-12">
-        <label>@SharedLocalizer["AutoizadoPor"]:_________________________</label>
-    </div>
-
 </div>
 <div class="row">
     <div class="form-group col-md-3">
@@ -191,8 +192,10 @@ else
     </div>
 </div>
 
-<script src="~/js/comentario.js"></script>
+<div hidden><input hidden id="formater" class="currency" type="text" /></div>
 
+<script src="~/js/comentario.js"></script>
+<script src="~/js/base64ImageCreator.js"></script>
 
 <script>
 
@@ -213,7 +216,7 @@ else
     var $proveedores = $('#proveedores');
     var $fecha = $('#fecha');
     var $subTotal = $('#subTotal');
-    var $totalImpuesto = $('#totalImpuesto');  
+    var $totalImpuesto = $('#totalImpuesto');
     var $totalDescuento = $('#totalDescuento');
     var $total = $('#total');
 
@@ -235,14 +238,14 @@ else
     $(document).ready(function () {
 
         var date = new Date();
-        if (@Model.Id != 0) {  
+        if (@Model.Id != 0) {
             $proveedores.val(@Model.IdProveedor);
             GetComentarios("Orden", @Model.Id);
             date = new Date(formatearFecha());
         }
 
         deshabilitaTipoCambio();
-            
+
 
 
         $descuento.val(0);
@@ -282,20 +285,32 @@ else
             setSubTotalLinea();
         });
 
+        $('textarea[data-limit-rows=true]')
+            .on('keypress', function (event) {
+                var textarea = $(this),
+                    text = textarea.val(),
+                    numberOfLines = (text.match(/\n/g) || []).length + 1,
+                    maxRows = parseInt(textarea.attr('rows'));
+
+                if (event.which === 13 && numberOfLines === maxRows) {
+                    return false;
+                }
+            });
+
     });
-   
+
 
     $cantidad.on('keyup, change, focusout', function () {
         if ($(this).val() < 0 || $(this).val() === "")
             $(this).val(0);
-        
+
         setSubTotalLinea();
     });
 
     $precio.on('keyup, change, focusout', function () {
         if ($(this).val() < 0 || $(this).val() === "")
             $(this).val(0);
-        
+
         setSubTotalLinea();
 
     });
@@ -336,7 +351,7 @@ else
     }
 
     function calcularSubtotalGrabadoLinea() {
-        
+
         var iva = parseFloat($iva.val());
         if (iva > 0)
             return parseFloat($subTotalLinea.val());
@@ -354,10 +369,10 @@ else
 
     function calcularSubtotalNetoLinea() {
 
-        return parseFloat($subTotalLinea.val()) - calcularTotalDescuentoLinea()     
+        return parseFloat($subTotalLinea.val()) - calcularTotalDescuentoLinea()
 
-    }   
-      
+    }
+
 
     function calcularTotalIvaLinea() {
         var iva = parseFloat($iva.val());
@@ -369,7 +384,7 @@ else
 
         var desc = parseFloat($descuento.val());
         var subTotal = parseFloat($subTotalLinea.val());
-        return (desc / 100) * subTotal;           
+        return (desc / 100) * subTotal;
 
     }
     function calcularTotalLinea() {
@@ -433,7 +448,7 @@ else
 
     function guardarLinea() {
 
-       
+
         var model = {
             id: 0,
             idOrden: @Model.Id,
@@ -499,7 +514,7 @@ else
         subTotalNeto = 0;
         subTotalOrden = 0;
         totalDescuento = 0;
-        totalImpuesto = 0;  
+        totalImpuesto = 0;
         totalOrden = 0;
 
         console.log(lineas);
@@ -510,7 +525,7 @@ else
             subTotalNeto += parseFloat(lineas[i].subTotalNeto);
             subTotalOrden += parseFloat(lineas[i].subTotalExcento) + parseFloat(lineas[i].subTotalGrabado);
             totalImpuesto += parseFloat(lineas[i].totalIva);
-            totalDescuento += parseFloat(lineas[i].totalDescuento);           
+            totalDescuento += parseFloat(lineas[i].totalDescuento);
             totalOrden += parseFloat(lineas[i].total);
         }
 
@@ -520,7 +535,7 @@ else
         $total.val(totalOrden);
     }
 
-    
+
 
     function cargarTabla(data) {
 
@@ -543,7 +558,7 @@ else
                 + '<td style="padding-top:2rem; width:12rem;"><input  style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].precio + '"/></td>'
                 + '<td style="padding-top:2rem; width:12rem;"><input style="border:0; background-color : #F7F7F7"  value="' + data[i].porcDesc + '"/></td>'
                 + '<td style="padding-top:2rem; "><input style="width:6rem; border:0; background-color : #F7F7F7"  value="' + data[i].porcIva + '%"/></td>'
-                + '<td style="padding-top:2rem; width:12rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + subtotal + '"/></td>'                
+                + '<td style="padding-top:2rem; width:12rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + subtotal + '"/></td>'
                 + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
 
             $('.lineaForm').before(body);
@@ -653,7 +668,7 @@ else
 
                     if (result.replace(/ /g, "") != "") {
 
-                    
+
                     $.ajax({
                         type: "get",
                         headers: {
@@ -677,9 +692,9 @@ else
                 else
                     cargarAlert('@SharedLocalizer["JustificacionInvalida"]');
                 }
-                
+
             }
-        });    
+        });
     }
 
     function eliminarOrdenDetalle() {
@@ -705,7 +720,7 @@ else
 
     function crearModelo() {
         var frmOrden = $('#frmOrden').serializeArray();
-        
+
         var ordenModel = {
             id: @Model.Id,
             idProveedor: $proveedores.val(),
@@ -868,7 +883,7 @@ else
 
             subtotal = lineas[i].precio * lineas[i].cantidad;
 
-            
+
 
             if (lineas[i].porcIva > 0) {
                 lineas[i].subTotalExcento = 0;
@@ -974,7 +989,173 @@ else
     }
 
 
-</script> 
+    function crearPdf() {
+
+        generate_cutomPDF(crearModeloPDF());
+
+    }
+
+    function crearModeloPDF() {
+
+        var empresaModel = JSON.parse(localStorage.getItem("empresaInfo"));
+
+        var modelo = {
+            empresa: {
+                nombre: localStorage.getItem("empresa"),
+                telefono: empresaModel.tel,
+                correo: empresaModel.correo,
+                cedJuridica: empresaModel.ced,
+                logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
+                nombreTitulo: "@SharedLocalizer["Nombre"]:",
+                telTitulo: "@SharedLocalizer["Telefonos"]:",
+                correoTitulo: "@SharedLocalizer["Correo"]:",
+                cedTitulo: getTittulos().cedJuridica
+            },
+            subtotal: formatTotales().subtotal,
+            descuento: formatTotales().desc,
+            impuesto: formatTotales().imp,
+            total: formatTotales().total,
+            nombreDoc: '@SharedLocalizer["OrdenCompra"] ' + '#@Model.Id',
+            nombreDescarga: '@SharedLocalizer["orden_compra"]_' + @Model.Id + '.pdf',
+            columnas: {
+                item: "Item",
+                descripcion: getTittulos().desc,
+                cantidad: "@SharedLocalizer["Cantidad"]",
+                precioUnid: "@SharedLocalizer["PrecioUnid"]",
+                descuento: "@SharedLocalizer["Descuento"]",
+                iva: "@SharedLocalizer["IVA"]",
+                subtotal: "@SharedLocalizer["CuentaCosto"]"
+            },
+            filas: crearFilasPdf(),
+            resumen: {
+                subtotal: "@SharedLocalizer["SubTotal"]",
+                descuento: "@SharedLocalizer["Descuento"]",
+                impuesto: "@SharedLocalizer["Impuesto"]",
+                total: "@SharedLocalizer["Total"]",
+                autorizado: "@SharedLocalizer["Autorizado por"]:______________________"
+            },
+            proveedor: $('#proveedores option:selected').text(),
+            fecha: $('#fecha').val(),
+            descripcion: getDescripcion(),
+            proveedorTitulo: "@SharedLocalizer["Proveedor"]:",
+            observacionTitulo: "@SharedLocalizer["Observaciones"]:",
+            fechaTitulo: "@SharedLocalizer["Fecha"]:",
+            estado: getEstado(),
+            tipoCambio: '@SharedLocalizer["Tipo de cambio"]',
+            dolarTitulo: '@SharedLocalizer["Dolar"]',
+            euroTitulo: '@SharedLocalizer["Euro"]',
+            dolar: $('#dolar').val().toString(),
+            euro: $('#euro').val().toString(),
+            monedaTitulo: '@SharedLocalizer["Moneda"]',
+            moneda: $('#moneda option:selected').text()
+        };
+
+        return modelo;
+
+    } 
+    
+    function getEstado() {
+        if ('@Model.Anulado' === "True")
+            return "@SharedLocalizer["OrdenAnulada"]";
+        else
+            return "";
+    }
+
+    function getTittulos() {
+        var idioma = localStorage.getItem("idioma");
+        if (idioma === "es")
+            return {
+                desc: "Descripción:",
+                cedJuridica: "Cédula Jurídica:"
+            };
+        else
+            return {
+                desc: "Description:",
+                cedJuridica: "Legal Number:"
+            };
+    }
+
+    function getDescripcion() {
+        var d = $('#txtObservacion').val();
+        var desc = d.match(/.{1,125}/g).join("\n");
+        return desc;
+
+    }
+
+    function crearFilasPdf() {
+
+        var row = [];
+        for (var i = 0; i < lineas.length; i++) {
+
+            var subtotal = 0;
+
+            if (lineas[i].porcIva > 0)
+                subtotal = lineas[i].subTotalGrabado;
+            else
+                subtotal = lineas[i].subTotalExcento;
+
+            var model = {
+                item: getItem(lineas[i].idInventario).codigo,
+                descripcion: lineas[i].nombreInventario,
+                cantidad: lineas[i].cantidad,
+                precioUnid: formatearMoneda(lineas[i].precio),
+                descuento: lineas[i].porcDesc,
+                iva: lineas[i].porcIva,
+                subtotal: formatearMoneda(subtotal)
+            };
+
+            row.push(model);
+        }
+        return row;
+    }
+
+    function formatearMoneda(val) {
+        $('#formater').val(val);
+        return $('#formater').val().replace("₡", "");
+    }
+
+
+    //var $subTotal = $('#subTotal');
+    //var $totalImpuesto = $('#totalImpuesto');
+    //var $totalDescuento = $('#totalDescuento');
+    //var $total = $('#total');
+
+    function formatTotales() {
+        var tam = 0;
+
+        var subtotal = "";
+        var imp = "";
+        var desc = "";
+
+        
+        tam = $total.val().length;
+
+        for (var i = $subTotal.val().length; i < tam; i++) {
+            subtotal += "\ \ ";
+        }
+        for (var i = $totalImpuesto.val().length; i < tam; i++) {
+            imp += "\ \ ";
+        }
+        for (var i = $totalDescuento.val().length; i < tam; i++) {
+            desc += "\ \ ";
+        }
+
+
+
+
+        return {
+            subtotal: subtotal + $subTotal.val().replace("₡", ""),
+            imp: imp + $totalImpuesto.val().replace("₡", ""),
+            desc: desc + $totalDescuento.val().replace("₡", ""),
+            total: $total.val().replace("₡", "")
+        }
+
+    }
+
+
+</script>
+
+<script src="~/lib/vendors/jsPDF/OC.js"></script>
 
 <style>
     input::-webkit-outer-spin-button,
