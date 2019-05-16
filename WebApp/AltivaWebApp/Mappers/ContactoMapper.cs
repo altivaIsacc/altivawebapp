@@ -62,6 +62,7 @@ namespace AltivaWebApp.Mappers
             contacto.NombreJuridico = contacto.NombreJuridico;
             contacto.Ruta = ruta;
             contacto.IdUsuario = contacto.IdUsuario;
+        
             return this.contactoService.Edit(contacto);
         }
 
@@ -132,7 +133,15 @@ namespace AltivaWebApp.Mappers
             OtrasSenas = domain.OtrasSenas,
             Persona = domain.Persona,
             Empresa = domain.Empresa,
-            IdUsuario = domain.IdUsuario
+            IdUsuario = domain.IdUsuario,
+            WebLink = domain.WebLink,
+            MapLink = domain.MapLink,
+            IdTipoCliente = domain.IdTipoCliente,
+            IdFamiliaCliente = domain.IdFamiliaCliente,
+            IdSubFamiliaCliente = domain.IdSubFamiliaCliente,
+            IdTipoProveedor = domain.IdTipoProveedor,
+            IdFamiliaProveedor = domain.IdFamiliaProveedor,
+            IdSubFamiliaProveedor = domain.IdSubFamiliaProveedor
             };
             return contacto;
 
@@ -188,6 +197,15 @@ namespace AltivaWebApp.Mappers
             contacto.NombreComercial = domain.NombreComercial;
             contacto.NombreJuridico = domain.NombreJuridico;
             contacto.IdUsuario = domain.IdUsuario;
+            contacto.WebLink = domain.WebLink;
+            contacto.MapLink = domain.MapLink;
+            contacto.IdTipoCliente = domain.IdTipoCliente;
+            contacto.IdFamiliaCliente = domain.IdFamiliaCliente;
+            contacto.IdSubFamiliaCliente = domain.IdSubFamiliaCliente;
+            contacto.IdTipoProveedor = domain.IdTipoProveedor;
+            contacto.IdFamiliaProveedor = domain.IdFamiliaProveedor;
+            contacto.IdSubFamiliaProveedor = domain.IdSubFamiliaProveedor;
+          
             return contacto;
         }
 

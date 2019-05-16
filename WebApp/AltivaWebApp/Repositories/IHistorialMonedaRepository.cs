@@ -7,7 +7,9 @@ namespace AltivaWebApp.Repositories
     public interface IHistorialMonedaRepository
     {
         IList<TbSeHistorialMoneda> GetByDate(DateTime fecha);
+       void ModificarHistoirial(List<TbSeHistorialMoneda> domain);
         TbSeHistorialMoneda Save(TbSeHistorialMoneda domain);
+        TbSeHistorialMoneda GetById(long idHistorial);
         TbSeHistorialMoneda Update(TbSeHistorialMoneda domain);
         int Guardar(IList<TbSeHistorialMoneda> domain);
         void GuardarHistorial(IList<TbSeHistorialMoneda> historial);

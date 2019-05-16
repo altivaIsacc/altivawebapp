@@ -67,5 +67,55 @@ namespace AltivaWebApp.Repositories
                 throw;
             }
         }
+
+        public bool ExisteEquivalencia(TbPrEquivalencia domain)
+        {
+            return context.TbPrEquivalencia.Any(e => e.IdEquivalencia == domain.IdEquivalencia && e.IdInventario == domain.IdInventario);
+        }
+
+        public IList<TbPrEquivalencia> GetEquivalenciasPorInventario(int idInventario)
+        {
+            try
+            {
+                return context.TbPrEquivalencia.Include(i => i.IdEquivalenciaNavigation).Where(e => e.IdInventario == idInventario || e.IdEquivalencia == idInventario).ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public bool SaveEquivalencia(TbPrEquivalencia domain)
+        {
+            try
+            {
+                context.TbPrEquivalencia.Add(domain);
+                context.SaveChanges();
+                return true;
+            }
+            catch (Exception)
+            {
+                //return false;
+                throw;
+            }
+            
+        }
+        public bool DeleteEquivalencia(int id)
+        {
+            try
+            {
+                var domain = context.TbPrEquivalencia.FirstOrDefault(e => e.Id == id);
+                context.TbPrEquivalencia.Remove(domain);
+                context.SaveChanges();
+                return true;
+            }
+            catch (Exception)
+            {
+                //return false;
+                throw;
+            }
+
+        }
     }
 }
+

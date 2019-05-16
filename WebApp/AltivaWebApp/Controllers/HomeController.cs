@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 namespace AltivaWebApp.Controllers
 {
   
-    [Route("Home")]
+    [Route("/{culture}/Home")]
     public class HomeController : Controller
     {
         [Route("")]
@@ -17,19 +17,19 @@ namespace AltivaWebApp.Controllers
         public IActionResult Index(string estado)
 
         {
-            if (estado == "error") 
-                ViewBag.error = "El nombre de grupo es inválido, intentelo de nuevo y verifique la sintaxis";
+            if (estado == "error")
+                ViewBag.error = 1;//"Nombre de Grupo Empresas Inválido.";
 
             return View();
         }
-        
-       [Route("Login")] 
-       public IActionResult Login(string grupo)
+
+        [Route("Login")]
+        public IActionResult Login(string grupo)
        {
          
 
 
-            StringFactory.SetStringGE(grupo);
+            StringFactory.SetStringGE(HttpContext.Session, grupo);
 
             try
             {

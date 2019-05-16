@@ -1,0 +1,548 @@
+﻿@model AltivaWebApp.Domains.TbFdTipoProveedor
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+<div class="container ">
+    <div class="row">
+        <div class="col-md-12"><h3>Tipo de Proveedor:</h3></div>
+        <div class="col-md-2">
+            <label>Tipo Cliente:</label>
+            <select id="tipoProveedor" class="form-control search-key"></select>
+        </div>
+        <div class="col-md-2">
+            <br />
+
+            <button class="btn btn-link " id="AgregarTipoProveedor" value="crear">
+                <span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span>
+            </button>
+            <button class="btn btn-link " disabled id="editarTipoProveedor" value="editar">
+                <span style="font-size: 2rem"><i class="fas fa-edit"></i></span>
+            </button>
+            <button id="eliminarTipoProveedor" disabled data-toggle="confirmation" class="btn btn-link">
+                <span style="font-size: 2rem"><i class="fas fa-trash"></i></span>
+            </button>
+        </div>
+        <div class="col-md-2">
+            <label>Familia proveedor:</label>
+            <select id="familiaProveedor" class="form-control search-key">
+                <option selected value="0" data-translate="selecciones">Seleccione</option>
+
+
+            </select>
+        </div>
+        <div class="col-md-2">
+            <br />
+            <button class="btn btn-link " disabled id="CreareditarfamiliaProveedor" value="crear">
+                <span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span>
+            </button>
+            <button class="btn btn-link " disabled id="editarfamiliaProveedor" value="editar">
+                <span style="font-size: 2rem"><i class="fas fa-edit"></i></span>
+            </button>
+            <button id="eliminarFamiliaProveedor" disabled data-toggle="confirmation" class="btn btn-link">
+                <span style="font-size: 2rem"><i class="fas fa-trash"></i></span>
+            </button>
+        </div>
+        <div class="col-md-2">
+            <label>Sub-Familia Proveedor:</label>
+            <select id="subfamiliaProveedor" class="form-control search-key">
+                <option selected value="0" data-translate="selecciones">Seleccione</option>
+
+
+            </select>
+        </div>
+        <div class="col-md-2">
+            <br />
+            <button class="btn btn-link " disabled id="CreareditarSubfamiliaProveedor" value="crear">
+                <span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span>
+            </button>
+            <button class="btn btn-link " disabled id="editarSubfamiliaProveedor" value="editar">
+                <span style="font-size: 2rem"><i class="fas fa-edit"></i></span>
+            </button>
+            <button id="eliminaSubFamiliaProveedor" disabled data-toggle="confirmation" class="btn btn-link">
+                <span style="font-size: 2rem"><i class="fas fa-trash"></i></span>
+            </button>
+        </div>
+    </div>
+
+
+
+
+</div>
+<!--Modal agregar tipo cliente-->
+
+<div class="modal fade" id="modalTipoCliente" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-full-height modal-right" role="document">
+
+
+        <div class="modal-content">
+            <div class="modal-header" id="head">
+        
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="tipoCliente">
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    //jquery
+    $(document).ready(function () {
+        getTiposProveedor();
+
+
+    });
+    //function para eliminar un tipo de proveedor
+    $('#eliminarTipoProveedor').on('click', function () {
+        //debe validar que no tenga familias solamente, hay que recordar que los tipos tienen el idPadre en 0..
+
+        var idCliente = $('#tipoProveedor').val();
+         var url = '@Url.Action("EliminarTipoProveedor", "TipoProveedor")';
+        $.ajax({
+                type: "GET",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+            data: { idCliente: idCliente },
+                success: function (data) {
+                    if (data == true) {
+
+                        getTiposProveedor();
+                    } else if (data == false) {
+                        bootbox.alert({
+                            message: '<h4 class="text-center"><span class="text-warnig">No puede eliminar un tipo asociado a una familia.</span></h4>',
+                            className: 'rubberBand animated',
+                            buttons: {
+
+                                ok: {
+                                    label: '<i class="fa fa-check"></i><span> Aceptar</span>'
+                                }
+                            },
+                        });
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+
+
+    });
+
+    //fucntion para eliminar una familia de un tipo de cliente
+
+    $('#eliminarFamiliaProveedor').on('click', function () {
+         var url = '@Url.Action("EliminarFamiliaProveedor", "TipoProveedor")';
+        $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+            data: { idCliente: $("#familiaProveedor").val() },
+                success: function (data) {
+                    if (data == true) {
+
+                        getfamiliaProveedors($('#tipoProveedor').val());
+                    } else if (data == false) {
+                        bootbox.alert({
+                            message: '<h4 class="text-center"><span class="text-warnig">No puede eliminar una familia asociado a una subfamilia.</span></h4>',
+                            className: 'rubberBand animated',
+                            buttons: {
+
+                                ok: {
+                                    label: '<i class="fa fa-check"></i><span> Aceptar</span>'
+                                }
+                            },
+                        });
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+    });
+    //function para eliminar una subfamilia de un familia de cliente
+    $('#eliminaSubFamiliaProveedor').on('click', function () {
+      
+                     var url = '@Url.Action("EliminarSubFamiliaProveedor", "TipoProveedor")';
+        $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+            data: { idProveedor: $("#subfamiliaProveedor").val() },
+            success: function (data) {
+                if (data == true) {
+
+                    getSubfamiliaProveedors($('#familiaProveedor').val());
+                  
+                }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+                    });
+                   
+              
+   
+    });
+    //accion del select tipo cliente que llama ala familiaProveedor..
+    $("#tipoProveedor").change(function () {
+        if ($(this).val() != 0) {
+
+
+            $('#CreareditarfamiliaProveedor').attr("disabled", false);
+            $('#editarTipoProveedor').attr("disabled", true);
+
+            $('#editarTipoProveedor').attr("disabled", false);
+            $('#editarfamiliaProveedor').attr("disabled", true);
+            $('#eliminarTipoProveedor').attr("disabled", false);
+            getfamiliaProveedors($(this).val());
+
+        } else {
+            $('#eliminarTipoProveedor').attr("disabled", true);
+            $('#editarTipoProveedor').attr("disabled", true);
+            $('#CreareditarfamiliaProveedor').attr("disabled", true);
+            $('#editarfamiliaProveedor').attr("disabled", true);
+            $('#CreareditarSubfamiliaProveedor').attr("disabled", true);
+            $("#subfamiliaProveedor option").remove();
+            var option = new Option("Seleccione", 0);
+            option.setAttribute("selected", "selected");
+            $("#subfamiliaProveedor").append(option);
+            $("#familiaProveedor option").remove();
+            var option = new Option("Seleccione", 0);
+            option.setAttribute("selected", "selected");
+            $("#familiaProveedor").append(option);
+            $('#editarSubfamiliaProveedor').attr("disabled", true);
+            $('#eliminarFamiliaProveedor').attr("disabled", true);
+            $('#eliminaSubFamiliaProveedor').attr("disabled", true);
+        }
+    });
+    //accion del select familiaProveedor que devuelve alas subfamiliaProveedors:
+    $("#familiaProveedor").change(function () {
+        if ($(this).val() != 0) {
+            getSubfamiliaProveedors($(this).val());
+
+            $('#editarSubfamiliaProveedor').attr("disabled", true);
+
+            $('#CreareditarSubfamiliaProveedor').attr("disabled", false);
+            $('#CreareditarfamiliaProveedor').attr("disabled", false);
+            $('#eliminarSubfamiliaProveedor').attr("disabled", true);
+            $('#editarfamiliaProveedor').attr("disabled", false);
+            $('#eliminarFamiliaProveedor').attr("disabled", false);
+        } else {
+            $('#eliminaSubFamiliaProveedor').attr("disabled", true);
+            $('#eliminarFamiliaProveedor').attr("disabled", true);
+            $('#editarfamiliaProveedor').attr("disabled", true);
+            $('#editarSubfamiliaProveedor').attr("disabled", true);
+            $('#CreareditarSubfamiliaProveedor').attr("disabled", true);
+            $('#CreareditarfamiliaProveedor').attr("disabled", false);
+            $("#subfamiliaProveedor option").remove();
+            var option = new Option("Seleccione", 0);
+            option.setAttribute("selected", "selected");
+            $("#subfamiliaProveedor").append(option);
+        }
+    });
+
+    $("#subfamiliaProveedor").change(function () {
+        if ($(this).val() != 0) {
+            $('#eliminaSubFamiliaProveedor').attr("disabled", false);
+            $('#CreareditarSubfamiliaProveedor').attr("disabled", false);
+            $('#editarSubfamiliaProveedor').attr("disabled", false);
+            $('#eliminarSubfamiliaProveedor').attr("disabled", false);
+        } else {
+            $('#eliminaSubFamiliaProveedor').attr("disabled", true);
+            $('#editarfamiliaProveedor').attr("disabled", false);
+           $('#CreareditarSubfamiliaProveedor').attr("disabled", false);
+            $('#editarSubfamiliaProveedor').attr("disabled", true);
+            $('#eliminarSubfamiliaProveedor').attr("disabled", true);
+        }
+    });
+    //function que devuelte las subfamiliaProveedors por iD
+    function getSubfamiliaProveedors(idTipoCliente) {
+         var url = '@Url.Action("GetSubFamiliasProveedor", "TipoProveedor")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { idProveedor: idTipoCliente },
+                success: function (data) {
+                    if (data != false) {
+                        $("#subfamiliaProveedor option").remove();
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#subfamiliaProveedor").append(option);
+                        for (var i = 0; i < data.length; i++) {
+
+
+                            var o = new Option(data[i].nombre, data[i].id);
+
+
+                            $("#subfamiliaProveedor").append(o);
+
+                        }
+
+                        $("#subfamiliaProveedor").trigger('change');
+                    } else {
+                        $("#subfamiliaProveedor option").remove();
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#subfamiliaProveedor").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+    }
+    //function que devuelve las familiaProveedors por ID
+    function getfamiliaProveedors(idTipoCliente) {
+         var url = '@Url.Action("GetFamiliasTipoProveedor", "TipoProveedor")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { idProveedor: idTipoCliente },
+                success: function (data) {
+                    if (data != false) {
+                        $("#familiaProveedor option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#familiaProveedor").append(option);
+                        for (var i = 0; i < data.length; i++) {
+
+
+                            var o = new Option(data[i].nombre, data[i].id);
+
+
+                            $("#familiaProveedor").append(o);
+
+                        }
+
+                        $("#familiaProveedor").trigger('change');
+                    } else {
+                        $("#familiaProveedor option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#familiaProveedor").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+    }
+    $('#modalTipoCliente').on('hidden.bs.modal', function () {
+
+        getTiposProveedor();
+
+
+    });
+    //cargar los tipos de clientes
+     function getTiposProveedor() {
+
+            var url = '@Url.Action("GetTiposDeProveedores", "TipoProveedor")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+                    if (data != false) {
+                        $("#tipoProveedor option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#tipoProveedor").append(option);
+
+                        for (var i = 0; i < data.length; i++) {
+
+                            var o = new Option(data[i].nombre, data[i].id);
+
+                            $("#tipoProveedor").append(o);
+
+
+                            $("#tipoProveedor").append(o);
+                        }
+
+                        $("#tipoProveedor").trigger('change');
+                    } else {
+                        $("#tipoProveedor option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#tipoProveedor").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+        }
+
+    //function para llamar a vista parcial
+    $('#AgregarTipoProveedor').on("click", function () {
+           var url = '@Url.Action("PartialCrearTipoProveedor", "TipoProveedor")';
+           $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+               url:url,
+
+              success: function (data) {
+
+                  $('#modalTipoCliente').modal('show');
+
+                  $('#tipoCliente').html(data);
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+    });
+    //crear subfamilia
+    $('#CreareditarSubfamiliaProveedor').on("click", function () {
+              var url = '@Url.Action("PartialCrearTipoProveedor", "TipoProveedor")';
+        var idProveedor = $('#familiaProveedor').val();
+        $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: { idProveedor: idProveedor },
+
+              success: function (data) {
+
+                  $('#modalTipoCliente').modal('show');
+
+                  $('#tipoCliente').html(data);
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+
+    });
+    //function que llama a vista parcial para crear una familiaProveedor de un tipo de cliente
+    $('#CreareditarfamiliaProveedor').on("click", function () {
+        var url = '@Url.Action("PartialCrearTipoProveedor", "TipoProveedor")';
+        var idProveedor = $('#tipoProveedor').val();
+        $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: { idProveedor: idProveedor },
+
+              success: function (data) {
+
+                  $('#modalTipoCliente').modal('show');
+
+                  $('#tipoCliente').html(data);
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+    });
+
+    //function que llama ala vista parcial para ingresar una subfamiliaProveedor
+
+    
+    //editar editarTipoProveedor
+    $('#editarTipoProveedor').on("click", function () {
+    var url = '@Url.Action("PartialEditarTipoProveedor", "TipoProveedor")';
+        var idProvedor = $('#tipoProveedor').val();
+        $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: { idProvedor: idProvedor },
+
+              success: function (data) {
+                  
+                  $('#modalTipoCliente').modal('show');
+
+                  $('#tipoCliente').html(data);
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+    });
+    $('#editarfamiliaProveedor').on("click", function () {
+            var url = '@Url.Action("PartialEditarTipoProveedor", "TipoProveedor")';
+        var idProveedor = $('#familiaProveedor').val();
+        $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: { idProveedor: idProveedor },
+
+              success: function (data) {
+              
+                  $('#modalTipoCliente').modal('show');
+
+                  $('#tipoCliente').html(data);
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+    });
+   $('#editarSubfamiliaProveedor').on("click", function () {
+            var url = '@Url.Action("PartialEditarTipoProveedor", "TipoProveedor")';
+       var idSubfamiliaProveedorCliente = $('#subfamiliaProveedor').val();
+           $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+               },
+               url:url,
+               data: { idProveedor: idSubfamiliaProveedorCliente },
+
+              success: function (data) {
+
+                  $('#modalTipoCliente').modal('show');
+
+                  $('#tipoCliente').html(data);
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+    });
+</script>

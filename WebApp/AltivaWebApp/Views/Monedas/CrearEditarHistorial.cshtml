@@ -1,0 +1,585 @@
+﻿
+@model IEnumerable<AltivaWebApp.ViewModels.HistorialMonedaViewModel>
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+
+<h3 data-translate="MHistorialMoneda">Historial de Moneda</h3>
+<p>@ViewBag.fecha</p>
+
+@if (Model == null)
+{
+    <table class="table table-bordered fk">
+
+        <thead>
+            <tr>
+                <th>
+                    Nombre
+                </th>
+                <th scope="col"> Símbolo</th>
+                <th scope="col"> ValorCompra</th>
+                <th scope="col">ValorVenta</th>
+                <th scope="col">Fecha</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <input class="form-control" value="Colones"
+                           onkeypress="return validar(event)" id="nombre" maxlength="16" type="text" />
+                </td>
+                <td>
+                    <input value="₡" id="simbolo" required maxlength="1" class="form-control " />
+                </td>
+                <td>
+
+                    <input value="1" id="compraNormal" class="form-control " disabled="disabled" onkeypress="return filterFloat(event,this);" />
+                </td>
+                <td>
+                    <input value="1" disabled="disabled" id="ventaColones" onkeypress="return filterFloat(event,this);"
+                           class="form-control  " />
+                </td>
+                <td>
+                    <input value="@ViewBag.fecha" class="form-control " id="fecha" disabled="disabled" />
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input class="form-control" value="Dolar" onkeypress="return validar(event)" id="nombreDolar" disabled="disabled" type="text" /></td>
+                <td>
+                    <input id="simbolodolar" value="$" disabled="disabled" class="form-control " />
+                </td>
+                <td>
+                    <input value="" id="compraDolar" class="form-control " onkeypress="return filterFloat(event,this);" />
+                </td>
+                <td>
+                    <input value="" id="ventaDolar" onkeypress="return filterFloat(event,this);" class="form-control  " />
+                </td>
+                <td>
+                    <input value="@ViewBag.fecha" class="form-control " id="fecha" disabled="disabled" />
+                </td>
+                <td>
+                    <button id="btnGuarda" onclick="Moneda1()" class="btn btn-success">
+                        Guardar <i class="fas fa-save"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input class="form-control"
+                           value="Euro" onkeypress="return validar(event)" id="nombreEuro" disabled="disabled" type="text" />
+                </td>
+                <td>
+                    <input value="€" id="simboloEuro" disabled="disabled"
+                           class="form-control " />
+                </td>
+
+
+                <td>
+                    <input value="" id="compraEuro" class="form-control " onkeypress="return filterFloat(event,this);" />
+                </td>
+                <td>
+                    <input value="" id="ventaEuro" onkeypress="return filterFloat(event,this);" class="form-control  " />
+                </td>
+                <td>
+                    <input value="@ViewBag.fecha" class="form-control " id="fecha" disabled="disabled" />
+                </td>
+                <td></td>
+            </tr>
+        
+
+
+        </tbody>
+    </table>
+}
+else
+{
+    <table class="table table-bordered fk" style="width:100%">
+        <thead>
+
+            <tr>
+                <th scope="col" hidden>
+                    <span > Id</span>
+                </th>
+<th scope="col">
+                    <span data-translate="nombre"> Nombre</span>
+                </th>
+                <th scope="col">
+                    <span data-translate="simbolo">Símbolo</span>
+                </th>
+                <th scope="col">
+                    <span data-translate="compra">Compra</span>
+                </th>
+                <th scope="col">
+                    <span data-translate="venta">Venta</span>
+                </th>
+
+                <th scope="col" >
+                    <span >Fecha</span>
+                </th>
+                <th class="col-md-2">
+                  Acción</th>
+</tr>
+
+
+        </thead>
+        <tbody>
+           @{ int j = 0;
+               int i = 0;
+           }
+            @foreach (var item in Model)
+            {
+
+            <tr>
+                <td hidden>
+                    <input value="@Html.DisplayFor(modelItem => item.Id)" required maxlength="16" class="form-control" onkeypress="return validar(event)" id="id_@i" disabled="disabled" type="text" />
+                </td>
+                <td>
+                    <input value="@Html.DisplayFor(modelItem => item.Nombre)" required maxlength="16" class="form-control" onkeypress="return validar(event)" id="nombre_@i" disabled="disabled" type="text" />
+                </td>
+                <td>
+
+                    <input value="@Html.DisplayFor(modelItem => item.Simbolo)" id="simbolo_@i" maxlength="1" disabled="disabled" class="form-control " />
+                </td>
+
+                <td>
+                    <input value="@Html.DisplayFor(modelItem => item.ValorCompra)" required type="number" maxlength="6" id="compra_@i" class="form-control valorCo" onkeypress="return filterFloat(event,this);" />
+                </td>
+                <td>
+                    <input value="@Html.DisplayFor(modelItem => item.ValorVenta)" required maxlength="6" type="number" id="venta_@i" class="form-control valorVe " onkeypress="return filterFloat(event,this);" />
+                </td>
+                <td>
+                    @ViewBag.fecha
+                </td>
+                @if (j == 1)
+                {
+                    <th>
+
+                        <button id="btnEditadHistorial" onclick="ActualizarHistorial()" class="btn btn-success">
+                            Guardar <i class="fas fa-save"></i>
+                        </button>
+
+                    </th>
+                }
+                else
+                {
+                    <td></td>
+                }
+
+
+            </tr>
+                j++;
+                i++;
+            }
+        </tbody>
+    </table>
+}
+
+<a data-translate="atras" asp-controller="Monedas" asp-action="Index" class="btn btn-default">Atrás</a>
+<script type="text/javascript">
+    function ActualizarHistorial() {
+        arrayHostorial = [];
+        for (var e = 0; e < 3; e++) {
+
+            historial = {
+                id: $('#id_'+e+'').val(),
+                nombre: $('#nombre_'+e+'').val(),
+                simbolo: $('#simbolo_'+e+'').val(),
+                compra: $('#compra_'+e+'').val(),
+                venta: $('#venta_'+e+'').val()
+            };
+            arrayHostorial.push(historial);
+
+        }
+        $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "POST",
+
+                url: '@Url.Action("EditarHistorialMoneda", "HistorialMoneda")',
+
+            data: { domain: arrayHostorial },
+
+             
+              success: function (data) {
+                 
+
+                },
+
+                dataType: "json"
+
+            });
+        console.log(arrayHostorial);
+    }
+    function filterFloat(evt, input) {
+      
+        var key = window.Event ? evt.which : evt.keyCode;
+        var chark = String.fromCharCode(key);
+        var tempValue = input.value + chark;
+        if (key >= 48 && key <= 57) {
+            if (filter(tempValue) === false) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            if (key == 8 || key == 13 || key == 0) {
+                return true;
+            } else if (key == 46) {
+                if (filter(tempValue) === false) {
+                    return false;
+                } else {
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+    function filter(__val__) {
+        var preg = /^([0-9]+\.?[0-9]{0,2})$/;
+        if (preg.test(__val__) === true) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+</script>
+<script>
+   var valorCompra;
+    var valorVenta;
+    var nombre ;
+    var simbolo ;
+
+
+
+    function modificarHistorial(id, pvalorCompra, pvalorVenta) {
+
+
+            if (id == 1) {
+
+            nombre = $("#nombres").val();
+                simbolo = $("#simbolos").val();
+
+                nombre = $("#nombres").val();
+                simbolo = $("#simbolos").val();
+                if ($("#nombres").val() == "") {
+                    alert("Nombre es un campo requerido");
+                    $("#nombres").css("border", "5px solid red");
+                    window.location.reload();
+                    return;
+                }
+                if ($("#simbolos").val() == "") {
+                    alert("Simbolo es un campo requerido");
+                    $("#simbolos").css("border", "5px solid red");
+                    window.location.reload();
+                    return;
+                }
+        }
+        if (id == 2) {
+
+
+            if (valorVenta == 0) {
+                alert("valorVenta es un campo requerido");
+
+                window.location.reload();
+                return;
+            }
+            if (valorCompra == 0) {
+                alert("valorCompra es un campo requerido");
+
+                window.location.reload();
+                return;
+            }
+        }
+
+            if ( id == 3) {
+
+
+                if (valorVenta == 0) {
+                    alert("valorVenta es un campo requerido");
+
+                    window.location.reload();
+                    return;
+                }
+                if (valorCompra == 0) {
+                    alert("valorCompra es un campo requerido");
+
+                    window.location.reload();
+                    return;
+                }
+            }
+        if (valorVenta == null) {
+            valorVenta = pvalorVenta;
+        }
+        if (valorCompra == null) {
+            valorCompra = pvalorCompra;
+
+        }
+
+        var fecha = $("#fechaHistorial").val();
+
+          $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("Guardar", "HistorialMoneda")',
+
+              data: { valor: id, Compra: valorCompra, Venta: valorVenta, nombre: nombre, simbolo: simbolo, fechas: fecha },
+
+                contentType: "application/json; charset=utf-8",
+              success: function (data) {
+                  window.location.reload();
+
+                }
+
+            });
+
+
+    }
+
+
+
+
+
+
+
+
+
+    $(document).ready(function () {
+       function validar(){
+            if (tecla == 8) return true; // 3
+            patron = /[A-Za-z\s]/; // 4
+            te = String.fromCharCode(tecla); // 5
+            return patron.test(te); // 6
+        }
+        function check(e) {
+            tecla = (document.all) ? e.keyCode : e.which;
+
+            if (tecla == 8) {
+                return true;
+            }
+            patron = /[A-Za-z0-9]/;
+            tecla_final = String.fromCharCode(tecla);
+            return patron.test(tecla_final);
+        }
+          $("#agregarNuevo").click(function () {
+              $("#divNewtable").append('');
+              $(".table").DataTable({
+
+                  scrollY: '50rem',
+                  scrollCollapse: true,
+                  paging: false,
+                  dom: 'Bfrtip',
+                  language: {
+                      "decimal": "",
+                      "emptyTable": "No hay información",
+                      "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                      "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                      "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                      "infoPostFix": "",
+                      "thousands": ",",
+                      "lengthMenu": "Mostrar _MENU_ Entradas",
+                      "loadingRecords": "Cargando...",
+                      "processing": "Procesando...",
+                      "search": "<i class='fas fa-search'></i>",
+                      "zeroRecords": "Sin resultados encontrados",
+                      "paginate": {
+                          "first": "Primero",
+                          "last": "Ultimo",
+                          "next": "Siguiente",
+                          "previous": "Anterior"
+                      }
+                  },
+                  buttons: [
+                      {
+                          extend: 'copyHtml5',
+                          text: '<i class="fas fa-copy " ></i>',
+                          titleAttr: 'Copy'
+                      },
+                      {
+                          extend: 'excelHtml5',
+                          text: '<i class="fas fa-file-excel  "></i>',
+                          titleAttr: 'Excel'
+                      },
+
+                      {
+                          extend: 'pdfHtml5',
+                          text: '<i class="fas fa-file-pdf "></i>',
+                          titleAttr: 'PDF'
+                      }
+                  ]
+
+              });
+
+
+            $(this).hide(); //y que oculte este elemento clickeado
+            $("#spanDanger").css('visibility', 'hidden');
+
+        });
+        $(".fk").DataTable({
+
+            scrollY: '50rem',
+            scrollCollapse: true,
+            paging: false,
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy " ></i>',
+                    titleAttr: 'Copy'
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel'
+                },
+
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf "></i>',
+                    titleAttr: 'PDF'
+                }
+            ]
+
+        });
+
+            $(".valorCo").keypress(function (tecla) {
+                if (this.value.length == 6) return false;
+            });
+            $(".valorVe").keypress(function (tecla) {
+                if (this.value.length == 6) return false;
+            });
+
+
+        $(".valorCo").keyup(function () {
+            if ($(this).val() != null) {
+                valorCompra = $(this).val();
+            }
+
+
+        });
+        $(".valorVe").keyup(function () {
+            if ($(this).val() != null) {
+                valorVenta = $(this).val();
+            }
+
+        });
+
+
+        if ($("#compras").val() == 1) {
+            $("#simbolos").prop('disabled', false);
+        }
+        if ($("#nombres").val() == "Colones") {
+            $("#nombres").prop('disabled', false);
+            $("#simbolos").prop('disabled', false);
+        }
+        if ($("#nombres").val() != "Colones") {
+            $("#nombres").prop('disabled', false);
+            $("#simbolos").prop('disabled', false);
+        }
+        $("#compra").prop('disabled', true);
+        $("#venta").prop('disabled', true);
+
+
+    });
+    function Moneda1() {
+
+        var valor = null;
+        var pNombre = null;
+        var pSimbolo = null;
+        var pCompra = null;
+        var pVenta = null;
+        var pNombre1 = null;
+        var pSimbolo1 = null;
+        var pCompra1 = null;
+        var pVenta1 = null;
+        var pNombre2 = null;
+        var pSimbolo2 = null;
+        var pCompra2 = null;
+        var pVenta2 = null;
+        var fecha;
+        valor = 1;
+        pNombre = $("#nombre").val();
+        pSimbolo = $("#simbolo").val();
+        pCompra = $("#compraNormal").val();
+        pVenta = $("#ventaColones").val();
+        pNombre1 = $("#nombreDolar").val();
+        pSimbolo1 = $("#simbolodolar").val();
+        pCompra1 = $("#compraDolar").val();
+        pVenta1 = $("#ventaDolar").val();
+        pNombre2 = $("#nombreEuro").val();
+        pSimbolo2 = $("#simboloEuro").val();
+        pCompra2 = $("#compraEuro").val();
+        pVenta2 = $("#ventaEuro").val();
+
+        if (pNombre == "" || pSimbolo == 0 || pNombre1 == 0 || pSimbolo1 == 0 || pNombre2 == 0 || pSimbolo2 == 0) {
+            alert("Verifique que sus datos sean correctos");
+            return;
+        }
+
+        insertarNuevoHistorial(valor, pNombre, pSimbolo, pCompra, pVenta, pNombre1, pSimbolo1, pCompra1, pVenta1, pNombre2, pSimbolo2, pCompra2, pVenta2);
+
+    }
+    function insertarNuevoHistorial(valor, nombre, simbolo, valorCompra, valorVenta,pNombre1, pSimbolo1, pCompra1, pVenta1, pNombre2, pSimbolo2,pCompra2, pVenta2) {
+        var fecha = $("#fecha").val();
+        //alert(fecha);
+          $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+                url: '@Url.Action("GuardarHistorial", "HistorialMoneda")',
+
+              data: {
+                  valor: valor, Compra: valorCompra, Venta: valorVenta, nombre: nombre, simbolo: simbolo, valorCompra1: pCompra1, valorVenta1: pVenta1, nombre1: pNombre1, simbolo1: pSimbolo1, valorCompra2: pCompra2, valorVenta2: pVenta2,nombre2: pNombre2, simbolo2: pSimbolo2, fecha: fecha
+              },
+
+                contentType: "application/json; charset=utf-8",
+              success: function (data) {
+                  window.location.reload();
+
+                },
+
+                dataType: "json"
+
+            });
+
+
+
+    }
+</script>

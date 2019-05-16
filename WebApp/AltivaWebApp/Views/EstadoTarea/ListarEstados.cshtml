@@ -1,0 +1,141 @@
+﻿@model IEnumerable<AltivaWebApp.Domains.TbFdTareaEstado>
+
+@{
+    ViewData["Title"] = "ListarEstados";
+}
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+<div class="row">
+    <div class="col-md-3 col-sm-2">
+        <h3>Estados de tarea:</h3>
+    </div>
+    <div class="col-md-6" style="margin-left:1rem; padding-top:0.7rem">
+
+        <button onclick="crearEstadoVista() " class=" btn btn-primary "><span> Agregar <i class="fas fa-plus-circle "></i></span></button>
+    </div>
+</div>
+<button class="btn btn-dark" id="inactivos" onclick="VerInactivos()"><span data-translate="verInactivos"> Ver Inactivos</span></button>
+
+<button class="btn btn-dark" style="display: none;" id="activos" onclick="verActivos()"><span data-translate="verInactivos">Ver Activos</span></button>
+
+
+<div id="tablaEstados">
+
+</div>
+<!-- Full Height Modal Right -->
+<div class="modal fade right" id="ModalEstados" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+
+    <!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
+    <div class="modal-dialog modal-full-height modal-right" role="document">
+
+
+        <div class="modal-content">
+            <div class="modal-header">
+                
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="EstadoTareas">
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!--Script-->
+<script>
+
+    $(document).ready(function () {
+        $('#tablaEstados').empty();
+        cargarTablaEstadosTareas();
+    });
+    //ver inactivos
+    function verActivos() {
+        $("#inactivos").css("display", "block");
+        $("#activos").css("display", "none");
+        $('#tablaEstados').empty();
+        cargarTablaEstadosTareas(null);
+    }
+    function VerInactivos() {
+         $("#inactivos").css("display", "none");
+           $("#activos").css("display", "block");
+        $('#tablaEstados').empty();
+        cargarTablaEstadosTareas("Inactivos");
+
+    }
+    //llamar vista parcial para crear Nuevo..
+     //cargar tabla de tipos
+         function cargarTablaEstadosTareas( inactivo) {
+            $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("ListarEstadosTareas", "EstadoTarea")',
+                data: { inactivo: inactivo },
+                success: function (data) {
+                    $('#tablaEstados').html(data);
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+        }
+        function crearEstadoVista() {
+             $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "GET",
+
+
+                    url: '@Url.Action("CrearEstadoVista", "EstadoTarea")',
+
+                    success: function (data) {
+                        $('#EstadoTareas').html(data);
+                        $('#ModalEstados').modal('show');
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+    }
+
+    //llamar vista parcial para editar los estados
+    function EditarEstadoTarea(id) {
+
+         $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "GET",
+
+
+             url: '@Url.Action("EditarEstadoVista", "EstadoTarea")',
+             data: { idEstado: id },
+                    success: function (data) {
+                        $('#EstadoTareas').html(data);
+                        $('#ModalEstados').modal('show');
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+    }
+</script>

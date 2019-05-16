@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using System.Configuration;
 using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace AltivaWebApp.Context
 {
@@ -12,8 +13,10 @@ namespace AltivaWebApp.Context
 
         public static string StringEmpresas;
 
+        public static string _StringEmpresas = "StringEmpresas";
+        public static string _StringGE = "StringGE";
 
-        public static void SetStringGE(string grupo)
+        public static void SetStringGE(ISession session, string grupo)
         {
             var conf = new ConfigurationBuilder()
                 .SetBasePath(Startup.entorno.ContentRootPath)
@@ -28,10 +31,11 @@ namespace AltivaWebApp.Context
 
             StringGE = "Data source=" + server + ";" + "Initial Catalog=" + "GE_" + grupo + ";" + "User Id=" +user + ";Password=" + pass + ";";
 
+            session.SetString(_StringGE, "Data source=" + server + ";" + "Initial Catalog=" + "GE_" + grupo + ";" + "User Id=" + user + ";Password=" + pass + ";");
         }
 
 
-        public static void SetStringEmpresas(string empresa)
+        public static void SetStringEmpresas(ISession session, string empresa)
         {
             var conf = new ConfigurationBuilder()
               .SetBasePath(Startup.entorno.ContentRootPath)
@@ -45,7 +49,7 @@ namespace AltivaWebApp.Context
 
             StringEmpresas = "Data source=" + server + ";" + "Initial Catalog=" + empresa + ";" + "User Id=" + user + ";Password=" + pass + ";";
 
-
+            session.SetString(_StringEmpresas, "Data source=" + server + ";" + "Initial Catalog=" + empresa + ";" + "User Id=" + user + ";Password=" + pass + ";");
 
         }
        

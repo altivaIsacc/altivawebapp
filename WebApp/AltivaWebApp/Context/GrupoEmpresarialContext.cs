@@ -1,5 +1,7 @@
 ﻿using System;
 using AltivaWebApp.GEDomain;
+using AltivaWebApp.Helpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -8,11 +10,12 @@ namespace AltivaWebApp.Context
     public partial class GrupoEmpresarialContext : DbContext
     {       
 
+       
         public GrupoEmpresarialContext(DbContextOptions<GrupoEmpresarialContext> options)
             : base(options)
         {
         }
-
+        public virtual DbSet<TbFdUsuarioCosto> TbFdUsuarioCosto { get; set; }
         public virtual DbSet<TbGeEmpresa> TbGeEmpresa { get; set; }
         public virtual DbSet<TbGeGrupoEmpresarial> TbGeGrupoEmpresarial { get; set; }
         public virtual DbSet<TbSeAdjunto> TbSeAdjunto { get; set; }
@@ -30,18 +33,28 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbSeUsuario> TbSeUsuario { get; set; }
         public virtual DbSet<TbSeUsuarioConfiguraion> TbSeUsuarioConfiguraion { get; set; }
 
-//        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//        {
-//            if (!optionsBuilder.IsConfigured)
-//            {
-//                optionsBuilder.UseSqlServer("Server=CENTRAL-PC\\FDPRUEBAS;Database=GE_AltivaPruebas;User Id= sa; Password= 123;");
-//            }
-//        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                //StringFactory.StringGE
+                optionsBuilder.UseSqlServer(StringProvider.StringGE);
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.3-servicing-35854");
-          
+            modelBuilder.Entity<TbFdUsuarioCosto>(entity =>
+            {
+                entity.ToTable("tb_FD_UsuarioCosto");
+
+                entity.HasOne(d => d.IdUsuarioNavigation)
+                    .WithMany(p => p.TbFdUsuarioCosto)
+                    .HasForeignKey(d => d.IdUsuario)
+                    .HasConstraintName("FK_tb_FD_UsuarioCosto_tb_SE_Usuario");
+            });
+
 
             modelBuilder.Entity<TbGeEmpresa>(entity =>
             {
@@ -230,7 +243,7 @@ namespace AltivaWebApp.Context
                     .IsRequired()
                     .HasMaxLength(2);
 
-                entity.Property(e => e.TipoReferencia).HasMaxLength(10);
+                entity.Property(e => e.TipoReferencia).HasMaxLength(50);
 
                 entity.HasOne(d => d.IdUsuarioNavigation)
                     .WithMany(p => p.TbSeMensaje)

@@ -7,6 +7,7 @@ namespace AltivaWebApp.GEDomain
     {
         public TbSeUsuario()
         {
+            TbFdUsuarioCosto = new HashSet<TbFdUsuarioCosto>();
             TbGeGrupoEmpresarial = new HashSet<TbGeGrupoEmpresarial>();
             TbSeBitacora = new HashSet<TbSeBitacora>();
             TbSeEmpresaUsuario = new HashSet<TbSeEmpresaUsuario>();
@@ -27,6 +28,7 @@ namespace AltivaWebApp.GEDomain
         public long? IdUsuario { get; set; }
         public string Correo { get; set; }
         public string Avatar { get; set; }
+        public virtual ICollection<TbFdUsuarioCosto> TbFdUsuarioCosto { get; set; }
 
         public virtual ICollection<TbGeGrupoEmpresarial> TbGeGrupoEmpresarial { get; set; }
         public virtual ICollection<TbSeBitacora> TbSeBitacora { get; set; }

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Hosting.Server;
 
 namespace AltivaWebApp.Controllers
 {
+    [Route("{culture}/Paises")]
     public class PaisController : Controller
     {
         //variable pais service
@@ -33,15 +34,39 @@ namespace AltivaWebApp.Controllers
             
         }
         // GET: Pais
-        [HttpGet("/Paises/")]
-        public ActionResult Index()
+        [HttpGet("Lista-Paises/{mensaje?}")]
+        public ActionResult Index(string mensaje)
         {
+
+            var PaisesFiltrados =new List<TbSePais>();
             IList<TbSePais> paises = new List<TbSePais>();
-
             paises = PaisService.GetAll();
+            if (mensaje == null)
+            {
+                ViewBag.estado = 1;
+                foreach (var item in paises)
+                {
+                    if (item.Inactivo == false)
+                    {
+                        PaisesFiltrados.Add(item);
+                    }
+                }
+            }
+            else
+            {
+                ViewBag.estado = 2;
+                foreach (var item in paises)
+                {
+                    if (item.Inactivo == true)
+                    {
+                        PaisesFiltrados.Add(item);
+                    }
+            }
+            }
+       
+           
 
-
-            return View(paises);
+            return View(PaisesFiltrados);
 
         }
        
@@ -51,7 +76,7 @@ namespace AltivaWebApp.Controllers
             email.insertarNotificacion(int.Parse(id),mensaje);
 
         }
-        [HttpGet("/Paises/Detalles")]
+        [HttpGet("Detalles")]
         public ActionResult Details(int id)
         {
             TbSePais pais;
@@ -61,19 +86,14 @@ namespace AltivaWebApp.Controllers
 
         }
 
-        // GET: Pais/Create
+        [Route("Nuevo-Pais")]
         public ActionResult Create()
         {
             return View();
         }
-        public TbSeMensaje Mensaje(string estado)
-        {
-            var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            TbSeMensaje msj = new TbSeMensaje(estado,"notifcacion",int.Parse(id));
-            return msj;
-        }
+        
         // POST: Pais/Create
-        [HttpPost]
+        [HttpPost("Nuevo-Pais")]
         [ValidateAntiForgeryToken]
         public ActionResult Create(TbSePais collection)
         {
@@ -104,12 +124,8 @@ namespace AltivaWebApp.Controllers
                 throw;  
             }
         }
-        public void Email( string encabezado, TbSeMensaje msj)
-        {
-            EmailSender.emailSender("desarrollopymes@altivasoluciones.com", msj.Mensaje,encabezado);
 
-        }
- 
+        [Route("Editar-Pais/{id}")]
         public ActionResult Edit(int id)
         {
             ViewBag.id = id;
@@ -117,7 +133,7 @@ namespace AltivaWebApp.Controllers
         }
 
         // POST: Pais/Edit/5
-        [HttpPost]
+        [HttpPost("Editar-Pais/{id}")]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, PaisViewModel collection)
         {
@@ -148,11 +164,29 @@ namespace AltivaWebApp.Controllers
         }
 
         // GET: Pais/Delete/5
-        [HttpGet("/Paises/Eliminar")]
+        [HttpGet("Eliminar")]
         public ActionResult Delete(int id)
         {
 
-            return View(PaisService.GetPaisById(id));
+            try
+            {
+                TbSePais pais;
+                TbSeMensaje msj = new TbSeMensaje("Has Eliminado un Pais");
+                // Email("Se Elimino un Pais", msj);
+                pais = PaisService.Delete(id);
+                if (pais != null)
+                {
+                    var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+
+                    this.IBitacoraMap.CrearBitacora(Convert.ToInt32(ids), "Elimino un pais", pais.Id, "Pais");
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View();
+            }
         }
 
         // POST: Pais/Delete/5

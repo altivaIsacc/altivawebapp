@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AltivaWebApp.Controllers
 {
-    [Route("Bodegas")]
+    [Route("{culture}/Bodegas")]
     public class BodegaController : Controller
     {
         readonly IBodegaService service;
@@ -138,7 +138,8 @@ namespace AltivaWebApp.Controllers
                     string comentarioES = "Editó la bodega " + bodega.Nombre;
                     //string comentarioIN = "Creo una nueva bitacora";
                     bitacoraMap.CrearBitacora(int.Parse(idUsuario), comentarioES, (int)bodega.Id, "Bodega");
-                    return RedirectToAction(nameof(DetallesBodega), new { id = bodega.Id });
+
+                    return RedirectToAction(nameof(ListarBodegas));
                 }
                 else
                 {

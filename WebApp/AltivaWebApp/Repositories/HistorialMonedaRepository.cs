@@ -85,6 +85,7 @@ namespace AltivaWebApp.Repositories
                              where pu.Fecha == fecha
                              select new HistorialMonedaViewModel
                              {
+                                 Id = pu.Id,
                                  Codigo = pu.CodigoMoneda,
                                  Nombre = p.Nombre,
                                    ValorCompra = pu.ValorCompra,
@@ -106,10 +107,7 @@ namespace AltivaWebApp.Repositories
 
        
 
-        public TbSeHistorialMoneda Update(TbSeHistorialMoneda domain)
-        {
-            throw new NotImplementedException();
-        }
+
 
         IList<TbSeHistorialMoneda> IHistorialMonedaRepository.GetAll()
         {
@@ -133,6 +131,20 @@ namespace AltivaWebApp.Repositories
         public void GuardarHistorial(IList<TbSeHistorialMoneda> historial)
         {
             context.TbSeHistorialMoneda.AddRange(historial);
+            context.SaveChanges();
+        }
+
+        public TbSeHistorialMoneda GetById(long idHistorial)
+        {
+            return context.TbSeHistorialMoneda.Where(u => u.Id == idHistorial).FirstOrDefault();
+
+        }
+
+        
+
+        public void ModificarHistoirial(List<TbSeHistorialMoneda> domain)
+        {
+            context.TbSeHistorialMoneda.UpdateRange(domain);
             context.SaveChanges();
         }
     }

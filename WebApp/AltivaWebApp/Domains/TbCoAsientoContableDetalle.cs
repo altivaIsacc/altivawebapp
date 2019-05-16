@@ -8,7 +8,7 @@ namespace AltivaWebApp.Domains
         public long IdDetalleAsientoContable { get; set; }
         public long IdAsientoContable { get; set; }
         public string Observacion { get; set; }
-        public int IdCuentaContable { get; set; }
+        public long IdCuentaContable { get; set; }
         public double MontoColones { get; set; }
         public double MontoDolares { get; set; }
         public double MontoEuro { get; set; }

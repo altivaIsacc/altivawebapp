@@ -6,7 +6,7 @@ using AltivaWebApp.Domains;
 using AltivaWebApp.ViewModels;
 namespace AltivaWebApp.Services
 {
-   public  interface IContactoService
+    public interface IContactoService
     {
         IList<TbCrContacto> GetAllPersonas();
         IList<TbCrContacto> GetAllEmpresas();
@@ -14,7 +14,7 @@ namespace AltivaWebApp.Services
         TbCrContacto Edit(TbCrContacto domain);
         TbCrContacto Save(TbCrContacto domain);
         ContactoViewModel GetByEdit(int id);
-       ContactoViemModelDetalle getById(int id);
+        ContactoViemModelDetalle getById(int id);
         TbCrContactoRelacion InsertarRelacion(TbCrContactoRelacion domain);
         IList<ContactoRelacionGETViewModel> GetContactosRelacion(int id);
         IList<TbCeProvincias> GetProvincias();
@@ -25,6 +25,17 @@ namespace AltivaWebApp.Services
         IList<TbCeDistrito> GetDistrito(int idCanton, int idProvincia);
         TbCrContactoRelacion EditarRelacion(EditarRelacionContactoViewModel domain);
         TbCrContactoRelacion viewModelEditarRelacion(EditarRelacionContactoViewModel domain);
+        TbCrContacto GetTareas(int idContacto);
+        TbFdCondicionesDePago AgregarCondicion(TbFdCondicionesDePago domain);
+        TbFdCondicionesDePago EditarCondicion(TbFdCondicionesDePago domain);
+        TbFdCuentasBancarias AgregarCuentasBancarias(TbFdCuentasBancarias domain);
+        IList<TbFdCondicionesDePago> GetCondiciones(int idContacto);
+        TbFdCuentasBancarias AgregarCuentas(TbFdCuentasBancarias domain);
+        TbFdCuentasBancarias EditarCuentas(TbFdCuentasBancarias domain);
+        IList<TbFdCuentasBancarias> GetByContacto(int idContacto);
+        TbFdCuentasBancarias GetCuentasById(int id);
+        bool DeleteCuentasBancarias(TbFdCuentasBancarias domain);
+        IList<TbCrContacto> GetAllProveedores();
 
     }
 }

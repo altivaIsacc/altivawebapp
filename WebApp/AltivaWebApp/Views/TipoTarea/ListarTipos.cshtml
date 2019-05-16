@@ -1,0 +1,217 @@
+﻿@model IEnumerable<AltivaWebApp.Domains.TbFdTareaTipo>
+
+@{
+    ViewData["Title"] = "Listar Tipos";
+}
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+<div class="row">
+    <div class="col-md-2">
+        <h3>Tipos de tarea:</h3>
+    </div>
+    <div class="col-md-6" style="margin-left:1rem; padding-top:0.7rem">
+
+        <button onclick="crearTipos()" class=" btn btn-primary "><span> Agregar <i class="fas fa-plus-circle "></i></span></button>
+    </div>
+</div>
+
+<button class="btn btn-dark" id="inactivos" onclick="VerInactivos()"><span data-translate="verInactivos"> Ver Inactivos</span></button>
+
+<button class="btn btn-dark" style="display: none;" id="activos" onclick="verActivos()"><span data-translate="verInactivos">Ver Activos</span></button>
+
+
+<div id="cargarTablaTipos">
+
+</div>
+
+<div class="modal fade right" id="sideModalTR" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-full-height modal-right" role="document">
+
+
+        <div class="modal-content">
+            <div class="modal-header" id="head">
+           
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="tiposTareas">
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- Full Height Modal Right -->
+
+
+<script>
+        function verActivos() {
+            $("#inactivos").css("display", "block");
+            $("#activos").css("display", "none");
+            $('#cargarTablaTipos').empty();
+
+            cargarTablaTipoTareas();
+        }
+        $(document).ready(function () {
+            $('#cargarTablaTipos').empty();
+            cargarTablaTipoTareas();
+
+        });
+        function VerInactivos() {
+
+   $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("ListarTiposTareas", "TipoTarea")',
+                  data: {mensaje:"asd"},
+       success: function (data) {
+           $('#cargarTablaTipos').empty();
+           $('#cargarTablaTipos').html(data);
+           $("#inactivos").css("display", "none");
+           $("#activos").css("display", "block");
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+        }
+        //cargar tabla de tipos
+         function cargarTablaTipoTareas() {
+            $.ajax({
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                type: "GET",
+
+
+                url: '@Url.Action("ListarTiposTareas", "TipoTarea")',
+
+                success: function (data) {
+                    $('#cargarTablaTipos').html(data);
+                },
+
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+        }
+        //llamar vista parcial para editar..
+        function EditarTipo(idTipoTarea) {
+             $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "GET",
+
+
+                    url: '@Url.Action("EditarTipo", "TipoTarea")',
+                 data: { idTipoTarea: idTipoTarea},
+                    success: function (data) {
+                        $('#tiposTareas').html(data);
+                        $('#sideModalTR').modal('show');
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+        }
+        //llamar vista parcial para crear Nuevo..
+
+        function crearTipos() {
+             $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "GET",
+
+
+                    url: '@Url.Action("CrearTipos", "TipoTarea")',
+
+                    success: function (data) {
+                        $('#tiposTareas').html(data);
+                        $('#sideModalTR').modal('show');
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+        }
+    function EliminarTipo(idTipo) {
+
+
+
+        bootbox.confirm({
+
+            message: "<h4 class='text-center'><span >Esta usted seguro que desea continuar?</span></h4>",
+            buttons: {
+
+                confirm: {
+                    label: '<i class="fa fa-check"></i> Aceptar'
+                },
+                cancel: {
+                    label: '<i class="fa fa-times"></i> Cancelar'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+
+                       $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "GET",
+
+
+                    url: '@Url.Action("Delete", "TipoTarea")',
+       data: {idTipo:idTipo},
+                    success: function (data) {
+                        $('#cargarTablaTipos').empty();
+                        if ($("#activos").css("display") == "block") {
+
+                            $("#inactivos").css("display", "none");
+                            $("#activos").css("display", "block");
+                            VerInactivos();
+                        } else {
+                            $("#inactivos").css("display", "block");
+                            $("#activos").css("display", "none");
+                            cargarTablaTipoTareas();
+
+
+                        }
+                        return false;
+                    },
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+        });
+
+                  
+                } else {
+                    return;
+                }
+            }
+        });
+        }
+</script>

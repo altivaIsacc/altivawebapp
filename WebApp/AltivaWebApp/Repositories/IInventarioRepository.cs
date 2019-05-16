@@ -18,5 +18,9 @@ namespace AltivaWebApp.Repositories
         void SaveInventarioBodega(IList<TbPrInventarioBodega> domain);
         IList<TbPrInventarioBodega> GetAllBodegasPorInventario(int id);
         bool EliminarInventarioBodega(int id);
+        bool SaveEquivalencia(TbPrEquivalencia domain);
+        bool DeleteEquivalencia(int id);
+        IList<TbPrEquivalencia> GetEquivalenciasPorInventario(int idInventario);
+        bool ExisteEquivalencia(TbPrEquivalencia domain);
     }
 }

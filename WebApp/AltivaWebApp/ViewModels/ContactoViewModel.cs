@@ -9,6 +9,16 @@ namespace AltivaWebApp.ViewModels
 {
     public class ContactoViewModel
     {
+
+        public ContactoViewModel()
+        {
+            IdSubFamiliaCliente = 0;
+            IdSubFamiliaProveedor = 0;
+            IdFamiliaCliente = 0;
+            IdSubFamiliaCliente = 0;
+            IdTipoCliente = 0;
+            IdTipoProveedor = 0;
+        }
         public long Id { get; set; }
 
         [StringLength(20, MinimumLength = 2)]
@@ -40,5 +50,13 @@ namespace AltivaWebApp.ViewModels
         public IFormFile Foto { get; set; }
         public long? IdUsuario { get; set; } 
         public string Ruta { get; set; }
+        public string WebLink { get; set; }
+        public string MapLink { get; set; }
+        public int IdTipoCliente { get; set; }
+        public int IdFamiliaCliente { get; set; }
+        public int IdSubFamiliaCliente { get; set; }
+        public int IdTipoProveedor { get; set; }
+        public int IdFamiliaProveedor { get; set; }
+        public int IdSubFamiliaProveedor { get; set; }
     }
 }

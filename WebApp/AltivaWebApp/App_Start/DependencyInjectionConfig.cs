@@ -15,11 +15,49 @@ namespace AltivaWebApp.App_Start
         public static void AddScope(IServiceCollection services)
 
         {
+            //condiciones de pago
+            services.AddScoped<ICondicionesDePagoRepository,CondicionesDePagoRepository>();
+            //cuentas Bancarias
+            services.AddScoped<ICuentasBancariasRepository, CuentasBancariasRepository>();
+
+            //tipos de proveedores
+            services.AddScoped<ITipoProveedorMapper, TipoProveedorMapper>();
+            services.AddScoped<ITipoProveedorRepository, TipoProveedorRepository>();
+            services.AddScoped<ITipoProveedorService, TipoProveedorService>();
+            //tipos de clientes
+            services.AddScoped<ITipoClienteMapper, TipoClienteMapper>();
+            services.AddScoped<ITipoClienteRepository, TipoClienteRepository>();
+            services.AddScoped<ITipoClienteService, TipoClienteService>();
+            //configuracion de filtros
+            services.AddScoped<IConfiguracionFiltrosRepository, ConfiguracionFiltrosRepository>();
+            services.AddScoped<IConfiguracionFiltrosService, ConfiguracionFiltrosServices>();
+
+            //estados
+            services.AddScoped<IEstadoTareaService, EstadoTareaService>();
+            services.AddScoped<IEstadoTareaRepository, EstadoTareaRepository>();
+            services.AddScoped<IEstadoTareaMapper, EstadoTareaMapper>();
+            //tipos
+            services.AddScoped<ITipoTareaService, TipoTareaService>();
+            services.AddScoped<ITipoTareaRepository,    TipoTareaRepository>();
+            services.AddScoped<ITipoTareaMapper,    TipoTareaMapper>();
+            //costos
+            services.AddScoped<ICentroCostosRepository, CentroCostosRepository>();
+            services.AddScoped<ICentroCostosService, CentroCostosService>();
+            services.AddScoped<ICostoUsuarioMapper, CostoUsuarioMapper>();
+
+            //tareas.
+            services.AddScoped<ITareaMapper, TareaMapper>();
+            services.AddScoped<ITareaService, TareaService>();
+            services.AddScoped<ITareaRepository, TareaRepository>();
+
+
+
+            //Lista desplegable
             services.AddScoped<IListaDesplegableMapper, ListaDesplegableMapper>();
             services.AddScoped<IListaDesplegableService, ListaDesplegableService>();
             services.AddScoped<IListaDespegableRepository, ListaDesplegableRepository>();
-            //
-           // services.AddScoped<FotosService>();
+            
+         
             services.AddScoped<FotosService>();
             //
             services.AddScoped< IcontactoCamposMap, ContactosCamposMap>();
@@ -130,7 +168,24 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IInventarioService, InventarioService>();
             services.AddScoped<IInventarioMap, InventarioMap>();
 
+            //ajuste
 
+            services.AddScoped<IAjusteRepository, AjusteRepository>();
+            services.AddScoped<IAjusteService, AjusteService>();
+            services.AddScoped<IAjusteMap, AjusteMap>();
+
+            //orden
+
+            services.AddScoped<IOrdenRepository, OrdenRepository>();
+            services.AddScoped<IOrdenService, OrdenService>();
+            services.AddScoped<IOrdenMap, OrdenMap>();
+
+
+            //Kardex
+
+            services.AddScoped<IKardexRepository, KardexRepository>();
+            services.AddScoped<IKardexService, KardexService>();
+            services.AddScoped<IKardexMap, KardexMap>();
 
 
 

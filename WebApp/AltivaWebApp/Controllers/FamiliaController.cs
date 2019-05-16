@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AltivaWebApp.Controllers
 {
-    [Route("Familias")]
+    [Route("/{culture}/Familias")]
     public class FamiliaController : Controller
     {
         readonly IFamiliaMap map;

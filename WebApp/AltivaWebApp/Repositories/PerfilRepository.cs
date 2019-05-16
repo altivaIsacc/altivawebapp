@@ -22,7 +22,10 @@ namespace AltivaWebApp.Repositories
             return context.TbSePerfil.Where(u => u.Id == id).FirstOrDefault();
             // return context.TbSeUsuario.
         }
-
+        public TbSePerfil GetSinglePerfilByNombre(string nombre)
+        {
+            return context.TbSePerfil.FirstOrDefault(p => p.Nombre == nombre);
+        }
         public bool GetPerfilTieneUsuarios(int idPerfil)
         {
             try

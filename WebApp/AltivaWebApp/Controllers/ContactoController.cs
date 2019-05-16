@@ -17,7 +17,7 @@ using System.IO;
 
 namespace AltivaWebApp.Controllers
 {
-
+    [Route("{culture}/Contacto")]
     public class ContactoController : Controller
     {
         //
@@ -31,11 +31,16 @@ namespace AltivaWebApp.Controllers
         // GET: Contacto
         public IcontactoCamposMap pContactoCamposMap;
 
+        //
+        public IEstadoTareaService IEstadoService;
+
+        public ITipoTareaService ITipoService;
+        public IUserService IUserService;
         //metodo usuasrios del sitemas
         public IUserRepository userMap;
         //variable de contactosCamposPersonalizadosService:
         public IContactoCamposService ICCService;
-        public ContactoController(FotosService pFotos, IUserRepository IUserRepository, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IcontactoCamposMap pContactoCamposMap, IcontactoCamposMap pContactoMap)
+        public ContactoController(IUserService IUserService, ITipoTareaService ITipoService, IEstadoTareaService IEstadoService, FotosService pFotos, IUserRepository IUserRepository, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IcontactoCamposMap pContactoCamposMap, IcontactoCamposMap pContactoMap)
         {
             this.contactoService = contactoService;
             this.contactoMap = contactoMap;
@@ -44,10 +49,107 @@ namespace AltivaWebApp.Controllers
             this.ICCService = ICCService;
             this.userMap = IUserRepository;
             this.Fotos = pFotos;
+            this.IUserService = IUserService;
+            this.ITipoService = ITipoService;
+            this.IEstadoService = IEstadoService;
+
+
         }
+        //metodo que devuele en el edit las condiciones de pago.
+        [HttpGet("GetCondicionesPago/{idContacto?}")]
+        public IActionResult GetCondicionesPago(int idContacto)
+        {
+            IList<TbFdCondicionesDePago> condiciones = new List<TbFdCondicionesDePago>();
+            condiciones = this.contactoService.GetCondiciones(idContacto);
+            if (condiciones.Count() > 0)
+            {
+                return new JsonResult(condiciones);
+            }
+            else
+            {
+                return new JsonResult(false);
+            }
+
+        }
+        //metodo que devuelve los cuentas de un contacto
+
+        [HttpGet("GetCuentasByContacto/{idContacto?}")]
+
+        public IActionResult GetCuentasByContacto(int idContacto)
+        {
+            IList<TbFdCuentasBancarias> cb = new List<TbFdCuentasBancarias>();
+            cb = this.contactoService.GetByContacto(idContacto);
+            if (cb.Count()> 0)
+            {
+                return new JsonResult(cb);
+            }
+            else
+            {
+                return Ok(false);
+            }
+           
+        }
+        //metodo para agregar condiciones de pago
+        [HttpPost("AddCondicionesPago")]
+        public IActionResult AddCondicionesPago(TbFdCondicionesDePago domain)
+        {
+            TbFdCondicionesDePago condicionesPago = new TbFdCondicionesDePago();
+            condicionesPago = this.contactoService.AgregarCondicion(domain);
 
 
-        public ActionResult Index(string palabra = "All")
+            return new JsonResult(true);
+        }
+        [HttpPost("EditCondicionesPago")]
+        public IActionResult EditCondicionesPago(TbFdCondicionesDePago domain)
+        {
+            TbFdCondicionesDePago condicionesPago = new TbFdCondicionesDePago();
+            condicionesPago = this.contactoService.EditarCondicion(domain);
+
+            return new JsonResult(true);
+        }
+        [HttpPost("AgregarCuentasBancarias")]
+        public IActionResult AgregarCuentasBancarias(TbFdCuentasBancarias domain)
+        {
+
+            TbFdCuentasBancarias cb = new TbFdCuentasBancarias();
+            cb = this.contactoService.AgregarCuentasBancarias(domain);
+
+            return new JsonResult(true);
+        }
+        [HttpPost("EditarCuentasBancarias")]
+        public IActionResult EditarCuentasBancarias(TbFdCuentasBancarias domain)
+        {
+            TbFdCuentasBancarias cb = new TbFdCuentasBancarias();
+            cb = this.contactoService.EditarCuentas(domain);
+            return new JsonResult(true);
+        }
+        [HttpDelete("DeleteCuentasBancarias/{idCuenta?}")]
+        public IActionResult DeleteCuentasBancarias(int idCuenta)
+        {
+            TbFdCuentasBancarias tc = new TbFdCuentasBancarias();
+            tc = this.contactoService.GetCuentasById(idCuenta);
+            this.contactoService.DeleteCuentasBancarias(tc);
+            return new JsonResult(true);
+
+        }
+        [HttpGet]
+        public IActionResult PartialCrearTipoCuentaBancaria()
+        {
+            TbFdCuentasBancarias tc = new TbFdCuentasBancarias();
+
+            return PartialView("_AgregarEditarCuentasBancarias", tc);
+
+        }
+        [HttpGet("PartialEditarTipoCuentaBancaria/{idCuenta?}")]
+        public IActionResult PartialEditarTipoCuentaBancaria(int idCuenta)
+        {
+            TbFdCuentasBancarias tc = new TbFdCuentasBancarias();
+            tc = this.contactoService.GetCuentasById(idCuenta);
+            return PartialView("_AgregarEditarCuentasBancarias", tc);
+
+        }
+        [HttpGet("Index/{palabra?}")]
+        public IActionResult Index(string palabra = "All")
         {
 
 
@@ -129,8 +231,8 @@ namespace AltivaWebApp.Controllers
             return View();
         }
 
-
-        public JsonResult Details(int id)
+        [HttpGet("Details/{id?}")]
+        public IActionResult Details(int id)
         {
 
             ContactoViemModelDetalle contactoMap = new ContactoViemModelDetalle();
@@ -138,28 +240,29 @@ namespace AltivaWebApp.Controllers
             ViewBag.id = contactoMap.Id;
             return new JsonResult(contactoMap);
         }
-
+        [HttpPost("Distritos/{idDistrito?}/{idProvincia?}")]
         public JsonResult Distritos(int idDistrito, int idProvincia)
         {
             IList<TbCeDistrito> distritos = new List<TbCeDistrito>();
             distritos = this.contactoService.GetDistrito(idDistrito, idProvincia);
             return new JsonResult(distritos);
         }
-
-        public JsonResult Provincias()
+        [HttpPost("Provincias")]
+        public IActionResult Provincias()
         {
             IList<TbCeProvincias> provincias = new List<TbCeProvincias>();
             provincias = this.contactoService.GetProvincias();
             return new JsonResult(provincias);
         }
-
-        public JsonResult Cantones(int idProvincia)
+        [HttpPost("Cantones/{idProvincia?}")]
+        public IActionResult Cantones(int idProvincia)
         {
             IList<TbCeCanton> cantones = new List<TbCeCanton>();
             cantones = this.contactoService.GetCantones(idProvincia);
             return new JsonResult(cantones);
         }
-        public JsonResult Usuarios()
+        [HttpGet("Usuarios")]
+        public IActionResult Usuarios()
         {
             var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
 
@@ -167,7 +270,8 @@ namespace AltivaWebApp.Controllers
             USER = this.userMap.GetAllByIdUsuario(int.Parse(id));
             return new JsonResult(USER);
         }
-        public ActionResult Create()
+        [HttpGet("Create")]
+        public IActionResult Create()
         {
             var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
 
@@ -175,11 +279,17 @@ namespace AltivaWebApp.Controllers
             USER = this.userMap.GetAllByIdUsuario(int.Parse(id));
             IList<TbCrContacto> contactos = new List<TbCrContacto>();
             contactos = this.contactoService.GetAll();
+            ViewData["Contactos"] = this.contactoService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
+            ViewData["estados"] = this.IEstadoService.GetAll();
+            ViewData["tipos"] = this.ITipoService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
             ViewData["Usuarios"] = USER;
             ViewData["contactos"] = contactos;
             return View();
         }
-        public JsonResult editFoto(IFormCollection id, IFormFile foto)
+        [HttpGet("editFoto")]
+        public IActionResult editFoto(IFormCollection id, IFormFile foto)
         {
             IList<ContactoRelacionGETViewModel> cr = null;
             ViewData["contactoRelacion"] = cr;
@@ -192,8 +302,8 @@ namespace AltivaWebApp.Controllers
             this.contactoMap.ingresarImagen(i, ruta);
             return new JsonResult(1);
         }
-        [HttpPost]
-        public JsonResult Crear(IList<CamposViewModel> model, ContactoViewModel model2)
+        [HttpPost("Crear")]
+        public IActionResult Crear(IList<CamposViewModel> model, ContactoViewModel model2)
 
         {
             //IList<CamposViewModel> model = new List<CamposViewModel>(); ContactoViewModel model2 = new ContactoViewModel();
@@ -252,22 +362,24 @@ namespace AltivaWebApp.Controllers
 
 
         }
-
-        public JsonResult camposEdit(int id)
+        [HttpGet("camposEdit/{id?}")]
+        public IActionResult camposEdit(int id)
         {
 
             IList<ContactoViewModel> con = new List<ContactoViewModel>();
             con = this.ICCService.GetCamposEdit(id);
             return new JsonResult(con);
         }
-        public JsonResult GetContactosRelacion(int id)
+        [HttpGet("GetContactosRelacion/{id?}")]
+        public IActionResult GetContactosRelacion(int id)
         {
             IList<ContactoRelacionGETViewModel> cr = new List<ContactoRelacionGETViewModel>();
             cr = this.contactoService.GetContactosRelacion(id);
 
             return new JsonResult(cr);
         }
-        public ActionResult Edit(int id)
+        [HttpGet("Edit/{id?}")]
+        public IActionResult Edit(int id)
         {
             IList<ContactoRelacionGETViewModel> cr = new List<ContactoRelacionGETViewModel>();
             cr = this.contactoService.GetContactosRelacion(id);
@@ -276,7 +388,11 @@ namespace AltivaWebApp.Controllers
             var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             IList<TbCrContacto> contactos = new List<TbCrContacto>();
             contactos = this.contactoService.GetAll();
-
+            ViewData["Contactos"] = this.contactoService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
+            ViewData["estados"] = this.IEstadoService.GetAll();
+            ViewData["tipos"] = this.ITipoService.GetAll();
+            ViewData["Asignados"] = this.IUserService.GetAll();
             ViewData["contactoRelacion"] = cr;
             ViewData["contactos"] = contactos;
             IList<TbSeUsuario> USER = new List<TbSeUsuario>();
@@ -287,8 +403,8 @@ namespace AltivaWebApp.Controllers
 
         // POST: Contacto/Edit/5
 
-
-        public ActionResult Editar(IList<CamposViewModel> model1, ContactoViewModel model2)
+        [HttpPost("Editar")]
+        public IActionResult Editar(IList<CamposViewModel> model1, ContactoViewModel model2)
 
         {
 
@@ -360,8 +476,8 @@ namespace AltivaWebApp.Controllers
         }
 
         //metodo que va permitir guardar las relaciones 
-        [HttpPost]
-        public JsonResult GuardarRelacion(ContactoRelacionViewModel domain)
+        [HttpPost("GuardarRelacion")]
+        public IActionResult GuardarRelacion(ContactoRelacionViewModel domain)
         {
             try
             {
@@ -375,42 +491,45 @@ namespace AltivaWebApp.Controllers
             return new JsonResult(1);
         }
 
-        // GET: Contacto/Delete/5
-
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: Contacto/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        
+      [HttpGet("Partial")]
         public IActionResult Partial()
         {
             ContactoViewModel con = new ContactoViewModel();
 
             return PartialView("subContacto.cshtml", new ContactoViewModel());
         }
-        [HttpPost]
-        public JsonResult EditarRelacion(EditarRelacionContactoViewModel domain)
+        [HttpPost("EditarRelacion")]
+        public IActionResult EditarRelacion(EditarRelacionContactoViewModel domain)
         {
             TbCrContactoRelacion cr = new TbCrContactoRelacion();
             cr = this.contactoService.EditarRelacion(domain);
             
             return new JsonResult(true);
         }
+
+        [HttpGet("GetTareas/{idContacto?}")]
+        public IActionResult GetTareas(int idContacto)
+        {
+           
+          var ccT = this.contactoService.GetTareas(idContacto);
+            IList<TbFdTarea> tarea = new List<TbFdTarea>();
+            if (ccT.TbFdTarea.Count() > 0) {
+                foreach (var item in ccT.TbFdTarea)
+                {
+                    item.IdContactoNavigation = null;
+                    item.IdEstadoNavigation.TbFdTarea = null;
+                    item.IdTipoNavigation.TbFdTarea = null;
+                    tarea.Add(item);
+                }
+                return Ok(tarea);
+            }
+            else
+            {
+                return Ok(false);
+            }
+        }
     }
+
+    
 }

@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
 using AltivaWebApp.ViewModels;
+using Microsoft.EntityFrameworkCore;
+
 namespace AltivaWebApp.Repositories
 {
     public class ContactoCamposRepository : BaseRepository<TbCrContactosCamposPersonalizados>, IContactoCamposRepository
@@ -26,12 +28,13 @@ namespace AltivaWebApp.Repositories
 
         public IList<ContactoViewModel> GetCamposEdit(int id)
         {
-            var model = (from us in context.TbCrContacto join c in context.TbCrContactosCamposPersonalizados on us.IdContacto equals c.IdContacto
+            var model = (from us in context.TbCrContacto
+                         join c in context.TbCrContactosCamposPersonalizados on us.IdContacto equals c.IdContacto
                          join cp in context.TbCrCamposPersonalizados on c.IdCampoPersonalizados equals cp.Id
                          where c.IdContacto == id
                          select new ContactoViewModel
                          {
-                             
+
                              Tipo = cp.Tipo,
                              Valor = c.Valor,
                              IdCampoPersonalizados = c.Id,
@@ -41,7 +44,7 @@ namespace AltivaWebApp.Repositories
 
                          }
 
-       ).ToList();
+     ).ToList();
 
             return model;
         }

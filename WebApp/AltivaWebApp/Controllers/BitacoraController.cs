@@ -13,6 +13,7 @@ using System.Security.Claims;
 
 namespace AltivaWebApp.Controllers
 {
+    [Route("{culture}/Bitacora")]
     public class BitacoraController : Controller
     {
         //Variable del usuario
@@ -25,9 +26,8 @@ namespace AltivaWebApp.Controllers
         }
 
        
-        [HttpGet("/Bitacora/ListaBitacora")]
-
-        public ActionResult ListaBitacora()
+        [HttpGet("Lista-Bitacora")]
+        public ActionResult Index()
         {
             List<TbSeUsuario> usuariosAsociados = new List<TbSeUsuario>();
 
@@ -40,7 +40,8 @@ namespace AltivaWebApp.Controllers
             return View();
         }
         
-        public   ActionResult BuscarPorUsuario(BitacoraViewModel valor)
+        [Route("Bitacora-Usuario")]
+        public ActionResult FindById(BitacoraViewModel valor)
         {
           List<BitacoraViewModel> bitacora = new List<BitacoraViewModel>();
             bitacora =   IBitacoraService.GetByName(Convert.ToInt32(valor.IdUsuario));
@@ -48,12 +49,13 @@ namespace AltivaWebApp.Controllers
             return View();
         }
 
-        public JsonResult FindByDat(DateTime fecha1,DateTime fecha2)
+        [Route("Bitacora-Fecha")]
+        public ActionResult FindByDate(BitacoraViewModel viewModel)
         {
             List<BitacoraViewModel> bitacora = new List<BitacoraViewModel>();
-            bitacora = IBitacoraService.GetByDate(fecha1, fecha2);
+            bitacora = IBitacoraService.GetByDate(viewModel.Fecha1, viewModel.Fecha2);
       
-            return Json(new { fecha= fecha1,fecha3 = fecha2} );
+            return Json(new { fecha= viewModel.Fecha1, fecha3 = viewModel.Fecha2 } );
 
         }
         public ActionResult BuscarPorFecha(BitacoraViewModel domain)
@@ -66,79 +68,8 @@ namespace AltivaWebApp.Controllers
             
 
         }
-        // GET: Bitacora/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
+        
 
-        // GET: Bitacora/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Bitacora/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add insert logic here
-
-                return RedirectToAction(nameof(ListaBitacora));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: Bitacora/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: Bitacora/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add update logic here
-
-                return RedirectToAction(nameof(ListaBitacora));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: Bitacora/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: Bitacora/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
-
-                return RedirectToAction(nameof(ListaBitacora));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+      
     }
 }

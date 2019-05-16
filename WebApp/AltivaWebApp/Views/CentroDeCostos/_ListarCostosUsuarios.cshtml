@@ -1,0 +1,86 @@
+﻿@model IEnumerable<AltivaWebApp.GEDomain.TbSeUsuario>
+
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+
+<table class="tablaCostos table  table-striped table-bordered dt-responsive nowrap dataTable " style="width:100%;">
+    <thead>
+        <tr>
+            <th hidden>
+                ID
+            </th>
+            <th>
+                Nombre
+            </th>
+            <th>
+                Costó
+            </th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td hidden>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    <button onclick="crearEditarCostos(@item.Id)" class="btn btn-link">@item.Nombre</button>
+                </td>
+
+                <td>
+                    @if (@item.TbFdUsuarioCosto.FirstOrDefault() == null)
+                    {
+                        <p>₡ 0</p>
+                    }
+                    else
+                    {
+                        <p> ₡ @item.TbFdUsuarioCosto.FirstOrDefault().Costo</p>
+                    }
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+
+    $(".tablaCostos").DataTable({
+        scrollY: '50rem',
+        scrollX: '50rem',
+        scrollCollapse: true,
+        paging: false,
+      info:false,
+        "ordering": false,
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+           
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "<a ><i class='fas fa-search'></i></a>",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        }
+
+    });
+</script>

@@ -16,7 +16,7 @@ using Newtonsoft.Json;
 
 namespace AltivaWebApp.Controllers
 {
-    [Route("Mensajes")]
+    [Route("{culture}/Mensajes")]
     public class MensajesController : Controller
     {
 
@@ -71,7 +71,7 @@ namespace AltivaWebApp.Controllers
             this.IMensajeReceptorService = pIMensajeReceptorService;
         }
 
-        [Route("Nuevo-Comentario")]
+        [HttpPost("Nuevo-Comentario")]
         public ActionResult CrearComentario(MensajeViewModel model)
         {
             return PartialView("_CrearComentario", model);
@@ -124,8 +124,8 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception)
             {
-                return BadRequest();
-                //throw;
+                //return BadRequest();
+                throw;
             }            
            
                       
@@ -385,7 +385,7 @@ namespace AltivaWebApp.Controllers
             }
             return Json(new { });
         }
-        public void insertarNotificacion(MensajeViewModel collection, int msjId, List<string> correos)
+        public void InsertarNotificacion(MensajeViewModel collection, int msjId, List<string> correos)
         {
             List<TbSeMensajeReceptor> mensajeReceptor = new List<TbSeMensajeReceptor>();
             TbSeMensaje notificacion = new TbSeMensaje("Se notifica el envio en un mensaje", "NO", msjId);

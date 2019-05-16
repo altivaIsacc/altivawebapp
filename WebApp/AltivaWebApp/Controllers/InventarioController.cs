@@ -9,10 +9,11 @@ using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace AltivaWebApp.Controllers
 {
-    [Route("Inventario")]
+    [Route("{culture}/Inventario")]
     public class InventarioController : Controller
     {
         readonly IInventarioService service;
@@ -21,7 +22,8 @@ namespace AltivaWebApp.Controllers
         readonly IUnidadService unidadService;
         readonly IFamiliaService familiaService;
         readonly IMonedaService monedaService;
-        public InventarioController(IMonedaService monedaService, IFamiliaService familiaService, IUnidadService unidadService, IBodegaService bodegaService, IInventarioService service, IInventarioMap map)
+        private readonly IStringLocalizer<SharedResources> _sharedLocalizer;
+        public InventarioController(IStringLocalizer<SharedResources> sharedLocalizer, IMonedaService monedaService, IFamiliaService familiaService, IUnidadService unidadService, IBodegaService bodegaService, IInventarioService service, IInventarioMap map)
         {
             this.service = service;
             this.map = map;
@@ -60,6 +62,26 @@ namespace AltivaWebApp.Controllers
             }
             return Ok(catalogo);
         }
+
+        [HttpGet("Equivalencias/{id}")]
+        public IActionResult _ListarEquivalencias(int id)
+        {
+            try
+            {
+                ViewData["equivalencias"] = service.GetEquivalenciasPorInventario(id);
+                var items = service.GetAllInventario();
+                ViewData["items"] = items;
+                return PartialView(service.GetInventarioById(id));
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
+        }
+
+
 
         // GET: Inventario/Create
         [Route("Nuevo-Inventario")]
@@ -152,8 +174,8 @@ namespace AltivaWebApp.Controllers
             
             catch
             {
-                
-                return BadRequest();
+                throw;
+                //return BadRequest();
             }
         }
 
@@ -173,6 +195,47 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpPost("Crear-Equivalencia")]
+        public IActionResult CrearEquivalencia(TbPrEquivalencia model)
+        {
+           
+            try
+            {
+
+                var res = true;
+                var existeEquivalencia = service.ExisteEquivalencia(model);
+
+                if (!existeEquivalencia)
+                    res = service.SaveEquivalencia(model);
+
+
+                return Json( new { success = res, existe = existeEquivalencia });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
+        [HttpGet("Eliminar-Equivalencia/{id}")]
+        public IActionResult EliminarEquivalencia(int id)
+        {
+
+            try
+            {
+                var res = service.DeleteEquivalencia(id);
+                return Json(new { success = res });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
+
 
         [Route("CambiarEstado-Inventario/{id}")]
         public ActionResult CambiarEstadoInventario(int id)

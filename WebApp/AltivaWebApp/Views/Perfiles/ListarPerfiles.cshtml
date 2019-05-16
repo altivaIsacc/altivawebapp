@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<TbSePerfil>
-
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @{
     var Perfil = new PerfilViewModel();
     var PerfilFilled = Model.FirstOrDefault(p => p.Id == ViewBag.id);
@@ -30,17 +30,17 @@
 
 
             }
-            <option value="0">Seleccione</option>
+                    <option value="0">@SharedLocalizer["seleccione"]</option>
         </select>
     </div>
 
     <div class="col-md-4">
-        <button type="button" id="nuevoPerfil" class="btn btn-link" data-toggle="modal" data-target="#exampleModal">
+        <button value="0" id="nuevoPerfil" onclick="CrearEditarPerfil(value)" class="btn btn-link">
             <span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span>
-        </button>   
-        <button type="button" id="editarPerfilbtn" class="btn btn-link" data-toggle="modal" data-target="#editarPerfil">
+        </button>
+        <button value="@ViewBag.id" id="editarPerfilbtn" onclick="CrearEditarPerfil(value)" class="btn btn-link">
             <span style="font-size: 2rem"><i class="fas fa-edit"></i></span>
-        </button>   
+        </button>
         <button type="button" id="eliminarPerfil" class="btn btn-link">
             <span style="font-size: 2rem"><i class="fas fa-trash"></i></span>
         </button>
@@ -59,40 +59,29 @@
     </div>
 </div>
 
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="crearEditarModal" tabindex="-1" role="dialog" aria-labelledby="crearEditarModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="exampleModalLabel">Nuevo Perfil</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            <div class="modal-header row">
+                <div class="col-md-6">
+                    <h4 class="modal-title" id="crearEditarModalLabel">@SharedLocalizer["Perfil"]</h4>
+                </div>
+                <div class="col-md-6">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
             </div>
             <div class="modal-body">
+                <div id="frmPerfil">
 
-                <partial name="_NuevoPerfil"
-                         for=@Perfil />
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="editarPerfil" tabindex="-1" role="dialog" aria-labelledby="editarPerfilLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="editarPerfilLabel">Editar Perfíl</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <partial name="_EditarPerfil"
-                         for=@PerfilFilled />
-            </div>
-        </div>
-    </div>
-</div>
 
 
 
@@ -110,7 +99,7 @@
            $('#eliminarPerfil').attr('disabled', true);
            $('#editarPerfilbtn').attr('disabled', true);
        }
-            
+
 
        $('#perfiles').change(function () {
            //alert($(this).val());
@@ -121,7 +110,7 @@
        $('#grupo').val('@ViewBag.grupo');
 
        $('#grupo').change(function () {
-           
+
            var grupo = $(this).val();
            var url = '';
            if (grupo != '')
@@ -170,6 +159,29 @@
        }
     });
 
+    function CrearEditarPerfil(id) {
+        var url = '@Url.Action("CrearEditarPerfil", "Perfiles")';
+
+        if (id === '0')
+           url = url.replace('@ViewBag.id', '0');
+
+        $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: { idPerfil: id },
+            success: function (data) {
+                $('#frmPerfil').html(data);
+                $('#crearEditarModal').modal('show');
+                },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                }
+            });
+
+    }
 
 </script>
 

@@ -8,9 +8,10 @@ namespace AltivaWebApp.Domains
         public TbCoCuentaContable()
         {
             TbCoAsientoContableDetalle = new HashSet<TbCoAsientoContableDetalle>();
+            TbPrAjusteInventario = new HashSet<TbPrAjusteInventario>();
         }
 
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string CuentaContable { get; set; }
         public string Descripcion { get; set; }
         public short Nivel { get; set; }
@@ -44,5 +45,6 @@ namespace AltivaWebApp.Domains
         public bool Inactivo { get; set; }
 
         public virtual ICollection<TbCoAsientoContableDetalle> TbCoAsientoContableDetalle { get; set; }
+        public virtual ICollection<TbPrAjusteInventario> TbPrAjusteInventario { get; set; }
     }
 }

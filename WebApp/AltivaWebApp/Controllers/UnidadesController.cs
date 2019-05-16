@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AltivaWebApp.Controllers
 {
-    [Route("Unidades")]
+    [Route("{culture}/Unidades")]
     public class UnidadesController : Controller
     {
         readonly IUnidadService unidadService;
