@@ -31,7 +31,7 @@ namespace AltivaWebApp.Repositories
 
         public bool ExisteDocumento(string numDoc, string tipo, int idProveedor)
         {
-            return context.TbPrCompra.Any(u => u.NumeroDocumento == numDoc && u.TipoDocumento == tipo && u.IdProveedor == idProveedor );
+            return context.TbPrCompra.Any(u => u.NumeroDocumento == numDoc && u.TipoDocumento == tipo && u.IdContacto == idProveedor );
         }
 
         public TbPrCompra GetCompraById(int id)

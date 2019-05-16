@@ -22,6 +22,7 @@ namespace AltivaWebApp.Domains
         public double TipoCambioDolar { get; set; }
         public double TipoCambioEuro { get; set; }
 
+        public virtual TbPrProveedor IdProveedorNavigation { get; set; }
         public virtual ICollection<TbCpGastoDetallado> TbCpGastoDetallado { get; set; }
     }
 }

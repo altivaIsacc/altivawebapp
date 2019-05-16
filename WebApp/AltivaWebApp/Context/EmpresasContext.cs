@@ -18,18 +18,6 @@ namespace AltivaWebApp.Context
             : base(options)
         {
         }
-        public virtual DbSet<TbFdCuentasBancarias> TbFdCuentasBancarias { get; set; }
-        public virtual DbSet<TbFdCondicionesDePago> TbFdCondicionesDePago { get; set; }
-        public virtual DbSet<TbPrFamiliaVentaOnline> TbPrFamiliaVentaOnline { get; set; }
-        public virtual DbSet<TbFdTarea> TbFdTarea { get; set; }
-        public virtual DbSet<TbFdTareaEstado> TbFdTareaEstado { get; set; }
-        public virtual DbSet<TbFdConfiguracionFiltros> TbFdConfiguracionFiltros { get; set; }
-        public virtual DbSet<TbFdSubtareas> TbFdSubtareas { get; set; }
-        public virtual DbSet<TbCrListaDesplegables> TbCrListaDesplegables { get; set; }
-        public virtual DbSet<TbCrCamposPersonalizados> TbCrCamposPersonalizados { get; set; }
-        public virtual DbSet<TbCrContacto> TbCrContacto { get; set; }
-        public virtual DbSet<TbCrContactoRelacion> TbCrContactoRelacion { get; set; }
-        public virtual DbSet<TbCrContactosCamposPersonalizados> TbCrContactosCamposPersonalizados { get; set; }
         public virtual DbSet<TbBaConciliacion> TbBaConciliacion { get; set; }
         public virtual DbSet<TbBaConciliacionDetalle> TbBaConciliacionDetalle { get; set; }
         public virtual DbSet<TbBaCuentasBancarias> TbBaCuentasBancarias { get; set; }
@@ -64,9 +52,11 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbCpGastos> TbCpGastos { get; set; }
         public virtual DbSet<TbCpPago> TbCpPago { get; set; }
         public virtual DbSet<TbCpPagoDetallado> TbCpPagoDetallado { get; set; }
-        public virtual DbSet<TbFdTipoCliente> TbFdTipoCliente { get; set; }
-
-        public virtual DbSet<TbFdTipoProveedor> TbFdTipoProveedor { get; set; }
+        public virtual DbSet<TbCrCamposPersonalizados> TbCrCamposPersonalizados { get; set; }
+        public virtual DbSet<TbCrContacto> TbCrContacto { get; set; }
+        public virtual DbSet<TbCrContactoRelacion> TbCrContactoRelacion { get; set; }
+        public virtual DbSet<TbCrContactosCamposPersonalizados> TbCrContactosCamposPersonalizados { get; set; }
+        public virtual DbSet<TbCrListaDesplegables> TbCrListaDesplegables { get; set; }
         public virtual DbSet<TbFdAjusteSaldoMenor> TbFdAjusteSaldoMenor { get; set; }
         public virtual DbSet<TbFdAperturaCaja> TbFdAperturaCaja { get; set; }
         public virtual DbSet<TbFdArchivosAdjuntos> TbFdArchivosAdjuntos { get; set; }
@@ -85,7 +75,9 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdComisionSobreVentasDetalle> TbFdComisionSobreVentasDetalle { get; set; }
         public virtual DbSet<TbFdComisionesSobreVentaPagoDetalle> TbFdComisionesSobreVentaPagoDetalle { get; set; }
         public virtual DbSet<TbFdComisionionesSobreVentaPago> TbFdComisionionesSobreVentaPago { get; set; }
+        public virtual DbSet<TbFdCondicionesDePago> TbFdCondicionesDePago { get; set; }
         public virtual DbSet<TbFdConfiguracionCorreo> TbFdConfiguracionCorreo { get; set; }
+        public virtual DbSet<TbFdConfiguracionFiltros> TbFdConfiguracionFiltros { get; set; }
         public virtual DbSet<TbFdContrato> TbFdContrato { get; set; }
         public virtual DbSet<TbFdContratoDescuento> TbFdContratoDescuento { get; set; }
         public virtual DbSet<TbFdContratoHospedaje> TbFdContratoHospedaje { get; set; }
@@ -99,6 +91,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdCuentaEnCasaDetalleFacturaAnulada> TbFdCuentaEnCasaDetalleFacturaAnulada { get; set; }
         public virtual DbSet<TbFdCuentaEnCasaPagoCliente> TbFdCuentaEnCasaPagoCliente { get; set; }
         public virtual DbSet<TbFdCuentaEnCasaPuntoDeVenta> TbFdCuentaEnCasaPuntoDeVenta { get; set; }
+        public virtual DbSet<TbFdCuentasBancarias> TbFdCuentasBancarias { get; set; }
         public virtual DbSet<TbFdDesgloceReserva> TbFdDesgloceReserva { get; set; }
         public virtual DbSet<TbFdDesgloceReservaNotas> TbFdDesgloceReservaNotas { get; set; }
         public virtual DbSet<TbFdDocumentoAjusteSaldoMenor> TbFdDocumentoAjusteSaldoMenor { get; set; }
@@ -131,15 +124,18 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdRespaldoHabitacionAsignada> TbFdRespaldoHabitacionAsignada { get; set; }
         public virtual DbSet<TbFdRespaldoHabitacionesAsignadasAllotment> TbFdRespaldoHabitacionesAsignadasAllotment { get; set; }
         public virtual DbSet<TbFdServicio> TbFdServicio { get; set; }
+        public virtual DbSet<TbFdSubtareas> TbFdSubtareas { get; set; }
+        public virtual DbSet<TbFdTarea> TbFdTarea { get; set; }
+        public virtual DbSet<TbFdTareaEstado> TbFdTareaEstado { get; set; }
         public virtual DbSet<TbFdTareaTipo> TbFdTareaTipo { get; set; }
         public virtual DbSet<TbFdTemporada> TbFdTemporada { get; set; }
         public virtual DbSet<TbFdTemporadaGrupo> TbFdTemporadaGrupo { get; set; }
         public virtual DbSet<TbFdTemporadaRango> TbFdTemporadaRango { get; set; }
-
+        public virtual DbSet<TbFdTipoCliente> TbFdTipoCliente { get; set; }
         public virtual DbSet<TbFdTipoHabitacion> TbFdTipoHabitacion { get; set; }
+        public virtual DbSet<TbFdTipoProveedor> TbFdTipoProveedor { get; set; }
         public virtual DbSet<TbFdTipoServicio> TbFdTipoServicio { get; set; }
-        public virtual DbSet<TbFdTipoTarifa> TbFdTipoTarifa { get; set; }
-       
+        public virtual DbSet<TbFdTipoTarifa> TbFdTipoTarifa { get; set; }       
         public virtual DbSet<TbPrAjuste> TbPrAjuste { get; set; }
         public virtual DbSet<TbPrAjusteInventario> TbPrAjusteInventario { get; set; }
         public virtual DbSet<TbPrBodega> TbPrBodega { get; set; }
@@ -150,6 +146,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbPrDepartamento> TbPrDepartamento { get; set; }
         public virtual DbSet<TbPrEquivalencia> TbPrEquivalencia { get; set; }
         public virtual DbSet<TbPrFamilia> TbPrFamilia { get; set; }
+        public virtual DbSet<TbPrFamiliaVentaOnline> TbPrFamiliaVentaOnline { get; set; }
         public virtual DbSet<TbPrInformacionBancaria> TbPrInformacionBancaria { get; set; }
         public virtual DbSet<TbPrInventario> TbPrInventario { get; set; }
         public virtual DbSet<TbPrInventarioBodega> TbPrInventarioBodega { get; set; }
@@ -160,6 +157,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbPrPreciosInventariosAutomaticos> TbPrPreciosInventariosAutomaticos { get; set; }
         public virtual DbSet<TbPrPreciosInventariosAutomaticosDetalle> TbPrPreciosInventariosAutomaticosDetalle { get; set; }
         public virtual DbSet<TbPrPreciosInventariosDetalle> TbPrPreciosInventariosDetalle { get; set; }
+        public virtual DbSet<TbPrProveedor> TbPrProveedor { get; set; }
         public virtual DbSet<TbPrRequisicionInventario> TbPrRequisicionInventario { get; set; }
         public virtual DbSet<TbPrRequisiciones> TbPrRequisiciones { get; set; }
         public virtual DbSet<TbPrTipoProveedor> TbPrTipoProveedor { get; set; }
@@ -1156,7 +1154,11 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
-                
+                entity.HasOne(d => d.IdProveedorNavigation)
+                    .WithMany(p => p.TbCpGastos)
+                    .HasForeignKey(d => d.IdProveedor)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_Gastos_tb_PR_Proveedores");
             });
 
             modelBuilder.Entity<TbCpPago>(entity =>
@@ -3403,11 +3405,6 @@ namespace AltivaWebApp.Context
                     .HasDefaultValueSql("('')");
             });
 
-            //modelBuilder.Entity<TbFdUsuarioCosto>(entity =>
-            //{
-            //    entity.ToTable("tb_FD_UsuarioCosto");
-            //});
-
             modelBuilder.Entity<TbPrAjuste>(entity =>
             {
                 entity.ToTable("tb_PR_Ajuste");
@@ -3527,7 +3524,7 @@ namespace AltivaWebApp.Context
 
                 entity.HasOne(d => d.IdContactoNavigation)
                     .WithMany(p => p.TbPrCompra)
-                    .HasForeignKey(d => d.IdProveedor)
+                    .HasForeignKey(d => d.IdContacto)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_PR_Compra_tb_CR_Contacto");
             });
@@ -3538,17 +3535,13 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.PorcFa).HasColumnName("PorcFA");
 
+                entity.Property(e => e.PorcIva).HasColumnName("PorcIVA");
+
                 entity.Property(e => e.TotalFabase).HasColumnName("TotalFABase");
 
                 entity.Property(e => e.TotalFadolar).HasColumnName("TotalFADolar");
 
                 entity.Property(e => e.TotalFaeuro).HasColumnName("TotalFAEuro");
-
-                entity.Property(e => e.TotalIsbase).HasColumnName("TotalISBase");
-
-                entity.Property(e => e.TotalIsdolar).HasColumnName("TotalISDolar");
-
-                entity.Property(e => e.TotalIseuro).HasColumnName("TotalISEuro");
 
                 entity.Property(e => e.TotalIvabase).HasColumnName("TotalIVABase");
 
@@ -3940,7 +3933,79 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(200);
             });
 
-            
+            modelBuilder.Entity<TbPrProveedor>(entity =>
+            {
+                entity.HasKey(e => e.IdProveedor)
+                    .HasName("PK_tb_PR_Proveedores");
+
+                entity.ToTable("tb_PR_Proveedor");
+
+                entity.Property(e => e.CodigoMoneda).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Direccion)
+                    .IsRequired()
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("(' ')");
+
+                entity.Property(e => e.Email1)
+                    .IsRequired()
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("(' ')");
+
+                entity.Property(e => e.Email2)
+                    .IsRequired()
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("(' ')");
+
+                entity.Property(e => e.Fax)
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("(' ')");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Identificacion)
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("(' ')");
+
+                entity.Property(e => e.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("(' ')");
+
+                entity.Property(e => e.PersoneriaJuridica)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("(' ')");
+
+                entity.Property(e => e.SitioWeb)
+                    .IsRequired()
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("(' ')");
+
+                entity.Property(e => e.Telefono)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("(' ')");
+
+                entity.Property(e => e.Telefono2)
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("(' ')");
+            });
 
             modelBuilder.Entity<TbPrRequisicionInventario>(entity =>
             {

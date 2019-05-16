@@ -39,7 +39,7 @@ namespace AltivaWebApp.Controllers
         [Route("Nuevo-Ajuste")]
         public ActionResult CrearAjuste()
         {
-            //ViewData["bodegas"] = bodegaService.GetAllActivas();
+            ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             ViewData["cuentaContable"] = service.GetAllCC();
             ViewData["cuentaCosto"] = service.GetAllCG();
             return View("CrearEditarAjuste", new AjusteViewModel());
@@ -48,7 +48,7 @@ namespace AltivaWebApp.Controllers
         [Route("Editar-Ajuste/{id}")]
         public ActionResult EditarAjuste(int id)
         {
-            //ViewData["bodegas"] = bodegaService.GetAllActivas();
+            ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             ViewData["cuentaContable"] = service.GetAllCC();
             ViewData["cuentaCosto"] = service.GetAllCG();
 

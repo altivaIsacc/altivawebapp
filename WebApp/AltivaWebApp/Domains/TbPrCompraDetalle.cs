@@ -10,7 +10,9 @@ namespace AltivaWebApp.Domains
         public long IdInventario { get; set; }
         public double Cantidad { get; set; }
         public double PrecioUnitario { get; set; }
+        public double PorcIva { get; set; }
         public double PorcDescuento { get; set; }
+        public double PorcFa { get; set; }
         public double SubTotalGrabadoBase { get; set; }
         public double SubTotalGrabadoDolar { get; set; }
         public double SubTotalGrabadoEuro { get; set; }
@@ -29,13 +31,9 @@ namespace AltivaWebApp.Domains
         public double TotalIvabase { get; set; }
         public double TotalIvadolar { get; set; }
         public double TotalIvaeuro { get; set; }
-        public double TotalIsbase { get; set; }
-        public double TotalIsdolar { get; set; }
-        public double TotalIseuro { get; set; }
         public double TotalBase { get; set; }
         public double TotalDolar { get; set; }
         public double TotalEuro { get; set; }
-        public double PorcFa { get; set; }
         public double TotalFabase { get; set; }
         public double TotalFadolar { get; set; }
         public double TotalFaeuro { get; set; }

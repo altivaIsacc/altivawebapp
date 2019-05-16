@@ -44,14 +44,14 @@ namespace AltivaWebApp.Mappers
                 FechaDocumento = domain.FechaDocumento,
                 Id = domain.Id,
                 IdMoneda = domain.IdMoneda,
-                IdProveedor = domain.IdProveedor,
+                IdProveedor = domain.IdContacto,
                 IdUsuario = domain.IdUsuario,
                 TipoCambioDolar = domain.TipoCambioDolar,
                 TipoCambioEuro = domain.TipoCambioEuro,
                 Borrador = domain.Borrador,
                 NumeroDocumento = domain.NumeroDocumento,
                 FechaCreacion = domain.FechaCreacion,
-                TipoDocumento = domain.TipoDocumento
+                TipoDocumento = domain.TipoDocumento              
                 
             };
 
@@ -100,7 +100,7 @@ namespace AltivaWebApp.Mappers
 
             domain.Id = viewModel.Id;
             domain.IdMoneda = viewModel.IdMoneda;
-            domain.IdProveedor = viewModel.IdProveedor;
+            domain.IdContacto = viewModel.IdProveedor;
             domain.IdUsuario = viewModel.IdUsuario;
             domain.Anulado = false;
             domain.FechaCreacion = DateTime.Now;
@@ -232,7 +232,7 @@ namespace AltivaWebApp.Mappers
 
             
             domain.IdMoneda = viewModel.IdMoneda;
-            domain.IdProveedor = viewModel.IdProveedor;
+            domain.IdContacto = viewModel.IdProveedor;
             domain.IdUsuario = viewModel.IdUsuario;
             domain.Anulado = false;
             domain.FechaCreacion = DateTime.Now;
@@ -376,7 +376,8 @@ namespace AltivaWebApp.Mappers
                 PorcFa = viewModel.PorcFa,
                 PorcDescuento = viewModel.PorcDescuento,
                 IdBodega = viewModel.IdBodega,
-                PrecioUnitario = viewModel.PrecioUnitario            
+                PrecioUnitario = viewModel.PrecioUnitario,
+                PorcIva = viewModel.PorcIva
                 
             };
 
@@ -404,10 +405,6 @@ namespace AltivaWebApp.Mappers
                 domain.TotalIvabase = viewModel.TotalIva;
                 domain.TotalIvadolar = domain.TotalIvabase / dolar;
                 domain.TotalIvaeuro = domain.TotalIvabase / euro;
-
-                domain.TotalIsbase = viewModel.TotalIs;
-                domain.TotalIsdolar = domain.TotalIsbase / dolar;
-                domain.TotalIseuro = domain.TotalIsbase / euro;
 
 
                 domain.TotalBase = viewModel.Total;
@@ -448,10 +445,6 @@ namespace AltivaWebApp.Mappers
                 domain.TotalIvadolar = viewModel.TotalIva;
                 domain.TotalIvaeuro = domain.TotalIvabase / euro;
 
-                domain.TotalIsbase = viewModel.TotalIs * dolar;
-                domain.TotalIsdolar = viewModel.TotalIs;
-                domain.TotalIseuro = domain.TotalIsbase / euro;
-
                 domain.TotalFabase = viewModel.TotalFa * dolar;
                 domain.TotalFadolar = viewModel.TotalFa;
                 domain.TotalFaeuro = domain.TotalFabase / euro;
@@ -489,9 +482,6 @@ namespace AltivaWebApp.Mappers
                 domain.TotalIvadolar = domain.TotalIvabase / dolar;
                 domain.TotalIvaeuro = viewModel.TotalIva;
 
-                domain.TotalIsbase = viewModel.TotalIs * euro;
-                domain.TotalIsdolar = domain.TotalIsbase / dolar;
-                domain.TotalIseuro = viewModel.TotalIs;
 
                 domain.TotalFabase = viewModel.TotalFa * euro;
                 domain.TotalFadolar = domain.TotalFabase / dolar;

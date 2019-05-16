@@ -19,13 +19,17 @@ namespace AltivaWebApp.Controllers
         private readonly IInventarioService inventarioService;
         private readonly IMonedaService monedaService;
         private readonly ICompraMap map;
-        public CompraController(ICompraMap map, IInventarioService inventarioService, IMonedaService monedaService, ICompraService service, IContactoService contactoService)
+        private readonly IUserService userService;
+        private readonly IBodegaService bodegaService;
+        public CompraController(IBodegaService bodegaService, IUserService userService, ICompraMap map, IInventarioService inventarioService, IMonedaService monedaService, ICompraService service, IContactoService contactoService)
         {
             this.service = service;
             this.contactoService = contactoService;
             this.inventarioService = inventarioService;
             this.monedaService = monedaService;
             this.map = map;
+            this.userService = userService;
+            this.bodegaService = bodegaService;
         }
 
         // GET: Compra
@@ -39,8 +43,8 @@ namespace AltivaWebApp.Controllers
         public ActionResult CrearCompra()
         {
             ViewData["proveedores"] = contactoService.GetAllProveedores();
-            //ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
-
+            ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
+            ViewData["bodegas"] = bodegaService.GetAllActivas();
             var tipoCambio = monedaService.GetAll();
             var model = new CompraViewModel();
             model.TipoCambioDolar = tipoCambio.FirstOrDefault(m => m.Codigo == 2).ValorCompra;
@@ -50,10 +54,12 @@ namespace AltivaWebApp.Controllers
         }
 
         [Route("Editar-Compra/{id}")]
-        public ActionResult EditarOrden(int id)
+        public ActionResult EditarCompra(int id)
         {
             var compra = map.DomainToViewModel(service.GetCompraById(id));
             ViewData["proveedores"] = contactoService.GetAllProveedores();
+            ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
+            ViewData["bodegas"] = bodegaService.GetAllActivas();
             return View("CrearEditarCompra", compra);
         }
 
@@ -75,7 +81,6 @@ namespace AltivaWebApp.Controllers
                     {
                         viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                         var orden = map.Create(viewModel);
-
                     }
 
                     return Json(new { success = true });
@@ -164,7 +169,6 @@ namespace AltivaWebApp.Controllers
                             i.IdInventarioNavigation.TbPrOrdenDetalle = null;
                             i.IdInventarioNavigation.TbPrCompraDetalle = null;
                             i.IdCompraNavigation = null;
-
                         }
                     }
 
@@ -178,7 +182,7 @@ namespace AltivaWebApp.Controllers
             catch
             {
                 throw;
-                return BadRequest();
+                //return BadRequest();
             }
         }
 

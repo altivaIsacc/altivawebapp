@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AltivaWebApp.Models
-{
-    public partial class TbPrProveedores
+namespace AltivaWebApp.Domains {
+    public partial class TbPrProveedor
     {
-        public TbPrProveedores()
+        public TbPrProveedor()
         {
             TbCpGastos = new HashSet<TbCpGastos>();
         }

@@ -12,6 +12,7 @@ namespace AltivaWebApp.ViewModels
         public long IdInventario { get; set; }
         public double Cantidad { get; set; }
         public double PrecioUnitario { get; set; }
+        public double PorcIva { get; set; }
         public double PorcDescuento { get; set; }
         public double SubTotalGrabado { get; set; }
         public double SubTotalExcento { get; set; }
@@ -19,7 +20,6 @@ namespace AltivaWebApp.ViewModels
         public double SubTotalExcentoNeto { get; set; }
         public double TotalDescuento { get; set; }
         public double TotalIva { get; set; }
-        public double TotalIs { get; set; }
         public double Total { get; set; }
         public double PorcFa { get; set; }
         public double TotalFa { get; set; }
