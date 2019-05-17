@@ -96,7 +96,7 @@ else
                 <label class="control-label">@SharedLocalizer["Dolar"]</label>
                 <input id="dolar" asp-for="TipoCambioDolar" class="form-control moneda" />
                 <label class="control-label">@SharedLocalizer["Euro"]</label>
-                <input id="euro" asp-for="TipoCambioEuro" class="form-control moneda" />
+                <input id="euro" asp-for="TipoCambioEuro"  class="form-control moneda" />
             </div>
 
         </div>
@@ -171,7 +171,7 @@ else
 <div class="row">
     <div class="col-md-12">
         <div class="form-group col-md-3">
-            <button @estado class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+            <button @estado class="btn btn-success btnAccion" onclick="guardarSalir()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
             <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
         </div>
     </div>
@@ -181,6 +181,7 @@ else
 
 <script>
 
+    var borrador = '';
 
     ///linea
     var $item = $('#item');
@@ -233,7 +234,7 @@ else
 
         deshabilitaTipoCambio();
 
-
+         borrador = '@Model.Borrador';
 
         $descuento.val(0);
         var d = parseFloat('@Model.TipoCambioDolar'.replace(',', '.'));
@@ -301,6 +302,9 @@ else
             $(this).val(0)
 
     });
+
+
+
 
     ///////manejo del dom///////////////////////////////////////////////////////////////////////////
 
@@ -404,7 +408,13 @@ else
                 //if (lineasEliminadas.length > 0)
                 //    eliminarOrdenDetalle();
                 cargarTabla(lineas);
-                @*//window.location.href = "@Url.Action("ListarCompras")";*@
+                if(@Model.Id === 0){
+
+                    var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
+                    window.location.href = url.replace("__id__", data.idCompra);            
+
+                }
+                
                },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -414,38 +424,63 @@ else
 
     }
 
-    function guardarLinea() {
-        
+    function eliminarOrdenDetalle() {
+
+
         $.ajax({
-              type: "POST",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
-            url: '@Url.Action("CrearEditarCompra")',
-            data: crearModelo(),
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("EliminarOrdenDetalle", new { id = Model.Id })',
+            data: { viewModel: lineasEliminadas },
             success: function (data) {
-                //if (lineasEliminadas.length > 0)
-                //    eliminarOrdenDetalle();
-                window.location.href = "@Url.Action("ListarCompras")";
+               // console.log(data);
                },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
                   console.log(err.statusText);
               }
-        });
+          });
+    }
+
+    function guardarSalir() {
+        @*if('@Model.Borrador' != "False")
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                dataType: "json",
+                url: '@Url.Action("CambiarEstadoBorradorCompra" , new { id = Model.Id})',
+
+                success: function (data) {
+
+                    window.location.href = "@Url.Action("ListarCompras")";
+                },
+                error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                }
+            });
+        else*@
+        borrador = false;
+        guardarCambios();
+        window.location.href = "@Url.Action("ListarCompras")";  
 
     }
+
+
 
 
     ////helpers////////////////////////////////////////////////////////////////////////////////////
 
     function guardarCambios() {
 
-       
         if (validarForm())
             guardarCompra();
-    }
+        
+    }    
 
     function validarForm() {
 
@@ -463,7 +498,7 @@ else
 
     function crearModelo() {
         var frmCompra = $('#frmCompra').serializeArray();
-
+        
 
         var ordenModel = {
             id: @Model.Id,
@@ -473,7 +508,7 @@ else
             numeroDocumento: frmCompra[5].value,
             idUsuario: 1,
             Anulado: frmCompra[1].value,
-            borrador: frmCompra[4].value,
+            borrador: borrador,
             idMoneda: parseInt(frmCompra[8].value),
             subTotalGravado: subTotalGravado.toString().replace(".", ","),
             subTotalExcento: subTotalExcento.toString().replace(".", ","),
@@ -524,21 +559,21 @@ else
                 nombreInventario: data[i].nombreInventario,
                 idMonedaCD: @Model.IdMoneda,
                 cantidad: data[i].cantidad,
-                precioUnitario: parseFloat($precio.val()),
-                subTotalGravado: calcularSubtotalGrabadoLinea(),
-                subTotalExcento: calcularSubtotalExcentoLinea(),
-                subTotalGravadoNeto: calcularSubtotalGrabadoNetoLinea(),
-                subTotalExcentoNeto: calcularSubtotalExcentoNetoLinea(),
-                porcIva: parseFloat($iva.val()),
+                precioUnitario: parseFloat(data[i].precioUnitario),
+                subTotalGravado: recuperarSubTotalGravado(data[i]),
+                subTotalExcento: recuperarSubTotalExcento(data[i]),
+                subTotalGravadoNeto: recuperarSubTotalGravadoNeto(data[i]),
+                subTotalExcentoNeto: recuperarSubTotalExcentoNeto(data[i]),
+                porcIva: parseFloat(data[i].porcIva),
                 totalIs: 0,
                 porcFa: 0,
                 totalFa: 0,
-                idBodega: $bodega.val(),
-                porcDescuento: parseFloat($descuento.val()),
-                totalDescuento: calcularTotalDescuentoLinea(),
-                totalIva: calcularTotalIvaLinea(),
-                total: calcularTotalLinea(),
-                bodega: getBodegaItem($bodega.val()).nombre
+                idBodega: data[i].idBodega,
+                porcDescuento: parseFloat(data[i].porcDescuento),
+                totalDescuento: recuperarTotalDesc(data[i]),
+                totalIva: recuperarIva(data[i]),
+                total: recuperarTotal(data[i]),
+                bodega: getBodegaItem(data[i].idBodega).nombre
 
             };
             lineas.push(model);
@@ -950,6 +985,104 @@ else
         else if (moneda === 3 && item.idMonedaCD === 3)
             return item.precioUnitario;
 
+    }
+
+
+
+
+
+    function recuperarSubTotalExcento(data) {
+
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        if (moneda === 1)
+            return data.subTotalExcentoBase;
+        else if (moneda === 2)
+            return data.subTotalExcentoDolar;
+        else if (moneda === 3)
+            return data.subTotalExcentoEuro;
+    }
+
+    function recuperarSubTotalGravado(data) {
+
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        if (moneda === 1)
+            return data.subTotalGravadoBase;
+        else if (moneda === 2)
+            return data.subTotalGravadoDolar;
+        else if (moneda === 3)
+            return data.subTotalGravadoEuro;
+    }
+
+    function recuperarSubTotalGravadoNeto(data) {
+
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        if (moneda === 1)
+            return data.subTotalGravadoNetoBase;
+        else if (moneda === 2)
+            return data.subTotalGravadoNetoDolar;
+        else if (moneda === 3)
+            return data.subTotalGravadoNetoEuro;
+    }
+
+    function recuperarSubTotalExcentoNeto(data) {
+
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        if (moneda === 1)
+            return data.subTotalExcentoNetoBase;
+        else if (moneda === 2)
+            return data.subTotalExcentoNetoDolar;
+        else if (moneda === 3)
+            return data.subTotalExcentoNetoEuro;
+    }
+
+    function recuperarTotal(data) {
+
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        if (moneda === 1)
+            return data.totalBase;
+        else if (moneda === 2)
+            return data.totalDolar;
+        else if (moneda === 3)
+            return data.totalEuro;
+    }
+
+    function recuperarIva(data) {
+
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        if (moneda === 1)
+            return data.totalIvabase;
+        else if (moneda === 2)
+            return data.totalIvadolar;
+        else if (moneda === 3)
+            return data.totalIvauro;
+    }
+    
+    function recuperarIs(data) {
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        if (moneda === 1)
+            return data.totalIsbase;
+        else if (moneda === 2)
+            return data.totalIsdolar;
+        else if (moneda === 3)
+            return data.totalIseuro;
+    }
+
+    function recuperarTotalDesc(data) {
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        if (moneda === 1)
+            return data.totalDescuentoBase;
+        else if (moneda === 2)
+            return data.totalDescuentoDolar;
+        else if (moneda === 3)
+            return data.totalDescuentoEuro;
     }
     
     function cancelar() {

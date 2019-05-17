@@ -50,7 +50,8 @@ namespace AltivaWebApp.Controllers
             var model = new CompraViewModel
             {
                 TipoCambioDolar = tipoCambio.FirstOrDefault(m => m.Codigo == 2).ValorCompra,
-                TipoCambioEuro = tipoCambio.FirstOrDefault(m => m.Codigo == 3).ValorCompra
+                TipoCambioEuro = tipoCambio.FirstOrDefault(m => m.Codigo == 3).ValorCompra,
+                Borrador = true
             };
             ViewData["monedas"] = tipoCambio;
             return View("CrearEditarCompra", model);
@@ -74,8 +75,6 @@ namespace AltivaWebApp.Controllers
             try
             {
 
-
-
                 if (viewModel.Id != 0)
                 {
                     var compra = service.GetCompraByDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento);
@@ -96,9 +95,9 @@ namespace AltivaWebApp.Controllers
                     if (!service.ExisteDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento, (int)viewModel.IdProveedor))
                     {
                         viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
-                        var orden = map.Create(viewModel);
+                        var compra = map.Create(viewModel);
 
-                        return Json(new { success = true });
+                        return Json(new { success = true, idCompra =  compra.Id});
                     }
                     else
                         return Json(new { success = false });
@@ -110,7 +109,7 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
-                throw;
+                //throw;
                 return BadRequest();
             }
         }
@@ -136,9 +135,42 @@ namespace AltivaWebApp.Controllers
             }
         }
 
+        [HttpGet("CambiarEstadoBorrador-Compra/{id}")]
+        public ActionResult CambiarEstadoBorradorCompra(int id)
+        {
+            try
+            {
+                var compra = service.GetCompraById(id);
+                compra.Borrador = false;
+                var res = service.Update(compra);
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+
         //POST: Orden/Create
         [HttpPost("Crear-CompraDetalle")]
         public ActionResult CrearCompraDetalle(CompraViewModel viewModel)
+        {
+            try
+            {
+                var res = map.CreateCD(viewModel);
+
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        //POST: Orden/Create
+        [HttpPost("Editar-CompraDetalle")]
+        public ActionResult EditarCompraDetalle(CompraViewModel viewModel)
         {
             try
             {

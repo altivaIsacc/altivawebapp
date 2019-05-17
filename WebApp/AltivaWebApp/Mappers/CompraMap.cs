@@ -238,13 +238,21 @@ namespace AltivaWebApp.Mappers
             domain.IdContacto = viewModel.IdProveedor;
             domain.IdUsuario = viewModel.IdUsuario;
             domain.Anulado = false;
-            domain.FechaCreacion = DateTime.Now;
+            //domain.FechaCreacion = DateTime.Now;
             domain.FechaDocumento = viewModel.FechaDocumento;
             domain.TipoDocumento = viewModel.TipoDocumento;
             domain.NumeroDocumento = viewModel.NumeroDocumento;
-            domain.TipoCambioDolar = viewModel.TipoCambioDolar;
-            domain.TipoCambioEuro = viewModel.TipoCambioEuro;
+            domain.Borrador = viewModel.Borrador;
+            
 
+            if(domain.TipoCambioDolar != viewModel.TipoCambioDolar || domain.TipoCambioEuro != viewModel.TipoCambioEuro)
+            {
+                domain.TipoCambioDolar = viewModel.TipoCambioDolar;
+                domain.TipoCambioEuro = viewModel.TipoCambioEuro;
+                UpdateTotales(domain);
+            }
+
+            
             //domain.TbPrCompraDetalle = ViewModelToDomainCD(viewModel);
 
             if (viewModel.IdMoneda == 1)
@@ -358,6 +366,109 @@ namespace AltivaWebApp.Mappers
             return domain;
 
         }
+
+        public void UpdateTotales(TbPrCompra compra)
+        {
+            var detalles = new List<TbPrCompraDetalle>();
+            var dolar = compra.TipoCambioDolar;
+            var euro = compra.TipoCambioEuro;
+
+            foreach (var domain in compra.TbPrCompraDetalle)
+            {
+                if (compra.IdMoneda == 1)
+                {
+                    domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase / dolar;
+                    domain.SubTotalExcentoEuro = domain.SubTotalExcentoBase / euro;
+
+                    domain.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoBase / dolar;
+                    domain.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoBase / euro;
+
+                    domain.SubTotalGravadoDolar = domain.SubTotalGravadoBase / dolar;
+                    domain.SubTotalGravadoEuro = domain.SubTotalGravadoBase / euro;
+
+                    domain.SubTotalGravadoNetoDolar = domain.SubTotalGravadoNetoBase / dolar;
+                    domain.SubTotalGravadoNetoEuro = domain.SubTotalGravadoNetoBase / euro;
+
+                    domain.TotalIvadolar = domain.TotalIvabase / dolar;
+                    domain.TotalIvaeuro = domain.TotalIvabase / euro;
+
+                    domain.TotalDolar = domain.TotalBase / dolar;
+                    domain.TotalEuro = domain.TotalBase / euro;
+
+                    domain.TotalFadolar = domain.TotalFabase / dolar;
+                    domain.TotalFaeuro = domain.TotalFabase / euro;
+
+                    domain.TotalDescuentoDolar = domain.TotalDescuentoBase / dolar;
+                    domain.TotalDescuentoEuro = domain.TotalDescuentoBase / euro;
+
+
+                }
+                else if (compra.IdMoneda == 2)
+                {
+                    domain.SubTotalExcentoBase = domain.SubTotalExcentoBase * dolar;
+                    domain.SubTotalExcentoEuro = domain.SubTotalExcentoBase / euro;
+
+                    domain.SubTotalExcentoNetoBase = domain.SubTotalExcentoNetoBase * dolar;
+                    domain.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoBase / euro;
+
+                    domain.SubTotalGravadoBase = domain.SubTotalGravadoBase * dolar;
+                    domain.SubTotalGravadoEuro = domain.SubTotalGravadoBase / euro;
+
+                    domain.SubTotalGravadoNetoBase = domain.SubTotalGravadoNetoBase * dolar;
+                    domain.SubTotalGravadoNetoEuro = domain.SubTotalGravadoNetoBase / euro;
+
+
+                    domain.TotalIvabase = domain.TotalIvabase * dolar;
+                    domain.TotalIvaeuro = domain.TotalIvabase / euro;
+
+                    domain.TotalFabase = domain.TotalFabase * dolar;
+                    domain.TotalFaeuro = domain.TotalFabase / euro;
+
+                    domain.TotalBase = domain.TotalFabase * dolar;
+                    domain.TotalEuro = domain.TotalBase / euro;
+
+
+                    domain.TotalDescuentoBase = domain.TotalDescuentoBase * dolar;
+                    domain.TotalDescuentoEuro = domain.TotalDescuentoBase / euro;
+                }
+                else if (compra.IdMoneda == 3)
+                {
+
+                    domain.SubTotalExcentoBase = domain.SubTotalExcentoBase * euro;
+                    domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase / dolar;
+
+                    domain.SubTotalExcentoNetoBase = domain.SubTotalExcentoNetoBase * euro;
+                    domain.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoBase / dolar;
+
+                    domain.SubTotalGravadoBase = domain.SubTotalGravadoBase * euro;
+                    domain.SubTotalGravadoDolar = domain.SubTotalGravadoBase / dolar;
+
+                    domain.SubTotalGravadoNetoBase = domain.SubTotalGravadoNetoBase * euro;
+                    domain.SubTotalGravadoNetoDolar = domain.SubTotalGravadoNetoBase / dolar;
+
+
+                    domain.TotalIvabase = domain.TotalIvabase * euro;
+                    domain.TotalIvadolar = domain.TotalIvabase / dolar;
+
+
+                    domain.TotalFabase = domain.TotalFabase * euro;
+                    domain.TotalFadolar = domain.TotalFabase / dolar;
+
+                    domain.TotalBase = domain.TotalBase * euro;
+                    domain.TotalDolar = domain.TotalBase / dolar;
+
+                    domain.TotalDescuentoBase = domain.TotalDescuentoBase * euro;
+                    domain.TotalDescuentoDolar = domain.TotalDescuentoBase / dolar;
+                }
+
+                detalles.Add(domain);
+            }
+
+
+            service.UpdateCompraDetalle(detalles);
+
+        }
+    
 
         public IList<TbPrCompraDetalle> ViewModelToDomainCD(CompraViewModel viewModel)
         {
