@@ -19,6 +19,10 @@ namespace AltivaWebApp.Services
         {
             return repository.ExisteDocumento(numDoc, tipo, idProveedor);
         }
+        public TbPrCompra GetCompraByDocumento(string nDoc, string tipoDoc)
+        {
+            return repository.GetCompraByDocumento(nDoc, tipoDoc);
+        }
 
         public bool DeleteCompraDetalle(IList<int> domain, int idCompra)
         {

@@ -42,14 +42,17 @@ namespace AltivaWebApp.Controllers
         [Route("Nueva-Compra")]
         public ActionResult CrearCompra()
         {
+
             ViewData["proveedores"] = contactoService.GetAllProveedores();
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             ViewData["bodegas"] = bodegaService.GetAllActivas();
             var tipoCambio = monedaService.GetAll();
-            var model = new CompraViewModel();
-            model.TipoCambioDolar = tipoCambio.FirstOrDefault(m => m.Codigo == 2).ValorCompra;
-            model.TipoCambioEuro = tipoCambio.FirstOrDefault(m => m.Codigo == 3).ValorCompra;
-
+            var model = new CompraViewModel
+            {
+                TipoCambioDolar = tipoCambio.FirstOrDefault(m => m.Codigo == 2).ValorCompra,
+                TipoCambioEuro = tipoCambio.FirstOrDefault(m => m.Codigo == 3).ValorCompra
+            };
+            ViewData["monedas"] = tipoCambio;
             return View("CrearEditarCompra", model);
         }
 
@@ -60,6 +63,7 @@ namespace AltivaWebApp.Controllers
             ViewData["proveedores"] = contactoService.GetAllProveedores();
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             ViewData["bodegas"] = bodegaService.GetAllActivas();
+            ViewData["monedas"] = monedaService.GetAll();
             return View("CrearEditarCompra", compra);
         }
 
@@ -69,28 +73,44 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                if(!service.ExisteDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento, (int)viewModel.IdProveedor))
+
+
+
+                if (viewModel.Id != 0)
                 {
-                    if (viewModel.Id != 0)
+                    var compra = service.GetCompraByDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento);
+                    if (compra == null || compra.Id == viewModel.Id)
                     {
                         var orden = map.Update(viewModel);
                         if (viewModel.CompraDetalle != null && viewModel.CompraDetalle.Count() > 0)
                             map.CreateCD(viewModel);
+
+                        return Json(new { success = true });
                     }
                     else
+                        return Json(new { success = false });
+
+                }
+                else
+                {
+                    if (!service.ExisteDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento, (int)viewModel.IdProveedor))
                     {
                         viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                         var orden = map.Create(viewModel);
-                    }
 
-                    return Json(new { success = true });
+                        return Json(new { success = true });
+                    }
+                    else
+                        return Json(new { success = false });
                 }
-                else
-                    return Json(new { success = false });
+
+
+
 
             }
             catch
             {
+                throw;
                 return BadRequest();
             }
         }
@@ -177,7 +197,7 @@ namespace AltivaWebApp.Controllers
 
                 else
                     return Ok();
-                
+
             }
             catch
             {
@@ -191,8 +211,21 @@ namespace AltivaWebApp.Controllers
         public ActionResult GetCompraDetalle(int id)
         {
             try
-            {               
+            {
                 return Ok(service.GetAllCompraDetalleByCompraId(id));
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("Get-Bodegas")]
+        public ActionResult GetBodegas()
+        {
+            try
+            {
+                return Ok(bodegaService.GetAllActivas());
             }
             catch
             {

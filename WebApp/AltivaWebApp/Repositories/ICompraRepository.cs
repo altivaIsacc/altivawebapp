@@ -18,5 +18,6 @@ namespace AltivaWebApp.Repositories
         bool DeleteCompraDetalle(IList<int> domain, int idCompra);
         bool UpdateCompraDetalle(IList<TbPrCompraDetalle> domain);
         bool ExisteDocumento(string numDoc, string tipo, int idProveedor);
+        TbPrCompra GetCompraByDocumento(string nDoc, string tipoDoc);
     }
 }

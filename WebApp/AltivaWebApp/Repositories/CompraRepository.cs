@@ -47,6 +47,19 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+        public TbPrCompra GetCompraByDocumento(string nDoc, string tipoDoc)
+        {
+            try
+            {
+                return context.TbPrCompra.FirstOrDefault(c => c.NumeroDocumento == nDoc && c.TipoDocumento == tipoDoc);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public IList<TbPrCompraDetalle> GetAllCompraDetalleByCompraId(int id)
         {
             try

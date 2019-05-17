@@ -18,15 +18,15 @@ namespace AltivaWebApp.Domains
         public DateTime FechaCreacion { get; set; }
         public int IdUsuario { get; set; }
         public int IdMoneda { get; set; }
-        public double SubTotalGrabadoBase { get; set; }
-        public double SubTotalGrabadoDolar { get; set; }
-        public double SubTotalGrabadoEuro { get; set; }
+        public double SubTotalGravadoBase { get; set; }
+        public double SubTotalGravadoDolar { get; set; }
+        public double SubTotalGravadoEuro { get; set; }
         public double SubTotalExcentoBase { get; set; }
         public double SubTotalExcentoDolar { get; set; }
         public double SubTotalExcentoEuro { get; set; }
-        public double SubTotalGrabadoNetoBase { get; set; }
-        public double SubTotalGrabadoNetoDolar { get; set; }
-        public double SubTotalGrabadoNetoEuro { get; set; }
+        public double SubTotalGravadoNetoBase { get; set; }
+        public double SubTotalGravadoNetoDolar { get; set; }
+        public double SubTotalGravadoNetoEuro { get; set; }
         public double SubTotalExcentoNetoBase { get; set; }
         public double SubTotalExcentoNetoDolar { get; set; }
         public double SubTotalExcentoNetoEuro { get; set; }

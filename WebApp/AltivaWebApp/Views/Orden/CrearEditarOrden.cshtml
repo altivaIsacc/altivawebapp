@@ -242,6 +242,7 @@ else
             $proveedores.val(@Model.IdProveedor);
             GetComentarios("Orden", @Model.Id);
             date = new Date(formatearFecha());
+            $('.tipoMoneda').val('@Model.IdMoneda');
         }
 
         deshabilitaTipoCambio();
@@ -250,7 +251,7 @@ else
 
         $descuento.val(0);
         var d = parseFloat('@Model.TipoCambioDolar'.replace(',', '.'));
-        var e = parseFloat('@Model.TipoCambioDolar'.replace(',', '.'));
+        var e = parseFloat('@Model.TipoCambioEuro'.replace(',', '.'));
         $dolar.val(d);
         $euro.val(e);
 
@@ -473,8 +474,6 @@ else
         lineasAgregadas.push(model);
         lineas.push(model);
 
-        console.log(lineas);
-
         cargarTabla(lineas);
 
     }
@@ -495,7 +494,6 @@ else
 
                 lineas.splice(id, 1);
 
-                console.log(lineasAgregadas);
 
                 cargarTabla(lineas);
 
@@ -635,7 +633,7 @@ else
 
     function guardarOrden() {
 
-        crearModelo();
+        //crearModelo();
 
         $.ajax({
               type: "POST",
@@ -719,24 +717,23 @@ else
     }
 
     function crearModelo() {
-        var frmOrden = $('#frmOrden').serializeArray();
 
         var ordenModel = {
             id: @Model.Id,
             idProveedor: $proveedores.val(),
             fecha: $fecha.val(),
             idUsuario: 1,
-            Anulado: frmOrden[1].value,
-            IdMoneda: parseInt(frmOrden[6].value),
-            observacion: frmOrden[5].value,
+            Anulado: '@Model.Anulado',
+            IdMoneda: parseInt($('.tipoMoneda').val()),
+            observacion: $('#txtObservacion').val(),
             subTotalGrabado: subTotalGravado.toString().replace(".", ","),
             subTotalExcento: subTotalExcento.toString().replace(".", ","),
             subTotalNeto: subTotalNeto.toString().replace(".", ","),
             totalIva: totalImpuesto.toString().replace(".", ","),
             totalDescuento: totalDescuento.toString().replace(".", ","),
             total: totalOrden.toString().replace(".", ","),
-            tipoCambioDolar: frmOrden[2].value,
-            tipoCambioEuro: frmOrden[3].value,
+            tipoCambioDolar: $('#dolar').val().replace(".", ","),
+            tipoCambioEuro: $('#euro').val().replace(".", ","),
             ordenDetalle: crearModeloDetalle(lineasAgregadas)
 
         };
@@ -765,9 +762,9 @@ else
     }
 
     function validarForm() {
-        var frmOrden = $('#frmOrden').serializeArray();
+        //var frmOrden = $('#frmOrden').serializeArray();
 
-        if (frmOrden[5].value.replace(/ /g, "") === "") {
+        if ($('#txtObservacion').val().replace(/ /g, "") === "") {
             $('#observacionValid').attr("hidden", false);
             return false;
         }
