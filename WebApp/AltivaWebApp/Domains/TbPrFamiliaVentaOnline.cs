@@ -12,8 +12,8 @@ namespace AltivaWebApp.Domains
         }
 
         public long Id { get; set; }
-        public byte[] Descripcion { get; set; }
-        public DateTime? FechaCreacion { get; set; }
+        public string Descripcion { get; set; }
+        public DateTime FechaCreacion { get; set; }
         public long? IdUsuario { get; set; }
         public long? IdFamilia { get; set; }
 

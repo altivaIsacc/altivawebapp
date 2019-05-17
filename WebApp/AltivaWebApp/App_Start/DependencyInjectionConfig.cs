@@ -162,6 +162,11 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IFamiliaService, FamiliaService>();
             services.AddScoped<IFamiliaMap, FamiliaMap>();
 
+            //familiasOnline
+            services.AddScoped<IFamiliaOnlineRepository, FamiliaOnlineRepository>();
+            services.AddScoped<IFamiliaOnlineService, FamiliaOnlineService>();
+            services.AddScoped<IFamiliaOnlineMap, FamiliaOnlineMap>();
+
             //inventario
 
             services.AddScoped<IInventarioRepository, InventarioRepository>();
