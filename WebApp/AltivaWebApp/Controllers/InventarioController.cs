@@ -21,15 +21,17 @@ namespace AltivaWebApp.Controllers
         readonly IBodegaService bodegaService;
         readonly IUnidadService unidadService;
         readonly IFamiliaService familiaService;
+        readonly IFamiliaOnlineService familiaOnlineService;
         readonly IMonedaService monedaService;
         private readonly IStringLocalizer<SharedResources> _sharedLocalizer;
-        public InventarioController(IStringLocalizer<SharedResources> sharedLocalizer, IMonedaService monedaService, IFamiliaService familiaService, IUnidadService unidadService, IBodegaService bodegaService, IInventarioService service, IInventarioMap map)
+        public InventarioController(IStringLocalizer<SharedResources> sharedLocalizer, IMonedaService monedaService, IFamiliaService familiaService,IFamiliaOnlineService familiaOnlineService, IUnidadService unidadService, IBodegaService bodegaService, IInventarioService service, IInventarioMap map)
         {
             this.service = service;
             this.map = map;
             this.bodegaService = bodegaService;
             this.unidadService = unidadService;
             this.familiaService = familiaService;
+            this.familiaOnlineService = familiaOnlineService;
             this.monedaService = monedaService;
         }
 
@@ -315,5 +317,31 @@ namespace AltivaWebApp.Controllers
             }
             
         }
+
+        public IActionResult GetFamiliaOnline()
+        {
+            try
+            {
+                var familias = familiaOnlineService.GetAllFamilias();
+
+                foreach (var item in familias)
+                {
+                    foreach (var i in item.InverseIdFamiliaNavigation)
+                    {
+                        i.InverseIdFamiliaNavigation = null;
+                        i.IdFamiliaNavigation = null;
+                    }
+                }
+
+                return Ok(familias);
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+
+        }
+
     }
 }
