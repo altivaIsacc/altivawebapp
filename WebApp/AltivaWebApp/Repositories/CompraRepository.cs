@@ -73,14 +73,46 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public bool SaveCompraDetalle(IList<TbPrCompraDetalle> domain)
+        public TbPrCompraDetalle GetCompraDetalleById(long id)
         {
             try
             {
-                context.TbPrCompraDetalle.AddRange(domain);
+                return context.TbPrCompraDetalle.Include(c => c.IdCompraNavigation).FirstOrDefault(c => c.Id == id);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public TbPrCompraDetalle SaveCompraDetalle(TbPrCompraDetalle domain)
+        {
+            try
+            {
+                
+
+                if(!context.TbPrInventarioBodega.Any(i => i.IdInventario == domain.IdInventario && i.IdBodega == domain.IdBodega))
+                {
+                    var ib = new TbPrInventarioBodega {
+                        ExistenciaBodega = 0,
+                        CostoPromedioBodega = 0,
+                        IdBodega = domain.IdBodega,
+                        IdInventario = domain.IdInventario,
+                        ExistenciaMaxima = 3,
+                        ExistenciaMedia = 2,
+                        ExistenciaMinima = 1,
+                        SaldoBodega = 0,
+                        UltimoCostoBodega = 0
+                        
+                    };
+                    context.TbPrInventarioBodega.Add(ib);
+                }
+
+                context.TbPrCompraDetalle.Add(domain);
                 context.SaveChanges();
 
-                return true;
+                return domain;
             }
             catch (Exception)
             {
@@ -104,24 +136,12 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public bool DeleteCompraDetalle(IList<int> domain, int idCompra)
+        public bool DeleteCompraDetalle(int idCD)
         {
             try
             {
-                var cd = context.TbPrCompra.Include(o => o.TbPrCompraDetalle).FirstOrDefault(o => o.Id == idCompra);
-
-                var eliminados = new List<TbPrCompraDetalle>();
-
-                foreach (var item in cd.TbPrCompraDetalle)
-                {
-                    foreach (var i in domain)
-                    {
-                        if (item.Id == i)
-                            eliminados.Add(item);
-                    }
-                }
-
-                context.TbPrCompraDetalle.RemoveRange(eliminados);
+                var cd = context.TbPrCompraDetalle.FirstOrDefault(c => c.Id == idCD);
+                context.TbPrCompraDetalle.Remove(cd);
                 context.SaveChanges();
 
                 return true;

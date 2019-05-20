@@ -10,5 +10,9 @@ namespace AltivaWebApp.Mappers
     {
         bool CreateKardexAM(TbPrAjuste ajuste, int idAjuste);
         bool CreateKardexDeletedAM(TbPrAjuste domain);
+        bool CreateKardexCD(int idCompra);
+        bool CreateKardexEliminarCD(TbPrCompra domain);
+        bool CreateKardexCDSingle(int idCD);
+        bool CreateKardexEliminarCDSingle(int idCD);
     }
 }

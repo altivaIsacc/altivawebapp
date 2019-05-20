@@ -24,9 +24,9 @@ namespace AltivaWebApp.Services
             return repository.GetCompraByDocumento(nDoc, tipoDoc);
         }
 
-        public bool DeleteCompraDetalle(IList<int> domain, int idCompra)
+        public bool DeleteCompraDetalle(int idCD)
         {
-            return repository.DeleteCompraDetalle(domain, idCompra);
+            return repository.DeleteCompraDetalle(idCD);
         }
 
         public IList<TbPrCompraDetalle> GetAllCompraDetalleByCompraId(int id)
@@ -49,9 +49,14 @@ namespace AltivaWebApp.Services
             return repository.Save(domain);
         }
 
-        public bool SaveCompraDetalle(IList<TbPrCompraDetalle> domain)
+        public TbPrCompraDetalle SaveCompraDetalle(TbPrCompraDetalle domain)
         {
             return repository.SaveCompraDetalle(domain);
+        }
+
+        public TbPrCompraDetalle GetCompraDetalleById(long id)
+        {
+            return repository.GetCompraDetalleById(id);
         }
 
         public TbPrCompra Update(TbPrCompra domain)

@@ -11,10 +11,12 @@ namespace AltivaWebApp.Mappers
     {
         private readonly IKardexService service;
         private readonly IAjusteService ajusteService;
-        public KardexMap(IKardexService service, IAjusteService ajusteService)
+        private readonly ICompraService compraService;
+        public KardexMap(ICompraService compraService, IKardexService service, IAjusteService ajusteService)
         {
             this.service = service;
             this.ajusteService = ajusteService;
+            this.compraService = compraService;
         }
 
         public bool CreateKardexAM(TbPrAjuste ajuste, int idAjuste)
@@ -59,7 +61,7 @@ namespace AltivaWebApp.Mappers
                         flag = false;
                         break;
                     }
-                        
+
 
                     k.CostoMov = item.TotalMovimiento;
                     k.CostoPromedio = 0;//item.CostoPromedio;
@@ -91,7 +93,7 @@ namespace AltivaWebApp.Mappers
                 service.SaveAll(kardex);
 
             return flag;
-            
+
         }
 
         public bool CreateKardexDeletedAM(TbPrAjuste domain)
@@ -176,6 +178,206 @@ namespace AltivaWebApp.Mappers
             else
                 return false;
         }
+
+        ///////////////////////////Compras
+        ///
+        public bool CreateKardexCD(int idCompra)
+        {
+            var domain = compraService.GetCompraById(idCompra);
+            var kardex = new List<TbPrKardex>();
+            var cd = new List<TbPrCompraDetalle>();
+
+
+
+
+            foreach (var item in domain.TbPrCompraDetalle)
+            {
+                var k = new TbPrKardex
+                {
+                    CantidadMov = item.Cantidad,
+                    CostoPromedio = 0,
+                    CostoMov = item.SubTotalExcentoBase + item.SubTotalGravadoBase,
+                    Fecha = DateTime.Now,
+                    ExistAct = item.IdInventarioNavigation.ExistenciaGeneral + item.Cantidad,
+                    ExistAnt = item.IdInventarioNavigation.ExistenciaGeneral,
+                    ExistActBod = 0,
+                    ExistAntBod = 0,
+                    IdBodegaDestino = item.IdBodega,
+                    IdBodegaOrigen = item.IdBodega,
+                    IdDocumento = domain.Id,
+                    IdUsuario = domain.IdUsuario,
+                    IdMoneda = domain.IdMoneda,
+                    Observaciones = "N/A",
+                    PrecioPromedio = 0,
+                    PrecioUnit = item.PrecioUnitario,
+                    IdInventario = item.IdInventario,
+                    TipoDocumento = "CD",
+                    SaldoFinal = 0
+                };
+
+                kardex.Add(k);
+
+            }
+
+
+
+            try
+            {
+                service.SaveAll(kardex);
+                return true;
+            }
+            catch (Exception)
+            {
+                return true;
+                throw;
+            }
+
+        }
+
+        public bool CreateKardexCDSingle(int idCD)
+        {
+            var item = compraService.GetCompraDetalleById(idCD);
+
+
+            var k = new TbPrKardex
+            {
+                CantidadMov = item.Cantidad,
+                CostoPromedio = 0,
+                CostoMov = item.SubTotalExcentoBase + item.SubTotalGravadoBase,
+                Fecha = DateTime.Now,
+                ExistAct = 0,
+                ExistAnt = 0,
+                ExistActBod = 0,
+                ExistAntBod = 0,
+                IdBodegaDestino = item.IdBodega,
+                IdBodegaOrigen = item.IdBodega,
+                IdDocumento = item.IdCompraNavigation.Id,
+                IdUsuario = item.IdCompraNavigation.IdUsuario,
+                IdMoneda = item.IdCompraNavigation.IdMoneda,
+                Observaciones = "N/A",
+                PrecioPromedio = 0,
+                PrecioUnit = item.PrecioUnitario,
+                IdInventario = item.IdInventario,
+                TipoDocumento = "CD",
+                SaldoFinal = 0
+            };
+
+
+
+
+            try
+            {
+                service.Save(k);
+                return true;
+            }
+            catch (Exception)
+            {
+                return true;
+                throw;
+            }
+
+        }
+
+
+        public bool CreateKardexEliminarCD(TbPrCompra domain)
+        {
+            //var domain = compraService.GetCompraById(idCompra);
+            var kardex = new List<TbPrKardex>();
+
+
+            foreach (var item in domain.TbPrCompraDetalle)
+            {
+
+                var k = new TbPrKardex
+                {
+                    CantidadMov = item.Cantidad * -1,
+                    CostoPromedio = 0,
+                    CostoMov = item.SubTotalExcentoBase + item.SubTotalGravadoBase,
+                    Fecha = DateTime.Now,
+                    ExistAct = 0,
+                    ExistAnt = 0,
+                    ExistActBod = 0,
+                    ExistAntBod = 0,
+                    IdBodegaDestino = item.IdBodega,
+                    IdBodegaOrigen = item.IdBodega,
+                    IdDocumento = domain.Id,
+                    IdUsuario = domain.IdUsuario,
+                    IdMoneda = domain.IdMoneda,
+                    Observaciones = "N/A",
+                    PrecioPromedio = 0,
+                    PrecioUnit = item.PrecioUnitario,
+                    IdInventario = item.IdInventario,
+                    TipoDocumento = "CD",
+                    SaldoFinal = 0
+                };
+
+                kardex.Add(k);
+
+
+            }
+
+            try
+            {
+                service.SaveAll(kardex);
+                return true;
+            }
+            catch (Exception)
+            {
+                return true;
+                throw;
+            }
+
+
+
+
+        }
+
+
+        public bool CreateKardexEliminarCDSingle(int idCD)
+        {
+            var item = compraService.GetCompraDetalleById(idCD);
+            var kardex = new List<TbPrKardex>();
+
+
+            var k = new TbPrKardex
+            {
+                CantidadMov = item.Cantidad * -1,
+                CostoPromedio = 0,
+                CostoMov = item.SubTotalExcentoBase + item.SubTotalGravadoBase,
+                Fecha = DateTime.Now,
+                ExistAct = 0,
+                ExistAnt = 0,
+                ExistActBod = 0,
+                ExistAntBod = 0,
+                IdBodegaDestino = item.IdBodega,
+                IdBodegaOrigen = item.IdBodega,
+                IdDocumento = item.IdCompraNavigation.Id,
+                IdUsuario = item.IdCompraNavigation.IdUsuario,
+                IdMoneda = item.IdCompraNavigation.IdMoneda,
+                Observaciones = "N/A",
+                PrecioPromedio = 0,
+                PrecioUnit = item.PrecioUnitario,
+                IdInventario = item.IdInventario,
+                TipoDocumento = "CD",
+                SaldoFinal = 0
+            };
+
+            try
+            {
+                service.Save(k);
+                return true;
+            }
+            catch (Exception)
+            {
+                return true;
+                throw;
+            }
+
+
+
+
+        }
+
 
 
     }

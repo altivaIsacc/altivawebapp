@@ -139,7 +139,7 @@ else
                     <td>
                         <select class="form-control" id="bodega"></select>
                     </td>
-                    <td><button @estado class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button></td>
+                    <td><button @estado class="btn btn-link btnAccion" onclick="guardarCambios()"><i class="fas fa-save"></i></button></td>
                 </tr>
             </tbody>
         </table>
@@ -181,7 +181,6 @@ else
 
 <script>
 
-    var borrador = '';
 
     ///linea
     var $item = $('#item');
@@ -205,6 +204,9 @@ else
     var $totalImpuesto = $('#totalImpuesto');
     var $totalDescuento = $('#totalDescuento');
     var $total = $('#total');
+    var $numDocumento = $('#numDocumento');
+    var $tipoDocumento = $('#tipoDocumento');
+    
 
     //resumen
     var subTotalExcento = 0;
@@ -234,7 +236,6 @@ else
 
         deshabilitaTipoCambio();
 
-         borrador = '@Model.Borrador';
 
         $descuento.val(0);
         var d = parseFloat('@Model.TipoCambioDolar'.replace(',', '.'));
@@ -317,6 +318,7 @@ else
             $dolar.attr('disabled', false);
             $euro.attr('disabled', false);
         }
+
     }
 
     //////ajax////////////////////////////////////////////////////////////////////////
@@ -395,7 +397,9 @@ else
     }
 
     function guardarCompra() {
-        
+        if (lineas.length <= 0) {
+            cargarAlert('@SharedLocalizer["compraSinDetalle"]');
+        } else
         $.ajax({
               type: "POST",
               headers: {
@@ -408,6 +412,7 @@ else
                 //if (lineasEliminadas.length > 0)
                 //    eliminarOrdenDetalle();
                 cargarTabla(lineas);
+                //guardarLinea();
                 if(@Model.Id === 0){
 
                     var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
@@ -424,51 +429,60 @@ else
 
     }
 
-    function eliminarOrdenDetalle() {
-
-
+     function guardarCompraBorrador() {
+        if (lineas.length <= 0) {
+            cargarAlert('@SharedLocalizer["compraSinDetalle"]');
+        } else
         $.ajax({
-            type: "POST",
-            headers: {
-                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-            },
-            dataType: "json",
-            url: '@Url.Action("EliminarOrdenDetalle", new { id = Model.Id })',
-            data: { viewModel: lineasEliminadas },
+              type: "POST",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("CambiarEstadoBorradorCompra")',
+            data: crearModelo(),
             success: function (data) {
-               // console.log(data);
+                @*window.location.href = "@Url.Action("ListarCompras")";*@                           
                },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
                   console.log(err.statusText);
               }
-          });
-    }
-
-    function guardarSalir() {
-        @*if('@Model.Borrador' != "False")
-            $.ajax({
-                type: "get",
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                dataType: "json",
-                url: '@Url.Action("CambiarEstadoBorradorCompra" , new { id = Model.Id})',
-
-                success: function (data) {
-
-                    window.location.href = "@Url.Action("ListarCompras")";
-                },
-                error: function (err, scnd) {
-                cargarAlert('@SharedLocalizer["errorGeneral"]');
-                }
-            });
-        else*@
-        borrador = false;
-        guardarCambios();
-        window.location.href = "@Url.Action("ListarCompras")";  
+        });
 
     }
+
+    function eliminarCompraDetalle(_id, idLinea) {
+
+        bootbox.confirm("@SharedLocalizer["confirmEliminarLinea"]", function (result) {
+
+            if (result) {
+
+                $.ajax({
+                    type: "POST",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    dataType: "json",
+                    url: '@Url.Action("EliminarCompraDetalle")',
+                    data: { idCD: idLinea },
+                    success: function (data) {
+                        eliminarLinea(_id, idLinea);
+                    },
+                    error: function (err, scnd) {
+                        cargarAlert('@SharedLocalizer["errorGeneral"]');
+                        console.log(err.statusText);
+                    }
+                });
+
+            }
+
+        });
+
+        
+    }
+
+    
 
 
 
@@ -477,21 +491,37 @@ else
 
     function guardarCambios() {
 
-        if (validarForm())
+        if (validarForm()) {
+            guardarLinea();
             guardarCompra();
+        }
+            
         
-    }    
+    }   
+
+    function guardarSalir() {
+
+
+        if (validarForm()) {
+
+            guardarLinea();
+
+            if ('@Model.Borrador' === 'True')
+                guardarCompraBorrador();
+            else
+                guardarCompra();
+        }       
+
+        window.location.href = "@Url.Action("ListarCompras")";  
+
+    }
 
     function validarForm() {
 
         if ($('#numDocumento').val().replace(/ /g, "") === "") {
             $('#numDocumentoValid').attr("hidden", false);
             return false;
-        }
-        else if (lineas.length <= 0) {
-            cargarAlert('@SharedLocalizer["compraSinDetalle"]');
-            return false;
-        }
+        }       
 
         return true;
     }
@@ -504,12 +534,12 @@ else
             id: @Model.Id,
             idProveedor: $proveedores.val(),
             fechaDocumento: $fecha.val(),
-            tipoDocumento: frmCompra[6].value,
-            numeroDocumento: frmCompra[5].value,
+            tipoDocumento: $tipoDocumento.val(),
+            numeroDocumento: $numDocumento.val(),
             idUsuario: 1,
-            Anulado: frmCompra[1].value,
-            borrador: borrador,
-            idMoneda: parseInt(frmCompra[8].value),
+            Anulado: '@Model.Anulado',
+            borrador: '@Model.Borrador',
+            idMoneda: parseInt($('.tipoMoneda').val()),
             subTotalGravado: subTotalGravado.toString().replace(".", ","),
             subTotalExcento: subTotalExcento.toString().replace(".", ","),
             subTotalGravadoNeto: subTotalGravadoNeto.toString().replace(".", ","),
@@ -517,8 +547,8 @@ else
             totalIva: totalImpuesto.toString().replace(".", ","),
             totalDescuento: totalDescuento.toString().replace(".", ","),
             total: totalCompra.toString().replace(".", ","),
-            tipoCambioDolar: frmCompra[9].value,
-            tipoCambioEuro: frmCompra[10].value,
+            tipoCambioDolar: $dolar.val(),
+            tipoCambioEuro: $euro.val(),
             compraDetalle: crearModeloDetalle(lineasAgregadas)
 
         };
@@ -616,9 +646,9 @@ else
         lineasAgregadas.push(model);
         lineas.push(model);
 
-        calcularTotales();
-        guardarCambios();
         //cargarTabla(lineas);
+        calcularTotales();
+        
 
     }   
 
@@ -626,26 +656,19 @@ else
 
     function eliminarLinea(_id, idLinea) {
 
-        bootbox.confirm("@SharedLocalizer["confirmEliminarLinea"]", function (result) {
+        
 
-            if (result) {
+        var id = _id - 1;
+        if (idLinea != 0)
+            lineasEliminadas.push(lineas[id].id);
+        else
+            lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
 
-                var id = _id - 1;
+        lineas.splice(id, 1);
 
+        calcularTotales();
+        cargarTabla(lineas);
 
-                if (idLinea != 0)
-                    lineasEliminadas.push(lineas[id].id);
-                else
-                    lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
-
-                lineas.splice(id, 1);
-
-                cargarTabla(lineas);
-
-
-            }
-
-        });
 
 
     }
@@ -673,12 +696,12 @@ else
                 + '<td style="padding-top:2rem;">' + data[i].porcIva + '%</td>'
                 + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(subtotal) + '</td>'
                 + '<td style="padding-top:2rem;">' + data[i].bodega + ' </td>'
-                + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarCompraDetalle(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
 
             $('.lineaForm').before(body);
 
         }
-
+        //data[i].precioUnitario)
         //calcularTotales();
         var simbolo = "₡";
         if (parseInt($('.tipoMoneda').val()) === 2)
@@ -951,6 +974,7 @@ else
 
         $('#item').trigger('change.select2');
         cargarTabla(lineas);
+        calcularTotales();
 
     }
 
@@ -964,9 +988,9 @@ else
 
         var euro = parseFloat($euro.val());
 
+        alert(item.idMonedaCD);
 
-
-        if (moneda === 1 && item.idMonedaOD === 1)
+        if (moneda === 1 && item.idMonedaCD === 1)
             return item.precioUnitario;
         else if (moneda === 1 && item.idMonedaCD === 2)
             return item.precioUnitario * dolar;

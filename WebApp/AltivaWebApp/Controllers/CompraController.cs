@@ -21,7 +21,8 @@ namespace AltivaWebApp.Controllers
         private readonly ICompraMap map;
         private readonly IUserService userService;
         private readonly IBodegaService bodegaService;
-        public CompraController(IBodegaService bodegaService, IUserService userService, ICompraMap map, IInventarioService inventarioService, IMonedaService monedaService, ICompraService service, IContactoService contactoService)
+        private readonly IKardexMap kardexMap;
+        public CompraController(IKardexMap kardexMap, IBodegaService bodegaService, IUserService userService, ICompraMap map, IInventarioService inventarioService, IMonedaService monedaService, ICompraService service, IContactoService contactoService)
         {
             this.service = service;
             this.contactoService = contactoService;
@@ -30,6 +31,7 @@ namespace AltivaWebApp.Controllers
             this.map = map;
             this.userService = userService;
             this.bodegaService = bodegaService;
+            this.kardexMap = kardexMap;
         }
 
         // GET: Compra
@@ -82,7 +84,12 @@ namespace AltivaWebApp.Controllers
                     {
                         var orden = map.Update(viewModel);
                         if (viewModel.CompraDetalle != null && viewModel.CompraDetalle.Count() > 0)
-                            map.CreateCD(viewModel);
+                        {
+                            var cd = map.CreateCD(viewModel);
+                            if(!viewModel.Borrador)
+                                kardexMap.CreateKardexCDSingle((int)cd.Id);
+                        }
+                            
 
                         return Json(new { success = true });
                     }
@@ -96,6 +103,8 @@ namespace AltivaWebApp.Controllers
                     {
                         viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                         var compra = map.Create(viewModel);
+                        if(!compra.Borrador)
+                            kardexMap.CreateKardexCD((int)compra.TbPrCompraDetalle.FirstOrDefault().Id);
 
                         return Json(new { success = true, idCompra =  compra.Id});
                     }
@@ -109,24 +118,20 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
-                //throw;
-                return BadRequest();
+                throw;
+                //return BadRequest();
             }
         }
 
-
-        [HttpGet("CambiarEstado-Compra/{id}")]
+        [HttpPost("CambiarEstado-Compra")]
         public ActionResult CambiarEstadoCompra(int id)
         {
             try
             {
-                var orden = service.GetCompraById(id);
-                if (orden.Anulado)
-                    orden.Anulado = false;
-                else
-                    orden.Anulado = true;
-
-                orden = service.Update(orden);
+                var compra = service.GetCompraById(id);
+                compra.Anulado = true;
+                kardexMap.CreateKardexEliminarCD(compra);
+                compra = service.Update(compra);
                 return Json(new { success = true });
             }
             catch (Exception)
@@ -135,14 +140,14 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        [HttpGet("CambiarEstadoBorrador-Compra/{id}")]
-        public ActionResult CambiarEstadoBorradorCompra(int id)
+        [HttpPost("CambiarEstadoBorrador-Compra")]
+        public ActionResult CambiarEstadoBorradorCompra(CompraViewModel viewModel)
         {
             try
             {
-                var compra = service.GetCompraById(id);
-                compra.Borrador = false;
-                var res = service.Update(compra);
+                viewModel.Borrador = false;
+                var compra = map.Update(viewModel);
+                kardexMap.CreateKardexCD((int)compra.Id);
                 return Json(new { success = true });
             }
             catch (Exception)
@@ -184,14 +189,15 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        [HttpPost("Eliminar-CompraDetalle/{id}")]
-        public ActionResult EliminarCompraDetalle(IList<int> viewModel, int id)
+        [HttpPost("Eliminar-CompraDetalle")]
+        public ActionResult EliminarCompraDetalle(int idCD)
         {
             try
             {
-                var res = service.DeleteCompraDetalle(viewModel, id);
+                kardexMap.CreateKardexCDSingle(idCD);
+                var res = service.DeleteCompraDetalle(idCD);            
 
-                return Json(new { success = true });
+                return Json(new { success = res });
             }
             catch
             {

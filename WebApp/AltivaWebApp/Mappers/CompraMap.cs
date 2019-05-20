@@ -10,10 +10,12 @@ namespace AltivaWebApp.Mappers
     public class CompraMap: ICompraMap
     {
         private readonly ICompraService service;
+        private readonly IKardexMap kardexMap;
 
-        public CompraMap(ICompraService service)
+        public CompraMap(IKardexMap kardexMap, ICompraService service)
         {
             this.service = service;
+            this.kardexMap = kardexMap;
         }
 
         public TbPrCompra Create(CompraViewModel viewModel)
@@ -26,9 +28,10 @@ namespace AltivaWebApp.Mappers
             return service.Update(ViewModelToDomainEdit(viewModel));
         }
 
-        public bool CreateCD(CompraViewModel viewModel)
+        public TbPrCompraDetalle CreateCD(CompraViewModel viewModel)
         {
-            return service.SaveCompraDetalle(ViewModelToDomainCD(viewModel));
+            return service.SaveCompraDetalle(ViewModelToDomainCD(viewModel)[0]);
+            
         }
 
         public bool UpdateCD(CompraViewModel viewModel)
@@ -230,9 +233,8 @@ namespace AltivaWebApp.Mappers
 
         public TbPrCompra ViewModelToDomainEdit(CompraViewModel viewModel)
         {
-
+            
             var domain = service.GetCompraById((int)viewModel.Id);
-
             
             domain.IdMoneda = viewModel.IdMoneda;
             domain.IdContacto = viewModel.IdProveedor;
@@ -250,6 +252,8 @@ namespace AltivaWebApp.Mappers
                 domain.TipoCambioDolar = viewModel.TipoCambioDolar;
                 domain.TipoCambioEuro = viewModel.TipoCambioEuro;
                 UpdateTotales(domain);
+                kardexMap.CreateKardexEliminarCD(domain);
+                kardexMap.CreateKardexCD((int)domain.Id);
             }
 
             
@@ -362,7 +366,6 @@ namespace AltivaWebApp.Mappers
                 domain.TotalDescuentoDolar = domain.TotalDescuentoBase / domain.TipoCambioDolar;
                 domain.TotalEuro = viewModel.TotalDescuento;
             }
-
             return domain;
 
         }
@@ -467,6 +470,8 @@ namespace AltivaWebApp.Mappers
 
             service.UpdateCompraDetalle(detalles);
 
+            
+
         }
     
 
@@ -491,9 +496,9 @@ namespace AltivaWebApp.Mappers
                 IdCompra = viewModel.IdCompra,
                 PorcFa = viewModel.PorcFa,
                 PorcDescuento = viewModel.PorcDescuento,
-                IdBodega = viewModel.IdBodega,
-                PrecioUnitario = viewModel.PrecioUnitario,
-                PorcIva = viewModel.PorcIva
+                IdBodega = viewModel.IdBodega,               
+                PorcIva = viewModel.PorcIva,
+                PrecioUnitario = viewModel.PrecioUnitario
                 
             };
 
@@ -502,6 +507,7 @@ namespace AltivaWebApp.Mappers
 
             if (viewModel.IdMonedaCD == 1)
             {
+
                 domain.SubTotalExcentoBase = viewModel.SubTotalExcento;
                 domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase / dolar;
                 domain.SubTotalExcentoEuro = domain.SubTotalExcentoBase / euro;
@@ -540,6 +546,8 @@ namespace AltivaWebApp.Mappers
             }
             else if (viewModel.IdMonedaCD == 2)
             {
+
+
                 domain.SubTotalExcentoBase = viewModel.SubTotalExcento * dolar;
                 domain.SubTotalExcentoDolar = viewModel.SubTotalExcento;
                 domain.SubTotalExcentoEuro = domain.SubTotalExcentoBase / euro;
@@ -576,6 +584,8 @@ namespace AltivaWebApp.Mappers
             }
             else if (viewModel.IdMonedaCD == 3)
             {
+
+
 
                 domain.SubTotalExcentoBase = viewModel.SubTotalExcento * euro;
                 domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase / dolar;

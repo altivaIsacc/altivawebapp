@@ -13,11 +13,11 @@ namespace AltivaWebApp.Services
         IList<TbPrCompra> GetAllCompras();
         TbPrCompra GetCompraById(int id);
         IList<TbPrCompraDetalle> GetAllCompraDetalleByCompraId(int id);
-        bool SaveCompraDetalle(IList<TbPrCompraDetalle> domain);
-        bool DeleteCompraDetalle(IList<int> domain, int idCompra);
+        TbPrCompraDetalle SaveCompraDetalle(TbPrCompraDetalle domain);
+        bool DeleteCompraDetalle(int idCD);
         bool UpdateCompraDetalle(IList<TbPrCompraDetalle> domain);
         bool ExisteDocumento(string numDoc, string tipo, int idProveedor);
         TbPrCompra GetCompraByDocumento(string nDoc, string tipoDoc);
-
+        TbPrCompraDetalle GetCompraDetalleById(long id);
     }
 }
