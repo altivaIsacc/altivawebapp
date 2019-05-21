@@ -3753,7 +3753,6 @@ namespace AltivaWebApp.Context
                     .HasDefaultValueSql("(getdate())");
 
                 entity.Property(e => e.Notas)
-                    .IsRequired()
                     .HasMaxLength(500)
                     .IsUnicode(false)
                     .HasDefaultValueSql("(' ')");

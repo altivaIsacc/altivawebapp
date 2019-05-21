@@ -22,5 +22,6 @@ namespace AltivaWebApp.Services
         bool DeleteEquivalencia(int id);
         IList<TbPrEquivalencia> GetEquivalenciasPorInventario(int idInventario);
         bool ExisteEquivalencia(TbPrEquivalencia domain);
+        void CrearRelacionInventarioBodega(int idInventario, int idBodega);
     }
 }

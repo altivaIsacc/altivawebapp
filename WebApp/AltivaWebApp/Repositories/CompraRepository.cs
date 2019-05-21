@@ -92,7 +92,7 @@ namespace AltivaWebApp.Repositories
             {
                 
 
-                if(!context.TbPrInventarioBodega.Any(i => i.IdInventario == domain.IdInventario && i.IdBodega == domain.IdBodega))
+                if(!ExisteRelacionInventarioBodega(domain.IdInventario, domain.IdBodega))
                 {
                     var ib = new TbPrInventarioBodega {
                         ExistenciaBodega = 0,
@@ -120,6 +120,10 @@ namespace AltivaWebApp.Repositories
                 throw;
             }
         }
+        public bool ExisteRelacionInventarioBodega(long idInventario, long idBodega)
+        {
+            return context.TbPrInventarioBodega.Any(i => i.IdInventario == idInventario && i.IdBodega == idBodega);
+        }
         public bool UpdateCompraDetalle(IList<TbPrCompraDetalle> domain)
         {
             try
@@ -136,12 +140,12 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public bool DeleteCompraDetalle(int idCD)
+        public bool DeleteCompraDetalle(TbPrCompraDetalle domain)
         {
             try
             {
-                var cd = context.TbPrCompraDetalle.FirstOrDefault(c => c.Id == idCD);
-                context.TbPrCompraDetalle.Remove(cd);
+                //var cd = context.TbPrCompraDetalle.FirstOrDefault(c => c.Id == idCD);
+                context.TbPrCompraDetalle.Remove(domain);
                 context.SaveChanges();
 
                 return true;

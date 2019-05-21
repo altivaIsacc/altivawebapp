@@ -3,24 +3,32 @@ using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 
 namespace AltivaWebApp.Mappers
 {
     public class CompraMap: ICompraMap
     {
         private readonly ICompraService service;
+        private readonly IInventarioService inventarioService;
         private readonly IKardexMap kardexMap;
 
-        public CompraMap(IKardexMap kardexMap, ICompraService service)
+        public CompraMap(IInventarioService inventarioService, IKardexMap kardexMap, ICompraService service)
         {
             this.service = service;
             this.kardexMap = kardexMap;
+            this.inventarioService = inventarioService;
         }
 
         public TbPrCompra Create(CompraViewModel viewModel)
         {
-            return service.Save(ViewModelToDomain(viewModel));
+            var compra = service.Save(ViewModelToDomain(viewModel));
+            var cd = compra.TbPrCompraDetalle.First();
+            if (cd != null)
+                if (!service.ExisteRelacionInventarioBodega(cd.IdInventario, cd.IdBodega))
+                    inventarioService.CrearRelacionInventarioBodega((int)cd.IdInventario, (int)cd.IdBodega);
+                
+            return compra;
         }
 
         public TbPrCompra Update(CompraViewModel viewModel)

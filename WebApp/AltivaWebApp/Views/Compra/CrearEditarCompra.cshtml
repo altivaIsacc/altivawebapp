@@ -32,6 +32,17 @@ else
 }
 
 <hr />
+
+<div class="row">
+    @if (Model.Id != 0 && !Model.Anulado)
+    {
+        <div class="col-md-12 text-right"><button class="btn btn-danger btn-sm" onclick="anularCompra()">@SharedLocalizer["Anular"]</button></div>
+    }
+    else if (Model.Id != 0)
+    {
+        <div class="col-md-12 text-left"><h4 class="text-danger">@SharedLocalizer["CompraAnulada"]</h4></div>
+    }
+</div>
 <div class="row well">
 
     <form id="frmCompra">
@@ -94,9 +105,9 @@ else
 
             <div class="form-group col-md-6 col-sm-6 col-xs-12">
                 <label class="control-label">@SharedLocalizer["Dolar"]</label>
-                <input id="dolar" asp-for="TipoCambioDolar" class="form-control moneda" />
+                <input  id="dolar" asp-for="TipoCambioDolar" class="form-control moneda"  />
                 <label class="control-label">@SharedLocalizer["Euro"]</label>
-                <input id="euro" asp-for="TipoCambioEuro"  class="form-control moneda" />
+                <input id="euro" asp-for="TipoCambioEuro" class="form-control moneda" />
             </div>
 
         </div>
@@ -109,7 +120,7 @@ else
     </form>
 
     <div class="table-responsive">
-        <table class="table table-bordered table-striped" id="tblOrdenCompra" style="min-width:1200px">
+        <table class="table table-bordered table-striped" id="tblCompra" style="min-width:1200px">
             <thead>
                 <tr>
                     <th style="width:14%"><span>@SharedLocalizer["Item"]</span></th>
@@ -176,8 +187,20 @@ else
         </div>
     </div>
 </div>
+<div class="row">
+    <div class="col-md-12">
+        <div id="comentarios">
+
+        </div>
+    </div>
+</div>
 
 <input readonly hidden id="monedaFormater" />
+<div hidden><input hidden id="formater" class="currency" type="text" /></div>
+
+<script src="~/js/comentario.js"></script>
+<script src="~/js/base64ImageCreator.js"></script>
+
 
 <script>
 
@@ -206,7 +229,7 @@ else
     var $total = $('#total');
     var $numDocumento = $('#numDocumento');
     var $tipoDocumento = $('#tipoDocumento');
-    
+
 
     //resumen
     var subTotalExcento = 0;
@@ -232,7 +255,9 @@ else
             $proveedores.val(@Model.IdProveedor);
             GetComentarios("Compra", @Model.Id);
             date = new Date(formatearFecha());
-        }
+         }
+
+         
 
         deshabilitaTipoCambio();
 
@@ -251,7 +276,9 @@ else
         $(".moneda").inputmask({
             'alias': 'decimal',
             rightAlign: true,
-        });
+         });
+
+         $('input, select').attr('disabled', '@estado');
 
         $(".numerico").inputmask({
             'alias': 'decimal',
@@ -332,20 +359,20 @@ else
               dataType: "json",
               url: '@Url.Action("GetBodegas")',
              success: function (data) {
-                 
+
                  bodegas = data;
 
                  for (var i = 0; i < data.length; i++) {
                      if (data[i].almacenamiento) {
                          var o = new Option(data[i].nombre, data[i].id);
                          $("#bodega").append(o);
-                     }                  
+                     }
 
                  }
 
                  $("#bodega").trigger('change');
 
-                 
+
               },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -363,7 +390,7 @@ else
               },
               dataType: "json",
               url: '@Url.Action("GetAllInventario", "Inventario")',
-             success: function (data) {               
+             success: function (data) {
                  items = data;
                  cargarItems(data);
                  getCompraDetalle()
@@ -388,7 +415,6 @@ else
             success: function (data) {
                 compraDetalleBD = JSON.parse(JSON.stringify(data));
                 cargarLineas(data);
-                console.log(data);
                },
             error: function (err, scnd) {
                cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -397,9 +423,9 @@ else
     }
 
     function guardarCompra() {
-        if (lineas.length <= 0) {
+        @*if (lineas.length <= 0) {
             cargarAlert('@SharedLocalizer["compraSinDetalle"]');
-        } else
+        } else*@
         $.ajax({
               type: "POST",
               headers: {
@@ -409,17 +435,18 @@ else
             url: '@Url.Action("CrearEditarCompra")',
             data: crearModelo(),
             success: function (data) {
-                //if (lineasEliminadas.length > 0)
-                //    eliminarOrdenDetalle();
+
+                lineas[lineas.length - 1].id = data.idCD;
+                lineasAgregadas[lineasAgregadas.length -1 ].id = data.idCD;
                 cargarTabla(lineas);
-                //guardarLinea();
+
                 if(@Model.Id === 0){
 
                     var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
-                    window.location.href = url.replace("__id__", data.idCompra);            
+                    window.location.href = url.replace("__id__", data.idCompra);
 
                 }
-                
+
                },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -442,7 +469,7 @@ else
             url: '@Url.Action("CambiarEstadoBorradorCompra")',
             data: crearModelo(),
             success: function (data) {
-                @*window.location.href = "@Url.Action("ListarCompras")";*@                           
+                @*window.location.href = "@Url.Action("ListarCompras")";*@
                },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -453,6 +480,7 @@ else
     }
 
     function eliminarCompraDetalle(_id, idLinea) {
+
 
         bootbox.confirm("@SharedLocalizer["confirmEliminarLinea"]", function (result) {
 
@@ -479,10 +507,49 @@ else
 
         });
 
-        
+
     }
 
-    
+    function anularCompra() {
+        bootbox.prompt({
+            title: "@SharedLocalizer["confirmAnularCompra"]",
+            message: '<p>@SharedLocalizer["Justificación"]</p>',
+            inputType: 'textarea',
+            callback: function (result) {
+                if (result != null) {
+
+                    if (result.replace(/ /g, "") != "") {
+
+
+                    $.ajax({
+                        type: "post",
+                        headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        dataType: "json",
+                        url: '@Url.Action("CambiarEstadoCompra")',
+                        data: {id: @Model.Id},
+                        success: function (data) {
+                            setMensajeFromOut(result);
+                            cargarAlert('@SharedLocalizer["CompraAnuladaMSJ"]');
+                            window.location.href = "@Url.Action("ListarCompras")";
+
+                        },
+                        error: function (err, scnd) {
+                            cargarAlert('@SharedLocalizer["errorGeneral"]');
+                            console.log(err.statusText);
+                        }
+                    });
+
+                }
+                else
+                    cargarAlert('@SharedLocalizer["JustificacionInvalida"]');
+                }
+
+            }
+        });
+    }
+
 
 
 
@@ -495,9 +562,9 @@ else
             guardarLinea();
             guardarCompra();
         }
-            
-        
-    }   
+
+
+    }
 
     function guardarSalir() {
 
@@ -510,9 +577,9 @@ else
                 guardarCompraBorrador();
             else
                 guardarCompra();
-        }       
+        }
 
-        window.location.href = "@Url.Action("ListarCompras")";  
+        window.location.href = "@Url.Action("ListarCompras")";
 
     }
 
@@ -521,14 +588,14 @@ else
         if ($('#numDocumento').val().replace(/ /g, "") === "") {
             $('#numDocumentoValid').attr("hidden", false);
             return false;
-        }       
+        }
 
         return true;
     }
 
     function crearModelo() {
         var frmCompra = $('#frmCompra').serializeArray();
-        
+
 
         var ordenModel = {
             id: @Model.Id,
@@ -553,7 +620,6 @@ else
 
         };
 
-        console.log(ordenModel);
         return ordenModel;
     }
     function crearModeloDetalle(model) {
@@ -577,7 +643,7 @@ else
 
         return model;
     }
-    
+
 
     function cargarLineas(data) {
 
@@ -613,7 +679,7 @@ else
         calcularTotales();
 
     }
-    
+
 
     function guardarLinea() {
 
@@ -642,28 +708,28 @@ else
             bodega: getBodegaItem($bodega.val()).nombre
         };
 
+        lineasAgregadas = [];
 
         lineasAgregadas.push(model);
         lineas.push(model);
 
         //cargarTabla(lineas);
         calcularTotales();
-        
 
-    }   
+
+    }
 
 
 
     function eliminarLinea(_id, idLinea) {
 
-        
+
 
         var id = _id - 1;
-        if (idLinea != 0)
-            lineasEliminadas.push(lineas[id].id);
-        else
-            lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
-
+        //if (idLinea != 0)
+        //    lineasEliminadas.push(lineas[id].id);
+        //else
+        lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
         lineas.splice(id, 1);
 
         calcularTotales();
@@ -719,7 +785,7 @@ else
     }
 
     function darFomatoMoneda(value) {
-        
+
         var clase = "";
         var moneda = $('.tipoMoneda').val();
 
@@ -745,7 +811,7 @@ else
         $(".euro").inputmask('currency', {
             prefix: "€",
             rightAlign: true
-        });   
+        });
 
         $('#monedaFormater').val(value);
         return $('#monedaFormater').val();
@@ -866,7 +932,6 @@ else
         totalImpuesto = 0;
         totalCompra = 0;
 
-        console.log(lineas);
 
         for (var i = 0; i < lineas.length; i++) {
             subTotalExcento += parseFloat(lineas[i].subTotalExcento);
@@ -942,35 +1007,35 @@ else
                 lineas[i].subTotalExcentoNeto = subtotal - lineas[i].totalDescuento;
                 lineas[i].subTotalGravadoNeto = 0;
             }
-            
+
             lineas[i].totalIva = (lineas[i].porcIva / 100) * (lineas[i].subTotalExcentoNeto + lineas[i].subTotalGravadoNeto);
             lineas[i].total = (lineas[i].subTotalExcentoNeto + lineas[i].subTotalGravadoNeto) + lineas[i].totalIva;
         }
 
-        if (lineasAgregadas.length > 0)
-            for (var i = 0; i < lineasAgregadas.length; i++) {
+        //if (lineasAgregadas.length > 0)
+        //    for (var i = 0; i < lineasAgregadas.length; i++) {
 
-                lineasAgregadas[i].precioUnitario = getPrecioAlCambioLocal(lineasAgregadas[i]);
-                lineasAgregadas[i].idMonedaCD = parseInt($('.tipoMoneda').val());
-                subtotal = lineasAgregadas[i].precioUnitario * lineasAgregadas[i].cantidad;
-                lineasAgregadas[i].totalDescuento = (lineasAgregadas[i].porcDescuento / 100) * subtotal;
+        //        lineasAgregadas[i].precioUnitario = getPrecioAlCambioLocal(lineasAgregadas[i]);
+        //        lineasAgregadas[i].idMonedaCD = parseInt($('.tipoMoneda').val());
+        //        subtotal = lineasAgregadas[i].precioUnitario * lineasAgregadas[i].cantidad;
+        //        lineasAgregadas[i].totalDescuento = (lineasAgregadas[i].porcDescuento / 100) * subtotal;
 
-                if (lineasAgregadas[i].porcIva > 0) {
-                    lineasAgregadas[i].subTotalExcento = 0;
-                    lineasAgregadas[i].subTotalGravado = subtotal;
-                    lineasAgregadas[i].subTotalExcentoNeto = 0;
-                    lineasAgregadas[i].subTotalGravadoNeto = subtotal - lineas[i].totalDescuento;
-                }
-                else {
-                    lineasAgregadas[i].subTotalExcento = subtotal;
-                    lineasAgregadas[i].subTotalGrabado = 0;
-                    lineasAgregadas[i].subTotalExcentoNeto = subtotal - lineas[i].totalDescuento;
-                    lineasAgregadas[i].subTotalGravadoNeto = 0;
-                }             
-                
-                lineasAgregadas[i].totalIva = (lineasAgregadas[i].porcIva / 100) * (lineasAgregadas[i].subTotalExcentoNeto + lineasAgregadas[i].subTotalGravadoNeto);
-                lineas[i].total = (lineasAgregadas[i].subTotalExcentoNeto + lineasAgregadas[i].subTotalGravadoNeto) + lineasAgregadas[i].totalIva;
-            }
+        //        if (lineasAgregadas[i].porcIva > 0) {
+        //            lineasAgregadas[i].subTotalExcento = 0;
+        //            lineasAgregadas[i].subTotalGravado = subtotal;
+        //            lineasAgregadas[i].subTotalExcentoNeto = 0;
+        //            lineasAgregadas[i].subTotalGravadoNeto = subtotal - lineas[i].totalDescuento;
+        //        }
+        //        else {
+        //            lineasAgregadas[i].subTotalExcento = subtotal;
+        //            lineasAgregadas[i].subTotalGrabado = 0;
+        //            lineasAgregadas[i].subTotalExcentoNeto = subtotal - lineas[i].totalDescuento;
+        //            lineasAgregadas[i].subTotalGravadoNeto = 0;
+        //        }
+
+        //        lineasAgregadas[i].totalIva = (lineasAgregadas[i].porcIva / 100) * (lineasAgregadas[i].subTotalExcentoNeto + lineasAgregadas[i].subTotalGravadoNeto);
+        //        lineas[i].total = (lineasAgregadas[i].subTotalExcentoNeto + lineasAgregadas[i].subTotalGravadoNeto) + lineasAgregadas[i].totalIva;
+        //    }
 
         $('#item').trigger('change.select2');
         cargarTabla(lineas);
@@ -978,7 +1043,7 @@ else
 
     }
 
-    
+
 
     function getPrecioAlCambioLocal(item) {
 
@@ -1086,7 +1151,7 @@ else
         else if (moneda === 3)
             return data.totalIvauro;
     }
-    
+
     function recuperarIs(data) {
         var moneda = parseInt($('.tipoMoneda').val());
 
@@ -1108,7 +1173,7 @@ else
         else if (moneda === 3)
             return data.totalDescuentoEuro;
     }
-    
+
     function cancelar() {
         bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) {
             if (result)
@@ -1117,4 +1182,157 @@ else
         });
     }
 
+
+    ///////////////////////////////////////////////crear pdf//////////////////////////////////
+
+    function crearPdf() {
+
+        generate_cutomPDF(crearModeloPDF());
+
+    }
+
+    function crearModeloPDF() {
+
+        var empresaModel = JSON.parse(localStorage.getItem("empresaInfo"));
+
+        var modelo = {
+            empresa: {
+                nombre: localStorage.getItem("empresa"),
+                telefono: empresaModel.tel,
+                correo: empresaModel.correo,
+                cedJuridica: empresaModel.ced,
+                logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
+                nombreTitulo: "@SharedLocalizer["Nombre"]:",
+                telTitulo: "@SharedLocalizer["Telefonos"]:",
+                correoTitulo: "@SharedLocalizer["Correo"]:",
+                cedTitulo: getTittulos().cedJuridica
+            },
+            subtotal: formatTotales().subtotal,
+            descuento: formatTotales().desc,
+            impuesto: formatTotales().imp,
+            total: formatTotales().total,
+            nombreDoc: '@SharedLocalizer["Compra"] ' + '#@Model.Id',
+            nombreDescarga: '@SharedLocalizer["compra"]_' + @Model.Id + '.pdf',
+            columnas: {
+                item: "Item",
+                cantidad: "@SharedLocalizer["Cantidad"]",
+                precioUnid: "@SharedLocalizer["PrecioUnid"]",
+                descuento: "@SharedLocalizer["Descuento"]",
+                iva: "@SharedLocalizer["IVA"]",
+                subtotal: "@SharedLocalizer["SubTotal"]"
+            },
+            filas: crearFilasPdf(),
+            resumen: {
+                subtotal: "@SharedLocalizer["SubTotal"]",
+                descuento: "@SharedLocalizer["Descuento"]",
+                impuesto: "@SharedLocalizer["Impuesto"]",
+                total: "@SharedLocalizer["Total"]",
+                autorizado: "@SharedLocalizer["Autorizado por"]:______________________"
+            },
+            proveedor: $('#proveedores option:selected').text(),
+            fecha: $('#fecha').val(),
+            descripcion: getDescripcion(),
+            proveedorTitulo: "@SharedLocalizer["Proveedor"]:",
+            fechaTitulo: "@SharedLocalizer["Fecha"]:",
+            estado: getEstado(),
+            tipoCambio: '@SharedLocalizer["Tipo de cambio"]',
+            dolarTitulo: '@SharedLocalizer["Dolar"]',
+            euroTitulo: '@SharedLocalizer["Euro"]',
+            dolar: $('#dolar').val().toString(),
+            euro: $('#euro').val().toString(),
+            monedaTitulo: '@SharedLocalizer["Moneda"]',
+            moneda: $('#moneda option:selected').text()
+        };
+
+        return modelo;
+
+    } 
+
+    function crearFilasPdf() {
+
+        var row = [];
+        for (var i = 0; i < lineas.length; i++) {
+
+            var subtotal = 0;
+
+            if (lineas[i].porcIva > 0)
+                subtotal = lineas[i].subTotalGravado;
+            else
+                subtotal = lineas[i].subTotalExcento;
+
+            var model = {
+                item: getItem(lineas[i].idInventario).codigo,
+                descripcion: lineas[i].nombreInventario,
+                cantidad: lineas[i].cantidad,
+                precioUnid: formatearMoneda(lineas[i].precioUnitario),
+                descuento: lineas[i].porcDescuento,
+                iva: lineas[i].porcIva,
+                subtotal: formatearMoneda(subtotal)
+            };
+
+            row.push(model);
+        }
+        return row;
+    }
+
+
+    function formatearMoneda(val) {
+        $('#formater').val(val);
+        return $('#formater').val().replace("₡", "");
+    }
+
+
+    //var $subTotal = $('#subTotal');
+    //var $totalImpuesto = $('#totalImpuesto');
+    //var $totalDescuento = $('#totalDescuento');
+    //var $total = $('#total');
+
+    function formatTotales() {
+        var tam = 0;
+
+        var subtotal = "";
+        var imp = "";
+        var desc = "";
+
+
+        tam = $total.val().length;
+
+        for (var i = $subTotal.val().length; i < tam; i++) {
+            subtotal += "\ \ ";
+        }
+        for (var i = $totalImpuesto.val().length; i < tam; i++) {
+            imp += "\ \ ";
+        }
+        for (var i = $totalDescuento.val().length; i < tam; i++) {
+            desc += "\ \ ";
+        }
+
+
+
+
+        return {
+            subtotal: subtotal + $subTotal.val().replace("₡", ""),
+            imp: imp + $totalImpuesto.val().replace("₡", ""),
+            desc: desc + $totalDescuento.val().replace("₡", ""),
+            total: $total.val().replace("₡", "")
+        }
+
+    }
+
+    function getTittulos() {
+        var idioma = localStorage.getItem("idioma");
+        if (idioma === "es")
+            return {
+                desc: "Descripción:",
+                cedJuridica: "Cédula Jurídica:"
+            };
+        else
+            return {
+                desc: "Description:",
+                cedJuridica: "Legal Number:"
+            };
+    }
+
 </script>
+
+<script src="~/lib/vendors/jsPDF/CI.js"></script>

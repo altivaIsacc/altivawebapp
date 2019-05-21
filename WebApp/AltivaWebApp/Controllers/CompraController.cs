@@ -82,16 +82,18 @@ namespace AltivaWebApp.Controllers
                     var compra = service.GetCompraByDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento);
                     if (compra == null || compra.Id == viewModel.Id)
                     {
+                        long idCD = 0;
                         var orden = map.Update(viewModel);
                         if (viewModel.CompraDetalle != null && viewModel.CompraDetalle.Count() > 0)
                         {
                             var cd = map.CreateCD(viewModel);
+                            idCD = cd.Id;
                             if(!viewModel.Borrador)
                                 kardexMap.CreateKardexCDSingle((int)cd.Id);
                         }
                             
 
-                        return Json(new { success = true });
+                        return Json(new { success = true , idCD = idCD});
                     }
                     else
                         return Json(new { success = false });
@@ -130,7 +132,8 @@ namespace AltivaWebApp.Controllers
             {
                 var compra = service.GetCompraById(id);
                 compra.Anulado = true;
-                kardexMap.CreateKardexEliminarCD(compra);
+                if(!compra.Borrador)
+                    kardexMap.CreateKardexEliminarCD(compra);
                 compra = service.Update(compra);
                 return Json(new { success = true });
             }
@@ -194,8 +197,10 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                kardexMap.CreateKardexCDSingle(idCD);
-                var res = service.DeleteCompraDetalle(idCD);            
+                var cd = service.GetCompraDetalleById(idCD);
+                if(!cd.IdCompraNavigation.Borrador)
+                    kardexMap.CreateKardexEliminarCDSingle(idCD);
+                var res = service.DeleteCompraDetalle(cd);            
 
                 return Json(new { success = res });
             }

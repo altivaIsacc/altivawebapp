@@ -15,10 +15,11 @@ namespace AltivaWebApp.Repositories
         TbPrCompra GetCompraById(int id);
         IList<TbPrCompraDetalle> GetAllCompraDetalleByCompraId(int id);
         TbPrCompraDetalle SaveCompraDetalle(TbPrCompraDetalle domain);
-        bool DeleteCompraDetalle(int idCD);
+        bool DeleteCompraDetalle(TbPrCompraDetalle domain);
         bool UpdateCompraDetalle(IList<TbPrCompraDetalle> domain);
         bool ExisteDocumento(string numDoc, string tipo, int idProveedor);
         TbPrCompra GetCompraByDocumento(string nDoc, string tipoDoc);
         TbPrCompraDetalle GetCompraDetalleById(long id);
+        bool ExisteRelacionInventarioBodega(long idInventario, long idBodega);
     }
 }
