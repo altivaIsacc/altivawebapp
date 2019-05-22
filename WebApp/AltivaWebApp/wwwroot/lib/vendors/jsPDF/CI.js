@@ -47,7 +47,7 @@ function generate_cutomPDF(modelo) {
     var doc = new jsPDF('p', 'pt');
 
     var rightStartCol1 = 400;
-    var rightStartCol2 = 480;
+    var rightStartCol2 = 490;
 
 
     var InitialstartX = 40;
@@ -57,7 +57,7 @@ function generate_cutomPDF(modelo) {
 
     var lineHeights = 12;
 
-    var res = doc.autoTableHtmlToJson(document.getElementById("tblCompras"));
+    var res = doc.autoTableHtmlToJson(document.getElementById("tblCompra"));
     //res = doc.autoTableHtmlToJson(document.getElementById("tblInvoiceItemsList"));
 
 
@@ -124,9 +124,11 @@ function generate_cutomPDF(modelo) {
     doc.setFontType('normal');
     doc.textAlign(modelo.euro, { align: "left" }, rightStartCol2, tempY);
 
-
-
+    doc.setFontType('bold');
+    doc.textAlign(modelo.tipoDocumentoTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
     doc.setFontType('normal');
+    doc.textAlign(modelo.tipoDocumento, { align: "left" }, rightStartCol2, tempY);
+    
 
     doc.setLineWidth(1);
     // doc.line(20, startY+lineSpacing.NormalSpacing, 580, startY+=lineSpacing.NormalSpacing);
@@ -141,12 +143,7 @@ function generate_cutomPDF(modelo) {
     doc.setFontType('bold');
 
 
-    doc.setFontType('bold');
-    doc.textAlign(modelo.observacionTitulo, { align: "left" }, startX, startY += lineSpacing.NormalSpacing);
-    doc.setFontType('normal');
-    doc.textAlign(modelo.descripcion, { align: "left" }, startX, startY += lineSpacing.NormalSpacing);
-
-
+    
 
     var header = function (data) {
         doc.setFontSize(8);
@@ -179,7 +176,8 @@ function generate_cutomPDF(modelo) {
             4: { columnWidth: 'auto' },
             5: { columnWidth: 'auto' },
             6: { columnWidth: 'auto' },
-            7: { columnWidth: 'auto' }
+            7: { columnWidth: 'auto' },
+            8: { columnWidth: 'auto' }
 
         },
         startY: startY += 50
@@ -192,7 +190,8 @@ function generate_cutomPDF(modelo) {
         { title: modelo.columnas.precioUnid, dataKey: "precioUnid", width: 40 },
         { title: modelo.columnas.descuento, dataKey: "descuento", width: 40 },
         { title: modelo.columnas.iva, dataKey: "iva", width: 40 },
-        { title: modelo.columnas.subtotal, dataKey: "subtotal", width: 40 }
+        { title: modelo.columnas.subtotal, dataKey: "subtotal", width: 40 },
+        { title: modelo.columnas.bodega, dataKey: "bodega", width: 40 }
     ];
 
     //var rows = [

@@ -25,11 +25,16 @@
         <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
     </div>
 
+
 }
 else
 {
-    <h3>@SharedLocalizer["nuevaCompra"]</h3>
+    <div class="row">
+        <h3 class="col-md-3">@SharedLocalizer["nuevaCompra"]</h3>
+        <div class="col-md-1" style="padding-top:1rem"><button class="btn btn-link" data-toggle="modal" data-target="#cargarXmlModal" >@SharedLocalizer["ImportarXML"]</button></div>
+    </div>
 }
+
 
 <hr />
 
@@ -105,7 +110,7 @@ else
 
             <div class="form-group col-md-6 col-sm-6 col-xs-12">
                 <label class="control-label">@SharedLocalizer["Dolar"]</label>
-                <input  id="dolar" asp-for="TipoCambioDolar" class="form-control moneda"  />
+                <input id="dolar" asp-for="TipoCambioDolar" class="form-control moneda" />
                 <label class="control-label">@SharedLocalizer["Euro"]</label>
                 <input id="euro" asp-for="TipoCambioEuro" class="form-control moneda" />
             </div>
@@ -195,6 +200,32 @@ else
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="cargarXmlModal" tabindex="-1" role="dialog" aria-labelledby="xmlModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="xmlModalLabel">@SharedLocalizer["ImportarXML"]</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <span data-translate="cargaArchivos" class="input-group-text" id="inputGroup-sizing-sm">@SharedLocalizer["CargaXML"]</span>
+                    <input type="file" accept="text/xml" class="form-control" id="fileUpload">
+                    @*<span hidden class="text-danger" data-translate="tamanoArchivoValid" id="tamanoArchivos">El tamaño máximo del archivo es de 25MB.</span>
+                        <span hidden data-translate="cantidadArchivosValid" id="cantidadArchivos" class="text-danger">No puede agregar más de 5 archivos.</span>*@
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">@SharedLocalizer["Cancelar"]</button>
+                <button type="button" class="btn btn-primary" onclick="crearXMLaJSON()">@SharedLocalizer["Guardar"]</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <input readonly hidden id="monedaFormater" />
 <div hidden><input hidden id="formater" class="currency" type="text" /></div>
 
@@ -257,7 +288,7 @@ else
             date = new Date(formatearFecha());
          }
 
-         
+
 
         deshabilitaTipoCambio();
 
@@ -278,15 +309,16 @@ else
             rightAlign: true,
          });
 
-         $('input, select').attr('disabled', '@estado');
+         if('@Model.Anulado' === 'True')
+            $('input, select').attr('disabled', true);
 
         $(".numerico").inputmask({
             'alias': 'decimal',
             rightAlign: false,
         });
 
-        getBodegas()
-        getInventario();
+         getBodegas();
+         getInventario();
 
 
         $('.selectItems').select2({ width: null, language: localStorage.getItem("idioma") });
@@ -436,16 +468,20 @@ else
             data: crearModelo(),
             success: function (data) {
 
-                lineas[lineas.length - 1].id = data.idCD;
-                lineasAgregadas[lineasAgregadas.length -1 ].id = data.idCD;
-                cargarTabla(lineas);
+                if (data.success) {
+                    lineas[lineas.length - 1].id = data.idCD;
+                    lineasAgregadas[lineasAgregadas.length - 1].id = data.idCD;
+                    cargarTabla(lineas);
+                    if (@Model.Id === 0) {
 
-                if(@Model.Id === 0){
+                        var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
+                        window.location.href = url.replace("__id__", data.idCompra);
 
-                    var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
-                    window.location.href = url.replace("__id__", data.idCompra);
-
+                    }
                 }
+                else
+                    cargarAlert("@SharedLocalizer["numCompraRepitida"]");
+
 
                },
               error: function (err, scnd) {
@@ -470,6 +506,10 @@ else
             data: crearModelo(),
             success: function (data) {
                 @*window.location.href = "@Url.Action("ListarCompras")";*@
+
+                if (!data.success)
+                   cargarAlert("@SharedLocalizer["numCompraRepitida"]");
+
                },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -577,9 +617,11 @@ else
                 guardarCompraBorrador();
             else
                 guardarCompra();
+
+            window.location.href = "@Url.Action("ListarCompras")";
         }
 
-        window.location.href = "@Url.Action("ListarCompras")";
+
 
     }
 
@@ -1211,15 +1253,17 @@ else
             descuento: formatTotales().desc,
             impuesto: formatTotales().imp,
             total: formatTotales().total,
-            nombreDoc: '@SharedLocalizer["Compra"] ' + '#@Model.Id',
+            nombreDoc: '@SharedLocalizer["Compra"] ' + '#@Model.NumeroDocumento',
             nombreDescarga: '@SharedLocalizer["compra"]_' + @Model.Id + '.pdf',
             columnas: {
                 item: "Item",
+                descripcion: getTittulos().desc,
                 cantidad: "@SharedLocalizer["Cantidad"]",
                 precioUnid: "@SharedLocalizer["PrecioUnid"]",
                 descuento: "@SharedLocalizer["Descuento"]",
                 iva: "@SharedLocalizer["IVA"]",
-                subtotal: "@SharedLocalizer["SubTotal"]"
+                subtotal: "@SharedLocalizer["SubTotal"]",
+                bodega: "@SharedLocalizer["Bodega"]"
             },
             filas: crearFilasPdf(),
             resumen: {
@@ -1231,7 +1275,6 @@ else
             },
             proveedor: $('#proveedores option:selected').text(),
             fecha: $('#fecha').val(),
-            descripcion: getDescripcion(),
             proveedorTitulo: "@SharedLocalizer["Proveedor"]:",
             fechaTitulo: "@SharedLocalizer["Fecha"]:",
             estado: getEstado(),
@@ -1241,12 +1284,14 @@ else
             dolar: $('#dolar').val().toString(),
             euro: $('#euro').val().toString(),
             monedaTitulo: '@SharedLocalizer["Moneda"]',
-            moneda: $('#moneda option:selected').text()
+            moneda: $('.tipoMoneda option:selected').text(),
+            tipoDocumentoTitulo: '@SharedLocalizer["TipoDocumento"]',
+            tipoDocumento: $('#tipoDocumento option:selected').text()
         };
-
+        console.log(modelo);
         return modelo;
 
-    } 
+    }
 
     function crearFilasPdf() {
 
@@ -1262,16 +1307,19 @@ else
 
             var model = {
                 item: getItem(lineas[i].idInventario).codigo,
-                descripcion: lineas[i].nombreInventario,
-                cantidad: lineas[i].cantidad,
+                descripcion: getItem(lineas[i].idInventario).descripcion,
+                cantidad: lineas[i].cantidad.toString(),
                 precioUnid: formatearMoneda(lineas[i].precioUnitario),
-                descuento: lineas[i].porcDescuento,
-                iva: lineas[i].porcIva,
-                subtotal: formatearMoneda(subtotal)
+                descuento: lineas[i].porcDescuento.toString(),
+                iva: lineas[i].porcIva.toString(),
+                subtotal: formatearMoneda(subtotal),
+                bodega: getBodegaItem(lineas[i].idBodega).nombre
             };
 
             row.push(model);
         }
+
+
         return row;
     }
 
@@ -1281,7 +1329,12 @@ else
         return $('#formater').val().replace("₡", "");
     }
 
-
+    function getEstado() {
+        if ('@Model.Anulado' === "True")
+            return "@SharedLocalizer["CompraAnulada"]";
+        else
+            return "";
+    }
     //var $subTotal = $('#subTotal');
     //var $totalImpuesto = $('#totalImpuesto');
     //var $totalDescuento = $('#totalDescuento');
@@ -1323,16 +1376,39 @@ else
         var idioma = localStorage.getItem("idioma");
         if (idioma === "es")
             return {
-                desc: "Descripción:",
+                desc: "Descripción",
                 cedJuridica: "Cédula Jurídica:"
             };
         else
             return {
-                desc: "Description:",
+                desc: "Description",
                 cedJuridica: "Legal Number:"
             };
+    }
+
+
+
+    var input, file, fr;
+    function crearXMLaJSON() {
+        var selectedFile =  $('#fileUpload')[0].files[0];
+        
+        //console.log(selectedFile);
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            readXml = e.target.result;
+            //console.log(readXml);
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(readXml, "application/xml");
+            console.log(xmlToJson(doc));
+        }
+        reader.readAsText(selectedFile);
+
+        
+        //console.log(xml);
+        
     }
 
 </script>
 
 <script src="~/lib/vendors/jsPDF/CI.js"></script>
+<script src="~/js/XMLtoJSON.js"></script>

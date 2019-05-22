@@ -148,10 +148,17 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                viewModel.Borrador = false;
-                var compra = map.Update(viewModel);
-                kardexMap.CreateKardexCD((int)compra.Id);
-                return Json(new { success = true });
+                var compraBD = service.GetCompraByDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento);
+                if (compraBD == null || compraBD.Id == viewModel.Id)
+                {
+                    viewModel.Borrador = false;
+                    var compra = map.Update(viewModel);
+                    kardexMap.CreateKardexCD((int)compra.Id);
+                    return Json(new { success = true });
+                }
+                else
+                    return Json(new { succes = false});
+                
             }
             catch (Exception)
             {
