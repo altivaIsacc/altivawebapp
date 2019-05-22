@@ -35,6 +35,20 @@ namespace AltivaWebApp.ViewModels
         public float PrecioCreditoFinal { get; set; }
         public string DescripcionVenta { get; set; }
         public int CodigoMonedaVenta { get; set; }
+        public bool HabilitarVentaOnline { get; set; }
+        public string NombreCarrito { get; set; }
+        public string AbreviacionFactura { get; set; }
+        public int CodigoMonedaOnline { get; set; }
+        public float PrecioVentaOnline { get; set; }
+        public int IdFamiliaOnline { get; set; }
+        public string SkuOnline { get; set; }
+
+
+
+
+
+
+
 
         public IList<TbPrInventarioBodega>  Bodegas { get; set; }
     }

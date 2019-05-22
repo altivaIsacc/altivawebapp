@@ -3790,22 +3790,15 @@ namespace AltivaWebApp.Models
                     .HasDefaultValueSql("('''')");
 
                 entity.Property(e => e.Notas)
-                    .IsRequired()
                     .HasMaxLength(500)
                     .IsUnicode(false)
                     .HasDefaultValueSql("(' ')");
 
-                entity.HasOne(d => d.IdSubFamiliaNavigation)
-                    .WithMany(p => p.TbPrInventario)
-                    .HasForeignKey(d => d.IdSubFamilia)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_tb_PR_Inventario_tb_PR_Familia");
-
-                entity.HasOne(d => d.IdUnidadMedidaNavigation)
-                    .WithMany(p => p.TbPrInventario)
-                    .HasForeignKey(d => d.IdUnidadMedida)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_tb_PR_Inventario_tb_PR_UnidadMedida");
+                entity.Property(e => e.SkuOnline)
+                    .IsRequired()
+                    .HasMaxLength(60)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('''')");
             });
 
             modelBuilder.Entity<TbPrInventarioBodega>(entity =>

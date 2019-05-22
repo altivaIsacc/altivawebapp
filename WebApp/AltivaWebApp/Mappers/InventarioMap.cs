@@ -97,8 +97,15 @@ namespace AltivaWebApp.Mappers
                 UtilidadCredito = viewModel.UtilidadCredito,
                 UltimoPrecioCompra = viewModel.UltimoPrecioCompra,
                 UtilidadDeseada = viewModel.UtilidadDeseada,
-                UtilidadTemporal = viewModel.UtilidadTemporal
-
+                UtilidadTemporal = viewModel.UtilidadTemporal,
+                IdFamiliaOnline = viewModel.IdFamiliaOnline,
+                NombreCarrito = viewModel.NombreCarrito,
+                PrecioVentaOnline = viewModel.PrecioVentaOnline,
+                AbreviacionFacturas = viewModel.AbreviacionFactura,
+                IdMonedaVentaOnline = viewModel.CodigoMonedaOnline,
+                HabilitarVentaOnline = viewModel.HabilitarVentaOnline,
+                SkuOnline = viewModel.SkuOnline
+                
             };
         }
         public TbPrInventario ViewModelToDomainEditar(int id, InventarioViewModel viewModel)
@@ -131,7 +138,15 @@ namespace AltivaWebApp.Mappers
             inventario.UltimoPrecioCompra = viewModel.UltimoPrecioCompra;
             inventario.UtilidadDeseada = viewModel.UtilidadDeseada;
             inventario.UtilidadTemporal = viewModel.UtilidadTemporal;
-
+            inventario.IdFamiliaOnline = viewModel.IdFamiliaOnline;
+            inventario.NombreCarrito = viewModel.NombreCarrito;
+            inventario.PrecioVentaOnline = viewModel.PrecioVentaOnline;
+            inventario.AbreviacionFacturas = viewModel.AbreviacionFactura;
+            inventario.IdFamiliaOnline = viewModel.CodigoMonedaOnline;
+            inventario.HabilitarVentaOnline = viewModel.HabilitarVentaOnline;
+            inventario.SkuOnline = viewModel.SkuOnline;
+                     
+           
             return inventario;
 
         }
@@ -167,7 +182,16 @@ namespace AltivaWebApp.Mappers
                 UltimoPrecioCompra = (float)domain.UltimoPrecioCompra,
                 UtilidadCredito = (float)domain.UtilidadCredito,
                 UtilidadDeseada = (float)domain.UtilidadDeseada,
-                UtilidadTemporal = (float)domain.UtilidadTemporal,
+                UtilidadTemporal = (float)domain.UtilidadTemporal,        
+                IdFamiliaOnline = (int)domain.IdFamiliaOnline,
+                NombreCarrito = domain.NombreCarrito,
+                PrecioVentaOnline = (float)domain.PrecioVentaOnline,
+                AbreviacionFactura = domain.AbreviacionFacturas,
+                CodigoMonedaOnline =(int) domain.IdMonedaVentaOnline,
+                HabilitarVentaOnline = domain.HabilitarVentaOnline,
+                SkuOnline = domain.SkuOnline,
+
+
                 Bodegas = domain.TbPrInventarioBodega.ToList()
             };
         }

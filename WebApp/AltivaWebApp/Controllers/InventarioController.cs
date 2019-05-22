@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -83,6 +84,8 @@ namespace AltivaWebApp.Controllers
             
         }
 
+    
+        
 
         // GET: Inventario/Create
         [Route("Nuevo-Inventario")]
@@ -100,8 +103,6 @@ namespace AltivaWebApp.Controllers
 
             return View("CrearEditarInventario", model);
         }
-
-       
 
         [Route("Editar-Inventario/{id}")]
         public ActionResult EditarInventario(int id)

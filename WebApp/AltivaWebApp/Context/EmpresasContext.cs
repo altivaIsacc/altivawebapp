@@ -18,6 +18,7 @@ namespace AltivaWebApp.Context
             : base(options)
         {
         }
+
         public virtual DbSet<TbBaConciliacion> TbBaConciliacion { get; set; }
         public virtual DbSet<TbBaConciliacionDetalle> TbBaConciliacionDetalle { get; set; }
         public virtual DbSet<TbBaCuentasBancarias> TbBaCuentasBancarias { get; set; }
@@ -135,7 +136,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdTipoHabitacion> TbFdTipoHabitacion { get; set; }
         public virtual DbSet<TbFdTipoProveedor> TbFdTipoProveedor { get; set; }
         public virtual DbSet<TbFdTipoServicio> TbFdTipoServicio { get; set; }
-        public virtual DbSet<TbFdTipoTarifa> TbFdTipoTarifa { get; set; }       
+        public virtual DbSet<TbFdTipoTarifa> TbFdTipoTarifa { get; set; }
         public virtual DbSet<TbPrAjuste> TbPrAjuste { get; set; }
         public virtual DbSet<TbPrAjusteInventario> TbPrAjusteInventario { get; set; }
         public virtual DbSet<TbPrBodega> TbPrBodega { get; set; }
@@ -147,11 +148,11 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbPrEquivalencia> TbPrEquivalencia { get; set; }
         public virtual DbSet<TbPrFamilia> TbPrFamilia { get; set; }
         public virtual DbSet<TbPrFamiliaVentaOnline> TbPrFamiliaVentaOnline { get; set; }
+        public virtual DbSet<TbPrImagenInventario> TbPrImagenInventario { get; set; }
         public virtual DbSet<TbPrInformacionBancaria> TbPrInformacionBancaria { get; set; }
         public virtual DbSet<TbPrInventario> TbPrInventario { get; set; }
-        public virtual DbSet<TbPrInventarioCaracteristica> TbPrInventarioCaracteristica { get; set; }
-        public virtual DbSet<TbPrImagenInventario> TbPrImagenInventario { get; set; }
         public virtual DbSet<TbPrInventarioBodega> TbPrInventarioBodega { get; set; }
+        public virtual DbSet<TbPrInventarioCaracteristica> TbPrInventarioCaracteristica { get; set; }
         public virtual DbSet<TbPrKardex> TbPrKardex { get; set; }
         public virtual DbSet<TbPrOrden> TbPrOrden { get; set; }
         public virtual DbSet<TbPrOrdenDetalle> TbPrOrdenDetalle { get; set; }
@@ -205,7 +206,8 @@ namespace AltivaWebApp.Context
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(StringProvider.StringEmpresas);
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Server=CENTRAL-PC\\FDPRUEBAS;Database=BE_AltivaRedes;Trusted_Connection=True;");
             }
         }
 
@@ -3752,7 +3754,7 @@ namespace AltivaWebApp.Context
                 entity.ToTable("tb_PR_Inventario");
 
                 entity.Property(e => e.AbreviacionFacturas)
-                    .IsRequired()
+                    //.IsRequired()
                     .HasMaxLength(150)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('''')");
@@ -3792,10 +3794,15 @@ namespace AltivaWebApp.Context
                     .HasDefaultValueSql("('''')");
 
                 entity.Property(e => e.Notas)
-                    .IsRequired()
                     .HasMaxLength(500)
                     .IsUnicode(false)
                     .HasDefaultValueSql("(' ')");
+
+                entity.Property(e => e.SkuOnline)
+                    .IsRequired()
+                    .HasMaxLength(60)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('''')");
 
                 entity.HasOne(d => d.IdSubFamiliaNavigation)
                     .WithMany(p => p.TbPrInventario)

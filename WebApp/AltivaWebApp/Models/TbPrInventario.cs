@@ -45,14 +45,14 @@ namespace AltivaWebApp.Models
         public double PrecioCreditoFinal { get; set; }
         public string DescripcionVenta { get; set; }
         public int CodigoMonedaVenta { get; set; }
+        public bool HabilitarVentaOnline { get; set; }
         public long IdFamiliaOnline { get; set; }
         public string NombreCarrito { get; set; }
         public string AbreviacionFacturas { get; set; }
         public int IdMonedaVentaOnline { get; set; }
         public double PrecioVentaOnline { get; set; }
+        public string SkuOnline { get; set; }
 
-        public virtual TbPrFamilia IdSubFamiliaNavigation { get; set; }
-        public virtual TbPrUnidadMedida IdUnidadMedidaNavigation { get; set; }
         public virtual ICollection<TbPrAjusteInventario> TbPrAjusteInventario { get; set; }
         public virtual ICollection<TbPrCompraDetalle> TbPrCompraDetalle { get; set; }
         public virtual ICollection<TbPrEquivalencia> TbPrEquivalenciaIdEquivalenciaNavigation { get; set; }
