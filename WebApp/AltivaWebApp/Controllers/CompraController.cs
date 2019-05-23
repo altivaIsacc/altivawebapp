@@ -44,8 +44,7 @@ namespace AltivaWebApp.Controllers
         [Route("Nueva-Compra")]
         public ActionResult CrearCompra()
         {
-
-            ViewData["proveedores"] = contactoService.GetAllProveedores();
+            
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             ViewData["bodegas"] = bodegaService.GetAllActivas();
             var tipoCambio = monedaService.GetAll();
@@ -63,7 +62,6 @@ namespace AltivaWebApp.Controllers
         public ActionResult EditarCompra(int id)
         {
             var compra = map.DomainToViewModel(service.GetCompraById(id));
-            ViewData["proveedores"] = contactoService.GetAllProveedores();
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             ViewData["bodegas"] = bodegaService.GetAllActivas();
             ViewData["monedas"] = monedaService.GetAll();
