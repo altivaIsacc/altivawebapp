@@ -8,6 +8,7 @@ using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -25,7 +26,8 @@ namespace AltivaWebApp.Controllers
         readonly IFamiliaOnlineService familiaOnlineService;
         readonly IMonedaService monedaService;
         private readonly IStringLocalizer<SharedResources> _sharedLocalizer;
-        public InventarioController(IStringLocalizer<SharedResources> sharedLocalizer, IMonedaService monedaService, IFamiliaService familiaService,IFamiliaOnlineService familiaOnlineService, IUnidadService unidadService, IBodegaService bodegaService, IInventarioService service, IInventarioMap map)
+        readonly IHostingEnvironment hostingEnvironment;
+        public InventarioController(IStringLocalizer<SharedResources> sharedLocalizer, IHostingEnvironment hostingEnvironment, IMonedaService monedaService, IFamiliaService familiaService,IFamiliaOnlineService familiaOnlineService, IUnidadService unidadService, IBodegaService bodegaService, IInventarioService service, IInventarioMap map)
         {
             this.service = service;
             this.map = map;
@@ -34,6 +36,7 @@ namespace AltivaWebApp.Controllers
             this.familiaService = familiaService;
             this.familiaOnlineService = familiaOnlineService;
             this.monedaService = monedaService;
+            this.hostingEnvironment = hostingEnvironment;
         }
 
 
@@ -342,6 +345,35 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
 
+        }
+
+
+        [HttpPost]
+        public ActionResult CargarImagenesInventario(long id, List<IFormFile> files)
+        {
+            try
+            {
+                string rutaCarpeta = Path.Combine(hostingEnvironment.WebRootPath, "images");
+
+                foreach (var file in files)
+                {
+                    string nombreImagen = file.FileName;
+                    string imagenUrl = Path.Combine(rutaCarpeta, nombreImagen);
+
+                    using (var fileStream = new FileStream(imagenUrl, FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+                }
+                
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return RedirectToAction("EditarInventario", new { id });
         }
 
     }
