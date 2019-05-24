@@ -399,9 +399,13 @@ else
 
                                     <br />
 
+                                    <div id="partialImagenes">
+
+                                    </div>
 
 
                                 </div>
+
 
                                 <div id="caracteristicasOnline" class="container tab-pane">
                                     <h1>Hola caracteristicas</h1>
@@ -658,6 +662,7 @@ else
             $('#unidades').attr('disabled', true);
             getBodegas();
             getEquivalencias();
+            getImagenes();
         }
         else
             $('.habilitaEdicionGroup').attr('hidden', true);
@@ -877,7 +882,7 @@ else
                 },
                 url: url,
                 success: function (data) {
-
+                   
                     $('#crearEditarPartial').html(data);
                     $('#modalFamilia').modal('show');
                 },
@@ -1042,6 +1047,26 @@ else
                 data: {id: @Model.IdInventario},
                 success: function (data) {
                     $('#equivalencias').html(data);
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+        }
+
+        function getImagenes() {
+
+            var url = '@Url.Action("_ListarImagenes", "Inventario")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: {id: @Model.IdInventario},
+                success: function (data) {
+                    $('#partialImagenes').html(data);
                 },
                 error: function (err, scnd) {
                     cargarAlert('@SharedLocalizer["errorGeneral"]');

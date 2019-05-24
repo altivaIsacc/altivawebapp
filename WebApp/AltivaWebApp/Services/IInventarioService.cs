@@ -9,6 +9,7 @@ namespace AltivaWebApp.Services
     public interface IInventarioService
     {
         TbPrInventario GetInventarioById(int id);
+        IList<TbPrImagenInventario> GetInventarioImagenById(int id);
         TbPrInventario GetInventarioByCodigo(string codigo);
         TbPrInventario Save(TbPrInventario domain);
         TbPrInventario Update(TbPrInventario domain);
@@ -16,6 +17,7 @@ namespace AltivaWebApp.Services
         IList<TbPrInventario> GetAll();
         IList<TbPrInventario> GetAllInventario();
         void SaveInventarioBodega(IList<TbPrInventarioBodega> domain);
+        void SaveImagenInventario(IList<TbPrImagenInventario> domain);
         IList<TbPrInventarioBodega> GetAllBodegasPorInventario(int id);
         bool EliminarInventarioBodega(int id);
         bool SaveEquivalencia(TbPrEquivalencia domain);

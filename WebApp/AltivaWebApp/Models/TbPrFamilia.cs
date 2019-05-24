@@ -8,6 +8,7 @@ namespace AltivaWebApp.Models
         public TbPrFamilia()
         {
             InverseIdFamiliaNavigation = new HashSet<TbPrFamilia>();
+            TbPrInventario = new HashSet<TbPrInventario>();
         }
 
         public long Id { get; set; }
@@ -18,5 +19,6 @@ namespace AltivaWebApp.Models
 
         public virtual TbPrFamilia IdFamiliaNavigation { get; set; }
         public virtual ICollection<TbPrFamilia> InverseIdFamiliaNavigation { get; set; }
+        public virtual ICollection<TbPrInventario> TbPrInventario { get; set; }
     }
 }

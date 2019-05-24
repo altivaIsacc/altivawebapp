@@ -24,6 +24,11 @@ namespace AltivaWebApp.Services
             return repository.GetInventarioByCodigo(codigo);
         }
 
+        public IList<TbPrImagenInventario> GetInventarioImagenById(int id)
+        {
+            return repository.GetInventarioImagenByCodigo(id);
+        }
+
         public IList<TbPrInventarioBodega> GetAllBodegasPorInventario(int id)
         {
             return repository.GetAllBodegasPorInventario(id);
@@ -54,6 +59,13 @@ namespace AltivaWebApp.Services
         {
             repository.SaveInventarioBodega(domain);
         }
+
+        public void SaveImagenInventario(IList<TbPrImagenInventario> domain)
+        {
+             repository.SaveImagenInventario(domain);
+             
+        }
+
 
         public bool EliminarInventarioBodega(int id)
         {

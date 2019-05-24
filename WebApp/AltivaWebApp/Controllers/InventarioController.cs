@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
+using AltivaWebApp.Repositories;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
 using Microsoft.AspNetCore.Hosting;
@@ -87,8 +88,21 @@ namespace AltivaWebApp.Controllers
             
         }
 
-    
-        
+        [HttpGet("Imagenes/{id}")]
+        public IActionResult _ListarImagenes(int id)
+        {
+            try
+            {
+                return PartialView(service.GetInventarioImagenById(id));
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                //throw;
+            }
+
+        }
+
 
         // GET: Inventario/Create
         [Route("Nuevo-Inventario")]
@@ -263,8 +277,6 @@ namespace AltivaWebApp.Controllers
             }
         }
 
- 
-
         [HttpGet("EliminarInventarioBodega/{id}")]
         public ActionResult EliminarInventarioBodega(int id)
         {
@@ -279,9 +291,7 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-
         //get auxiliares
-
 
         [HttpGet("get-bodegas/{id}")]
         public IActionResult GetBodegas(int id)
@@ -316,10 +326,8 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception)
             {
-
                 return BadRequest();
-            }
-            
+            }  
         }
 
         public IActionResult GetFamiliaOnline()
@@ -344,28 +352,16 @@ namespace AltivaWebApp.Controllers
 
                 return BadRequest();
             }
-
         }
-
-
-        [HttpPost]
-        public ActionResult CargarImagenesInventario(long id, List<IFormFile> files)
+        
+        [HttpPost("CargarImagenesInventario/{id}")]
+        public ActionResult CargarImagenesInventario(int id, IFormFile[] files)
         {
             try
             {
-                string rutaCarpeta = Path.Combine(hostingEnvironment.WebRootPath, "images");
-
-                foreach (var file in files)
-                {
-                    string nombreImagen = file.FileName;
-                    string imagenUrl = Path.Combine(rutaCarpeta, nombreImagen);
-
-                    using (var fileStream = new FileStream(imagenUrl, FileMode.Create))
-                    {
-                        file.CopyTo(fileStream);
-                    }
-                }
+                map.CreateImagen(id, files);
                 
+
             }
             catch (Exception)
             {

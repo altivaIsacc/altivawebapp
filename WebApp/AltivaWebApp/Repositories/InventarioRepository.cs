@@ -20,6 +20,11 @@ namespace AltivaWebApp.Repositories
             return context.TbPrInventario.FirstOrDefault(i => i.IdInventario == id);
         }
 
+        public IList<TbPrImagenInventario> GetInventarioImagenByCodigo(int id)
+        {
+            return context.TbPrImagenInventario.Where(i => i.IdInventario == id).ToList();
+        }
+
         public TbPrInventario GetInventarioByCodigo(string codigo)
         {
             return context.TbPrInventario.FirstOrDefault(i => i.Codigo == codigo);
@@ -49,6 +54,22 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception)
             {
+                throw;
+            }
+        }
+
+        public void SaveImagenInventario(IList<TbPrImagenInventario> domain)
+        {
+
+            try
+            {
+                context.TbPrImagenInventario.AddRange(domain);
+                context.SaveChanges();
+                
+            }
+            catch (Exception)
+            {
+                //return false;
                 throw;
             }
         }

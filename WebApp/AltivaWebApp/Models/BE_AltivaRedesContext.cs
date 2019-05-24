@@ -189,14 +189,14 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbSeConfiguracion> TbSeConfiguracion { get; set; }
         public virtual DbSet<TbSePuntoVenta> TbSePuntoVenta { get; set; }
 
-        // Unable to generate entity type for table 'dbo.tb_FD_CuentaEnCasaNotaCredito'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_NotaCreditoAjusteSaldoMenor'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_AmadeLlave'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomaticaDetalle'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_NotaDebitoAjusteSaldoMenor'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_AmadeLlave'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_CuentaEnCasaNotaCredito'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -3705,8 +3705,6 @@ namespace AltivaWebApp.Models
 
                 entity.ToTable("tb_PR_ImagenInventario");
 
-                entity.Property(e => e.IdImagen).ValueGeneratedNever();
-
                 entity.Property(e => e.Imagen)
                     .IsRequired()
                     .HasMaxLength(100)
@@ -3799,6 +3797,18 @@ namespace AltivaWebApp.Models
                     .HasMaxLength(60)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('''')");
+
+                entity.HasOne(d => d.IdSubFamiliaNavigation)
+                    .WithMany(p => p.TbPrInventario)
+                    .HasForeignKey(d => d.IdSubFamilia)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_Inventario_tb_PR_Familia");
+
+                entity.HasOne(d => d.IdUnidadMedidaNavigation)
+                    .WithMany(p => p.TbPrInventario)
+                    .HasForeignKey(d => d.IdUnidadMedida)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_Inventario_tb_PR_UnidadMedida");
             });
 
             modelBuilder.Entity<TbPrInventarioBodega>(entity =>

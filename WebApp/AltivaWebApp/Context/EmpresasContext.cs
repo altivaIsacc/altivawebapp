@@ -193,21 +193,20 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbSeConfiguracion> TbSeConfiguracion { get; set; }
         public virtual DbSet<TbSePuntoVenta> TbSePuntoVenta { get; set; }
 
-        // Unable to generate entity type for table 'dbo.tb_FD_CuentaEnCasaNotaCredito'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_NotaCreditoAjusteSaldoMenor'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_AmadeLlave'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomaticaDetalle'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_NotaDebitoAjusteSaldoMenor'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_AmadeLlave'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_CuentaEnCasaNotaCredito'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=CENTRAL-PC\\FDPRUEBAS;Database=BE_AltivaRedes;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer(StringProvider.StringEmpresas);
             }
         }
 
@@ -3709,8 +3708,6 @@ namespace AltivaWebApp.Context
 
                 entity.ToTable("tb_PR_ImagenInventario");
 
-                entity.Property(e => e.IdImagen).ValueGeneratedNever();
-
                 entity.Property(e => e.Imagen)
                     .IsRequired()
                     .HasMaxLength(100)
@@ -3754,7 +3751,7 @@ namespace AltivaWebApp.Context
                 entity.ToTable("tb_PR_Inventario");
 
                 entity.Property(e => e.AbreviacionFacturas)
-                    //.IsRequired()
+                   // .IsRequired()
                     .HasMaxLength(150)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('''')");

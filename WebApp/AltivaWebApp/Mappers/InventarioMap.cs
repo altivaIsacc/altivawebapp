@@ -1,6 +1,7 @@
 ﻿using AltivaWebApp.Domains;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,13 @@ namespace AltivaWebApp.Mappers
             
         }
 
+        public void CreateImagen(int id, IFormFile[] files)
+        {
+             service.SaveImagenInventario(ViewModelToDomainNuevoImagen(id, files));
+
+         
+        }
+
         public TbPrInventario Update(int id, InventarioViewModel viewModel)
         {
             return service.Update(ViewModelToDomainEditar(id, viewModel));
@@ -65,6 +73,24 @@ namespace AltivaWebApp.Mappers
             }
 
             return domain;
+        }
+
+        public IList<TbPrImagenInventario> ViewModelToDomainNuevoImagen(int id, IFormFile[] files)
+        {
+            var imgInventario = new List<TbPrImagenInventario>();
+
+            var fotos = FotosService.SubirAdjuntos(files);
+            foreach (var item in fotos)
+            {
+                imgInventario.Add(new TbPrImagenInventario
+                {
+                    IdInventario = id,
+                    Imagen = item
+                });
+            }
+
+            return imgInventario;
+            //service.SaveImagenInventario(imgInventario);
         }
 
         public TbPrInventario ViewModelToDomainNuevo(InventarioViewModel viewModel)
