@@ -28,6 +28,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbCeCofiguracion> TbCeCofiguracion { get; set; }
         public virtual DbSet<TbCeComprobantesEnviados> TbCeComprobantesEnviados { get; set; }
         public virtual DbSet<TbCeConsecutivoProvisionalHa> TbCeConsecutivoProvisionalHa { get; set; }
+        public virtual DbSet<TbCeColaAprobacion> TbCeColaAprobacion { get; set; }
         public virtual DbSet<TbCeDistrito> TbCeDistrito { get; set; }
         public virtual DbSet<TbCeProvincias> TbCeProvincias { get; set; }
         public virtual DbSet<TbCeSucursal> TbCeSucursal { get; set; }
@@ -322,6 +323,8 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.Tcveuro).HasColumnName("TCVEuro");
             });
 
+
+
             modelBuilder.Entity<TbCeCanton>(entity =>
             {
                 entity.HasKey(e => new { e.IdProvincia, e.IdCanton });
@@ -550,6 +553,27 @@ namespace AltivaWebApp.Context
                     .IsRequired()
                     .HasColumnName("Usuario_Token")
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<TbCeColaAprobacion>(entity =>
+            {
+                entity.ToTable("tb_CE_ColaAprobacion");               
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasMaxLength(10);
+
+                entity.Property(e => e.Fecha).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaDoc).HasColumnType("datetime");
+
+                entity.Property(e => e.NumDoc)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.TipoDoc)
+                    .IsRequired()
+                    .HasMaxLength(10);
             });
 
             modelBuilder.Entity<TbCeComprobantesEnviados>(entity =>

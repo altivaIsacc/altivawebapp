@@ -1,0 +1,224 @@
+﻿@model IEnumerable<AltivaWebApp.Domains.TbCeColaAprobacion>
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+    ViewData["Title"] = "ListarColaAprobacion";
+}
+
+<h3>@SharedLocalizer["ColaAprobacion"]</h3>
+
+<table class="table table-bordered display" id="tblCola">
+    <thead>
+        <tr>
+            <th>
+                @SharedLocalizer["Estado"]
+            </th>
+            <th>
+                @SharedLocalizer["Tipo"]
+            </th>
+            <th>
+                @SharedLocalizer["Documento"]
+            </th>
+            <th>
+                @SharedLocalizer["Fecha"]
+            </th>
+            <th>
+                @SharedLocalizer["Monto"]
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        
+    </tbody>
+</table>
+
+<input readonly hidden id="monedaFormater" />
+
+<script>
+
+
+    var cola = [];
+    var moneda = [];
+    $(document).ready(function () {
+
+        getMonedas();
+
+        
+      
+
+    });
+
+    function getColaAprobacion() {
+            ///get Compras
+        $.ajax({
+            type: "get",
+            headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetColaAprobacion", "Hacienda")',
+            success: function (data) {
+                cola = data;
+                cargarDatos(data);
+            },
+            error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+    function getMonedas() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+
+                 moneda = data[0];
+                 $("#monedaFormater").inputmask('currency', {
+                     prefix: moneda.nombre + ' ',
+                     rightAlign: true
+                 });
+                 getColaAprobacion();
+
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function cargarDatos(data) {
+       
+        $("#tblCola> tbody").remove();
+        $('#tblCola').append('<tbody></tbody>');
+
+        var contadorFila = 0;
+
+        for (var i = 0; i < data.length; i++) {
+
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td><p style="padding-top:1rem;">' + data[i].estado + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].tipoDoc + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].numDoc + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + recuperarFecha(data[i].fecha) + '</p></td>'
+                + '<td style="text-align:right"><p style="padding-top:1rem;">' + fomartearMoneda(data[i].montoDoc) + '</p></td>'
+           $('#tblCola > tbody').append(body);
+            contadorFila++;
+        }
+
+
+
+        inicializarTabla();
+
+    }
+
+    function fomartearMoneda(value) {
+        $('#monedaFormater').val(value);
+
+        return $('#monedaFormater').val();
+    }
+
+    function recuperarFecha(_fecha) {
+
+
+        //var f = new Date(_fecha);
+
+        var fecha = _fecha.substr(0, 10);
+        var y = fecha.substr(0, 4);
+        var m = fecha.substr(5, 2);
+        var d = fecha.substr(8, 3);
+
+
+        return d + "-" + m + "-" + y + " " + _fecha.substr(-12, 5);///new Date(fecha).toLocaleDateString(); //fecha.replace(/-/g, "/");
+
+        //return f.toLocaleString();
+
+    }
+
+    function inicializarTabla() {
+
+        $('#tblCola').DataTable().destroy();
+
+        tblCompras = $('#tblCola').DataTable({
+            "info": false,
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@SharedLocalizer["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                "paginate": {
+                    "first": "@SharedLocalizer["Primero"]",
+                    "last": "@SharedLocalizer["Último"]",
+                    "next": "@SharedLocalizer["Sguiente"]",
+                    "previous": "@SharedLocalizer["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   "></i>',
+                    titleAttr: 'Copy',
+                    title: '@SharedLocalizer["ColaAprobacion"]',
+                    exportOptions: {
+                        columns: [0, 1, 3, 4]
+                    }
+
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: '@SharedLocalizer["ColaAprobacion"]',
+                    exportOptions: {
+                        columns: [0, 1, 3, 4]
+                    }
+
+                },
+
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: '@SharedLocalizer["ColaAprobacion"]',
+                    exportOptions: {
+                        columns: [0, 1, 3, 4]
+                    }
+                }
+            ]
+        });
+
+        //$(".dataTables_searching").hide();
+    }
+
+</script>
+
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

@@ -22,7 +22,9 @@ namespace AltivaWebApp.Controllers
         private readonly IUserService userService;
         private readonly IBodegaService bodegaService;
         private readonly IKardexMap kardexMap;
-        public CompraController(IKardexMap kardexMap, IBodegaService bodegaService, IUserService userService, ICompraMap map, IInventarioService inventarioService, IMonedaService monedaService, ICompraService service, IContactoService contactoService)
+        private readonly IHaciendaMap haciendaMap;
+
+        public CompraController(IHaciendaMap haciendaMap, IKardexMap kardexMap, IBodegaService bodegaService, IUserService userService, ICompraMap map, IInventarioService inventarioService, IMonedaService monedaService, ICompraService service, IContactoService contactoService)
         {
             this.service = service;
             this.contactoService = contactoService;
@@ -32,6 +34,7 @@ namespace AltivaWebApp.Controllers
             this.userService = userService;
             this.bodegaService = bodegaService;
             this.kardexMap = kardexMap;
+            this.haciendaMap = haciendaMap;
         }
 
         // GET: Compra
@@ -74,10 +77,11 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-
+                if (viewModel.NumeroDocumento == null || viewModel.NumeroDocumento == "AutogeneradoXML")
+                    viewModel.NumeroDocumento = "AutogeneradoXML" + (service.IdUltimoDocumento() + 1).ToString();
                 if (viewModel.Id != 0)
                 {
-                    var compra = service.GetCompraByDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento);
+                    var compra = service.GetCompraByDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento,viewModel.IdProveedor);
                     if (compra == null || compra.Id == viewModel.Id)
                     {
                         long idCD = 0;
@@ -91,7 +95,7 @@ namespace AltivaWebApp.Controllers
                         }
                             
 
-                        return Json(new { success = true , idCD = idCD});
+                        return Json(new { success = true, idCD = idCD});
                     }
                     else
                         return Json(new { success = false });
@@ -103,6 +107,7 @@ namespace AltivaWebApp.Controllers
                     {
                         viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                         var compra = map.Create(viewModel);
+                           
                         if(!compra.Borrador)
                             kardexMap.CreateKardexCD((int)compra.TbPrCompraDetalle.FirstOrDefault().Id);
 
@@ -111,9 +116,6 @@ namespace AltivaWebApp.Controllers
                     else
                         return Json(new { success = false });
                 }
-
-
-
 
             }
             catch
@@ -146,12 +148,13 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var compraBD = service.GetCompraByDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento);
+                var compraBD = service.GetCompraByDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento, viewModel.IdProveedor);
                 if (compraBD == null || compraBD.Id == viewModel.Id)
                 {
                     viewModel.Borrador = false;
                     var compra = map.Update(viewModel);
                     kardexMap.CreateKardexCD((int)compra.Id);
+                    haciendaMap.CreateCACompra(compra);
                     return Json(new { success = true });
                 }
                 else
@@ -219,6 +222,7 @@ namespace AltivaWebApp.Controllers
 
         ///get auxiliares
 
+        
 
         [HttpGet("Get-Compras")]
         public ActionResult GetCompras()
@@ -280,6 +284,8 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+
+     
 
     }
 }

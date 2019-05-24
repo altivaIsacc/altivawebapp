@@ -34,6 +34,11 @@ namespace AltivaWebApp.Repositories
             return context.TbPrCompra.Any(u => u.NumeroDocumento == numDoc && u.TipoDocumento == tipo && u.IdContacto == idProveedor );
         }
 
+        public long IdUltimoDocumento()
+        {
+            return context.TbPrCompra.Select(c => c.Id).LastOrDefault();
+        }
+
         public TbPrCompra GetCompraById(int id)
         {
             try
@@ -47,11 +52,11 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public TbPrCompra GetCompraByDocumento(string nDoc, string tipoDoc)
+        public TbPrCompra GetCompraByDocumento(string nDoc, string tipoDoc, long idProveedor)
         {
             try
             {
-                return context.TbPrCompra.FirstOrDefault(c => c.NumeroDocumento == nDoc && c.TipoDocumento == tipoDoc);
+                return context.TbPrCompra.FirstOrDefault(c => c.NumeroDocumento == nDoc && c.TipoDocumento == tipoDoc && c.IdContacto == idProveedor);
             }
             catch (Exception)
             {

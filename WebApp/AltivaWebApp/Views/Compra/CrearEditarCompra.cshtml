@@ -16,6 +16,15 @@
     {
         estado = "disabled";
     }
+
+    var numDocumento = Model.NumeroDocumento;
+
+    if(Model.NumeroDocumento == "AutogeneradoXML")
+    {
+        numDocumento = Model.Id.ToString();
+    }
+
+
 }
 
 @if (Model.Id != 0)
@@ -71,7 +80,7 @@ else
         </div>
         <div class="form-group col-md-2 col-sm-6 col-xs-12">
             <label asp-for="NumeroDocumento" class="control-label">@SharedLocalizer["NumeroDocumento"]</label>
-            <input asp-for="NumeroDocumento" id="numDocumento" class="form-control" />
+            <input asp-for="NumeroDocumento" id="numDocumento" value="@numDocumento" class="form-control" />
             <span hidden id="numDocumentoValid" class="text-danger">@SharedLocalizer["numDocumentoValid"]</span>
         </div>
         <div class="form-group col-md-2 col-sm-6 col-xs-12">
@@ -93,12 +102,12 @@ else
             <div class="form-group col-md-6 col-sm-6 col-xs-12">
                 <label asp-for="IdMoneda" class="control-label">@SharedLocalizer["Moneda"]:</label>
                 <select asp-for="IdMoneda" onchange="recalcularPrecio(), deshabilitaTipoCambio()" id="moneda" class="form-control tipoMoneda">
-                    @{
+                    @*@{
                         foreach (var item in monedas)
                         {
                             <option value="@item.Codigo">@item.Nombre</option>
                         }
-                    }
+                    }*@
                 </select>
             </div>
 
@@ -119,7 +128,7 @@ else
     </form>
 
     <div class="table-responsive">
-        <table class="table table-bordered table-striped" id="tblCompra" style="min-width:1200px">
+        <table class="table table-bordered table-striped" id="tblCompra" style="min-width:1250px">
             <thead>
                 <tr>
                     <th style="width:14%"><span>@SharedLocalizer["Item"]</span></th>
@@ -194,49 +203,6 @@ else
     </div>
 </div>
 
-
-<!-- Modal -->
-<div class="row">
-    <div class="col-md-6">
-        <div class="modal fade" id="editarLineaModal" tabindex="-1" role="dialog" aria-labelledby="editarLineaModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editarLineaModalLabel">@SharedLocalizer["ImportarXML"]</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <form>
-                                <div class="form-group">
-                                    <input hidden type="number" id="key" />
-                                </div>
-                                <div class="form-group">
-                                    <label class="control-label">@SharedLocalizer["Cantidad"]</label>
-                                    <input class="form-control numerico" id="cantidadEditar" />
-                                </div>
-                                <div class="form-group">
-                                    <label class="control-label">@SharedLocalizer["Precio"]</label>
-                                    <input class="form-control numerico" id="precioEditar" />
-                                </div>
-                                <div class="form-group">
-                                    <label class="control-label">@SharedLocalizer["Bodega"]</label>
-                                    <select class="form-control bodegas" id="bodegaEditar"></select>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">@SharedLocalizer["Cancelar"]</button>
-                        <button type="button" class="btn btn-primary" onclick="editarCompraDetalle()">@SharedLocalizer["Guardar"]</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Modal -->
 <div class="modal fade" id="cargarXmlModal" tabindex="-1" role="dialog" aria-labelledby="xmlModalLabel" aria-hidden="true">
@@ -321,6 +287,7 @@ else
     var lineasEliminadas = [];
     var bodegas = [];
     var proveedores = [];
+    var monedas = [];
 
 
 
@@ -362,7 +329,7 @@ else
             rightAlign: false,
         });
 
-         getBodegas();
+         getMonedas();
          getInventario();
          getProveedores();
 
@@ -452,6 +419,38 @@ else
 
                  $(".bodegas").trigger('change');
 
+                 getCompraDetalle();
+
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function getMonedas() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+
+                 monedas = data;
+
+                 for (var i = 0; i < data.length; i++) {
+                     var o = new Option(data[i].nombre, data[i].codigo);
+                    $(".tipoMoneda").append(o);
+
+
+                 }
+
+                 //$(".monedas").trigger('change');
+
 
               },
               error: function (err, scnd) {
@@ -473,7 +472,8 @@ else
              success: function (data) {
                  items = data;
                  cargarItems(data);
-                 getCompraDetalle()
+                 getBodegas();
+                 
               },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -481,6 +481,7 @@ else
               }
          });
     }
+
 
     function getProveedores() {
 
@@ -696,7 +697,7 @@ else
 
         if (validarForm()) {
 
-            guardarLinea();
+            //guardarLinea();
 
             if ('@Model.Borrador' === 'True')
                 guardarCompraBorrador();
@@ -1541,22 +1542,30 @@ else
     function returnJson(file) {
 
         console.log(file);
-        $('#cargarXmlModal').modal('hide');
 
-        crearModeloCompra(file);
-        var detalle = file.FacturaElectronica.DetalleServicio.LineaDetalle;
+        if (validarXML(file)) {
+            $('#cargarXmlModal').modal('hide');
+
+            crearModeloCompra(file);
+            var detalle = file.FacturaElectronica.DetalleServicio.LineaDetalle;
 
 
-        if (detalle.length === undefined)
-            crearModeloDetalleXML(detalle);
-        else
-            for (var i = 0; i < detalle.length; i++) {
-                crearModeloDetalleXML(detalle[i]);
-            }
+            if (detalle.length === undefined)
+                crearModeloDetalleXML(detalle);
+            else
+                for (var i = 0; i < detalle.length; i++) {
+                    crearModeloDetalleXML(detalle[i]);
+                }
 
-        $numDocumento.val('AutogeneradoXML');
-        //console.log(crearModelo());
-        guardarCompra();
+            $numDocumento.val('AutogeneradoXML');
+            //console.log(crearModelo());
+
+            guardarCompra();
+        }
+        
+        
+
+            
     }
 
     function crearModeloCompra(data) {
@@ -1615,6 +1624,55 @@ else
         calcularTotales();
 
 
+
+    }
+
+    function validarXML(file) {
+        var doc = file.FacturaElectronica;
+
+        if (doc === undefined) {
+            
+            cargarAlert("@SharedLocalizer["XMLInvalido"]");
+            return false;
+        }
+
+        var detalle = file.FacturaElectronica.DetalleServicio.LineaDetalle;
+        var cedEmpresa = JSON.parse(localStorage.getItem("empresaInfo")).ced.replace(/-/g, "");
+
+        var flag = true;
+
+
+        if (doc.Receptor.Identificacion.Numero["#text"] != cedEmpresa) {
+            flag = false;          
+        }
+                   
+            
+        if (doc.ResumenFactura.CodigoMoneda["#text"] != monedas[0].nombre) {
+            flag = false;           
+        }
+            
+
+
+        if (detalle.length === undefined) {
+            if (getItemPorCodigo(detalle.Codigo.Codigo["#text"]) === undefined) {
+                flag = false;
+                
+            }
+                
+        }
+        else {
+            for (var i = 0; i < detalle.length; i++) {
+                if (getItemPorCodigo(detalle[i].Codigo.Codigo["#text"]) === undefined) {
+                    flag = false;
+                    break;
+                }
+            }
+        }
+
+        if (!flag)
+            cargarAlert("@SharedLocalizer["XMLInvalido"]");
+
+        return flag;
 
     }
 
