@@ -1,0 +1,247 @@
+﻿@model IEnumerable<AltivaWebApp.Domains.TbPrDepartamento>
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+<div class="row">
+
+    <div class="col-md-2" style="margin-top: 0.2rem">
+        <label>@SharedLocalizer["buscarPorNombre"]:</label>
+        <input type="text" id="filtroBuscarNombre" class="form-control" placeholder="@SharedLocalizer["Nombre"]" />
+    </div>
+
+    
+    <div class="col-md-2 checkbox">
+        <label class="control-label">
+            <input type="checkbox" id="estado" onchange="filtroAnuladas()"> @SharedLocalizer["VerAnuladas"]
+        </label>
+    </div>
+
+</div>
+
+<br />
+
+<div class="row">
+    <div class="col-md-6 col-xs-12 table-responsive">
+        <table class="table table-bordered" id="tblDepartamento">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Fecha)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Descripcion)
+                    </th>
+                    <th>
+                        @SharedLocalizer["Acción"]
+                    </th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+
+
+<script>
+
+    var departamentos = [];
+
+    $(document).ready(function () {
+
+        getDepartamentos();
+
+
+    });
+
+    function getDepartamentos() {
+
+        $.ajax({
+            type: "get",
+            headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetDepartamentos", "Departamento")',
+            success: function (data) {
+                departamentos = data;
+                filtroAnuladas();
+                //cargarDatos(data);
+            },
+            error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+    function anularDepartamento(id) {
+
+        $.ajax({
+            type: "post",
+            headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("AnularDepartamento", "Departamento")',
+            data: { id: id },
+            success: function (data) {
+                getDepartamentos();
+            },
+            error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+    function cargarDatos(data) {
+
+        $("#tblDepartamento> tbody").remove();
+        $('#tblDepartamento').append('<tbody></tbody>');
+
+        var contadorFila = 0;
+
+        for (var i = 0; i < data.length; i++) {
+
+                 var body = '<tr class="fila' + contadorFila + ' filas">'
+                    + '<td><p style="padding-top:1rem;">' + recuperarFecha(data[i].fecha) + '</p></td>'
+                    + '<td><p style="padding-top:1rem;">' + data[i].descripcion + '</p></td>'
+                     + '<td>  <button value="' + data[i].id + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="anularDepartamento(value)" class="btn btn-link btnEditar"><i class="fas fa-trash"></i></button>';
+                $('#tblDepartamento > tbody').append(body);
+                contadorFila++;
+
+        }
+
+
+
+        inicializarTabla();
+
+    }
+
+    function inicializarTabla() {
+
+        $('#tblDepartamento').DataTable().destroy();
+
+        tblCompras = $('#tblDepartamento').DataTable({
+            "info": false,
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@SharedLocalizer["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                "paginate": {
+                    "first": "@SharedLocalizer["Primero"]",
+                    "last": "@SharedLocalizer["Último"]",
+                    "next": "@SharedLocalizer["Sguiente"]",
+                    "previous": "@SharedLocalizer["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   "></i>',
+                    titleAttr: 'Copy',
+                    title: '@SharedLocalizer["Departamento"]',
+                    exportOptions: {
+                        columns: [0, 1]
+                    }
+
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: '@SharedLocalizer["Departamento"]',
+                    exportOptions: {
+                        columns: [0, 1]
+                    }
+
+                },
+
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: '@SharedLocalizer["Departamento"]',
+                    exportOptions: {
+                        columns: [0, 1]
+                    }
+                }
+            ]
+        });
+
+        //$(".dataTables_searching").hide();
+    }
+
+    $("#filtroBuscarNombre").on("keyup", function () {
+        tblCompras
+            .columns(0)
+            .search(this.value)
+            .draw();
+    });
+
+    function filtroAnuladas() {
+        var array = departamentos;
+        var arrayCompras = [];//JSON.parse(JSON.stringify(ordenFiltrado));
+
+        if ($('#estado').prop('checked')) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].anulado)
+                    arrayCompras.push(array[i]);
+            }
+
+        }
+        else
+            for (var i = 0; i < array.length; i++) {
+                if (!array[i].anulado)
+                    arrayCompras.push(array[i]);
+            }
+
+        cargarDatos(array);
+
+    }
+
+    function recuperarFecha(_fecha) {
+
+
+        var f = new Date(_fecha);
+
+        //var fecha = _fecha.substr(0, 10);
+        //var y = fecha.substr(0, 4);
+        //var m = fecha.substr(5, 2);
+        //var d = fecha.substr(8, 3);
+
+
+        //return d + "-" + m + "-" + y + " " + _fecha.substr(-12, 5);///new Date(fecha).toLocaleDateString(); //fecha.replace(/-/g, "/");
+
+        return f.toLocaleString();
+
+    }
+
+
+
+
+</script>
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

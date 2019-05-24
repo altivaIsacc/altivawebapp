@@ -1,0 +1,142 @@
+﻿@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+<div class="row">
+    <div class="col-md-2"><h3>@SharedLocalizer["Departamentos"]</h3></div>
+    <div class="col-md-10" style="padding-top: 0.5rem">
+        <button class="btn btn-primary" onclick="getCrearEditarPartial(0)">@SharedLocalizer["Agregar"]</button>
+    </div>
+    
+    
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <hr />
+        <div id="listaDepartamentos"></div>
+    </div>
+</div>
+
+
+
+<div class="row">
+    <!-- Modal -->
+    <div class="modal fade" id="modalDepartamento" tabindex="-1" role="dialog" aria-labelledby="departamentoModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+               
+                <div class="modal-body" id="crearEditarPartial">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        
+        getlistarPartial();
+
+    });
+
+    function guardarDepartamento() {
+        if ($('#txtDescripcionDepa').val().replace(/ /g, "") != "")
+            $.ajax({
+                type: "POST",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                dataType: "json",
+                url: '@Url.Action("CrearEditarDepartamento")',
+                data: $('#frmDepartamento').serialize(),
+                success: function (data) {
+
+                    if (data.success) {
+
+                        console.log(data);
+                        $('#modalDepartamento').modal('hide');
+                        getDepartamentos();
+                    }
+                    else
+                        cargarAlert("@SharedLocalizer["errorDuplicacion"]");
+
+
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+        else
+            $('#descripcionValid').attr('hidden', false);
+
+    }
+
+    function crearModelo() {
+        var form = $('#frmDepartamento').serializeArray();
+
+
+        console.log(form);
+
+
+    }
+
+    function getCrearEditarPartial(id)
+    {
+        var url = "@Url.Action("_CrearDepartamento", "Departamento")";
+        if (id != 0) {
+            url = '@Url.Action("_EditarDepartamento", "Departamento", new { id = "__id__"})';
+            url = url.replace("__id__", id);
+        }
+            
+         $.ajax({
+            type: "GET",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+
+            success: function (data) {
+                $('#crearEditarPartial').html(data);
+                $('#modalDepartamento').modal('show');
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+    }
+
+    function getlistarPartial()
+    {
+        var url = "@Url.Action("_ListarDepartamentos", "Departamento")";
+        
+            
+         $.ajax({
+            type: "GET",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+
+            success: function (data) {
+                $('#listaDepartamentos').html(data);
+                //$('#modalDepartamento').modal('show');
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+    }
+
+
+</script>

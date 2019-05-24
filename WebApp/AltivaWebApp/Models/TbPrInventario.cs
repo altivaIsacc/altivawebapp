@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AltivaWebApp.Domains
+namespace AltivaWebApp.Models
 {
     public partial class TbPrInventario
     {
         public TbPrInventario()
         {
-            TbPrAjusteInventario = new HashSet<TbPrAjusteInventario>();
-            TbPrCompraDetalle = new HashSet<TbPrCompraDetalle>();
-            TbPrEquivalenciaIdEquivalenciaNavigation = new HashSet<TbPrEquivalencia>();
-            TbPrEquivalenciaIdInventarioNavigation = new HashSet<TbPrEquivalencia>();
-            TbPrInventarioBodega = new HashSet<TbPrInventarioBodega>();
-            TbPrOrdenDetalle = new HashSet<TbPrOrdenDetalle>();
             TbPrRequisicionDetalle = new HashSet<TbPrRequisicionDetalle>();
         }
 
@@ -44,15 +38,14 @@ namespace AltivaWebApp.Domains
         public double PrecioCreditoFinal { get; set; }
         public string DescripcionVenta { get; set; }
         public int CodigoMonedaVenta { get; set; }
+        public bool HabilitarVentaOnline { get; set; }
+        public long IdFamiliaOnline { get; set; }
+        public string NombreCarrito { get; set; }
+        public string AbreviacionFacturas { get; set; }
+        public int IdMonedaVentaOnline { get; set; }
+        public double PrecioVentaOnline { get; set; }
+        public string SkuOnline { get; set; }
 
-        public virtual TbPrFamilia IdSubFamiliaNavigation { get; set; }
-        public virtual TbPrUnidadMedida IdUnidadMedidaNavigation { get; set; }
-        public virtual ICollection<TbPrAjusteInventario> TbPrAjusteInventario { get; set; }
-        public virtual ICollection<TbPrCompraDetalle> TbPrCompraDetalle { get; set; }
-        public virtual ICollection<TbPrEquivalencia> TbPrEquivalenciaIdEquivalenciaNavigation { get; set; }
-        public virtual ICollection<TbPrEquivalencia> TbPrEquivalenciaIdInventarioNavigation { get; set; }
-        public virtual ICollection<TbPrInventarioBodega> TbPrInventarioBodega { get; set; }
-        public virtual ICollection<TbPrOrdenDetalle> TbPrOrdenDetalle { get; set; }
         public virtual ICollection<TbPrRequisicionDetalle> TbPrRequisicionDetalle { get; set; }
     }
 }
