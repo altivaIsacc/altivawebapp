@@ -24,5 +24,9 @@ namespace AltivaWebApp.Services
         bool DeleteEquivalencia(int id);
         IList<TbPrEquivalencia> GetEquivalenciasPorInventario(int idInventario);
         bool ExisteEquivalencia(TbPrEquivalencia domain);
+        void SaveCaracteristicaInventario(TbPrInventarioCaracteristica domain);
+        IList<TbPrInventarioCaracteristica> GetInventarioCaracteristicaById(int id);
+        bool DeleteCaracteristica(int id);
+        bool DeleteImagen(int id);
     }
 }

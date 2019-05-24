@@ -3835,9 +3835,7 @@ namespace AltivaWebApp.Context
             {
                 entity.HasKey(e => e.IdCaracteristicas);
 
-                entity.ToTable("tb_PR_InventarioCaracteristica");
-
-                entity.Property(e => e.IdCaracteristicas).ValueGeneratedNever();
+                entity.ToTable("tb_PR_InventarioCaracteristica");              
 
                 entity.Property(e => e.Caracteristicas)
                     .IsRequired()

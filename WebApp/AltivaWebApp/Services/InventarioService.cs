@@ -29,6 +29,11 @@ namespace AltivaWebApp.Services
             return repository.GetInventarioImagenByCodigo(id);
         }
 
+        public IList<TbPrInventarioCaracteristica> GetInventarioCaracteristicaById(int id)
+        {
+            return repository.GetInventarioCaracteristicaByCodigo(id);
+        }
+
         public IList<TbPrInventarioBodega> GetAllBodegasPorInventario(int id)
         {
             return repository.GetAllBodegasPorInventario(id);
@@ -66,6 +71,11 @@ namespace AltivaWebApp.Services
              
         }
 
+        public void SaveCaracteristicaInventario(TbPrInventarioCaracteristica domain)
+        {
+            repository.SaveCaracteristicaInventario(domain);
+
+        }
 
         public bool EliminarInventarioBodega(int id)
         {
@@ -79,6 +89,16 @@ namespace AltivaWebApp.Services
         public bool DeleteEquivalencia(int id)
         {
             return repository.DeleteEquivalencia(id);
+        }
+
+        public bool DeleteCaracteristica(int id)
+        {
+            return repository.DeleteCaracteristica(id);
+        }
+
+        public bool DeleteImagen(int id)
+        {
+            return repository.DeleteImagen(id);
         }
 
         public IList<TbPrEquivalencia> GetEquivalenciasPorInventario(int idInventario)

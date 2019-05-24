@@ -100,6 +100,21 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
                 //throw;
             }
+        }
+
+
+        [HttpGet("Caracteristicas/{id}")]
+        public IActionResult _ListarCaracteristicas(int id)
+        {
+            try
+            {
+                return PartialView(service.GetInventarioCaracteristicaById(id));
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                //throw;
+            }
 
         }
 
@@ -254,7 +269,37 @@ namespace AltivaWebApp.Controllers
             }
         }
 
+        [HttpGet("Eliminar-Caracteristica/{id}")]
+        public IActionResult EliminarCaracteristica(int id)
+        {
 
+            try
+            {
+                var res = service.DeleteCaracteristica(id);
+                return Json(new { success = res });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
+        [HttpGet("Eliminar-Imagen/{id}")]
+        public IActionResult EliminarImagen(int id)
+        {
+
+            try
+            {
+                var res = service.DeleteImagen(id);
+                return Json(new { success = res });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
 
         [Route("CambiarEstado-Inventario/{id}")]
         public ActionResult CambiarEstadoInventario(int id)
@@ -371,6 +416,25 @@ namespace AltivaWebApp.Controllers
 
             return RedirectToAction("EditarInventario", new { id });
         }
+
+        [HttpPost("CargarCaracteristicasInventario/{id}")]
+        public ActionResult CargarCaracteristicasInventario(int id, string model)
+        {
+            try
+            {
+                map.CreateCaracteristica(id, model);
+
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return RedirectToAction("EditarInventario", new { id });
+        }
+
 
     }
 }
