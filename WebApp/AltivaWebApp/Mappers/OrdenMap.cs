@@ -285,7 +285,7 @@ namespace AltivaWebApp.Mappers
 
                 domain.TotalDescuentoBase = viewModel.TotalDescuento * domain.TipoCambioEuro;
                 domain.TotalDescuentoDolar = domain.TotalDescuentoBase / domain.TipoCambioDolar;
-                domain.TotalEuro = viewModel.TotalDescuento;
+                domain.TotalDescuentoEuro = viewModel.TotalDescuento;
             }
 
             return domain;

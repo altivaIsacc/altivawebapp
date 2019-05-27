@@ -206,6 +206,12 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IHaciendaMap, HaciendaMap>();
 
 
+            /// Requisicion
+            services.AddScoped<IRequisicionRepository, RequisicionRepository>();
+            services.AddScoped<IRequisicionService, RequisicionService>();
+            services.AddScoped<IRequisicionMap, RequisicionMap>();
+
+
 
         }
     }

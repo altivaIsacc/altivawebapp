@@ -1,0 +1,198 @@
+﻿@model IEnumerable<AltivaWebApp.ViewModels.RequisicionViewModel>
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    ViewData["Title"] = "ListarRequisiciones";
+}
+
+
+
+
+<div class="row">
+    <div class="col-md-3">
+        <h3>@SharedLocalizer["Requisiciones"]</h3>
+    </div>
+    <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
+        <p>
+            <a asp-action="CrearRequisicion" class="btn btn-primary"><span>@SharedLocalizer["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+        </p>
+    </div>
+</div>
+
+<table class="table" id="tblReq">
+    <thead>
+        <tr>
+
+            <th>
+                @SharedLocalizer["Fecha"]
+            </th>
+            <th>
+                @SharedLocalizer["Departamento"]
+            </th>
+            <th>
+                @SharedLocalizer["Descripción"]
+            </th>
+
+            <th>@SharedLocalizer["Acción"]</th>
+        </tr>
+    </thead>
+    <tbody>
+       
+    </tbody>
+</table>
+
+
+<script>
+
+    var reqs = [];
+
+    $(document).ready(function () {
+
+        getRequisiciones();
+    });
+
+    function getRequisiciones() {
+            
+        $.ajax({
+            type: "get",
+            headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetRequisiciones")',
+            success: function (data) {
+                console.log(data);
+                reqs = JSON.parse(JSON.stringify(data));
+                cargarDatos(data);
+            },
+            error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+
+    function cargarDatos(data) {
+
+        $("#tblReq > tbody").remove();
+        $('#tblReq').append('<tbody></tbody>');
+
+        var contadorFila = 0;
+        var colorFila = "";
+        for (var i = 0; i < data.length; i++) {
+
+            if (data[i].anulado)
+                colorFila = "color: #808080";
+
+            var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
+                + '<td><p style="padding-top:1rem;">' + recuperarFecha(data[i].fecha) + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].idDepartamentoNavigation.descripcion + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].descripcion + '</p></td>'
+                + '<td>  <button value="' + data[i].id + '" onclick="getCrearEditar(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+            $('#tblReq > tbody').append(body);
+            contadorFila++;
+
+        }
+
+
+
+        inicializarTabla();
+
+    }
+
+    function inicializarTabla() {
+
+        $('#tblReq').DataTable().destroy();
+
+        tblCompras = $('#tblReq').DataTable({
+            "info": false,
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@SharedLocalizer["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                "paginate": {
+                    "first": "@SharedLocalizer["Primero"]",
+                    "last": "@SharedLocalizer["Último"]",
+                    "next": "@SharedLocalizer["Sguiente"]",
+                    "previous": "@SharedLocalizer["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   "></i>',
+                    titleAttr: 'Copy',
+                    title: '@SharedLocalizer["Departamento"]',
+                    exportOptions: {
+                        columns: [0, 1,2]
+                    }
+
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: '@SharedLocalizer["Departamento"]',
+                    exportOptions: {
+                        columns: [0, 1]
+                    }
+
+                },
+
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: '@SharedLocalizer["Departamento"]',
+                    exportOptions: {
+                        columns: [0, 1]
+                    }
+                }
+            ]
+        });
+
+        //$(".dataTables_searching").hide();
+    }
+
+    function recuperarFecha(_fecha) {
+
+
+        var f = new Date(_fecha);
+
+        //var fecha = _fecha.substr(0, 10);
+        //var y = fecha.substr(0, 4);
+        //var m = fecha.substr(5, 2);
+        //var d = fecha.substr(8, 3);
+
+
+        //return d + "-" + m + "-" + y + " " + _fecha.substr(-12, 5);///new Date(fecha).toLocaleDateString(); //fecha.replace(/-/g, "/");
+
+        return f.toLocaleString();
+
+    }
+
+</script>
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

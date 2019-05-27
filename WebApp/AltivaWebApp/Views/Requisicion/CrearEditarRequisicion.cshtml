@@ -1,0 +1,420 @@
+﻿@model AltivaWebApp.ViewModels.RequisicionViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+    var estado = "";
+
+    if (Model.Anulado)
+    {
+        estado = "disabled";
+    }
+}
+
+@if (Model.Id != 0)
+{
+    <div class="row">
+        <div class="col-md-3"><h3>@SharedLocalizer["editarReq"]</h3></div>
+        <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
+    </div>
+
+}
+else
+{
+    <h3>@SharedLocalizer["nuevaReq"]</h3>
+}
+<hr />
+<div class="row well">
+    <div>
+        <form id="frmReq">
+            @Html.HiddenFor(x => x.Id)
+            @Html.HiddenFor(x => x.Anulado)
+            @Html.HiddenFor(x => x.IdUsuario)
+
+            <div class="form-group col-md-2 col-sm-6 col-xs-12">
+                <fieldset disabled>
+                    <div class="form-group">
+                        <label for="fecha">@SharedLocalizer["Fecha"]:</label>
+                        <div class='input-group date' id='fechaPicker'>
+                            <input type='text' class="form-control" id="fecha" />
+                            <span class="input-group-addon">
+                                <span class="fas fa-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="form-group col-md-2 col-sm-6 col-xs-12">
+                <label class="control-label">@SharedLocalizer["Departamento"]</label>
+                <select asp-for="IdDepartamento" id="departamento" class="form-control selectItems"></select>
+            </div>
+
+            <div class="form-group col-md-5 col-sm-12 col-xs-12">
+                <label asp-for="Descripcion" class="control-label">@SharedLocalizer["Descripción"]</label>
+                <textarea @estado asp-for="Descripcion" id="descripcion" rows="4" maxlength="250" class="form-control">@Model.Descripcion</textarea>
+                <span hidden id="descripcionValid" class="text-danger"></span>
+            </div>
+
+        </form>
+    </div>
+    <div class="col-md-12 table-responsive">
+        <table class="table table-bordered table-striped" id="tblReq" style="min-width:900px">
+            <thead>
+                <tr>
+                    <th style="width:12%">@SharedLocalizer["Item"]</th>
+                    <th style="width:24%">@SharedLocalizer["Descripción"]</th>
+                    <th style="width:6%">@SharedLocalizer["Cantidad"]</th>
+                    <th style="width:12%">@SharedLocalizer["PrecioUnitario"]</th>
+                    <th style="width:12%">@SharedLocalizer["Total"]</th>
+                    <th style="width:8%">@SharedLocalizer["Acción"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="lineaForm">
+                    <td><select @estado class="form-control selectItems" id="item"></select></td>
+                    <td><input readonly class="form-control" id="descripcionLinea" /></td>
+                    <td><input @estado class="form-control numerico" type="text" min="0" id="cantidad" /></td>
+                    <td><input @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
+                    <td><input class="form-control moneda" readonly type="text" id="totalLinea" /></td>
+                    <td><button @estado class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-offset-9 col-md-3">
+        <form>
+            <div class="form-group">
+                <label class="control-label">@SharedLocalizer["Total"]</label>
+                <input readonly id="total" class="form-control currency" />
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="form-group col-md-3">
+        <button @estado class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"]<i class="fas fa-save"></i></button>
+        <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div id="comentarios">
+
+        </div>
+    </div>
+</div>
+
+<div hidden><input hidden id="formater" class="currency" type="text" /></div>
+
+<script src="~/js/comentario.js"></script>
+
+<script>
+
+    ///linea
+    var $item = $('#item');
+    var $descripcion = $('#descripcionLinea');
+    var $totalLinea = $('#totalLinea');
+    var $precio = $('#precio');
+    var $cantidad = $('#cantidad');
+
+    ///////////requisicion
+    var $total = $('#total');
+    var $departamento = $('#departamento');
+    var $fecha = $('#fecha');
+
+    var totalReq = 0;
+
+    var reqDetalleBD = [];
+    var lineas = [];
+    var items = [];
+    var lineasAgregadas = [];
+    var lineasEliminadas = [];
+    var departamentos = [];
+
+
+    $(document).ready(function () {
+
+
+        $('#fechaPicker').datetimepicker({
+            defaultDate: new Date(),
+            locale: localStorage.getItem("idioma")
+        });
+
+        $(".moneda").inputmask({
+            'alias': 'decimal',
+            rightAlign: true,
+        });
+
+        $(".numerico").inputmask({
+            'alias': 'decimal',
+            rightAlign: false,
+        });
+        $(".currency").inputmask('currency', {
+            prefix: "CRC ",
+            rightAlign: true
+        });
+
+        getInventario();
+        getDepartamentos();
+
+        $('.selectItems').select2({ width: null, language: localStorage.getItem("idioma") });
+
+        $('#item').on('change.select2', function () {
+
+            var itemInfo = getItem($(this).val());
+
+            $descripcion.val(itemInfo.descripcion);
+            $precio.val(itemInfo.costoPromedioGeneral);
+            $cantidad.val(1);
+            setTotalLinea();
+        });
+
+        $('textarea[data-limit-rows=true]')
+            .on('keypress', function (event) {
+                var textarea = $(this),
+                    text = textarea.val(),
+                    numberOfLines = (text.match(/\n/g) || []).length + 1,
+                    maxRows = parseInt(textarea.attr('rows'));
+
+                if (event.which === 13 && numberOfLines === maxRows) {
+                    return false;
+                }
+            });
+    });
+
+
+    /////////////////////////////eventos del dom////////////////////////////////////////
+    $cantidad.on('focusout', function () {
+        if ($(this).val() <= 0 || $(this).val() === "")
+            $(this).val(1);
+
+        setTotalLinea();
+    });
+
+    $precio.on('keyup, change, focusout', function () {
+        if ($(this).val() < 0 || $(this).val() === "")
+            $(this).val(0);
+
+        setTotalLinea();
+
+    });
+
+
+
+    ////////////////////////////////////////ajax////////////////////////////////////////////
+
+    function getReqDetalle() {
+        if(@Model.Id != 0)
+        $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("GetOrdenDetalle")',
+
+            success: function (data) {
+                ordenDetalleBD = JSON.parse(JSON.stringify(data));
+                cargarLineas(data);
+                console.log(data);
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function getInventario() {
+
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetAllInventario", "Inventario")',
+             success: function (data) {
+
+                 for (var i = 0; i < data.length; i++) {
+                     if (!data[i].inactiva)
+                         items.push(data[i]);
+                 }
+                 //items = data;
+                 cargarItems(items);
+                 //getReqDetalle();
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function getDepartamentos() {
+
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetDepartamentos")',
+             success: function (data) {
+                 departamentos = data;
+
+                 for (var i = 0; i < data.length; i++) {
+                     if (!data[i].anulado) {
+                         var o = new Option(data[i].descripcion, data[i].id);
+                         $("#departamento").append(o);
+                     }
+
+
+                 }
+
+
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+
+    //////////////////////////////////////////////////////helpers///////////////////////////////////
+
+    function formatCurrency(value) {
+        $('#formater').val(value);
+
+        return $('#formater').val();
+    }
+
+    function guardarLinea() {
+
+
+        var model = {
+            id: 0,
+            idRequisicion: @Model.Id,
+            idInventario: $item.val(),
+            cantidad: parseFloat($cantidad.val()),
+            precio: parseFloat($precio.val()),
+            total: parseFloat($cantidad.val()) * parseFloat($precio.val())
+        };
+
+
+        lineasAgregadas.push(model);
+        lineas.push(model);
+
+        cargarTabla(lineas);
+
+    }
+
+    function eliminarLinea(_id, idLinea) {
+
+        bootbox.confirm("@SharedLocalizer["confirmEliminarLinea"]", function (result) {
+
+            if (result) {
+
+                var id = _id - 1;
+
+
+                if (idLinea != 0)
+                    lineasEliminadas.push(lineas[id].id);
+                else
+                    lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
+
+                lineas.splice(id, 1);
+
+
+                cargarTabla(lineas);
+
+
+            }
+
+        });
+
+
+    }
+
+
+    function cargarTabla(data) {
+
+        console.log(data);
+
+        $('.filasCargadas').remove();
+
+        contadorFila = 0;
+        var subtotal = 0;
+
+        for (var i = 0; i < data.length; i++) {
+            contadorFila++;
+
+
+
+            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + getItem(data[i].idInventario).codigo + '</td>'
+                + '<td style="padding-top:2rem;">' + getItem(data[i].idInventario).descripcion + ' </td>'
+                + '<td style="padding-top:2rem;">' + data[i].cantidad + ' </td>'
+                + '<td style="padding-top:2rem; text-align:right"> ' + formatCurrency(data[i].precio) + '</td>'
+                + '<td style="padding-top:2rem; text-align:right">' + formatCurrency(data[i].total) + '</td>'
+                + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
+
+            $('.lineaForm').before(body);
+
+        }
+
+        calcularTotales();
+
+
+    }
+
+    function getItem(id) {
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].idInventario == parseInt(id))
+                return items[i];
+        }
+    }
+
+    function cargarItems(data) {
+        for (var i = 0; i < data.length; i++) {
+            var o = new Option(data[i].codigo, data[i].idInventario);
+            $("#item").append(o);
+
+        }
+
+        $("#item").trigger('change');
+    }
+
+
+    /////////////////////////////////////////////calculos////////////////////////////////////////
+    function calcularTotales() {
+        totalReq = 0;
+
+        for (var i = 0; i < lineas.length; i++) {
+            totalReq += lineas[i].total;
+        }
+
+        $total.val(totalReq);
+
+    }
+
+    function setTotalLinea() {
+
+        var precio = parseFloat($precio.val());
+        var cantidad = parseFloat($cantidad.val());
+
+        $totalLinea.val(cantidad * precio);
+
+    }
+
+
+</script>

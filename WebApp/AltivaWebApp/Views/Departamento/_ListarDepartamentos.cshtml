@@ -107,10 +107,13 @@
         $('#tblDepartamento').append('<tbody></tbody>');
 
         var contadorFila = 0;
-
+        var colorFila = "";
         for (var i = 0; i < data.length; i++) {
 
-                 var body = '<tr class="fila' + contadorFila + ' filas">'
+            if (data[i].anulado)
+                colorFila = "color: #808080";
+
+            var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
                     + '<td><p style="padding-top:1rem;">' + recuperarFecha(data[i].fecha) + '</p></td>'
                     + '<td><p style="padding-top:1rem;">' + data[i].descripcion + '</p></td>'
                      + '<td>  <button value="' + data[i].id + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="anularDepartamento(value)" class="btn btn-link btnEditar"><i class="fas fa-trash"></i></button>';
@@ -191,16 +194,23 @@
 
     $("#filtroBuscarNombre").on("keyup", function () {
         tblCompras
-            .columns(0)
+            .columns(1)
             .search(this.value)
             .draw();
     });
 
     function filtroAnuladas() {
+
+        
+
         var array = departamentos;
+
+        
+
         var arrayCompras = [];//JSON.parse(JSON.stringify(ordenFiltrado));
 
         if ($('#estado').prop('checked')) {
+
             for (var i = 0; i < array.length; i++) {
                 if (array[i].anulado)
                     arrayCompras.push(array[i]);
@@ -213,7 +223,7 @@
                     arrayCompras.push(array[i]);
             }
 
-        cargarDatos(array);
+        cargarDatos(arrayCompras);
 
     }
 
@@ -221,14 +231,6 @@
 
 
         var f = new Date(_fecha);
-
-        //var fecha = _fecha.substr(0, 10);
-        //var y = fecha.substr(0, 4);
-        //var m = fecha.substr(5, 2);
-        //var d = fecha.substr(8, 3);
-
-
-        //return d + "-" + m + "-" + y + " " + _fecha.substr(-12, 5);///new Date(fecha).toLocaleDateString(); //fecha.replace(/-/g, "/");
 
         return f.toLocaleString();
 
