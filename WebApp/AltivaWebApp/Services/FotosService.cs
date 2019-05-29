@@ -86,14 +86,16 @@ namespace AltivaWebApp.Services
                       
         }
 
-        public static IList<string> SubirAdjuntos(IFormFile[] files)
+        public static IList<string> SubirAdjuntos(IFormFile[] files, string savePath)
         {
             var rutas = new List<string>();
             foreach (var item in files)
             {
                 var fileName = GetUniqueName(item.FileName);
 
-                var path = $"wwwroot\\Files\\{fileName}";
+                //var path = $"wwwroot\\Files\\{fileName}";
+                var path = $"{savePath}\\{fileName}";
+
                 using (var stream = new FileStream(path, FileMode.Create))
                 {
                     item.CopyTo(stream);

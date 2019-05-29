@@ -1,6 +1,7 @@
 ﻿using AltivaWebApp.Domains;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -12,9 +13,12 @@ namespace AltivaWebApp.Mappers
     public class InventarioMap : IInventarioMap
     {
         readonly IInventarioService service;
-        public InventarioMap(IInventarioService service)
+        private readonly IHostingEnvironment hostingEnvironment;
+
+        public InventarioMap(IInventarioService service, IHostingEnvironment hostingEnvironment)
         {
             this.service = service;
+            this.hostingEnvironment = hostingEnvironment;
         }
 
         public TbPrInventario Create(InventarioViewModel viewModel)
@@ -87,7 +91,8 @@ namespace AltivaWebApp.Mappers
         {
             var imgInventario = new List<TbPrImagenInventario>();
 
-            var fotos = FotosService.SubirAdjuntos(files);
+            var savePath = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "Files");
+            var fotos = FotosService.SubirAdjuntos(files, savePath);
             foreach (var item in fotos)
             {
                 imgInventario.Add(new TbPrImagenInventario

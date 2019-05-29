@@ -7,15 +7,19 @@ using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
 using System.IO;
 using AltivaWebApp.GEDomain;
+using Microsoft.AspNetCore.Hosting;
 
 namespace AltivaWebApp.ViewModels.Components.Avatar
 {
     public class Avatar : ViewComponent
     {
         IUserMap _userMap;
-        public Avatar(IUserMap userMap)
+        private readonly IHostingEnvironment hostingEnvironment;
+
+        public Avatar(IUserMap userMap, IHostingEnvironment hostingEnvironment)
         {
             this._userMap = userMap;
+            this.hostingEnvironment = hostingEnvironment;
         }
         public IViewComponentResult Invoke( UsuarioViewModel model)
         {
@@ -26,7 +30,9 @@ namespace AltivaWebApp.ViewModels.Components.Avatar
         public IList<string> Avatars()
         {
             IList<string> avatars;
-            string directorio = $"wwwroot\\avatars\\";
+            //string directorio = $"wwwroot\\avatars\\";
+            string directorio = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "avatars");
+
             avatars = Directory.GetFiles(directorio).Select(f => System.IO.Path.GetFileName(f)).ToList();
             return avatars;
         }
