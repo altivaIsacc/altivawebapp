@@ -11,6 +11,7 @@ namespace AltivaWebApp.ViewModels
         public long Id { get; set; }
         public DateTime Fecha { get; set; }
         public int IdDepartamento { get; set; }
+        public int IdBodega { get; set; }
         public bool Anulado { get; set; }
         public long IdUsuario { get; set; }
         public string Descripcion { get; set; }

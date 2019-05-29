@@ -12,11 +12,13 @@ namespace AltivaWebApp.Mappers
         private readonly IKardexService service;
         private readonly IAjusteService ajusteService;
         private readonly ICompraService compraService;
-        public KardexMap(ICompraService compraService, IKardexService service, IAjusteService ajusteService)
+        private readonly IRequisicionService reqService;
+        public KardexMap(IRequisicionService reqService, ICompraService compraService, IKardexService service, IAjusteService ajusteService)
         {
             this.service = service;
             this.ajusteService = ajusteService;
             this.compraService = compraService;
+            this.reqService = reqService;
         }
 
         public bool CreateKardexAM(TbPrAjuste ajuste, int idAjuste)
@@ -377,6 +379,72 @@ namespace AltivaWebApp.Mappers
 
 
         }
+
+
+        ///////////////////////////requisiciones
+        ///
+        public bool CreateKardexRD(IList<TbPrRequisicionDetalle> rq, bool isDeteled)
+        {
+            var domain = reqService.GetReqById((int)rq.First().IdRequisicion);
+            var kardex = new List<TbPrKardex>();
+            var cd = new List<TbPrCompraDetalle>();
+
+            double cantidad = 0;
+
+           
+
+
+            foreach (var item in rq)
+            {
+                cantidad = 0;
+                if (isDeteled)
+                    cantidad = item.Cantidad * -1;
+                else
+                    cantidad = item.Cantidad;
+
+                var k = new TbPrKardex
+                {
+                    CantidadMov = cantidad,
+                    CostoPromedio = 0,
+                    CostoMov = item.Total,
+                    Fecha = DateTime.Now,
+                    ExistAct = 0,
+                    ExistAnt = 0,
+                    ExistActBod = 0,
+                    ExistAntBod = 0,
+                    IdBodegaDestino = 1,
+                    IdBodegaOrigen = 1,
+                    IdDocumento = domain.Id,
+                    IdUsuario = domain.IdUsuario,
+                    IdMoneda = 1,
+                    Observaciones = "N/A",
+                    PrecioPromedio = 0,
+                    PrecioUnit = item.PrecioUnitario,
+                    IdInventario = item.IdInventario,
+                    TipoDocumento = "Req",
+                    SaldoFinal = 0
+                };
+
+                kardex.Add(k);
+
+            }
+
+
+
+            try
+            {
+                service.SaveAll(kardex);
+                return true;
+            }
+            catch (Exception)
+            {
+                return true;
+                throw;
+            }
+
+        }
+
+
 
 
 

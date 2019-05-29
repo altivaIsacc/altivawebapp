@@ -14,8 +14,9 @@ namespace AltivaWebApp.Repositories
         IList<TbPrRequisicionDetalle> GetAllRDByRequisicionId(int id);
         void SaveRD(IList<TbPrRequisicionDetalle> domain);
         void UpdateRD(IList<TbPrRequisicionDetalle> domain);
-        bool DeleteRD(IList<int> domain, int idReq);
+        bool DeleteRD(IList<TbPrRequisicionDetalle> domain);
         IList<TbPrRequisicion> GetAllWithDetails();
+        IList<TbPrRequisicionDetalle> GetAllReqDetalleById(IList<int> domain);
 
     }
 }

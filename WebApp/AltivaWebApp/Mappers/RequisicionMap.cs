@@ -46,6 +46,7 @@ namespace AltivaWebApp.Mappers
                 Fecha = DateTime.Now,
                 FechaCreacion = DateTime.Now,
                 IdDepartamento = viewModel.IdDepartamento,
+                IdBodega = viewModel.IdBodega,
                 IdUsuario = viewModel.IdUsuario,
                 Total = viewModel.Total,
                 TbPrRequisicionDetalle = ViewModelToDomaineRD(viewModel.RequisicionDetalle)
@@ -101,7 +102,8 @@ namespace AltivaWebApp.Mappers
                 Fecha = domain.Fecha,
                 IdDepartamento = domain.IdDepartamento,
                 Total = domain.Total,
-                IdUsuario = domain.IdUsuario
+                IdUsuario = domain.IdUsuario,
+                IdBodega = (int)domain.IdBodega
             };
         }
 

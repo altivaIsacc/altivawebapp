@@ -30,6 +30,18 @@ else
     <h3>@SharedLocalizer["nuevaReq"]</h3>
 }
 <hr />
+
+<div class="row">
+    @if (Model.Id != 0 && !Model.Anulado)
+    {
+        <div class="col-md-12 text-right"><button class="btn btn-danger btn-sm" onclick="anularReq()">@SharedLocalizer["Anular"]</button></div>
+    }
+    else if (Model.Id != 0)
+    {
+        <div class="col-md-12 text-left"> <h4 class="text-danger">@SharedLocalizer["RequisicionAnulada"]</h4></div>
+    }
+</div>
+
 <div class="row well">
     <div>
         <form id="frmReq">
@@ -55,10 +67,15 @@ else
                 <select asp-for="IdDepartamento" id="departamento" class="form-control selectItems"></select>
             </div>
 
+            <div class="form-group col-md-2 col-sm-6 col-xs-12">
+                <label class="control-label">@SharedLocalizer["Bodega"]</label>
+                <select  id="bodegas" class="form-control selectItems"></select>
+            </div>
+
             <div class="form-group col-md-5 col-sm-12 col-xs-12">
                 <label asp-for="Descripcion" class="control-label">@SharedLocalizer["Descripción"]</label>
                 <textarea @estado asp-for="Descripcion" id="descripcion" rows="4" maxlength="250" class="form-control">@Model.Descripcion</textarea>
-                <span hidden id="descripcionValid" class="text-danger"></span>
+                <span hidden id="descripcionValid" class="text-danger">@SharedLocalizer["descripcionValid"]</span>
             </div>
 
         </form>
@@ -100,7 +117,7 @@ else
 
 <div class="row">
     <div class="form-group col-md-3">
-        <button @estado class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"]<i class="fas fa-save"></i></button>
+        <button @estado class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
         <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
     </div>
 </div>
@@ -121,7 +138,7 @@ else
 
     ///linea
     var $item = $('#item');
-    var $descripcion = $('#descripcionLinea');
+    var $descripcionLinea = $('#descripcionLinea');
     var $totalLinea = $('#totalLinea');
     var $precio = $('#precio');
     var $cantidad = $('#cantidad');
@@ -130,6 +147,8 @@ else
     var $total = $('#total');
     var $departamento = $('#departamento');
     var $fecha = $('#fecha');
+    var $descripcion = $('#descripcion');
+    var $bodega = $('#bodegas');
 
     var totalReq = 0;
 
@@ -139,10 +158,18 @@ else
     var lineasAgregadas = [];
     var lineasEliminadas = [];
     var departamentos = [];
+    var bodegas = [];
 
 
     $(document).ready(function () {
 
+
+        if (@Model.Id != 0) {
+            
+            GetComentarios("Req", @Model.Id);
+            //date = new Date(formatearFecha());
+           
+        }
 
         $('#fechaPicker').datetimepicker({
             defaultDate: new Date(),
@@ -163,7 +190,8 @@ else
             rightAlign: true
         });
 
-        getInventario();
+        //getInventario();
+        getBodegasInventario();
         getDepartamentos();
 
         $('.selectItems').select2({ width: null, language: localStorage.getItem("idioma") });
@@ -172,7 +200,7 @@ else
 
             var itemInfo = getItem($(this).val());
 
-            $descripcion.val(itemInfo.descripcion);
+            $descripcionLinea.val(itemInfo.descripcion);
             $precio.val(itemInfo.costoPromedioGeneral);
             $cantidad.val(1);
             setTotalLinea();
@@ -189,6 +217,17 @@ else
                     return false;
                 }
             });
+
+
+
+        $("#bodegas").change(function () {
+
+            for (var i = 0; i < bodegas.length; i++) {
+                if (bodegas[i].id === parseInt($(this).val()))
+                    cargarItems(bodegas[i].tbPrInventarioBodega);
+            }
+
+        });
     });
 
 
@@ -208,6 +247,8 @@ else
 
     });
 
+    
+
 
 
     ////////////////////////////////////////ajax////////////////////////////////////////////
@@ -220,10 +261,10 @@ else
                   "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
               },
               dataType: "json",
-            url: '@Url.Action("GetOrdenDetalle")',
+            url: '@Url.Action("GetRequisicionDetalle")',
 
             success: function (data) {
-                ordenDetalleBD = JSON.parse(JSON.stringify(data));
+                reqDetalleBD = JSON.parse(JSON.stringify(data));
                 cargarLineas(data);
                 console.log(data);
                },
@@ -251,7 +292,7 @@ else
                  }
                  //items = data;
                  cargarItems(items);
-                 //getReqDetalle();
+                 getReqDetalle();
                },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -290,13 +331,219 @@ else
           });
     }
 
+    function guardarRequisicion() {
+
+
+        $.ajax({
+              type: "POST",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("CrearEditarRequisicion")',
+            data: crearModelo(),
+            success: function (data) {
+                if (lineasEliminadas.length > 0)
+                    eliminarRequisicionDetalle();
+                window.location.href = "@Url.Action("ListarRequisiciones")";
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+
+    }
+
+    function eliminarRequisicionDetalle() {
+
+
+        $.ajax({
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("EliminarRequisicionDetalle", new { id = Model.Id })',
+            data: { viewModel: lineasEliminadas },
+            success: function (data) {
+               // console.log(data);
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+     function anularReq() {
+        bootbox.prompt({
+            title: "@SharedLocalizer["confirmAnularRequisicion"]",
+            message: '<p>@SharedLocalizer["Justificación"]</p>',
+            inputType: 'textarea',
+            callback: function (result) {
+                if (result != null) {
+
+                    if (result.replace(/ /g, "") != "") {
+
+
+                    $.ajax({
+                        type: "post",
+                        headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        dataType: "json",
+                        url: '@Url.Action("AnularRequisicion")',
+                        data: {id: @Model.Id},
+                        success: function (data) {
+                            setMensajeFromOut(result);
+                            cargarAlert('@SharedLocalizer["RequisicionAnulada"]');
+                            window.location.href = "@Url.Action("ListarRequisiciones")";
+
+                        },
+                        error: function (err, scnd) {
+                            cargarAlert('@SharedLocalizer["errorGeneral"]');
+                            console.log(err.statusText);
+                        }
+                    });
+
+                }
+                else
+                    cargarAlert('@SharedLocalizer["JustificacionInvalida"]');
+                }
+
+            }
+        });
+    }
+
+    function getBodegasInventario() {
+
+          $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetBodegaInventario", "AjusteInventario")',
+              success: function (data) {
+                  bodegas = data;
+                  cargarBodegas(data);
+                 
+                  getReqDetalle();
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
 
     //////////////////////////////////////////////////////helpers///////////////////////////////////
+
+    function cargarBodegas(data) {
+        console.log(data);
+        var flag = true;
+
+        for (var i = 0; i < data.length; i++) {
+            var o = new Option(data[i].nombre, data[i].id);
+            if (data[i].id === @Model.IdBodega) {
+                
+                $(o).attr('selected', true);
+                
+                cargarItems(data[i].tbPrInventarioBodega);
+                flag = false;
+            }
+
+            $("#bodegas").append(o);
+        }
+
+        if (flag)
+            cargarItems(data[0].tbPrInventarioBodega);
+
+
+        @*if (@Model.Id != 0)
+            $bodega.val(@Model.IdBodega);
+        else
+            $bodega.val(1);
+
+        $('.selectItems').trigger('change.select2');*@
+        
+
+        //getAjusteInventario();
+
+    }
+    function editarLinea(key, id) {
+
+
+        var detalle = lineas[key - 1];
+
+
+        $item.val(detalle.idInventario);
+        $('.selectItems').trigger('change');
+        $cantidad.val(detalle.cantidad);
+        $precio.val(detalle.precioUnitario);
+
+        $precio.trigger("focusout");
+
+        eliminarLineaDirect(key, id);
+
+    }
+
+
+    function crearModelo() {
+        return model = {
+            id: @Model.Id,
+            fecha: $fecha.val(),
+            idDepartamento: $departamento.val(),
+            idBodega: $bodega.val(),
+            anulado: false,
+            idUsuario: @Model.IdUsuario,
+            descripcion: $descripcion.val(),
+            total: totalReq.toString().replace(".", ","),
+            RequisicionDetalle: crearModelDetalle(lineasAgregadas)
+        };
+    }
+
+    function crearModelDetalle(model) {
+        for (var i = 0; i < model.length; i++) {
+            model[i].precioUnitario.toString().replace(".", ",");
+            model[i].total.toString().replace(".", ",");
+        }
+
+        console.log(model);
+        return model;
+    }
+
+    function guardarCambios() {
+
+        if (validarForm())
+            guardarRequisicion();
+    }
+
 
     function formatCurrency(value) {
         $('#formater').val(value);
 
         return $('#formater').val();
+    }
+
+    function cargarLineas(data) {
+        for (var i = 0; i < data.length; i++) {
+            var model = {
+                id: data[i].id,
+                idRequisicion: @Model.Id,
+                idInventario: data[i].idInventario,
+                cantidad: data[i].cantidad,
+                precioUnitario: data[i].precioUnitario,
+                total: data[i].total
+            };
+
+            //lineasAgregadas.push(model);
+            lineas.push(model);
+        }
+
+        cargarTabla(lineas);
     }
 
     function guardarLinea() {
@@ -307,7 +554,7 @@ else
             idRequisicion: @Model.Id,
             idInventario: $item.val(),
             cantidad: parseFloat($cantidad.val()),
-            precio: parseFloat($precio.val()),
+            precioUnitario: parseFloat($precio.val()),
             total: parseFloat($cantidad.val()) * parseFloat($precio.val())
         };
 
@@ -319,31 +566,46 @@ else
 
     }
 
-    function eliminarLinea(_id, idLinea) {
+    function validarForm() {
+        //var frmOrden = $('#frmOrden').serializeArray();
+
+        if ($descripcion.val().replace(/ /g, "") === "") {
+            $('#descripcionValid').attr("hidden", false);
+            return false;
+        }
+        else if (lineas.length <= 0) {
+            cargarAlert('@SharedLocalizer["requisicionSinDetalle"]');
+            return false;
+        }
+
+        return true;
+    }
+
+    function eliminarLinea(_key, idLinea) {
 
         bootbox.confirm("@SharedLocalizer["confirmEliminarLinea"]", function (result) {
 
             if (result) {
 
-                var id = _id - 1;
-
-
-                if (idLinea != 0)
-                    lineasEliminadas.push(lineas[id].id);
-                else
-                    lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
-
-                lineas.splice(id, 1);
-
-
-                cargarTabla(lineas);
-
-
+                eliminarLineaDirect(_key, idLinea);
             }
 
         });
 
+    }
 
+    function eliminarLineaDirect(_key, idLinea) {
+        var key = _key - 1;
+
+        if (idLinea != 0)
+            lineasEliminadas.push(lineas[key].id);
+        else
+            lineasAgregadas.splice($.inArray(lineas[key], lineasAgregadas), 1);
+
+        lineas.splice(key, 1);
+
+
+        cargarTabla(lineas);
     }
 
 
@@ -364,7 +626,7 @@ else
             var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + getItem(data[i].idInventario).codigo + '</td>'
                 + '<td style="padding-top:2rem;">' + getItem(data[i].idInventario).descripcion + ' </td>'
                 + '<td style="padding-top:2rem;">' + data[i].cantidad + ' </td>'
-                + '<td style="padding-top:2rem; text-align:right"> ' + formatCurrency(data[i].precio) + '</td>'
+                + '<td style="padding-top:2rem; text-align:right"> ' + formatCurrency(data[i].precioUnitario) + '</td>'
                 + '<td style="padding-top:2rem; text-align:right">' + formatCurrency(data[i].total) + '</td>'
                 + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
 
@@ -385,13 +647,33 @@ else
     }
 
     function cargarItems(data) {
+
+        arrayInventario = data;
+
+        $('#item option').remove();
+
+        arrayItems = [];
+
         for (var i = 0; i < data.length; i++) {
-            var o = new Option(data[i].codigo, data[i].idInventario);
-            $("#item").append(o);
+
+            if (!data[i].idInventarioNavigation.inactiva) {
+                var o = new Option(data[i].idInventarioNavigation.codigo, data[i].idInventarioNavigation.idInventario);
+                $("#item").append(o);
+                items.push(data[i].idInventarioNavigation);
+            }
 
         }
 
         $("#item").trigger('change');
+        
+    }
+
+    function cancelar() {
+        bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) {
+            if (result)
+                window.location.href = "@Url.Action("ListarRequisiciones")";
+
+        });
     }
 
 

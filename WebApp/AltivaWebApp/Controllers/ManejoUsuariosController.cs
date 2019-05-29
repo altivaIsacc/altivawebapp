@@ -37,7 +37,7 @@ namespace AltivaWebApp.Controllers
         }
 
         // GET: ManejoUsuarios
-        [HttpGet("Lista-Usarios")]
+        [HttpGet("Listar-Usarios")]
         public ActionResult ListaUsuarios(string estado)
         {
 
@@ -61,7 +61,7 @@ namespace AltivaWebApp.Controllers
             return View(usariosFiltrados);
 
         }
-        [Route("Cuenta-Usuario/{codigo?}")]
+        [Route("Cuenta-Usuario/{codigo}")]
         public ActionResult CuentaUsuario(string codigo)
         {
             var model =  userService.GetUsuarioConPerfiles(codigo);
@@ -240,7 +240,7 @@ namespace AltivaWebApp.Controllers
             return View(modelView);
 
         }
-        [HttpPost("Editar-Usuario/{id?}")]
+        [HttpPost("Editar-Usuario/{id}")]
         public ActionResult EditarUsuario(UsuarioViewModel model)
         {
             string i = "";

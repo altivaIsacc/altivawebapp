@@ -4058,6 +4058,12 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
 
+                entity.HasOne(d => d.IdBodegaNavigation)
+                   .WithMany(p => p.TbPrRequisicion)
+                   .HasForeignKey(d => d.IdBodega)
+                   .OnDelete(DeleteBehavior.ClientSetNull)
+                   .HasConstraintName("FK_tb_PR_Requisicion_tb_PR_Bodega");
+
                 entity.HasOne(d => d.IdDepartamentoNavigation)
                     .WithMany(p => p.TbPrRequisicion)
                     .HasForeignKey(d => d.IdDepartamento)

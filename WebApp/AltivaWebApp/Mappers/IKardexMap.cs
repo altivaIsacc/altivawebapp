@@ -14,5 +14,6 @@ namespace AltivaWebApp.Mappers
         bool CreateKardexEliminarCD(TbPrCompra domain);
         bool CreateKardexCDSingle(int idCD);
         bool CreateKardexEliminarCDSingle(int idCD);
+        bool CreateKardexRD(IList<TbPrRequisicionDetalle> rq, bool isDeteled);
     }
 }

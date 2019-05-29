@@ -20,9 +20,9 @@ namespace AltivaWebApp.Services
         {
             return repository.GetAllWithDetails();
         }
-        public bool DeleteRD(IList<int> domain, int idReq)
+        public bool DeleteRD(IList<TbPrRequisicionDetalle> domain)
         {
-            return repository.DeleteRD(domain, idReq);
+            return repository.DeleteRD(domain);
         }
 
         public IList<TbPrRequisicionDetalle> GetAllRDByRequisicionId(int id)
@@ -53,6 +53,11 @@ namespace AltivaWebApp.Services
         public void UpdateRD(IList<TbPrRequisicionDetalle> domain)
         {
             repository.UpdateRD(domain);
+        }
+
+        public IList<TbPrRequisicionDetalle> GetAllReqDetalleById(IList<int> domain)
+        {
+            return repository.GetAllReqDetalleById(domain);
         }
     }
 }

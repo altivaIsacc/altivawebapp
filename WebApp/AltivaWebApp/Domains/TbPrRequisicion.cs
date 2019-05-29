@@ -18,7 +18,9 @@ namespace AltivaWebApp.Domains
         public long IdUsuario { get; set; }
         public string Descripcion { get; set; }
         public double Total { get; set; }
+        public long IdBodega { get; set; }
 
+        public virtual TbPrBodega IdBodegaNavigation { get; set; }
         public virtual TbPrDepartamento IdDepartamentoNavigation { get; set; }
         public virtual ICollection<TbPrRequisicionDetalle> TbPrRequisicionDetalle { get; set; }
     }
