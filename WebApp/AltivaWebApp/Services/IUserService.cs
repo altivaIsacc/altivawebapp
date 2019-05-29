@@ -9,6 +9,7 @@ namespace AltivaWebApp.Services
     public interface IUserService
     {
         IList<TbSeUsuario> GetAllById(int id);
+        TbSeUsuario GetUsuarioConPerfilesById(int id);
         TbSeUsuario Create(TbSeUsuario domain);
         TbSeUsuario UpdateUsuario(TbSeUsuario domain);
         void Delete(TbSeUsuario domain);

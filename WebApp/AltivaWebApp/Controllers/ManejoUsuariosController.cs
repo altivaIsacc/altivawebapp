@@ -99,7 +99,7 @@ namespace AltivaWebApp.Controllers
 
             return View(userMap.DomainToViewModelSingle(model));
         }
-
+            
         [Route("Cambiar-Configuracion")]
         public IActionResult CambiarConfig(ConfiguracionUViewModel config)
         {
