@@ -12,6 +12,6 @@ namespace AltivaWebApp.Repositories
         TbCeColaAprobacion Update(TbCeColaAprobacion tbCeColaAprobacion);
         IList<TbCeColaAprobacion> GetAll();
         IList<TbCeColaAprobacion> GetAllSinAnular();
-        TbCeColaAprobacion GetById(long id);
+        TbCeColaAprobacion GetByIdDoc(long id);
     }
 }

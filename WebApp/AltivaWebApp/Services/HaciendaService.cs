@@ -39,7 +39,7 @@ namespace AltivaWebApp.Services
 
         public TbCeColaAprobacion GetCAById(long id)
         {
-            return colaRepository.GetById(id);
+            return colaRepository.GetByIdDoc(id);
         }
 
 

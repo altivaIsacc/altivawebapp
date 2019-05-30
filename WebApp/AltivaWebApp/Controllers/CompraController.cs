@@ -23,8 +23,9 @@ namespace AltivaWebApp.Controllers
         private readonly IBodegaService bodegaService;
         private readonly IKardexMap kardexMap;
         private readonly IHaciendaMap haciendaMap;
+        private readonly IHaciendaService haciendaService;
 
-        public CompraController(IHaciendaMap haciendaMap, IKardexMap kardexMap, IBodegaService bodegaService, IUserService userService, ICompraMap map, IInventarioService inventarioService, IMonedaService monedaService, ICompraService service, IContactoService contactoService)
+        public CompraController(IHaciendaService haciendaService, IHaciendaMap haciendaMap, IKardexMap kardexMap, IBodegaService bodegaService, IUserService userService, ICompraMap map, IInventarioService inventarioService, IMonedaService monedaService, ICompraService service, IContactoService contactoService)
         {
             this.service = service;
             this.contactoService = contactoService;
@@ -35,6 +36,7 @@ namespace AltivaWebApp.Controllers
             this.bodegaService = bodegaService;
             this.kardexMap = kardexMap;
             this.haciendaMap = haciendaMap;
+            this.haciendaService = haciendaService;
         }
 
         // GET: Compra
@@ -135,6 +137,11 @@ namespace AltivaWebApp.Controllers
                 if(!compra.Borrador)
                     kardexMap.CreateKardexEliminarCD(compra);
                 compra = service.Update(compra);
+
+                var hacienda = haciendaService.GetCAById(compra.Id);
+                hacienda.Anulado = true;
+                haciendaService.UpdateCA(hacienda);
+               
                 return Json(new { success = true });
             }
             catch (Exception)
@@ -168,7 +175,6 @@ namespace AltivaWebApp.Controllers
         }
 
 
-        //POST: Orden/Create
         [HttpPost("Crear-CompraDetalle")]
         public ActionResult CrearCompraDetalle(CompraViewModel viewModel)
         {

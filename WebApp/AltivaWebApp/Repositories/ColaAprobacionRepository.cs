@@ -18,9 +18,9 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbCeColaAprobacion.Where(c => c.Anulado == false).ToList();
         }
-        public TbCeColaAprobacion GetById(long id)
+        public TbCeColaAprobacion GetByIdDoc(long id)
         {
-            return context.TbCeColaAprobacion.FirstOrDefault(c => c.Id == id);
+            return context.TbCeColaAprobacion.FirstOrDefault(c => c.IdDoc == id);
         }
 
 
