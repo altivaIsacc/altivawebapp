@@ -27,7 +27,7 @@ namespace AltivaWebApp.Controllers
 
        
         [HttpGet("Lista-Bitacora")]
-        public ActionResult Index()
+        public ActionResult ListarBitacora()
         {
             List<TbSeUsuario> usuariosAsociados = new List<TbSeUsuario>();
 

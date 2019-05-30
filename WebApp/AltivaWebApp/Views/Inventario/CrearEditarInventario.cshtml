@@ -95,7 +95,7 @@ else
 
                 <div class="form-group col-md-4">
                     <label data-translate="impuesto" asp-for="ImpuestoVenta" class="control-label">Impuesto %</label>
-                    <input required type="number" min="0" max="100" asp-for="ImpuestoVenta" class="form-control inputPorcentaje" />
+                    <input value="@Model.ImpuestoVenta.ToString().Replace(',', '.')" class="form-control porc inputPorcentaje" />
                 </div>
             </div>
             <div class="row">
@@ -443,6 +443,12 @@ else
             GetComentarios("Inventario", @Model.IdInventario);
 
 
+        $(".porc").inputmask({
+            'alias': 'percentage',
+            rightAlign: false,
+        });
+
+
         if ($('#habilitaVenta').prop('checked'))
             $('.ventaDirectaForm').collapse('toggle');
 
@@ -572,8 +578,11 @@ else
 
         $('#btnGuardar').click(function () {
 
-            var model = $('#formInventario').serialize();
-            //console.log(inventarioBodega.length);
+            var model = $('#formInventario').serializeArray();
+
+            model[4].value = model[4].value.replace("%", "");
+            model[4].value = model[4].value.replace(".", ",");
+
 
             var url = '@Url.Action("CrearEditarInventario", "Inventario", new { id = Model.IdInventario })';
 
@@ -842,8 +851,6 @@ else
             $('#descripcionValid').attr('hidden', false);
             flag = false;
         }
-
-        console.log(array);
 
 
         return flag;

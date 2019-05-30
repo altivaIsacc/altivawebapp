@@ -144,22 +144,10 @@ else
                     <td><input id="costoPromedio" class="form-control moneda" type="text" /></td>
                     <td><input type="text" class="form-control moneda" readonly id="total" /></td>
                     <td>
-                        <select class="form-control selectItem" id="cuentaContable">
-                            @*@{foreach (var item in ViewData["CuentaContable"] as IList<TbCoCuentaContable>)
-                                    {
-                                        <option value="@item.Id">@item.CuentaContable</option>
-                                    }
-                                }*@
-                        </select>
+                        <select class="form-control selectItem" id="cuentaContable"></select>
                     </td>
                     <td>
-                        <select class="form-control selectItem" id="cuentaCosto">
-                            @*@{foreach (var item in ViewData["CuentaCosto"] as IList<TbCoCentrosDeGastos>)
-                                    {
-                                        <option value="@item.Id">@item.Codigo</option>
-                                    }
-                                }*@
-                        </select>
+                        <select class="form-control selectItem" id="cuentaCosto"></select>
                     </td>
                     <td>
                         <button class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button>
@@ -171,7 +159,6 @@ else
 
     <div class="row">
         <form class="col-md-3 col-md-offset-9 frmAjuste2">
-
             <div class="form-group col-xs-12">
                 <label asp-for="TotalEntrada" class="control-label">@SharedLocalizer["Entrada"]</label>
                 <input readonly id="entradas" class="form-control currency" type="text" />
@@ -187,7 +174,6 @@ else
                 <input readonly id="saldo" class="form-control currency" type="text" />
                 <span asp-validation-for="SaldoAjuste" class="text-danger"></span>
             </div>
-
         </form>
     </div>
 
@@ -239,6 +225,7 @@ else
     var lineasAgregadas = [];
     var cuentaCostoArray = [];
     var cuentaContableArray = [];
+    var monedas = [];
 
     var frmAjuste = $('.frmAjuste');
     var frmAjuste2 = $('.frmAjuste2');
@@ -266,8 +253,11 @@ else
             $('#bodegas').attr('disabled', true);
         }
 
+
         getCuentaContable();
         getCuentaCosto();
+        getMonedas();
+
 
         $('.selectItem').select2();
         getBodegasInventario();
@@ -509,10 +499,13 @@ else
                 idCuentaContable: data[i].idCuentaContableNavigation.id,
                 idCentroGastos: data[i].idCentroGastosNavigation.id,
                 cuentaContable: {
-                    nombre: data[i].idCuentaContableNavigation.cuentaContable,
-                    madre: data[i].idCuentaContableNavigation.cuentaMadre
+                    codigo: data[i].idCuentaContableNavigation.cuentaContable,
+                    descripcion: data[i].idCuentaContableNavigation.descripcion
                 },
-                cuentaCosto: data[i].idCentroGastosNavigation.codigo,
+                cuentaCosto: {
+                    codigo: data[i].idCentroGastosNavigation.codigo,
+                    descripcion: data[i].idCentroGastosNavigation.nombre
+                },
                 nombreItem: data[i].idInventarioNavigation.descripcion
             };
 
@@ -536,6 +529,26 @@ else
                   bodegas = data;
                   cargarBodegas(data);
                },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function getMonedas() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+
+                 monedas = data;               
+
+              },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
                   console.log(err.statusText);
@@ -597,8 +610,8 @@ else
                 + '<td style="padding-top:2rem;">' + data[i].cantidad + '</td>'
                 + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].costoPromedio + '"/></td>'
                 + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].totalMovimiento + '"/></td>'
-                + '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaContable.nombre + '</a></td>'
-                + '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaCosto + '</a></td>'
+                + '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaContable.codigo + ' - ' + data[i].cuentaContable.descripcion + '</a></td>'
+                + '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaCosto.codigo + ' - ' + data[i].cuentaCosto.descripcion + '</a></td>'
                 + '<td><button  @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
 
             $('.lineaForm').before(body);
@@ -606,7 +619,7 @@ else
         }
 
         $(".currency").inputmask('currency', {
-            prefix: "₡",
+            prefix: monedas[0].nombre + ' ',
             rightAlign: true
         });
 
@@ -986,9 +999,9 @@ else
 
 
         return {
-            salidas: s + $salidas.val().replace("₡", ""),
-            entradas: e + $entradas.val().replace("₡", ""),
-            saldo: saldo + $saldo.val().replace("₡", "")
+            salidas: s + $salidas.val(),
+            entradas: e + $entradas.val(),
+            saldo: saldo + $saldo.val()
         }
 
     }
@@ -1045,7 +1058,7 @@ else
 
     function formatearMoneda(val) {
         $('#formater').val(val);
-        return $('#formater').val().replace("₡", "");
+        return $('#formater').val();
     }
 
     function validarCampos() {
@@ -1131,7 +1144,7 @@ else
             $('input').attr('readonly', 'readonly');
             $('textarea').attr('disabled', 'true');
             $('select').attr('disabled', 'true');
-            $('.btnAccion').attr('disabled', 'true');
+            $('.btnAccion').attr('disabled', 'true');   
         }
 
 
@@ -1139,6 +1152,10 @@ else
 
     function cargarJustificacion(mensaje) {
         setMensajeFromOut(mensaje);
+    }
+
+    function deshabilitaComentarioFromOut() {
+        deshabilitaComentarios();
     }
 
 
@@ -1154,7 +1171,7 @@ else
             success: function (data) {
                 cuentaCostoArray = data;
                 for (var i = 0; i < data.length; i++) {
-                    var o = new Option(data[i].codigo, data[i].id);
+                    var o = new Option(data[i].codigo + ' - ' + data[i].nombre , data[i].id);
                     $("#cuentaCosto").append(o);
                 }
             },
@@ -1176,7 +1193,7 @@ else
             success: function (data) {
                 cuentaContableArray = data;
                 for (var i = 0; i < data.length; i++) {
-                    var o = new Option(data[i].cuentaContable, data[i].id);
+                    var o = new Option(data[i].cuentaContable + ' - ' + data[i].descripcion, data[i].id);
                     $("#cuentaContable").append(o);
                 }
 

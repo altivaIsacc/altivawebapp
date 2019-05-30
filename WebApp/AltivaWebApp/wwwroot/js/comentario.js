@@ -24,3 +24,6 @@ function GetComentarios(referencia, idRefernecia) {
 
     });
 }
+
+
+
