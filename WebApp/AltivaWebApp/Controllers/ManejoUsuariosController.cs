@@ -280,7 +280,7 @@ namespace AltivaWebApp.Controllers
             return View(modelView);
 
         }
-        [HttpPost("Editar-Usuario/{id}")]
+        [HttpPost("Editar-Usuario/{id?}")]
         public ActionResult EditarUsuario(UsuarioViewModel model)
         {
             string i = "";

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Services
 {
-    public class InventarioService: IInventarioService
+    public class InventarioService : IInventarioService
     {
         readonly IInventarioRepository repository;
         public InventarioService(IInventarioRepository repository)
@@ -67,13 +67,16 @@ namespace AltivaWebApp.Services
 
         public void SaveImagenInventario(IList<TbPrImagenInventario> domain)
         {
-             repository.SaveImagenInventario(domain);
-             
+            repository.SaveImagenInventario(domain);
+
         }
 
         public void SaveCaracteristicaInventario(TbPrInventarioCaracteristica domain)
         {
             repository.SaveCaracteristicaInventario(domain);
+        }
+        
+
 
         public void CrearRelacionInventarioBodega(int idInventario, int idBodega)
         {
@@ -113,5 +116,6 @@ namespace AltivaWebApp.Services
         {
             return repository.ExisteEquivalencia(domain);
         }
+
     }
 }

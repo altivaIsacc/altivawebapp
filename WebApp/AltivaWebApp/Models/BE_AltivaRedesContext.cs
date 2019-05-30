@@ -3630,16 +3630,15 @@ namespace AltivaWebApp.Models
 
             modelBuilder.Entity<TbPrDepartamento>(entity =>
             {
-                entity.HasKey(e => e.IdDepartamento)
-                    .HasName("PK_tb_PR_Departaments");
-
                 entity.ToTable("tb_PR_Departamento");
 
-                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
-
-                entity.Property(e => e.Nombre)
+                entity.Property(e => e.Descripcion)
                     .IsRequired()
-                    .HasMaxLength(150);
+                    .HasMaxLength(250);
+
+                entity.Property(e => e.Fecha).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<TbPrEquivalencia>(entity =>
@@ -4068,48 +4067,49 @@ namespace AltivaWebApp.Models
                     .HasDefaultValueSql("(' ')");
             });
 
-            modelBuilder.Entity<TbPrRequisicionInventario>(entity =>
+            modelBuilder.Entity<TbPrRequisicionDetalle>(entity =>
             {
-                entity.HasKey(e => e.IdRequisicionInventario);
+                entity.ToTable("tb_PR_RequisicionDetalle");
 
-                entity.ToTable("tb_PR_RequisicionInventario");
-
-                entity.Property(e => e.CodigoArticulo)
-                    .IsRequired()
-                    .HasMaxLength(60)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Descripcion)
-                    .IsRequired()
-                    .HasMaxLength(150);
+                entity.HasOne(d => d.IdInventarioNavigation)
+                    .WithMany(p => p.TbPrRequisicionDetalle)
+                    .HasForeignKey(d => d.IdInventario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_RequisicionDetalle_tb_PR_Inventario");
 
                 entity.HasOne(d => d.IdRequisicionNavigation)
-                    .WithMany(p => p.TbPrRequisicionInventario)
+                    .WithMany(p => p.TbPrRequisicionDetalle)
                     .HasForeignKey(d => d.IdRequisicion)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_PR_RequisicionInventario_tb_PR_Requisiciones1");
             });
 
-            modelBuilder.Entity<TbPrRequisiciones>(entity =>
+            modelBuilder.Entity<TbPrRequisicion>(entity =>
             {
-                entity.HasKey(e => e.IdRequisicion);
+                entity.ToTable("tb_PR_Requisicion");
 
-                entity.ToTable("tb_PR_Requisiciones");
+                entity.Property(e => e.Descripcion)
+                    .IsRequired()
+                    .HasMaxLength(250);
 
                 entity.Property(e => e.Fecha).HasColumnType("datetime");
 
                 entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
 
-                entity.Property(e => e.Justificacion)
-                    .IsRequired()
-                    .HasMaxLength(200);
+                entity.HasOne(d => d.IdBodegaNavigation)
+                   .WithMany(p => p.TbPrRequisicion)
+                   .HasForeignKey(d => d.IdBodega)
+                   .OnDelete(DeleteBehavior.ClientSetNull)
+                   .HasConstraintName("FK_tb_PR_Requisicion_tb_PR_Bodega");
 
                 entity.HasOne(d => d.IdDepartamentoNavigation)
-                    .WithMany(p => p.TbPrRequisiciones)
+                    .WithMany(p => p.TbPrRequisicion)
                     .HasForeignKey(d => d.IdDepartamento)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_PR_Requisiciones_tb_PR_Departamento");
             });
+
+
 
             modelBuilder.Entity<TbPrTipoProveedor>(entity =>
             {
