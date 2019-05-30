@@ -28,5 +28,6 @@ namespace AltivaWebApp.Repositories
         IList<TbPrInventarioCaracteristica> GetInventarioCaracteristicaByCodigo(int id);
         bool DeleteCaracteristica(int id);
         bool DeleteImagen(int id);
+        void CrearRelacionInventarioBodega(int idInventario, int idBodega);
     }
 }

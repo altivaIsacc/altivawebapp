@@ -109,7 +109,7 @@
             opens: 'left',
 
             "locale": {
-                format: "@SharedLocalizer["DD/MM/YYYY"]",
+                format: "@SharedLocalizer["formatoFecha"]",
                 "separator": " - ",
                 "applyLabel": "@SharedLocalizer["Aplicar"]",
                 "cancelLabel": "@SharedLocalizer["Cancelar"]",
@@ -206,9 +206,9 @@
             //<input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].precio + '"/>
             var body = '<tr class="fila' + contadorFila + ' filas">'
                 + '<td><p style="padding-top:1rem; ' + colorFila +'">' + data[i].numeroDocumento + '</p></td>'
-                + '<td><p style="padding-top:1rem; ' + colorFila +'">' + data[i].tipoDocumento + '</p></td>'
+                + '<td><p style="padding-top:1rem; ' + colorFila + '">' + getTipo(data[i].tipoDocumento) + '</p></td>'
                 + '<td><p style="padding-top:1rem; ' + colorFila +'">' + recuperarFecha(data[i].fechaDocumento) + '</p></td>'
-                + '<td><p style="padding-top:1rem; ' + colorFila +'">' + data[i].idContactoNavigation.nombre + '</p></td>'
+                + '<td><p style="padding-top:1rem; ' + colorFila + '">' + getNombreContacto(data[i].idContactoNavigation) + '</p></td>'
                 + '<td><p style="padding-top:1rem; ' + colorFila + '">' + recuperarMoneda(data[i].idMoneda) + '</p></td>'
                 + '<td style="text-align:right"><p style="padding-top:1rem; ' + colorFila + '">' + formatoMoneda(data[i].idMoneda, recuperarTotal(data[i])) + '</p></td>'
                 //+ '<td class="col-md-2"><input style="padding-top:1rem; border:0; background-color : #F7F7F7; ' + colorFila +'" class="' + darFormato(data[i].idMoneda) + '" value="' + recuperarTotal(data[i]) + '"/></td>'
@@ -221,6 +221,24 @@
 
         inicializarTabla();
 
+    }
+
+    function getNombreContacto(data) {
+
+        if (data.empresa)
+            return data.nombreJuridico;
+        else
+            return data.nombre + ' ' + data.apellidos;
+
+    }
+
+    function getTipo(cod) {
+        if (cod === "1")
+            return "@SharedLocalizer["Contado"]";
+        else if (cod === "2")
+            return "@SharedLocalizer["Crédito"]";
+        else if (cod === "3")
+            return "@SharedLocalizer["Consignación"]";
     }
 
     function formatoMoneda(moneda, value) {

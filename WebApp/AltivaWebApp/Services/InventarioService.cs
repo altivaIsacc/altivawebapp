@@ -75,6 +75,9 @@ namespace AltivaWebApp.Services
         {
             repository.SaveCaracteristicaInventario(domain);
 
+        public void CrearRelacionInventarioBodega(int idInventario, int idBodega)
+        {
+            repository.CrearRelacionInventarioBodega(idInventario, idBodega);
         }
 
         public bool EliminarInventarioBodega(int id)

@@ -15,9 +15,9 @@ namespace AltivaWebApp.ViewModels
         public DateTime FechaCreacion { get; set; }
         public int IdUsuario { get; set; }
         public int IdMoneda { get; set; }
-        public double SubTotalGrabado { get; set; }       
+        public double SubTotalGravado { get; set; }       
         public double SubTotalExcento { get; set; }
-        public double SubTotalGrabadoNeto { get; set; }
+        public double SubTotalGravadoNeto { get; set; }
         public double SubTotalExcentoNeto { get; set; }
         public double TotalDescuento { get; set; }
         public double TotalIva { get; set; }

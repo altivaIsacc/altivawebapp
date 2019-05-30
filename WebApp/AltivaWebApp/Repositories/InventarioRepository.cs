@@ -109,6 +109,33 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+        public void CrearRelacionInventarioBodega(int idInventario, int idBodega)
+        {
+            try
+            {
+                var ib = new TbPrInventarioBodega
+                {
+                    ExistenciaBodega = 0,
+                    CostoPromedioBodega = 0,
+                    IdBodega = idBodega,
+                    IdInventario = idInventario,
+                    ExistenciaMaxima = 3,
+                    ExistenciaMedia = 2,
+                    ExistenciaMinima = 1,
+                    SaldoBodega = 0,
+                    UltimoCostoBodega = 0
+
+                };
+                context.TbPrInventarioBodega.Add(ib);
+                context.SaveChanges();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public bool ExisteEquivalencia(TbPrEquivalencia domain)
         {
             return context.TbPrEquivalencia.Any(e => e.IdEquivalencia == domain.IdEquivalencia && e.IdInventario == domain.IdInventario);

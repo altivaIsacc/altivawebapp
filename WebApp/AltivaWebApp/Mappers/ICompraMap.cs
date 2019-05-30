@@ -12,7 +12,7 @@ namespace AltivaWebApp.Mappers
 
         TbPrCompra Create(CompraViewModel viewModel);
         TbPrCompra Update(CompraViewModel viewModel);
-        bool CreateCD(CompraViewModel viewModel);
+        TbPrCompraDetalle CreateCD(CompraViewModel viewModel);
         CompraViewModel DomainToViewModel(TbPrCompra domain);
         bool UpdateCD(CompraViewModel viewModel);
 

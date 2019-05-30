@@ -7,15 +7,16 @@ namespace AltivaWebApp.Models
     {
         public TbPrDepartamento()
         {
-            TbPrRequisiciones = new HashSet<TbPrRequisiciones>();
+            TbPrRequisicion = new HashSet<TbPrRequisicion>();
         }
 
-        public long IdDepartamento { get; set; }
-        public string Nombre { get; set; }
-        public bool Inactivo { get; set; }
+        public int Id { get; set; }
+        public DateTime Fecha { get; set; }
         public DateTime FechaCreacion { get; set; }
+        public bool Anulado { get; set; }
         public long IdUsuario { get; set; }
+        public string Descripcion { get; set; }
 
-        public virtual ICollection<TbPrRequisiciones> TbPrRequisiciones { get; set; }
+        public virtual ICollection<TbPrRequisicion> TbPrRequisicion { get; set; }
     }
 }

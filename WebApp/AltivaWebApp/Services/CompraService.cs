@@ -19,10 +19,14 @@ namespace AltivaWebApp.Services
         {
             return repository.ExisteDocumento(numDoc, tipo, idProveedor);
         }
-
-        public bool DeleteCompraDetalle(IList<int> domain, int idCompra)
+        public TbPrCompra GetCompraByDocumento(string nDoc, string tipoDoc, long idProveedor)
         {
-            return repository.DeleteCompraDetalle(domain, idCompra);
+            return repository.GetCompraByDocumento(nDoc, tipoDoc, idProveedor);
+        }
+
+        public bool DeleteCompraDetalle(TbPrCompraDetalle domain)
+        {
+            return repository.DeleteCompraDetalle(domain);
         }
 
         public IList<TbPrCompraDetalle> GetAllCompraDetalleByCompraId(int id)
@@ -45,9 +49,18 @@ namespace AltivaWebApp.Services
             return repository.Save(domain);
         }
 
-        public bool SaveCompraDetalle(IList<TbPrCompraDetalle> domain)
+        public TbPrCompraDetalle SaveCompraDetalle(TbPrCompraDetalle domain)
         {
             return repository.SaveCompraDetalle(domain);
+        }
+
+        public bool ExisteRelacionInventarioBodega(long idInventario, long idBodega)
+        {
+            return repository.ExisteRelacionInventarioBodega(idInventario, idBodega);
+        }
+        public TbPrCompraDetalle GetCompraDetalleById(long id)
+        {
+            return repository.GetCompraDetalleById(id);
         }
 
         public TbPrCompra Update(TbPrCompra domain)
@@ -58,6 +71,11 @@ namespace AltivaWebApp.Services
         public bool UpdateCompraDetalle(IList<TbPrCompraDetalle> domain)
         {
             return repository.UpdateCompraDetalle(domain);
+        }
+
+        public long IdUltimoDocumento()
+        {
+            return repository.IdUltimoDocumento();
         }
     }
 }

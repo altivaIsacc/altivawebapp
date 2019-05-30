@@ -9,7 +9,6 @@ function GetComentarios(referencia, idRefernecia) {
         tipoReferencia: referencia,
         id: idRefernecia
     };
-    console.log(comentarioModel);
 
     $.ajax({
         type: "POST",
@@ -19,8 +18,6 @@ function GetComentarios(referencia, idRefernecia) {
             $('#comentarios').html(data);
         },
         error: function (err, scnd) {
-
-            alert("Lo sentimos, tuvimos un problema al procesar tu solicitud.");
             console.log(err.statusText);
 
         }

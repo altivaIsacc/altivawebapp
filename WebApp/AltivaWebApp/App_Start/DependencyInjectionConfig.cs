@@ -198,6 +198,24 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<ICompraService, CompraService>();
             services.AddScoped<ICompraMap, CompraMap>();
 
+            //Departamento
+
+            services.AddScoped<IDepartamentoRepository, DepartamentoRepository>();
+            services.AddScoped<IDepartamentoService, DepartamentoService>();
+            services.AddScoped<IDepartamentoMap, DepartamentoMap>();
+
+
+            /// todo lo que tiene que ver con comprobantes electronicos ///hacienda
+            services.AddScoped<IColaAprobacionRepository, ColaAprobacionRepository>();
+            services.AddScoped<IHaciendaService, HaciendaService>();
+            services.AddScoped<IHaciendaMap, HaciendaMap>();
+
+
+            /// Requisicion
+            services.AddScoped<IRequisicionRepository, RequisicionRepository>();
+            services.AddScoped<IRequisicionService, RequisicionService>();
+            services.AddScoped<IRequisicionMap, RequisicionMap>();
+
 
 
         }

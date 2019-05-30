@@ -14,9 +14,9 @@ namespace AltivaWebApp.ViewModels
         public double PrecioUnitario { get; set; }
         public double PorcIva { get; set; }
         public double PorcDescuento { get; set; }
-        public double SubTotalGrabado { get; set; }
+        public double SubTotalGravado { get; set; }
         public double SubTotalExcento { get; set; }
-        public double SubTotalGrabadoNeto { get; set; }
+        public double SubTotalGravadoNeto { get; set; }
         public double SubTotalExcentoNeto { get; set; }
         public double TotalDescuento { get; set; }
         public double TotalIva { get; set; }

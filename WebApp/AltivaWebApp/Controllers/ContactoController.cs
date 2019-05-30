@@ -83,7 +83,7 @@ namespace AltivaWebApp.Controllers
         {
             IList<TbFdCuentasBancarias> cb = new List<TbFdCuentasBancarias>();
             cb = this.contactoService.GetByContacto(idContacto);
-            if (cb.Count()> 0)
+            if (cb.Count() > 0)
             {
                 return new JsonResult(cb);
             }
@@ -91,7 +91,7 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(false);
             }
-           
+
         }
         //metodo para agregar condiciones de pago
         [HttpPost("AddCondicionesPago")]
@@ -189,7 +189,8 @@ namespace AltivaWebApp.Controllers
                     if (palabra == conPersonas[j].Correo)
                     {
                         buscar.Add(conPersonas[j]);
-                    } else if (palabra == conPersonas[j].Cedula)
+                    }
+                    else if (palabra == conPersonas[j].Cedula)
                     {
                         buscar.Add(conPersonas[j]);
                     }
@@ -323,17 +324,21 @@ namespace AltivaWebApp.Controllers
             try
             {
                 correo = this.contactoService.GetByEmailContacto(model2.Correo);
-                if (model2.TipoCedula == "CedulaFisica") {
+                if (model2.TipoCedula == "CedulaFisica")
+                {
                     cedula = this.contactoService.GetByCedulaContacto(model2.Cedula);
                 }
-                else if (model2.TipoCedula == "CedulaJuridica") {
+                else if (model2.TipoCedula == "CedulaJuridica")
+                {
                     cedula = this.contactoService.GetByCedulaContacto(model2.juridica);
-                } else if (model2.dimex == "Dimex")
+                }
+                else if (model2.dimex == "Dimex")
 
                 {
                     cedula = this.contactoService.GetByCedulaContacto(model2.dimex);
 
-                } else if (model2.nite == "NITE")
+                }
+                else if (model2.nite == "NITE")
                 {
                     cedula = this.contactoService.GetByCedulaContacto(model2.nite);
 
@@ -497,8 +502,8 @@ namespace AltivaWebApp.Controllers
             return new JsonResult(1);
         }
 
-        
-      [HttpGet("Partial")]
+
+        [HttpGet("Partial")]
         public IActionResult Partial()
         {
             ContactoViewModel con = new ContactoViewModel();
@@ -510,17 +515,18 @@ namespace AltivaWebApp.Controllers
         {
             TbCrContactoRelacion cr = new TbCrContactoRelacion();
             cr = this.contactoService.EditarRelacion(domain);
-            
+
             return new JsonResult(true);
         }
 
         [HttpGet("GetTareas/{idContacto?}")]
         public IActionResult GetTareas(int idContacto)
         {
-           
-          var ccT = this.contactoService.GetTareas(idContacto);
+
+            var ccT = this.contactoService.GetTareas(idContacto);
             IList<TbFdTarea> tarea = new List<TbFdTarea>();
-            if (ccT.TbFdTarea.Count() > 0) {
+            if (ccT.TbFdTarea.Count() > 0)
+            {
                 foreach (var item in ccT.TbFdTarea)
                 {
                     item.IdContactoNavigation = null;
@@ -535,7 +541,21 @@ namespace AltivaWebApp.Controllers
                 return Ok(false);
             }
         }
-    }
 
-    
+        [HttpGet("GetProveedores")]
+        public IActionResult GetProveedores(int idContacto)
+        {
+            try
+            {
+                return Ok(contactoService.GetAllProveedores());
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+
+        }
+
+
+    }
 }

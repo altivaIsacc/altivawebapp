@@ -34,11 +34,29 @@ namespace AltivaWebApp.Repositories
             return context.TbPrCompra.Any(u => u.NumeroDocumento == numDoc && u.TipoDocumento == tipo && u.IdContacto == idProveedor );
         }
 
+        public long IdUltimoDocumento()
+        {
+            return context.TbPrCompra.Select(c => c.Id).LastOrDefault();
+        }
+
         public TbPrCompra GetCompraById(int id)
         {
             try
             {
                 return context.TbPrCompra.Include(c => c.TbPrCompraDetalle).ThenInclude(cd => cd.IdInventarioNavigation).FirstOrDefault(c => c.Id == id);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public TbPrCompra GetCompraByDocumento(string nDoc, string tipoDoc, long idProveedor)
+        {
+            try
+            {
+                return context.TbPrCompra.FirstOrDefault(c => c.NumeroDocumento == nDoc && c.TipoDocumento == tipoDoc && c.IdContacto == idProveedor);
             }
             catch (Exception)
             {
@@ -60,20 +78,56 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public bool SaveCompraDetalle(IList<TbPrCompraDetalle> domain)
+        public TbPrCompraDetalle GetCompraDetalleById(long id)
         {
             try
             {
-                context.TbPrCompraDetalle.AddRange(domain);
-                context.SaveChanges();
-
-                return true;
+                return context.TbPrCompraDetalle.Include(c => c.IdCompraNavigation).FirstOrDefault(c => c.Id == id);
             }
             catch (Exception)
             {
 
                 throw;
             }
+        }
+
+        public TbPrCompraDetalle SaveCompraDetalle(TbPrCompraDetalle domain)
+        {
+            try
+            {
+                
+
+                if(!ExisteRelacionInventarioBodega(domain.IdInventario, domain.IdBodega))
+                {
+                    var ib = new TbPrInventarioBodega {
+                        ExistenciaBodega = 0,
+                        CostoPromedioBodega = 0,
+                        IdBodega = domain.IdBodega,
+                        IdInventario = domain.IdInventario,
+                        ExistenciaMaxima = 3,
+                        ExistenciaMedia = 2,
+                        ExistenciaMinima = 1,
+                        SaldoBodega = 0,
+                        UltimoCostoBodega = 0
+                        
+                    };
+                    context.TbPrInventarioBodega.Add(ib);
+                }
+
+                context.TbPrCompraDetalle.Add(domain);
+                context.SaveChanges();
+
+                return domain;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public bool ExisteRelacionInventarioBodega(long idInventario, long idBodega)
+        {
+            return context.TbPrInventarioBodega.Any(i => i.IdInventario == idInventario && i.IdBodega == idBodega);
         }
         public bool UpdateCompraDetalle(IList<TbPrCompraDetalle> domain)
         {
@@ -91,24 +145,12 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public bool DeleteCompraDetalle(IList<int> domain, int idCompra)
+        public bool DeleteCompraDetalle(TbPrCompraDetalle domain)
         {
             try
             {
-                var cd = context.TbPrCompra.Include(o => o.TbPrCompraDetalle).FirstOrDefault(o => o.Id == idCompra);
-
-                var eliminados = new List<TbPrCompraDetalle>();
-
-                foreach (var item in cd.TbPrCompraDetalle)
-                {
-                    foreach (var i in domain)
-                    {
-                        if (item.Id == i)
-                            eliminados.Add(item);
-                    }
-                }
-
-                context.TbPrCompraDetalle.RemoveRange(eliminados);
+                //var cd = context.TbPrCompraDetalle.FirstOrDefault(c => c.Id == idCD);
+                context.TbPrCompraDetalle.Remove(domain);
                 context.SaveChanges();
 
                 return true;
