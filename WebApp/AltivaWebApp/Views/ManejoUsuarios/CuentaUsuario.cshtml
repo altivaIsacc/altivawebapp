@@ -8,6 +8,8 @@
     }
 }
 
+
+
 <style>
     .btn-circle {
         width: 20px;
@@ -41,7 +43,7 @@
         <h4>Avatar</h4>
         <div class="col-md-12">
             <div class="well"style="background-color:#EDEDED; padding: 1rem; text-align:center">
-                <img style="height: 15rem; width:15rem" src="@Model.avatar" class="img-circle" />
+                <img style="height: 10rem; width:10rem" src="@Model.avatar" class="img-circle" />
                 <div class="row">
                     <a data-translate="avatar" class="btn btn-link" data-toggle="modal" data-target="#exampleModal">
                         Cargar tu avatar
@@ -246,186 +248,182 @@
 
 <hr />
 
-<div id="comentarios">
+<div>
 
 </div>
 
 
-<script type="text/javascript">
-    //validaciones de campos editar usuario
-    $('#btnEditarUsuario').on('click', function () {
-        guardarUsuario();
-    });
 
-    function validarPassword(email) {
-        var i = '(?=^.{ 8, } $) ((?=.*\d)| (?=.*\W +)) (? ![.\n])(?=.* [A - Z])(?=.* [a - z]).* $';
-        if (!i.test(email)) {
-            return false;
-        } else {
-            return true;
+   
+    <script type="text/javascript">
+        //validaciones de campos editar usuario
+        $('#btnEditarUsuario').on('click', function () {
+            guardarUsuario();
+        });
+
+        function validarPassword(email) {
+            var i = '(?=^.{ 8, } $) ((?=.*\d)| (?=.*\W +)) (? ![.\n])(?=.* [A - Z])(?=.* [a - z]).* $';
+            if (!i.test(email)) {
+                return false;
+            } else {
+                return true;
+            }
         }
-    }
-    $(document).ready(function () {
+        $(document).ready(function () {
 
-        GetComentarios('Usuario', @Model.id);
+            GetComentarios('Usuario', @Model.id);
 
-        $('.btntema').on('click', function () {
-            $("#tema").attr('href', '/../css/' + $(this).val() + '.css');
-            localStorage.setItem('tema', $(this).val());
+            $('.btntema').on('click', function () {
+                $("#tema").attr('href', '/../css/' + $(this).val() + '.css');
+                localStorage.setItem('tema', $(this).val());
 
 
-            var tema = $(this).attr('name');
+                var tema = $(this).attr('name');
 
-            /////ajax para guradar el tema en la bd//////
-            var userId = @Model.id;
+                /////ajax para guradar el tema en la bd//////
+                var userId = @Model.id;
 
-            guardarConfigUsuario(@Model.id);
+                guardarConfigUsuario(@Model.id);
 
+            });
+
+
+                        ///al cambiar avatar se cambia en el layout
+
+            if ("@User.Identity.Name" === "@Model.codigo" ) {
+                localStorage.setItem("avatar", "@Model.avatar");
+                $("#perfilNAVAvatar").attr('src', localStorage.getItem("avatar"));
+                $("#perfilAvatar").attr('src', localStorage.getItem("avatar"));
+            }
+
+
+            //metodo para asignar perfiles al usuario
+
+            var arrayModel = [];
+
+
+            $(".asignar").change(function () {
+
+                if ($(this).is(":checked")) {
+                    var model = {
+                        idPerfil: $(this).val(),
+                        idUsuario: $(this).attr("name")
+                    };
+                    arrayModel.push(model);
+                }
+                else {
+
+                    var model = {
+                        idPerfil: $(this).val(),
+                        idUsuario: $(this).attr("name")
+                    };
+
+                    arrayModel.splice($.inArray(model, arrayModel), 1);
+                }
+                console.log(arrayModel);
+            });
+
+
+
+            $('#guardar').click(function () {
+                console.log(arrayModel);
+
+                var url = '@Url.Action("AsignarPerfil", "ManejoUsuarios")';
+
+                $.ajax({
+                    type: "POST",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: url,
+                    data: {model: arrayModel },
+                        success: function (data) {
+                            //console.log($(this).parent());
+                            window.location.href = window.location.href;
+                    },
+                        error: function (err, scnd) {
+                            console.log(err.statusText);
+                    }
+                });
+            });
         });
 
 
-                    ///al cambiar avatar se cambia en el layout
+        function guardarUsuario() {
 
-        if ("@User.Identity.Name" === "@Model.codigo" ) {
-            localStorage.setItem("avatar", "@Model.avatar");
-            $("#perfilNAVAvatar").attr('src', localStorage.getItem("avatar"));
-            $("#perfilAvatar").attr('src', localStorage.getItem("avatar"));
-        }
-
-
-        //metodo para asignar perfiles al usuario
-
-        var arrayModel = [];
-
-
-        $(".asignar").change(function () {
-
-            if ($(this).is(":checked")) {
-                var model = {
-                    idPerfil: $(this).val(),
-                    idUsuario: $(this).attr("name")
-                };
-                arrayModel.push(model);
-            }
-            else {
-
-                var model = {
-                    idPerfil: $(this).val(),
-                    idUsuario: $(this).attr("name")
-                };
-
-                arrayModel.splice($.inArray(model, arrayModel), 1);
-            }
-            console.log(arrayModel);
-        });
-
-
-
-        $('#guardar').click(function () {
-            console.log(arrayModel);
-
-            var url = '@Url.Action("AsignarPerfil", "ManejoUsuarios")';
-
-            $.ajax({
-                type: "POST",
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                url: url,
-                data: {model: arrayModel },
+            console.log($('#frmUsuario').serialize());
+            var url = '@Url.Action("EditarUsuario", "ManejoUsuarios")';
+            if (validarForm())
+                $.ajax({
+                    type: "POST",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: url,
+                    data: $('#frmUsuario').serialize(),
                     success: function (data) {
-                        //console.log($(this).parent());
-                        window.location.href = window.location.href;
-                },
-                    error: function (err, scnd) {
-                        console.log(err.statusText);
-                }
-            });
-        });
-    });
+                        if (data.success) {
+                            cargarAlert('@SharedLocalizer["datosActualizados"]');
+                            history.pushState(null, "", $('#codigo').val());
+                        }
+                        else
+                            cargarAlert('@SharedLocalizer["usuarioExistente"]');
+                    },
+                        error: function (err, scnd) {
+                            cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    }
+                });
 
 
-    function guardarUsuario() {
-
-        console.log($('#frmUsuario').serialize());
-        var url = '@Url.Action("EditarUsuario", "ManejoUsuarios")';
-        if (validarForm())
-            $.ajax({
-                type: "POST",
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                url: url,
-                data: $('#frmUsuario').serialize(),
-                success: function (data) {
-                    if (data.success) {
-                        cargarAlert('@SharedLocalizer["datosActualizados"]');
-                        history.pushState(null, "", $('#codigo').val());
-                    }                       
-                    else
-                        cargarAlert('@SharedLocalizer["usuarioExistente"]');
-                },
-                    error: function (err, scnd) {
-                        cargarAlert('@SharedLocalizer["errorGeneral"]');
-                }
-            });
-
-
-    }
-
-    function validarForm() {
-
-        if ($('#codigo').val() == "") {
-
-            $('#codigoValidation').empty();
-            $('#codigoValidation').append('<span class="text-danger">@SharedLocalizer["codigoValid"]</span>');
-
-            return false;
         }
 
-        if ($('#nombre').val() == "") {
-            $('#nombreValidation').empty();
-            $('#nombreValidation').append('<span class="text-danger">@SharedLocalizer["nombreValid"]</span>');
+        function validarForm() {
 
-            return false;
-        }
-        if ($('#iniciales').val() == "") {
-            $('#inicialesValidation').empty();
-            $('#inicialesValidation').append('<span class="text-danger">@SharedLocalizer["inicialesValid"]</span>');
+            if ($('#codigo').val() == "") {
 
-            return false;
-        }
-        if ($('#contrasena').val() == "") {
-            $('#passwordValidation').empty();
-            $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["contrasenaValid"]</span>');
+                $('#codigoValidation').empty();
+                $('#codigoValidation').append('<span class="text-danger">@SharedLocalizer["codigoValid"]</span>');
 
-            return false;
-        }
-        if ($('#ConfirmPassowrd').val() == "") {
-            $('#passwordConfirmValidation').empty();
-            $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["confirmacionValid"]</span>');
+                return false;
+            }
 
-            return false;
-        } if ($('#correo').val() == "") {
-            $('#correoValidation').empty();
-            $('#correoValidation').append('<span class="text-danger">@SharedLocalizer["correoValid"]</span>');
+            if ($('#nombre').val() == "") {
+                $('#nombreValidation').empty();
+                $('#nombreValidation').append('<span class="text-danger">@SharedLocalizer["nombreValid"]</span>');
 
-            return false;
-        }
-        if ($('#contrasena').val() != $('#ConfirmPassowrd').val()) {
-            $('#passwordConfirmValidation').empty();
-            $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
-            $('#passwordValidation').empty();
-            $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
+                return false;
+            }
+            if ($('#iniciales').val() == "") {
+                $('#inicialesValidation').empty();
+                $('#inicialesValidation').append('<span class="text-danger">@SharedLocalizer["inicialesValid"]</span>');
 
-            return false;
-        }
+                return false;
+            }
+            if ($('#contrasena').val() == "") {
+                $('#passwordValidation').empty();
+                $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["contrasenaValid"]</span>');
 
-        return true;
-    }
+                return false;
+            }
+            if ($('#ConfirmPassowrd').val() == "") {
+                $('#passwordConfirmValidation').empty();
+                $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["confirmacionValid"]</span>');
 
+                return false;
+            } if ($('#correo').val() == "") {
+                $('#correoValidation').empty();
+                $('#correoValidation').append('<span class="text-danger">@SharedLocalizer["correoValid"]</span>');
 
-</script>
+                return false;
+            }
+            if ($('#contrasena').val() != $('#ConfirmPassowrd').val()) {
+                $('#passwordConfirmValidation').empty();
+                $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
+                $('#passwordValidation').empty();
+                $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
+
+                return false;
+            }
 
 <script src="~/js/guardarConfigUsuario.js"></script>
 

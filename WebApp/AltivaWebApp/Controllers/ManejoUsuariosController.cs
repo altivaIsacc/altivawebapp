@@ -100,6 +100,46 @@ namespace AltivaWebApp.Controllers
             return View(userMap.DomainToViewModelSingle(model));
         }
 
+
+        [Route("UserA/{codigo?}")]
+        public ActionResult UserAccount(string codigo)
+        {
+            var model = userService.GetUsuarioConPerfiles(codigo);
+            //long id = model.Id;
+            //ViewBag.id = id;
+            var asignados = new List<TbSePerfil>();
+
+            foreach (var item in model.TbSePerfilUsuario)
+            {
+                asignados.Add(item.IdPerfilNavigation);
+            }
+
+            var perfiles = perfilService.GetAll();
+            var sinAsignar = new List<TbSePerfil>();
+
+            foreach (var item in perfiles)
+            {
+                var flag = false;
+                foreach (var i in asignados)
+                {
+                    if (item.Id == i.Id)
+                    {
+                        flag = true;
+                        break;
+                    }
+
+                }
+                if (!flag)
+                    sinAsignar.Add(item);
+            }
+
+            ViewData["Asignados"] = asignados;
+            ViewData["SinAsignar"] = sinAsignar;
+
+
+            return View(userMap.DomainToViewModelSingle(model));
+        }
+
         [Route("Cambiar-Configuracion")]
         public IActionResult CambiarConfig(ConfiguracionUViewModel config)
         {
@@ -240,7 +280,7 @@ namespace AltivaWebApp.Controllers
             return View(modelView);
 
         }
-        [HttpPost("Editar-Usuario/{id}")]
+        [HttpPost("Editar-Usuario/{id?}")]
         public ActionResult EditarUsuario(UsuarioViewModel model)
         {
             string i = "";
@@ -264,6 +304,7 @@ namespace AltivaWebApp.Controllers
                     }
 
                 var user = userMap.Update(model);
+                Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
                 i = user.Codigo;
                 return Json(new { success = true });
                 
@@ -287,8 +328,10 @@ namespace AltivaWebApp.Controllers
 
 
             user.Avatar = directorio;
+            Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
 
             userService.UpdateUsuario(user);
+
 
             return RedirectToAction("CuentaUsuario", new { user.Codigo });
         }

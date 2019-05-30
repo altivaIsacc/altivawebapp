@@ -95,6 +95,11 @@ namespace AltivaWebApp.Services
             return repository.GetUsuarioConPerfiles(usuario);
         }
 
+        public TbSeUsuario GetUsuarioConPerfilesById(int usuario)
+        {
+            return repository.GetUsuarioConPerfilesById(usuario);
+        }
+
         public TbSeUsuario GetUsuarioConEmpresas(string usuario)
         {
             return repository.GetUsuarioConEmpresas(usuario);

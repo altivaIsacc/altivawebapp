@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
+using AltivaWebApp.Repositories;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -21,16 +24,20 @@ namespace AltivaWebApp.Controllers
         readonly IBodegaService bodegaService;
         readonly IUnidadService unidadService;
         readonly IFamiliaService familiaService;
+        readonly IFamiliaOnlineService familiaOnlineService;
         readonly IMonedaService monedaService;
         private readonly IStringLocalizer<SharedResources> _sharedLocalizer;
-        public InventarioController(IStringLocalizer<SharedResources> sharedLocalizer, IMonedaService monedaService, IFamiliaService familiaService, IUnidadService unidadService, IBodegaService bodegaService, IInventarioService service, IInventarioMap map)
+        readonly IHostingEnvironment hostingEnvironment;
+        public InventarioController(IStringLocalizer<SharedResources> sharedLocalizer, IHostingEnvironment hostingEnvironment, IMonedaService monedaService, IFamiliaService familiaService,IFamiliaOnlineService familiaOnlineService, IUnidadService unidadService, IBodegaService bodegaService, IInventarioService service, IInventarioMap map)
         {
             this.service = service;
             this.map = map;
             this.bodegaService = bodegaService;
             this.unidadService = unidadService;
             this.familiaService = familiaService;
+            this.familiaOnlineService = familiaOnlineService;
             this.monedaService = monedaService;
+            this.hostingEnvironment = hostingEnvironment;
         }
 
 
@@ -81,6 +88,36 @@ namespace AltivaWebApp.Controllers
             
         }
 
+        [HttpGet("Imagenes/{id}")]
+        public IActionResult _ListarImagenes(int id)
+        {
+            try
+            {
+                return PartialView(service.GetInventarioImagenById(id));
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                //throw;
+            }
+        }
+
+
+        [HttpGet("Caracteristicas/{id}")]
+        public IActionResult _ListarCaracteristicas(int id)
+        {
+            try
+            {
+                return PartialView(service.GetInventarioCaracteristicaById(id));
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                //throw;
+            }
+
+        }
+
 
         // GET: Inventario/Create
         [Route("Nuevo-Inventario")]
@@ -98,8 +135,6 @@ namespace AltivaWebApp.Controllers
 
             return View("CrearEditarInventario", model);
         }
-
-       
 
         [Route("Editar-Inventario/{id}")]
         public ActionResult EditarInventario(int id)
@@ -234,7 +269,37 @@ namespace AltivaWebApp.Controllers
             }
         }
 
+        [HttpGet("Eliminar-Caracteristica/{id}")]
+        public IActionResult EliminarCaracteristica(int id)
+        {
 
+            try
+            {
+                var res = service.DeleteCaracteristica(id);
+                return Json(new { success = res });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
+        [HttpGet("Eliminar-Imagen/{id}")]
+        public IActionResult EliminarImagen(int id)
+        {
+
+            try
+            {
+                var res = service.DeleteImagen(id);
+                return Json(new { success = res });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
 
         [Route("CambiarEstado-Inventario/{id}")]
         public ActionResult CambiarEstadoInventario(int id)
@@ -257,8 +322,6 @@ namespace AltivaWebApp.Controllers
             }
         }
 
- 
-
         [HttpGet("EliminarInventarioBodega/{id}")]
         public ActionResult EliminarInventarioBodega(int id)
         {
@@ -273,9 +336,7 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-
         //get auxiliares
-
 
         [HttpGet("get-bodegas/{id}")]
         public IActionResult GetBodegas(int id)
@@ -310,10 +371,70 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception)
             {
+                return BadRequest();
+            }  
+        }
+
+        public IActionResult GetFamiliaOnline()
+        {
+            try
+            {
+                var familias = familiaOnlineService.GetAllFamilias();
+
+                foreach (var item in familias)
+                {
+                    foreach (var i in item.InverseIdFamiliaNavigation)
+                    {
+                        i.InverseIdFamiliaNavigation = null;
+                        i.IdFamiliaNavigation = null;
+                    }
+                }
+
+                return Ok(familias);
+            }
+            catch (Exception)
+            {
 
                 return BadRequest();
             }
-            
         }
+        
+        [HttpPost("CargarImagenesInventario/{id}")]
+        public ActionResult CargarImagenesInventario(int id, IFormFile[] files)
+        {
+            try
+            {
+                map.CreateImagen(id, files);
+                
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return RedirectToAction("EditarInventario", new { id });
+        }
+
+        [HttpPost("CargarCaracteristicasInventario/{id}")]
+        public ActionResult CargarCaracteristicasInventario(int id, string model)
+        {
+            try
+            {
+                map.CreateCaracteristica(id, model);
+
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return RedirectToAction("EditarInventario", new { id });
+        }
+
+
     }
 }

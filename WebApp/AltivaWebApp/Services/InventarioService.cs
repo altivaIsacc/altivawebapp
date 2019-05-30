@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Services
 {
-    public class InventarioService: IInventarioService
+    public class InventarioService : IInventarioService
     {
         readonly IInventarioRepository repository;
         public InventarioService(IInventarioRepository repository)
@@ -22,6 +22,16 @@ namespace AltivaWebApp.Services
         public TbPrInventario GetInventarioByCodigo(string codigo)
         {
             return repository.GetInventarioByCodigo(codigo);
+        }
+
+        public IList<TbPrImagenInventario> GetInventarioImagenById(int id)
+        {
+            return repository.GetInventarioImagenByCodigo(id);
+        }
+
+        public IList<TbPrInventarioCaracteristica> GetInventarioCaracteristicaById(int id)
+        {
+            return repository.GetInventarioCaracteristicaByCodigo(id);
         }
 
         public IList<TbPrInventarioBodega> GetAllBodegasPorInventario(int id)
@@ -55,6 +65,19 @@ namespace AltivaWebApp.Services
             repository.SaveInventarioBodega(domain);
         }
 
+        public void SaveImagenInventario(IList<TbPrImagenInventario> domain)
+        {
+            repository.SaveImagenInventario(domain);
+
+        }
+
+        public void SaveCaracteristicaInventario(TbPrInventarioCaracteristica domain)
+        {
+            repository.SaveCaracteristicaInventario(domain);
+        }
+        
+
+
         public void CrearRelacionInventarioBodega(int idInventario, int idBodega)
         {
             repository.CrearRelacionInventarioBodega(idInventario, idBodega);
@@ -74,6 +97,16 @@ namespace AltivaWebApp.Services
             return repository.DeleteEquivalencia(id);
         }
 
+        public bool DeleteCaracteristica(int id)
+        {
+            return repository.DeleteCaracteristica(id);
+        }
+
+        public bool DeleteImagen(int id)
+        {
+            return repository.DeleteImagen(id);
+        }
+
         public IList<TbPrEquivalencia> GetEquivalenciasPorInventario(int idInventario)
         {
             return repository.GetEquivalenciasPorInventario(idInventario);
@@ -83,5 +116,6 @@ namespace AltivaWebApp.Services
         {
             return repository.ExisteEquivalencia(domain);
         }
+
     }
 }

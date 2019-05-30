@@ -58,6 +58,13 @@ namespace AltivaWebApp.Repositories
             // return context.TbSeUsuario.
         }
 
+        public TbSeUsuario GetUsuarioConPerfilesById(int id)
+        {
+            return context.TbSeUsuario.Include(p => p.TbSePerfilUsuario).ThenInclude(pu => pu.IdPerfilNavigation)
+                .FirstOrDefault(u => u.Id == id);
+            // return context.TbSeUsuario.
+        }
+
         public IEnumerable<TbSePerfil> GetPerfiles(int id)
         {
             //var user = context.TbSeUsuario.Where(u => u.Correo == usuario || u.Codigo == usuario).FirstOrDefault();

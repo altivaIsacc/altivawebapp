@@ -1,6 +1,7 @@
 ﻿using AltivaWebApp.GEDomain;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,12 @@ namespace AltivaWebApp.Mappers
     public class GEMap: IGEMap
     {
         private IGEService service;
-        public GEMap(IGEService service)
+        private readonly IHostingEnvironment hostingEnvironment;
+
+        public GEMap(IGEService service, IHostingEnvironment hostingEnvironment)
         {
             this.service = service;
+            this.hostingEnvironment = hostingEnvironment;
         }
 
         public TbGeEmpresa Create(EmpresaViewModel model)
@@ -47,14 +51,17 @@ namespace AltivaWebApp.Mappers
             domain.Telefono2 = model.Telefono2;
             //domain.IdGrupoEmpresarial = model.Id_GE;
             if (model.Foto != null)
-                domain.Foto = FotosService.SubirFotoEmpresa(model.Foto);
-
+            {
+                var savePath = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "uploads");
+                domain.Foto = FotosService.SubirFotoEmpresa(model.Foto,savePath);
+            }
 
             return domain;
         }
 
         public TbGeEmpresa ViewModelToDomainCrear(EmpresaViewModel model)
         {
+            var savePath = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "Files");
             var domain = new TbGeEmpresa
             {
                 Bd = model.Bd,
@@ -68,7 +75,7 @@ namespace AltivaWebApp.Mappers
                 Telefono1 = model.Telefono1,
                 Telefono2 = model.Telefono2,
                 IdGrupoEmpresarial = model.Id_GE,
-                Foto = FotosService.SubirFotoEmpresa(model.Foto)
+                Foto = FotosService.SubirFotoEmpresa(model.Foto,savePath)
 
             };        
 

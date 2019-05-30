@@ -20,6 +20,15 @@ namespace AltivaWebApp.Repositories
             return context.TbPrInventario.FirstOrDefault(i => i.IdInventario == id);
         }
 
+        public IList<TbPrImagenInventario> GetInventarioImagenByCodigo(int id)
+        {
+            return context.TbPrImagenInventario.Where(i => i.IdInventario == id).ToList();
+        }
+        public IList<TbPrInventarioCaracteristica> GetInventarioCaracteristicaByCodigo(int id)
+        {
+            return context.TbPrInventarioCaracteristica.Where(i => i.IdInventario == id).ToList();
+        }
+
         public TbPrInventario GetInventarioByCodigo(string codigo)
         {
             return context.TbPrInventario.FirstOrDefault(i => i.Codigo == codigo);
@@ -49,6 +58,38 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception)
             {
+                throw;
+            }
+        }
+
+        public void SaveImagenInventario(IList<TbPrImagenInventario> domain)
+        {
+
+            try
+            {
+                context.TbPrImagenInventario.AddRange(domain);
+                context.SaveChanges();
+                
+            }
+            catch (Exception)
+            {
+                //return false;
+                throw;
+            }
+        }
+
+        public void SaveCaracteristicaInventario(TbPrInventarioCaracteristica domain)
+        {
+
+            try
+            {
+                context.TbPrInventarioCaracteristica.Add(domain);
+                context.SaveChanges();
+
+            }
+            catch (Exception)
+            {
+                //return false;
                 throw;
             }
         }
@@ -133,6 +174,40 @@ namespace AltivaWebApp.Repositories
             {
                 var domain = context.TbPrEquivalencia.FirstOrDefault(e => e.Id == id);
                 context.TbPrEquivalencia.Remove(domain);
+                context.SaveChanges();
+                return true;
+            }
+            catch (Exception)
+            {
+                //return false;
+                throw;
+            }
+
+        }
+
+        public bool DeleteCaracteristica(int id)
+        {
+            try
+            {
+                var domain = context.TbPrInventarioCaracteristica.FirstOrDefault(e => e.IdCaracteristicas == id);
+                context.TbPrInventarioCaracteristica.Remove(domain);
+                context.SaveChanges();
+                return true;
+            }
+            catch (Exception)
+            {
+                //return false;
+                throw;
+            }
+
+        }
+
+        public bool DeleteImagen(int id)
+        {
+            try
+            {
+                var domain = context.TbPrImagenInventario.FirstOrDefault(e => e.IdImagen == id);
+                context.TbPrImagenInventario.Remove(domain);
                 context.SaveChanges();
                 return true;
             }

@@ -1,6 +1,8 @@
 ﻿using AltivaWebApp.Domains;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +13,12 @@ namespace AltivaWebApp.Mappers
     public class InventarioMap : IInventarioMap
     {
         readonly IInventarioService service;
-        public InventarioMap(IInventarioService service)
+        private readonly IHostingEnvironment hostingEnvironment;
+
+        public InventarioMap(IInventarioService service, IHostingEnvironment hostingEnvironment)
         {
             this.service = service;
+            this.hostingEnvironment = hostingEnvironment;
         }
 
         public TbPrInventario Create(InventarioViewModel viewModel)
@@ -37,6 +42,21 @@ namespace AltivaWebApp.Mappers
             service.SaveInventarioBodega(ViewModelToDomainIB(viewModelaRel));
             
         }
+
+        public void CreateImagen(int id, IFormFile[] files)
+        {
+             service.SaveImagenInventario(ViewModelToDomainNuevoImagen(id, files));
+
+         
+        }
+        public void CreateCaracteristica(int id, string caracteristica)
+        {
+            service.SaveCaracteristicaInventario(ViewModelToDomainNuevoCaracteristica(id, caracteristica));
+
+
+        }
+
+
 
         public TbPrInventario Update(int id, InventarioViewModel viewModel)
         {
@@ -67,6 +87,33 @@ namespace AltivaWebApp.Mappers
             return domain;
         }
 
+        public IList<TbPrImagenInventario> ViewModelToDomainNuevoImagen(int id, IFormFile[] files)
+        {
+            var imgInventario = new List<TbPrImagenInventario>();
+
+            var savePath = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "Files");
+            var fotos = FotosService.SubirAdjuntos(files, savePath);
+            foreach (var item in fotos)
+            {
+                imgInventario.Add(new TbPrImagenInventario
+                {
+                    IdInventario = id,
+                    Imagen = item
+                });
+            }
+
+            return imgInventario;
+            //service.SaveImagenInventario(imgInventario);
+        }
+
+        public TbPrInventarioCaracteristica ViewModelToDomainNuevoCaracteristica(int id, string caracteristica)
+        {
+            return new TbPrInventarioCaracteristica
+            {
+                IdInventario = id,
+                Caracteristicas = caracteristica
+            };
+        }
         public TbPrInventario ViewModelToDomainNuevo(InventarioViewModel viewModel)
         {
             return new TbPrInventario
@@ -97,8 +144,15 @@ namespace AltivaWebApp.Mappers
                 UtilidadCredito = viewModel.UtilidadCredito,
                 UltimoPrecioCompra = viewModel.UltimoPrecioCompra,
                 UtilidadDeseada = viewModel.UtilidadDeseada,
-                UtilidadTemporal = viewModel.UtilidadTemporal
-
+                UtilidadTemporal = viewModel.UtilidadTemporal,
+                IdFamiliaOnline = viewModel.IdFamiliaOnline,
+                NombreCarrito = viewModel.NombreCarrito,
+                PrecioVentaOnline = viewModel.PrecioVentaOnline,
+                AbreviacionFacturas = viewModel.AbreviacionFactura,
+                IdMonedaVentaOnline = viewModel.CodigoMonedaOnline,
+                HabilitarVentaOnline = viewModel.HabilitarVentaOnline,
+                SkuOnline = viewModel.SkuOnline
+                
             };
         }
         public TbPrInventario ViewModelToDomainEditar(int id, InventarioViewModel viewModel)
@@ -131,7 +185,15 @@ namespace AltivaWebApp.Mappers
             inventario.UltimoPrecioCompra = viewModel.UltimoPrecioCompra;
             inventario.UtilidadDeseada = viewModel.UtilidadDeseada;
             inventario.UtilidadTemporal = viewModel.UtilidadTemporal;
-
+            inventario.IdFamiliaOnline = viewModel.IdFamiliaOnline;
+            inventario.NombreCarrito = viewModel.NombreCarrito;
+            inventario.PrecioVentaOnline = viewModel.PrecioVentaOnline;
+            inventario.AbreviacionFacturas = viewModel.AbreviacionFactura;
+            inventario.IdFamiliaOnline = viewModel.CodigoMonedaOnline;
+            inventario.HabilitarVentaOnline = viewModel.HabilitarVentaOnline;
+            inventario.SkuOnline = viewModel.SkuOnline;
+                     
+           
             return inventario;
 
         }
@@ -167,7 +229,16 @@ namespace AltivaWebApp.Mappers
                 UltimoPrecioCompra = (float)domain.UltimoPrecioCompra,
                 UtilidadCredito = (float)domain.UtilidadCredito,
                 UtilidadDeseada = (float)domain.UtilidadDeseada,
-                UtilidadTemporal = (float)domain.UtilidadTemporal,
+                UtilidadTemporal = (float)domain.UtilidadTemporal,        
+                IdFamiliaOnline = (int)domain.IdFamiliaOnline,
+                NombreCarrito = domain.NombreCarrito,
+                PrecioVentaOnline = (float)domain.PrecioVentaOnline,
+                AbreviacionFactura = domain.AbreviacionFacturas,
+                CodigoMonedaOnline =(int) domain.IdMonedaVentaOnline,
+                HabilitarVentaOnline = domain.HabilitarVentaOnline,
+                SkuOnline = domain.SkuOnline,
+
+
                 Bodegas = domain.TbPrInventarioBodega.ToList()
             };
         }

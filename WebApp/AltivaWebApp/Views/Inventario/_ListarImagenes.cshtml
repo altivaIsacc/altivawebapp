@@ -1,0 +1,62 @@
+﻿@model IList<TbPrImagenInventario>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+<div class="row" style="overflow:auto; height:300px">
+    <img src=" " class="card-img-top">
+    @foreach (var item in Model)
+    {
+        <div>
+            <div class="col-md-4" style="padding-top:2rem; width:200px; height:200px">
+                <div style="width:150px; height:150px">
+                    <center><img src="@item.Imagen" class="img-responsive" /></center>
+                </div>
+                <div class="col-md-1" style="padding-top:2rem"><button class="btn btn-link" value="@item.IdImagen" onclick="eliminarImagen(value)"><i class="fas fa-trash"></i></button></div>
+
+            </div>
+        </div>
+    }
+
+</div>
+
+
+<script>
+
+    function eliminarImagen(id) {
+        //$('#frmComentario').serializeArray()
+     var url = "@Url.Action("EliminarImagen", "Inventario", new { id = "__id__" })";
+        url = url.replace("__id__", id);
+
+       // var url = '@Url.Action("EliminarImagen")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: {model: id},
+                success: function (data) {
+                    //getCaracteristicas();
+
+                },
+                error: function (err, scnd) {
+                    @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
+                    console.log(err.statusText);
+                }
+            });
+
+
+
+    }
+
+
+</script>
+
+
+
+
+

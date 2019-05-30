@@ -18,6 +18,7 @@ namespace AltivaWebApp.Context
             : base(options)
         {
         }
+
         public virtual DbSet<TbBaConciliacion> TbBaConciliacion { get; set; }
         public virtual DbSet<TbBaConciliacionDetalle> TbBaConciliacionDetalle { get; set; }
         public virtual DbSet<TbBaCuentasBancarias> TbBaCuentasBancarias { get; set; }
@@ -136,7 +137,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdTipoHabitacion> TbFdTipoHabitacion { get; set; }
         public virtual DbSet<TbFdTipoProveedor> TbFdTipoProveedor { get; set; }
         public virtual DbSet<TbFdTipoServicio> TbFdTipoServicio { get; set; }
-        public virtual DbSet<TbFdTipoTarifa> TbFdTipoTarifa { get; set; }       
+        public virtual DbSet<TbFdTipoTarifa> TbFdTipoTarifa { get; set; }
         public virtual DbSet<TbPrAjuste> TbPrAjuste { get; set; }
         public virtual DbSet<TbPrAjusteInventario> TbPrAjusteInventario { get; set; }
         public virtual DbSet<TbPrBodega> TbPrBodega { get; set; }
@@ -148,9 +149,11 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbPrEquivalencia> TbPrEquivalencia { get; set; }
         public virtual DbSet<TbPrFamilia> TbPrFamilia { get; set; }
         public virtual DbSet<TbPrFamiliaVentaOnline> TbPrFamiliaVentaOnline { get; set; }
+        public virtual DbSet<TbPrImagenInventario> TbPrImagenInventario { get; set; }
         public virtual DbSet<TbPrInformacionBancaria> TbPrInformacionBancaria { get; set; }
         public virtual DbSet<TbPrInventario> TbPrInventario { get; set; }
         public virtual DbSet<TbPrInventarioBodega> TbPrInventarioBodega { get; set; }
+        public virtual DbSet<TbPrInventarioCaracteristica> TbPrInventarioCaracteristica { get; set; }
         public virtual DbSet<TbPrKardex> TbPrKardex { get; set; }
         public virtual DbSet<TbPrOrden> TbPrOrden { get; set; }
         public virtual DbSet<TbPrOrdenDetalle> TbPrOrdenDetalle { get; set; }
@@ -191,14 +194,14 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbSeConfiguracion> TbSeConfiguracion { get; set; }
         public virtual DbSet<TbSePuntoVenta> TbSePuntoVenta { get; set; }
 
-        // Unable to generate entity type for table 'dbo.tb_FD_CuentaEnCasaNotaCredito'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_NotaCreditoAjusteSaldoMenor'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_AmadeLlave'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomaticaDetalle'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_NotaDebitoAjusteSaldoMenor'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_AmadeLlave'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_CuentaEnCasaNotaCredito'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -3710,7 +3713,9 @@ namespace AltivaWebApp.Context
             {
                 entity.ToTable("TB_PR_FamiliaVentaOnline");
 
-                entity.Property(e => e.Descripcion).HasMaxLength(150);
+                entity.Property(e => e.Descripcion)
+                    .IsRequired()
+                    .HasMaxLength(150);
 
                 entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
 
@@ -3718,6 +3723,25 @@ namespace AltivaWebApp.Context
                     .WithMany(p => p.InverseIdFamiliaNavigation)
                     .HasForeignKey(d => d.IdFamilia)
                     .HasConstraintName("FK_TB_PR_FamiliaVentaOnline_TB_PR_FamiliaVentaOnline");
+            });
+
+            modelBuilder.Entity<TbPrImagenInventario>(entity =>
+            {
+                entity.HasKey(e => e.IdImagen);
+
+                entity.ToTable("tb_PR_ImagenInventario");
+
+                entity.Property(e => e.Imagen)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('''')");
+
+                entity.HasOne(d => d.IdInventarioNavigation)
+                    .WithMany(p => p.TbPrImagenInventario)
+                    .HasForeignKey(d => d.IdInventario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_ImagenInventario_tb_PR_Inventario");
             });
 
             modelBuilder.Entity<TbPrInformacionBancaria>(entity =>
@@ -3749,6 +3773,12 @@ namespace AltivaWebApp.Context
 
                 entity.ToTable("tb_PR_Inventario");
 
+                entity.Property(e => e.AbreviacionFacturas)
+                   // .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('''')");
+
                 entity.Property(e => e.Codigo)
                     .IsRequired()
                     .HasMaxLength(60)
@@ -3775,10 +3805,24 @@ namespace AltivaWebApp.Context
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
+                entity.Property(e => e.IdMonedaVentaOnline).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.NombreCarrito)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('''')");
+
                 entity.Property(e => e.Notas)
                     .HasMaxLength(500)
                     .IsUnicode(false)
                     .HasDefaultValueSql("(' ')");
+
+                entity.Property(e => e.SkuOnline)
+                    .IsRequired()
+                    .HasMaxLength(60)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('''')");
 
                 entity.HasOne(d => d.IdSubFamiliaNavigation)
                     .WithMany(p => p.TbPrInventario)
@@ -3808,6 +3852,25 @@ namespace AltivaWebApp.Context
                     .HasForeignKey(d => d.IdInventario)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_PR_InventarioBodega_tb_PR_Inventario");
+            });
+
+            modelBuilder.Entity<TbPrInventarioCaracteristica>(entity =>
+            {
+                entity.HasKey(e => e.IdCaracteristicas);
+
+                entity.ToTable("tb_PR_InventarioCaracteristica");              
+
+                entity.Property(e => e.Caracteristicas)
+                    .IsRequired()
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('''')");
+
+                entity.HasOne(d => d.IdInventarioNavigation)
+                    .WithMany(p => p.TbPrInventarioCaracteristica)
+                    .HasForeignKey(d => d.IdInventario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_InventarioCaracteristica_tb_PR_Inventario");
             });
 
             modelBuilder.Entity<TbPrKardex>(entity =>

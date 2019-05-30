@@ -10,13 +10,15 @@ namespace AltivaWebApp.Services
 {
     public class FotosService
     {
-        public static string SubirFotoUsuarios1(IFormFile file)
+        public static string SubirFotoUsuarios1(IFormFile file, string savePath)
         {
             if (file != null)
             {
                     var fileName = GetUniqueName(file.FileName);
-                    var path = $"wwwroot\\uploads\\{fileName}";
-                    using (var stream = new FileStream(path, FileMode.Create))
+                //var path = $"wwwroot\\uploads\\{fileName}";
+                var path = $"{savePath}\\{fileName}";
+
+                using (var stream = new FileStream(path, FileMode.Create))
                     {
                         file.CopyTo(stream);
                     }
@@ -30,14 +32,16 @@ namespace AltivaWebApp.Services
             }
            
         }
-        public static string SubirFotoUsuario(IFormFile file)
+        public static string SubirFotoUsuario(IFormFile file, string savePath)
         {
 
                 if (file.Length > 0)
                 {
                 var fileName = GetUniqueName(file.FileName);
-                var path = $"wwwroot\\uploads\\{fileName}";
-                    using (var stream = new FileStream(path, FileMode.Create))
+                //var path = $"wwwroot\\uploads\\{fileName}";
+                var path = $"{savePath}\\{fileName}";
+
+                using (var stream = new FileStream(path, FileMode.Create))
                     {
                         file.CopyTo(stream);
                     }
@@ -48,13 +52,15 @@ namespace AltivaWebApp.Services
                     return "/avatars/ninja.png";
                                              
         }
-        public static string SubirFotoContacto(IFormFile file)
+        public static string SubirFotoContacto(IFormFile file, string savePath)
         {
             var ruta = "";
             if (file.Length > 0)
             {
                 var fileName = GetUniqueName(file.FileName);
-                var path = $"wwwroot\\uploads\\{fileName}";
+                var path = $"{savePath}\\{fileName}";
+
+              //  var path = $"wwwroot\\uploads\\{fileName}";
                 using (var stream = new FileStream(path, FileMode.Create))
                 {
                     file.CopyTo(stream);
@@ -65,19 +71,22 @@ namespace AltivaWebApp.Services
             return ruta;
 
         }
-        public static string SubirFotoEmpresa(IFormFile file)
+        public static string SubirFotoEmpresa(IFormFile file, string savePath )
         {
                 if (file.Length > 0)
                 {
                     var fileName = GetUniqueName(file.FileName);
 
-                var path = $"wwwroot\\uploads\\{fileName}";
+                //  var path = $"wwwroot\\uploads\\{fileName}";
+                var path = $"{savePath}\\{fileName}";
+
                 using (var stream = new FileStream(path, FileMode.Create))
                 {
                     file.CopyTo(stream);
                 }
 
                 return $"/uploads/{fileName}";
+              // return $"{savePath}\\{fileName}";
                 }
                 else 
                    return "/avatars/ninja.png";                   
@@ -86,14 +95,16 @@ namespace AltivaWebApp.Services
                       
         }
 
-        public static IList<string> SubirAdjuntos(IFormFile[] files)
+        public static IList<string> SubirAdjuntos(IFormFile[] files, string savePath)
         {
             var rutas = new List<string>();
             foreach (var item in files)
             {
                 var fileName = GetUniqueName(item.FileName);
 
-                var path = $"wwwroot\\Files\\{fileName}";
+                //var path = $"wwwroot\\Files\\{fileName}";
+                var path = $"{savePath}\\{fileName}";
+
                 using (var stream = new FileStream(path, FileMode.Create))
                 {
                     item.CopyTo(stream);
