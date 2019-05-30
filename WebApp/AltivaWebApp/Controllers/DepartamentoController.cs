@@ -132,6 +132,31 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
         }
+
+        [HttpGet("GetDepartamentosWithReqs")]
+        public IActionResult GetDepartamentosWithReqs()
+        {
+            try
+            {
+                var depa = service.GetDepartamentoWithReqs();
+                foreach (var item in depa)
+                {
+                    foreach (var i in item.TbPrRequisicion)
+                    {
+                        i.IdDepartamentoNavigation = null;
+                    }
+                }
+
+
+                return Ok(depa);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
         [HttpGet("GetDepartamentosSinAnular")]
         public IActionResult GetDepartamentosSinAnular()
         {

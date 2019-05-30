@@ -53,13 +53,13 @@ namespace AltivaWebApp.Controllers
                 {
                     var req = map.Update(viewModel);
                     if (viewModel.RequisicionDetalle != null)
-                        map.SaveRD(viewModel);
+                        kardexMap.CreateKardexRD(map.SaveRD(viewModel), false);
                 }
                 else
                 {
                     viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     var req = map.Create(viewModel);
-
+                    kardexMap.CreateKardexRD(req.TbPrRequisicionDetalle.ToList(), false);
 
                 }
 
@@ -93,8 +93,10 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var req = service.GetReqById(id);
+                var req = service.GetRequisicionWithDetails(id);
                 req.Anulado = true;
+                kardexMap.CreateKardexRD(req.TbPrRequisicionDetalle.ToList(), true);
+
                 service.Update(req);
 
                 return Json(new { success = true });
@@ -113,6 +115,7 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var res = service.GetAllReqDetalleById(viewModel);
+                kardexMap.CreateKardexRD(res, true);
                 service.DeleteRD(res);
 
                 return Json(new { success = true });

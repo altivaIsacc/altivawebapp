@@ -8,21 +8,21 @@
     }
 }
 
-@{ 
+@{
     var titulo = "";
+
+    @if (Model.Id != 0)
+    {
+
+        titulo = @SharedLocalizer["EditarDepartamento"];
+
+    }
+    else
+    {
+        titulo = @SharedLocalizer["NuevoDepartamento"];
+    }
+
 }
-
-@if (Model.Id != 0)
-{
-
-    titulo = @SharedLocalizer["EditarDepartamento"];
-
-}
-else
-{
-    titulo = @SharedLocalizer["NuevoDepartamento"];
-}
-
 
 
 <div class="row">
@@ -32,7 +32,7 @@ else
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    
+
 </div>
 
 
@@ -64,7 +64,41 @@ else
             guardarDepartamento();
         }
 
-
     });
+
+
+
+    function guardarDepartamento() {
+        if ($('#txtDescripcionDepa').val().replace(/ /g, "") != "")
+            $.ajax({
+                type: "POST",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                dataType: "json",
+                url: '@Url.Action("CrearEditarDepartamento")',
+                data: $('#frmDepartamento').serialize(),
+                success: function (data) {
+
+                    if (data.success) {
+
+                        console.log(data);
+                        $('#modalDepartamento').modal('hide');
+                        getDepartamentos(data.departamento.id);
+                    }
+                    else
+                        cargarAlert("@SharedLocalizer["errorDuplicacion"]");
+
+
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+        else
+            $('#descripcionValid').attr('hidden', false);
+
+    }
 </script>
 

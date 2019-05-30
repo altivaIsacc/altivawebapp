@@ -36,6 +36,11 @@ namespace AltivaWebApp.Services
             return reposistory.GetDepartamentosSinAnular();
         }
 
+        public IList<TbPrDepartamento> GetDepartamentoWithReqs()
+        {
+            return reposistory.GetDepartamentoWithReqs();
+        }
+
         public TbPrDepartamento Save(TbPrDepartamento domain)
         {
             return reposistory.Save(domain);

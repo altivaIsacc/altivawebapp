@@ -14,5 +14,6 @@ namespace AltivaWebApp.Services
         TbPrDepartamento GetDepartamentoById(int id);
         IList<TbPrDepartamento> GetDepartamentosSinAnular();
         TbPrDepartamento GetDepartamentoByDesc(string desc);
+        IList<TbPrDepartamento> GetDepartamentoWithReqs();
     }
 }

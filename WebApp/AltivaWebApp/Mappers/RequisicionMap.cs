@@ -26,9 +26,9 @@ namespace AltivaWebApp.Mappers
             return service.Update(ViewModelToDomainEdit(viewModel));
         }
 
-        public void SaveRD(RequisicionViewModel viewModel)
+        public IList<TbPrRequisicionDetalle> SaveRD(RequisicionViewModel viewModel)
         {
-            service.SaveRD(ViewModelToDomaineRD(viewModel.RequisicionDetalle));
+            return service.SaveRD(ViewModelToDomaineRD(viewModel.RequisicionDetalle));
         }
 
         public void UpdateRD(IList<RequisicionDetalleViewModel> viewModel)

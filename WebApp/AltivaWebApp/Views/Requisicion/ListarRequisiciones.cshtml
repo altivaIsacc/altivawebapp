@@ -26,6 +26,47 @@
 </div>
 
 
+<div class="row">
+
+    <div class="col-md-2" style="margin-top: 0.2rem">
+        <label>@SharedLocalizer["buscarPorDescripcion"]:</label>
+        <input type="text" id="filtroBuscarDescripcion" class="form-control" placeholder="@SharedLocalizer["Descripción"]" />
+    </div>
+
+    <div class="col-md-2">
+        <label style="padding-top: 0.2rem">@SharedLocalizer["buscarPorDepartamento"]:</label>
+        <input type="text" id="filtroBuscarDepartamento" class="form-control" placeholder="@SharedLocalizer["Departamento"]" />
+    </div>
+
+    <div class="col-md-3">
+
+        <label class="control-label">
+            <input type="checkbox" id="habilitaFiltroFecha"> @SharedLocalizer["FiltroFecha"]
+        </label>
+        <form id="frmFecha" class="form-horizontal">
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="input-prepend input-group">
+                            <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="24/04/2019 - 24/04/2019" />
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+
+    </div>
+    <div class="col-md-2 checkbox">
+        <label class="control-label">
+            <input type="checkbox" id="estado"> @SharedLocalizer["VerAnuladas"]
+        </label>
+    </div>
+
+</div>
+
+
 <div class="table-responsive">
 
     <table class="table table-bordered" id="tblReq">
@@ -56,9 +97,64 @@
 
     var reqs = [];
 
+    var reqsFiltrado = [];
+    var tblReqs;
+    var hasta;
+    var desde;
+
     $(document).ready(function () {
 
         getRequisiciones();
+
+
+        $('#filtroFecha').attr('disabled', true);
+
+        $('#filtroFecha').daterangepicker({
+            opens: 'left',
+
+            "locale": {
+                format: "@SharedLocalizer["formatoFecha"]",
+                "separator": " - ",
+                "applyLabel": "@SharedLocalizer["Aplicar"]",
+                "cancelLabel": "@SharedLocalizer["Cancelar"]",
+                "fromLabel": "@SharedLocalizer["DE"]",
+                "toLabel": "@SharedLocalizer["Hasta"]",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "@SharedLocalizer["Dom"]",
+                    "@SharedLocalizer["Lun"]",
+                    "@SharedLocalizer["Mar"]",
+                    "@SharedLocalizer["Mie"]",
+                    "@SharedLocalizer["Jue"]",
+                    "@SharedLocalizer["Vie"]",
+                    "@SharedLocalizer["Sáb"]"
+                ],
+                "monthNames": [
+                    "@SharedLocalizer["Enero"]",
+                    "@SharedLocalizer["Febrero"]",
+                    "@SharedLocalizer["Marzo"]",
+                    "@SharedLocalizer["Abril"]",
+                    "@SharedLocalizer["Mayo"]",
+                    "@SharedLocalizer["Junio"]",
+                    "@SharedLocalizer["Julio"]",
+                    "@SharedLocalizer["Agosto"]",
+                    "@SharedLocalizer["Septiembre"]",
+                    "@SharedLocalizer["Octubre"]",
+                    "@SharedLocalizer["Noviembre"]",
+                    "@SharedLocalizer["Diciembre"]"
+                ],
+                "firstDay": 1
+            }
+        },
+        function (start, end, label) {
+
+            desde = start.format('YYYY-MM-DD');
+            hasta = end.format('YYYY-MM-DD');
+            cargarFiltros();
+
+            });       
+
+
     });
 
     function getRequisiciones() {
@@ -73,7 +169,8 @@
             success: function (data) {
                 console.log(data);
                 reqs = JSON.parse(JSON.stringify(data));
-                cargarDatos(data);
+                //cargarDatos(data);
+                cargarFiltros();
             },
             error: function (err, scnd) {
                 cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -94,6 +191,8 @@
 
             if (data[i].anulado)
                 colorFila = "color: #808080";
+            else
+                colorFila = "#2A3F54"
 
             var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
                 + '<td><p style="padding-top:1rem;">' + recuperarFecha(data[i].fecha) + '</p></td>'
@@ -173,6 +272,106 @@
         });
 
         //$(".dataTables_searching").hide();
+    }
+
+
+     ///////////////////////////////////////////////////////filtros
+
+
+    $("#filtroBuscarDescripcion").on("keyup", function () {
+        tblCompras
+            .columns(2)
+            .search(this.value)
+            .draw();
+    });
+    $("#filtroBuscarDepartamento").on("keyup", function () {
+        tblCompras
+            .columns(1)
+            .search(this.value)
+            .draw();
+    });
+
+    $('#habilitaFiltroFecha').change(function () {
+
+        if (!$(this).prop('checked')) {
+            cargarFiltros();
+            $('#filtroFecha').attr('disabled', true);
+        }
+
+        else {
+            $('#filtroFecha').attr('disabled', false);
+            cargarFiltros();
+        }
+
+    });
+
+    $('#estado').change(function () {
+
+        cargarFiltros();
+
+    });
+   
+
+    function cargarFiltros() {
+
+        reqsFiltrado = reqs;//JSON.parse(JSON.stringify(ordenes));
+
+        reqsFiltrado = filtroAnuladas(reqsFiltrado);
+
+        reqsFiltrado = filtroFecha(reqsFiltrado, desde, hasta);
+
+        cargarDatos(reqsFiltrado);
+
+    }
+
+
+    function filtroFecha(array, _desde, _hasta) {
+
+
+        var arrayReqs = [];
+
+        if ($('#habilitaFiltroFecha').prop('checked')) {
+
+            var desdeLocal = new Date(_desde).getTime();
+            var hastaLocal = new Date(_hasta).getTime();
+
+            for (var i = 0; i < array.length; i++) {
+
+                var documento = new Date(array[i].fecha).getTime();
+
+                if (documento >= desdeLocal && documento <= hastaLocal)
+                    arrayReqs.push(reqs[i]);
+
+            }
+            return arrayReqs;
+        }
+        else
+            return array;
+
+
+    }
+
+
+
+    function filtroAnuladas(array) {
+
+        var arrayReqs = [];
+
+        if ($('#estado').prop('checked')) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].anulado)
+                    arrayReqs.push(array[i]);
+            }
+
+        }
+        else
+            for (var i = 0; i < array.length; i++) {
+                if (!array[i].anulado)
+                    arrayReqs.push(array[i]);
+            }
+
+        return arrayReqs;
+
     }
 
     function recuperarFecha(_fecha) {

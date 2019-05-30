@@ -1,5 +1,6 @@
 ﻿using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,11 @@ namespace AltivaWebApp.Repositories
         public TbPrDepartamento GetDepartamentoById(int id)
         {
             return context.TbPrDepartamento.FirstOrDefault(d => d.Id == id);
+        }
+
+        public IList<TbPrDepartamento> GetDepartamentoWithReqs()
+        {
+            return context.TbPrDepartamento.Include(r => r.TbPrRequisicion).ToList();
         }
 
         public IList<TbPrDepartamento> GetDepartamentosSinAnular()

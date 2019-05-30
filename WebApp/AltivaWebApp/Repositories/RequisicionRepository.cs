@@ -25,6 +25,11 @@ namespace AltivaWebApp.Repositories
             return context.TbPrRequisicion.FirstOrDefault(r => r.Id == id);//.Include(r => r.TbPrRequisicionDetalle)
         }
 
+        public TbPrRequisicion GetRequisicionWithDetails(int id)
+        {
+            return context.TbPrRequisicion.Include(r => r.TbPrRequisicionDetalle).FirstOrDefault(r => r.Id == id);
+        }
+
         public IList<TbPrRequisicionDetalle> GetAllRDByRequisicionId(int id)
         {
             try
@@ -38,12 +43,14 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public void SaveRD(IList<TbPrRequisicionDetalle> domain)
+        public IList<TbPrRequisicionDetalle> SaveRD(IList<TbPrRequisicionDetalle> domain)
         {
             try
             {
                 context.TbPrRequisicionDetalle.AddRange(domain);
-                context.SaveChanges(); 
+                context.SaveChanges();
+
+                return domain;
             }
             catch (Exception)
             {               

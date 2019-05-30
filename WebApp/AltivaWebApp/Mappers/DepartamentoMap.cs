@@ -52,6 +52,7 @@ namespace AltivaWebApp.Mappers
         public DepartamentoViewModel DomainToVIewModel(TbPrDepartamento domain)
         {
             return new DepartamentoViewModel {
+                Id = domain.Id,
                 Descripcion = domain.Descripcion,
                 Fecha = domain.Fecha,
                 IdUsuario = (int)domain.IdUsuario

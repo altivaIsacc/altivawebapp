@@ -11,8 +11,9 @@ namespace AltivaWebApp.Repositories
         TbPrRequisicion Save(TbPrRequisicion domain);
         TbPrRequisicion Update(TbPrRequisicion domain);
         TbPrRequisicion GetReqById(int id);
+        TbPrRequisicion GetRequisicionWithDetails(int id);
         IList<TbPrRequisicionDetalle> GetAllRDByRequisicionId(int id);
-        void SaveRD(IList<TbPrRequisicionDetalle> domain);
+        IList<TbPrRequisicionDetalle> SaveRD(IList<TbPrRequisicionDetalle> domain);
         void UpdateRD(IList<TbPrRequisicionDetalle> domain);
         bool DeleteRD(IList<TbPrRequisicionDetalle> domain);
         IList<TbPrRequisicion> GetAllWithDetails();

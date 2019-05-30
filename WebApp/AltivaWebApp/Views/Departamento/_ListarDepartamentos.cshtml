@@ -18,7 +18,7 @@
     
     <div class="col-md-2 checkbox">
         <label class="control-label">
-            <input type="checkbox" id="estado" onchange="filtroAnuladas()"> @SharedLocalizer["VerAnuladas"]
+            <input type="checkbox" id="estado" onchange="filtroAnuladas()"> @SharedLocalizer["VerAnulados"]
         </label>
     </div>
 
@@ -55,12 +55,12 @@
 
     $(document).ready(function () {
 
-        getDepartamentos();
+        getDepartamentos(1);
 
 
     });
 
-    function getDepartamentos() {
+    function getDepartamentos(pos) {
 
         $.ajax({
             type: "get",
@@ -68,8 +68,10 @@
                             "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
             },
             dataType: "json",
-            url: '@Url.Action("GetDepartamentos", "Departamento")',
+            url: '@Url.Action("GetDepartamentosWithReqs", "Departamento")',
             success: function (data) {
+
+                console.log(data);
                 departamentos = data;
                 filtroAnuladas();
                 //cargarDatos(data);
@@ -81,8 +83,9 @@
         });
     }
 
-    function anularDepartamento(id) {
+    
 
+    function anularDepartamentoDirect(id) {
         $.ajax({
             type: "post",
             headers: {
@@ -101,6 +104,23 @@
         });
     }
 
+    function anularDepartamento(id, key) {
+
+
+        var msj = "@SharedLocalizer["confirmAnularDepartamentoConReq"]";
+        if (departamentos[key].tbPrRequisicion.length <= 0)
+            msj = "@SharedLocalizer["confirmAnularDepartamentoSinReq"]";
+
+        bootbox.confirm(msj, function (result) {
+
+            if (result) {
+
+                anularDepartamentoDirect(id);
+            }
+
+        });
+    }
+
     function cargarDatos(data) {
 
         $("#tblDepartamento> tbody").remove();
@@ -115,8 +135,8 @@
 
             var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
                     + '<td><p style="padding-top:1rem;">' + recuperarFecha(data[i].fecha) + '</p></td>'
-                    + '<td><p style="padding-top:1rem;">' + data[i].descripcion + '</p></td>'
-                     + '<td>  <button value="' + data[i].id + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="anularDepartamento(value)" class="btn btn-link btnEditar"><i class="fas fa-trash"></i></button>';
+                + '<td><p style="padding-top:1rem;">' + data[i].descripcion + '</p></td>'
+                + '<td>  <button value="' + data[i].id + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="anularDepartamento(value, ' + contadorFila + ')" class="btn btn-link btnEditar"><i class="fas fa-trash"></i></button>';
                 $('#tblDepartamento > tbody').append(body);
                 contadorFila++;
 
@@ -197,11 +217,9 @@
             .columns(1)
             .search(this.value)
             .draw();
-    });
+    });             
 
-    function filtroAnuladas() {
-
-        
+    function filtroAnuladas() {      
 
         var array = departamentos;
 

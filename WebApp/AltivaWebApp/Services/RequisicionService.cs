@@ -40,9 +40,9 @@ namespace AltivaWebApp.Services
             return repository.Save(domain);
         }
 
-        public void SaveRD(IList<TbPrRequisicionDetalle> domain)
+        public IList<TbPrRequisicionDetalle> SaveRD(IList<TbPrRequisicionDetalle> domain)
         {
-            repository.SaveRD(domain);
+            return repository.SaveRD(domain);
         }
 
         public TbPrRequisicion Update(TbPrRequisicion domain)
@@ -58,6 +58,11 @@ namespace AltivaWebApp.Services
         public IList<TbPrRequisicionDetalle> GetAllReqDetalleById(IList<int> domain)
         {
             return repository.GetAllReqDetalleById(domain);
+        }
+
+        public TbPrRequisicion GetRequisicionWithDetails(int id)
+        {
+            return repository.GetRequisicionWithDetails(id);
         }
     }
 }

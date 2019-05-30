@@ -390,17 +390,24 @@ namespace AltivaWebApp.Mappers
             var cd = new List<TbPrCompraDetalle>();
 
             double cantidad = 0;
+            var tipoDoc = "REQ";
 
-           
+            if (domain.Anulado)
+                tipoDoc = "REA";
+
+
+
 
 
             foreach (var item in rq)
             {
                 cantidad = 0;
-                if (isDeteled)
-                    cantidad = item.Cantidad * -1;
+                if (isDeteled)              
+                    cantidad = item.Cantidad;                   
                 else
-                    cantidad = item.Cantidad;
+                    cantidad = item.Cantidad * -1;
+
+                    
 
                 var k = new TbPrKardex
                 {
@@ -412,8 +419,8 @@ namespace AltivaWebApp.Mappers
                     ExistAnt = 0,
                     ExistActBod = 0,
                     ExistAntBod = 0,
-                    IdBodegaDestino = 1,
-                    IdBodegaOrigen = 1,
+                    IdBodegaDestino = domain.IdBodega,
+                    IdBodegaOrigen = domain.IdBodega,
                     IdDocumento = domain.Id,
                     IdUsuario = domain.IdUsuario,
                     IdMoneda = 1,
@@ -421,7 +428,7 @@ namespace AltivaWebApp.Mappers
                     PrecioPromedio = 0,
                     PrecioUnit = item.PrecioUnitario,
                     IdInventario = item.IdInventario,
-                    TipoDocumento = "Req",
+                    TipoDocumento = tipoDoc,
                     SaldoFinal = 0
                 };
 
