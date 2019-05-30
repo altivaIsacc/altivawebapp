@@ -15,6 +15,10 @@ namespace AltivaWebApp.Sesion
         public static string _KEYnombreUsuario = "nombreUsuario";
         public static string _KEYIdEmpresa = "idEmpresa";
         public static string _KEYIdiomaUsuario = "idioma";
+        public static string _KEYAvatar = "avatar";
+        public static string _KEYFotoEmpresa = "fotoEmpresa";
+        public static string _KEYNombreEmpresa = "nombreEmpresa";
+        
 
         public static void SetStringGE(this ISession session, string value)
         {
@@ -35,6 +39,20 @@ namespace AltivaWebApp.Sesion
         public static void SetIdioma(this ISession session, string value)
         {
             session.SetString(_KEYIdiomaUsuario, value);
+        }
+
+        public static void SetAvatar(this ISession session, string value)
+        {
+            session.SetString(_KEYAvatar, value);
+        }
+
+        public static void SetFotoEmpresa(this ISession session, string value)
+        {
+            session.SetString(_KEYFotoEmpresa, value);
+        }
+        public static void SetNombreEmpresa(this ISession session, string value)
+        {
+            session.SetString(_KEYNombreEmpresa, value);
         }
     }
 }

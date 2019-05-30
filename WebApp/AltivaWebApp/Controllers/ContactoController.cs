@@ -14,6 +14,7 @@ using System.Security.Claims;
 using System.Runtime.Serialization.Json;
 using Newtonsoft.Json;
 using System.IO;
+using Microsoft.AspNetCore.Hosting;
 
 namespace AltivaWebApp.Controllers
 {
@@ -36,11 +37,13 @@ namespace AltivaWebApp.Controllers
 
         public ITipoTareaService ITipoService;
         public IUserService IUserService;
+        private readonly IHostingEnvironment hostingEnvironment;
+
         //metodo usuasrios del sitemas
         public IUserRepository userMap;
         //variable de contactosCamposPersonalizadosService:
         public IContactoCamposService ICCService;
-        public ContactoController(IUserService IUserService, ITipoTareaService ITipoService, IEstadoTareaService IEstadoService, FotosService pFotos, IUserRepository IUserRepository, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IcontactoCamposMap pContactoCamposMap, IcontactoCamposMap pContactoMap)
+        public ContactoController(IUserService IUserService, IHostingEnvironment hostingEnvironment, ITipoTareaService ITipoService, IEstadoTareaService IEstadoService, FotosService pFotos, IUserRepository IUserRepository, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IcontactoCamposMap pContactoCamposMap, IcontactoCamposMap pContactoMap)
         {
             this.contactoService = contactoService;
             this.contactoMap = contactoMap;
@@ -50,6 +53,7 @@ namespace AltivaWebApp.Controllers
             this.userMap = IUserRepository;
             this.Fotos = pFotos;
             this.IUserService = IUserService;
+            this.hostingEnvironment = hostingEnvironment;
             this.ITipoService = ITipoService;
             this.IEstadoService = IEstadoService;
 
@@ -295,7 +299,9 @@ namespace AltivaWebApp.Controllers
             ViewData["contactoRelacion"] = cr;
             var idd = id["id"].ToString();
             string ruta = "";
-            ruta = FotosService.SubirFotoContacto(foto);
+            var savePath = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "uploads");
+
+            ruta = FotosService.SubirFotoContacto(foto,savePath);
 
             int i = Convert.ToInt32(idd);
 

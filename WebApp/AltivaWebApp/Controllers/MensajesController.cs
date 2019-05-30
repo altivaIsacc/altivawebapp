@@ -324,15 +324,16 @@ namespace AltivaWebApp.Controllers
                 {
                     foreach (var item in collection.Files)
                     {
-
-                        var path = $"wwwroot\\Files\\{item.FileName}";
+                        var savePath = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "Files");
+                        // var path = $"wwwroot\\Files\\{item.FileName}";
+                        var path = $"{savePath}\\{item.FileName}";
                         using (var stream = new FileStream(path, FileMode.Create))
                         {
                             item.CopyTo(stream);
 
                         }
 
-                        var ruta = $"/Files/{item.FileName}";
+                       var ruta = $"/Files/{item.FileName}";
                         AdjuntoDomain = this.IAdjuntoMap.crear(msj.Id, ruta);
 
                         s.Add(AdjuntoDomain);

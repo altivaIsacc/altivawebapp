@@ -304,6 +304,7 @@ namespace AltivaWebApp.Controllers
                     }
 
                 var user = userMap.Update(model);
+                Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
                 i = user.Codigo;
                 return Json(new { success = true });
                 
@@ -327,8 +328,10 @@ namespace AltivaWebApp.Controllers
 
 
             user.Avatar = directorio;
+            Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
 
             userService.UpdateUsuario(user);
+
 
             return RedirectToAction("CuentaUsuario", new { user.Codigo });
         }
