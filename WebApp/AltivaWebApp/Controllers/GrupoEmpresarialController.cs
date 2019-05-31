@@ -135,12 +135,15 @@ namespace AltivaWebApp.Controllers
                 var existeEmpresaC = service.GetByCedula(model.CedJuridica);
                 if (existeEmpresaN != null)
                 {
-
                     return Json(new { success = _sharedLocalizer["yaExisteEmpresaC"].ToString() });
                 }
 
+                model.Id_GE = (int)service.GetGE().Id;
 
-                var result = geMap.Create(model);
+               var result = geMap.Create(model);
+
+               
+
                 if (result != null)
                 {
                     var res = service.CrearBD(model.Bd);
@@ -149,7 +152,7 @@ namespace AltivaWebApp.Controllers
                         service.AgregarUsuarios((int)result.Id);
 
                         // return Json(new { success = true });
-                        return RedirectToAction("ListarEmpresas", "GrupoEmpresarial");
+                        return Json(new { success = true });
 
                     }
                     else
@@ -172,7 +175,8 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
-                return BadRequest(new { success = _sharedLocalizer["errorGeneral"].ToString() });
+                throw;
+                //return BadRequest(new { success = _sharedLocalizer["errorGeneral"].ToString() });
             }
         }
 
@@ -203,8 +207,8 @@ namespace AltivaWebApp.Controllers
 
 
                 var empresa = geMap.Update(viewModel);
-                // return Json(new { success = true });
-                return RedirectToAction("ListarEmpresas", "GrupoEmpresarial");
+                return Json(new { success = true });
+                //return RedirectToAction("DetallesEmpresa", "GrupoEmpresarial", new { nombre = empresa.Nombre });
             }
             catch
             {
@@ -213,7 +217,29 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        [Route("CambiarEstado-Empresa/(id)")]
+
+        [HttpPost("CambiarFoto-Empresa/{id}")]
+        public ActionResult CambiarFotoEmpresa(int id, IFormFile file)
+        {
+            try
+            {
+
+                if (file != null)
+                {
+                    var empresa = service.GetEmpresaById(id);
+                    empresa.Foto = empresa.Foto = FotosService.SubirFotoEmpresa(file, Startup.entorno.ContentRootPath);
+                    var res = service.Update(empresa);
+                }
+                
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("CambiarEstado-Empresa/{id}")]
         public ActionResult CambiarEstadoEmpresa(int id)
         {
             try

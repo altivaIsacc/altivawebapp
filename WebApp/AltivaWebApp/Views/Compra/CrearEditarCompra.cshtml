@@ -301,9 +301,14 @@ else
             
          }
 
+         if (@Model.IdMoneda === 1) {
+             $dolar.attr('disabled', false);
+             $euro.attr('disabled', false);
+         }
 
 
-        deshabilitaTipoCambio();
+
+        //deshabilitaTipoCambio();
 
 
         $descuento.val(0);
@@ -788,7 +793,7 @@ else
                 nombreInventario: data[i].nombreInventario,
                 idMonedaCD: @Model.IdMoneda,
                 cantidad: data[i].cantidad,
-                precioUnitario: parseFloat(data[i].precioUnitario),
+                precioUnitario: recuperarPrecio(data[i]),
                 subTotalGravado: recuperarSubTotalGravado(data[i]),
                 subTotalExcento: recuperarSubTotalExcento(data[i]),
                 subTotalGravadoNeto: recuperarSubTotalGravadoNeto(data[i]),
@@ -1115,6 +1120,8 @@ else
         $total.val(totalCompra);
     }
 
+    
+
     function getPrecioAlCambio(item) {
 
 
@@ -1241,8 +1248,18 @@ else
 
     }
 
+    
+    function recuperarPrecio(data) {
 
+        var moneda = parseInt($('.tipoMoneda').val());
 
+        if (moneda === 1)
+            return data.precioUnitarioBase;
+        else if (moneda === 2)
+            return data.precioUnitarioDolar;
+        else if (moneda === 3)
+            return data.precioUnitarioEuro;
+    }
 
 
     function recuperarSubTotalExcento(data) {

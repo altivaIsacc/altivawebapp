@@ -372,7 +372,7 @@ namespace AltivaWebApp.Mappers
 
                 domain.TotalDescuentoBase = viewModel.TotalDescuento * domain.TipoCambioEuro;
                 domain.TotalDescuentoDolar = domain.TotalDescuentoBase / domain.TipoCambioDolar;
-                domain.TotalEuro = viewModel.TotalDescuento;
+                domain.TotalDescuentoEuro = viewModel.TotalDescuento;
             }
             return domain;
 
@@ -388,6 +388,10 @@ namespace AltivaWebApp.Mappers
             {
                 if (compra.IdMoneda == 1)
                 {
+
+                    domain.PrecioUnitarioDolar = domain.PrecioUnitarioBase / dolar;
+                    domain.PrecioUnitarioEuro = domain.PrecioUnitarioBase / euro;
+
                     domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase / dolar;
                     domain.SubTotalExcentoEuro = domain.SubTotalExcentoBase / euro;
 
@@ -416,6 +420,10 @@ namespace AltivaWebApp.Mappers
                 }
                 else if (compra.IdMoneda == 2)
                 {
+
+                    domain.PrecioUnitarioBase = domain.PrecioUnitarioBase * dolar;
+                    domain.PrecioUnitarioEuro = domain.PrecioUnitarioBase / euro;
+
                     domain.SubTotalExcentoBase = domain.SubTotalExcentoBase * dolar;
                     domain.SubTotalExcentoEuro = domain.SubTotalExcentoBase / euro;
 
@@ -444,6 +452,10 @@ namespace AltivaWebApp.Mappers
                 }
                 else if (compra.IdMoneda == 3)
                 {
+
+
+                    domain.PrecioUnitarioBase = domain.PrecioUnitarioBase * euro;
+                    domain.PrecioUnitarioDolar = domain.PrecioUnitarioBase / euro;
 
                     domain.SubTotalExcentoBase = domain.SubTotalExcentoBase * euro;
                     domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase / dolar;
@@ -505,8 +517,7 @@ namespace AltivaWebApp.Mappers
                 PorcFa = viewModel.PorcFa,
                 PorcDescuento = viewModel.PorcDescuento,
                 IdBodega = viewModel.IdBodega,               
-                PorcIva = viewModel.PorcIva,
-                PrecioUnitario = viewModel.PrecioUnitario
+                PorcIva = viewModel.PorcIva
                 
             };
 
@@ -515,6 +526,11 @@ namespace AltivaWebApp.Mappers
 
             if (viewModel.IdMonedaCD == 1)
             {
+
+
+                domain.PrecioUnitarioBase = viewModel.PrecioUnitario;
+                domain.PrecioUnitarioDolar = domain.PrecioUnitarioBase / dolar;
+                domain.PrecioUnitarioEuro = domain.PrecioUnitarioBase / euro;
 
                 domain.SubTotalExcentoBase = viewModel.SubTotalExcento;
                 domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase / dolar;
@@ -555,6 +571,9 @@ namespace AltivaWebApp.Mappers
             else if (viewModel.IdMonedaCD == 2)
             {
 
+                domain.PrecioUnitarioBase = viewModel.PrecioUnitario * dolar;
+                domain.PrecioUnitarioEuro = domain.PrecioUnitarioBase;
+                domain.PrecioUnitarioDolar = domain.PrecioUnitarioBase / euro;
 
                 domain.SubTotalExcentoBase = viewModel.SubTotalExcento * dolar;
                 domain.SubTotalExcentoDolar = viewModel.SubTotalExcento;
@@ -593,7 +612,9 @@ namespace AltivaWebApp.Mappers
             else if (viewModel.IdMonedaCD == 3)
             {
 
-
+                domain.PrecioUnitarioBase = viewModel.PrecioUnitario * euro;
+                domain.PrecioUnitarioEuro = domain.PrecioUnitarioBase / dolar;
+                domain.PrecioUnitarioDolar = domain.PrecioUnitarioBase;
 
                 domain.SubTotalExcentoBase = viewModel.SubTotalExcento * euro;
                 domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase / dolar;

@@ -211,7 +211,7 @@ namespace AltivaWebApp.Mappers
                     IdMoneda = domain.IdMoneda,
                     Observaciones = "N/A",
                     PrecioPromedio = 0,
-                    PrecioUnit = item.PrecioUnitario,
+                    PrecioUnit = item.PrecioUnitarioBase,
                     IdInventario = item.IdInventario,
                     TipoDocumento = "CD",
                     SaldoFinal = 0
@@ -258,7 +258,7 @@ namespace AltivaWebApp.Mappers
                 IdMoneda = item.IdCompraNavigation.IdMoneda,
                 Observaciones = "N/A",
                 PrecioPromedio = 0,
-                PrecioUnit = item.PrecioUnitario,
+                PrecioUnit = item.PrecioUnitarioBase,
                 IdInventario = item.IdInventario,
                 TipoDocumento = "CD",
                 SaldoFinal = 0
@@ -307,7 +307,7 @@ namespace AltivaWebApp.Mappers
                     IdMoneda = domain.IdMoneda,
                     Observaciones = "N/A",
                     PrecioPromedio = 0,
-                    PrecioUnit = item.PrecioUnitario,
+                    PrecioUnit = item.PrecioUnitarioBase,
                     IdInventario = item.IdInventario,
                     TipoDocumento = "CD",
                     SaldoFinal = 0
@@ -358,7 +358,7 @@ namespace AltivaWebApp.Mappers
                 IdMoneda = item.IdCompraNavigation.IdMoneda,
                 Observaciones = "N/A",
                 PrecioPromedio = 0,
-                PrecioUnit = item.PrecioUnitario,
+                PrecioUnit = item.PrecioUnitarioBase,
                 IdInventario = item.IdInventario,
                 TipoDocumento = "CD",
                 SaldoFinal = 0
