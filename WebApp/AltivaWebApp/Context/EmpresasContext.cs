@@ -214,6 +214,12 @@ namespace AltivaWebApp.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.3-servicing-35854");
+            modelBuilder.Entity<TbFaRebajaConfig>(entity =>
+            {
+                entity.HasKey(e => e.IdRebajaConfig);
+
+                entity.ToTable("Tb_FA_RebajaConfig");
+            });
 
             modelBuilder.Entity<TbBaConciliacion>(entity =>
             {

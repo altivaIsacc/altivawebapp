@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AltivaWebApp.Domains
+namespace AltivaWebApp.Models
 {
     public partial class TbPrImagenInventario
     {
