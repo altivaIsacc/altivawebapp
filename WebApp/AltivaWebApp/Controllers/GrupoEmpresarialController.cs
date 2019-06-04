@@ -219,16 +219,18 @@ namespace AltivaWebApp.Controllers
 
 
         [HttpPost("CambiarFoto-Empresa/{id}")]
-        public ActionResult CambiarFotoEmpresa(int id, IFormFile file)
+        public ActionResult CambiarFotoEmpresa(int id, FileViewModel model)
         {
             try
             {
 
-                if (file != null)
+                if (model.file != null)
                 {
                     var empresa = service.GetEmpresaById(id);
-                    empresa.Foto = empresa.Foto = FotosService.SubirFotoEmpresa(file, Startup.entorno.ContentRootPath);
+
+                    empresa.Foto = FotosService.SubirFotoEmpresa(model.file, System.IO.Path.Combine(Startup.entorno.WebRootPath, "uploads"));
                     var res = service.Update(empresa);
+                    Sesion.Sesion.SetFotoEmpresa(HttpContext.Session, res.Foto);
                 }
                 
                 return Json(new { success = true });

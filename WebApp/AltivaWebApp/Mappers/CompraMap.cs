@@ -62,7 +62,8 @@ namespace AltivaWebApp.Mappers
                 Borrador = domain.Borrador,
                 NumeroDocumento = domain.NumeroDocumento,
                 FechaCreacion = domain.FechaCreacion,
-                TipoDocumento = domain.TipoDocumento              
+                TipoDocumento = domain.TipoDocumento,
+                EnCola = domain.EnCola
                 
             };
 

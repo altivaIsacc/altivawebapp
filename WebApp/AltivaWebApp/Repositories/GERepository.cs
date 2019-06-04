@@ -38,7 +38,7 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception)
             {
-                return false;
+                //return false;
                 throw;
             }
         }

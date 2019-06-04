@@ -103,7 +103,10 @@ namespace AltivaWebApp.Controllers
                                 //haciendaService.UpdateCA(cola);
                             }
                         }
-                            
+                        else
+                            if (c.EnCola)
+                                haciendaMap.CreateCACompra(compra);
+
                         return Json(new { success = true, idCD = idCD});
                     }
                     else
@@ -169,7 +172,8 @@ namespace AltivaWebApp.Controllers
                     viewModel.Borrador = false;
                     var compra = map.Update(viewModel);
                     kardexMap.CreateKardexCD((int)compra.Id);
-                    //haciendaMap.CreateCACompra(compra);
+                    if (viewModel.EnCola)
+                        haciendaMap.CreateCACompra(compra);
                     return Json(new { success = true });
                 }
                 else
@@ -234,10 +238,7 @@ namespace AltivaWebApp.Controllers
         }
 
 
-
         ///get auxiliares
-
-        
 
         [HttpGet("Get-Compras")]
         public ActionResult GetCompras()

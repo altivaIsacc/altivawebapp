@@ -11,35 +11,21 @@
     <div class="row">
         <div class="col-md-4">
             <img src="@Model.Foto" style="width: 90%" />
-            <form asp-controller="GrupoEmpresarial" asp-action="EditarEmpresa" method="post" enctype="multipart/form-data">
-                @Html.HiddenFor(x => x.Nombre)
-                @Html.HiddenFor(x => x.Id)
-                @Html.HiddenFor(x => x.Telefono1)
-                @Html.HiddenFor(x => x.Telefono2)
-                @Html.HiddenFor(x => x.Bd)
-                @Html.HiddenFor(x => x.CedJuridica)
-                @Html.HiddenFor(x => x.Correo)
-                @Html.HiddenFor(x => x.Direccion)
-                @Html.HiddenFor(x => x.Estado)
-                @Html.HiddenFor(x => x.FechaCreacion)
-                @Html.HiddenFor(x => x.FechaMod)
-                @Html.HiddenFor(x => x.IdGrupoEmpresarial)
-                <div class="form-group">
-                    <div class="input-group input-group-sm mb-3">
-                        <div class="input-group-prepend custom-file">
-                            <span  class="input-group-text" id="inputGroup-sizing-sm">@SharedLocalizer["cargarFoto"]</span>
-                        </div>
-                        <input id="fileUpload" type="file" accept="image/*" asp-for="Foto" class="form-control custom-file-input">
-                        <span hidden id="tamanoArchivo" class="text-danger">@SharedLocalizer["tamanoArchivo"]</span>
-                        <span hidden id="tipoArchivo" class="text-danger">@SharedLocalizer["tipoArchivo"]</span>
+
+            <div class="form-group">
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend custom-file">
+                        <span class="input-group-text" id="inputGroup-sizing-sm">@SharedLocalizer["cargarFoto"]</span>
                     </div>
+                    <input id="fileUpload" type="file" accept="image/*" asp-for="Foto" class="form-control custom-file-input">
+                    <span hidden id="tamanoArchivo" class="text-danger">@SharedLocalizer["tamanoArchivo"]</span>
+                    <span hidden id="tipoArchivo" class="text-danger">@SharedLocalizer["tipoArchivo"]</span>
                 </div>
-
-
-                <button id="guardarFoto" class="btn btn-success btn-sm" type="submit">
-                    <span  data-translate="geBtnCambiarLogo">@SharedLocalizer["Guardar"]:</span><span> <i class="fas fa-save"></i></span>
-                </button>
-            </form>
+            </div>
+            <button id="guardarFoto" onclick="guardarFoto()" class="btn btn-success btn-sm" type="submit">
+                <span >@SharedLocalizer["Guardar"]</span><span> <i class="fas fa-save"></i></span>
+            </button>
+           
         </div>
         <div class="col-md-8">
             <table class="table table-bordered">
@@ -98,7 +84,36 @@
 
             $('#fotoEmpresa').attr('src', localStorage.getItem('fotoEmpresa'));
 
-    });
+        });
+
+
+        function guardarFoto() {
+
+            var formData = new FormData();
+            var file = $('#fileUpload')[0].files[0];
+            formData.append("file", file);
+
+           
+             $.ajax({
+                type: "post",
+                @*headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },*@
+                 url: '@Url.Action("CambiarFotoEmpresa", "GrupoEmpresarial", new{ id = Model.Id })',
+                 dataType: 'json',
+                 contentType: false,
+                 processData: false,
+                 data: formData,
+                 success: function (data) {
+                    
+                    window.location.href =  window.location.href;
+
+                    },
+                 error: function (err) {
+                    console.log(err.success);
+                }
+            });
+        }
 
 
     $('#fileUpload').bind('change', function () {

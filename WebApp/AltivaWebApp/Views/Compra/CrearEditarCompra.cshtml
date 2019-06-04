@@ -12,7 +12,7 @@
     var monedas = ViewData["monedas"] as IList<TbSeMoneda>;
     var estado = "";
     var usuario = ViewData["usuario"] as TbSeUsuario;
-    if (Model.Anulado)
+    if (Model.Anulado || Model.EnCola)
     {
         estado = "disabled";
     }
@@ -33,7 +33,6 @@
         <div class="col-md-3"><h3>@SharedLocalizer["editarCompra"]</h3></div>
         <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
     </div>
-
 
 }
 else
@@ -101,7 +100,7 @@ else
 
             <div class="form-group col-md-6 col-sm-6 col-xs-12">
                 <label asp-for="IdMoneda" class="control-label">@SharedLocalizer["Moneda"]:</label>
-                <select onchange="recalcularPrecio(), deshabilitaTipoCambio()" id="moneda" class="form-control tipoMoneda">
+                <select onchange="recalcularPrecio()" id="moneda" class="form-control tipoMoneda">
                     @*@{
                         foreach (var item in monedas)
                         {
@@ -188,6 +187,13 @@ else
 
 </div>
 <div class="row">
+    <div class="col-md-12">
+        <div class="form-group" col-md-3>
+            <label @estado class="control-label" style="padding-left:1rem">
+                <input  type="checkbox" asp-for="EnCola" id="enCola" /> @SharedLocalizer["EnviarACola"]
+            </label>
+        </div>
+    </div>
     <div class="col-md-12">
         <div class="form-group col-md-3">
             <button @estado class="btn btn-success btnAccion" onclick="guardarSalir()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
@@ -291,7 +297,7 @@ else
 
 
 
-     $(document).ready(function () {
+    $(document).ready(function () {
 
         var date = new Date();
         if (@Model.Id != 0) {
@@ -299,19 +305,6 @@ else
             GetComentarios("Compra", @Model.Id);
             date = new Date(formatearFecha());           
         }
-
-         @*if (@Model.IdMoneda === 1) {
-             $dolar.attr('disabled', false);
-             $euro.attr('disabled', false);
-         }
-         else {
-             $dolar.attr('disabled', true);
-             $euro.attr('disabled', true);
-         }*@
-
-
-
-        //deshabilitaTipoCambio();
 
 
         $descuento.val(0);
@@ -364,7 +357,8 @@ else
 
 
 
-    ////eventos de elementos
+    ///////manejo del dom///////////////////////////////////////////////////////////////////////////
+
     $cantidad.on('keyup, change, focusout', function () {
         if ($(this).val() < 0 || $(this).val() === "")
             $(this).val(0);
@@ -387,46 +381,6 @@ else
 
     });
 
-    //$(".monedaCambio").on('focusout', function () {
-
-    //    recalcularPrecio();
-
-    //});
-
-
-
-
-    ///////manejo del dom///////////////////////////////////////////////////////////////////////////
-
-    function deshabilitaTipoCambio() {
-
-        
-        @*if ('@Model.IdMoneda' != $('.tipoMoneda').val()) {
-            $dolar.attr('disabled', true);
-            $euro.attr('disabled', true);
-        }
-        else {
-            $dolar.attr('disabled', false);
-            $euro.attr('disabled', false);
-        }*@
-
-        //var moneda = $('.tipoMoneda').val();
-        
-        //if (moneda === "1") {
-        //    $dolar.attr('disabled', true);
-        //    $euro.attr('disabled', true);
-        //}
-        //else if (moneda === "2") {
-        //    $euro.attr('disabled', true);
-        //    $dolar.attr('disabled', false);
-        //}
-
-        //else if (moneda === "3") {
-        //    $dolar.attr('disabled', true);
-        //    $euro.attr('disabled', false);
-        //}
-        
-    }
 
     //////ajax////////////////////////////////////////////////////////////////////////
 
@@ -438,7 +392,7 @@ else
               },
               dataType: "json",
               url: '@Url.Action("GetBodegas")',
-             success: function (data) {
+              success: function (data) {
 
                  bodegas = data;
 
@@ -453,7 +407,6 @@ else
                  $(".bodegas").trigger('change');
 
                  getCompraDetalle();
-
 
               },
               error: function (err, scnd) {
@@ -471,14 +424,13 @@ else
               },
               dataType: "json",
               url: '@Url.Action("GetMonedas", "Monedas")',
-             success: function (data) {
+              success: function (data) {
 
                  monedas = data;
 
                  for (var i = 0; i < data.length; i++) {
                      var o = new Option(data[i].nombre, data[i].codigo);
                     $(".tipoMoneda").append(o);
-
 
                  }
                  if(@Model.Id!= 0)
@@ -488,8 +440,6 @@ else
 
 
                  $(".monedas").trigger('change');
-
-                deshabilitaTipoCambio();
 
 
               },
@@ -509,11 +459,10 @@ else
               },
               dataType: "json",
               url: '@Url.Action("GetAllInventario", "Inventario")',
-             success: function (data) {
+              success: function (data) {
                  items = data;
                  cargarItems(data);
                  getBodegas();
-                 
               },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -581,6 +530,12 @@ else
         @*if (lineas.length <= 0) {
             cargarAlert('@SharedLocalizer["compraSinDetalle"]');
         } else*@
+
+        var model = crearModelo();
+
+        if (lineasAgregadas.length === 0)
+            model.enCola = $('#enCola').prop('checked');
+
         $.ajax({
               type: "POST",
               headers: {
@@ -588,7 +543,7 @@ else
               },
               dataType: "json",
             url: '@Url.Action("CrearEditarCompra")',
-            data: crearModelo(),
+            data: model,
             success: function (data) {
 
                 if (data.success) {
@@ -602,8 +557,11 @@ else
 
                     }
                 }
-                else
+                else {
                     cargarAlert("@SharedLocalizer["numCompraRepitida"]");
+                    eliminarLinea(lineas.length -1);
+                }
+                    
 
 
                },
@@ -740,15 +698,38 @@ else
 
             //guardarLinea();
 
-            if ('@Model.Borrador' === 'True')
-                guardarCompraBorrador();
-            else
-                guardarCompra();
+            if ($('#enCola').prop('checked')) {
+                bootbox.confirm("@SharedLocalizer["confirmEnivarCola"]", function (result) {
 
-            window.location.href = "@Url.Action("ListarCompras")";
+                    if (!result) {
+                        $('#enCola').attr('checked', false);
+
+                    }
+
+                    if ('@Model.Borrador' === 'True')
+                        guardarCompraBorrador();
+                    else
+                        guardarCompra();
+
+                     window.location.href = "@Url.Action("ListarCompras")";
+                    
+                });
+            }
+
+            else {
+
+                 if ('@Model.Borrador' === 'True')
+                        guardarCompraBorrador();
+                 else
+                    guardarCompra();
+
+                 window.location.href = "@Url.Action("ListarCompras")";
+            }
+
+           
+            
+           
         }
-
-
 
     }
 
@@ -784,6 +765,7 @@ else
             total: totalCompra.toString().replace(".", ","),
             tipoCambioDolar: $dolar.val(),
             tipoCambioEuro: $euro.val(),
+            enCola: false,
             compraDetalle: crearModeloDetalle(lineasAgregadas)
 
         };
