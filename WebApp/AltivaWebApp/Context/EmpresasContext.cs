@@ -51,6 +51,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbCoTiposDocumentos> TbCoTiposDocumentos { get; set; }
         public virtual DbSet<TbCoUtilidadRenta> TbCoUtilidadRenta { get; set; }
         public virtual DbSet<TbCpGastoDetallado> TbCpGastoDetallado { get; set; }
+        public virtual DbSet<TbFaCotizacion> TbFaCotizacion { get; set; }
         public virtual DbSet<TbCpGastos> TbCpGastos { get; set; }
         public virtual DbSet<TbCpPago> TbCpPago { get; set; }
         public virtual DbSet<TbCpPagoDetallado> TbCpPagoDetallado { get; set; }
@@ -193,6 +194,8 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbSeAuditoriaInterna> TbSeAuditoriaInterna { get; set; }
         public virtual DbSet<TbSeConfiguracion> TbSeConfiguracion { get; set; }
         public virtual DbSet<TbSePuntoVenta> TbSePuntoVenta { get; set; }
+        public virtual DbSet<TbFaCotizacionConfig> TbFaCotizacionConfig { get; set; }
+        public virtual DbSet<TbFaCotizacionDetalle> TbFaCotizacionDetalle { get; set; }
 
         // Unable to generate entity type for table 'dbo.tb_FD_NotaCreditoAjusteSaldoMenor'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomaticaDetalle'. Please see the warning messages.
@@ -4692,6 +4695,92 @@ namespace AltivaWebApp.Context
                     .HasDefaultValueSql("('MOD')");
             });
 
+            modelBuilder.Entity<TbFaCotizacion>(entity =>
+            {
+                entity.ToTable("Tb_FA_Cotizacion");
+
+                entity.Property(e => e.Estado)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.FechaCotizacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.FechaVencimiento)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdCliente).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdMoneda).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.IdUsuarioCreador).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdVendedor).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.MontoIvacolon)
+                    .HasColumnName("MontoIVAColon")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.MontoIvadolar)
+                    .HasColumnName("MontoIVADolar")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.MontoIvaeuro)
+                    .HasColumnName("MontoIVAEuro")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.PorcDescuentoColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoNetoColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoNetoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoNetoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoNetoColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoNetoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoNetoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDescuentoColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDescuentoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDescuentoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalEuro).HasDefaultValueSql("((0))");
+            });
+
             modelBuilder.Entity<TbReUnionFiguraSalon>(entity =>
             {
                 entity.ToTable("tb_RE_UnionFiguraSalon");
@@ -4875,6 +4964,92 @@ namespace AltivaWebApp.Context
                     .HasDefaultValueSql("('')");
             });
 
+            modelBuilder.Entity<TbFaCotizacionConfig>(entity =>
+            {
+                entity.HasKey(e => e.IdCotizacionConfig);
+
+                entity.ToTable("Tb_FA_CotizacionConfig");
+
+                entity.Property(e => e.DiasVenceDefecto).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdClienteDefecto).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdMonedaDefecto).HasDefaultValueSql("((1))");
+            });
+
+            modelBuilder.Entity<TbFaCotizacionDetalle>(entity =>
+            {
+                entity.HasKey(e => e.IdCotizacionDetalle);
+
+                entity.ToTable("Tb_FA_CotizacionDetalle");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdInventario).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdUsuarioCreador).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.MontoIvacolon)
+                    .HasColumnName("MontoIVAColon")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.MontoIvadolar)
+                    .HasColumnName("MontoIVADolar")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.PorcDescuento).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.PrecioColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.PrecioDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.PrecioEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoNetoColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoNetoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoNetoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoNetoColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoNetoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoNetoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDescuentoColon).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDescuentoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDescuentoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalEuro).HasDefaultValueSql("((0))");
+            });
+
             modelBuilder.Entity<TbSePuntoVenta>(entity =>
             {
                 entity.ToTable("tb_SE_PuntoVenta");
@@ -4934,5 +5109,6 @@ namespace AltivaWebApp.Context
                     .HasDefaultValueSql("('')");
             });
         }
+
     }
 }
