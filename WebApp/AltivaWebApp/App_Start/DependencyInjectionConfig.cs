@@ -216,6 +216,11 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IRequisicionService, RequisicionService>();
             services.AddScoped<IRequisicionMap, RequisicionMap>();
 
+            //RebajaConfig
+            services.AddScoped<IDescuentoPromocionRepository, DescuentoPromocionRepository>();
+            services.AddScoped<IDescuentoPromocionService, DescuentoPromocionService>();
+            services.AddScoped<IDescuentoPromocionMap, DescuentoPromocionMap>();
+
 
 
         }

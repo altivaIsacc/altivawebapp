@@ -117,6 +117,8 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdNotasDebito> TbFdNotasDebito { get; set; }
         public virtual DbSet<TbFdOrigenReserva> TbFdOrigenReserva { get; set; }
         public virtual DbSet<TbFdPagoCliente> TbFdPagoCliente { get; set; }
+        public virtual DbSet<TbFaRebajaConfig> TbFaRebajaConfigs { get; set; }
+
         public virtual DbSet<TbFdPagoComision> TbFdPagoComision { get; set; }
         public virtual DbSet<TbFdPagoDetalleFactura> TbFdPagoDetalleFactura { get; set; }
         public virtual DbSet<TbFdReservacion> TbFdReservacion { get; set; }

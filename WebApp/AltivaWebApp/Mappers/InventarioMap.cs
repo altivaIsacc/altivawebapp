@@ -56,8 +56,6 @@ namespace AltivaWebApp.Mappers
 
         }
 
-
-
         public TbPrInventario Update(int id, InventarioViewModel viewModel)
         {
             return service.Update(ViewModelToDomainEditar(id, viewModel));
@@ -191,8 +189,7 @@ namespace AltivaWebApp.Mappers
             inventario.AbreviacionFacturas = viewModel.AbreviacionFactura;
             inventario.IdFamiliaOnline = viewModel.CodigoMonedaOnline;
             inventario.HabilitarVentaOnline = viewModel.HabilitarVentaOnline;
-            inventario.SkuOnline = viewModel.SkuOnline;
-                     
+            inventario.SkuOnline = viewModel.SkuOnline;   
            
             return inventario;
 
