@@ -113,9 +113,9 @@ else
 
             <div class="form-group col-md-6 col-sm-6 col-xs-12">
                 <label class="control-label">@SharedLocalizer["Dolar"]</label>
-                <input id="dolar" asp-for="TipoCambioDolar" class="form-control moneda" />
+                <input id="dolar" asp-for="TipoCambioDolar" class="form-control moneda monedaCambio" />
                 <label class="control-label">@SharedLocalizer["Euro"]</label>
-                <input id="euro" asp-for="TipoCambioEuro" class="form-control moneda" />
+                <input id="euro" asp-for="TipoCambioEuro" class="form-control moneda monedaCambio" />
             </div>
 
         </div>
@@ -297,14 +297,17 @@ else
         if (@Model.Id != 0) {
 
             GetComentarios("Compra", @Model.Id);
-            date = new Date(formatearFecha());
-            
-         }
+            date = new Date(formatearFecha());           
+        }
 
-         if (@Model.IdMoneda === 1) {
+         @*if (@Model.IdMoneda === 1) {
              $dolar.attr('disabled', false);
              $euro.attr('disabled', false);
          }
+         else {
+             $dolar.attr('disabled', true);
+             $euro.attr('disabled', true);
+         }*@
 
 
 
@@ -384,21 +387,45 @@ else
 
     });
 
+    //$(".monedaCambio").on('focusout', function () {
+
+    //    recalcularPrecio();
+
+    //});
+
 
 
 
     ///////manejo del dom///////////////////////////////////////////////////////////////////////////
 
     function deshabilitaTipoCambio() {
-        if ($('.tipoMoneda').val() != "1") {
+
+        
+        @*if ('@Model.IdMoneda' != $('.tipoMoneda').val()) {
             $dolar.attr('disabled', true);
             $euro.attr('disabled', true);
         }
         else {
             $dolar.attr('disabled', false);
             $euro.attr('disabled', false);
-        }
+        }*@
 
+        //var moneda = $('.tipoMoneda').val();
+        
+        //if (moneda === "1") {
+        //    $dolar.attr('disabled', true);
+        //    $euro.attr('disabled', true);
+        //}
+        //else if (moneda === "2") {
+        //    $euro.attr('disabled', true);
+        //    $dolar.attr('disabled', false);
+        //}
+
+        //else if (moneda === "3") {
+        //    $dolar.attr('disabled', true);
+        //    $euro.attr('disabled', false);
+        //}
+        
     }
 
     //////ajax////////////////////////////////////////////////////////////////////////
@@ -461,6 +488,8 @@ else
 
 
                  $(".monedas").trigger('change');
+
+                deshabilitaTipoCambio();
 
 
               },
@@ -1155,6 +1184,7 @@ else
     }
 
     function recalcularPrecio() {
+
 
         var subtotal = 0;
 

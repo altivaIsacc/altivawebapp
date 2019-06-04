@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
@@ -87,16 +88,22 @@ namespace AltivaWebApp.Controllers
                     if (compra == null || compra.Id == viewModel.Id)
                     {
                         long idCD = 0;
-                        var orden = map.Update(viewModel);
+                        var c = map.Update(viewModel);
                         if (viewModel.CompraDetalle != null && viewModel.CompraDetalle.Count() > 0)
                         {
                             var cd = map.CreateCD(viewModel);
                             idCD = cd.Id;
-                            if(!viewModel.Borrador)
+                            if (!viewModel.Borrador)
+                            {
                                 kardexMap.CreateKardexCDSingle((int)cd.Id);
+
+                                ///////////////////actualiza cola aprovacion
+                                //var cola = haciendaService.GetCAById(c.Id);
+                                //cola.MontoDoc = c.TotalBase;
+                                //haciendaService.UpdateCA(cola);
+                            }
                         }
                             
-
                         return Json(new { success = true, idCD = idCD});
                     }
                     else
@@ -132,21 +139,22 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var compra = service.GetCompraById(id);
+                TbPrCompra compra = service.GetCompraByIdWithoutD(id);
                 compra.Anulado = true;
                 if(!compra.Borrador)
                     kardexMap.CreateKardexEliminarCD(compra);
                 compra = service.Update(compra);
 
-                var hacienda = haciendaService.GetCAById(compra.Id);
-                hacienda.Anulado = true;
-                haciendaService.UpdateCA(hacienda);
+                //var hacienda = haciendaService.GetCAById(compra.Id);
+                //hacienda.Anulado = true;
+                //haciendaService.UpdateCA(hacienda);
                
                 return Json(new { success = true });
             }
             catch (Exception)
             {
-                return BadRequest();
+                throw;
+                //return BadRequest();
             }
         }
 
@@ -161,7 +169,7 @@ namespace AltivaWebApp.Controllers
                     viewModel.Borrador = false;
                     var compra = map.Update(viewModel);
                     kardexMap.CreateKardexCD((int)compra.Id);
-                    haciendaMap.CreateCACompra(compra);
+                    //haciendaMap.CreateCACompra(compra);
                     return Json(new { success = true });
                 }
                 else
@@ -170,6 +178,7 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception)
             {
+                //throw;
                 return BadRequest();
             }
         }

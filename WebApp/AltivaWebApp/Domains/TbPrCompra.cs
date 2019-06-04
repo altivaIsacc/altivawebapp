@@ -44,6 +44,7 @@ namespace AltivaWebApp.Domains
         public double TotalEuro { get; set; }
         public bool Anulado { get; set; }
         public bool Borrador { get; set; }
+        public bool EnCola { get; set; }
         public double TipoCambioDolar { get; set; }
         public double TipoCambioEuro { get; set; }
 

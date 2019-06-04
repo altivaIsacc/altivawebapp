@@ -52,11 +52,24 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+        public TbPrCompra GetCompraByIdWithoutD(int id)
+        {
+            try
+            {
+                return context.TbPrCompra.FirstOrDefault(c => c.Id == id);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public TbPrCompra GetCompraByDocumento(string nDoc, string tipoDoc, long idProveedor)
         {
             try
             {
-                return context.TbPrCompra.FirstOrDefault(c => c.NumeroDocumento == nDoc && c.TipoDocumento == tipoDoc && c.IdContacto == idProveedor);
+                return context.TbPrCompra.AsNoTracking().FirstOrDefault(c => c.NumeroDocumento == nDoc && c.TipoDocumento == tipoDoc && c.IdContacto == idProveedor);
             }
             catch (Exception)
             {

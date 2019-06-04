@@ -21,5 +21,6 @@ namespace AltivaWebApp.Services
         TbPrCompraDetalle GetCompraDetalleById(long id);
         bool ExisteRelacionInventarioBodega(long idInventario, long idBodega);
         long IdUltimoDocumento();
+        TbPrCompra GetCompraByIdWithoutD(int id);
     }
 }
