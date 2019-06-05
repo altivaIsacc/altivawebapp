@@ -11,9 +11,20 @@ namespace AltivaWebApp.Services
     {
         private readonly ICotizacionRepository repository;
 
+        public CotizacionService(ICotizacionRepository cotizacionRepository)
+        {
+            repository = cotizacionRepository;
+        }
+
         public IList<TbFaCotizacion> GetAll()
         {
             return repository.GetAll();
         }
+ 
+        public IList< TbFaCotizacion> GetInfoCotizacion()
+        {
+            return repository.GetInfoCotizacion();
+        }
+
     }
 }

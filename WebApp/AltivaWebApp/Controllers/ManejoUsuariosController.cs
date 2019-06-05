@@ -10,6 +10,7 @@ using AltivaWebApp.Mappers;
 using AltivaWebApp.ViewModels;
 using System.Security.Claims;
 using AltivaWebApp.GEDomain;
+using System.Net.Http;
 
 namespace AltivaWebApp.Controllers
 {
@@ -343,8 +344,6 @@ namespace AltivaWebApp.Controllers
             try
             {
                 // TODO: Add delete logic here
-
-
                 var model = userService.GetSingleUser(id);
 
                 var estado = model.Estado;
@@ -372,5 +371,12 @@ namespace AltivaWebApp.Controllers
                 return RedirectToAction("ListaUsuarios");
             }
         }
+
+        [HttpGet("GetUsuariosPorEmpresa")]
+        public ActionResult GetUsuariosPorEmpresa()
+        {
+            return Ok(userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa")));
+        }
+
     }
 }

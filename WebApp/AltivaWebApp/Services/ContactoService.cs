@@ -148,6 +148,11 @@ namespace AltivaWebApp.Services
             return this.ContactoRepository.GetTareas(idContacto);
         }
 
+        public IList< TbCrContacto> GetAllClientes()
+        {
+            return this.ContactoRepository.GetAllClientes();
+        }
+
         public TbCrContactoRelacion InsertarRelacion(TbCrContactoRelacion domain)
         {
             return this.IContactoRelacionRepository.Save(domain);

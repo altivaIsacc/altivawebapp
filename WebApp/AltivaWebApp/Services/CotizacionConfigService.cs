@@ -13,7 +13,7 @@ namespace AltivaWebApp.Services
 
         public IList<TbFaCotizacion> GetAll()
         {
-            return repository.GetAll();
+            return repository.GetInfoCotizacion();
         }
     }
 }

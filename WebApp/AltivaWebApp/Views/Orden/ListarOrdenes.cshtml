@@ -202,40 +202,37 @@
     }
 
     function cargarDatos(data) {
-
-
+        var colorFila = "";
+        var colorAnulada = "color: #5a0b0a";
+        var colorBorrador = "color: #A9A9A9";
         var contadorFila = 0;
-        $("#tblOrdenes > tbody").remove();
-        $('#tblOrdenes').append('<tbody></tbody>');
+        $("#tblCompras > tbody").remove();
+        $('#tblCompras').append('<tbody></tbody>');
 
         for (var i = 0; i < data.length; i++) {
 
+            if (data[i].anulado)
+                colorFila = "color: #5a0b0a";
+            else if (data[i].borrador)
+                colorFila = "color: #808080";
+            else
+                colorFila = "color: #2A3F54";
+
             //<input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].precio + '"/>
             var body = '<tr class="fila' + contadorFila + ' filas">'
-                + '<td><p style="padding-top:1rem">' + data[i].id + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fecha) + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].idProveedorNavigation.nombre + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + recuperarMoneda(data[i].idMoneda) + '</p></td>'
-                + '<td class="col-md-2"><input style="padding-top:1rem; border:0; background-color : #F7F7F7" class="' + darFormato(data[i].idMoneda) + '" value="' + recuperarTotal(data[i]) + '"/></td>'
-                + '<td><p style="padding-top:1rem">' + recuperarEstado(data[i].anulado) + '</p></td>'
-                + '<td>  <button value="' + data[i].id + '" onclick="editarOrden(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
-            $('#tblOrdenes > tbody').append(body);
+                + '<td><p style="padding-top:1rem; ' + colorFila + '">' + data[i].numeroDocumento + '</p></td>'
+                + '<td><p style="padding-top:1rem; ' + colorFila + '">' + getTipo(data[i].tipoDocumento) + '</p></td>'
+                + '<td><p style="padding-top:1rem; ' + colorFila + '">' + recuperarFecha(data[i].fechaDocumento) + '</p></td>'
+                + '<td><p style="padding-top:1rem; ' + colorFila + '">' + getNombreContacto(data[i].idContactoNavigation) + '</p></td>'
+                + '<td><p style="padding-top:1rem; ' + colorFila + '">' + recuperarMoneda(data[i].idMoneda) + '</p></td>'
+                + '<td style="text-align:right"><p style="padding-top:1rem; ' + colorFila + '">' + formatoMoneda(data[i].idMoneda, recuperarTotal(data[i])) + '</p></td>'
+                //+ '<td class="col-md-2"><input style="padding-top:1rem; border:0; background-color : #F7F7F7; ' + colorFila +'" class="' + darFormato(data[i].idMoneda) + '" value="' + recuperarTotal(data[i]) + '"/></td>'
+                + '<td>  <button value="' + data[i].id + '" onclick="editarCompra(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+            $('#tblCompras > tbody').append(body);
             contadorFila++;
         }
 
-        ///inicializa formato
-        $(".colon").inputmask('currency', {
-            prefix: "₡",
-            rightAlign: true
-        });
-        $(".dolar").inputmask('currency', {
-            prefix: "$",
-            rightAlign: true
-        });
-        $(".euro").inputmask('currency', {
-            prefix: "€",
-            rightAlign: true
-        });
+
 
         inicializarTabla();
 
@@ -247,7 +244,7 @@
 
         $('#tblOrdenes').DataTable().destroy();
 
-        tblOrdenes = $('#tblOrdenes').DataTable({
+        $('#tblOrdenes').DataTable({
             "info": false,
 
             language: {

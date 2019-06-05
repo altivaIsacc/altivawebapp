@@ -194,15 +194,15 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbSeConfiguracion> TbSeConfiguracion { get; set; }
         public virtual DbSet<TbSePuntoVenta> TbSePuntoVenta { get; set; }
 
-        // Unable to generate entity type for table 'dbo.tb_FD_NotaDebitoAjusteSaldoMenor'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_NotaCreditoAjusteSaldoMenor'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_CuentaEnCasaNotaCredito'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_NotaCreditoAjusteSaldoMenor'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_NotaDebitoAjusteSaldoMenor'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomaticaDetalle'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.Tmp_tb_PR_Requisicion'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_AmadeLlave'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_AmadeLlave'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomaticaDetalle'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.Tmp_tb_PR_Requisicion'. Please see the warning messages.
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -1361,6 +1361,8 @@ namespace AltivaWebApp.Models
 
             modelBuilder.Entity<TbFaCotizacion>(entity =>
             {
+                entity.HasKey(e => e.IdCotizacion);
+
                 entity.ToTable("Tb_FA_Cotizacion");
 
                 entity.Property(e => e.Estado)
@@ -1388,8 +1390,8 @@ namespace AltivaWebApp.Models
 
                 entity.Property(e => e.IdVendedor).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.MontoIvacolon)
-                    .HasColumnName("MontoIVAColon")
+                entity.Property(e => e.MontoIvabase)
+                    .HasColumnName("MontoIVABase")
                     .HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.MontoIvadolar)
@@ -1400,33 +1402,33 @@ namespace AltivaWebApp.Models
                     .HasColumnName("MontoIVAEuro")
                     .HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.PorcDescuentoColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.PorcDescuentoBase).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.SubTotalColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.SubTotalBase).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalDolar).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalEuro).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.SubTotalExcentoColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.SubTotalExcentoBase).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalExcentoDolar).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalExcentoEuro).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.SubTotalExcentoNetoColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.SubTotalExcentoNetoBase).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalExcentoNetoDolar).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalExcentoNetoEuro).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.SubTotalGravadoColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.SubTotalGravadoBase).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalGravadoDolar).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalGravadoEuro).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.SubTotalGravadoNetoColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.SubTotalGravadoNetoBase).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalGravadoNetoDolar).HasDefaultValueSql("((0))");
 
@@ -1436,9 +1438,9 @@ namespace AltivaWebApp.Models
 
                 entity.Property(e => e.TipoCambioEuro).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.TotalColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.TotalBase).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.TotalDescuentoColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.TotalDescuentoBase).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.TotalDescuentoDolar).HasDefaultValueSql("((0))");
 
@@ -1447,6 +1449,11 @@ namespace AltivaWebApp.Models
                 entity.Property(e => e.TotalDolar).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.TotalEuro).HasDefaultValueSql("((0))");
+
+                entity.HasOne(d => d.IdClienteNavigation)
+                    .WithMany(p => p.TbFaCotizacion)
+                    .HasForeignKey(d => d.IdCliente)
+                    .HasConstraintName("FK_Tb_FA_Cotizacion_tb_CR_Contacto");
             });
 
             modelBuilder.Entity<TbFaCotizacionConfig>(entity =>
@@ -1476,9 +1483,7 @@ namespace AltivaWebApp.Models
 
                 entity.Property(e => e.IdUsuarioCreador).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.MontoIvacolon)
-                    .HasColumnName("MontoIVAColon")
-                    .HasDefaultValueSql("((0))");
+                entity.Property(e => e.MontoIvabase).HasColumnName("MontoIVABase");
 
                 entity.Property(e => e.MontoIvadolar)
                     .HasColumnName("MontoIVADolar")
@@ -1486,45 +1491,45 @@ namespace AltivaWebApp.Models
 
                 entity.Property(e => e.PorcDescuento).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.PrecioColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.PrecioBase).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.PrecioDolar).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.PrecioEuro).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.SubTotalColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.SubTotalBase).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalDolar).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalEuro).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.SubTotalExcentoColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.SubTotalExcentoBase).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalExcentoDolar).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalExcentoEuro).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.SubTotalExcentoNetoColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.SubTotalExcentoNetoBase).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalExcentoNetoDolar).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalExcentoNetoEuro).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.SubTotalGravadoColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.SubTotalGravadoBase).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalGravadoDolar).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalGravadoEuro).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.SubTotalGravadoNetoColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.SubTotalGravadoNetoBase).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalGravadoNetoDolar).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.SubTotalGravadoNetoEuro).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.TotalColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.TotalBase).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.TotalDescuentoColon).HasDefaultValueSql("((0))");
+                entity.Property(e => e.TotalDescuentoBase).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.TotalDescuentoDolar).HasDefaultValueSql("((0))");
 
@@ -1533,6 +1538,11 @@ namespace AltivaWebApp.Models
                 entity.Property(e => e.TotalDolar).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.TotalEuro).HasDefaultValueSql("((0))");
+
+                entity.HasOne(d => d.IdCotizacionNavigation)
+                    .WithMany(p => p.TbFaCotizacionDetalle)
+                    .HasForeignKey(d => d.IdCotizacion)
+                    .HasConstraintName("FK_Tb_FA_CotizacionDetalle_tb_PR_Inventario");
             });
 
             modelBuilder.Entity<TbFaRebajaConfig>(entity =>

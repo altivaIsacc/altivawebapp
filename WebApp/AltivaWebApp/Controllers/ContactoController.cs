@@ -373,6 +373,13 @@ namespace AltivaWebApp.Controllers
 
 
         }
+
+        [HttpGet("GetUsuarioCliente")]
+        public ActionResult GetUsuariosCliente()
+        {
+            return Ok(contactoService.GetAllClientes());
+        }
+
         [HttpGet("camposEdit/{id?}")]
         public IActionResult camposEdit(int id)
         {
@@ -381,6 +388,7 @@ namespace AltivaWebApp.Controllers
             con = this.ICCService.GetCamposEdit(id);
             return new JsonResult(con);
         }
+
         [HttpGet("GetContactosRelacion/{id?}")]
         public IActionResult GetContactosRelacion(int id)
         {
@@ -389,6 +397,7 @@ namespace AltivaWebApp.Controllers
 
             return new JsonResult(cr);
         }
+
         [HttpGet("Edit/{id?}")]
         public IActionResult Edit(int id)
         {
@@ -553,9 +562,19 @@ namespace AltivaWebApp.Controllers
             {
                 return BadRequest();
             }
-
         }
 
-
+        [HttpGet("GetCliente")]
+        public IActionResult GetAllClientes(int idContacto)
+        {
+            try
+            {
+                return Ok(contactoService.GetAllClientes());
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿@model IEnumerable<AltivaWebApp.Domains.TbFaCotizacion>
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
     {
@@ -9,10 +8,12 @@
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @{
+    ViewData["Title"] = "ListarCotizacionProducto";
 
-    var Cotizaciones = ViewData["Cotizaciones"] as IList<TbFaCotizacion>;
+
 }
 
+<h2>Cotizaciones</h2>
 
 <div class="row">
     <div class="col-md-2">
@@ -64,49 +65,37 @@
 <br />
 
 <div class="row">
-
     <div class="col-md-10  table-responsive">
-        <table class=" table table-bordered" style="width:100%" id="tblAjustes">
+        <table class=" table table-bordered" style="width:100%" id="tblCotizacion">
             <thead>
                 <tr>
-                    
-                    <th>
-                        <span>@SharedLocalizer["Fecha"]</span>
-                    </th>
-                    <th>
-                        <span>@SharedLocalizer["Descripción"]</span>
-                    </th>
-                    <th>
-                        <span>@SharedLocalizer["Saldo"]</span>
-                    </th>
-                    <th>
-                        <span>@SharedLocalizer["Anulada"]</span>
-                    </th>
-                    <th><span>@SharedLocalizer["accion"]</span></th>
+
+                    <th><span>@SharedLocalizer["IdCoTizacion"]</span></th>
+                    <th><span>@SharedLocalizer["Fecha de Cotizacion"]</span> </th>
+                    <th><span>@SharedLocalizer["IdCliente"]</span> </th>
+                    <th><span>@SharedLocalizer["Estado"]</span> </th>
+                    <th><span>@SharedLocalizer["IdMoneda"]</span></th>
+                    <th><span>@SharedLocalizer["IdVendedor"]</span></th>
+                    <th><span>@SharedLocalizer["Fecha de creación"]</span></th>
+                    <th><span>@SharedLocalizer["IdUsuarioCreador"]</span></th>
+                    <th><span>@SharedLocalizer["Fecha de vencimiento"]</span></th>
+                    <th><span>@SharedLocalizer["SubTotal"]</span></th>
+                    <th><span>@SharedLocalizer["Editar"]</span></th>
+
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
 
     </div>
-
+    
 </div>
-
-
-
-<style>
-    .dataTables_wrapper .dataTables_filter {
-        float: right;
-        text-align: right;
-        visibility: hidden;
-    }
-</style>
-
-
 <script>
-    var ajustes = [];
-    var ajusteFiltrado = [];
-    var tblAjustes;
+    var Cotizaciones = [];
+    var CotizacionFiltro = [];
+    var Usuarios = [];
+    var Clientes = [];
+    var tblCotizacion;
     var hasta;
     var desde;
 
@@ -114,7 +103,10 @@
     $(document).ready(function () {
 
 
-        getAjustes();
+        
+        getMonedas();
+        getUsuarios();
+        getClientes();
 
         $('#filtroFecha').attr('disabled', true);
 
@@ -167,7 +159,7 @@
 
     });
 
-    function getAjustes() {
+    function getCotizacion() {
             ///get ajustes
         $.ajax({
             type: "get",
@@ -175,56 +167,144 @@
                             "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
             },
             dataType: "json",
-            url: 'Get-Ajustes',
+            url: '@Url.Action("GetCotizacion")',
             success: function (data) {
-                //console.log(data);
-                ajustes = JSON.parse(JSON.stringify(data));
+                console.log(data);
+                Cotizaciones = JSON.parse(JSON.stringify(data));
                 cargarDatos(data);
             },
             error: function (err, scnd) {
                 cargarAlert('@SharedLocalizer["errorGeneral"]');
                 console.log(err.statusText);
+                console.log("error traer cotizacion");
+      
             }
         });
     }
 
+    function getMonedas() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+
+                 monedas = data;
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+        function getUsuarios() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
+             success: function (data) {
+                 console.log(data);
+                 Usuarios = data;
+                 getCotizacion();
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+
+    function GetUsuarioxId(IdVendedor) {
+
+
+        for (var i = 0; i < Usuarios.length; i++) {
+            if (Usuarios[i].id === IdVendedor) {
+                console.log(Usuarios[i].nombre);
+
+                return Usuarios[i].nombre;
+            }
+        }
+    }
+
+
+            function getClientes() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetClientes", "Contacto")',
+             success: function (data) {
+                 console.log(data);
+                 Clientes = data;
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function GetClientesxId(IdCliente) {
+
+
+        for (var i = 0; i < Clientes.length; i++) {
+            if (Clientes[i].idContacto === IdCliente) {
+      
+                console.log("Clientes:"+Clientes[i].nombre);
+       
+                return Clientes[i].nombre;
+            }          
+        }
+    }
+
+
     function cargarDatos(data) {
 
-        var estado = "";
         var contadorFila = 0;
-        $("#tblAjustes > tbody").remove();
-        $('#tblAjustes').append('<tbody></tbody>');
+        $("#tblCotizacion > tbody").remove();
+        $('#tblCotizacion').append('<tbody></tbody>');
+
+        
 
         for (var i = 0; i < data.length; i++) {
 
-            if (!data[i].anulada)
-                estado = '@SharedLocalizer["No"]';
-            else
-                estado = '@SharedLocalizer["Si"]';
-
+ 
             var body = '<tr class="fila' + contadorFila + ' filas">'
-                + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaDocumento) + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].descripcion + '</p></td>'
-                + '<td class="col-md-2"><input style="padding-top:1rem; border:0; background-color : #F7F7F7" class="colon" value="' + data[i].saldoAjuste + '"/></td>'
-                + '<td><p style="padding-top:1rem">' + estado + '</p></td>'
-                + '<td>  <button value="' + data[i].id + '" onclick="editarAjuste(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
-            $('#tblAjustes > tbody').append(body);
+                + '<td><p style="padding-top:1rem">' + data[i].idCotizacion + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCotizacion) + '</p></td>'
+                + '<td><p style="padding-top:1rem">' +GetClientesxId( data[i].idCliente) + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + data[i].estado + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + data[i].idMoneda + '</p></td>'
+                + '<td><p style="padding-top:1rem">' +GetUsuarioxId(data[i].idVendedor)+ '</p></td>'
+                + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + data[i].fechaVencimiento + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + data[i].totalBase + '</p></td>'
+                + '<td>  <button value="' + data[i].idCotizacion + '" onclick="editarAjuste(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+            $('#tblCotizacion > tbody').append(body);
             contadorFila++;
         }
 
-        //inicializar formato
-        $(".colon").inputmask('currency', {
-            prefix: "₡",
-            rightAlign: true
-        });
+      
 
         inicializarTabla();
 
     }
-    function inicializarTabla() {
-        $('#tblAjustes').DataTable().destroy();
 
-        tblAjustes = $('#tblAjustes').DataTable({
+    function inicializarTabla() {
+        $('#tblCotizacion').DataTable().destroy();
+
+        tblAjustes = $('#tblCotizacion').DataTable({
             "info": false,
             dom: 'Bfrtip',
             language: {
@@ -256,7 +336,7 @@
                     exportOptions: {
                         columns: [0, 1, 3]
                     }
-                   
+
                 },
                 {
                     extend: 'excelHtml5',
@@ -266,7 +346,7 @@
                     exportOptions: {
                         columns: [0, 1, 3]
                     }
-                    
+
                 },
 
                 {
@@ -335,7 +415,7 @@
 
     function cargarFiltros() {
 
-        ajusteFiltrado = JSON.parse(JSON.stringify(ajustes));
+        ajusteFiltrado = JSON.parse(JSON.stringify(Cotizaciones));
 
         ajusteFiltrado = filtroItem(ajusteFiltrado);
 
@@ -366,10 +446,10 @@
         }
         else
             return array;
-            
 
 
-        
+
+
 
     }
 
@@ -393,13 +473,12 @@
             }
 
             return arrayAjustes
-            
+
         }
         else
             return array;
-            
 
-        
+
+
     }
 </script>
-

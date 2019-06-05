@@ -46,6 +46,19 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+        public IList<TbCrContacto> GetAllClientes()
+        {
+            try
+            {
+                return context.TbCrContacto.Where(c => c.Cliente == true).ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public TbCrContacto GetByCedulaContacto(string cedula)
         {
             TbCrContacto con = new TbCrContacto();

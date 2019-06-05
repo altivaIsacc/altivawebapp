@@ -119,7 +119,6 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-
                 var ai = service.GetAjusteById((int)viewModel.FirstOrDefault().IdAjuste);
 
                 service.SaveAjusteInventario(map.AIViewModelToDomain(viewModel).ToList());
@@ -157,7 +156,6 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
-
 
         ////get auxiliares
 

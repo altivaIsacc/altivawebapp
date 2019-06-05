@@ -36,6 +36,7 @@ namespace AltivaWebApp.Services
         TbFdCuentasBancarias GetCuentasById(int id);
         bool DeleteCuentasBancarias(TbFdCuentasBancarias domain);
         IList<TbCrContacto> GetAllProveedores();
+        IList<TbCrContacto> GetAllClientes();
 
     }
 }

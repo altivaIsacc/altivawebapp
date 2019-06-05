@@ -14,5 +14,26 @@ namespace AltivaWebApp.Repositories
         {
          
         }
+
+        public IList<TbFaCotizacion> GetAll()
+        {
+            return context.TbFaCotizacion.ToList();  
+        }
+
+        public IList<TbFaCotizacion> GetInfoCotizacion()
+        {
+            try
+            {
+                return context.TbFaCotizacion
+                                .Include(a => a.IdClienteNavigation).ToList();
+                                
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+       
+
     }
 }

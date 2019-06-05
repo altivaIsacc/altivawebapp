@@ -25,5 +25,6 @@ public interface IContactoRepository
         IList<ContactoRelacionGETViewModel> GetContactosRelacion(int id);
         IList<TbCrContacto> GetAllProveedores();
         IList<TbCeDistrito> GetDistrito(int idCanton,int idProvincia);
+        IList<TbCrContacto> GetAllClientes();
     }
 }
