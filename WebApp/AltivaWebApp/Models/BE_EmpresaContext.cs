@@ -55,6 +55,7 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbCrContactoRelacion> TbCrContactoRelacion { get; set; }
         public virtual DbSet<TbCrContactosCamposPersonalizados> TbCrContactosCamposPersonalizados { get; set; }
         public virtual DbSet<TbCrListaDesplegables> TbCrListaDesplegables { get; set; }
+        public virtual DbSet<TbFaDescuentoUsuario> TbFaDescuentoUsuario { get; set; }
         public virtual DbSet<TbFaRebajaConfig> TbFaRebajaConfig { get; set; }
         public virtual DbSet<TbFdAjusteSaldoMenor> TbFdAjusteSaldoMenor { get; set; }
         public virtual DbSet<TbFdAperturaCaja> TbFdAperturaCaja { get; set; }
@@ -162,6 +163,7 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbPrRequisicion> TbPrRequisicion { get; set; }
         public virtual DbSet<TbPrRequisicionDetalle> TbPrRequisicionDetalle { get; set; }
         public virtual DbSet<TbPrTipoProveedor> TbPrTipoProveedor { get; set; }
+        public virtual DbSet<TbPrToma> TbPrToma { get; set; }
         public virtual DbSet<TbPrTomaFisicas> TbPrTomaFisicas { get; set; }
         public virtual DbSet<TbPrTomaFisicasDetalle> TbPrTomaFisicasDetalle { get; set; }
         public virtual DbSet<TbPrTraslado> TbPrTraslado { get; set; }
@@ -206,7 +208,7 @@ namespace AltivaWebApp.Models
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=servidor-pc\\fdpruebas;Database=BE_Empresa;user=sa; password= 123;");
+                optionsBuilder.UseSqlServer("Server=SERVIDOR-PC\\FDPRUEBAS;Database=BE_Empresa;User= sa; password=123;");
             }
         }
 
@@ -1354,6 +1356,26 @@ namespace AltivaWebApp.Models
                     .WithMany(p => p.TbCrListaDesplegables)
                     .HasForeignKey(d => d.IdCamposPersonalizados)
                     .HasConstraintName("FK_TB_CR_ListaDesplegables_tb_CR_CamposPersonalizados");
+            });
+
+            modelBuilder.Entity<TbFaDescuentoUsuario>(entity =>
+            {
+                entity.HasKey(e => e.IdDescuentoUsuario);
+
+                entity.ToTable("Tb_FA_DescuentoUsuario");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.Nota)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdRebajaConfigNavigation)
+                    .WithMany(p => p.TbFaDescuentoUsuario)
+                    .HasForeignKey(d => d.IdRebajaConfig)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Tb_FA_DescuentoUsuario_Tb_FA_RebajaConfig");
             });
 
             modelBuilder.Entity<TbFaRebajaConfig>(entity =>
@@ -4153,6 +4175,20 @@ namespace AltivaWebApp.Models
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
+            });
+
+            modelBuilder.Entity<TbPrToma>(entity =>
+            {
+                entity.ToTable("tb_PR_Toma");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaToma).HasColumnType("datetime");
+
+                entity.Property(e => e.Ordenado)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<TbPrTomaFisicas>(entity =>

@@ -46,6 +46,7 @@ namespace AltivaWebApp.Models
         public bool Borrador { get; set; }
         public double TipoCambioDolar { get; set; }
         public double TipoCambioEuro { get; set; }
+        public bool EnCola { get; set; }
 
         public virtual TbCrContacto IdContactoNavigation { get; set; }
         public virtual ICollection<TbPrCompraDetalle> TbPrCompraDetalle { get; set; }

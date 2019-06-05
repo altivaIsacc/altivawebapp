@@ -117,8 +117,8 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdNotasDebito> TbFdNotasDebito { get; set; }
         public virtual DbSet<TbFdOrigenReserva> TbFdOrigenReserva { get; set; }
         public virtual DbSet<TbFdPagoCliente> TbFdPagoCliente { get; set; }
+        public virtual DbSet<TbFaDescuentoUsuario> TbFaDescuentoUsuario { get; set; }
         public virtual DbSet<TbFaRebajaConfig> TbFaRebajaConfigs { get; set; }
-
         public virtual DbSet<TbFdPagoComision> TbFdPagoComision { get; set; }
         public virtual DbSet<TbFdPagoDetalleFactura> TbFdPagoDetalleFactura { get; set; }
         public virtual DbSet<TbFdReservacion> TbFdReservacion { get; set; }
@@ -216,12 +216,35 @@ namespace AltivaWebApp.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.3-servicing-35854");
+
             modelBuilder.Entity<TbFaRebajaConfig>(entity =>
             {
                 entity.HasKey(e => e.IdRebajaConfig);
 
                 entity.ToTable("Tb_FA_RebajaConfig");
             });
+
+            modelBuilder.Entity<TbFaDescuentoUsuario>(entity =>
+            {
+                entity.HasKey(e => e.IdDescuentoUsuario);
+
+                entity.ToTable("Tb_FA_DescuentoUsuario");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.Nota)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdRebajaConfigNavigation)
+                    .WithMany(p => p.TbFaDescuentoUsuario)
+                    .HasForeignKey(d => d.IdRebajaConfig)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Tb_FA_DescuentoUsuario_Tb_FA_RebajaConfig");
+            });
+
+           
 
             modelBuilder.Entity<TbBaConciliacion>(entity =>
             {

@@ -110,6 +110,40 @@
                 </div>
                 <div class="modal-body" id="crearEditarPartial">
 
+                    <div class="form-group" style="margin-left:1rem; padding-top:0.7rem">
+                        <p>
+                            <a class="btn btn-primary btn-xs" id="btnAgregarMaximoDesc"><span data-translate="Agregar" >Agregar</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+                        </p>
+                    </div>
+
+                    
+                    <div style="margin-left:1rem; padding-top:0.7rem">
+                        <div class="table-responsive">
+                            <table class="table" id="tblMaximoDescuento" style="min-width:600px">
+                                <thead>
+                                    <tr>
+
+                                        <th>
+                                            <span data-translate="usuario">Usuario</span>
+                                        </th>
+                                        <th>
+                                            <span data-translate="descuentoMaximo">Descuento Maximo</span>
+                                        </th>
+                                        <th>
+                                            <span data-translate="nota">Nota</span>
+                                        </th>
+
+                                        <th>
+                                            <span data-translate="accion">Acción</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
         </div>
@@ -230,8 +264,60 @@
     </div>
 </div>
 
+<!--**********************SubModales ************************-->
+
+<div>
+    <!-- Modal Maximo Descuento a Usuarios -->
+    <div class="modal fade" role="dialog" id="modalAgregarMaximoDesc" tabindex="-1" style="overflow-y: scroll; " aria-labelledby="AgregarMaximoDescModallabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered big" >
+            <div class="modal-content" >
+                <div class="modal-header">
+                    <h5 data-translate="Configuracion" class="modal-title" id="AgregarMaximoDescModallabel">@SharedLocalizer["Maximo Descuento a Usuarios"]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="crearEditarPartial">
+
+                    <div class="form-group">
+                        <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
+                        <select class="selUsuarios" multiple="multiple" data-live-search="true" id="asignado" asp-for="@ViewData.[IdUsuario]">
+                            @foreach (var asignados in ViewData["asignados"] as IList<TbSeUsuario>)
+                            {
+                                <option value="@asignados.Id">@asignados.Nombre</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group descuentoGeneralnGroup ">
+                        <label data-translate="chkDescuentoGeneral" class="form-label" for="txtPorcentajeDescuentoGeneral"> Descuento (%)</label>
+
+                        <input id="txtPorcentajeDescuentoGeneral" type="number" min="0" max="100" asp-for="PorcMaxGeneral" class="form-control porcentaje" />
+                    </div>
+
+                    <div class=" form-group">
+                        <label class="col-form-label">Nota:</label><br />
+                        <input type="text" class="form-control" id="nota">
+                    </div>
+
+                    <div class="form-group">
+                        <button id="btnGuardar" class="btn btn-success btn-xs " onclick="guardarConfiguracion()"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
+                        <a class="btn btn-default btn-xs" id="btnCancelar" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--********************Fin SubModales ***********************-->
+
 <script>
-        $(document).ready(function () {
+    $(document).ready(function () {
+
+            var inventario = [];
+            getMaximoDescuento()
 
             //*********************Mostrar Modales**********************************
 
@@ -309,6 +395,38 @@
         });
 
 
+
+            //**********************Modal 1 **********************
+        $('#btnAgregarMaximoDesc').click(function () {
+            $('#modalAgregarMaximoDesc').modal('show');
+            $('.selUsuarios').select2();
+            
+
+        });
+
+            function getMaximoDescuento() {
+            ///get inventario
+            $.ajax({
+
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: 'Lista-DescuentoMaximo/todo',
+                success: function (data) {
+                    console.log(data);
+                inventario = JSON.parse(JSON.stringify(data));
+                //console.log(data);
+                cargarDatos(data);
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+            });
+              }
+            //**********************Fin Modal 1 ******************
+
     }); //Fin de document ready
 
          function guardarConfiguracion() {
@@ -322,7 +440,7 @@
         var _actPromoUsuarioClave = $('#chkActPromoUsuarioClave').is(':checked');
         var _actDescProd = $('#chkActDescProd').is(':checked');
         var _actDescProdUsuarioClave = $('#chkActDescProdUsuarioClave').is(':checked');
-             var id = @Model.IdRebajaConfig;
+        var id = @Model.IdRebajaConfig;
 
              var model = {
                         IdRebajaConfig: id,
@@ -352,5 +470,90 @@
                     console.log(err.statusText);
             }
         });
-    }
+        }
+
+
+    //***************Funciones de modal 1********************//
+
+        function inicializarTabla() {
+
+             $('#tblMaximoDescuento').DataTable().destroy();
+
+            $('#tblMaximoDescuento').DataTable({
+                "info": false,
+
+                language: {
+                    "decimal": "",
+                    "emptyTable": "@SharedLocalizer["NoDatos"]",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "<i class='fas fa-search'></i>",
+                    "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                    "paginate": {
+                        "first": "@SharedLocalizer["Primero"]",
+                        "last": "@SharedLocalizer["Último"]",
+                        "next": "@SharedLocalizer["Sguiente"]",
+                        "previous": "@SharedLocalizer["Anterior"]"
+                    }
+                }
+            });
+
+            $(".dataTables_searching").hide();
+
+         }
+
+
+        function cargarDatos(data) {
+
+            contadorFila = 0;
+
+            $("#tblMaximoDescuento > tbody").remove();
+
+            $('table').append('<tbody></tbody>');
+
+            for (var i = 0; i < data.length; i++) {
+
+                var estado = "Activa";
+                var icono = '<i class="fas fa-trash"></i>';
+                if (data[i].inactiva === true) {
+                    icono = '<i class="fas fa-trash-restore"></i>';
+                    estado = "Inactiva";
+                }
+
+                if (data[i].inactiva === estadoItem) {
+                    var body = '<tr class="fila' + contadorFila + ' filas"><td style="padding-top: 1.5rem;">' + data[i].codigo + '</td>'
+                        + '<td style="padding-top:1.5rem;">' + data[i].descripcion + '</td>'
+                        + '<td style="padding-top:1.5rem;">' + data[i].idUnidadMedidaNavigation.nombre + ' </td>'
+                        + '<td style="padding-top:1.5rem;"><input style="border:0; background-color : #F7F7F7" class="' + darFormato(data[i].codigoMoneda) + '" value="' + data[i].precioVentaFinal + '"/></td>'
+                        + '<td style="padding-top:1.5rem;">' + calcularExistencia(data[i].tbPrInventarioBodega) + '</td>'
+                        + '<td style="padding-top:1.5rem;">' + calcularExistenciaMinima(data[i].tbPrInventarioBodega) + '</td>'
+                        + '<td style="padding-top:1.5rem;">' + calcularExistenciaMedia(data[i].tbPrInventarioBodega) + '</td>'
+                        + '<td style="padding-top:1.5rem;">' + calcularExistenciaMaxima(data[i].tbPrInventarioBodega) + '</td>'
+                        + '<td style="padding-top:1.5rem;">' + estado + '</td>'
+                        + '<td >  <button value="' + data[i].idInventario + '" onclick="editarInventario(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].idInventario + '" onclick="cambiarEstadoInventario(value ' + "," + contadorFila + ')" class="btn btn-link">' + icono + '</button></td></tr>';
+                    $('#tblMaximoDescuento > tbody').append(body);
+                    contadorFila++;
+                }
+
+
+
+
+            }
+           
+            inicializarTabla();
+
+
+        }
+
+    //************Fin funcioines modal 1*******************//
+
+
 </script>
+
+

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AltivaWebApp.Controllers
@@ -14,16 +15,22 @@ namespace AltivaWebApp.Controllers
     {
         readonly IDescuentoPromocionMap map;
         readonly IDescuentoPromocionService service;
+        public IUserService IUserService;
 
 
-        public DescuentoPromocionController(IDescuentoPromocionMap map, IDescuentoPromocionService service)
+
+        public DescuentoPromocionController(IDescuentoPromocionMap map, IDescuentoPromocionService service, IUserService IUserService)
         {
             this.service = service;
             this.map = map;
+            this.IUserService = IUserService;
         }
 
         public IActionResult Index()
         {
+
+            ViewData["Asignados"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+
             //  var d = service.Equals
             var conf = service.GetRebajaConfig();
            
