@@ -74,81 +74,167 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+        public double GetEntradas(TbPrAjusteInventario ai)
+        {
+            double mov = 0;
+
+            if (ai.Movimiento)
+                mov = ai.Cantidad;
+            return mov;
+        }
+
+        public double GetSalidas(TbPrAjusteInventario ai)
+        {
+            double mov = 0;
+
+            if (!ai.Movimiento)
+                mov = ai.Cantidad;
+            return mov;
+        }
+
+        public double GetInicial(IList<TbPrTomaDetalle> toma, long idInventario, DateTime fecha)
+        {
+            //&& t.IdTomaNavigation.Anulado == false && t.IdTomaNavigation.Borrador == false
+            var _toma = toma.FirstOrDefault(t => t.IdTomaNavigation.FechaToma < fecha  && t.IdInventario == idInventario);
+            if (_toma == null)
+                return 0;
+            else
+                return _toma.Toma;
+
+        }
+
+        public DateTime GetUltimaFechaToma(IList<TbPrTomaDetalle> toma, long idInventario)
+        {
+            if(toma.Any(t => t.IdInventario == idInventario))
+            {
+                var _fecha = toma.FirstOrDefault(t => t.IdInventario == idInventario).IdTomaNavigation.FechaToma;
+                if (_fecha == null)
+                    _fecha = DateTime.MinValue;
+                return _fecha;
+            }
+            else
+                return DateTime.MinValue;
+
+        }
+
         public IList<TbPrTomaDetalle> GenerateTD(TbPrToma domain)
         {
-            var ultimaTd = new TbPrToma();
-            ultimaTd = context.TbPrToma.LastOrDefault(t => t.Borrador == false);
+            var tomaDetalle = new List<TbPrTomaDetalle>();
+            var todoTD = new List<TbPrTomaDetalle>();
 
-            //var ultimoSaldo = (from td in context.TbPrTomaDetalle
-            //                   join t in context.TbPrToma on td.IdToma equals t.Id
-            //                   where t.Borrador == false
-            //                   select new TbPrTomaDetalle{
+            var idList = new List<long>
+            {
+                0
+            };
 
+            //var ultimaFecha = context.TbPrTomaDetalle.Include(t => t.IdTomaNavigation)..Where(t => t.Borrador == false && t.Anulado == false);
 
-            //                   }
-            //                   ).ToList();
-
-            var ultimoSaldo = new List<TbPrTomaDetalle>();
-            ultimoSaldo = context.TbPrTomaDetalle.Where(t => t.IdTomaNavigation.Borrador == false).ToList();
-
-            var tdXAjuste = (from a in context.TbPrAjuste
-                             join ai in context.TbPrAjusteInventario on a.Id equals ai.IdAjuste
-                             join b in context.TbPrBodega on a.IdBodega equals b.Id
-                             join ib in context.TbPrInventarioBodega on b.Id equals ib.IdBodega
-                             join i in context.TbPrInventario on ai.IdInventario equals i.IdInventario
-                             join subf in context.TbPrFamilia on i.IdSubFamilia equals subf.IdFamilia
-                             join f in context.TbPrFamilia on subf.IdFamilia equals f.Id
-                             
-                             where b.Id == domain.IdBodega  && a.Anulada == false // && a.FechaDocumento > ultimaTd.FechaToma
-                             select  new TbPrTomaDetalle
-                             {
-                                 CostoPromedio = ib.CostoPromedioBodega,
-                                 Entradas = a.TbPrAjusteInventario.Where(m => m.Movimiento == true).Count(),
-                                 Salidas = a.TbPrAjusteInventario.Where(m => m.Movimiento == false).Count(),
-                                 Existencia = ib.ExistenciaBodega,
-                                 IdInventario = ib.IdInventario,
-                                 Inicial = 0,//ultimoSaldo.FirstOrDefault(i => i.IdInventario == ib.IdInventario).Inicial,
-                                 Toma = 0
-                             }).ToList();
-
-            //var tdXAjuste = (from b in context.TbPrBodega
-            //                 join ib in context.TbPrInventarioBodega on b.Id equals ib.IdBodega
-            //                 join a in context.TbPrAjuste on b.Id equals a.IdBodega
-            //                 join ai in context.TbPrAjusteInventario on a.Id equals ai.IdAjuste
-            //                 where b.Id == domain.IdBodega && a.FechaDocumento > ultimaTd.FechaToma && a.Anulada == false
-            //                 select new TbPrTomaDetalle
-            //                 {
-            //                     CostoPromedio = ib.CostoPromedioBodega,
-            //                     Entradas = 
-
-            //                 }).ToList();
-
-            //var tdXCompra = (from b in context.TbPrBodega
-            //                 join ib in context.TbPrInventarioBodega on b.Id equals ib.IdBodega
-            //                 join cd in context.TbPrCompraDetalle on b.Id equals cd.IdBodega
-            //                 join c in context.TbPrCompra on cd.IdCompra equals c.Id
-            //                 where b.Id == domain.IdBodega && c.FechaDocumento > ultimaTd.FechaToma
-            //                 select new TbPrTomaDetalle
-            //                 {
+            var ultimaTd = context.TbPrTomaDetalle.Include(t => t.IdTomaNavigation).OrderByDescending(t => t.IdTomaNavigation.FechaToma).Where(t => t.IdTomaNavigation.Borrador == false && t.IdTomaNavigation.Anulado == false).ToList();
 
 
-            //                 }).ToList();
-            //var tdXReq = (from b in context.TbPrBodega
-            //              join ib in context.TbPrInventarioBodega on b.Id equals ib.IdBodega
-            //              join r in context.TbPrRequisicion on b.Id equals r.IdBodega
-            //              join rd in context.TbPrRequisicionDetalle on r.Id equals rd.IdRequisicion
+            var tdXAjuste = context.TbPrAjusteInventario
+                .Include(a => a.IdAjusteNavigation)
+                .Include(a => a.IdInventarioNavigation)
+                    .ThenInclude(i => i.TbPrInventarioBodega)
+                 .Where(a => a.IdAjusteNavigation.IdBodega == domain.IdBodega && a.IdAjusteNavigation.Anulada == false && a.IdAjusteNavigation.FechaDocumento > GetUltimaFechaToma(ultimaTd, a.IdInventario) && a.IdAjusteNavigation.FechaDocumento < DateTime.Now)
 
-            //              where b.Id == domain.IdBodega && r.Fecha > ultimaTd.FechaToma
-            //              select new TbPrTomaDetalle
-            //              {
+                 .Select(td => new TbPrTomaDetalle
+                 {
 
+                     Existencia = td.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdInventario == td.IdInventario).ExistenciaBodega,
+                     IdInventario = td.IdInventario,
+                     CostoPromedio = td.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdInventario == td.IdInventario).CostoPromedioBodega,
+                     Entradas = GetEntradas(td),
+                     Salidas = GetSalidas(td),
+                     Inicial = 0,
+                     Toma = 0,
+                     IdInventarioNavigation = td.IdInventarioNavigation
 
-            //              }).ToList();
+                 }).ToList();
 
 
 
 
-            return tdXAjuste;
+            todoTD.AddRange(tdXAjuste);
+
+
+            var tdXCompra = context.TbPrCompraDetalle
+                 .Include(c => c.IdCompraNavigation)
+                 .Include(a => a.IdInventarioNavigation)
+                    .ThenInclude(i => i.TbPrInventarioBodega)
+                 .Where(c => c.IdBodega == domain.IdBodega && c.IdCompraNavigation.Borrador == false && c.IdCompraNavigation.Anulado == false && c.IdCompraNavigation.FechaDocumento > GetUltimaFechaToma(ultimaTd, c.IdInventario) && c.IdCompraNavigation.FechaDocumento < DateTime.Now)
+
+                 .Select(td => new TbPrTomaDetalle
+                 {
+
+                     Existencia = td.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdInventario == td.IdInventario).ExistenciaBodega,
+                     IdInventario = td.IdInventario,
+                     CostoPromedio = td.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdInventario == td.IdInventario).CostoPromedioBodega,
+                     Entradas = td.Cantidad,
+                     Salidas = 0,
+                     Inicial = 0,
+                     Toma = 0,
+                     IdInventarioNavigation = td.IdInventarioNavigation
+
+                 }).ToList();
+
+
+            todoTD.AddRange(tdXCompra);
+
+
+            var tdXReq = context.TbPrRequisicionDetalle
+                 .Include(rd => rd.IdRequisicionNavigation)
+                 .Include(a => a.IdInventarioNavigation)
+                    .ThenInclude(i => i.TbPrInventarioBodega)
+                 .Where(rd => rd.IdRequisicionNavigation.IdBodega == domain.IdBodega && rd.IdRequisicionNavigation.Anulado == false && rd.IdRequisicionNavigation.Fecha > GetUltimaFechaToma(ultimaTd, rd.IdInventario) && rd.IdRequisicionNavigation.Fecha < DateTime.Now)
+
+                 .Select(td => new TbPrTomaDetalle
+                 {
+
+                     Existencia = td.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdInventario == td.IdInventario).ExistenciaBodega,
+                     IdInventario = td.IdInventario,
+                     CostoPromedio = td.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdInventario == td.IdInventario).CostoPromedioBodega,
+                     Entradas = 0,
+                     Salidas = td.Cantidad,
+                     Inicial = 0,
+                     Toma = 0,
+                     IdInventarioNavigation = td.IdInventarioNavigation
+
+                 }).ToList();
+
+
+            todoTD.AddRange(tdXReq);
+
+            foreach (var item in todoTD)
+            {
+                if (!idList.Any(id => id == item.IdInventario))
+                {
+                    var arrayTD = todoTD.Where(td => td.IdInventario == item.IdInventario);
+                    var tdAux = new TbPrTomaDetalle
+                    {
+                        CostoPromedio = item.CostoPromedio,
+                        Entradas = 0,
+                        Salidas = 0,
+                        Existencia = item.Existencia,
+                        Inicial = GetInicial(ultimaTd, item.IdInventario, domain.FechaToma),
+                        Toma = item.Toma,
+                        IdInventarioNavigation = item.IdInventarioNavigation,
+                        IdInventario = item.IdInventario
+                    };
+                   
+                    foreach (var i in arrayTD)
+                    {
+                        tdAux.Entradas += i.Entradas;
+                        tdAux.Salidas += i.Salidas;
+                    }
+                    tomaDetalle.Add(tdAux);
+                    idList.Add(item.IdInventario);
+                }
+
+            }
+
+
+            return tomaDetalle;
         }
 
         public IList<TbPrTomaDetalle> EliminarTomaDetalle(IList<TbPrTomaDetalle> domain)

@@ -9,6 +9,7 @@ namespace AltivaWebApp.ViewModels
     {
         public long Id { get; set; }
         public long IdInventario { get; set; }
+        public long IdFamilia { get; set; }
         public double Inicial { get; set; }
         public double Entradas { get; set; }
         public double Salidas { get; set; }

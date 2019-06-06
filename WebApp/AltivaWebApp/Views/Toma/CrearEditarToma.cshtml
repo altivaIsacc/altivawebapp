@@ -60,7 +60,7 @@ else
 
         <div class="form-group col-md-2 col-sm-12 col-xs-12">
             <label>@SharedLocalizer["OrdenadoPor"]:</label>
-            <select class="form-control">
+            <select class="form-control" id="ordenadoBy">
                 <option value="producto">@SharedLocalizer["Producto"]</option>
                 <option value="familia">@SharedLocalizer["Familia"]</option>
             </select>
@@ -75,8 +75,23 @@ else
 </div>
 
 <div class="row">
-    <div id="detalles">
-        @*<partial name="_ListarTomaDetalles" model="new TbPrTomaDetalle()" />*@
+    <div class="col-md-12 table-responsive">
+        <table class="table table-bordered table-striped" id="tblTomaD" style="min-width:900px">
+            <thead>
+                <tr>
+                    <th style="width:12%">@SharedLocalizer["Código"]</th>
+                    <th style="width:18%">@SharedLocalizer["Producto"]</th>
+                    <th style="width:20%">@SharedLocalizer["Familia"]</th>
+                    <th style="width:8%">@SharedLocalizer["Costo"] @SharedLocalizer["Promedio"]</th>
+                    <th style="width:5%">@SharedLocalizer["Saldo"]</th>
+                    <th style="width:5%">@SharedLocalizer["Entradas"]</th>
+                    <th style="width:5%">@SharedLocalizer["Salidas"]</th>
+                    <th style="width:5%">@SharedLocalizer["Existencia"]</th>
+                    <th style="width:8%">@SharedLocalizer["TomaFisica"]</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 </div>
 
@@ -104,11 +119,15 @@ else
 <script>
 
     var bodegas = [];
-    var tomaDetalle = [];
+    var tdGenerada = [];
     var $bodega = $('#bodegas');
+    var $fecha = $('#fecha');
+    var $ordenadoBy = $('#ordenadoBy');
+    var familias = [];
     $(document).ready(function () {
 
         getBodegas();
+        getFamilias();
         var date = new Date();
 
         $('#fechaPicker').datetimepicker({
@@ -156,8 +175,25 @@ else
 
     function generarToma() {
         //console.log(crearModelo());
+        //public long Id { get; set; }
+        //public DateTime FechaToma { get; set; }
+        //public bool EsInicial { get; set; }
+        //public long IdBodega { get; set; }
+        //public string Ordenado { get; set; }
+        //public long IdUsuarioCreacion { get; set; }
+        //public bool Borrador { get; set; }
+        //public bool Anulado { get; set; }
+        var model = {
+            idBodega: $bodega.val(),
+            id: 0,
+            fechaToma: $fecha.val(),
+            esInicial: false,
+            ordenado: $ordenadoBy.val(),
+            idusuarioCreacion: 1,
+            borrador: true,
+            anulado: false
+        };
 
-        //var model = { idBodega =  };
         $.ajax({
             type: "POST",
             headers: {
@@ -165,11 +201,102 @@ else
             },
             dataType: "json",
             url: '@Url.Action("GenerarToma")',
-            data: { idBodega: $bodega.val() },
+            data: { model: model },
             success: function (data) {
+                
                 console.log(data);
+                tdGenerada = data;
+                cargarDatos(data);
+
+                if (data.length === 0)
+                    cargarAlert("@SharedLocalizer["BodegaSinMovimientos"]");
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
               }
         });
+    }
+
+    function cargarDatos(data) {
+
+        $("#tblTomaD > tbody").remove();
+        $("#tblTomaD").append('<tbody></tbody>');
+
+        var contadorFila = 0;
+ 
+        for (var i = 0; i < data.length; i++) {
+
+
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td><p style="padding-top:1rem;">' + data[i].idInventarioNavigation.codigo + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].idInventarioNavigation.descripcion + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + getFamiliaByIdSub(data[i].idInventarioNavigation.idSubFamilia) + " / " + getSubFamiliaById(data[i].idInventarioNavigation.idSubFamilia) + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].costoPromedio + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].inicial + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].entradas + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].salidas + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].existencia + '</p></td>'
+                + '<td><p style="padding-top:1rem;"> <input class="form-control" onkeyup="editarLinea(value, ' + contadorFila + ')" value="' + data[i].toma + '" /></p></td>'
+            $('#tblTomaD > tbody').append(body);
+            contadorFila++;
+
+        }
+
+
+    }
+
+
+    function editarLinea(value, key){
+
+        tdGenerada[key].toma = value;
+
+        console.log(tdGenerada[key]);
+
+    }
+
+
+    function getFamilias() {
+        $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("GetFamilias", "Familia")',
+
+            success: function (data) {
+                familias = data;
+
+                console.log(data);
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function getFamiliaByIdSub(id) {
+
+        for (var i = 0; i < familias.length; i++) {
+            for (var j = 0; j < familias[i].inverseIdFamiliaNavigation.length; j++) {
+                if (familias[i].inverseIdFamiliaNavigation[j].id == id)
+                    return familias[i].descripcion;
+            }
+           
+        }
+
+    }
+    function getSubFamiliaById(id) {
+        for (var i = 0; i < familias.length; i++) {
+            for (var j = 0; j < familias[i].inverseIdFamiliaNavigation.length; j++) {
+                if (familias[i].inverseIdFamiliaNavigation[j].id == id)
+                    return familias[i].inverseIdFamiliaNavigation[j].descripcion;
+            }
+
+        }
     }
 
 

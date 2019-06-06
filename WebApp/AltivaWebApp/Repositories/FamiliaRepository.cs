@@ -29,6 +29,7 @@ namespace AltivaWebApp.Repositories
             return context.TbPrFamilia.Where(f => f.IdFamilia != null).ToList();
         }
 
+
         public void UpdateSubFamilia(IList<TbPrFamilia> subFamilias)
         {
             try

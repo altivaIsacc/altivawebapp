@@ -73,12 +73,13 @@ namespace AltivaWebApp.Controllers
             
         }
 
-        //[HttpGet("GetTomaDetalles")]
-        //public IActionResult GetTomaDetalles(TomaViewModel model)
-        //{
-            
-        //    return View("CrearEditarToma", map.DomainToViewModel(service.GetTomaByID(id)));
-        //}
+
+
+        [HttpGet("ListarTomaDetalles")]
+        public IActionResult ListarTomaDetalles(TomaViewModel model)
+        {
+            return PartialView("_ListarTomaDetalles");
+        }
 
 
         [HttpGet("GetAllTomas")]
@@ -97,13 +98,26 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("GenerarToma")]
-        public IActionResult GenerarToma(int idBodega)
+        public IActionResult GenerarToma(TomaViewModel model)
         {
             try
             {
-                var toma = new TbPrToma();
-                toma.IdBodega = idBodega;
+                var toma = new TbPrToma
+                {
+                    IdBodega = model.IdBodega,
+                    FechaToma = model.FechaToma,
+                    Ordenado = model.Ordenado
+                };
                 var tomas = service.GenerateTD(toma);
+
+                foreach (var item in tomas)
+                {
+                    item.IdInventarioNavigation.TbPrInventarioBodega = null;
+                    item.IdInventarioNavigation.TbPrAjusteInventario = null;
+                    item.IdInventarioNavigation.TbPrTomaDetalle = null;
+                    //item.IdInventarioNavigation.IdSubFamiliaNavigation.TbPrInventario = null;
+                }
+
 
                 return Ok(tomas);
             }

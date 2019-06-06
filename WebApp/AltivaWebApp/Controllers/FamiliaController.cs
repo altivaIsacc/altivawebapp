@@ -128,6 +128,33 @@ namespace AltivaWebApp.Controllers
             }
         }
 
+        [HttpGet("GetFamilias")]
+        public IActionResult GetFamilias()
+        {
+            try
+            {
+                var familia = service.GetAllFamilias();
+
+                foreach (var item in familia)
+                {
+                    foreach (var i in item.InverseIdFamiliaNavigation)
+                    {
+                        i.IdFamiliaNavigation = null;
+                    }
+         
+                }
+
+                return Ok(familia);
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+            
+        }
+        
+
 
     }
 }
