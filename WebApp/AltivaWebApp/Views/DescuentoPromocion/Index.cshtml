@@ -107,42 +107,15 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                </div>
-                <div class="modal-body" id="crearEditarPartial">
+
 
                     <div class="form-group" style="margin-left:1rem; padding-top:0.7rem">
                         <p>
-                            <a class="btn btn-primary btn-xs" id="btnAgregarMaximoDesc"><span data-translate="Agregar" >Agregar</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+                            <a class="btn btn-primary btn-xs" id="btnAgregarMaximoDesc"><span data-translate="Agregar">Agregar</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
                         </p>
                     </div>
-
-                    
-                    <div style="margin-left:1rem; padding-top:0.7rem">
-                        <div class="table-responsive">
-                            <table class="table" id="tblMaximoDescuento" style="min-width:600px">
-                                <thead>
-                                    <tr>
-
-                                        <th>
-                                            <span data-translate="usuario">Usuario</span>
-                                        </th>
-                                        <th>
-                                            <span data-translate="descuentoMaximo">Descuento Maximo</span>
-                                        </th>
-                                        <th>
-                                            <span data-translate="nota">Nota</span>
-                                        </th>
-
-                                        <th>
-                                            <span data-translate="accion">Acción</span>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-
+                </div>
+                <div class="modal-body" id="crearPartialDescuentoUsuarios">
 
                 </div>
             </div>
@@ -273,7 +246,7 @@
             <div class="modal-content" >
                 <div class="modal-header">
                     <h5 data-translate="Configuracion" class="modal-title" id="AgregarMaximoDescModallabel">@SharedLocalizer["Maximo Descuento a Usuarios"]</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="limpiarCampos()">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -281,7 +254,7 @@
 
                     <div class="form-group">
                         <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
-                        <select class="selUsuarios" multiple="multiple" data-live-search="true" id="asignado" asp-for="@ViewData.[IdUsuario]">
+                        <select class="selUsuarios" multiple="multiple" data-live-search="true" id="asignado" onchange="cargarIdUsuarioSelect()" asp-for="@ViewData.[IdUsuario]">
                             @foreach (var asignados in ViewData["asignados"] as IList<TbSeUsuario>)
                             {
                                 <option value="@asignados.Id">@asignados.Nombre</option>
@@ -290,19 +263,21 @@
                     </div>
 
                     <div class="form-group descuentoGeneralnGroup ">
-                        <label data-translate="chkDescuentoGeneral" class="form-label" for="txtPorcentajeDescuentoGeneral"> Descuento (%)</label>
+                        <label data-translate="txtMaxDesc" class="form-label" for="txtMaxDesc"> Descuento (%)</label>
 
-                        <input id="txtPorcentajeDescuentoGeneral" type="number" min="0" max="100" asp-for="PorcMaxGeneral" class="form-control porcentaje" />
+                        <input id="txtMaxDesc" type="number" min="0" max="100" class="form-control porcentaje" value="" required />
+                        <span hidden id="txtMaxDesc" class="text-danger">@SharedLocalizer["Campo requerido."]</span>
+
                     </div>
 
                     <div class=" form-group">
                         <label class="col-form-label">Nota:</label><br />
-                        <input type="text" class="form-control" id="nota">
+                        <input type="text" class="form-control" id="txtNotaDesc" required>
                     </div>
 
                     <div class="form-group">
-                        <button id="btnGuardar" class="btn btn-success btn-xs " onclick="guardarConfiguracion()"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
-                        <a class="btn btn-default btn-xs" id="btnCancelar" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
+                        <button id="btnGuardarDescUsuario" class="btn btn-success btn-xs " onclick="guardarDescuentoUsuario()"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
+                        <a class="btn btn-default btn-xs" id="btnCancelar" onclick="limpiarCampos()" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
                     </div>
 
                 </div>
@@ -314,17 +289,18 @@
 <!--********************Fin SubModales ***********************-->
 
 <script>
+
+    var usuarios = [];
+
     $(document).ready(function () {
-
-            var inventario = [];
-            getMaximoDescuento()
-
+          
             //*********************Mostrar Modales**********************************
 
             $('#btnDescMaximoUsuario').click(function () {
 
                 if ($('#chkDescMaximoUsuario').prop('checked')) {
-                $('#modalMaximoDesc').modal('show');
+                    $('#modalMaximoDesc').modal('show');
+                    getDescuentoUsuario();
 
                 } else {
                     cargarAlert("@SharedLocalizer["No ha seleccionado ningun elemento"]");
@@ -394,37 +370,13 @@
                 }
         });
 
-
-
             //**********************Modal 1 **********************
-        $('#btnAgregarMaximoDesc').click(function () {
-            $('#modalAgregarMaximoDesc').modal('show');
-            $('.selUsuarios').select2();
-            
 
+        $('#btnAgregarMaximoDesc').click(function () {
+            $('#modalAgregarMaximoDesc').modal("show");
+            $('.selUsuarios').select2();
         });
 
-            function getMaximoDescuento() {
-            ///get inventario
-            $.ajax({
-
-            type: "get",
-            headers: {
-                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-            },
-            dataType: "json",
-            url: 'Lista-DescuentoMaximo/todo',
-                success: function (data) {
-                    console.log(data);
-                inventario = JSON.parse(JSON.stringify(data));
-                //console.log(data);
-                cargarDatos(data);
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
-            }
-            });
-              }
             //**********************Fin Modal 1 ******************
 
     }); //Fin de document ready
@@ -470,90 +422,89 @@
                     console.log(err.statusText);
             }
         });
-        }
-
+    }
 
     //***************Funciones de modal 1********************//
 
-        function inicializarTabla() {
+    function cargarIdUsuarioSelect() {
 
-             $('#tblMaximoDescuento').DataTable().destroy();
+        var selectUser = $('#asignado').val();
 
-            $('#tblMaximoDescuento').DataTable({
-                "info": false,
+        usuarios = $('#asignado').val();
+    }
 
-                language: {
-                    "decimal": "",
-                    "emptyTable": "@SharedLocalizer["NoDatos"]",
-                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
-                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
-                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
-                    "infoPostFix": "",
-                    "thousands": ",",
-                    "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
-                    "loadingRecords": "Cargando...",
-                    "processing": "Procesando...",
-                    "search": "<i class='fas fa-search'></i>",
-                    "zeroRecords": "@SharedLocalizer["sinResultados"]",
-                    "paginate": {
-                        "first": "@SharedLocalizer["Primero"]",
-                        "last": "@SharedLocalizer["Último"]",
-                        "next": "@SharedLocalizer["Sguiente"]",
-                        "previous": "@SharedLocalizer["Anterior"]"
-                    }
+    function guardarDescuentoUsuario() {
+
+        console.log(usuarios);
+        var model = [];
+                 var _IdConfig = @Model.IdRebajaConfig;
+                 var _IdUser = $('#asignado').val();
+                 var _Descuento = $('#txtMaxDesc').val();
+                 var _ObtenerUsuario =@User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                 var _Nota = $('#txtNotaDesc').val();
+
+        for (var i = 0; i < usuarios.length; i++) {
+            var m = {
+                IdRebajaConfig: _IdConfig,
+                IdUsuario: usuarios[i],
+                MaxDescuento: _Descuento,
+                IdUsuarioCreador: _ObtenerUsuario,
+                Nota: _Nota
+            };
+
+            model.push(m);
+        }
+        
+        $.ajax({
+            type: "post",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: '@Url.Action("GuardarDescMaximo")',
+            data: {model: model} ,
+                success: function (data) {
+                  //  cargarAlert("@SharedLocalizer["OperacionExitosa"]");
+                    getDescuentoUsuario();
+                    limpiarCampos();
+
+
+            },
+                error: function (err, scnd) {
+                    @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
+                    console.log(err.statusText);
+            }
+        });
+        }
+
+    function limpiarCampos() {
+
+        $('#txtNotaDesc').val('');
+        $('#txtMaxDesc').val('');
+        $('#asignado').val('');
+        $('#modalAgregarMaximoDesc').modal("hide");
+
+    }
+             function getDescuentoUsuario() {
+
+            var url = '@Url.Action("_ListarDescuentoUsuario", "DescuentoPromocion")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                
+                success: function (data) {
+                    $('#crearPartialDescuentoUsuarios').html(data);
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
                 }
             });
-
-            $(".dataTables_searching").hide();
-
-         }
-
-
-        function cargarDatos(data) {
-
-            contadorFila = 0;
-
-            $("#tblMaximoDescuento > tbody").remove();
-
-            $('table').append('<tbody></tbody>');
-
-            for (var i = 0; i < data.length; i++) {
-
-                var estado = "Activa";
-                var icono = '<i class="fas fa-trash"></i>';
-                if (data[i].inactiva === true) {
-                    icono = '<i class="fas fa-trash-restore"></i>';
-                    estado = "Inactiva";
-                }
-
-                if (data[i].inactiva === estadoItem) {
-                    var body = '<tr class="fila' + contadorFila + ' filas"><td style="padding-top: 1.5rem;">' + data[i].codigo + '</td>'
-                        + '<td style="padding-top:1.5rem;">' + data[i].descripcion + '</td>'
-                        + '<td style="padding-top:1.5rem;">' + data[i].idUnidadMedidaNavigation.nombre + ' </td>'
-                        + '<td style="padding-top:1.5rem;"><input style="border:0; background-color : #F7F7F7" class="' + darFormato(data[i].codigoMoneda) + '" value="' + data[i].precioVentaFinal + '"/></td>'
-                        + '<td style="padding-top:1.5rem;">' + calcularExistencia(data[i].tbPrInventarioBodega) + '</td>'
-                        + '<td style="padding-top:1.5rem;">' + calcularExistenciaMinima(data[i].tbPrInventarioBodega) + '</td>'
-                        + '<td style="padding-top:1.5rem;">' + calcularExistenciaMedia(data[i].tbPrInventarioBodega) + '</td>'
-                        + '<td style="padding-top:1.5rem;">' + calcularExistenciaMaxima(data[i].tbPrInventarioBodega) + '</td>'
-                        + '<td style="padding-top:1.5rem;">' + estado + '</td>'
-                        + '<td >  <button value="' + data[i].idInventario + '" onclick="editarInventario(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].idInventario + '" onclick="cambiarEstadoInventario(value ' + "," + contadorFila + ')" class="btn btn-link">' + icono + '</button></td></tr>';
-                    $('#tblMaximoDescuento > tbody').append(body);
-                    contadorFila++;
-                }
-
-
-
-
-            }
-           
-            inicializarTabla();
-
-
         }
 
     //************Fin funcioines modal 1*******************//
-
-
 </script>
 
 
