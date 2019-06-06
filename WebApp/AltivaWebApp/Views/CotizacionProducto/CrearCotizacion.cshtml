@@ -1,0 +1,190 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@{
+    ViewData["Title"] = "CrearCotizacion";
+}
+
+<h2>Crear Cotizacion</h2>
+
+<form id="CrearCotizacion">
+
+
+    <div class="form-group">
+        <div class="form-row">
+            <div class="col-md-2">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="fecha">@SharedLocalizer["Fecha"]:</label>
+                        <div class='input-group date' id='fechaPicker'>
+                            <input type='text' class="form-control" id="fecha" />
+                            <span class="input-group-addon">
+                                <span class="fas fa-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-md-2">
+                <label>@SharedLocalizer["Cliente"]:</label>
+                <select id="ddClientes" class="form-control search-key">
+                    <option selected value="0">@SharedLocalizer["Seleccione"]</option>
+
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label>@SharedLocalizer["Moneda"]:</label>
+                <select id="ddMoneda" class="form-control search-key">
+                    <option selected value="0">@SharedLocalizer["Seleccione"]</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label>@SharedLocalizer["Vendedor"]:</label>
+                <label id="lbVendedor" class="form-control"></label>
+            </div>
+        </div>
+    </div>
+
+
+</form>
+
+
+
+<script>
+    $(document).ready(function () {
+
+        getClientes();
+        getMonedas();
+        getUsuarios();
+        var Usuarios = [];
+        var IdUsuarioLogueado=0;
+
+        $('#fechaPicker').datetimepicker({
+            defaultDate: new Date(),
+            locale: localStorage.getItem("idioma"),
+            format: 'DD-MM-YYYY'
+
+
+        }).on('keypress paste', function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+        function getClientes() {
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                dataType: "json",
+                url: '@Url.Action("GetAllClientes", "Contacto")',
+                success: function (data) {
+                    _Clientes = data;
+                    cargarddClientes(data);
+
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+        }
+
+        function cargarddClientes(clientes) {
+
+            for (var i = 0; i < clientes.length; i++) {
+                var o = "<option value=" + clientes[i].idContacto + ">" + clientes[i].nombre + "</option>";
+                $("#ddClientes").append(o);
+            }
+
+        }
+
+            function getMonedas() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {                
+                 monedas = data;
+                 cargarddMoneda(data);
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+        function cargarddMoneda(moneda) {
+
+            for (var i = 0; i < moneda.length; i++) {
+                var o = "<option value=" + moneda[i].codigo + ">" + moneda[i].nombre + "</option>";
+                $("#ddMoneda").append(o);
+            }
+
+        }
+
+                function getUsuarios() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
+             success: function (data) {
+                 Usuarios = data;
+                 getIdUsuarioLogueado();
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+       function getIdUsuarioLogueado() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetInfoLogueado", "CotizacionProducto")',
+             success: function (data) {
+                 console.log(data);
+                 IdUsuarioLogueado = data;
+                 GetUsuarioLogueado();
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function GetUsuarioLogueado() {
+
+
+        for (var i = 0; i <Usuarios.length; i++) {
+            if (Usuarios[i].id === IdUsuarioLogueado) {
+                console.log(Usuarios[i].nombre);
+                $("#lbVendedor").text(Usuarios[i].nombre);
+                return Usuarios[i].nombre;
+            }
+        }
+        }
+
+    });
+    
+</script>

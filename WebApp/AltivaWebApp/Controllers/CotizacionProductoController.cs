@@ -26,10 +26,15 @@ namespace AltivaWebApp.Controllers
             _Service = Service;
         }
 
-        [HttpGet("Cotizacion-Productos")]
+        [HttpGet("Cotizaciones")]
         public IActionResult ListarCotizacionProducto()
         {
+            return View();
+        }
 
+        [HttpGet("Crear-Cotizacion")]
+        public IActionResult CrearCotizacion()
+        {
             return View();
         }
 
@@ -39,16 +44,31 @@ namespace AltivaWebApp.Controllers
 
             try
             {
-                ////var CotizacionProducto = new List<TbFaCotizacion>();
-                IList<TbFaCotizacion> Cotizaciones = _Service.GetAll();
+                //var CotizacionProducto = new List<TbFaCotizacion>();
+                var Cotizaciones = _Service.GetInfoCotizacion();
+
+                foreach (var item in Cotizaciones)
+                {
+                    
+                        item.IdClienteNavigation.TbFaCotizacion = null;
+                                         
+                }
+
                 return Ok(Cotizaciones);
 
             }
-            catch(Exception ex)
+            catch
             {
                 return BadRequest();
-            }
-    
+            }           
+        }
+
+        [HttpGet("InfoLogueado")]
+        public IActionResult GetInfoLogueado()
+        {
+            var idUsuario = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            return Ok(idUsuario);
         }
     }
 }

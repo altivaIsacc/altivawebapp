@@ -49,5 +49,6 @@ namespace AltivaWebApp.Domains
 
         public virtual TbCrContacto IdClienteNavigation { get; set; }
         public virtual ICollection<TbFaCotizacionDetalle> TbFaCotizacionDetalle { get; set; }
+
     }
 }

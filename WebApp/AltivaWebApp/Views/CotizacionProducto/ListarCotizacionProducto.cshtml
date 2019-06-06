@@ -9,35 +9,54 @@
 
 @{
     ViewData["Title"] = "ListarCotizacionProducto";
-
-
 }
 
-<h2>Cotizaciones</h2>
 
 <div class="row">
     <div class="col-md-2">
-        <h3>@SharedLocalizer["AjusteManual"]</h3>
+    <h3>@SharedLocalizer["Cotizaciones"]</h3>
     </div>
     <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
         <p>
-            <a asp-action="CrearAjuste" class="btn btn-primary"><span data-translate="agregar">@SharedLocalizer["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+          <a asp-action="CrearCotizacion" class="btn btn-primary"><span>@SharedLocalizer["Crear"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
         </p>
     </div>
-
 </div>
 
-<div class="row">
+<h5>
+    <a data-toggle="collapse" href="#collapseFiltros" role="button" aria-expanded="false" aria-controls="collapseFiltros">
+        <span>@SharedLocalizer["Filtros"]</span>&nbsp;<i class="fas fa-plus-circle"></i>
+    </a>
+</h5>
 
+<div class="row collapse" id="collapseFiltros">
     <div class="col-md-2" style="margin-top: 0.2rem">
-        <label>@SharedLocalizer["buscarPorDescripcion"]:</label>
-        <input type="text" id="filtroBuscar" class="form-control" />
+        <label>@SharedLocalizer["BuscarPorId"]:</label>
+        <input type="text" id="filtroId" class="form-control" />
+    </div>
+    <div class="col-md-2" style="margin-top: 0.2rem">
+        <label>@SharedLocalizer["BuscarPorCliente"]:</label>
+        <input type="text" id="filtroCliente" class="form-control" />
     </div>
 
     <div class="col-md-2">
-        <label style="padding-top: 0.2rem">@SharedLocalizer["buscarItem"]:</label>
-        <input type="text" id="filtroItem" class="form-control" />
+        <label style="padding-top: 0.2rem">@SharedLocalizer["BuscarPorVendedor"]:</label>
+        <input type="text" id="filtroVendedor" class="form-control" />
     </div>
+
+    <div class="col-md-2">
+        <label>@SharedLocalizer["BuscarPorEstado"]:</label>
+        <select id="Estados" class="form-control search-key">
+            <option selected value="0">@SharedLocalizer["Todos"]</option>
+            <option value="1">@SharedLocalizer["Borrador"]</option>
+            <option value="2">@SharedLocalizer["Enviada"]</option>
+            <option value="3">@SharedLocalizer["Anulada"]</option>
+            <option value="4">@SharedLocalizer["Aceptada"]</option>
+            <option value="5">@SharedLocalizer["Rechazada"]</option>
+            <option value="6">@SharedLocalizer["Facturada"]</option>
+        </select>
+    </div>
+
 
     <div class="col-md-3">
         <input type="checkbox" id="habilitaFiltroFecha" />
@@ -48,7 +67,7 @@
                     <div class="controls">
                         <div class="input-prepend input-group">
                             <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
-                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="24/04/2019 - 24/04/2019" />
+                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control"  />
                         </div>
                     </div>
                 </div>
@@ -70,25 +89,26 @@
             <thead>
                 <tr>
 
-                    <th><span>@SharedLocalizer["IdCoTizacion"]</span></th>
-                    <th><span>@SharedLocalizer["Fecha de Cotizacion"]</span> </th>
-                    <th><span>@SharedLocalizer["IdCliente"]</span> </th>
+                    <th style="display:none;"><span>@SharedLocalizer["IdCoTizacion"]</span></th>
+                    <th><span>@SharedLocalizer["FechaDeCotizacion"]</span> </th>
+                    <th><span>@SharedLocalizer["Cliente"]</span> </th>
                     <th><span>@SharedLocalizer["Estado"]</span> </th>
-                    <th><span>@SharedLocalizer["IdMoneda"]</span></th>
-                    <th><span>@SharedLocalizer["IdVendedor"]</span></th>
-                    <th><span>@SharedLocalizer["Fecha de creación"]</span></th>
-                    <th><span>@SharedLocalizer["IdUsuarioCreador"]</span></th>
-                    <th><span>@SharedLocalizer["Fecha de vencimiento"]</span></th>
-                    <th><span>@SharedLocalizer["SubTotal"]</span></th>
+                    <th><span>@SharedLocalizer["Moneda"]</span></th>
+                    <th><span>@SharedLocalizer["Vendedor"]</span></th>
+                    <th><span>@SharedLocalizer["FechaDeCreacion"]</span></th>
+                    <th style="display:none;"><span>@SharedLocalizer["IdUsuarioCreador"]</span></th>
+                    <th><span>@SharedLocalizer["FechaDeVencimiento"]</span></th>
+                    <th><span>@SharedLocalizer["Total"]</span></th>
                     <th><span>@SharedLocalizer["Editar"]</span></th>
 
                 </tr>
             </thead>
             <tbody></tbody>
+            
         </table>
 
     </div>
-    
+
 </div>
 <script>
     var Cotizaciones = [];
@@ -102,11 +122,8 @@
 
     $(document).ready(function () {
 
-
-        
         getMonedas();
         getUsuarios();
-        getClientes();
 
         $('#filtroFecha').attr('disabled', true);
 
@@ -159,17 +176,17 @@
 
     });
 
+
     function getCotizacion() {
             ///get ajustes
         $.ajax({
             type: "get",
             headers: {
-                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                      "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
             },
             dataType: "json",
-            url: '@Url.Action("GetCotizacion")',
+            url: '@Url.Action("GetCotizacion", "CotizacionProducto")',
             success: function (data) {
-                console.log(data);
                 Cotizaciones = JSON.parse(JSON.stringify(data));
                 cargarDatos(data);
             },
@@ -177,7 +194,7 @@
                 cargarAlert('@SharedLocalizer["errorGeneral"]');
                 console.log(err.statusText);
                 console.log("error traer cotizacion");
-      
+
             }
         });
     }
@@ -210,7 +227,6 @@
               dataType: "json",
               url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
              success: function (data) {
-                 console.log(data);
                  Usuarios = data;
                  getCotizacion();
               },
@@ -227,7 +243,6 @@
 
         for (var i = 0; i < Usuarios.length; i++) {
             if (Usuarios[i].id === IdVendedor) {
-                console.log(Usuarios[i].nombre);
 
                 return Usuarios[i].nombre;
             }
@@ -235,37 +250,9 @@
     }
 
 
-            function getClientes() {
-         $.ajax({
-              type: "get",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
-              url: '@Url.Action("GetClientes", "Contacto")',
-             success: function (data) {
-                 console.log(data);
-                 Clientes = data;
-              },
-              error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-          });
-    }
-
-    function GetClientesxId(IdCliente) {
 
 
-        for (var i = 0; i < Clientes.length; i++) {
-            if (Clientes[i].idContacto === IdCliente) {
-      
-                console.log("Clientes:"+Clientes[i].nombre);
-       
-                return Clientes[i].nombre;
-            }          
-        }
-    }
+
 
 
     function cargarDatos(data) {
@@ -274,37 +261,47 @@
         $("#tblCotizacion > tbody").remove();
         $('#tblCotizacion').append('<tbody></tbody>');
 
-        
+
 
         for (var i = 0; i < data.length; i++) {
 
- 
+
             var body = '<tr class="fila' + contadorFila + ' filas">'
-                + '<td><p style="padding-top:1rem">' + data[i].idCotizacion + '</p></td>'
+                + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCotizacion + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCotizacion) + '</p></td>'
-                + '<td><p style="padding-top:1rem">' +GetClientesxId( data[i].idCliente) + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + data[i].idClienteNavigation.nombre + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + data[i].estado + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].idMoneda + '</p></td>'
+                + '<td><p style="padding-top:1rem">' +darFormato( data[i].idMoneda) + '</p></td>'
                 + '<td><p style="padding-top:1rem">' +GetUsuarioxId(data[i].idVendedor)+ '</p></td>'
                 + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].fechaVencimiento + '</p></td>'
+                + '<td style="display:none;"><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
+                + '<td><p style="padding-top:1rem">' +recuperarFecha( data[i].fechaVencimiento) + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + data[i].totalBase + '</p></td>'
                 + '<td>  <button value="' + data[i].idCotizacion + '" onclick="editarAjuste(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
             $('#tblCotizacion > tbody').append(body);
             contadorFila++;
         }
 
-      
+
 
         inicializarTabla();
 
     }
 
+    function darFormato(idMoneda) {
+
+        if (idMoneda === 1)
+            return monedas[0].nombre;
+        else if (idMoneda === 2)
+            return monedas[1].nombre;
+        else if (idMoneda === 3)
+            return monedas[2].nombre;
+    }
+
     function inicializarTabla() {
         $('#tblCotizacion').DataTable().destroy();
 
-        tblAjustes = $('#tblCotizacion').DataTable({
+        tblCotizacion = $('#tblCotizacion').DataTable({
             "info": false,
             dom: 'Bfrtip',
             language: {
@@ -373,6 +370,7 @@
 
     function recuperarFecha(_fecha) {
 
+
         var fecha = _fecha.substr(0, 10);
         var y = fecha.substr(0, 4);
         var m = fecha.substr(5, 2);
@@ -388,15 +386,70 @@
     /////////////////////filtros//////////////////
 
 
-    $("#filtroBuscar").on("keyup", function () {
-        tblAjustes
-            .columns(1)
+    $('#Estados').on('change', function () {
+
+        switch (this.value) {
+            case "1":
+                tblCotizacion
+                    .columns(3)
+                    .search("Borrador")
+                    .draw();
+                break;
+            case "2":
+                tblCotizacion
+                    .columns(3)
+                    .search("Enviada")
+                    .draw();
+                break;
+            case "3":
+                tblCotizacion
+                    .columns(3)
+                    .search("Anulada")
+                    .draw();
+                break;
+            case "4":
+                tblCotizacion
+                    .columns(3)
+                    .search("Aceptada")
+                    .draw();
+                break;
+            case "5":
+                tblCotizacion
+                    .columns(3)
+                    .search("Rechazada")
+                    .draw();
+                break;
+            case "6":
+                tblCotizacion
+                    .columns(3)
+                    .search("Facturada")
+                    .draw();
+                break;
+            case "0":
+                inicializarTabla();
+        }
+            });
+
+
+    $("#filtroCliente").on("keyup", function () {
+        tblCotizacion
+            .columns(2)
             .search(this.value)
             .draw();
     });
 
-    $("#filtroItem").on("keyup", function () {
-        cargarFiltros();
+    $("#filtroVendedor").on("keyup", function () {
+        tblCotizacion
+            .columns(5)
+            .search(this.value)
+            .draw();
+    });
+
+    $("#filtroId").on("keyup", function () {
+        tblCotizacion
+            .columns(0)
+            .search(this.value)
+            .draw();
     });
 
     $('#habilitaFiltroFecha').change(function () {
@@ -416,8 +469,7 @@
     function cargarFiltros() {
 
         ajusteFiltrado = JSON.parse(JSON.stringify(Cotizaciones));
-
-        ajusteFiltrado = filtroItem(ajusteFiltrado);
+        console.log("CargarFiltro:" + ajusteFiltrado);
 
         ajusteFiltrado = filtroFecha(ajusteFiltrado, desde, hasta);
 
@@ -436,7 +488,7 @@
 
             for (var i = 0; i < array.length; i++) {
 
-                var documento = new Date(array[i].fechaDocumento).getTime();
+                var documento = new Date(array[i].fechaCotizacion).getTime();
                 var flag = false;
 
                 if (documento >= desdeLocal && documento <= hastaLocal)
@@ -482,3 +534,13 @@
 
     }
 </script>
+
+<style>
+
+
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

@@ -8,9 +8,6 @@ namespace AltivaWebApp.Repositories
 {
    public interface ICotizacionRepository
     {
-
      IList<TbFaCotizacion> GetInfoCotizacion();
-        IList<TbFaCotizacion> GetAll();
-
     }
 }

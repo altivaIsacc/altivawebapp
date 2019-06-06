@@ -15,11 +15,6 @@ namespace AltivaWebApp.Services
         {
             repository = cotizacionRepository;
         }
-
-        public IList<TbFaCotizacion> GetAll()
-        {
-            return repository.GetAll();
-        }
  
         public IList< TbFaCotizacion> GetInfoCotizacion()
         {

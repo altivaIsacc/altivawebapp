@@ -14,12 +14,8 @@ namespace AltivaWebApp.Repositories
         {
          
         }
-
-        public IList<TbFaCotizacion> GetAll()
-        {
-            return context.TbFaCotizacion.ToList();  
-        }
-
+ 
+    
         public IList<TbFaCotizacion> GetInfoCotizacion()
         {
             try

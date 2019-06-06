@@ -9,7 +9,6 @@ namespace AltivaWebApp.Services
 {
     public interface ICotizacionService
     {
-        IList<TbFaCotizacion> GetAll();
        IList< TbFaCotizacion> GetInfoCotizacion();
     }
 }
