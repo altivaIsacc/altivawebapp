@@ -16,6 +16,7 @@ namespace AltivaWebApp.Domains
             TbPrInventarioCaracteristica = new HashSet<TbPrInventarioCaracteristica>();
             TbPrOrdenDetalle = new HashSet<TbPrOrdenDetalle>();
             TbPrRequisicionDetalle = new HashSet<TbPrRequisicionDetalle>();
+            TbPrTomaDetalle = new HashSet<TbPrTomaDetalle>();
         }
 
         public long IdInventario { get; set; }
@@ -65,5 +66,6 @@ namespace AltivaWebApp.Domains
         public virtual ICollection<TbPrInventarioCaracteristica> TbPrInventarioCaracteristica { get; set; }
         public virtual ICollection<TbPrOrdenDetalle> TbPrOrdenDetalle { get; set; }
         public virtual ICollection<TbPrRequisicionDetalle> TbPrRequisicionDetalle { get; set; }
+        public virtual ICollection<TbPrTomaDetalle> TbPrTomaDetalle { get; set; }
     }
 }

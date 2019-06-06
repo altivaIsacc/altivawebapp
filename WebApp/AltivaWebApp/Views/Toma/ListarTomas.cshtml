@@ -1,0 +1,275 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+
+@{
+    ViewData["Title"] = "ListarTomas";
+}
+
+
+<div class="row">
+    <div class="col-md-3">
+        <h3>@SharedLocalizer["TomaFisica"]</h3>
+    </div>
+    <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
+        <p>
+            <a asp-action="CrearToma" class="btn btn-primary"><span>@SharedLocalizer["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+        </p>
+    </div>
+</div>
+
+<div class="row">
+
+    
+
+    <div class="col-md-3">
+        <input type="checkbox" id="habilitaFiltroFecha" />
+        <label for="habilitaFiltroFecha">@SharedLocalizer["FiltroFecha"]</label>
+        <form id="frmFecha" class="form-horizontal">
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="input-prepend input-group">
+                            <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="24/04/2019 - 24/04/2019" />
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+
+    </div>
+    <div class="col-md-2 checkbox">
+        <label class="control-label">
+            <input type="checkbox" id="estado"> @SharedLocalizer["VerAnuladas"]
+        </label>
+    </div>
+
+
+</div>
+
+<br />
+
+<div class="row">
+    <div class="col-md-10  table-responsive">
+        <table class="table table-bordered" id="tblTomas">
+            <thead>
+                <tr>
+                    <th>
+                        <span>@SharedLocalizer["Nº"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["Fecha"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["Usuario"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["Bodega"]</span>
+                    </th>
+                    <th>
+                        <span>@SharedLocalizer["accion"]</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<script>
+
+    var usuarios = [];
+    var tomas = [];
+    var tblTomas;
+
+    $(document).ready(function () {
+        getUsuarios();
+        
+    });
+
+    
+    function getTomas() {
+          $.ajax({
+            type: "get",
+            headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetAllTomas", "Toma")',
+            success: function (data) {
+                console.log(data);
+                tomas = JSON.parse(JSON.stringify(data));
+                //cargarFiltros();
+                cargarDatos(data);
+            },
+            error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+    function getUsuarios() {
+          $.ajax({
+            type: "get",
+            headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
+            success: function (data) {
+                console.log(data);
+                usuarios = JSON.parse(JSON.stringify(data));
+                getTomas();
+                //cargarFiltros();
+            },
+            error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+    function cargarDatos(data) {
+        var colorFila = "";
+        var colorAnulada = "color: #5a0b0a";
+        var colorBorrador = "color: #A9A9A9";
+        var contadorFila = 0;
+        $("#tblTomas > tbody").remove();
+        $('#tblTomas').append('<tbody></tbody>');
+
+        for (var i = 0; i < data.length; i++) {
+
+            if (data[i].anulado)
+                colorFila = "color: #5a0b0a";
+            else if (data[i].borrador)
+                colorFila = "color: #808080";
+            else
+                colorFila = "color: #2A3F54";
+
+            //<input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].precio + '"/>
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td><p style="padding-top:1rem; ' + colorFila + '">' + data[i].id + '</p></td>'
+                + '<td><p style="padding-top:1rem; ' + colorFila + '">' + recuperarFecha(data[i].fechaToma) + '</p></td>'
+                + '<td><p style="padding-top:1rem; ' + colorFila + '">' + getUsuario(data[i].idUsuarioCreacion) + '</p></td>'
+                + '<td><p style="padding-top:1rem; ' + colorFila + '">' + data[i].idBodegaNavigation.nombre + '</p></td>'
+                + '<td>  <button value="' + data[i].id + '" onclick="editarToma(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+            $('#tblTomas > tbody').append(body);
+            contadorFila++;
+        }
+
+
+
+        inicializarTabla();
+
+    }
+
+
+    function getUsuario(idUsuario) {
+
+        for (var i = 0; i < usuarios.length; i++) {
+            if (idUsuario === usuarios[i].id)
+                return usuarios[i].nombre;
+        }
+
+    }
+
+    function recuperarFecha(_fecha) {
+
+
+        var f = new Date(_fecha);
+
+        //var fecha = _fecha.substr(0, 10);
+        //var y = fecha.substr(0, 4);
+        //var m = fecha.substr(5, 2);
+        //var d = fecha.substr(8, 3);
+
+
+        //return d + "-" + m + "-" + y + " " + _fecha.substr(-12, 5);///new Date(fecha).toLocaleDateString(); //fecha.replace(/-/g, "/");
+
+        return f.toLocaleString();
+
+    }
+
+    function inicializarTabla() {
+
+        $('#tblTomas').DataTable().destroy();
+
+        tblTomas = $('#tblTomas').DataTable({
+            "info": false,
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@SharedLocalizer["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                "paginate": {
+                    "first": "@SharedLocalizer["Primero"]",
+                    "last": "@SharedLocalizer["Último"]",
+                    "next": "@SharedLocalizer["Sguiente"]",
+                    "previous": "@SharedLocalizer["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   "></i>',
+                    titleAttr: 'Copy',
+                    title: '@SharedLocalizer["Departamento"]',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3]
+                    }
+
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: '@SharedLocalizer["Departamento"]',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3]
+                    }
+
+                },
+
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: '@SharedLocalizer["Departamento"]',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3]
+                    }
+                }
+            ]
+        });
+
+        //$(".dataTables_searching").hide();
+    }
+</script>
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>
+
+
+
+

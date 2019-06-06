@@ -55,6 +55,7 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbCrContactoRelacion> TbCrContactoRelacion { get; set; }
         public virtual DbSet<TbCrContactosCamposPersonalizados> TbCrContactosCamposPersonalizados { get; set; }
         public virtual DbSet<TbCrListaDesplegables> TbCrListaDesplegables { get; set; }
+        public virtual DbSet<TbFaDescuentoUsuario> TbFaDescuentoUsuario { get; set; }
         public virtual DbSet<TbFaRebajaConfig> TbFaRebajaConfig { get; set; }
         public virtual DbSet<TbFdAjusteSaldoMenor> TbFdAjusteSaldoMenor { get; set; }
         public virtual DbSet<TbFdAperturaCaja> TbFdAperturaCaja { get; set; }
@@ -162,8 +163,8 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbPrRequisicion> TbPrRequisicion { get; set; }
         public virtual DbSet<TbPrRequisicionDetalle> TbPrRequisicionDetalle { get; set; }
         public virtual DbSet<TbPrTipoProveedor> TbPrTipoProveedor { get; set; }
-        public virtual DbSet<TbPrTomaFisicas> TbPrTomaFisicas { get; set; }
-        public virtual DbSet<TbPrTomaFisicasDetalle> TbPrTomaFisicasDetalle { get; set; }
+        public virtual DbSet<TbPrToma> TbPrToma { get; set; }
+        public virtual DbSet<TbPrTomaDetalle> TbPrTomaDetalle { get; set; }
         public virtual DbSet<TbPrTraslado> TbPrTraslado { get; set; }
         public virtual DbSet<TbPrTrasladoInventario> TbPrTrasladoInventario { get; set; }
         public virtual DbSet<TbPrUnidadMedida> TbPrUnidadMedida { get; set; }
@@ -191,22 +192,22 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbSeConfiguracion> TbSeConfiguracion { get; set; }
         public virtual DbSet<TbSePuntoVenta> TbSePuntoVenta { get; set; }
 
-        // Unable to generate entity type for table 'dbo.tb_FD_NotaCreditoAjusteSaldoMenor'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomaticaDetalle'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.Tmp_tb_PR_Requisicion'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_CuentaEnCasaNotaCredito'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_NotaDebitoAjusteSaldoMenor'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_NotaCreditoAjusteSaldoMenor'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_AmadeLlave'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.Tmp_tb_PR_Requisicion'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomaticaDetalle'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_NotaDebitoAjusteSaldoMenor'. Please see the warning messages.
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=SERVIDOR-PC\\FDPRUEBAS;Database=BE_Empresa;User id= sa; Password=123;");
+                optionsBuilder.UseSqlServer("Server=SERVIDOR-PC\\FDPRUEBAS;Database=BE_Empresa;User id=sa;Password=123;");
             }
         }
 
@@ -1354,6 +1355,26 @@ namespace AltivaWebApp.Models
                     .WithMany(p => p.TbCrListaDesplegables)
                     .HasForeignKey(d => d.IdCamposPersonalizados)
                     .HasConstraintName("FK_TB_CR_ListaDesplegables_tb_CR_CamposPersonalizados");
+            });
+
+            modelBuilder.Entity<TbFaDescuentoUsuario>(entity =>
+            {
+                entity.HasKey(e => e.IdDescuentoUsuario);
+
+                entity.ToTable("Tb_FA_DescuentoUsuario");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.Nota)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdRebajaConfigNavigation)
+                    .WithMany(p => p.TbFaDescuentoUsuario)
+                    .HasForeignKey(d => d.IdRebajaConfig)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Tb_FA_DescuentoUsuario_Tb_FA_RebajaConfig");
             });
 
             modelBuilder.Entity<TbFaRebajaConfig>(entity =>
@@ -4155,31 +4176,41 @@ namespace AltivaWebApp.Models
                     .HasDefaultValueSql("(getdate())");
             });
 
-            modelBuilder.Entity<TbPrTomaFisicas>(entity =>
+            modelBuilder.Entity<TbPrToma>(entity =>
             {
-                entity.ToTable("tb_PR_TomaFisicas");
+                entity.ToTable("tb_PR_Toma");
 
-                entity.Property(e => e.Fecha)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(((2)-(2))-(2000))");
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
 
-                entity.Property(e => e.FechaCreacion)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(((2)-(2))-(2000))");
+                entity.Property(e => e.FechaToma).HasColumnType("datetime");
 
-                entity.Property(e => e.FechaModificacion)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(((2)-(2))-(2000))");
-
-                entity.Property(e => e.Observacion)
+                entity.Property(e => e.Ordenado)
                     .IsRequired()
-                    .HasMaxLength(300)
-                    .HasDefaultValueSql("('')");
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdBodegaNavigation)
+                    .WithMany(p => p.TbPrToma)
+                    .HasForeignKey(d => d.IdBodega)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_Toma_tb_PR_Bodega");
             });
 
-            modelBuilder.Entity<TbPrTomaFisicasDetalle>(entity =>
+            modelBuilder.Entity<TbPrTomaDetalle>(entity =>
             {
-                entity.ToTable("tb_PR_TomaFisicasDetalle");
+                entity.ToTable("tb_PR_TomaDetalle");
+
+                entity.HasOne(d => d.IdInventarioNavigation)
+                    .WithMany(p => p.TbPrTomaDetalle)
+                    .HasForeignKey(d => d.IdInventario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_TomaDetalle_tb_PR_Inventario");
+
+                entity.HasOne(d => d.IdTomaNavigation)
+                    .WithMany(p => p.TbPrTomaDetalle)
+                    .HasForeignKey(d => d.IdToma)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_TomaDetalle_tb_PR_Toma");
             });
 
             modelBuilder.Entity<TbPrTraslado>(entity =>

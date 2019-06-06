@@ -1,0 +1,177 @@
+﻿@model AltivaWebApp.ViewModels.TomaViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    ViewData["Title"] = "CrearEditarToma";
+}
+
+@if (Model.Id != 0)
+{
+    <div class="row">
+        <div class="col-md-3"><h3>@SharedLocalizer["editarToma"]</h3></div>
+        <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
+    </div>
+
+}
+else
+{
+    <h3>@SharedLocalizer["nuevaToma"]</h3>
+}
+
+<hr />
+<div class="row">
+
+    <form id="frmToma">
+        @Html.HiddenFor(x => x.Id)
+        @Html.HiddenFor(x => x.Anulado)
+        @Html.HiddenFor(x => x.Borrador)
+
+        <div class="form-group col-md-2 col-sm-6 col-xs-12">
+            <label asp-for="IdBodega" class="control-label">@SharedLocalizer["Bodega"]:</label>
+            <select class="form-control selectBodegas" id="bodegas"><option value="0">@SharedLocalizer["Seleccione"]</option></select>
+        </div>
+
+        <div class="form-group col-md-2 col-sm-6 col-xs-12">
+            <fieldset disabled>
+                <div class="form-group">
+                    <label for="fecha">@SharedLocalizer["Fecha"]:</label>
+                    <div class='input-group date' id='fechaPicker'>
+                        <input type='text' class="form-control" id="fecha" />
+                        <span class="input-group-addon">
+                            <span class="fas fa-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="form-group col-md-2 col-sm-6 col-xs-12" style="padding-top:2rem">
+            <div class="checkbox">
+                <label>
+                    <input asp-for="EsInicial" type="checkbox" class="flat" name="iCheck" /> @SharedLocalizer["EsInventarioInicial"]
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group col-md-2 col-sm-12 col-xs-12">
+            <label>@SharedLocalizer["OrdenadoPor"]:</label>
+            <select class="form-control">
+                <option value="producto">@SharedLocalizer["Producto"]</option>
+                <option value="familia">@SharedLocalizer["Familia"]</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-12 col-sm-12 col-xs-12" >
+            <a class="btn btn-primary btnAccion" onclick="generarToma()">@SharedLocalizer["Generar"] </a>
+        </div>
+
+
+    </form>
+</div>
+
+<div class="row">
+    <div id="detalles">
+        @*<partial name="_ListarTomaDetalles" model="new TbPrTomaDetalle()" />*@
+    </div>
+</div>
+
+<hr />
+
+<div class="row">
+    <div class="form-group col-md-2 col-sm-6 col-xs-6">
+        <button class="btn btn-info btnAccion" style="width:100%" onclick="guardarCambios(1)">@SharedLocalizer["Guardar"] @SharedLocalizer["Borrador"] </button>
+    </div>
+    <div class="form-group col-md-2 col-sm-6 col-xs-6">
+        <button class="btn btn-dark btnAccion" style="width:100%" onclick="CombinarToma()">@SharedLocalizer["Combinar"]</button>
+    </div>
+    <div class="form-group col-md-2 col-sm-6 col-xs-6">
+        <button class="btn btn-danger btnAccion" style="width:100%" onclick="AnularToma()">@SharedLocalizer["Anular"] </button>
+    </div>
+    <div class="form-group col-md-2 col-sm-6 col-xs-6">
+        <button class="btn btn-success btnAccion" style="width:100%" onclick="guardarCambios(2)">@SharedLocalizer["Ajustar"] @SharedLocalizer["Inventario"]</button>
+    </div>
+    <div class="form-group col-md-2 col-sm-6 col-xs-6">
+        <a onclick="cancelar()" style="width:100%" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
+    </div>
+
+</div>
+
+<script>
+
+    var bodegas = [];
+    var tomaDetalle = [];
+    var $bodega = $('#bodegas');
+    $(document).ready(function () {
+
+        getBodegas();
+        var date = new Date();
+
+        $('#fechaPicker').datetimepicker({
+            defaultDate: date,
+            locale: localStorage.getItem("idioma")
+        });
+
+    });
+
+
+    function getBodegas() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetAllBodegas", "Bodega")',
+             success: function (data) {
+
+                 bodegas = data;   
+
+                 for (var i = 0; i < data.length; i++) {
+
+                     var o = new Option(data[i].nombre, data[i].id);
+
+                     if (data[i].id === @Model.IdBodega) 
+                        $(o).attr('selected', true);
+                     
+                     if (@Model.Id == 0) {
+                         if (data[i].estado)
+                             $("#bodegas").append(o);
+                     }
+                     else {
+                        $("#bodegas").append(o);
+                     }
+                 }       
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function generarToma() {
+        //console.log(crearModelo());
+
+        //var model = { idBodega =  };
+        $.ajax({
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GenerarToma")',
+            data: { idBodega: $bodega.val() },
+            success: function (data) {
+                console.log(data);
+              }
+        });
+    }
+
+
+</script>
+

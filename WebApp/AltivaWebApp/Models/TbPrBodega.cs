@@ -11,6 +11,7 @@ namespace AltivaWebApp.Models
             TbPrCompraDetalle = new HashSet<TbPrCompraDetalle>();
             TbPrInventarioBodega = new HashSet<TbPrInventarioBodega>();
             TbPrRequisicion = new HashSet<TbPrRequisicion>();
+            TbPrToma = new HashSet<TbPrToma>();
         }
 
         public long Id { get; set; }
@@ -28,5 +29,6 @@ namespace AltivaWebApp.Models
         public virtual ICollection<TbPrCompraDetalle> TbPrCompraDetalle { get; set; }
         public virtual ICollection<TbPrInventarioBodega> TbPrInventarioBodega { get; set; }
         public virtual ICollection<TbPrRequisicion> TbPrRequisicion { get; set; }
+        public virtual ICollection<TbPrToma> TbPrToma { get; set; }
     }
 }

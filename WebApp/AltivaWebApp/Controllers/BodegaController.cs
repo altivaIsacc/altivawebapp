@@ -191,5 +191,13 @@ namespace AltivaWebApp.Controllers
                 return RedirectToAction(nameof(ListarBodegas), new { err = "err" });
             }
         }
+
+
+
+        [HttpGet("GetAllBodegas")]
+        public IActionResult GetAllBodegas()
+        {
+            return Ok(service.GetAll());
+        }
     }
 }

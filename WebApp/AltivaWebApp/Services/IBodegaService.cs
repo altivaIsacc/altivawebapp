@@ -11,6 +11,7 @@ namespace AltivaWebApp.Services
         TbPrBodega Save(TbPrBodega domain);
         TbPrBodega Update(TbPrBodega domain);
         bool Delete(TbPrBodega domain);
+        IList<TbPrBodega> GetAll();
         IList<TbPrBodega> GetAllActivas();
         IList<TbPrBodega> GetAllInactivas();
         TbPrBodega GetBodegaById(int id);

@@ -216,6 +216,11 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IRequisicionService, RequisicionService>();
             services.AddScoped<IRequisicionMap, RequisicionMap>();
 
+            /// Toma
+            services.AddScoped<ITomaRepository, TomaRepository>();
+            services.AddScoped<ITomaService, TomaService>();
+            services.AddScoped<ITomaMap, TomaMap>();
+
 
 
         }

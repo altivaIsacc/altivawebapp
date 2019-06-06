@@ -164,8 +164,8 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbPrRequisicion> TbPrRequisicion { get; set; }
         public virtual DbSet<TbPrRequisicionDetalle> TbPrRequisicionDetalle { get; set; }
         public virtual DbSet<TbPrTipoProveedor> TbPrTipoProveedor { get; set; }
-        public virtual DbSet<TbPrTomaFisicas> TbPrTomaFisicas { get; set; }
-        public virtual DbSet<TbPrTomaFisicasDetalle> TbPrTomaFisicasDetalle { get; set; }
+        public virtual DbSet<TbPrToma> TbPrToma { get; set; }
+        public virtual DbSet<TbPrTomaDetalle> TbPrTomaDetalle { get; set; }
         public virtual DbSet<TbPrTraslado> TbPrTraslado { get; set; }
         public virtual DbSet<TbPrTrasladoInventario> TbPrTrasladoInventario { get; set; }
         public virtual DbSet<TbPrUnidadMedida> TbPrUnidadMedida { get; set; }
@@ -1355,6 +1355,26 @@ namespace AltivaWebApp.Context
                     .HasForeignKey(d => d.IdCamposPersonalizados)
                     .HasConstraintName("FK_TB_CR_ListaDesplegables_tb_CR_CamposPersonalizados");
             });
+
+            //modelBuilder.Entity<TbFaDescuentoUsuario>(entity =>
+            //{
+            //    entity.HasKey(e => e.IdDescuentoUsuario);
+
+            //    entity.ToTable("Tb_FA_DescuentoUsuario");
+
+            //    entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+            //    entity.Property(e => e.Nota)
+            //        .IsRequired()
+            //        .HasMaxLength(150)
+            //        .IsUnicode(false);
+
+            //    entity.HasOne(d => d.IdRebajaConfigNavigation)
+            //        .WithMany(p => p.TbFaDescuentoUsuario)
+            //        .HasForeignKey(d => d.IdRebajaConfig)
+            //        .OnDelete(DeleteBehavior.ClientSetNull)
+            //        .HasConstraintName("FK_Tb_FA_DescuentoUsuario_Tb_FA_RebajaConfig");
+            //});
 
             //modelBuilder.Entity<TbFaRebajaConfig>(entity =>
             //{
@@ -4155,31 +4175,41 @@ namespace AltivaWebApp.Context
                     .HasDefaultValueSql("(getdate())");
             });
 
-            modelBuilder.Entity<TbPrTomaFisicas>(entity =>
+            modelBuilder.Entity<TbPrToma>(entity =>
             {
-                entity.ToTable("tb_PR_TomaFisicas");
+                entity.ToTable("tb_PR_Toma");
 
-                entity.Property(e => e.Fecha)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(((2)-(2))-(2000))");
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
 
-                entity.Property(e => e.FechaCreacion)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(((2)-(2))-(2000))");
+                entity.Property(e => e.FechaToma).HasColumnType("datetime");
 
-                entity.Property(e => e.FechaModificacion)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(((2)-(2))-(2000))");
-
-                entity.Property(e => e.Observacion)
+                entity.Property(e => e.Ordenado)
                     .IsRequired()
-                    .HasMaxLength(300)
-                    .HasDefaultValueSql("('')");
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdBodegaNavigation)
+                    .WithMany(p => p.TbPrToma)
+                    .HasForeignKey(d => d.IdBodega)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_Toma_tb_PR_Bodega");
             });
 
-            modelBuilder.Entity<TbPrTomaFisicasDetalle>(entity =>
+            modelBuilder.Entity<TbPrTomaDetalle>(entity =>
             {
-                entity.ToTable("tb_PR_TomaFisicasDetalle");
+                entity.ToTable("tb_PR_TomaDetalle");
+
+                entity.HasOne(d => d.IdInventarioNavigation)
+                    .WithMany(p => p.TbPrTomaDetalle)
+                    .HasForeignKey(d => d.IdInventario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_TomaDetalle_tb_PR_Inventario");
+
+                entity.HasOne(d => d.IdTomaNavigation)
+                    .WithMany(p => p.TbPrTomaDetalle)
+                    .HasForeignKey(d => d.IdToma)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_TomaDetalle_tb_PR_Toma");
             });
 
             modelBuilder.Entity<TbPrTraslado>(entity =>
