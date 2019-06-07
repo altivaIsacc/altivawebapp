@@ -8,6 +8,7 @@ namespace AltivaWebApp.Models
         public TbFaRebajaConfig()
         {
             TbFaDescuentoUsuario = new HashSet<TbFaDescuentoUsuario>();
+            TbFaDescuentoUsuarioRango = new HashSet<TbFaDescuentoUsuarioRango>();
         }
 
         public int IdRebajaConfig { get; set; }
@@ -22,5 +23,6 @@ namespace AltivaWebApp.Models
         public bool ActivaDescuentoPromoUsuarioClave { get; set; }
 
         public virtual ICollection<TbFaDescuentoUsuario> TbFaDescuentoUsuario { get; set; }
+        public virtual ICollection<TbFaDescuentoUsuarioRango> TbFaDescuentoUsuarioRango { get; set; }
     }
 }

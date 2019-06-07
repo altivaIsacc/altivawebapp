@@ -18,20 +18,26 @@ namespace AltivaWebApp.Controllers
         readonly IDescuentoPromocionService service;
         readonly IDescuentoUsuarioMap mapDescUser;
         readonly IDescuentoUsuarioService DescUserService;
+        readonly IDescuentoUsuarioRangoMap mapDescUserRango;
+        readonly IDescuentoUsuarioRangoService DescUserServiceRango;
         public IUserService IUserService;
 
-        public DescuentoPromocionController(IDescuentoPromocionMap map, IDescuentoUsuarioService DescUserService, IDescuentoPromocionService service, IUserService IUserService, IDescuentoUsuarioMap mapDescUser)
+        public DescuentoPromocionController(IDescuentoPromocionMap map, IDescuentoUsuarioRangoMap mapDescUserRango, IDescuentoUsuarioRangoService DescUserServiceRango, IDescuentoUsuarioService DescUserService, IDescuentoPromocionService service, IUserService IUserService, IDescuentoUsuarioMap mapDescUser)
         {
             this.service = service;
             this.map = map;
             this.IUserService = IUserService;
             this.mapDescUser = mapDescUser;
             this.DescUserService = DescUserService;
+            this.mapDescUserRango = mapDescUserRango;
+            this.DescUserServiceRango = DescUserServiceRango;
         }
 
         public IActionResult Index()
         {
             ViewData["Asignados"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+            ViewData["AsignadosRango"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+
 
             var conf = service.GetRebajaConfig();
 
@@ -93,9 +99,8 @@ namespace AltivaWebApp.Controllers
         [HttpGet("_ListarDescuentoUsuarioFecha")]
         public ActionResult _ListarDescuentoUsuarioFecha()
         {
-            return PartialView(/*DescUserService.GetAll()*/);
+            return PartialView(DescUserServiceRango.GetAll());
         }
-
 
         [Route("EliminarDescuento")]
         public ActionResult EliminarDescuento(int id)
@@ -128,6 +133,54 @@ namespace AltivaWebApp.Controllers
                 BadRequest();
                 throw;
             }
-        }    
+        }
+
+
+
+        //// ****************Rango**************///
+
+        [HttpPost("GuardarDescMaximoRango")]
+        public ActionResult GuardarDescMaximoRango(IList<DescuentoUsuarioRangoViewModel> model)
+        {
+            try
+            {
+                //return Ok(mapDescUser.SaveDescuentoUsuario(model));
+                var pu = mapDescUserRango.SaveDescuentoUsuarioRango(model);
+                //notificar("Se ha asignado un nuevo perfil");
+                if (pu)
+                    return Json(new { success = true });
+                else
+                    return Json(new { success = false });
+            }
+            catch (Exception)
+            {
+                throw;
+                //return BadRequest();
+            }
+        }
+
+        [HttpGet("_ListarDescuentoUsuarioRango")]
+        public ActionResult _ListarDescuentoUsuarioRngo()
+        {
+            return PartialView(/*DescUserServiceRango.GetAll()*/);
+        }
+
+        [Route("EliminarDescuentoRango")]
+        public ActionResult EliminarDescuentoRango(int id)
+        {
+            try
+            {
+                var descuento = DescUserServiceRango.GetDescuentoUsuarioRangoById(id);
+
+                DescUserServiceRango.Delete(descuento);
+                return Json(new { data = true });
+            }
+            catch (Exception)
+            {
+                return Json(new { data = false });
+                throw;
+            }
+        }
+
     }
 }

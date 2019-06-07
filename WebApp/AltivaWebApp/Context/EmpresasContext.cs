@@ -118,6 +118,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdOrigenReserva> TbFdOrigenReserva { get; set; }
         public virtual DbSet<TbFdPagoCliente> TbFdPagoCliente { get; set; }
         public virtual DbSet<TbFaDescuentoUsuario> TbFaDescuentoUsuario { get; set; }
+        public virtual DbSet<TbFaDescuentoUsuarioRango> TbFaDescuentoUsuarioRango { get; set; }
         public virtual DbSet<TbFaRebajaConfig> TbFaRebajaConfigs { get; set; }
         public virtual DbSet<TbFdPagoComision> TbFdPagoComision { get; set; }
         public virtual DbSet<TbFdPagoDetalleFactura> TbFdPagoDetalleFactura { get; set; }
@@ -223,6 +224,36 @@ namespace AltivaWebApp.Context
 
                 entity.ToTable("Tb_FA_RebajaConfig");
             });
+
+            modelBuilder.Entity<TbFaDescuentoUsuarioRango>(entity =>
+            {
+                entity.HasKey(e => e.IdDescuentoUsuarioRango);
+
+                entity.ToTable("Tb_FA_DescuentoUsuarioRango");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaDesde)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.FechaHasta)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Nota)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('((\" \"))')");
+
+                entity.HasOne(d => d.IdRebajaConfigNavigation)
+                    .WithMany(p => p.TbFaDescuentoUsuarioRango)
+                    .HasForeignKey(d => d.IdRebajaConfig)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Tb_FA_DescuentoUsuarioRango_Tb_FA_RebajaConfig");
+            });
+
 
             modelBuilder.Entity<TbFaDescuentoUsuario>(entity =>
             {

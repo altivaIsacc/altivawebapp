@@ -6,12 +6,12 @@
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
-        public string GetAntiXsrfRequestToken()
-        {
-            return Xsrf.GetAndStoreTokens(Context).RequestToken;
-        }
-
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
     }
+
+}
 
 
 <div class="row">
@@ -24,7 +24,7 @@
         </div>
 
         <div class="form-group descMaximoUsuario">
-            <input type="checkbox" class="form-check-input" id="chkDescMaximoUsuario" asp-for="ActivaMaxUsuario"/>
+            <input type="checkbox" class="form-check-input" id="chkDescMaximoUsuario" asp-for="ActivaMaxUsuario" />
             <label data-translate="chkDescMaximoUsuario" class="form-check-label" for="chkDescMaximoUsuario">Maximo de descuento permitido a ciertos usuarios  </label>
 
             <p>
@@ -247,10 +247,10 @@
 
 <!--**********************SubModales ************************-->
 <div>
-    <!-- Modal Maximo Descuento a Usuarios -->
+    <!-- SubModal Maximo Descuento a Usuarios -->
     <div class="modal fade" role="dialog" id="modalAgregarMaximoDesc" tabindex="-1" style="overflow-y: scroll; " aria-labelledby="AgregarMaximoDescModallabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered big" >
-            <div class="modal-content" >
+        <div class="modal-dialog modal-dialog-centered big">
+            <div class="modal-content">
                 <div class="modal-header">
                     <h5 data-translate="Configuracion" class="modal-title" id="AgregarMaximoDescModallabel">@SharedLocalizer["Maximo Descuento a Usuarios"]</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="limpiarCampos()">
@@ -293,11 +293,77 @@
     </div>
 </div>
 
+
+<div>
+    <!-- SubModal Maximo Descuento a Usuarios por rango de fecha -->
+    <div class="modal fade" role="dialog" id="modalAgregarMaximoDescFecha" tabindex="-1" style="overflow-y: scroll; " aria-labelledby="AgregarMaximoDescFechaModallabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered big">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 data-translate="Configuracion" class="modal-title" id="AgregarMaximoDescFechaModallabel">@SharedLocalizer["Maximo Descuento a Usuarios"]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="limpiarCampos()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="crearEditarPartial">
+
+                    <div class="form-group">
+                        <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
+                        <select class="selUsuarios" multiple="multiple" data-live-search="true" id="asignadoRango" onchange="cargarIdUsuarioRangoSelect()" asp-for="@ViewData.[IdUsuario]">
+                            @foreach (var asignados in ViewData["asignadosRango"] as IList<TbSeUsuario>)
+                            {
+                                <option value="@asignados.Id">@asignados.Nombre</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group descuentoGeneralnGroup ">
+                        <label data-translate="txtMaxDesc" class="form-label" for="txtMaxDescRango"> Descuento (%)</label>
+
+                        <input id="txtMaxDescRango" type="number" min="0" max="100" class="form-control porcentaje" value="" required />
+                        <span hidden id="txtMaxDescRango" class="text-danger">@SharedLocalizer["Campo requerido."]</span>
+
+                    </div>
+
+                    <div class="input-group date" data-provide="datepicker">
+                        <label data-translate="txtInicio" class="form-label" for="txtInicio"> Desde </label>
+
+                        <input type="date" class="form-control" id="txtInicio">
+
+                    </div>
+
+                    <div class="input-group date" data-provide="datepicker">
+                        <label data-translate="txtHasta" class="form-label" for="txtHasta"> Hasta </label>
+
+                        <input type="date" class="form-control" id="txtHasta">
+
+                    </div>
+
+                  
+
+                    <div class=" form-group">
+                        <label class="col-form-label">Nota:</label><br />
+                        <input type="text" class="form-control" id="txtNotaDescRango" required>
+                    </div>
+
+                    <div class="form-group">
+                        <button id="btnGuardarDescUsuarioFecha" class="btn btn-success btn-xs " onclick="guardarDescuentoUsuarioRango()"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
+                        <a class="btn btn-default btn-xs" id="btnCancelarFecha" onclick="limpiarCampos()" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!--********************Fin SubModales ***********************-->
 
 <script>
 
     var usuarios = [];
+     var usuariosRango = [];
 
     $(document).ready(function () {
 
@@ -383,8 +449,17 @@
             $('#modalAgregarMaximoDesc').modal("show");
             $('.selUsuarios').select2();
         });
-        
+
             //**********************Fin Modal 1 ******************
+
+          //**********************Modal 2 **********************
+
+        $('#btnAgregarMaximoDescFecha').click(function () {
+            $('#modalAgregarMaximoDescFecha').modal("show");
+            $('.selUsuarios').select2();
+        });
+
+            //**********************Fin Modal 2 ******************
 
     }); //Fin de document ready
 
@@ -488,29 +563,15 @@
         $('#txtNotaDesc').val('');
         $('#txtMaxDesc').val('');
         $('#asignado').val('');
+         $('#txtNotaDescRango').val('');
+        $('#txtMaxDescRango').val('');
+        $('#asignadoRango').val('');
         $('#modalAgregarMaximoDesc').modal("hide");
+        $('#modalAgregarMaximoDescFecha').modal("hide");
+
 
     }
 
-    function getDescuentoUsuarioFecha() {
-
-            var url = '@Url.Action("_ListarDescuentoUsuarioFecha", "DescuentoPromocion")';
-            $.ajax({
-                type: "get",
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                url: url,
-
-                success: function (data) {
-                    $('#crearPartialDescuentoUsuariosFecha').html(data);
-                },
-                error: function (err, scnd) {
-                    cargarAlert('@SharedLocalizer["errorGeneral"]');
-                    console.log(err.statusText);
-                }
-            });
-        }
 
         function getDescuentoUsuario() {
 
@@ -534,6 +595,87 @@
 
 
     //************Fin funcioines modal 1*******************//
+
+        //************Inicio funcioines modal 2*******************//
+
+     function cargarIdUsuarioRangoSelect() {
+
+        var selectUserRango = $('#asignadoRango').val();
+
+        usuariosRango = $('#asignadoRango').val();
+    }
+
+        function guardarDescuentoUsuarioRango() {
+
+        console.log(usuarios);
+        var model = [];
+                 var _IdConfig = @Model.IdRebajaConfig;
+                 var _IdUser = $('#asignadoRango').val();
+                 var _Descuento = $('#txtMaxDescRango').val();
+            var _ObtenerUsuario =@User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var _Desde = $('#txtInicio').val();
+            var _Hasta = $('#txtHasta').val();
+                 var _Nota = $('#txtNotaDescRango').val();
+
+        for (var i = 0; i < usuariosRango.length; i++) {
+            var m = {
+                IdRebajaConfig: _IdConfig,
+                IdUsuario: usuariosRango[i],
+                MaxDescuento: _Descuento,
+                IdUsuarioCreador: _ObtenerUsuario,
+                FechaHasta: _Hasta,
+                FechaDesde: _Desde,
+                Nota: _Nota
+            };
+
+            model.push(m);
+        }
+
+        $.ajax({
+            type: "post",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: '@Url.Action("GuardarDescMaximoRango")',
+            data: {model: model} ,
+                success: function (data) {
+                  //  cargarAlert("@SharedLocalizer["OperacionExitosa"]");
+                    getDescuentoUsuarioFecha();
+                    limpiarCampos();
+
+
+            },
+                error: function (err, scnd) {
+                    @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
+                    console.log(err.statusText);
+            }
+        });
+        }
+
+        function getDescuentoUsuarioFecha() {
+
+            var url = '@Url.Action("_ListarDescuentoUsuarioFecha", "DescuentoPromocion")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+
+                success: function (data) {
+                    $('#crearPartialDescuentoUsuariosFecha').html(data);
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+        }
+
+
+        //************Fin funcioines modal 2*******************//
+
+
 </script>
 
 

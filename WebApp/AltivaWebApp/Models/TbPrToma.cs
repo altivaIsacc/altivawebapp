@@ -5,6 +5,11 @@ namespace AltivaWebApp.Models
 {
     public partial class TbPrToma
     {
+        public TbPrToma()
+        {
+            TbPrTomaDetalle = new HashSet<TbPrTomaDetalle>();
+        }
+
         public long Id { get; set; }
         public DateTime FechaToma { get; set; }
         public bool EsInicial { get; set; }
@@ -14,5 +19,8 @@ namespace AltivaWebApp.Models
         public DateTime FechaCreacion { get; set; }
         public bool Borrador { get; set; }
         public bool Anulado { get; set; }
+
+        public virtual TbPrBodega IdBodegaNavigation { get; set; }
+        public virtual ICollection<TbPrTomaDetalle> TbPrTomaDetalle { get; set; }
     }
 }
