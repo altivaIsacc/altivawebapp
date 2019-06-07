@@ -1,15 +1,21 @@
 ﻿@model AltivaWebApp.ViewModels.UsuarioViewModel
 
-
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
 
 <div class="row">
     <div class="col-md-12">
 
         @foreach (var a in ViewData["avatares"] as IList<string>)
-        {             
-             <a href="@Url.Action("EditarAvatar", "ManejoUsuarios", new { codigo = Model.codigo, img = a })">
-                    <img style="height: 5rem; width:5rem" src="~/avatars/@a" class="img-circle" />
-             </a>            
+        {
+            <a href="@Url.Action("EditarAvatar", "ManejoUsuarios", new { codigo = Model.codigo, img = a })">
+                <img style="height: 5rem; width:5rem" src="~/avatars/@a" class="img-circle" />
+            </a>
         }
 
     </div>
@@ -17,9 +23,9 @@
 <br />
 <div class="row">
 
-    <form asp-controller="ManejoUsuarios" asp-action="EditarUsuario" method="post" enctype="multipart/form-data">
+    <form method="post" id="frmAvatar" enctype="multipart/form-data">
+        @Html.HiddenFor(x => x.id)
         @Html.HiddenFor(x => x.codigo)
-
         @Html.HiddenFor(x => x.contrasena)
         @Html.HiddenFor(x => x.correo)
         @Html.HiddenFor(x => x.estado)
@@ -33,13 +39,76 @@
                 <div class="input-group-prepend custom-file">
                     <span data-translate="avatar" class="input-group-text" id="inputGroup-sizing-sm">Cargar tu avatar</span>
                 </div>
-                <input accept=".png, .jpg" type="file" asp-for="Foto" class="form-control custom-file-input" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                <input accept=".png, .jpg" type="file" asp-for="Foto" id="fileUpload" class="form-control custom-file-input" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
             </div>
         </div>
 
-        <button data-translate="cancelar" type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancelar</button>
-        <button data-translate="guardar" class="btn btn-success btn-sm" type="submit">
-            Guardar
-        </button>
+
     </form>
+    <button data-translate="cancelar" type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancelar</button>
+    <button data-translate="guardar" id="btnAvatar" onclick="guardarAvatar()" class="btn btn-success btn-sm" type="submit">
+        Guardar
+    </button>
 </div>
+
+
+<script>
+
+
+
+    function guardarAvatar() {
+
+        $('#fileUpload').change(function () {
+
+            if ($(this).val() != "")
+                $('#btnAvatar').attr('disabled', false);
+
+        });
+        
+        
+
+        var model = $('#frmAvatar').serializeArray();
+
+        console.log(model);
+
+        var formData = new FormData();
+        var file = $('#fileUpload')[0].files[0];
+
+        formData.append('id', model[0].value);
+        formData.append('codigo', model[1].value);
+        formData.append('contrasena', model[2].value);
+        formData.append('correo', model[3].value);
+        formData.append('estado', model[4].value);
+        formData.append('iniciales', model[5].value);
+        formData.append('nombre', model[6].value);
+        formData.append("id_Usuario", model[7].value);
+        formData.append("direccion", model[6].value);
+        formData.append("foto", file);
+
+
+         $.ajax({
+                type: "post",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+             url: '@Url.Action("EditarUsuario", "ManejoUsuarios")',
+             dataType: 'json',
+             contentType: false,
+             processData: false,
+             data: formData,
+             success: function (data) {
+                 if (data.success === true) {
+                     window.location.href =  window.location.href;
+                 }
+                 else
+                     alert(data.success);
+
+                },
+             error: function (err) {
+                 console.log(err.success);
+             }
+            });
+
+    }
+
+</script>

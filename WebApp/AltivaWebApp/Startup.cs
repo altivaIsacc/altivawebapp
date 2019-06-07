@@ -12,7 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using AltivaWebApp.Helpers;
-
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace AltivaWebApp
 {
@@ -24,11 +25,11 @@ namespace AltivaWebApp
         public Startup(IHostingEnvironment env)
             {
             entorno = env;
-                     var builder = new ConfigurationBuilder()
-                        .SetBasePath(entorno.ContentRootPath)
-                        .AddJsonFile("appsettings.json");
-                        Configuration = builder.Build();
-            }  
+            var builder = new ConfigurationBuilder()
+               .SetBasePath(entorno.ContentRootPath)
+               .AddJsonFile("appsettings.json");
+            Configuration = builder.Build();
+        }  
           
 
         // This method gets called by the runtime. Use this method to add services to the container.

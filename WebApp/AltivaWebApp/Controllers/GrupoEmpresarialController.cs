@@ -88,6 +88,8 @@ namespace AltivaWebApp.Controllers
             {
                 StringFactory.SetStringEmpresas(HttpContext.Session, model.Bd);
                 Sesion.Sesion.SetIdEmpresa(HttpContext.Session,(int) model.Id);
+                Sesion.Sesion.SetFotoEmpresa(HttpContext.Session, model.Foto);
+                Sesion.Sesion.SetNombreEmpresa(HttpContext.Session, model.Nombre);
                 try
                 {
                     using (SqlConnection conn = new SqlConnection(StringFactory.StringEmpresas))
@@ -146,7 +148,9 @@ namespace AltivaWebApp.Controllers
                     {
                         service.AgregarUsuarios((int)result.Id);
 
-                        return Json(new { success = true });
+                        // return Json(new { success = true });
+                        return RedirectToAction("ListarEmpresas", "GrupoEmpresarial");
+
                     }
                     else
                     {
@@ -199,11 +203,13 @@ namespace AltivaWebApp.Controllers
 
 
                 var empresa = geMap.Update(viewModel);
-                return Json(new { success = true });
+                // return Json(new { success = true });
+                return RedirectToAction("ListarEmpresas", "GrupoEmpresarial");
             }
             catch
             {
                 return BadRequest(new { success = _sharedLocalizer["errorGeneral"].ToString() });
+              
             }
         }
 
@@ -227,6 +233,8 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+
+       
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

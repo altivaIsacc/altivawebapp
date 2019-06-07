@@ -109,21 +109,7 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        //POST: Orden/Create
-        [HttpPost("Crear-OrdenDetalle")]
-        public ActionResult CrearOrdenDetalle(OrdenViewModel viewModel)
-        {
-            try
-            {
-                var res = map.CreateOD(viewModel);
-
-                return Json(new { success = true });
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
+        
 
         [HttpPost("Editar-OrdenDetalle")]
         public ActionResult EditarOrdenDetalle(OrdenViewModel viewModel)
@@ -192,15 +178,15 @@ namespace AltivaWebApp.Controllers
             {
                 var orden = service.GetAllOrdenDetalleByOrdenId(id);
 
-                orden.IdProveedorNavigation = null;
+                //orden.IdProveedorNavigation = null;
 
-                foreach (var item in orden.TbPrOrdenDetalle)
-                {
-                    item.IdOrdenNavigation = null;
-                    item.IdInventarioNavigation.TbPrOrdenDetalle = null;
+                //foreach (var item in orden.TbPrOrdenDetalle)
+                //{
+                //    item.IdOrdenNavigation = null;
+                //    item.IdInventarioNavigation.TbPrOrdenDetalle = null;
 
-                }
-                return Ok(orden.TbPrOrdenDetalle);
+                //}
+                return Ok(orden);
             }
             catch
             {

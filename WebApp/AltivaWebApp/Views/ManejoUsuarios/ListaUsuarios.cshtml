@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<AltivaWebApp.GEDomain.TbSeUsuario>
-
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @{
     var opt = "1";
     var param = "";
@@ -89,33 +89,33 @@ else
                         <td hidden>
                             @Html.DisplayFor(modelItem => item.Id)
                         </td>
-                        <td>
+                        <td style="padding-top: 2rem">
                             <a href="@Url.Action("CuentaUsuario", new { codigo = item.Codigo })">@item.Codigo</a>
                         </td>
-                        <td>
+                        <td style="padding-top: 2rem">
                             @Html.DisplayFor(modelItem => item.Nombre)
                         </td>
-                        <td class="estado">
+                        <td style="padding-top: 2rem" class="estado">
                             @Html.DisplayFor(modelItem => item.Estado)
                         </td>
-                        <td>
+                        <td style="padding-top: 2rem">
                             @Html.DisplayFor(modelItem => item.Iniciales)
                         </td>
-                        <td>
+                        <td style="padding-top: 2rem">
                             <p>********</p>
                         </td>
-                        <td>
+                        <td style="padding-top: 2rem">
                             @Html.DisplayFor(modelItem => item.FechaMod)
                         </td>
-                        <td>
+                        <td style="padding-top: 2rem">
                             @Html.DisplayFor(modelItem => item.Correo)
                         </td>
-                        <td>
+                        <td >
                             <img style="height:4rem; width: 4rem;" src="@item.Avatar" />
                         </td>
-                        <td>
+                        <td style="padding-top: 2rem">
 
-                            <a href="@Url.Action("CuentaUsuario", new { codigo = item.Codigo })"><span><i class="fas fa-edit"></i></span></a>
+                            <a href="@Url.Action("CuentaUsuario","ManejoUsuarios", new { codigo = item.Codigo })"><span><i class="fas fa-edit"></i></span></a>
                             @if (optList == "Inactivar")
                             {
                                 <a asp-action="EditarEstadoUsuario" asp-route-id="@item.Id"><span><i class="fas fa-trash"></i></span></a>
@@ -149,64 +149,122 @@ else
 
 
     $("#usuarios").DataTable({
-
-        dom: 'Bfrtip',      
-        "info": false,
-        paging: false,
-
-
-        language: {
-            "decimal": "",
-            "emptyTable": "No hay información",
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
-            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
-            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
-            "infoPostFix": "",
-            "thousands": ",",
-            "lengthMenu": "Mostrar _MENU_ Entradas",
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-            "search": "<i class='fas fa-search'></i>",
-            "zeroRecords": "Sin resultados encontrados",
-            "paginate": {
-                "first": "Primero",
-                "last": "Ultimo",
-                "next": "Siguiente",
-                "previous": "Anterior"
-            }
-        },
-        buttons: [
-            {
-                extend: 'copyHtml5',
-                text: '<i class="fas fa-copy   " ></i>',
-                titleAttr: 'Copy',
-                title: 'Usuarios',
-                exportOptions: {
-                    columns: [0, 1, 3, 4, 5, 6]
+            "info": false,
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@SharedLocalizer["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                "paginate": {
+                    "first": "@SharedLocalizer["Primero"]",
+                    "last": "@SharedLocalizer["Último"]",
+                    "next": "@SharedLocalizer["Sguiente"]",
+                    "previous": "@SharedLocalizer["Anterior"]"
                 }
             },
-            {
-                extend: 'excelHtml5',
-                text: '<i class="fas fa-file-excel  "></i>',
-                titleAttr: 'Excel',
-                title: 'Usuarios',
-                exportOptions: {
-                    columns: [0, 1, 3, 4, 5, 6]
-                }
-            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   " ></i>',
+                    titleAttr: 'Copy',
+                    title: '@SharedLocalizer["AjusteManual"]',
+                    exportOptions: {
+                        columns: [0, 1, 3]
+                    }
 
-            {
-                extend: 'pdfHtml5',
-                text: '<i class="fas fa-file-pdf   "></i>',
-                titleAttr: 'PDF',
-                title: 'Usuarios',
-                exportOptions: {
-                    columns: [0, 1, 3, 4, 5, 6]
-                }
-            }
-        ]
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: '@SharedLocalizer["AjusteManual"]',
+                    exportOptions: {
+                        columns: [0, 1, 3]
+                    }
 
-    });
+                },
+
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: '@SharedLocalizer["AjusteManual"]',
+                    exportOptions: {
+                        columns: [0, 1, 3]
+                    }
+                }
+            ]
+        });
+
+
+    //$("#usuarios").DataTable({
+
+    //    dom: 'Bfrtip',
+    //    "info": false,
+    //    paging: false,
+
+
+    //    language: {
+    //        "decimal": "",
+    //        "emptyTable": "No hay información",
+    //        "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+    //        "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+    //        "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+    //        "infoPostFix": "",
+    //        "thousands": ",",
+    //        "lengthMenu": "Mostrar _MENU_ Entradas",
+    //        "loadingRecords": "Cargando...",
+    //        "processing": "Procesando...",
+    //        "search": "<i class='fas fa-search'></i>",
+    //        "zeroRecords": "Sin resultados encontrados",
+    //        "paginate": {
+    //            "first": "Primero",
+    //            "last": "Ultimo",
+    //            "next": "Siguiente",
+    //            "previous": "Anterior"
+    //        }
+    //    },
+    //    buttons: [
+    //        {
+    //            extend: 'copyHtml5',
+    //            text: '<i class="fas fa-copy   " ></i>',
+    //            titleAttr: 'Copy',
+    //            title: 'Usuarios',
+    //            exportOptions: {
+    //                columns: [0, 1, 3, 4, 5, 6]
+    //            }
+    //        },
+    //        {
+    //            extend: 'excelHtml5',
+    //            text: '<i class="fas fa-file-excel  "></i>',
+    //            titleAttr: 'Excel',
+    //            title: 'Usuarios',
+    //            exportOptions: {
+    //                columns: [0, 1, 3, 4, 5, 6]
+    //            }
+    //        },
+
+    //        {
+    //            extend: 'pdfHtml5',
+    //            text: '<i class="fas fa-file-pdf   "></i>',
+    //            titleAttr: 'PDF',
+    //            title: 'Usuarios',
+    //            exportOptions: {
+    //                columns: [0, 1, 3, 4, 5, 6]
+    //            }
+    //        }
+    //    ]
+
+    //});
 
 
 </script>

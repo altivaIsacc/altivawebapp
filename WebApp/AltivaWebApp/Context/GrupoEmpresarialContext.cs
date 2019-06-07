@@ -86,7 +86,7 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.FechaMod).HasColumnType("datetime");
 
                 entity.Property(e => e.Foto)
-                    .HasMaxLength(50)
+                    .HasMaxLength(250)
                     .IsUnicode(false);
 
                 entity.Property(e => e.IdGrupoEmpresarial).HasColumnName("Id_GrupoEmpresarial");

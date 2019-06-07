@@ -1,0 +1,172 @@
+﻿@model AltivaWebApp.ViewModels.FamiliaViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+
+    Layout = null;
+}
+<div class="row">
+    <div class="col-md-4">
+        <form id="frmFamilia">
+
+            <div class="form-group" hidden>
+                <label asp-for="Id" class="control-label">Id</label>
+                <input asp-for="Id" class="form-control" />
+                <span asp-validation-for="Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Descripcion" class="control-label">@SharedLocalizer["descripcion"]</label>
+                <input asp-for="Descripcion" class="form-control" />
+                <span hidden id="validatedTextDescripcion" class="text-danger">@SharedLocalizer["descripcionRequerida"]Descripción es requerída.</span>
+            </div>
+            <div class="form-group" hidden>
+                <label data-translate="fechaCreacion" asp-for="FechaCreacion" class="control-label">Fecha de Creación</label>
+                <input asp-for="FechaCreacion" class="form-control" />
+                <span asp-validation-for="FechaCreacion" class="text-danger"></span>
+            </div>
+            <div class="form-group" hidden>
+                <label asp-for="IdUsuario" class="control-label"></label>
+                <input asp-for="IdUsuario" class="form-control" />
+                <span asp-validation-for="IdUsuario" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input id="esSubfamilia" type="checkbox" class="form-check-input" />
+                    <label data-translate="esSubfamilia" class="form-check-label">
+                        @SharedLocalizer["esSubFamilia"]
+                    </label>
+                </div>
+            </div>
+            <div id="familiaPadre" class="form-group">
+                <label data-translate="familia" class="control-label">Familia</label>
+                <select asp-for="IdFamilia" id="familiaPadreSelect" class="form-control search-key">
+
+                    <option value="null" selected>Seleccione</option>
+                    @{
+                        foreach (var item in ViewData["familiasOnline"] as List<TbPrFamiliaVentaOnline>)
+                        {
+                            <option value="@item.Id">@item.Descripcion</option>
+                        }
+                    }
+                </select>
+            </div>
+        </form>
+        <div class="form-group row">
+            <div class="col-md-6">
+                <button id="submitFrmFamilia" class="btn btn-success"><span data-translate="guardar">@SharedLocalizer["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
+            </div>
+            <div class="col-md-6">
+                <button data-translate="cancelar" class="btn btn-default" data-dismiss="modal">@SharedLocalizer["Cancelar"]</button>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+
+
+
+        var familiaPadre = $('#familiaPadreSelect').val();
+        var familia = familiaPadre;
+        $('#familiaPadre').hide();
+
+        if (familiaPadre != 'null') {
+            $('#familiaPadre').show();
+            $('#esSubfamilia').prop('checked', true);
+        }
+
+
+
+        $('#esSubfamilia').change(function () {
+
+            if ($('#esSubfamilia').is(':checked')) {
+                $('#familiaPadre').show();
+            }
+            else {
+                //var text = "";
+                //var o = new Option(text, null);
+                //$(o).attr('selected', true);
+                //$("#familiaPadre").append(o);
+                $('#familiaPadreSelect').val('null')
+                $('#familiaPadre').hide();
+            }
+
+
+        });
+
+        $("#submitFrmFamilia").click(function (e) {
+            var model = $('#frmFamilia').serializeArray();
+
+            if (validarForm(model)) {
+
+            $.ajax({
+                type: "post",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: '../FamiliasOnline/CrearEditar-Familia/' + @Model.Id,
+                data: $('#frmFamilia').serialize(),
+                success: function (data) {
+
+                   ///valida si es una familia
+                    if (!$('#esSubfamilia').is(':checked')) {
+                        //si edito remueve el option anterior
+                        if (@Model.Id != 0)
+                            $("#familias option[value= " + @Model.Id +"]").remove();
+
+                        var text = data.descripcion;
+                        var o = new Option(text, data.id);
+                        $(o).attr('selected', true);
+                        $("#familias").append(o);
+                    }
+
+                    ///valida si es subfamilia
+                    else if (model[4].value != null && @Model.Id != 0) {
+                        //alert();
+                         //$("#familias option:selected").remove();
+                         $("#familias").val(model[4].value);
+                    }
+
+
+                    $("#familias").trigger('change');
+                    $('#modalFamilia').modal('hide');
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+            });
+            }
+
+        });
+
+
+        function validarForm(model) {
+
+
+            if (model[1].value != '') {
+                return true;
+            }
+            else {
+                $('#validatedTextDescripcion').attr('hidden', false);
+                return false;
+            }
+
+        }
+
+
+    });
+
+
+
+</script>

@@ -37,7 +37,7 @@ namespace AltivaWebApp.Controllers
         }
 
         // GET: ManejoUsuarios
-        [HttpGet("Lista-Usarios")]
+        [HttpGet("Listar-Usarios")]
         public ActionResult ListaUsuarios(string estado)
         {
 
@@ -61,10 +61,50 @@ namespace AltivaWebApp.Controllers
             return View(usariosFiltrados);
 
         }
-        [Route("Cuenta-Usuario/{codigo?}")]
+        [Route("Cuenta-Usuario/{codigo}")]
         public ActionResult CuentaUsuario(string codigo)
         {
             var model =  userService.GetUsuarioConPerfiles(codigo);
+            //long id = model.Id;
+            //ViewBag.id = id;
+            var asignados = new List<TbSePerfil>();
+
+            foreach (var item in model.TbSePerfilUsuario)
+            {
+                asignados.Add(item.IdPerfilNavigation);
+            }
+
+            var perfiles = perfilService.GetAll();
+            var sinAsignar = new List<TbSePerfil>();
+
+            foreach (var item in perfiles)
+            {
+                var flag = false;
+                foreach (var i in asignados)
+                {
+                    if (item.Id == i.Id)
+                    {
+                        flag = true;
+                        break;
+                    }
+
+                }
+                if (!flag)
+                    sinAsignar.Add(item);
+            }
+
+            ViewData["Asignados"] = asignados;
+            ViewData["SinAsignar"] = sinAsignar;
+
+
+            return View(userMap.DomainToViewModelSingle(model));
+        }
+
+
+        [Route("UserA/{codigo?}")]
+        public ActionResult UserAccount(string codigo)
+        {
+            var model = userService.GetUsuarioConPerfiles(codigo);
             //long id = model.Id;
             //ViewBag.id = id;
             var asignados = new List<TbSePerfil>();
@@ -241,24 +281,18 @@ namespace AltivaWebApp.Controllers
 
         }
         [HttpPost("Editar-Usuario/{id?}")]
-        [ValidateAntiForgeryToken]
         public ActionResult EditarUsuario(UsuarioViewModel model)
         {
             string i = "";
             
             try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return RedirectToAction("ListaUsuarios");
-                }
+            {               
 
                 var domain = userService.GetUsuarioConPerfiles(model.codigo);
                 if(userService.ExisteUsuarioPorCodigo(model.codigo))
                     if(domain.Id != model.id)
                     {
-                        ModelState.AddModelError(string.Empty, "El código ya existe en el sistema");
-                        return View(model);
+                        return Json(new { success = false });
                     }
 
                 var domain2 = userService.GetUsuarioConPerfiles(model.correo);
@@ -266,19 +300,18 @@ namespace AltivaWebApp.Controllers
                 if (userService.ExisteUsuarioPorCorreo(model.correo))
                     if (domain2.Id != model.id)
                     {
-                        ModelState.AddModelError(string.Empty, "El correo ya existe en el sistema");
-                        return View(model);
+                        return Json(new { success = false });
                     }
 
                 var user = userMap.Update(model);
+                Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
                 i = user.Codigo;
-                return RedirectToAction("ListaUsuarios");
+                return Json(new { success = true });
                 
             }
             catch
             {
-                ModelState.AddModelError(string.Empty, "Lo sentimos, tuvimos un error al procesar tu solicitud");
-                return RedirectToAction("ListaUsuarios");
+                return BadRequest();
             }
            
 
@@ -295,8 +328,10 @@ namespace AltivaWebApp.Controllers
 
 
             user.Avatar = directorio;
+            Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
 
             userService.UpdateUsuario(user);
+
 
             return RedirectToAction("CuentaUsuario", new { user.Codigo });
         }

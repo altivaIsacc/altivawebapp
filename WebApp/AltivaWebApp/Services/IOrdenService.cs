@@ -13,7 +13,8 @@ namespace AltivaWebApp.Services
         bool Delete(TbPrOrden domain);
         IList<TbPrOrden> GetAllOrdenes();
         TbPrOrden GetOrdenById(int id);
-        TbPrOrden GetAllOrdenDetalleByOrdenId(int id);
+        //TbPrOrden GetAllOrdenDetalleByOrdenId(int id);
+        IList<TbPrOrdenDetalle> GetAllOrdenDetalleByOrdenId(int id);
         bool SaveOrdenDetalle(IList<TbPrOrdenDetalle> domain);
         bool DeleteOrdenDetalle(IList<int> domain, int idOrden);
         bool UpdateOrdenDetalle(IList<TbPrOrdenDetalle> domain);

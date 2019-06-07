@@ -1,4 +1,5 @@
 ﻿@model UsuarioViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -6,6 +7,8 @@
         return Xsrf.GetAndStoreTokens(Context).RequestToken;
     }
 }
+
+
 
 <style>
     .btn-circle {
@@ -39,8 +42,8 @@
     <div class="col-md-2">
         <h4>Avatar</h4>
         <div class="col-md-12">
-            <div style="background-color:#EDEDED; padding: 1rem; text-align:center">
-                <img style="height: 15rem; width:15rem" src="@Model.avatar" class="img-circle" />
+            <div class="well"style="background-color:#EDEDED; padding: 1rem; text-align:center">
+                <img style="height: 10rem; width:10rem" src="@Model.avatar" class="img-circle" />
                 <div class="row">
                     <a data-translate="avatar" class="btn btn-link" data-toggle="modal" data-target="#exampleModal">
                         Cargar tu avatar
@@ -56,7 +59,7 @@
 
                 <div class="col-md-12">
                     <span data-translate="MUFuenteM">Fuente M:</span>
-                    <button type="button" name="1" value="TemaClaro" class="btn btntema btn-default btn-circle"></button>                  
+                    <button type="button" name="1" value="TemaClaro" class="btn btntema btn-default btn-circle"></button>
                     <button type="button" name="3" value="TemaCombinado" class="btn btntema btn-combined btn-circle"></button>
                 </div>
 
@@ -72,7 +75,7 @@
     </div>
     <div class="col-md-4">
         <h4 data-translate="datosUsuario">Datos</h4>
-        <form asp-controller="ManejoUsuarios" asp-action="EditarUsuario" method="post">
+        <form id="frmUsuario" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group" hidden>
                 <input asp-for="id" class="form-control" />
@@ -80,7 +83,7 @@
             <div class="form-group">
                 <label data-translate="codigo" asp-for="codigo" class="control-label">Codigo:</label>
                 <input asp-for="codigo" id="codigo" class="form-control" />
-                <div id="codigoValidation" ></div>
+                <div id="codigoValidation"></div>
             </div>
             <div class="form-group">
                 <label data-translate="nombre" asp-for="nombre" class="control-label">Nombre:</label>
@@ -101,10 +104,10 @@
                 <div id="inicialesValidation"></div>
             </div>
             <div class="form-group">
-                <label asp-for="contrasena" class="control-label">Contraseña: (Una Mayuscula y un caracter especial)</label>
-                <input pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" title="Es necesario que contenga al menos un número, una mayúsculay un caracter especial" asp-for="contrasena" class="form-control" />
+                <label asp-for="contrasena" class="control-label">Contraseña: </label>
+                <input pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" title="Es necesario que contenga al menos un número, una mayúscula y un caracter especial" asp-for="contrasena" class="form-control" />
                 <div id="passwordValidation"></div>
-            </div> 
+            </div>
             <div class="form-group">
                 <label class="control-label">Confirmar Contraseña:</label>
                 <input asp-for="ConfirmPassowrd" class="form-control" />
@@ -120,11 +123,12 @@
                 <input asp-for="Id_Usuario" class="form-control" />
                 <span asp-validation-for="Id_Usuario" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <button type="submit" id="btnEditarUsuario" data-translate="guardar" class="btn btn-success"><span>Guardar </span><span><i class="fas fa-save"></i></span></button>
-                <a class="btn btn-default btnAtras" >Cancelar</a>
-            </div>
+
         </form>
+        <div class="form-group">
+            <button type="submit" id="btnEditarUsuario" data-translate="guardar" class="btn btn-success"><span>Guardar </span><span><i class="fas fa-save"></i></span></button>
+            <a class="btn btn-default btnAtras">Cancelar</a>
+        </div>
 
     </div>
     <div class="col-md-4">
@@ -167,23 +171,6 @@
     </div>
 
 
-</div>
-
-<div class="row">
-
-    
-
-    <div class="col-md-4">
-
-        
-    </div>
-    <div class="col-md-2">
-        
-    </div>
-    <div class="col-md-6">
-        
-
-    </div>
 </div>
 
 
@@ -261,153 +248,184 @@
 
 <hr />
 
-<div id="comentarios">
+<div>
 
 </div>
 
 
 
-<script src="~/js/guardarConfigUsuario.js"></script>
-<script type="text/javascript">
-    //validaciones de campos editar usuario
-    $('#btnEditarUsuario').on('click', function () {
-        if ($('#codigo').val() == "") {
-           
-            $('#codigoValidation').empty();
-            $('#codigoValidation').append('<span class="text-danger">Código es requerido.</span>');
-
-            return false;
-        }
-
-        if ($('#nombre').val() == "") {
-            $('#nombreValidation').empty();
-            $('#nombreValidation').append('<span class="text-danger">Nombre es requerido.</span>');
-
-            return false;
-        }
-        if ($('#iniciales').val() == "") {
-            $('#inicialesValidation').empty();
-            $('#inicialesValidation').append('<span class="text-danger">Iniciales es requerido.</span>');
-
-            return false;
-        }
-        if ($('#contrasena').val() == "") {
-            $('#passwordValidation').empty();
-            $('#passwordValidation').append('<span class="text-danger">Contraseña es requerido.</span>');
-
-            return false;
-        }
-        if ($('#ConfirmPassowrd').val() == "") {
-            $('#passwordConfirmValidation').empty();
-            $('#passwordConfirmValidation').append('<span class="text-danger">Confirmar contraseña es requerido.</span>');
-
-            return false;
-        } if ($('#correo').val() == "") {
-            $('#correoValidation').empty();
-            $('#correoValidation').append('<span class="text-danger">El correo es requerido.</span>');
-
-            return false;
-        }
-        if ($('#contrasena').val() != $('#ConfirmPassowrd').val()) {
-            $('#passwordConfirmValidation').empty();
-            $('#passwordConfirmValidation').append('<span class="text-danger">Las contraseñas no coinciden.</span>');
-            $('#passwordValidation').empty();
-            $('#passwordValidation').append('<span class="text-danger">Las contraseñas no coinciden.</span>');
-
-            return false;
-        }
-        
-
-    });
-    function validarPassword(email) {
-        var i = '(?=^.{ 8, } $) ((?=.*\d)| (?=.*\W +)) (? ![.\n])(?=.* [A - Z])(?=.* [a - z]).* $';
-        if (!i.test(email)) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-    $(document).ready(function () {
-
-        GetComentarios('Usuario', @Model.id);
-
-        $('.btntema').on('click', function () {
-            $("#tema").attr('href', '/../css/' + $(this).val() + '.css');
-            localStorage.setItem('tema', $(this).val());
-
-
-            var tema = $(this).attr('name');
-
-            /////ajax para guradar el tema en la bd//////
-            var userId = @Model.id;
-
-            guardarConfigUsuario(@Model.id);
-
+   
+    <script type="text/javascript">
+        //validaciones de campos editar usuario
+        $('#btnEditarUsuario').on('click', function () {
+            guardarUsuario();
         });
 
-
-                    ///al cambiar avatar se cambia en el layout
-
-        if ("@User.Identity.Name" === "@Model.codigo" ) {
-            localStorage.setItem("avatar", "@Model.avatar");
-            $("#perfilNAVAvatar").attr('src', localStorage.getItem("avatar"));
-            $("#perfilAvatar").attr('src', localStorage.getItem("avatar"));
+        function validarPassword(email) {
+            var i = '(?=^.{ 8, } $) ((?=.*\d)| (?=.*\W +)) (? ![.\n])(?=.* [A - Z])(?=.* [a - z]).* $';
+            if (!i.test(email)) {
+                return false;
+            } else {
+                return true;
+            }
         }
+        $(document).ready(function () {
+
+            GetComentarios('Usuario', @Model.id);
+
+            $('.btntema').on('click', function () {
+                $("#tema").attr('href', '/../css/' + $(this).val() + '.css');
+                localStorage.setItem('tema', $(this).val());
 
 
-        //metodo para asignar perfiles al usuario
+                var tema = $(this).attr('name');
 
-        var arrayModel = [];
+                /////ajax para guradar el tema en la bd//////
+                var userId = @Model.id;
+
+                guardarConfigUsuario(@Model.id);
+
+            });
 
 
-        $(".asignar").change(function () {
+                        ///al cambiar avatar se cambia en el layout
 
-            if ($(this).is(":checked")) {
-                var model = {
-                    idPerfil: $(this).val(),
-                    idUsuario: $(this).attr("name")
-                };
-                arrayModel.push(model);
+            if ("@User.Identity.Name" === "@Model.codigo" ) {
+                localStorage.setItem("avatar", "@Model.avatar");
+                $("#perfilNAVAvatar").attr('src', localStorage.getItem("avatar"));
+                $("#perfilAvatar").attr('src', localStorage.getItem("avatar"));
             }
-            else {
-
-                var model = {
-                    idPerfil: $(this).val(),
-                    idUsuario: $(this).attr("name")
-                };
-
-                arrayModel.splice($.inArray(model, arrayModel), 1);
-            }
-            console.log(arrayModel);
-        });
 
 
+            //metodo para asignar perfiles al usuario
 
-        $('#guardar').click(function () {
-            console.log(arrayModel);
+            var arrayModel = [];
 
-            var url = '@Url.Action("AsignarPerfil", "ManejoUsuarios")';
 
-            $.ajax({
-                type: "POST",
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                url: url,
-                data: {model: arrayModel },
-                    success: function (data) {
-                        //console.log($(this).parent());
-                        window.location.href = window.location.href;
-                },
-                    error: function (err, scnd) {
-                        console.log(err.statusText);
+            $(".asignar").change(function () {
+
+                if ($(this).is(":checked")) {
+                    var model = {
+                        idPerfil: $(this).val(),
+                        idUsuario: $(this).attr("name")
+                    };
+                    arrayModel.push(model);
                 }
+                else {
+
+                    var model = {
+                        idPerfil: $(this).val(),
+                        idUsuario: $(this).attr("name")
+                    };
+
+                    arrayModel.splice($.inArray(model, arrayModel), 1);
+                }
+                console.log(arrayModel);
+            });
+
+
+
+            $('#guardar').click(function () {
+                console.log(arrayModel);
+
+                var url = '@Url.Action("AsignarPerfil", "ManejoUsuarios")';
+
+                $.ajax({
+                    type: "POST",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: url,
+                    data: {model: arrayModel },
+                        success: function (data) {
+                            //console.log($(this).parent());
+                            window.location.href = window.location.href;
+                    },
+                        error: function (err, scnd) {
+                            console.log(err.statusText);
+                    }
+                });
             });
         });
-    });
-</script>
 
 
+        function guardarUsuario() {
+
+            console.log($('#frmUsuario').serialize());
+            var url = '@Url.Action("EditarUsuario", "ManejoUsuarios")';
+            if (validarForm())
+                $.ajax({
+                    type: "POST",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: url,
+                    data: $('#frmUsuario').serialize(),
+                    success: function (data) {
+                        if (data.success) {
+                            cargarAlert('@SharedLocalizer["datosActualizados"]');
+                            history.pushState(null, "", $('#codigo').val());
+                        }
+                        else
+                            cargarAlert('@SharedLocalizer["usuarioExistente"]');
+                    },
+                        error: function (err, scnd) {
+                            cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    }
+                });
+
+
+        }
+
+        function validarForm() {
+
+            if ($('#codigo').val() == "") {
+
+                $('#codigoValidation').empty();
+                $('#codigoValidation').append('<span class="text-danger">@SharedLocalizer["codigoValid"]</span>');
+
+                return false;
+            }
+
+            if ($('#nombre').val() == "") {
+                $('#nombreValidation').empty();
+                $('#nombreValidation').append('<span class="text-danger">@SharedLocalizer["nombreValid"]</span>');
+
+                return false;
+            }
+            if ($('#iniciales').val() == "") {
+                $('#inicialesValidation').empty();
+                $('#inicialesValidation').append('<span class="text-danger">@SharedLocalizer["inicialesValid"]</span>');
+
+                return false;
+            }
+            if ($('#contrasena').val() == "") {
+                $('#passwordValidation').empty();
+                $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["contrasenaValid"]</span>');
+
+                return false;
+            }
+            if ($('#ConfirmPassowrd').val() == "") {
+                $('#passwordConfirmValidation').empty();
+                $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["confirmacionValid"]</span>');
+
+                return false;
+            } if ($('#correo').val() == "") {
+                $('#correoValidation').empty();
+                $('#correoValidation').append('<span class="text-danger">@SharedLocalizer["correoValid"]</span>');
+
+                return false;
+            }
+            if ($('#contrasena').val() != $('#ConfirmPassowrd').val()) {
+                $('#passwordConfirmValidation').empty();
+                $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
+                $('#passwordValidation').empty();
+                $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
+
+                return false;
+            }
+
+<script src="~/js/guardarConfigUsuario.js"></script>
 
 
 

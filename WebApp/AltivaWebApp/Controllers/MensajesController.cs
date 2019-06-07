@@ -13,6 +13,7 @@ using AltivaWebApp.Mappers;
 using AltivaWebApp.Repositories;
 using System.Security.Claims;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Hosting;
 
 namespace AltivaWebApp.Controllers
 {
@@ -38,6 +39,7 @@ namespace AltivaWebApp.Controllers
 
         //Variable del usuario
         public IUserService IUserService;
+        private readonly IHostingEnvironment hostingEnvironment;
 
         //variable pais service
         public IPaisService IPaisService;
@@ -57,7 +59,7 @@ namespace AltivaWebApp.Controllers
           
         
        
-        public MensajesController(IPaisService IPaisService,IBitacoraMapper IBitacoraMa,IMensajeReceptorService pIMensajeReceptorService, IAdjuntoService IAdjuntoService, IMensajeReceptor pIMensajeReceptor, IMensajeService pImensajeService, IMensajeMap pIMensajeMap, IAdjuntoMap pIAdjuntoMap, IUserService pIUserService)
+        public MensajesController(IPaisService IPaisService,IBitacoraMapper IBitacoraMa,IMensajeReceptorService pIMensajeReceptorService, IAdjuntoService IAdjuntoService, IMensajeReceptor pIMensajeReceptor, IMensajeService pImensajeService, IMensajeMap pIMensajeMap, IAdjuntoMap pIAdjuntoMap, IUserService pIUserService, IHostingEnvironment hostingEnvironment)
         {
             this.IPaisService = IPaisService;
             this.IBitacoraMap = IBitacoraMa;
@@ -66,7 +68,7 @@ namespace AltivaWebApp.Controllers
             this.IAdjuntoMap = pIAdjuntoMap;
             this.IAdjuntoService = IAdjuntoService;
             this.IUserService = pIUserService;
-         
+            this.hostingEnvironment = hostingEnvironment;
             this.IMensajeReceptorMap = pIMensajeReceptor;
             this.IMensajeReceptorService = pIMensajeReceptorService;
         }
@@ -102,7 +104,8 @@ namespace AltivaWebApp.Controllers
 
                 if (model.Files != null)
                 {
-                    var rutas = FotosService.SubirAdjuntos(model.Files);
+                    var savePath = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "Files");
+                    var rutas = FotosService.SubirAdjuntos(model.Files, savePath);
                     foreach (var item in rutas)
                     {
                         AdjuntoDomain = this.IAdjuntoMap.crear(comentario.Id, item);
@@ -140,6 +143,7 @@ namespace AltivaWebApp.Controllers
             {
                 var msj = IMensajeMap.EliminarComentario(idComentario);
                 ImensajeService.Update(msj);
+                       
                 return Json(new { success = true });
             }
             catch (Exception)
@@ -149,7 +153,7 @@ namespace AltivaWebApp.Controllers
                       
         }
 
-        [HttpGet("/Mensajes/")]
+        [HttpGet("Mensajes")]
         public ActionResult Index()
         {
 
@@ -263,7 +267,7 @@ namespace AltivaWebApp.Controllers
             
             return Json(new { contador = w });
         }
-        [HttpGet("/BandejaDeEntrada/{id?}")]
+        [HttpGet("BandejaDeEntrada/{id?}")]
         public ActionResult Recibidos(int id = 1)
         {
             List<MensajeRecibidoViewModel> MensajeViewModel1 = new List<MensajeRecibidoViewModel>();
@@ -293,7 +297,7 @@ namespace AltivaWebApp.Controllers
             return Json(new { id = 1 });
         }
 
-        [HttpPost("/CrearMensaje/")]
+        [HttpPost("CrearMensaje/")]
         public ActionResult Crear(MensajeViewModel collection)
         {
             try
@@ -321,15 +325,16 @@ namespace AltivaWebApp.Controllers
                 {
                     foreach (var item in collection.Files)
                     {
-
-                        var path = $"wwwroot\\Files\\{item.FileName}";
+                        var savePath = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "Files");
+                        // var path = $"wwwroot\\Files\\{item.FileName}";
+                        var path = $"{savePath}\\{item.FileName}";
                         using (var stream = new FileStream(path, FileMode.Create))
                         {
                             item.CopyTo(stream);
 
                         }
 
-                        var ruta = $"/Files/{item.FileName}";
+                       var ruta = $"/Files/{item.FileName}";
                         AdjuntoDomain = this.IAdjuntoMap.crear(msj.Id, ruta);
 
                         s.Add(AdjuntoDomain);
@@ -369,7 +374,7 @@ namespace AltivaWebApp.Controllers
                 }
             }
         
-                [HttpPost("ModificarEstados")]
+        [HttpPost("ModificarEstados")]
         public ActionResult ModificarEstados(List<int> id)
         {
             var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;

@@ -19,6 +19,7 @@ namespace AltivaWebApp.Repositories
         TbSeUsuario GetUsuarioConEmpresas(string usuario);
         TbSeUsuario GetUsuarioConPerfiles(string usuario);
         IEnumerable<TbSePerfil> GetPerfiles(int id);
+        TbSeUsuario GetUsuarioConPerfilesById(int id);
         bool CreatePerfilUsuario(IList<TbSePerfilUsuario> domain);
         bool DeletePU(TbSePerfilUsuario model);
         TbSePerfilUsuario GetPerfilUsuario(PerfilUsuarioViewModel model);

@@ -7,6 +7,7 @@ using AltivaWebApp.Domains;
 using AltivaWebApp.ViewModels;
 using AltivaWebApp.Services;
 using AltivaWebApp.GEDomain;
+using Microsoft.AspNetCore.Hosting;
 
 namespace AltivaWebApp.Mappers
 {
@@ -15,13 +16,14 @@ namespace AltivaWebApp.Mappers
     {
 
         IUserService userService;
+        private readonly IHostingEnvironment hostingEnvironment;
 
-        public UserMap(IUserService service)
+        public UserMap(IUserService service, IHostingEnvironment hostingEnvironment)
 
         {
 
             userService = service;
-
+            this.hostingEnvironment = hostingEnvironment;
         }
 
         public UsuarioViewModel Create(UsuarioViewModel viewModel)
@@ -116,8 +118,9 @@ namespace AltivaWebApp.Mappers
 
             if (officeViewModel.Foto != null && domain.Avatar != null)
             {
-               
-                domain.Avatar = FotosService.SubirFotoUsuarios1(officeViewModel.Foto);
+                var savePath = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "uploads");
+
+                domain.Avatar = FotosService.SubirFotoUsuarios1(officeViewModel.Foto, savePath);
             }
 
             return domain;
@@ -153,6 +156,7 @@ namespace AltivaWebApp.Mappers
             //{
             //    return null;
             //}
+            var savePath = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "uploads");
 
             var nuevoDomain = new TbSeUsuario
             {
@@ -164,7 +168,7 @@ namespace AltivaWebApp.Mappers
                 Iniciales = officeViewModel.iniciales,
                 FechaMod = DateTime.Now,
                 IdUsuario = officeViewModel.Id_Usuario,
-                Avatar = FotosService.SubirFotoUsuarios1(officeViewModel.Foto)
+                Avatar = FotosService.SubirFotoUsuarios1(officeViewModel.Foto, savePath)
             };
 
             

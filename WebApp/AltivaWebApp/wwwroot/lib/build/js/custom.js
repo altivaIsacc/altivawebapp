@@ -1467,7 +1467,7 @@ if (typeof NProgress != 'undefined') {
 		function init_InputMask() {
 			
 			if( typeof ($.fn.inputmask) === 'undefined'){ return; }
-			console.log('init_InputMask');
+			//console.log('init_InputMask');
 			
 				$(":input").inputmask();
 				
@@ -1573,7 +1573,7 @@ if (typeof NProgress != 'undefined') {
 		function init_daterangepicker() {
 
 			if( typeof ($.fn.daterangepicker) === 'undefined'){ return; }
-			console.log('init_daterangepicker');
+			//console.log('init_daterangepicker');
 		
 			var cb = function(start, end, label) {
 			  console.log(start.toISOString(), end.toISOString(), label);
@@ -1648,7 +1648,7 @@ if (typeof NProgress != 'undefined') {
 	   function init_daterangepicker_right() {
 	      
 				if( typeof ($.fn.daterangepicker) === 'undefined'){ return; }
-				console.log('init_daterangepicker_right');
+				//console.log('init_daterangepicker_right');
 		  
 				var cb = function(start, end, label) {
 				  console.log(start.toISOString(), end.toISOString(), label);
@@ -1728,7 +1728,7 @@ if (typeof NProgress != 'undefined') {
 	    function init_daterangepicker_single_call() {
 	      
 			if( typeof ($.fn.daterangepicker) === 'undefined'){ return; }
-			console.log('init_daterangepicker_single_call');
+			//console.log('init_daterangepicker_single_call');
 		   
 			$('#single_cal1').daterangepicker({
 			  singleDatePicker: true,
@@ -1762,7 +1762,7 @@ if (typeof NProgress != 'undefined') {
 		function init_daterangepicker_reservation() {
 	      
 			if( typeof ($.fn.daterangepicker) === 'undefined'){ return; }
-			console.log('init_daterangepicker_reservation');
+			//console.log('init_daterangepicker_reservation');
 		 
 			$('#reservation').daterangepicker(null, function(start, end, label) {
                 console.log(start.toISOString(), end.toISOString(), label);
@@ -1849,7 +1849,7 @@ if (typeof NProgress != 'undefined') {
 			
 		function init_CustomNotification() {
 			
-			console.log('run_customtabs');
+			//console.log('run_customtabs');
 			
 			if( typeof (CustomTabs) === 'undefined'){ return; }
 			console.log('init_CustomTabs');
@@ -1964,11 +1964,11 @@ if (typeof NProgress != 'undefined') {
 		
 		function init_charts() {
 			
-				console.log('run_charts  typeof [' + typeof (Chart) + ']');
+				//console.log('run_charts  typeof [' + typeof (Chart) + ']');
 			
 				if( typeof (Chart) === 'undefined'){ return; }
 				
-				console.log('init_charts');
+				//console.log('init_charts');
 			
 				
 				Chart.defaults.global.legend = {
@@ -2370,7 +2370,7 @@ if (typeof NProgress != 'undefined') {
 		function init_compose() {
 		
 			if( typeof ($.fn.slideToggle) === 'undefined'){ return; }
-			console.log('init_compose');
+			//console.log('init_compose');
 		
 			$('#compose, .compose-close').click(function(){
 				$('.compose').slideToggle();
@@ -2485,10 +2485,10 @@ if (typeof NProgress != 'undefined') {
 			
 			function init_DataTables() {
 				
-				console.log('run_datatables');
+				//console.log('run_datatables');
 				
 				if( typeof ($.fn.DataTable) === 'undefined'){ return; }
-				console.log('init_DataTables');
+				//console.log('init_DataTables');
 				
 				var handleDataTableButtons = function() {
 				  if ($("#datatable-buttons").length) {

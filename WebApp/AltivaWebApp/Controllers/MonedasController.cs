@@ -303,8 +303,21 @@ namespace AltivaWebApp.Controllers
             return Json(new { });
         }
 
-        
-       
+        [HttpGet("Get-Monedas")]
+        public ActionResult GetMonedas()
+        {
+            try
+            {
+                return Ok(monedaService.GetAll());
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+
+
 
     }
 }

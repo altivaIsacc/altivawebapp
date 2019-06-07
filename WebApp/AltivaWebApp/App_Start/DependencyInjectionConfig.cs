@@ -162,6 +162,11 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IFamiliaService, FamiliaService>();
             services.AddScoped<IFamiliaMap, FamiliaMap>();
 
+            //familiasOnline
+            services.AddScoped<IFamiliaOnlineRepository, FamiliaOnlineRepository>();
+            services.AddScoped<IFamiliaOnlineService, FamiliaOnlineService>();
+            services.AddScoped<IFamiliaOnlineMap, FamiliaOnlineMap>();
+
             //inventario
 
             services.AddScoped<IInventarioRepository, InventarioRepository>();
@@ -186,6 +191,30 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IKardexRepository, KardexRepository>();
             services.AddScoped<IKardexService, KardexService>();
             services.AddScoped<IKardexMap, KardexMap>();
+
+            //Compra
+
+            services.AddScoped<ICompraRepository, CompraRepository>();
+            services.AddScoped<ICompraService, CompraService>();
+            services.AddScoped<ICompraMap, CompraMap>();
+
+            //Departamento
+
+            services.AddScoped<IDepartamentoRepository, DepartamentoRepository>();
+            services.AddScoped<IDepartamentoService, DepartamentoService>();
+            services.AddScoped<IDepartamentoMap, DepartamentoMap>();
+
+
+            /// todo lo que tiene que ver con comprobantes electronicos ///hacienda
+            services.AddScoped<IColaAprobacionRepository, ColaAprobacionRepository>();
+            services.AddScoped<IHaciendaService, HaciendaService>();
+            services.AddScoped<IHaciendaMap, HaciendaMap>();
+
+
+            /// Requisicion
+            services.AddScoped<IRequisicionRepository, RequisicionRepository>();
+            services.AddScoped<IRequisicionService, RequisicionService>();
+            services.AddScoped<IRequisicionMap, RequisicionMap>();
 
 
 
