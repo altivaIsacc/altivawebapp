@@ -33,16 +33,24 @@ namespace AltivaWebApp.Controllers
         [Route("Nueva")]
         public IActionResult CrearToma()
         {
+            ViewBag.existeTomaInicial = service.ExisteTomaInicial();
             return View("CrearEditarToma", new TomaViewModel());
         }
 
         [Route("Editar/{id}")]
         public IActionResult EditarToma(long id)
         {
-            return View("CrearEditarToma", map.DomainToViewModel(service.GetTomaByID(id)));
+            var toma = map.DomainToViewModel(service.GetTomaByID(id));
+            if(toma.EsInicial && !toma.Anulado && !toma.Borrador)
+                 ViewBag.existeTomaInicial = !toma.EsInicial;
+            else
+                ViewBag.existeTomaInicial = service.ExisteTomaInicial();
+
+            ViewBag.titulo = "TomaFisica";
+            return View("CrearEditarToma", toma);
         }
 
-        [Route("CrearEditar-Toma")]
+        [HttpPost("CrearEditar-Toma")]
         public IActionResult CrearEditarToma(TomaViewModel viewModel)
         {
             try
@@ -54,7 +62,7 @@ namespace AltivaWebApp.Controllers
                     toma = map.Update(viewModel);
                     if(viewModel.TomaDetalle != null)
                     {
-                        var tomaDetalle = map.CreateTD(viewModel.TomaDetalle);
+                        var tomaDetalle = map.UpdateTD(viewModel.TomaDetalle);
                     }
                 }
                 else
@@ -62,7 +70,7 @@ namespace AltivaWebApp.Controllers
                     toma = map.Create(viewModel);
                 }
 
-                return Json(new { success = true });
+                return Json(new { success = true, idToma = toma.Id });
                 
             }
             catch (Exception)
@@ -73,12 +81,43 @@ namespace AltivaWebApp.Controllers
             
         }
 
-
-
-        [HttpGet("ListarTomaDetalles")]
-        public IActionResult ListarTomaDetalles(TomaViewModel model)
+        [HttpPost("AjustarInventario")]
+        public IActionResult AjustarInventario(int idToma)
         {
-            return PartialView("_ListarTomaDetalles");
+            try
+            {
+                var toma = service.GetTomaByID(idToma);
+                toma.Borrador = false;
+                service.Update(toma);
+
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                //throw;
+            }
+        }
+
+
+        [HttpGet("GetTomaDetalles/{id}")]
+        public IActionResult GetTomaDetalles(long id)
+        {
+            try
+            {
+                var dt = service.GetDetallesByTomaId(id);
+                foreach (var item in dt)
+                {
+                    item.IdInventarioNavigation.TbPrTomaDetalle = null;
+                }
+
+                return Ok(dt);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+               // throw;
+            }
         }
 
 
@@ -118,8 +157,11 @@ namespace AltivaWebApp.Controllers
                     //item.IdInventarioNavigation.IdSubFamiliaNavigation.TbPrInventario = null;
                 }
 
+                //if(model.Ordenado == "producto")
+                //    return Ok(tomas.OrderBy(o=>o.IdInventarioNavigation.Descripcion));
+                //else
+                    return Ok(tomas);
 
-                return Ok(tomas);
             }
             catch (Exception)
             {

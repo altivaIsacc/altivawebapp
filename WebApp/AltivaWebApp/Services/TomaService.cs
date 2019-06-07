@@ -68,5 +68,9 @@ namespace AltivaWebApp.Services
         {
             return repository.UpdateTomaDetalle(domain);
         }
+        public bool ExisteTomaInicial()
+        {
+            return repository.ExisteTomaInicial();
+        }
     }
 }

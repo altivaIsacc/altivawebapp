@@ -19,5 +19,6 @@ namespace AltivaWebApp.Services
         IList<TbPrTomaDetalle> UpdateTomaDetalle(IList<TbPrTomaDetalle> domain);
         IList<TbPrToma> GetAllTomaConBodega();
         IList<TbPrTomaDetalle> GenerateTD(TbPrToma domain);
+        bool ExisteTomaInicial();
     }
 }

@@ -1,6 +1,7 @@
 ﻿@model AltivaWebApp.ViewModels.TomaViewModel
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+
 @functions{
     public string GetAntiXsrfRequestToken()
     {
@@ -9,10 +10,28 @@
 }
 @{
     ViewData["Title"] = "CrearEditarToma";
+
+    var estado = "disabled";
+    var estadoContrario = "";
+    var editarInicial = "";
+    var editable = "";
+
+    if(Model.Id != 0 && Model.Anulado || !Model.Borrador)
+    {
+        editable = "readonly";
+    }
+
+    if(Model.Id != 0 && !Model.Borrador)
+    {
+        editarInicial = "disabled";
+    }
+
 }
 
 @if (Model.Id != 0)
 {
+    estado = "";
+    estadoContrario = "disabled";
     <div class="row">
         <div class="col-md-3"><h3>@SharedLocalizer["editarToma"]</h3></div>
         <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
@@ -34,7 +53,7 @@ else
 
         <div class="form-group col-md-2 col-sm-6 col-xs-12">
             <label asp-for="IdBodega" class="control-label">@SharedLocalizer["Bodega"]:</label>
-            <select class="form-control selectBodegas" id="bodegas"><option value="0">@SharedLocalizer["Seleccione"]</option></select>
+            <select @estadoContrario class="form-control selectBodegas" id="bodegas" onchange="cambioBodega()"><option value="0">@SharedLocalizer["Seleccione"]</option></select>
         </div>
 
         <div class="form-group col-md-2 col-sm-6 col-xs-12">
@@ -50,28 +69,33 @@ else
                 </div>
             </fieldset>
         </div>
-        <div class="form-group col-md-2 col-sm-6 col-xs-12" style="padding-top:2rem">
-            <div class="checkbox">
-                <label>
-                    <input asp-for="EsInicial" type="checkbox" class="flat" name="iCheck" /> @SharedLocalizer["EsInventarioInicial"]
-                </label>
+        @if (!ViewBag.existeTomaInicial)
+        {
+            <div class="form-group col-md-2 col-sm-6 col-xs-12 " style="padding-top:2rem">
+                <div class="checkbox">
+                    <label>
+                        <input checked="@Model.EsInicial" @editarInicial type="checkbox" class="flat" name="iCheck" id="esInicial" /> @SharedLocalizer["EsInventarioInicial"]
+                    </label>
+                </div>
             </div>
-        </div>
+        }
 
-        <div class="form-group col-md-2 col-sm-12 col-xs-12">
+
+        <div class="form-group col-md-2 col-sm-12 col-xs-12 ">
             <label>@SharedLocalizer["OrdenadoPor"]:</label>
-            <select class="form-control" id="ordenadoBy">
+            <select @estadoContrario class="form-control inactiveControl" id="ordenadoBy">
                 <option value="producto">@SharedLocalizer["Producto"]</option>
                 <option value="familia">@SharedLocalizer["Familia"]</option>
             </select>
         </div>
 
-        <div class="form-group col-md-12 col-sm-12 col-xs-12" >
-            <a class="btn btn-primary btnAccion" onclick="generarToma()">@SharedLocalizer["Generar"] </a>
-        </div>
-
 
     </form>
+
+    <div class="form-group col-md-12 col-sm-12 col-xs-12 ">
+        <button @estadoContrario class="btn btn-primary inactiveControl" id="btnGenerar" onclick="generarToma()">@SharedLocalizer["Generar"] </button>
+    </div>
+
 </div>
 
 <div class="row">
@@ -83,7 +107,7 @@ else
                     <th style="width:18%">@SharedLocalizer["Producto"]</th>
                     <th style="width:20%">@SharedLocalizer["Familia"]</th>
                     <th style="width:8%">@SharedLocalizer["Costo"] @SharedLocalizer["Promedio"]</th>
-                    <th style="width:5%">@SharedLocalizer["Saldo"]</th>
+                    <th style="width:5%">@SharedLocalizer["Saldo"] @SharedLocalizer["Inicial"]</th>
                     <th style="width:5%">@SharedLocalizer["Entradas"]</th>
                     <th style="width:5%">@SharedLocalizer["Salidas"]</th>
                     <th style="width:5%">@SharedLocalizer["Existencia"]</th>
@@ -99,13 +123,13 @@ else
 
 <div class="row">
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
-        <button class="btn btn-info btnAccion" style="width:100%" onclick="guardarCambios(1)">@SharedLocalizer["Guardar"] @SharedLocalizer["Borrador"] </button>
+        <button @editarInicial class="btn btn-info btnAccion" style="width:100%" onclick="guardarCambiosBorrador()">@SharedLocalizer["Guardar"] @SharedLocalizer["Borrador"] </button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
-        <button class="btn btn-dark btnAccion" style="width:100%" onclick="CombinarToma()">@SharedLocalizer["Combinar"]</button>
+        <button @editarInicial @estado class="btn btn-dark btnAccion" style="width:100%" onclick="CombinarToma()">@SharedLocalizer["Combinar"]</button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
-        <button class="btn btn-danger btnAccion" style="width:100%" onclick="AnularToma()">@SharedLocalizer["Anular"] </button>
+        <button @estado class="btn btn-danger btnAccion" style="width:100%" onclick="AnularToma()">@SharedLocalizer["Anular"] </button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
         <button class="btn btn-success btnAccion" style="width:100%" onclick="guardarCambios(2)">@SharedLocalizer["Ajustar"] @SharedLocalizer["Inventario"]</button>
@@ -116,6 +140,19 @@ else
 
 </div>
 
+<div class="row">
+    <div class="col-md-12">
+        <div id="comentarios">
+
+        </div>
+    </div>
+</div>
+
+<div hidden><input hidden id="formater" class="currency" type="text" /></div>
+
+<script src="~/js/comentario.js"></script>
+<script src="~/js/base64ImageCreator.js"></script>
+
 <script>
 
     var bodegas = [];
@@ -123,12 +160,27 @@ else
     var $bodega = $('#bodegas');
     var $fecha = $('#fecha');
     var $ordenadoBy = $('#ordenadoBy');
+    var $esInicial = $('#esInicial');
+    var btnGenerar = $('#btnGenerar');
     var familias = [];
     $(document).ready(function () {
 
+      
+
         getBodegas();
         getFamilias();
+
+        $esInicial.prop("checked");
+
         var date = new Date();
+
+        if (@Model.Id != 0) {
+
+            GetComentarios("TF", @Model.Id);
+            $('#bodegas').attr('disabled', true);
+            date = new Date(formatearFecha());
+            
+        }
 
         $('#fechaPicker').datetimepicker({
             defaultDate: date,
@@ -136,6 +188,179 @@ else
         });
 
     });
+
+
+    //////////////////////////////////////////////manejo del dom
+
+
+    
+
+    function cambioBodega() {
+        $('.inactiveControl').attr('disabled', false);
+    }
+
+
+
+    //////////////////////////////////////////////////////helpers
+
+    function formatearFecha() {
+
+        return '@Model.FechaToma.Month' + "-" + '@Model.FechaToma.Day' + "-" + '@Model.FechaToma.Year' + " " + '@Model.FechaToma.TimeOfDay';
+
+    }
+
+    function modeloTabla(data) {
+
+        var arrayTabla = [];
+
+        for (var i = 0; i < data.length; i++) {
+            var model = {
+                codigo: data[i].idInventarioNavigation.codigo,
+                descripcion: data[i].idInventarioNavigation.descripcion,
+                familia: getFamiliaByIdSub(data[i].idInventarioNavigation.idSubFamilia) + " / " + getSubFamiliaById(data[i].idInventarioNavigation.idSubFamilia),
+                costoPromedio: data[i].costoPromedio,
+                inicial: data[i].inicial,
+                entradas: data[i].entradas,
+                salidas: data[i].salidas,
+                existencia: data[i].existencia,
+                toma: data[i].toma
+            };
+
+            arrayTabla.push(model);
+        }
+
+        if ($ordenadoBy.val() === "producto") {
+            arrayTabla = arrayTabla.sort(function (a, b) {
+                if (a.descripcion < b.descripcion) { return -1; }
+                if (a.descripcion > b.descripcion) { return 1; }
+                return 0;
+            });
+        }
+        else {
+            arrayTabla = arrayTabla.sort(function (a, b) {
+                if (a.familia < b.familia) { return -1; }
+                if (a.familia > b.familia) { return 1; }
+                return 0;
+            });
+        }
+        return arrayTabla;
+
+    }
+
+    function cargarDatos(_data) {
+
+        $("#tblTomaD > tbody").remove();
+        $("#tblTomaD").append('<tbody></tbody>');
+
+        var contadorFila = 0;
+
+        var data = modeloTabla(_data);
+
+        for (var i = 0; i < data.length; i++) {
+
+
+
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td><p style="padding-top:1rem;">' + data[i].codigo + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].descripcion + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].familia + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].costoPromedio + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].inicial + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].entradas + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].salidas + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].existencia + '</p></td>'
+                + '<td><p style="padding-top:1rem;"> <input @editable class="form-control numerico" onkeyup="editarLinea(value, ' + contadorFila + ')" value="' + data[i].toma + '" /></p></td>'
+            $('#tblTomaD > tbody').append(body);
+            contadorFila++;
+
+        }
+
+
+        $(".numerico").inputmask({
+            'alias': 'decimal',
+            rightAlign: false,
+        });
+    }
+
+
+    function editarLinea(value, key){
+
+        tdGenerada[key].toma = value;
+
+        console.log(tdGenerada[key]);
+
+    }
+
+
+    function getFamiliaByIdSub(id) {
+
+        for (var i = 0; i < familias.length; i++) {
+            for (var j = 0; j < familias[i].inverseIdFamiliaNavigation.length; j++) {
+                if (familias[i].inverseIdFamiliaNavigation[j].id == id)
+                    return familias[i].descripcion;
+            }
+
+        }
+
+    }
+    function getSubFamiliaById(id) {
+        for (var i = 0; i < familias.length; i++) {
+            for (var j = 0; j < familias[i].inverseIdFamiliaNavigation.length; j++) {
+                if (familias[i].inverseIdFamiliaNavigation[j].id == id)
+                    return familias[i].inverseIdFamiliaNavigation[j].descripcion;
+            }
+
+        }
+    }
+
+    function guardarCambiosBorrador(){
+
+        if (tdGenerada.length != 0)
+            guardarToma();
+        else {
+            cargarAlert("@SharedLocalizer["SinLineas"]");
+        }
+
+    }
+
+    function crearModelo() {
+
+        var model = {
+            id: @Model.Id,
+            fechaToma: $fecha.val(),
+            esInicial: $esInicial.val(),
+            idBodega: $bodega.val(),
+            ordenado: $ordenadoBy.val(),
+            idUsuarioCreacion: 1,
+            borrador: "@Model.Borrador",
+            anulado: "@Model.Anulado",
+            tomaDetalle: crearModeloDetalle(tdGenerada)
+        };
+
+        return model;
+    }
+
+
+    function crearModeloDetalle(model) {
+
+        console.log(model);
+
+        for (var i = 0; i < model.length; i++) {
+            model[i].toma = model[i].toma.toString().replace(".", ",");
+        }
+
+        return model;
+    }
+
+    function cancelar() {
+        bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) {
+            if (result)
+                window.location.href = "@Url.Action("ListarTomas")";
+
+        });
+    }
+
+    //////////////////////////////////////////////ajax////////////////////////////////////////////
 
 
     function getBodegas() {
@@ -148,15 +373,15 @@ else
               url: '@Url.Action("GetAllBodegas", "Bodega")',
              success: function (data) {
 
-                 bodegas = data;   
+                 bodegas = data;
 
                  for (var i = 0; i < data.length; i++) {
 
                      var o = new Option(data[i].nombre, data[i].id);
 
-                     if (data[i].id === @Model.IdBodega) 
+                     if (data[i].id === @Model.IdBodega)
                         $(o).attr('selected', true);
-                     
+
                      if (@Model.Id == 0) {
                          if (data[i].estado)
                              $("#bodegas").append(o);
@@ -164,7 +389,7 @@ else
                      else {
                         $("#bodegas").append(o);
                      }
-                 }       
+                 }
               },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -173,16 +398,80 @@ else
           });
     }
 
-    function generarToma() {
+    function getFamilias() {
+        $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("GetFamilias", "Familia")',
+
+            success: function (data) {
+                familias = data;
+
+                if(@Model.Id != 0)
+                    getTomaDetalles();
+                
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+
+    function getTomaDetalles() {
+
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+             url: '@Url.Action("GetTomaDetalles")',
+             data: { idToma: @Model.Id},
+             success: function (data) {
+                 tdGenerada = data;
+                 console.log(data);
+                 cargarDatos(data);
+             },
+             error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+             }
+          });
+
+    }
+
+
+    function guardarToma() {
+
         //console.log(crearModelo());
-        //public long Id { get; set; }
-        //public DateTime FechaToma { get; set; }
-        //public bool EsInicial { get; set; }
-        //public long IdBodega { get; set; }
-        //public string Ordenado { get; set; }
-        //public long IdUsuarioCreacion { get; set; }
-        //public bool Borrador { get; set; }
-        //public bool Anulado { get; set; }
+        $.ajax({
+              type: "POST",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("CrearEditarToma")',
+            data: crearModelo(),
+            success: function (data) {
+
+                @*window.location.href = "@Url.Action("ListarTomas")";*@
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+
+    }
+
+
+    function generarToma() {
+
         var model = {
             idBodega: $bodega.val(),
             id: 0,
@@ -203,13 +492,18 @@ else
             url: '@Url.Action("GenerarToma")',
             data: { model: model },
             success: function (data) {
-                
+
                 console.log(data);
                 tdGenerada = data;
                 cargarDatos(data);
 
-                if (data.length === 0)
-                    cargarAlert("@SharedLocalizer["BodegaSinMovimientos"]");
+                if (data.length === 0) {
+                    cargarAlert("@SharedLocalizer["BodegaSinMovimientosRecientes"]");
+                }
+                else {
+                    $('.inactiveControl').attr('disabled', 'disabled');
+
+                }
 
               },
               error: function (err, scnd) {
@@ -217,86 +511,6 @@ else
                   console.log(err.statusText);
               }
         });
-    }
-
-    function cargarDatos(data) {
-
-        $("#tblTomaD > tbody").remove();
-        $("#tblTomaD").append('<tbody></tbody>');
-
-        var contadorFila = 0;
- 
-        for (var i = 0; i < data.length; i++) {
-
-
-            var body = '<tr class="fila' + contadorFila + ' filas">'
-                + '<td><p style="padding-top:1rem;">' + data[i].idInventarioNavigation.codigo + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].idInventarioNavigation.descripcion + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + getFamiliaByIdSub(data[i].idInventarioNavigation.idSubFamilia) + " / " + getSubFamiliaById(data[i].idInventarioNavigation.idSubFamilia) + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].costoPromedio + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].inicial + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].entradas + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].salidas + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].existencia + '</p></td>'
-                + '<td><p style="padding-top:1rem;"> <input class="form-control" onkeyup="editarLinea(value, ' + contadorFila + ')" value="' + data[i].toma + '" /></p></td>'
-            $('#tblTomaD > tbody').append(body);
-            contadorFila++;
-
-        }
-
-
-    }
-
-
-    function editarLinea(value, key){
-
-        tdGenerada[key].toma = value;
-
-        console.log(tdGenerada[key]);
-
-    }
-
-
-    function getFamilias() {
-        $.ajax({
-              type: "get",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
-            url: '@Url.Action("GetFamilias", "Familia")',
-
-            success: function (data) {
-                familias = data;
-
-                console.log(data);
-               },
-              error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-          });
-    }
-
-    function getFamiliaByIdSub(id) {
-
-        for (var i = 0; i < familias.length; i++) {
-            for (var j = 0; j < familias[i].inverseIdFamiliaNavigation.length; j++) {
-                if (familias[i].inverseIdFamiliaNavigation[j].id == id)
-                    return familias[i].descripcion;
-            }
-           
-        }
-
-    }
-    function getSubFamiliaById(id) {
-        for (var i = 0; i < familias.length; i++) {
-            for (var j = 0; j < familias[i].inverseIdFamiliaNavigation.length; j++) {
-                if (familias[i].inverseIdFamiliaNavigation[j].id == id)
-                    return familias[i].inverseIdFamiliaNavigation[j].descripcion;
-            }
-
-        }
     }
 
 

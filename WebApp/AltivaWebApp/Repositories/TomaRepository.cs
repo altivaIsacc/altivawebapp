@@ -20,6 +20,11 @@ namespace AltivaWebApp.Repositories
             return context.TbPrToma.FirstOrDefault(t => t.Id == id);
         }
 
+        public bool ExisteTomaInicial()
+        {
+            return context.TbPrToma.Any(t => t.Anulado == false && t.Borrador == false && t.EsInicial == true);
+        }
+
         public IList<TbPrToma> GetAllTomaConBodega()
         {
             //return context.TbPrToma.Include(t => t.IdBodegaNavigation).ToList();
@@ -51,7 +56,7 @@ namespace AltivaWebApp.Repositories
 
         public IList<TbPrTomaDetalle> GetDetallesByTomaId(long id)
         {
-            return context.TbPrTomaDetalle.Where(t => t.IdToma == id).ToList();
+            return context.TbPrTomaDetalle.Include(i=> i.IdInventarioNavigation).Where(t => t.IdToma == id).ToList();
         }
 
         public IList<TbPrTomaDetalle> GetAllDetalleByIdD(IList<int> domain)
@@ -129,7 +134,7 @@ namespace AltivaWebApp.Repositories
 
             //var ultimaFecha = context.TbPrTomaDetalle.Include(t => t.IdTomaNavigation)..Where(t => t.Borrador == false && t.Anulado == false);
 
-            var ultimaTd = context.TbPrTomaDetalle.Include(t => t.IdTomaNavigation).OrderByDescending(t => t.IdTomaNavigation.FechaToma).Where(t => t.IdTomaNavigation.Borrador == false && t.IdTomaNavigation.Anulado == false).ToList();
+            var ultimaTd = context.TbPrTomaDetalle.Include(t => t.IdTomaNavigation).OrderByDescending(t => t.IdTomaNavigation.FechaToma).Where(t => t.IdTomaNavigation.Borrador == false && t.IdTomaNavigation.Anulado == false && t.IdTomaNavigation.IdBodega == domain.IdBodega).ToList();
 
 
             var tdXAjuste = context.TbPrAjusteInventario
@@ -163,7 +168,6 @@ namespace AltivaWebApp.Repositories
                  .Include(a => a.IdInventarioNavigation)
                     .ThenInclude(i => i.TbPrInventarioBodega)
                  .Where(c => c.IdBodega == domain.IdBodega && c.IdCompraNavigation.Borrador == false && c.IdCompraNavigation.Anulado == false && c.IdCompraNavigation.FechaDocumento > GetUltimaFechaToma(ultimaTd, c.IdInventario) && c.IdCompraNavigation.FechaDocumento < DateTime.Now)
-
                  .Select(td => new TbPrTomaDetalle
                  {
 
