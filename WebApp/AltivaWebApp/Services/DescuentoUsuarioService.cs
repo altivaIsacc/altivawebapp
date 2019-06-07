@@ -32,5 +32,15 @@ namespace AltivaWebApp.Services
             return repository.GetAll();
 
         }
+
+        public TbFaDescuentoUsuario GetDescuentoUsuarioById(int id)
+        {
+            return repository.GetDescuentoUsuarioById(id);
+        }
+
+        public bool Delete(TbFaDescuentoUsuario domain)
+        {
+            return repository.Delete(domain);
+        }
     }
 }

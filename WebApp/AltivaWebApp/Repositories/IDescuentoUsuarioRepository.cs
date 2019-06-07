@@ -12,6 +12,9 @@ namespace AltivaWebApp.Repositories
        
         bool SaveDescUser(IList<TbFaDescuentoUsuario> domain);
         IList<TbFaDescuentoUsuario> GetAll();
+        TbFaDescuentoUsuario GetDescuentoUsuarioById(int id);
+        bool Delete(TbFaDescuentoUsuario domain);
+
 
 
     }

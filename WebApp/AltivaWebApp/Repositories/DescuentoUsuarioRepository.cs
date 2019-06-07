@@ -1,5 +1,6 @@
 ﻿using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +33,10 @@ namespace AltivaWebApp.Repositories
 
         }
 
+        public TbFaDescuentoUsuario GetDescuentoUsuarioById(int id)
+        {
 
-
+            return context.TbFaDescuentoUsuario.FirstOrDefault(f => f.IdDescuentoUsuario == id);
+        }
     }
 }

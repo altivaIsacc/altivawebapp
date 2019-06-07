@@ -13,5 +13,7 @@ namespace AltivaWebApp.Services
 
         bool Save(IList<TbFaDescuentoUsuario> domain);
         IList<TbFaDescuentoUsuario> GetAll();
+        TbFaDescuentoUsuario GetDescuentoUsuarioById(int id);
+        bool Delete(TbFaDescuentoUsuario domain);
     }
 }

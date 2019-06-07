@@ -20,8 +20,6 @@ namespace AltivaWebApp.Controllers
         readonly IDescuentoUsuarioService DescUserService;
         public IUserService IUserService;
 
-
-
         public DescuentoPromocionController(IDescuentoPromocionMap map, IDescuentoUsuarioService DescUserService, IDescuentoPromocionService service, IUserService IUserService, IDescuentoUsuarioMap mapDescUser)
         {
             this.service = service;
@@ -92,6 +90,44 @@ namespace AltivaWebApp.Controllers
             return PartialView(DescUserService.GetAll());
         }
 
+        [HttpGet("_ListarDescuentoUsuarioFecha")]
+        public ActionResult _ListarDescuentoUsuarioFecha()
+        {
+            return PartialView(/*DescUserService.GetAll()*/);
+        }
 
+
+        [Route("EliminarDescuento")]
+        public ActionResult EliminarDescuento(int id)
+        {
+            try
+            {
+                var descuento = DescUserService.GetDescuentoUsuarioById(id);
+
+                DescUserService.Delete(descuento);
+                return Json(new { data = true });
+            }
+            catch (Exception)
+            {
+                return Json(new { data = false });
+                throw;
+            }
+        }
+
+        [Route("ObtenerDescuentoUsuario")]
+        public ActionResult ObtenerDescuentoUsuario(int id)
+        {
+            try
+            {
+                var descuento = DescUserService.GetDescuentoUsuarioById(id);
+
+                return Json(descuento);
+            }
+            catch (Exception)
+            {
+                BadRequest();
+                throw;
+            }
+        }    
     }
 }

@@ -1,5 +1,18 @@
 ﻿@model IEnumerable<AltivaWebApp.Domains.TbFaDescuentoUsuario>
 @inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+
+    var usuarios = ViewData["usuarios"] as IList<TbSeUsuario>;
+
+}
 
 
 
@@ -15,12 +28,15 @@
                     <th hidden>
                         ID
                     </th>
+
                     <th>
                         <span data-translate="codigo">Usuario</span>
                     </th>
+
                     <th>
                         <span data-translate="nombre">Maximo Descuento</span>
                     </th>
+
                     <th>
                         <span data-translate="estado">Nota</span>
                     </th>
@@ -37,21 +53,22 @@
                         <td hidden>
                             @Html.DisplayFor(modelItem => item.IdDescuentoUsuario)
                         </td>
+
                         <td style="padding-top: 2rem">
                             @Html.DisplayFor(modelIten => item.IdUsuario)
                         </td>
+
                         <td style="padding-top: 2rem">
                             @Html.DisplayFor(modelItem => item.MaxDescuento)
                         </td>
+
                         <td style="padding-top: 2rem" class="estado">
                             @Html.DisplayFor(modelItem => item.Nota)
                         </td>
 
                         <td style="padding-top: 2rem">
-
-                            <a href="@Url.Action("CuentaUsuario","ManejoUsuarios", new { codigo = item.IdDescuentoUsuario })"><span><i class="fas fa-edit"></i></span></a>
-                            <a href="@Url.Action("CuentaUsuario","ManejoUsuarios", new { codigo = item.IdDescuentoUsuario })"><span><i class="fas fa-trash"></i></span></a>
-
+                            <button class="btn btn-link editarDescuentoUsuario" value="@item.IdDescuentoUsuario"><span><i class="fas fa-edit"></i></span></button>
+                            <button class="btn btn-link eliminarDescuentoUsuario" value="@item.IdDescuentoUsuario"><span><i class="fas fa-trash"></i></span></button>
                         </td>
                     </tr>
                 }
@@ -61,6 +78,59 @@
     </div>
 </div>
 
+<script>
 
+    $(document).ready(function () {
+
+                       $('.editarDescuentoUsuario').on('click', function () {
+               var _id = $(this).val();
+
+                $.ajax({
+                    type: "GET",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                   // url: 'Eliminar-Descuento/' + $(this).val(),
+                    url: '@Url.Action("ObtenerDescuentoUsuario", "DescuentoPromocion")',
+                    data: {id: _id},
+
+                    success: function (data) {
+                        if (data.data) {
+                           getDescuentoUsuario()
+                        }
+                    },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+                });
+           });
+                   $('.eliminarDescuentoUsuario').on('click', function () {
+               var _id = $(this).val();
+
+                $.ajax({
+                    type: "GET",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                   // url: 'Eliminar-Descuento/' + $(this).val(),
+                    url: '@Url.Action("EliminarDescuento", "DescuentoPromocion")',
+                    data: {id: _id},
+
+                    success: function (data) {
+                        if (data.data) {
+                           getDescuentoUsuario()
+                        }
+                        else
+                            alert("Error al eliminar la subFamilia");
+                    },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+        });
+    });
+
+</script>
 
 
