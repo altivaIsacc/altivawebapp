@@ -73,7 +73,7 @@
                                 <span>@SharedLocalizer["Cantidad"]</span>
                             </th>
                             <th style="width:10%;">
-                                <span>@SharedLocalizer["CostoPromedio"]</span>
+                                <span>@SharedLocalizer["PrecioUnitario"]</span>
                             </th>
                             <th style="width:10%;">
                                 <span>@SharedLocalizer["Total"]</span>
@@ -98,7 +98,7 @@
                             <td><input id="lbCostoPromedio" class="form-control moneda" type="text" /></td>
                             <td><input type="text" class="form-control moneda" readonly id="lbTotal" /></td>
                             <td>
-                              <button class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button>
+                              <button class="btn btn-link btnAccion" onclick="guardarCambios()"><i class="fas fa-save"></i></button>
                             </td>
                         </tr>
                     </tbody>
@@ -112,7 +112,7 @@
 
     <div class="form-group row">
         <div class="col-md-12">
-            <button class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+            <button class="btn btn-success btnAccion" onclick="guardarSalir()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
             <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
         </div>
     </div>
@@ -128,11 +128,16 @@
     var arrayItems = [];
     var items = $('#items');
     var _Existencia = 0;
-    var lineas = []; 
     var contadorFila = 0;
+    var LineasAgregadas = [];
+    var lineas = [];
+    var $precio = $('#lbCostoPromedio');
+    var $cantidad = $('#lbCantidad');
+    var $unidad = $('#unidad');
+
+
     $(document).ready(function () {
 
- 
         getClientes();
         getMonedas();
         getUsuarios();
@@ -237,7 +242,7 @@
                 $("#lbCreador").text(Usuarios[i].nombre);
                 return Usuarios[i].nombre;
             }
-        }
+                }
         }
 
           function getInventario() {
@@ -395,6 +400,17 @@
 
     }
 
+    ////////////////////////////////////////////////////////////FUNCIONES DE GUARDADO,EDITAR//////////////////////////////////////
+
+
+    function guardarCambios() {
+
+        if (validarForm()) {
+            guardarLinea();
+            guardarCompra();
+        }
+    }
+
     function inicializaCampos() {
 
        $("#ddInventario").val("0");
@@ -432,7 +448,7 @@
                     extend: 'copyHtml5',
                     text: '<i class="fas fa-copy   " ></i>',
                     titleAttr: 'Copy',
-                    title: '@SharedLocalizer["AjusteManual"]',
+                    title: '@SharedLocalizer["CrarCotizacion"]',
                     exportOptions: {
                         columns: [0, 1, 3]
                     }
@@ -442,7 +458,7 @@
                     extend: 'excelHtml5',
                     text: '<i class="fas fa-file-excel  "></i>',
                     titleAttr: 'Excel',
-                    title: '@SharedLocalizer["AjusteManual"]',
+                    title: '@SharedLocalizer["CrearCotizacion"]',
                     exportOptions: {
                         columns: [0, 1, 3]
                     }
@@ -464,24 +480,70 @@
         $(".dataTables_searching").hide();
     }
 
-               function guardarLinea() {
-        if (validarLinea()) {
-             var model = {
-                 id: 0,
-                 idInventario: $("#ddInventario").val(),
-                 cantidad: parseFloat($("#lbCantidad").val()),
-                 costoPromedio: $("#lbCostoPromedio").val(),
-                 totalMovimiento: $("#lbTotal").val(),
-                 nombreItem: $("#ddInventario option:selected").text(),
-             };
+             function crearModelo() {
 
-            lineas.push(model);
-            cargarTabla(lineas);
-            $('#bodegas').attr("disabled", true);
+        var ordenModel = {
+            idCotizacion: @Model.IdCotizacion,
+            fechaCotizacion: $("#fecha").val(),
+            idCliente: $("#ddClientes").val(),
+            estado:@Model.Estado,
+            idMoneda: $("#ddMoneda").val(),
+            idVendedor: $("#ddVendedor").val(),
+            idUsuarioCreador: IdUsuarioLogueado ,
+            subTotalBase: 1,
+            subTotalDolar: 1,
+            subTotalEuro: 1,
+            subTotalGravadoBase:1,
+            subTotalGravadoDolar: 1,
+            subTotalGravadoEuro: 1,
+            subTotalExcentoBase: 1,
+            subTotalExcentoDolar: 1,
+            subTotalExcentoEuro: 1,
+            porcDescuento: 1,
+            totalDescuentoBase: 1,
+            totalDescuentoDolar: 1,
+            totalDescuentoEuro: 1,
+            subTotalGravadoNetoBase: 1,
+            subTotalGravadoNetoDolar: 1,
+            subTotalGravadoNetoEuro: 1,
+            subTotalExcentoNetoBase: 1,
+            subTotalExcentoNetoDolar: 1,
+            subTotalExcentoNetoEuro: 1,
+            montoIvaBase: 1,
+            montoIvaDolar: 1,
+            montoIvaEuro: 1,
+            totalBase: l,
+            totalDolar: l,
+            totalEuro: l,
+            fechaVencimiento: l,
+            tipoCambioDolar: l,
+            tipoCambioEuro: l,
+            cotizacionDetalle: crearModeloDetalle(lineasAgregadas)
+        };
 
+        return ordenModel;
+    }
+
+    function crearModeloDetalle(model) {
+
+        for (var i = 0; i < model.length; i++) {
+            model[i].cantidad = model[i].cantidad.toString().replace(".", ",");
+            model[i].precioUnitario = model[i].precioUnitario.toString().replace(".", ",");
+            model[i].subTotalGravado = model[i].subTotalGravado.toString().replace(".", ",");
+            model[i].subTotalExcento = model[i].subTotalExcento.toString().replace(".", ",");
+            model[i].subTotalGravadoNeto = model[i].subTotalGravadoNeto.toString().replace(".", ",");
+            model[i].subTotalExcentoNeto = model[i].subTotalExcentoNeto.toString().replace(".", ",");
+            model[i].porcIva = model[i].porcIva.toString().replace(".", ",");
+            model[i].totalIva = model[i].totalIva.toString().replace(".", ",");
+            model[i].porcFa = model[i].porcFa.toString().replace(".", ",");
+            model[i].totalFa = model[i].totalFa.toString().replace(".", ",");
+            model[i].porcDescuento = model[i].porcDescuento.toString().replace(".", ",");
+            model[i].totalDescuento = model[i].totalDescuento.toString().replace(".", ",");
+            model[i].total = model[i].total.toString().replace(".", ",");
         }
 
-        }
+        return model;
+    }
 
       function cancelar() {
         var msj = "@SharedLocalizer["confirmCancelar"]";
@@ -517,8 +579,6 @@
 
                     cargarTabla(lineas);
 
-                    if (lineas.length === 0)
-                        $('#bodegas').attr("disabled", false);
                 }
 
 
@@ -529,8 +589,7 @@
 
     }
 
-       }
-
+      
     function validarExistencia(idlinea) {
 
         var salida = "";
@@ -563,8 +622,273 @@
 
         else
             return true;
+    }
+
+       function guardarCompra() {
+
+        $.ajax({
+              type: "POST",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("CrearEditarCotizacion", "CotizacionProducto")',
+            data: crearModelo(),
+            success: function (data) {
+                    
+                if (data.success) {
+                    lineas[lineas.length - 1].id = data.idCD;
+                    lineasAgregadas[lineasAgregadas.length - 1].id = data.idCD;
+                    cargarTabla(lineas);
+                    if (@Model.IdCotizacion === 0) {
+
+                        var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
+                        window.location.href = url.replace("__id__", data.idCompra);
+
+                    }
+                }
+                else
+                    cargarAlert("@SharedLocalizer["numCompraRepitida"]");
 
 
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+
+    }
+
+       function guardarLinea() {
+
+
+           var model = {
+            idCotizacion:@Model.IdCotizacion,
+            idCotizacionDetalle: 0,
+            idInventario: l,
+            precioBase: l,
+            precioDolar: $descripcion.val(),
+            precioEuro: parseInt($('.tipoMoneda').val()),
+            fechaCreacion: parseFloat($cantidad.val()),
+            idUsuarioCreador: parseFloat($precio.val()),
+            subTotalBase: calcularSubtotalGrabadoLinea(),
+            subTotalDolar: calcularSubtotalExcentoLinea(),
+            subTotalEuro: calcularSubtotalGrabadoNetoLinea(),
+            subTotalGravadoBase: calcularSubtotalExcentoNetoLinea(),
+            subTotalGravadoDolar: parseFloat($iva.val()),
+            subTotalGravadoEuro: 0,
+            subTotalExcentoBase: 0,
+            subTotalExcentoDolar: 0,
+            subTotalExcentoEuro: $('#bodega').val(),
+            porDescuento: parseFloat($descuento.val()),
+            totalDescuentoBase: calcularTotalDescuentoLinea(),
+            totalDescuentoDolar: calcularTotalIvaLinea(),
+            totalDescuentoEuro: calcularTotalLinea(),
+            subTotalGravadoNetoBase: getBodegaItem($bodega.val()).nombre,
+            subTotalGravadoNetoDolar: l,
+            subTotalGravadoNetoEuro: 1,
+            subTotalExcentoNetoBase: l,
+            subTotalExcentoNetoEuro: l,
+            montoIvaBase: l,
+            montoIvaDolar: l,
+            montoIvaEuro: l,
+            totalBase: l,
+            totalDolar: l,
+            totalEuro: l
+
+        };
+        lineasAgregadas = [];
+
+        lineasAgregadas.push(model);
+        lineas.push(model);
+
+        calcularTotales();
+
+    }
+
+        function guardarSalir() {
+
+
+        if (validarForm()) {
+
+
+            if (@Model.Estado === 'Borrador')
+                guardarCompraBorrador();
+            else
+                guardarCompra();
+
+            window.location.href = "@Url.Action("ListarCotizacionProducto")";
+        }
+    }
+
+         function guardarCompraBorrador() {
+        if (lineas.length <= 0) {
+            cargarAlert('@SharedLocalizer["compraSinDetalle"]');
+        } else
+        $.ajax({
+              type: "POST",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("CambiarEstadoBorradorCompra")',
+            data: crearModelo(),
+            success: function (data) {
+
+                if (!data.success)
+                   cargarAlert("@SharedLocalizer["numCompraRepitida"]");
+
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+
+    }
+
+    function calcularTotales() {
+
+        subTotalExcento = 0;
+        subTotalGravado = 0;
+        subTotalExcentoNeto = 0;
+        subTotalGravadoNeto = 0;
+        subTotalCompra = 0;
+        totalDescuento = 0;
+        totalImpuesto = 0;
+        totalCompra = 0;
+
+
+        for (var i = 0; i < lineas.length; i++) {
+            subTotalExcento += parseFloat(lineas[i].subTotalExcento);
+            subTotalExcentoNeto += parseFloat(lineas[i].subTotalExcentoNeto);
+            subTotalGravado += parseFloat(lineas[i].subTotalGravado);
+            subTotalGravadoNeto += parseFloat(lineas[i].subTotalGravadoNeto);
+            subTotalCompra += parseFloat(lineas[i].subTotalExcento) + parseFloat(lineas[i].subTotalGravado);
+            totalImpuesto += parseFloat(lineas[i].totalIva);
+            totalDescuento += parseFloat(lineas[i].totalDescuento);
+            totalCompra += parseFloat(lineas[i].total);
+        }
+
+        $subTotal.val(subTotalCompra);
+        $totalImpuesto.val(totalImpuesto);
+        $totalDescuento.val(totalDescuento);
+        $total.val(totalCompra);
+    }
+
+    
+    function cargarLineas(data) {
+
+        for (var i = 0; i < data.length; i++) {
+            var model = {
+            idCotizacion:@Model.IdCotizacion,
+            idCotizacionDetalle: 0,
+            idInventario: l,
+            precioBase: l,
+            precioDolar: $descripcion.val(),
+            precioEuro: parseInt($('.tipoMoneda').val()),
+            fechaCreacion: parseFloat($cantidad.val()),
+            idUsuarioCreador: parseFloat($precio.val()),
+            subTotalBase: calcularSubtotalGrabadoLinea(),
+            subTotalDolar: calcularSubtotalExcentoLinea(),
+            subTotalEuro: calcularSubtotalGrabadoNetoLinea(),
+            subTotalGravadoBase: calcularSubtotalExcentoNetoLinea(),
+            subTotalGravadoDolar: parseFloat($iva.val()),
+            subTotalGravadoEuro: 0,
+            subTotalExcentoBase: 0,
+            subTotalExcentoDolar: 0,
+            subTotalExcentoEuro: $('#bodega').val(),
+            porDescuento: parseFloat($descuento.val()),
+            totalDescuentoBase: calcularTotalDescuentoLinea(),
+            totalDescuentoDolar: calcularTotalIvaLinea(),
+            totalDescuentoEuro: calcularTotalLinea(),
+            subTotalGravadoNetoBase: getBodegaItem($bodega.val()).nombre,
+            subTotalGravadoNetoDolar: l,
+            subTotalGravadoNetoEuro: 1,
+            subTotalExcentoNetoBase: l,
+            subTotalExcentoNetoEuro: l,
+            montoIvaBase: l,
+            montoIvaDolar: l,
+            montoIvaEuro: l,
+            totalBase: l,
+            totalDolar: l,
+            totalEuro: l
+            };
+            lineas.push(model);
+        }
+
+        cargarTabla(lineas);
+        calcularTotales();
+
+    }
+    
+    //////calculos de linea/////////////////////////////////////////////////////////////////////
+
+    function setSubTotalLinea() {
+
+        var precio = parseFloat($precio.val());
+        var cantidad = parseFloat($cantidad.val());
+
+        $subTotalLinea.val(cantidad * precio);
+
+    }
+
+    function calcularSubtotalGrabadoLinea() {
+
+        var iva = parseFloat($iva.val());
+        if (iva > 0)
+            return parseFloat($subTotalLinea.val());
+        else
+            return 0;
+    }
+
+    function calcularSubtotalExcentoLinea() {
+        var iva = parseFloat($iva.val());
+        if (iva === 0)
+            return parseFloat($subTotalLinea.val());
+        else
+            return 0;
+    }
+
+    function calcularSubtotalExcentoNetoLinea() {
+
+        var st = calcularSubtotalExcentoLinea();
+        var desc = calcularTotalDescuentoLinea();
+        if (st > 0)
+            return st - desc;
+        else
+            return 0;
+
+    }
+
+    function calcularSubtotalGrabadoNetoLinea() {
+        var st = calcularSubtotalGrabadoLinea();
+        var desc = calcularTotalDescuentoLinea();
+        if (st > 0)
+            return st - desc;
+        else
+            return 0;
+
+    }
+
+
+    function calcularTotalIvaLinea() {
+        var iva = parseFloat($iva.val());
+        var subTotal = parseFloat($subTotalLinea.val()) - calcularTotalDescuentoLinea();
+        return (iva / 100) * subTotal;
+    }
+
+    function calcularTotalDescuentoLinea() {
+
+        var desc = parseFloat($descuento.val());
+        var subTotal = parseFloat($subTotalLinea.val());
+        return (desc / 100) * subTotal;
+
+    }
+    function calcularTotalLinea() {
+
+        return (calcularSubtotalGrabadoNetoLinea() + calcularSubtotalExcentoNetoLinea()) + calcularTotalIvaLinea();
 
     }
 

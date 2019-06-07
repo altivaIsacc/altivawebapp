@@ -20,10 +20,16 @@ namespace AltivaWebApp.Controllers
     public class CotizacionProductoController : Controller
     {
         private readonly ICotizacionService _Service;
+        private readonly ICotizacionMap _Map;
+        private readonly IUserService _UserService;
+        private readonly IMonedaService _MonedaService;
 
-        public CotizacionProductoController  (ICotizacionService Service)
+        public CotizacionProductoController  (ICotizacionService Service,ICotizacionMap map, IUserService userService, IMonedaService monedaService)
         {
             _Service = Service;
+            _Map = map;
+            _UserService = userService;
+            _MonedaService = monedaService;
         }
 
         [HttpGet("Cotizaciones")]
@@ -35,7 +41,17 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Crear-Cotizacion")]
         public IActionResult CrearCotizacion()
         {
-            return View();
+
+            ViewData["usuario"] = _UserService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
+            var tipoCambio = _MonedaService.GetAll();
+            var model = new CotizacionViewModel
+            {
+                TipoCambioDolar = tipoCambio.FirstOrDefault(m => m.Codigo == 2).ValorCompra,
+                TipoCambioEuro = tipoCambio.FirstOrDefault(m => m.Codigo == 3).ValorCompra,
+                Estado = "Borrador"
+            };
+            ViewData["monedas"] = tipoCambio;
+            return View("CrearCotizacion", model);
         }
 
         [HttpGet ("ListarCotizacionProducto")]
@@ -49,7 +65,7 @@ namespace AltivaWebApp.Controllers
 
                 foreach (var item in Cotizaciones)
                 {
-                    
+                   
                         item.IdClienteNavigation.TbFaCotizacion = null;
                                          
                 }
@@ -70,5 +86,133 @@ namespace AltivaWebApp.Controllers
 
             return Ok(idUsuario);
         }
+
+        [Route("Nueva-Cotizacion")]
+        public ActionResult InsertarCotizacion()
+        {
+
+            ViewData["usuario"] = _UserService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
+            var tipoCambio = _MonedaService.GetAll();
+            var model = new CompraViewModel
+            {
+                TipoCambioDolar = tipoCambio.FirstOrDefault(m => m.Codigo == 2).ValorCompra,
+                TipoCambioEuro = tipoCambio.FirstOrDefault(m => m.Codigo == 3).ValorCompra,
+                Borrador = true
+            };
+            ViewData["monedas"] = tipoCambio;
+            return View("CrearEditarCotizacion", model);
+        }
+
+        [Route("Editar-Cotizacion/{id}")]
+        public ActionResult EditarCotizacion(int id)
+        {
+            var Cotizacion = _Map.DomainToViewModel(_Service.GetCotizacionById(id));
+            ViewData["usuario"] = _UserService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
+            ViewData["monedas"] = _MonedaService.GetAll();
+            return View("CrearEditarCompra", Cotizacion);
+        }
+
+        [HttpPost("CrearEditar-Cotizacion")]
+        public ActionResult CrearEditarCotizacion(CotizacionViewModel viewModel)
+        {
+            try
+            {
+                if (viewModel.IdCotizacion != 0)
+                {
+                  
+                        long? idCD = 0;
+                        var orden = _Map.Update(viewModel);
+                        if (viewModel.IdCotizacion != 0 && viewModel.CotizacionDetalle.Count() > 0)
+                        {
+                            var cd = _Map.CreateCD(viewModel);
+                            idCD = cd.IdCotizacion;
+                        }
+
+                        return Json(new { success = true, idCD = idCD });
+     
+
+                }
+                else
+                {
+                   
+                        viewModel.IdUsuarioCreador = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+                        var compra = _Map.Create(viewModel);
+
+
+                        return Json(new { success = true, idCotizacion = compra.IdCotizacion });
+
+                }
+
+            }
+            catch
+            {
+                throw;
+                //return BadRequest();
+            }
+        }
+
+        [HttpPost("Crear-CotizacionDetalle")]
+        public ActionResult CrearCotizacionDetalle(CotizacionViewModel viewModel)
+        {
+            try
+            {
+                var res = _Map.CreateCD(viewModel);
+
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        //POST: Orden/Create
+        [HttpPost("Editar-CotizacionDetalle")]
+        public ActionResult EditarCotizacionDetalle(CotizacionViewModel viewModel)
+        {
+            try
+            {
+                var res = _Map.CreateCD(viewModel);
+
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPost("Eliminar-CotizacionDetalle")]
+        public ActionResult EliminarCotizacionDetalle(int idCD)
+        {
+            try
+            {
+                var cd = _Service.GetCotizacionDetalleById(idCD);
+                var res = _Service.DeleteCotizacionDetalle(cd);
+
+                return Json(new { success = res });
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+
+        [HttpGet("Get-CotizacionDetalle/{id}")]
+        public ActionResult GetCotizacionDetalle(int id)
+        {
+            try
+            {
+                return Ok(_Service.GetAllCotizacionDetalleByIdCotizacion(id));
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }      
+
+
+
     }
 }

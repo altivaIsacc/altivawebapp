@@ -7,8 +7,13 @@ using AltivaWebApp.ViewModels;
 
 namespace AltivaWebApp.Mappers
 {
-    interface ICotizacionMap
+  public  interface ICotizacionMap
     {
-       
+        TbFaCotizacion Create(CotizacionViewModel viewModel);
+        TbFaCotizacion Update(CotizacionViewModel viewModel);
+        TbFaCotizacionDetalle CreateCD(CotizacionViewModel viewModel);
+        CotizacionViewModel DomainToViewModel(TbFaCotizacion domain);
+        bool UpdateCD(CotizacionViewModel viewModel);
+
     }
 }

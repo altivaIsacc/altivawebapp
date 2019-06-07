@@ -29,7 +29,111 @@ namespace AltivaWebApp.Repositories
                 throw;
             }
         }
-       
+
+        public IList<TbFaCotizacionDetalle> GetAllCotizacionDetalleByIdCotizacion(int id)
+        {
+            try
+            {
+                return context.TbFaCotizacionDetalle.Where(c => c.IdCotizacionNavigation.IdCotizacion == id).ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public TbFaCotizacion GetCotizacionById(int id)
+        {
+            try
+            {
+                return context.TbFaCotizacion.Include(c => c.TbFaCotizacionDetalle).ThenInclude(cd => cd.IdCotizacionNavigation).FirstOrDefault(c => c.IdCotizacion == id);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public IList<TbFaCotizacion> GetAllCotizacion()
+        {
+            try
+            {
+                return context.TbFaCotizacion
+                                    .Include(a => a.IdClienteNavigation).ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public TbFaCotizacionDetalle SaveCotizacionDetalle(TbFaCotizacionDetalle domain)
+        {
+            try
+            {
+
+
+                context.TbFaCotizacionDetalle.Add(domain);
+                context.SaveChanges();
+
+                return domain;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public bool DeleteCotizacionDetalle(TbFaCotizacionDetalle domain)
+        {
+            try
+            {
+                //var cd = context.TbPrCompraDetalle.FirstOrDefault(c => c.Id == idCD);
+                context.TbFaCotizacionDetalle.Remove(domain);
+                context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public bool UpdateCotizacionDetalle(IList<TbFaCotizacionDetalle> domain)
+        {
+            try
+            {
+                context.TbFaCotizacionDetalle.UpdateRange(domain);
+                context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
+        public TbFaCotizacionDetalle GetCotizacionDetalleById(long id)
+        {
+            try
+            {
+                return context.TbFaCotizacionDetalle.Include(c => c.IdCotizacionNavigation).FirstOrDefault(c => c.IdCotizacion == id);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
 
     }
 }
