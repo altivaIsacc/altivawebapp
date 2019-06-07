@@ -1,4 +1,5 @@
-﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+﻿@model AltivaWebApp.ViewModels.CotizacionViewModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
     {
@@ -11,10 +12,9 @@
     ViewData["Title"] = "CrearCotizacion";
 }
 
-<h2>Crear Cotizacion</h2>
+<h2>@SharedLocalizer["CrearCotizacion"]</h2>
 
 <form id="CrearCotizacion">
-
 
     <div class="form-group">
         <div class="form-row">
@@ -45,37 +45,111 @@
                 </select>
             </div>
             <div class="col-md-2">
+                <label>@SharedLocalizer["Usuario"]:</label>
+                <label id="lbCreador" class="form-control" disabled></label>
+            </div>
+            <div class="col-md-2">
                 <label>@SharedLocalizer["Vendedor"]:</label>
-                <label id="lbVendedor" class="form-control"></label>
+                <select id="ddVendedor" class="form-control search-key">
+                    <option selected value="0">@SharedLocalizer["Seleccione"]</option>
+                </select>
             </div>
         </div>
     </div>
 
-
 </form>
+    <div class="form-group">
+        <div class="form-row">
+            <div class="col-md-12 table-responsive">
+                <br />
+                <table class=" table table-bordered" style="width:100%" id="tblDetalleCotizacion">
+                    <thead>
+                        <tr>
+
+                            <th style="width:10%">
+                                <span>@SharedLocalizer["Item"]</span>
+                            </th>
+                            <th style="width:6%;">
+                                <span>@SharedLocalizer["Cantidad"]</span>
+                            </th>
+                            <th style="width:10%;">
+                                <span>@SharedLocalizer["CostoPromedio"]</span>
+                            </th>
+                            <th style="width:10%;">
+                                <span>@SharedLocalizer["Total"]</span>
+                            </th>
+                            <th style="width:6%;">
+                                <span>@SharedLocalizer["accion"]</span>
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="lineaForm">
+                            <td class="col-md-3"><div class="col-md-9">
+                                <select class="form-control" id="ddInventario">
+                                <option selected value="0">@SharedLocalizer["Seleccione"]</option>
+                                </select>
+                                 </div>
+                            <div class="col-md-1"><label id="lbExistencia"></label></div>
+                         </td>
+                        
+                            <td><input id="lbCantidad" class="form-control numerico" type="text" min="1" value="1" /></td>
+                            <td><input id="lbCostoPromedio" class="form-control moneda" type="text" /></td>
+                            <td><input type="text" class="form-control moneda" readonly id="lbTotal" /></td>
+                            <td>
+                              <button class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-md-12">
+            <button class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+            <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
+        </div>
+    </div>
+
 
 
 
 <script>
+    var Usuarios = [];
+    var bodegas = [];
+    var IdUsuarioLogueado = 0;
+    var _Inventario = [];
+    var arrayItems = [];
+    var items = $('#items');
+    var _Existencia = 0;
+    var lineas = []; 
+    var contadorFila = 0;
     $(document).ready(function () {
 
+ 
         getClientes();
         getMonedas();
         getUsuarios();
-        var Usuarios = [];
-        var IdUsuarioLogueado=0;
+        getInventario();
 
         $('#fechaPicker').datetimepicker({
             defaultDate: new Date(),
             locale: localStorage.getItem("idioma"),
-            format: 'DD-MM-YYYY'
+            format: 'DD-MM-YYYY',
 
 
         }).on('keypress paste', function (e) {
             e.preventDefault();
             return false;
-        });
-
+            });
+     
+/////////////////////////////GETS///////////////////////////////////////////////////////////////////////////////////////////////
         function getClientes() {
             $.ajax({
                 type: "get",
@@ -96,15 +170,6 @@
             });
         }
 
-        function cargarddClientes(clientes) {
-
-            for (var i = 0; i < clientes.length; i++) {
-                var o = "<option value=" + clientes[i].idContacto + ">" + clientes[i].nombre + "</option>";
-                $("#ddClientes").append(o);
-            }
-
-        }
-
             function getMonedas() {
          $.ajax({
               type: "get",
@@ -113,7 +178,7 @@
               },
               dataType: "json",
               url: '@Url.Action("GetMonedas", "Monedas")',
-             success: function (data) {                
+             success: function (data) {
                  monedas = data;
                  cargarddMoneda(data);
 
@@ -124,16 +189,7 @@
               }
           });
     }
-
-        function cargarddMoneda(moneda) {
-
-            for (var i = 0; i < moneda.length; i++) {
-                var o = "<option value=" + moneda[i].codigo + ">" + moneda[i].nombre + "</option>";
-                $("#ddMoneda").append(o);
-            }
-
-        }
-
+   
                 function getUsuarios() {
          $.ajax({
               type: "get",
@@ -144,14 +200,16 @@
               url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
              success: function (data) {
                  Usuarios = data;
+
                  getIdUsuarioLogueado();
+                 cargarddUsuarios(data);
               },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
                   console.log(err.statusText);
               }
           });
-    }
+        }
 
        function getIdUsuarioLogueado() {
          $.ajax({
@@ -162,7 +220,6 @@
               dataType: "json",
               url: '@Url.Action("GetInfoLogueado", "CotizacionProducto")',
              success: function (data) {
-                 console.log(data);
                  IdUsuarioLogueado = data;
                  GetUsuarioLogueado();
               },
@@ -175,16 +232,342 @@
 
     function GetUsuarioLogueado() {
 
-
         for (var i = 0; i <Usuarios.length; i++) {
             if (Usuarios[i].id === IdUsuarioLogueado) {
-                console.log(Usuarios[i].nombre);
-                $("#lbVendedor").text(Usuarios[i].nombre);
+                $("#lbCreador").text(Usuarios[i].nombre);
                 return Usuarios[i].nombre;
             }
         }
         }
 
+          function getInventario() {
+            ///get inventario
+            $.ajax({
+
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetAllInventario", "Inventario")',
+           success: function (data) {
+               cargarddInventario(data);
+               console.log(data);
+               _Inventario = data;
+                inventario = JSON.parse(JSON.stringify(data));
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+            });
+        }
+
     });
+
+        function existeItem(id) {
+
+            var flag = false;
+            for (var i = 0; i < _Inventario.length; i++) {
+
+                if (parseInt(_Inventario[i].idInventario) === parseInt(id))
+                    flag = true;
+            }
+            return flag;
+        }
+        
+    function validarLinea() {
+
+        var flag = true;
+        var exi = parseFloat($("#lbExistencia").text());
+        var cant = parseFloat($("#lbCantidad").text());
+        if ( exi < cant ){
+                flag = false;
+                 cargarAlert('@SharedLocalizer["cantidaMayorQueExistencias"]');
+        }
+
+        return flag;
+
+    }
+
+///////////////////////////////////AJUSTES/////////////////////////////////////////////////////////////////////
+        $("#ddInventario").change(function () {
+            var _CostoPromedio = 0;
+            for (var i = 0; i < _Inventario.length; i++) {
+                if (_Inventario[i].idInventario === parseInt($(this).val())) {
+                    _Existencia ="Existencia: "+ _Inventario[i].existenciaGeneral;
+                    _CostoPromedio = _Inventario[i].costoPromedioGeneral;
+                    $("#lbExistencia").text(_Existencia);
+                    $("#lbCostoPromedio").val(_CostoPromedio);
+                    setTotalLinea();
+                }
+            }
+
+        });
+
+        $("#lbCantidad").on('focusout', function () {
+            if ($(this).val() <= 0 || $(this).val() === "") 
+                $(this).val(1);
+            
+            setTotalLinea();
+        });
+
+        $("#lbCostoPromedio").on('focusout', function () {
+            if ($(this).val() <= 0 || $(this).val() === "") 
+                $(this).val(1);
+            
+            setTotalLinea();
+    });
+
+        function setTotalLinea() {
+
+            var precio = parseFloat($("#lbCostoPromedio").val());
+            var cantidad = parseFloat($("#lbCantidad").val());
+           
+
+
+            $("#lbTotal").val(cantidad * precio);
+
+        }
+
+
+////////////////////////////////////CARGAR DROPDOWNS//////////////////////////////////////////////////////////////
+        function cargarddMoneda(moneda) {
+
+            for (var i = 0; i < moneda.length; i++) {
+                var o = "<option value=" + moneda[i].codigo + ">" + moneda[i].nombre + "</option>";
+                $("#ddMoneda").append(o);
+            }
+
+        }
+
+
+        function cargarddUsuarios(usuarios) {
+            for (var i = 0; i < usuarios.length; i++) {
+                var o = "<option value=" + usuarios[i].id + ">" + usuarios[i].nombre + "</option>";
+                $("#ddVendedor").append(o);
+            }
+        }
+
+        function cargarddClientes(clientes) {
+
+            for (var i = 0; i < clientes.length; i++) {
+                var o = "<option value=" + clientes[i].idContacto + ">" + clientes[i].nombre + "</option>";
+                $("#ddClientes").append(o);
+            }
+
+        }
+
+        function cargarddInventario(inventario) {
+
+            for (var i = 0; i < inventario.length; i++) {
+                var o = "<option value=" + inventario[i].idInventario + ">" + inventario[i].descripcion + "</option>";
+                $("#ddInventario").append(o);
+            }
+
+        }
+
+
+
+
+    function cargarTabla(data) {
+        $('.filasCargadas').remove();
+
+        contadorFila = 0;
+
+
+        for (var i = 0; i < data.length; i++) {
+            contadorFila++;
+
+            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' +  data[i].nombreItem + '</td>'
+                + '<td style="padding-top:2rem;">' + data[i].cantidad + '</td>'
+                + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].costoPromedio + '"/></td>'
+                + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].totalMovimiento + '"/></td>'
+                + '<td><button  class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+            $('.lineaForm').before(body);
+        }
+
+        $(".currency").inputmask('currency', {
+            prefix: monedas[0].nombre + ' ',
+            rightAlign: true
+        });
+
+        inicializaCampos();
+
+    }
+
+    function inicializaCampos() {
+
+       $("#ddInventario").val("0");
+        $("#lbCantidad").val(0);
+        setTotalLinea();
+    }
+
+    function inicializarTabla() {
+        $('#tblDetalleCotizacion').DataTable().destroy();
+        tblCotizacion = $('#tblCotizacion').DataTable({
+            "info": false,
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@SharedLocalizer["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                "paginate": {
+                    "first": "@SharedLocalizer["Primero"]",
+                    "last": "@SharedLocalizer["Último"]",
+                    "next": "@SharedLocalizer["Sguiente"]",
+                    "previous": "@SharedLocalizer["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   " ></i>',
+                    titleAttr: 'Copy',
+                    title: '@SharedLocalizer["AjusteManual"]',
+                    exportOptions: {
+                        columns: [0, 1, 3]
+                    }
+
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: '@SharedLocalizer["AjusteManual"]',
+                    exportOptions: {
+                        columns: [0, 1, 3]
+                    }
+
+                },
+
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: '@SharedLocalizer["AjusteManual"]',
+                    exportOptions: {
+                        columns: [0, 1, 3]
+                    }
+                }
+            ]
+        });
+
+        $(".dataTables_searching").hide();
+    }
+
+               function guardarLinea() {
+        if (validarLinea()) {
+             var model = {
+                 id: 0,
+                 idInventario: $("#ddInventario").val(),
+                 cantidad: parseFloat($("#lbCantidad").val()),
+                 costoPromedio: $("#lbCostoPromedio").val(),
+                 totalMovimiento: $("#lbTotal").val(),
+                 nombreItem: $("#ddInventario option:selected").text(),
+             };
+
+            lineas.push(model);
+            cargarTabla(lineas);
+            $('#bodegas').attr("disabled", true);
+
+        }
+
+        }
+
+      function cancelar() {
+        var msj = "@SharedLocalizer["confirmCancelar"]";
+
+        bootbox.confirm(msj, function (result) {
+
+            if (result)
+                window.location.href = "@Url.Action("CrearCotizacion","CotizacionProducto")";
+
+        });
+    }
+
     
+    function eliminarLinea(_id, idLinea) {
+
+        bootbox.confirm("@SharedLocalizer["confirmEliminarLinea"]", function (result) {
+
+            if (result) {
+
+                var id = _id - 1;
+
+                if (validarExistencia(id)) {
+                    if (idLinea != 0)
+                        lineasEliminadas.push(lineas[id].id);
+                    else
+                        lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
+
+                    //la linea hay que convertirla a salida para que se reste
+                    lineas[id].movimiento = "false";
+                    recalcularExistencias(lineas[id]);
+
+                    lineas.splice(id, 1);
+
+                    cargarTabla(lineas);
+
+                    if (lineas.length === 0)
+                        $('#bodegas').attr("disabled", false);
+                }
+
+
+            }
+
+        });
+
+
+    }
+
+       }
+
+    function validarExistencia(idlinea) {
+
+        var salida = "";
+        var linea = lineas[idlinea];
+
+        if (linea.movimiento === "true") {
+
+
+            for (var i = 0; i < lineas.length; i++) {
+                if (lineas[i].idInventario === linea.idInventario && lineas[i].movimiento === "false")
+                    salida = lineas[i];
+            }
+            if (salida === "")
+                return true;
+            else {
+                var item = getItem(parseInt(linea.idInventario))[0];
+
+                var existencia = item.existenciaBodega - parseInt(linea.cantidad);
+
+                if (existencia >= parseInt(salida.cantidad))
+                    return true;
+                else {
+
+                    cargarAlert("@SharedLocalizer["noPuedeEliminarlinea"]");
+                    return false;
+                }
+            }
+
+        }
+
+        else
+            return true;
+
+
+
+    }
+
 </script>
+
+<script src="~/lib/vendors/jsPDF/AM.js"></script>

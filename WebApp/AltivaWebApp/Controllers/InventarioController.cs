@@ -46,6 +46,7 @@ namespace AltivaWebApp.Controllers
         public ActionResult ListarInventario()
         {
             ViewData["bodegas"] = bodegaService.GetAllActivas();
+            var algo= bodegaService.GetAllActivas(); 
             return View();
         }
 
