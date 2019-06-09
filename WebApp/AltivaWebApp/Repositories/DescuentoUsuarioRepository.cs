@@ -20,7 +20,18 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                context.TbFaDescuentoUsuario.AddRange(domain);
+                foreach (var item in domain)
+                {
+                    if (item.IdDescuentoUsuario == 0)
+                    {
+                        context.TbFaDescuentoUsuario.Add(item);
+                    }
+                    else
+                    {
+                        context.TbFaDescuentoUsuario.Update(item);
+                    }
+                }
+                //context.TbFaDescuentoUsuario.AddRange(domain);
                 context.SaveChanges();
 
                 return true;
