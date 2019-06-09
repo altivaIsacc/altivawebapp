@@ -203,7 +203,7 @@ namespace AltivaWebApp.Modelos
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=CENTRAL-PC\\FDPRUEBAS;Database=BE_AltivaRedes;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Server=DESKTOP-MMIUOVL\\SQLEXPRESS;Database=BE_Empresa;Trusted_Connection=True;");
             }
         }
 
