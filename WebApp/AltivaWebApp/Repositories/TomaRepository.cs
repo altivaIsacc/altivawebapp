@@ -15,6 +15,81 @@ namespace AltivaWebApp.Repositories
 
         }
 
+
+        public TbPrToma CombinarTomas(int id, IList<int> domain)
+        {
+            var model = context.TbPrToma.Include(t => t.TbPrTomaDetalle).Where(r => domain.Any(_id => _id == r.Id)).ToList();
+
+            var toma = model.FirstOrDefault(t => t.Id == id);
+
+            var nuevaToma = new TbPrToma
+            {
+                Anulado = toma.Anulado,
+                Borrador = toma.Borrador,
+                Id = 0,
+                EsInicial = toma.EsInicial,
+                FechaCreacion = toma.FechaCreacion,
+                FechaToma = toma.FechaToma,
+                IdBodega = toma.IdBodega,
+                IdUsuarioCreacion = toma.IdUsuarioCreacion,
+                Ordenado = toma.Ordenado
+            };
+
+            context.Add(nuevaToma);
+
+            //nuevaToma.TbPrTomaDetalle = toma.TbPrTomaDetalle.Select(t => new TbPrTomaDetalle {
+            //    CostoPromedio = t.CostoPromedio,
+            //    Toma =t.Toma,
+            //    Id = t.Id,
+            //    Existencia = t.Existencia,
+            //    Entradas = t.Entradas,
+            //    IdInventario = t.IdInventario,
+            //    IdInventarioNavigation = null,
+            //    IdToma = 0,
+            //    IdTomaNavigation = null,
+            //    Inicial = t.Inicial,
+            //    Salidas = t.Salidas
+
+            //}).ToList();
+
+            nuevaToma.TbPrTomaDetalle = toma.TbPrTomaDetalle;
+
+            foreach (var item in nuevaToma.TbPrTomaDetalle)
+            {
+                item.IdToma = nuevaToma.Id;
+                //item.Toma = 0;
+            }
+
+            var detalles = new List<TbPrTomaDetalle>();
+
+            foreach (var item in model)
+            {
+                foreach (var i in item.TbPrTomaDetalle)
+                {
+                    detalles.Add(i);
+                }
+            }
+
+
+            foreach (var i in nuevaToma.TbPrTomaDetalle)
+            {
+                i.Toma = detalles.Where(d => d.IdInventario == i.IdInventario).Sum(d => d.Toma);
+            }
+
+            context.TbPrTomaDetalle.UpdateRange(nuevaToma.TbPrTomaDetalle);
+
+            context.RemoveRange(detalles.Where(d => d.IdToma != nuevaToma.Id));
+            context.RemoveRange(model);
+
+            context.SaveChanges();
+
+            return nuevaToma;
+        }
+
+        public IList<TbPrToma> GetAllTomasByIds(IList<int> domain)
+        {
+            return context.TbPrToma.Include(t => t.TbPrTomaDetalle).Where(r => domain.Any(id => id == r.Id)).ToList();
+        }
         public TbPrToma GetTomaByID(long id)
         {
             return context.TbPrToma.FirstOrDefault(t => t.Id == id);
@@ -23,6 +98,30 @@ namespace AltivaWebApp.Repositories
         public bool ExisteTomaInicial()
         {
             return context.TbPrToma.Any(t => t.Anulado == false && t.Borrador == false && t.EsInicial == true);
+        }
+
+        public IList<TbPrToma> GetCombinables(int idBodega)
+        {
+            return context.TbPrToma.Include(t => t.IdBodegaNavigation).Where(t => t.Borrador == true && t.Anulado == false && t.IdBodega == idBodega).Select(t => new TbPrToma
+            {
+
+                Anulado = t.Anulado,
+                Borrador = t.Borrador,
+                EsInicial = t.EsInicial,
+                FechaCreacion = t.FechaCreacion,
+                FechaToma = t.FechaToma,
+                Id = t.Id,
+                IdBodega = t.IdBodega,
+                IdBodegaNavigation = new TbPrBodega
+                {
+                    Id = t.IdBodegaNavigation.Id,
+                    Nombre = t.IdBodegaNavigation.Nombre
+                },
+                IdUsuarioCreacion = t.IdUsuarioCreacion,
+                Ordenado = t.Ordenado,
+                TbPrTomaDetalle = null
+
+            }).ToList();
         }
 
         public IList<TbPrToma> GetAllTomaConBodega()
@@ -56,7 +155,7 @@ namespace AltivaWebApp.Repositories
 
         public IList<TbPrTomaDetalle> GetDetallesByTomaId(long id)
         {
-            return context.TbPrTomaDetalle.Include(i=> i.IdInventarioNavigation).Where(t => t.IdToma == id).ToList();
+            return context.TbPrTomaDetalle.Include(i => i.IdInventarioNavigation).Where(t => t.IdToma == id).ToList();
         }
 
         public IList<TbPrTomaDetalle> GetAllDetalleByIdD(IList<int> domain)
@@ -100,7 +199,7 @@ namespace AltivaWebApp.Repositories
         public double GetInicial(IList<TbPrTomaDetalle> toma, long idInventario, DateTime fecha)
         {
             //&& t.IdTomaNavigation.Anulado == false && t.IdTomaNavigation.Borrador == false
-            var _toma = toma.FirstOrDefault(t => t.IdTomaNavigation.FechaToma < fecha  && t.IdInventario == idInventario);
+            var _toma = toma.FirstOrDefault(t => t.IdTomaNavigation.FechaToma < fecha && t.IdInventario == idInventario);
             if (_toma == null)
                 return 0;
             else
@@ -110,7 +209,7 @@ namespace AltivaWebApp.Repositories
 
         public DateTime GetUltimaFechaToma(IList<TbPrTomaDetalle> toma, long idInventario)
         {
-            if(toma.Any(t => t.IdInventario == idInventario))
+            if (toma.Any(t => t.IdInventario == idInventario))
             {
                 var _fecha = toma.FirstOrDefault(t => t.IdInventario == idInventario).IdTomaNavigation.FechaToma;
                 if (_fecha == null)
@@ -225,7 +324,7 @@ namespace AltivaWebApp.Repositories
                         IdInventarioNavigation = item.IdInventarioNavigation,
                         IdInventario = item.IdInventario
                     };
-                   
+
                     foreach (var i in arrayTD)
                     {
                         tdAux.Entradas += i.Entradas;
@@ -264,6 +363,38 @@ namespace AltivaWebApp.Repositories
                 context.UpdateRange(domain);
                 context.SaveChanges();
                 return domain;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public bool DeleteDetalles(IList<TbPrTomaDetalle> domain)
+        {
+            try
+            {
+                context.TbPrTomaDetalle.RemoveRange(domain);
+                context.SaveChanges();
+                return true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
+        public bool DeleteTomas(IList<TbPrToma> domain)
+        {
+            try
+            {
+                context.TbPrToma.RemoveRange(domain);
+                context.SaveChanges();
+
+                return true;
             }
             catch (Exception)
             {

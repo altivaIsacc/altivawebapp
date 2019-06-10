@@ -126,10 +126,10 @@ else
         <button @editarInicial class="btn btn-info btnAccion" style="width:100%" onclick="guardarCambiosBorrador()">@SharedLocalizer["Guardar"] @SharedLocalizer["Borrador"] </button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
-        <button @editarInicial @estado class="btn btn-dark btnAccion" style="width:100%" onclick="CombinarToma()">@SharedLocalizer["Combinar"]</button>
+        <button @editarInicial @estado class="btn btn-dark btnAccion" style="width:100%" onclick="combinarToma()">@SharedLocalizer["Combinar"]</button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
-        <button @estado class="btn btn-danger btnAccion" style="width:100%" onclick="AnularToma()">@SharedLocalizer["Anular"] </button>
+        <button @estado class="btn btn-danger btnAccion" style="width:100%" onclick="anularToma()">@SharedLocalizer["Anular"] </button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
         <button class="btn btn-success btnAccion" style="width:100%" onclick="guardarCambios(2)">@SharedLocalizer["Ajustar"] @SharedLocalizer["Inventario"]</button>
@@ -144,6 +144,25 @@ else
     <div class="col-md-12">
         <div id="comentarios">
 
+        </div>
+    </div>
+</div>
+
+<div>
+    <!-- Modal -->
+    <div class="modal fade" id="modalCombinables" tabindex="-1" role="dialog" aria-labelledby="combinablesModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="combinablesModallabel">@SharedLocalizer["Combinar"] @SharedLocalizer["Tomas"]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="combinables">
+
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -215,6 +234,7 @@ else
 
         for (var i = 0; i < data.length; i++) {
             var model = {
+                id: i,
                 codigo: data[i].idInventarioNavigation.codigo,
                 descripcion: data[i].idInventarioNavigation.descripcion,
                 familia: getFamiliaByIdSub(data[i].idInventarioNavigation.idSubFamilia) + " / " + getSubFamiliaById(data[i].idInventarioNavigation.idSubFamilia),
@@ -283,12 +303,33 @@ else
     }
 
 
-    function editarLinea(value, key){
+    function editarLinea(value, key) {
 
         tdGenerada[key].toma = value;
 
         console.log(tdGenerada[key]);
+    }
 
+    function ordenarArray(data) {
+
+        var array = [];
+
+        if ($ordenadoBy.val() === "producto") {
+            array = data.sort(function (a, b) {
+                if (a.idInventarioNavigation.descripcion < b.idInventarioNavigation.descripcion) { return -1; }
+                if (a.idInventarioNavigation.descripcion > b.idInventarioNavigation.descripcion) { return 1; }
+                return 0;
+            });
+        }
+        else {
+            array = data.sort(function (a, b) {
+                if (getFamiliaByIdSub(a.idInventarioNavigation.idSubFamilia) < getFamiliaByIdSub(b.idInventarioNavigation.idSubFamilia)) { return -1; }
+                if (getFamiliaByIdSub(a.idInventarioNavigation.idSubFamilia) > getFamiliaByIdSub(b.idInventarioNavigation.idSubFamilia)) { return 1; }
+                return 0;
+            });
+        }
+
+        return array;
     }
 
 
@@ -362,6 +403,45 @@ else
 
     //////////////////////////////////////////////ajax////////////////////////////////////////////
 
+    function combinarToma() {
+        $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+            url: '@Url.Action("GetCombinables")',
+            data: { id: @Model.Id, idBodega: $bodega.val() },
+                    success: function (data) {
+                        $('#combinables').html(data);
+                        $('#modalCombinables').modal('show');
+                    },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+                });
+    }
+
+    function guardarCombinar() {
+
+        $.ajax({
+            type: "post",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: '@Url.Action("CombinarTomas", new { id = Model.Id })',
+            data: { tomas:  tomasBorrador},
+            success: function (data) {
+                window.location.href = "@Url.Action("EditarToma", new { id = "__id__" })".replace("__id__", data.id);
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+        });
+
+        //console.log(tomasBorrador);
+
+        $('#modalCombinables').modal('hide');
+    }
 
     function getBodegas() {
          $.ajax({
@@ -433,9 +513,9 @@ else
              url: '@Url.Action("GetTomaDetalles")',
              data: { idToma: @Model.Id},
              success: function (data) {
-                 tdGenerada = data;
+                 tdGenerada = ordenarArray(data);
                  console.log(data);
-                 cargarDatos(data);
+                 cargarDatos(tdGenerada);
              },
              error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -493,9 +573,8 @@ else
             data: { model: model },
             success: function (data) {
 
-                console.log(data);
-                tdGenerada = data;
-                cargarDatos(data);
+                tdGenerada = ordenarArray(data);
+                cargarDatos(tdGenerada);
 
                 if (data.length === 0) {
                     cargarAlert("@SharedLocalizer["BodegaSinMovimientosRecientes"]");

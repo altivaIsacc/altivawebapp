@@ -20,5 +20,7 @@ namespace AltivaWebApp.Services
         IList<TbPrToma> GetAllTomaConBodega();
         IList<TbPrTomaDetalle> GenerateTD(TbPrToma domain);
         bool ExisteTomaInicial();
+        IList<TbPrToma> GetCombinables(int idBodega);
+        TbPrToma CombinarTomas(int id, IList<int> domain);
     }
 }

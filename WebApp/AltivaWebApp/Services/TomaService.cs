@@ -72,5 +72,17 @@ namespace AltivaWebApp.Services
         {
             return repository.ExisteTomaInicial();
         }
+
+        public IList<TbPrToma> GetCombinables(int idBodega)
+        {
+            return repository.GetCombinables(idBodega);
+        }
+
+
+        public TbPrToma CombinarTomas(int id, IList<int> domain)
+        {
+            return repository.CombinarTomas(id, domain);
+        }
+
     }
 }

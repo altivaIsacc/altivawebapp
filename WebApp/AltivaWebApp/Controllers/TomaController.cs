@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AltivaWebApp.Controllers
@@ -16,12 +18,14 @@ namespace AltivaWebApp.Controllers
         private readonly ITomaService service;
         private readonly ITomaMap map;
         private readonly IBodegaService bodegaService;
+        private readonly IUserService userService;
 
-        public TomaController(ITomaService service, ITomaMap map, IBodegaService bodegaService)
+        public TomaController(IUserService userService, ITomaService service, ITomaMap map, IBodegaService bodegaService)
         {
             this.service = service;
             this.map = map;
             this.bodegaService = bodegaService;
+            this.userService = userService;
         }
 
         [Route("Todo")]
@@ -41,8 +45,8 @@ namespace AltivaWebApp.Controllers
         public IActionResult EditarToma(long id)
         {
             var toma = map.DomainToViewModel(service.GetTomaByID(id));
-            if(toma.EsInicial && !toma.Anulado && !toma.Borrador)
-                 ViewBag.existeTomaInicial = !toma.EsInicial;
+            if (toma.EsInicial && !toma.Anulado && !toma.Borrador)
+                ViewBag.existeTomaInicial = !toma.EsInicial;
             else
                 ViewBag.existeTomaInicial = service.ExisteTomaInicial();
 
@@ -60,7 +64,7 @@ namespace AltivaWebApp.Controllers
                 if (viewModel.Id != 0)
                 {
                     toma = map.Update(viewModel);
-                    if(viewModel.TomaDetalle != null)
+                    if (viewModel.TomaDetalle != null)
                     {
                         var tomaDetalle = map.UpdateTD(viewModel.TomaDetalle);
                     }
@@ -71,15 +75,48 @@ namespace AltivaWebApp.Controllers
                 }
 
                 return Json(new { success = true, idToma = toma.Id });
-                
+
             }
             catch (Exception)
             {
 
                 throw;
             }
-            
+
         }
+
+
+        [Route("Combinables/id/idBodega")]
+        public IActionResult GetCombinables(int id, int idBodega)
+        {
+            var tomas = service.GetCombinables(idBodega);
+
+            //tomas.Remove(tomas.FirstOrDefault(t => t.Id == id));
+
+            ViewBag.idModel = id;
+
+            ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+
+            return PartialView("_CombinarToma", tomas);
+        }
+
+        [HttpPost("CombinarTomas/{id}")]
+        public IActionResult CombinarTomas(int id, IList<int> tomas)
+        {
+            try
+            {
+
+                var res = service.CombinarTomas(id, tomas);
+                return Json(new { success = true, id = res.Id });
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
 
         [HttpPost("AjustarInventario")]
         public IActionResult AjustarInventario(int idToma)
@@ -116,7 +153,7 @@ namespace AltivaWebApp.Controllers
             catch (Exception)
             {
                 return BadRequest();
-               // throw;
+                // throw;
             }
         }
 
@@ -160,7 +197,7 @@ namespace AltivaWebApp.Controllers
                 //if(model.Ordenado == "producto")
                 //    return Ok(tomas.OrderBy(o=>o.IdInventarioNavigation.Descripcion));
                 //else
-                    return Ok(tomas);
+                return Ok(tomas);
 
             }
             catch (Exception)

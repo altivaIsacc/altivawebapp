@@ -36,12 +36,13 @@ namespace AltivaWebApp.Mappers
             return service.UpdateTomaDetalle(ViewModelToDomainTD(viewModel));
         }
 
+
         public TbPrToma ViewModelToDomain(TomaViewModel viewModel)
         {
             return new TbPrToma
             {
                 Anulado = false,
-                Borrador = viewModel.Borrador,
+                Borrador = true,
                 EsInicial = viewModel.EsInicial,
                 FechaCreacion = DateTime.Now,
                 FechaToma = viewModel.FechaToma,

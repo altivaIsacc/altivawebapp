@@ -17,6 +17,6 @@ namespace AltivaWebApp.ViewModels
         public bool Borrador { get; set; }
         public bool Anulado { get; set; }
 
-        public virtual IList<TomaDetalleViewModel> TomaDetalle { get; set; }
+        public IList<TomaDetalleViewModel> TomaDetalle { get; set; }
     }
 }
