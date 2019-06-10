@@ -29,27 +29,28 @@
                         ID
                     </th>
 
-                    <th>
-                        <span data-translate="codigo">Usuario</span>
+                    <th width="25px">
+                        <span data-translate="codigo"><center>Usuario</center></span>
                     </th>
 
-                    <th>
-                        <span data-translate="nombre">Maximo Descuento</span>
+                    <th width="25px">
+                        <span data-translate="nombre"><center>Descuento</center></span>
                     </th>
 
-                    <th>
-                        <span data-translate="nombre">Desde</span>
+                    <th width="150px">
+                        <span data-translate="nombre"><center>Rango Fechas</center></span>
                     </th>
 
-                    <th>
+                    @*<th>
                         <span data-translate="estado">Hasta</span>
+                    </th>*@
 
                     <th>
-                        <span data-translate="estado">Nota</span>
+                        <span data-translate="estado"><center>Nota</center></span>
                     </th>
 
-                    <th>
-                        <span data-translate="accion">Accion</span>
+                    <th width="115px">
+                        <span data-translate="accion"><center>Accion</center></span>
                     </th>
                 </tr>
             </thead>
@@ -62,20 +63,21 @@
                     </td>
 
                     <td style="padding-top: 2rem">
-                        @Html.DisplayFor(modelIten => item.IdUsuario)
+                        @*@usuarios.FirstOrDefault(u => u.Id == item.IdUsuario).Nombre*@
+                        @Html.DisplayFor(modelItem => item.IdUsuario)
                     </td>
 
                     <td style="padding-top: 2rem">
-                        @Html.DisplayFor(modelItem => item.MaxDescuento)
+                        @Html.DisplayFor(modelItem => item.MaxDescuento) %
                     </td>
 
                     <td style="padding-top: 2rem">
-                        @Html.DisplayFor(modelItem => item.FechaDesde)
+                        @Html.DisplayFor(modelItem => item.FechaDesde) - @Html.DisplayFor(modelItem => item.FechaHasta)
                     </td>
 
-                    <td style="padding-top: 2rem" class="estado">
+                    @*<td style="padding-top: 2rem" class="estado">
                         @Html.DisplayFor(modelItem => item.FechaHasta)
-                    </td>
+                    </td>*@
 
                     <td style="padding-top: 2rem" class="estado">
                         @Html.DisplayFor(modelItem => item.Nota)
@@ -98,7 +100,10 @@
     $(document).ready(function () {
 
                        $('.editarDescuentoUsuarioRango').on('click', function () {
-               var _id = $(this).val();
+                           var _id = $(this).val();
+                           $('.selUsuarios').select2();
+
+                          
 
                 $.ajax({
                     type: "GET",
@@ -106,13 +111,20 @@
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
                    // url: 'Eliminar-Descuento/' + $(this).val(),
-                    url: '@Url.Action("ObtenerDescuentoUsuario", "DescuentoPromocion")',
+                    url: '@Url.Action("ObtenerDescuentoUsuarioRango", "DescuentoPromocion")',
                     data: {id: _id},
 
                     success: function (data) {
-                        if (data.data) {
-                           getDescuentoUsuario()
-                        }
+                          $('#txtIdUsuarioDescRango').val(data.idDescuentoUsuarioRango);
+                       // $("#asignado option[value='" + data.idUsuario + "']").prop("selected", true);
+                        $("#asignadoRango").val(data.idUsuario);
+                        $('#asignadoRango').trigger('change.select2').prop('disabled', 'disabled');
+                        $("#txtMaxDescRango").val(data.maxDescuento);
+                        $("#txtNotaDescRango").val(data.nota);
+                        $('#txtInicio').val(data.fechaDesde);
+                        $('#txtHasta').val(data.fechaHasta);
+                        $('#modalAgregarMaximoDescFecha').modal("show");
+                   
                     },
                     error: function (err, scnd) {
                         console.log(err.statusText);
@@ -133,6 +145,7 @@
 
                     success: function (data) {
                         if (data.data) {
+
                            getDescuentoUsuarioFecha()
                         }
                         else

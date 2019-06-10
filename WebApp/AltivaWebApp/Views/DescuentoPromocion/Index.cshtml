@@ -10,7 +10,6 @@
     {
         return Xsrf.GetAndStoreTokens(Context).RequestToken;
     }
-
 }
 
 
@@ -161,7 +160,15 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" id="crearEditarPartial">
+                <hr />
+
+                <div class="form-group" style="margin-left:1rem; padding-top:0.7rem">
+                    <p>
+                        <a class="btn btn-primary btn-xs" id="btnAgregarMaximoDescClave"><span data-translate="Agregar">Agregar</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+                    </p>
+                </div>
+
+                <div class="modal-body" id="crearPartialDescuentoUsuariosClave">
 
                 </div>
             </div>
@@ -259,14 +266,13 @@
                 </div>
                 <div class="modal-body" id="crearEditarPartial">
 
-                    <input id="txtIdUsuarioDesc" type="text" hidden  value="0"/>
+                    <input id="txtIdUsuarioDesc" type="text" hidden value="0" />
 
                     <div class="form-group">
                         <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
                         <select class="selUsuarios" multiple="multiple" data-live-search="true" id="asignado" onchange="cargarIdUsuarioSelect()" asp-for="@ViewData.[IdUsuario]">
                             @foreach (var asignados in ViewData["asignados"] as IList<TbSeUsuario>)
                             {
-
                                 <option value="@asignados.Id">@asignados.Nombre</option>
                             }
                         </select>
@@ -310,6 +316,8 @@
                 </div>
                 <div class="modal-body" id="crearEditarPartial">
 
+                    <input id="txtIdUsuarioDescRango" type="text" hidden value="0" />
+
                     <div class="form-group">
                         <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
                         <select class="selUsuarios" multiple="multiple" data-live-search="true" id="asignadoRango" onchange="cargarIdUsuarioRangoSelect()" asp-for="@ViewData.[IdUsuario]">
@@ -331,18 +339,18 @@
                     <div class="input-group date" data-provide="datepicker">
                         <label data-translate="txtInicio" class="form-label" for="txtInicio"> Desde </label>
 
-                        <input type="date" class="form-control" id="txtInicio">
+                        <input type="datetime-local" class="form-control" id="txtInicio">
 
                     </div>
 
                     <div class="input-group date" data-provide="datepicker">
                         <label data-translate="txtHasta" class="form-label" for="txtHasta"> Hasta </label>
 
-                        <input type="date" class="form-control" id="txtHasta">
+                        <input type="datetime-local" class="form-control" id="txtHasta">
 
                     </div>
 
-                  
+
 
                     <div class=" form-group">
                         <label class="col-form-label">Nota:</label><br />
@@ -361,12 +369,73 @@
 </div>
 
 
+
+
+
+
+<div>
+    <!-- SubModal Maximo Descuento a Usuarios mediante clave-->
+    <div class="modal fade" role="dialog" id="modalAgregarMaximoDescClave" tabindex="-1" style="overflow-y: scroll; " aria-labelledby="AgregarMaximoDescClaveModallabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered big">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 data-translate="Configuracion" class="modal-title" id="AgregarMaximoDescClaveModallabel">@SharedLocalizer["Maximo descuento a usuarios mediante clave."]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="limpiarCampos()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="crearEditarPartial">
+
+                    <input id="txtIdUsuarioDescClave" type="text" hidden value="0" />
+
+                    <div class="form-group">
+                        <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
+                        <select class="selUsuarios" multiple="multiple" data-live-search="true" id="asignadoClave" onchange="cargarIdUsuarioClaveSelect()" asp-for="@ViewData.[IdUsuario]">
+                            @foreach (var asignados in ViewData["asignadosClave"] as IList<TbSeUsuario>)
+                            {
+                                <option value="@asignados.Id">@asignados.Nombre</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group descuentoGeneralnGroup ">
+                        <label data-translate="txtMaxDescClave" class="form-label" for="txtMaxDescClave"> Descuento (%):</label>
+
+                        <input id="txtMaxDescClave" type="number" min="0" max="100" class="form-control porcentaje" value="" required />
+                        <span hidden id="txtMaxDescClave" class="text-danger">@SharedLocalizer["Campo requerido."]</span>
+
+                    </div>
+
+                    <div class=" form-group">
+                        <label class="col-form-label">Clave Autorizacion:</label><br />
+                        <input type="password" class="form-control" id="txtClaveDescClave" required>
+                    </div>
+
+                    <div class=" form-group">
+                        <label class="col-form-label">Nota:</label><br />
+                        <input type="text" class="form-control" id="txtNotaDescClave" required>
+                    </div>
+
+                    <div class="form-group">
+                        <button id="btnGuardarDescUsuarioClave" class="btn btn-success btn-xs " onclick="guardarDescuentoUsuarioClave()"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
+                        <a class="btn btn-default btn-xs" id="btnCancelarClave" onclick="limpiarCampos()" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 <!--********************Fin SubModales ***********************-->
 
 <script>
 
     var usuarios = [];
-     var usuariosRango = [];
+    var usuariosRango = [];
+    var usuariosClave = [];
 
     $(document).ready(function () {
 
@@ -397,7 +466,8 @@
             $('#btnDescMaximoUsuarioClave').click(function () {
 
                   if ($('#chkDescMaximoUsuarioClave').prop('checked')) {
-                $('#modalMaximoDescClave').modal('show');
+                      $('#modalMaximoDescClave').modal('show');
+                      getDescuentoUsuarioClave();
 
                 } else {
                     cargarAlert("@SharedLocalizer["No ha seleccionado ningun elemento"]");
@@ -464,6 +534,15 @@
 
             //**********************Fin Modal 2 ******************
 
+         //**********************Modal 3 **********************
+
+       $('#btnAgregarMaximoDescClave').click(function () {
+            $('#modalAgregarMaximoDescClave').modal("show");
+            $('.selUsuarios').select2();
+        });
+
+            //**********************Fin Modal 3 ******************
+
     }); //Fin de document ready
 
          function guardarConfiguracion() {
@@ -477,20 +556,36 @@
         var _actPromoUsuarioClave = $('#chkActPromoUsuarioClave').is(':checked');
         var _actDescProd = $('#chkActDescProd').is(':checked');
         var _actDescProdUsuarioClave = $('#chkActDescProdUsuarioClave').is(':checked');
-        var id = @Model.IdRebajaConfig;
-
-             var model = {
-                        IdRebajaConfig: id,
-                        PorcMaxGeneral: _porcentaje,
-                        ActivaMaxGeneral: _descGeneral,
-                        ActivaMaxUsuario: _descMaximoUsuario,
-                        ActivaMaxUsuarioRango: _descMaximoUsuarioRango,
-                        ActivaMaxUsuarioClave: _descMaximoUsuarioClave,
-                        ActivaPromoProducto: _actPromoProd,
-                        ActivaPromoProductoUsuario: _actPromoUsuarioClave,
-                        ActivaDescuentoPromoUsuario: _actDescProd,
-                        ActivaDescuentoPromoUsuarioClave: _actDescProdUsuarioClave
+             if ( @Model.IdRebajaConfig != 0) {
+                 var id = @Model.IdRebajaConfig;
+                 var model = {
+                     IdRebajaConfig: id,
+                     PorcMaxGeneral: _porcentaje,
+                     ActivaMaxGeneral: _descGeneral,
+                     ActivaMaxUsuario: _descMaximoUsuario,
+                     ActivaMaxUsuarioRango: _descMaximoUsuarioRango,
+                     ActivaMaxUsuarioClave: _descMaximoUsuarioClave,
+                     ActivaPromoProducto: _actPromoProd,
+                     ActivaPromoProductoUsuario: _actPromoUsuarioClave,
+                     ActivaDescuentoPromoUsuario: _actDescProd,
+                     ActivaDescuentoPromoUsuarioClave: _actDescProdUsuarioClave
+                 }
+             } else {
+                  var model = {
+                    
+                     PorcMaxGeneral: _porcentaje,
+                     ActivaMaxGeneral: _descGeneral,
+                     ActivaMaxUsuario: _descMaximoUsuario,
+                     ActivaMaxUsuarioRango: _descMaximoUsuarioRango,
+                     ActivaMaxUsuarioClave: _descMaximoUsuarioClave,
+                     ActivaPromoProducto: _actPromoProd,
+                     ActivaPromoProductoUsuario: _actPromoUsuarioClave,
+                     ActivaDescuentoPromoUsuario: _actDescProd,
+                     ActivaDescuentoPromoUsuarioClave: _actDescProdUsuarioClave
+                 }
              }
+
+          
 
             $.ajax({
             type: "post",
@@ -523,11 +618,10 @@
         console.log(usuarios);
         var model = [];
         var _IdDescuentoUsuario = $('#txtIdUsuarioDesc').val();
-                 var _IdConfig = @Model.IdRebajaConfig;
-                 var _IdUser = $('#asignado').val();
-                 var _Descuento = $('#txtMaxDesc').val();
-                 var _ObtenerUsuario =@User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-                 var _Nota = $('#txtNotaDesc').val();
+        var _IdConfig = @Model.IdRebajaConfig;
+        var _Descuento = $('#txtMaxDesc').val();
+        var _ObtenerUsuario =@User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+        var _Nota = $('#txtNotaDesc').val();
 
         for (var i = 0; i < usuarios.length; i++) {
             var m = {
@@ -566,16 +660,28 @@
     function limpiarCampos() {
 
         $('#txtIdUsuarioDesc').val('');
-
+        $('#txtIdUsuarioDescRango').val('');
         $('#txtNotaDesc').val('');
         $('#txtMaxDesc').val('');
-        $('#asignado').val('');
+        $('#asignado').val('').removeAttr('disabled');
+
 
          $('#txtNotaDescRango').val('');
         $('#txtMaxDescRango').val('');
-        $('#asignadoRango').val('');
+        $('#asignadoRango').val('').removeAttr('disabled');
+        $('#txtHasta').val('');
+        $('#txtInicio').val('');
         $('#modalAgregarMaximoDesc').modal("hide");
         $('#modalAgregarMaximoDescFecha').modal("hide");
+        $('#modalAgregarMaximoDescClave').modal("hide");
+
+
+        $('#txtIdUsuarioDescClave').val('');
+        $('#txtNotaDescClave').val('');
+        $('#txtMaxDescClave').val('');
+        $('#txtClaveDescClave').val('');
+        $('#asignadoClave').val('').removeAttr('disabled');
+
 
 
     }
@@ -616,18 +722,21 @@
         function guardarDescuentoUsuarioRango() {
 
         console.log(usuarios);
-        var model = [];
-                 var _IdConfig = @Model.IdRebajaConfig;
-                 var _IdUser = $('#asignadoRango').val();
-                 var _Descuento = $('#txtMaxDescRango').val();
+            var model = [];
+            var _IdDescuentoUsuarioRango = $('#txtIdUsuarioDescRango').val();
+            var _IdConfig = @Model.IdRebajaConfig;
+            var _Descuento = $('#txtMaxDescRango').val();
             var _ObtenerUsuario =@User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             var _Desde = $('#txtInicio').val();
             var _Hasta = $('#txtHasta').val();
-                 var _Nota = $('#txtNotaDescRango').val();
+            var _Nota = $('#txtNotaDescRango').val();
+
+
 
         for (var i = 0; i < usuariosRango.length; i++) {
             var m = {
                 IdRebajaConfig: _IdConfig,
+                IdDescuentoUsuarioRango: _IdDescuentoUsuarioRango,
                 IdUsuario: usuariosRango[i],
                 MaxDescuento: _Descuento,
                 IdUsuarioCreador: _ObtenerUsuario,
@@ -684,6 +793,84 @@
         //************Fin funcioines modal 2*******************//
 
 
+
+    //***************Funciones de modal 3********************//
+
+    function cargarIdUsuarioClaveSelect() {
+
+        var selectUser = $('#asignadoClave').val();
+
+        usuariosClave = $('#asignadoClave').val();
+    }
+
+    function guardarDescuentoUsuarioClave() {
+
+        console.log(usuariosClave);
+        var model = [];
+        var _IdDescuentoUsuarioClave = $('#txtIdUsuarioDescClave').val();
+        var _IdConfig = @Model.IdRebajaConfig;
+        var _Descuento = $('#txtMaxDescClave').val();
+        var _Clave = $('#txtClaveDescClave').val();
+        var _ObtenerUsuario =@User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+        var _Nota = $('#txtNotaDescClave').val();
+
+        for (var i = 0; i < usuariosClave.length; i++) {
+            var m = {
+                IdRebajaConfig: _IdConfig,
+                IdDescuentoUsuario: _IdDescuentoUsuarioClave,
+                IdUsuario: usuariosClave[i],
+                MaxDescuento: _Descuento,
+                Clave: _Clave,
+                IdUsuarioCreador: _ObtenerUsuario,
+                Nota: _Nota
+            };
+
+            model.push(m);
+        }
+
+        $.ajax({
+            type: "post",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: '@Url.Action("GuardarDescMaximoClave")',
+            data: {model: model} ,
+                success: function (data) {
+                  //  cargarAlert("@SharedLocalizer["OperacionExitosa"]");
+                    getDescuentoUsuarioClave();
+                    limpiarCampos();
+
+
+            },
+                error: function (err, scnd) {
+                    @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
+                    console.log(err.statusText);
+            }
+        });
+        }
+
+
+
+        function getDescuentoUsuarioClave() {
+
+            var url = '@Url.Action("_ListarDescuentoUsuarioClave", "DescuentoPromocion")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+
+                success: function (data) {
+                    $('#crearPartialDescuentoUsuariosClave').html(data);
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+        }
+    //************Fin funcioines modal 3*******************//
 </script>
 
 

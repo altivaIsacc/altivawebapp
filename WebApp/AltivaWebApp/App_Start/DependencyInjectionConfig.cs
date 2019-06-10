@@ -227,12 +227,15 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IDescuentoUsuarioMap, DescuentoUsuarioMap>();
 
 
-            //DescuentoUSuario
+            //DescuentoUSuarioRango
             services.AddScoped<IDescuentoUsuarioRangoRepository, DescuentoUsuarioRangoRepository>();
             services.AddScoped<IDescuentoUsuarioRangoService, DescuentoUsuarioRangoService>();
             services.AddScoped<IDescuentoUsuarioRangoMap, DescuentoUsuarioRangoMap>();
 
-
+            //DescuentoUSuarioClave
+            services.AddScoped<IDescuentoUsuarioClaveRepository, DescuentoUsuarioClaveRepository>();
+            services.AddScoped<IDescuentoUsuarioClaveService, DescuentoUsuarioClaveService>();
+            services.AddScoped<IDescuentoUsuarioClaveMap, DescuentoUsuarioClaveMap>();
 
         }
     }

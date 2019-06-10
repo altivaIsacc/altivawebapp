@@ -23,6 +23,7 @@ namespace AltivaWebApp.Domains
         public bool ActivaDescuentoPromoUsuarioClave { get; set; }
 
         public virtual ICollection<TbFaDescuentoUsuario> TbFaDescuentoUsuario { get; set; }
+        public virtual ICollection<TbFaDescuentoUsuarioClave> TbFaDescuentoUsuarioClave { get; set; }
         public virtual ICollection<TbFaDescuentoUsuarioRango> TbFaDescuentoUsuarioRango { get; set; }
     }
 }

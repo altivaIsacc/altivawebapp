@@ -18,11 +18,13 @@ namespace AltivaWebApp.Controllers
         readonly IDescuentoPromocionService service;
         readonly IDescuentoUsuarioMap mapDescUser;
         readonly IDescuentoUsuarioService DescUserService;
+        readonly IDescuentoUsuarioClaveMap mapDesClavecUser;
+        readonly IDescuentoUsuarioClaveService DescUserClaveService;
         readonly IDescuentoUsuarioRangoMap mapDescUserRango;
         readonly IDescuentoUsuarioRangoService DescUserServiceRango;
         public IUserService IUserService;
 
-        public DescuentoPromocionController(IDescuentoPromocionMap map, IDescuentoUsuarioRangoMap mapDescUserRango, IDescuentoUsuarioRangoService DescUserServiceRango, IDescuentoUsuarioService DescUserService, IDescuentoPromocionService service, IUserService IUserService, IDescuentoUsuarioMap mapDescUser)
+        public DescuentoPromocionController(IDescuentoUsuarioClaveService DescUserClaveService, IDescuentoUsuarioClaveMap mapDesClavecUser, IDescuentoPromocionMap map, IDescuentoUsuarioRangoMap mapDescUserRango, IDescuentoUsuarioRangoService DescUserServiceRango, IDescuentoUsuarioService DescUserService, IDescuentoPromocionService service, IUserService IUserService, IDescuentoUsuarioMap mapDescUser)
         {
             this.service = service;
             this.map = map;
@@ -31,12 +33,15 @@ namespace AltivaWebApp.Controllers
             this.DescUserService = DescUserService;
             this.mapDescUserRango = mapDescUserRango;
             this.DescUserServiceRango = DescUserServiceRango;
+            this.DescUserClaveService = DescUserClaveService;
+            this.mapDesClavecUser = mapDesClavecUser;
         }
 
         public IActionResult Index()
         {
             ViewData["Asignados"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["AsignadosRango"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+            ViewData["AsignadosClave"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
 
 
             var conf = service.GetRebajaConfig();
@@ -73,7 +78,7 @@ namespace AltivaWebApp.Controllers
 
             try
             {
-                //return Ok(mapDescUser.SaveDescuentoUsuario(model));
+                //return Ok(mapDescUser.SaveDescuentoUsuarioClave(model));
                 var pu = mapDescUser.SaveDescuentoUsuario(model);
                 //notificar("Se ha asignado un nuevo perfil");
                 if (pu)
@@ -99,6 +104,7 @@ namespace AltivaWebApp.Controllers
         [HttpGet("_ListarDescuentoUsuarioFecha")]
         public ActionResult _ListarDescuentoUsuarioFecha()
         {
+            
             return PartialView(DescUserServiceRango.GetAll());
         }
 
@@ -144,7 +150,7 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                //return Ok(mapDescUser.SaveDescuentoUsuario(model));
+                //return Ok(mapDescUser.SaveDescuentoUsuarioClave(model));
                 var pu = mapDescUserRango.SaveDescuentoUsuarioRango(model);
                 //notificar("Se ha asignado un nuevo perfil");
                 if (pu)
@@ -157,12 +163,6 @@ namespace AltivaWebApp.Controllers
                 throw;
                 //return BadRequest();
             }
-        }
-
-        [HttpGet("_ListarDescuentoUsuarioRango")]
-        public ActionResult _ListarDescuentoUsuarioRngo()
-        {
-            return PartialView(/*DescUserServiceRango.GetAll()*/);
         }
 
         [Route("EliminarDescuentoRango")]
@@ -178,6 +178,87 @@ namespace AltivaWebApp.Controllers
             catch (Exception)
             {
                 return Json(new { data = false });
+                throw;
+            }
+        }
+
+        [Route("ObtenerDescuentoUsuarioRango")]
+        public ActionResult ObtenerDescuentoUsuarioRango(int id)
+        {
+            try
+            {
+                var descuento = DescUserServiceRango.GetDescuentoUsuarioRangoById(id);
+
+                return Json(descuento);
+            }
+            catch (Exception)
+            {
+                BadRequest();
+                throw;
+            }
+        }
+
+
+
+        //************** Clave***********//
+        [HttpPost("GuardarDescMaximoClave")]
+        public ActionResult GuardarDescMaximoClave(IList<DescuentoUsuarioClaveViewModel> model)
+        {
+
+            try
+            {
+                //return Ok(mapDescUser.SaveDescuentoUsuarioClave(model));
+                var pu = mapDesClavecUser.SaveDescuentoUsuarioClave(model);
+                //notificar("Se ha asignado un nuevo perfil");
+                if (pu)
+                    return Json(new { success = true });
+                else
+                    return Json(new { success = false });
+            }
+            catch (Exception)
+            {
+                throw;
+                //return BadRequest();
+            }
+
+
+        }
+
+        [HttpGet("_ListarDescuentoUsuarioClave")]
+        public ActionResult _ListarDescuentoUsuarioClave()
+        {
+            return PartialView(DescUserClaveService.GetAll());
+        }
+             
+        [Route("EliminarDescuentoClave")]
+        public ActionResult EliminarDescuentoClave(int id)
+        {
+            try
+            {
+                var descuento = DescUserClaveService.GetDescuentoUsuarioClaveById(id);
+
+                DescUserClaveService.Delete(descuento);
+                return Json(new { data = true });
+            }
+            catch (Exception)
+            {
+                return Json(new { data = false });
+                throw;
+            }
+        }
+
+        [Route("ObtenerDescuentoUsuarioClave")]
+        public ActionResult ObtenerDescuentoUsuarioClave(int id)
+        {
+            try
+            {
+                var descuento = DescUserClaveService.GetDescuentoUsuarioClaveById(id);
+
+                return Json(descuento);
+            }
+            catch (Exception)
+            {
+                BadRequest();
                 throw;
             }
         }

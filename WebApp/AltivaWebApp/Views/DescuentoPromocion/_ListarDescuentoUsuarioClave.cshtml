@@ -1,4 +1,4 @@
-﻿@model IEnumerable<AltivaWebApp.Domains.TbFaDescuentoUsuario>
+﻿@model IEnumerable<AltivaWebApp.Domains.TbFaDescuentoUsuarioClave>
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
@@ -10,9 +10,9 @@
 
 @{
 
-    var usuarios = ViewData["usuarios"] as IList<TbSeUsuario>;
+    var usuarios = ViewData["usuariosClave"] as IList<TbSeUsuario>;
 
-}   
+}
 
 
 
@@ -57,10 +57,10 @@
                         <td style="padding-top: 2rem">
 
                             @*@{
-            var nombre = usuarios.FirstOrDefault(u => u.Id == item.IdUsuario).Nombre;
-            var id = usuarios.FirstOrDefault(u => u.Id == item.IdUsuario).Codigo;
-        }
-        <a href="@Url.Action("CuentaUsuario", "ManejoUsuarios", new { codigo =  id})">@nombre</a>*@
+                                    var nombre = usuarios.FirstOrDefault(u => u.Id == item.IdUsuario).Nombre;
+                                    var id = usuarios.FirstOrDefault(u => u.Id == item.IdUsuario).Codigo;
+                                }
+                                <a href="@Url.Action("CuentaUsuario", "ManejoUsuarios", new { codigo =  id})">@nombre</a>*@
 
                             @Html.DisplayFor(modelItem => item.IdUsuario)
                         </td>
@@ -74,8 +74,8 @@
                         </td>
 
                         <td style="padding-top: 2rem">
-                            <button class="btn btn-link editarDescuentoUsuario" value="@item.IdDescuentoUsuario"><span><i class="fas fa-edit"></i></span></button>
-                            <button class="btn btn-link eliminarDescuentoUsuario" value="@item.IdDescuentoUsuario"><span><i class="fas fa-trash"></i></span></button>
+                            <button class="btn btn-link editarDescuentoUsuarioClave" value="@item.IdDescuentoUsuario"><span><i class="fas fa-edit"></i></span></button>
+                            <button class="btn btn-link eliminarDescuentoUsuarioClave" value="@item.IdDescuentoUsuario"><span><i class="fas fa-trash"></i></span></button>
                         </td>
                     </tr>
                 }
@@ -89,7 +89,7 @@
 
     $(document).ready(function () {
 
-                       $('.editarDescuentoUsuario').on('click', function () {
+                       $('.editarDescuentoUsuarioClave').on('click', function () {
                         var _id = $(this).val();
                         $('.selUsuarios').select2();
 
@@ -98,26 +98,27 @@
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
-                    url: '@Url.Action("ObtenerDescuentoUsuario", "DescuentoPromocion")',
+                    url: '@Url.Action("ObtenerDescuentoUsuarioClave", "DescuentoPromocion")',
                     data: {id: _id},
 
                     success: function (data) {
-                        $('#txtIdUsuarioDesc').val(data.idDescuentoUsuario);
+                        $('#txtIdUsuarioDescClave').val(data.idDescuentoUsuario);
 
                        // $("#asignado option[value='" + data.idUsuario + "']").prop("selected", true);
-                        $("#asignado").val(data.idUsuario);
-                        $('#asignado').trigger('change.select2').prop('disabled', 'disabled');
-                        $("#txtMaxDesc").val(data.maxDescuento);
-                        $("#txtNotaDesc").val(data.nota);
-                        $('#modalAgregarMaximoDesc').modal("show");
-                       
+                        $("#asignadoClave").val(data.idUsuario);
+                        $('#asignadoClave').trigger('change.select2').prop('disabled', 'disabled');
+                        $("#txtMaxDescClave").val(data.maxDescuento);
+                        $("#txtClaveDescClave").val(data.clave);
+                        $("#txtNotaDescClave").val(data.nota);
+                        $('#modalAgregarMaximoDescClave').modal("show");
+
                     },
                     error: function (err, scnd) {
                         console.log(err.statusText);
                     }
                 });
            });
-                   $('.eliminarDescuentoUsuario').on('click', function () {
+                   $('.eliminarDescuentoUsuarioClave').on('click', function () {
                var _id = $(this).val();
 
                 $.ajax({
@@ -126,12 +127,12 @@
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
                    // url: 'Eliminar-Descuento/' + $(this).val(),
-                    url: '@Url.Action("EliminarDescuento", "DescuentoPromocion")',
+                    url: '@Url.Action("EliminarDescuentoClave", "DescuentoPromocion")',
                     data: {id: _id},
 
                     success: function (data) {
                         if (data.data) {
-                           getDescuentoUsuario()
+                           getDescuentoUsuarioClave()
                         }
                         else
                             alert("Error al procesar la operacion");
@@ -145,5 +146,6 @@
     });
 
 </script>
+
 
 

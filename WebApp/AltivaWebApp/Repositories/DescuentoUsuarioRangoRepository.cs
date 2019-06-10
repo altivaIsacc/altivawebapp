@@ -19,9 +19,18 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                context.TbFaDescuentoUsuarioRango.AddRange(domain);
+                foreach (var item in domain)
+                {
+                    if (item.IdDescuentoUsuarioRango == 0)
+                    {
+                        context.TbFaDescuentoUsuarioRango.Add(item);
+                    }
+                    else
+                    {
+                        context.TbFaDescuentoUsuarioRango.Update(item);
+                    }
+                }
                 context.SaveChanges();
-
                 return true;
             }
             catch (Exception)
