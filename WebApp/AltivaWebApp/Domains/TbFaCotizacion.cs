@@ -11,7 +11,7 @@ namespace AltivaWebApp.Domains
         }
 
         public long IdCotizacion { get; set; }
-        public DateTime? FechaCotizacion { get; set; }
+        public DateTime FechaCotizacion { get; set; }
         public long? IdCliente { get; set; }
         public string Estado { get; set; }
         public int? IdMoneda { get; set; }
@@ -43,7 +43,7 @@ namespace AltivaWebApp.Domains
         public double? TotalBase { get; set; }
         public double? TotalDolar { get; set; }
         public double? TotalEuro { get; set; }
-        public DateTime? FechaVencimiento { get; set; }
+        public DateTime FechaVencimiento { get; set; }
         public double? TipoCambioDolar { get; set; }
         public double? TipoCambioEuro { get; set; }
 

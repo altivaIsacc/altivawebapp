@@ -93,11 +93,11 @@ namespace AltivaWebApp.Controllers
 
             ViewData["usuario"] = _UserService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             var tipoCambio = _MonedaService.GetAll();
-            var model = new CompraViewModel
+            var model = new CotizacionViewModel
             {
                 TipoCambioDolar = tipoCambio.FirstOrDefault(m => m.Codigo == 2).ValorCompra,
                 TipoCambioEuro = tipoCambio.FirstOrDefault(m => m.Codigo == 3).ValorCompra,
-                Borrador = true
+                Estado = "Borrador"
             };
             ViewData["monedas"] = tipoCambio;
             return View("CrearEditarCotizacion", model);
@@ -109,7 +109,7 @@ namespace AltivaWebApp.Controllers
             var Cotizacion = _Map.DomainToViewModel(_Service.GetCotizacionById(id));
             ViewData["usuario"] = _UserService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             ViewData["monedas"] = _MonedaService.GetAll();
-            return View("CrearEditarCompra", Cotizacion);
+            return View("CrearCotizacion", Cotizacion);
         }
 
         [HttpPost("CrearEditar-Cotizacion")]
@@ -204,7 +204,9 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
+              //  var detalles = _Service.GetAllCotizacionDetalleByIdCotizacion(id);
                 return Ok(_Service.GetAllCotizacionDetalleByIdCotizacion(id));
+            
             }
             catch
             {

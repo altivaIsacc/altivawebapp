@@ -38,6 +38,7 @@ namespace AltivaWebApp.Domains
         public double? TotalDolar { get; set; }
         public double? TotalEuro { get; set; }
         public long? IdCotizacion { get; set; }
+        public double? Cantidad { get; set; }
 
         public virtual TbFaCotizacion IdCotizacionNavigation { get; set; }
     }

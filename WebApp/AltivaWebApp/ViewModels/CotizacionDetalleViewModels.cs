@@ -40,6 +40,7 @@ namespace AltivaWebApp.ViewModels
         public double? TotalDolar { get; set; }
         public double? TotalEuro { get; set; }
         public long? IdCotizacion { get; set; }
+        public double? Cantidad { get; set; }
 
     }
 }

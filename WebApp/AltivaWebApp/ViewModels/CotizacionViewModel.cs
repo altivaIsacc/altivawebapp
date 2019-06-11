@@ -9,11 +9,12 @@ namespace AltivaWebApp.ViewModels
     {
       
         public long IdCotizacion { get; set; }
-        public DateTime? FechaCotizacion { get; set; }
+        public DateTime FechaCotizacion { get; set; }
         public long? IdCliente { get; set; }
         public string Estado { get; set; }
         public int? IdMoneda { get; set; }
         public long? IdVendedor { get; set; }
+        public DateTime? FechaCreacion { get; set; }
         public long? IdUsuarioCreador { get; set; }
         public double? SubTotalBase { get; set; }
         public double? SubTotalDolar { get; set; }
@@ -40,7 +41,7 @@ namespace AltivaWebApp.ViewModels
         public double? TotalBase { get; set; }
         public double? TotalDolar { get; set; }
         public double? TotalEuro { get; set; }
-        public DateTime? FechaVencimiento { get; set; }
+        public DateTime FechaVencimiento { get; set; }
         public double? TipoCambioDolar { get; set; }
         public double? TipoCambioEuro { get; set; }
 

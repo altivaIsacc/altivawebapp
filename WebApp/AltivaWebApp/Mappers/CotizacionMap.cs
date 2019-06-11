@@ -128,10 +128,19 @@ namespace AltivaWebApp.Mappers
 
         public TbFaCotizacion Create(CotizacionViewModel viewModel)
         {
-            var cotizacion = _Service.Save(ViewModelToDomain(viewModel));
-            var cd = cotizacion.TbFaCotizacionDetalle.First();
+            try
+            {
+                var cotizacion = _Service.Save(ViewModelToDomain(viewModel));
+                var cd = cotizacion.TbFaCotizacionDetalle.First();
 
-            return cotizacion;
+
+                return cotizacion;
+            }
+            catch
+            {
+                throw;
+            }
+
         }
 
         public TbFaCotizacion Update(CotizacionViewModel viewModel)
@@ -258,138 +267,148 @@ namespace AltivaWebApp.Mappers
 
         public TbFaCotizacion ViewModelToDomain(CotizacionViewModel viewModel)
         {
-
-            var domain = new TbFaCotizacion
+            var domain = new TbFaCotizacion { };
+            try
             {
-                IdCotizacion = viewModel.IdCotizacion,
-                FechaCotizacion = viewModel.FechaCotizacion,
-                IdCliente = viewModel.IdCliente,
-                Estado = viewModel.Estado,
-                IdMoneda = viewModel.IdMoneda,
-                IdVendedor = viewModel.IdVendedor,
-                IdUsuarioCreador = viewModel.IdUsuarioCreador,
-                FechaVencimiento = viewModel.FechaVencimiento,
-                TipoCambioDolar = viewModel.TipoCambioDolar,
-                TipoCambioEuro = viewModel.TipoCambioEuro,
+                 domain = new TbFaCotizacion
+                {
+                    IdCotizacion = viewModel.IdCotizacion,
+                    FechaCotizacion = viewModel.FechaCotizacion,
+                    IdCliente = viewModel.IdCliente,
+                    Estado = viewModel.Estado,
+                    IdMoneda = viewModel.IdMoneda,
+                    IdVendedor = viewModel.IdVendedor,
+                    IdUsuarioCreador = viewModel.IdUsuarioCreador,
+                    FechaVencimiento = viewModel.FechaVencimiento,
+                    TipoCambioDolar = viewModel.TipoCambioDolar,
+                    TipoCambioEuro = viewModel.TipoCambioEuro,
 
-                TbFaCotizacionDetalle = ViewModelToDomainCD(viewModel)
-            };
+                    TbFaCotizacionDetalle = ViewModelToDomainCD(viewModel)
+                };
 
-            if (viewModel.IdMoneda == 1)
-            {
+                if (viewModel.IdMoneda == 1)
+                {
 
-                domain.SubTotalBase = viewModel.SubTotalBase;
-                domain.SubTotalDolar = domain.SubTotalBase * domain.TipoCambioDolar;
-                domain.SubTotalEuro= domain.SubTotalBase * domain.TipoCambioEuro;
+                    domain.SubTotalBase = viewModel.SubTotalBase;
+                    domain.SubTotalDolar = domain.SubTotalBase * domain.TipoCambioDolar;
+                    domain.SubTotalEuro = domain.SubTotalBase * domain.TipoCambioEuro;
 
-                domain.SubTotalGravadoBase = viewModel.SubTotalGravadoBase;
-                domain.SubTotalGravadoDolar = domain.SubTotalGravadoBase / domain.TipoCambioDolar;
-                domain.SubTotalGravadoEuro = domain.SubTotalGravadoBase / domain.TipoCambioEuro;
+                    domain.SubTotalGravadoBase = viewModel.SubTotalGravadoBase;
+                    domain.SubTotalGravadoDolar = domain.SubTotalGravadoBase / domain.TipoCambioDolar;
+                    domain.SubTotalGravadoEuro = domain.SubTotalGravadoBase / domain.TipoCambioEuro;
 
-                domain.SubTotalExcentoBase = viewModel.SubTotalExcentoBase;
-                domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase / domain.TipoCambioDolar;
-                domain.SubTotalExcentoEuro = domain.SubTotalExcentoBase / domain.TipoCambioEuro;
+                    domain.SubTotalExcentoBase = viewModel.SubTotalExcentoBase;
+                    domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase / domain.TipoCambioDolar;
+                    domain.SubTotalExcentoEuro = domain.SubTotalExcentoBase / domain.TipoCambioEuro;
 
-                domain.PorcDescuentoBase = viewModel.PorcDescuentoBase;
+                    domain.PorcDescuentoBase = viewModel.PorcDescuentoBase;
 
-                domain.TotalDescuentoBase = viewModel.TotalDescuentoBase;
-                domain.TotalDescuentoDolar = domain.TotalDescuentoBase / domain.TipoCambioDolar;
-                domain.TotalDescuentoEuro = domain.TotalDescuentoBase / domain.TipoCambioEuro;
+                    domain.TotalDescuentoBase = viewModel.TotalDescuentoBase;
+                    domain.TotalDescuentoDolar = domain.TotalDescuentoBase / domain.TipoCambioDolar;
+                    domain.TotalDescuentoEuro = domain.TotalDescuentoBase / domain.TipoCambioEuro;
 
-                domain.SubTotalGravadoNetoBase = viewModel.SubTotalGravadoNetoBase;
-                domain.SubTotalGravadoNetoDolar = domain.SubTotalGravadoNetoBase / domain.TipoCambioDolar;
-                domain.SubTotalGravadoNetoEuro = domain.SubTotalGravadoNetoBase / domain.TipoCambioEuro;
+                    domain.SubTotalGravadoNetoBase = viewModel.SubTotalGravadoNetoBase;
+                    domain.SubTotalGravadoNetoDolar = domain.SubTotalGravadoNetoBase / domain.TipoCambioDolar;
+                    domain.SubTotalGravadoNetoEuro = domain.SubTotalGravadoNetoBase / domain.TipoCambioEuro;
 
-                domain.SubTotalExcentoNetoBase = viewModel.SubTotalExcentoNetoBase;
-                domain.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoBase / domain.TipoCambioDolar;
-                domain.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoBase / domain.TipoCambioEuro;
+                    domain.SubTotalExcentoNetoBase = viewModel.SubTotalExcentoNetoBase;
+                    domain.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoBase / domain.TipoCambioDolar;
+                    domain.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoBase / domain.TipoCambioEuro;
 
-                domain.MontoIvabase = viewModel.MontoIvabase;
-                domain.MontoIvadolar = domain.MontoIvabase / domain.TipoCambioDolar;
-                domain.MontoIvaeuro = domain.MontoIvabase / domain.TipoCambioEuro;
+                    domain.MontoIvabase = viewModel.MontoIvabase;
+                    domain.MontoIvadolar = domain.MontoIvabase / domain.TipoCambioDolar;
+                    domain.MontoIvaeuro = domain.MontoIvabase / domain.TipoCambioEuro;
 
-                domain.TotalBase = viewModel.TotalBase;
-                domain.TotalDolar = domain.TotalBase / domain.TipoCambioDolar;
-                domain.TotalEuro = domain.TotalBase / domain.TipoCambioEuro;
+                    domain.TotalBase = viewModel.TotalBase;
+                    domain.TotalDolar = domain.TotalBase / domain.TipoCambioDolar;
+                    domain.TotalEuro = domain.TotalBase / domain.TipoCambioEuro;
 
 
+                }
+                else if (viewModel.IdMoneda == 2)
+                {
+
+                    domain.SubTotalBase = viewModel.SubTotalBase * domain.TipoCambioDolar;
+                    domain.SubTotalDolar = domain.SubTotalDolar;
+                    domain.SubTotalEuro = domain.SubTotalBase / domain.TipoCambioDolar;
+
+                    domain.SubTotalGravadoBase = viewModel.SubTotalGravadoBase * domain.TipoCambioDolar;
+                    domain.SubTotalGravadoDolar = domain.SubTotalGravadoDolar;
+                    domain.SubTotalGravadoEuro = domain.SubTotalGravadoBase / domain.TipoCambioEuro;
+
+                    domain.SubTotalExcentoBase = viewModel.SubTotalExcentoBase * domain.TipoCambioDolar;
+                    domain.SubTotalExcentoDolar = domain.SubTotalExcentoDolar;
+                    domain.SubTotalExcentoEuro = domain.SubTotalExcentoBase / domain.TipoCambioEuro;
+
+                    domain.PorcDescuentoBase = viewModel.PorcDescuentoBase;
+
+                    domain.TotalDescuentoBase = viewModel.TotalDescuentoBase * domain.TipoCambioDolar;
+                    domain.TotalDescuentoDolar = domain.TotalDescuentoDolar;
+                    domain.TotalDescuentoEuro = domain.TotalDescuentoBase / domain.TipoCambioEuro;
+
+                    domain.SubTotalGravadoNetoBase = viewModel.SubTotalGravadoNetoBase * domain.TipoCambioDolar;
+                    domain.SubTotalGravadoNetoDolar = domain.SubTotalGravadoNetoDolar;
+                    domain.SubTotalGravadoNetoEuro = domain.SubTotalGravadoNetoBase / domain.TipoCambioEuro;
+
+                    domain.SubTotalExcentoNetoBase = viewModel.SubTotalExcentoNetoBase * domain.TipoCambioDolar;
+                    domain.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoDolar;
+                    domain.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoBase / domain.TipoCambioEuro;
+
+                    domain.MontoIvabase = viewModel.MontoIvabase * domain.TipoCambioDolar;
+                    domain.MontoIvadolar = domain.MontoIvadolar;
+                    domain.MontoIvaeuro = domain.MontoIvabase / domain.TipoCambioEuro;
+
+                    domain.TotalBase = viewModel.TotalBase * domain.TipoCambioDolar;
+                    domain.TotalDolar = domain.TotalDolar;
+                    domain.TotalEuro = domain.TotalBase / domain.TipoCambioEuro;
+                }
+                else if (viewModel.IdMoneda == 3)
+                {
+
+                    domain.SubTotalBase = viewModel.SubTotalBase * domain.TipoCambioEuro;
+                    domain.SubTotalDolar = domain.SubTotalBase * domain.TipoCambioDolar;
+                    domain.SubTotalEuro = domain.SubTotalEuro;
+
+                    domain.SubTotalGravadoBase = viewModel.SubTotalGravadoBase * domain.TipoCambioEuro;
+                    domain.SubTotalGravadoDolar = domain.SubTotalGravadoBase * domain.TipoCambioDolar;
+                    domain.SubTotalGravadoEuro = domain.SubTotalGravadoEuro;
+
+                    domain.SubTotalExcentoBase = viewModel.SubTotalExcentoBase * domain.TipoCambioEuro;
+                    domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase * domain.TipoCambioDolar;
+                    domain.SubTotalExcentoEuro = domain.SubTotalExcentoEuro;
+
+                    domain.PorcDescuentoBase = viewModel.PorcDescuentoBase;
+
+                    domain.TotalDescuentoBase = viewModel.TotalDescuentoBase * domain.TipoCambioEuro;
+                    domain.TotalDescuentoDolar = domain.TotalDescuentoBase * domain.TipoCambioDolar;
+                    domain.TotalDescuentoEuro = domain.TotalDescuentoEuro;
+
+                    domain.SubTotalGravadoNetoBase = viewModel.SubTotalGravadoNetoBase * domain.TipoCambioEuro;
+                    domain.SubTotalGravadoNetoDolar = domain.SubTotalGravadoNetoBase * domain.TipoCambioDolar;
+                    domain.SubTotalGravadoNetoEuro = domain.SubTotalGravadoNetoEuro;
+
+                    domain.SubTotalExcentoNetoBase = viewModel.SubTotalExcentoNetoBase * domain.TipoCambioEuro;
+                    domain.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoBase * domain.TipoCambioDolar;
+                    domain.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoEuro;
+
+                    domain.MontoIvabase = viewModel.MontoIvabase * domain.TipoCambioEuro;
+                    domain.MontoIvadolar = domain.MontoIvabase * domain.TipoCambioDolar;
+                    domain.MontoIvaeuro = domain.MontoIvaeuro;
+
+                    domain.TotalBase = viewModel.TotalBase * domain.TipoCambioEuro;
+                    domain.TotalDolar = domain.TotalBase * domain.TipoCambioDolar;
+                    domain.TotalEuro = domain.TotalEuro;
+
+                   
+                }
+                return domain;
             }
-            else if (viewModel.IdMoneda == 2)
+            catch(Exception ex)
             {
-
-                domain.SubTotalBase = viewModel.SubTotalBase*domain.TipoCambioDolar;
-                domain.SubTotalDolar = domain.SubTotalDolar;
-                domain.SubTotalEuro = domain.SubTotalBase / domain.TipoCambioDolar;
-
-                domain.SubTotalGravadoBase = viewModel.SubTotalGravadoBase*domain.TipoCambioDolar;
-                domain.SubTotalGravadoDolar = domain.SubTotalGravadoDolar;
-                domain.SubTotalGravadoEuro = domain.SubTotalGravadoBase / domain.TipoCambioEuro;
-
-                domain.SubTotalExcentoBase = viewModel.SubTotalExcentoBase*domain.TipoCambioDolar;
-                domain.SubTotalExcentoDolar = domain.SubTotalExcentoDolar;
-                domain.SubTotalExcentoEuro = domain.SubTotalExcentoBase / domain.TipoCambioEuro;
-
-                domain.PorcDescuentoBase = viewModel.PorcDescuentoBase;
-
-                domain.TotalDescuentoBase = viewModel.TotalDescuentoBase*domain.TipoCambioDolar;
-                domain.TotalDescuentoDolar = domain.TotalDescuentoDolar;
-                domain.TotalDescuentoEuro = domain.TotalDescuentoBase / domain.TipoCambioEuro;
-
-                domain.SubTotalGravadoNetoBase = viewModel.SubTotalGravadoNetoBase*domain.TipoCambioDolar;
-                domain.SubTotalGravadoNetoDolar = domain.SubTotalGravadoNetoDolar;
-                domain.SubTotalGravadoNetoEuro = domain.SubTotalGravadoNetoBase / domain.TipoCambioEuro;
-
-                domain.SubTotalExcentoNetoBase = viewModel.SubTotalExcentoNetoBase*domain.TipoCambioDolar;
-                domain.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoDolar;
-                domain.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoBase / domain.TipoCambioEuro;
-
-                domain.MontoIvabase = viewModel.MontoIvabase*domain.TipoCambioDolar;
-                domain.MontoIvadolar = domain.MontoIvadolar;
-                domain.MontoIvaeuro = domain.MontoIvabase / domain.TipoCambioEuro;
-
-                domain.TotalBase = viewModel.TotalBase*domain.TipoCambioDolar;
-                domain.TotalDolar = domain.TotalDolar;
-                domain.TotalEuro = domain.TotalBase / domain.TipoCambioEuro;
-            }
-            else if (viewModel.IdMoneda == 3)
-            {
-
-                domain.SubTotalBase = viewModel.SubTotalBase * domain.TipoCambioEuro;
-                domain.SubTotalDolar = domain.SubTotalBase*domain.TipoCambioDolar;
-                domain.SubTotalEuro = domain.SubTotalEuro;
-
-                domain.SubTotalGravadoBase = viewModel.SubTotalGravadoBase * domain.TipoCambioEuro;
-                domain.SubTotalGravadoDolar = domain.SubTotalGravadoBase*domain.TipoCambioDolar;
-                domain.SubTotalGravadoEuro = domain.SubTotalGravadoEuro;
-
-                domain.SubTotalExcentoBase = viewModel.SubTotalExcentoBase * domain.TipoCambioEuro;
-                domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase * domain.TipoCambioDolar;
-                domain.SubTotalExcentoEuro = domain.SubTotalExcentoEuro;
-
-                domain.PorcDescuentoBase = viewModel.PorcDescuentoBase;
-
-                domain.TotalDescuentoBase = viewModel.TotalDescuentoBase * domain.TipoCambioEuro;
-                domain.TotalDescuentoDolar = domain.TotalDescuentoBase*domain.TipoCambioDolar;
-                domain.TotalDescuentoEuro = domain.TotalDescuentoEuro;
-
-                domain.SubTotalGravadoNetoBase = viewModel.SubTotalGravadoNetoBase * domain.TipoCambioEuro;
-                domain.SubTotalGravadoNetoDolar = domain.SubTotalGravadoNetoBase*domain.TipoCambioDolar;
-                domain.SubTotalGravadoNetoEuro = domain.SubTotalGravadoNetoEuro;
-
-                domain.SubTotalExcentoNetoBase = viewModel.SubTotalExcentoNetoBase * domain.TipoCambioEuro;
-                domain.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoBase * domain.TipoCambioDolar;
-                domain.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoEuro;
-
-                domain.MontoIvabase = viewModel.MontoIvabase * domain.TipoCambioEuro;
-                domain.MontoIvadolar = domain.MontoIvabase * domain.TipoCambioDolar;
-                domain.MontoIvaeuro = domain.MontoIvaeuro;
-
-                domain.TotalBase = viewModel.TotalBase * domain.TipoCambioEuro;
-                domain.TotalDolar = domain.TotalBase * domain.TipoCambioDolar;
-                domain.TotalEuro = domain.TotalEuro;
+                var msj = ex.Message;
+                return domain;
             }
 
-            return domain;
 
         }
 
