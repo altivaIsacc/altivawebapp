@@ -1,4 +1,5 @@
 ﻿using AltivaWebApp.Domains;
+using AltivaWebApp.GEDomain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,7 @@ namespace AltivaWebApp.Services
         IList<TbFaDescuentoUsuario> GetAll();
         TbFaDescuentoUsuario GetDescuentoUsuarioById(int id);
         bool Delete(TbFaDescuentoUsuario domain);
+        IList<TbSeUsuario> GetUsuarioSInDesc(int idEmpresa);
+        IList<TbSeUsuario> GetUsuarioConDesc(int idEmpresa);
     }
 }

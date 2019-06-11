@@ -1,4 +1,5 @@
 ﻿using AltivaWebApp.Domains;
+using AltivaWebApp.GEDomain;
 using AltivaWebApp.Repositories;
 using System;
 using System.Collections.Generic;
@@ -10,9 +11,12 @@ namespace AltivaWebApp.Services
     public class DescuentoUsuarioRangoService: IDescuentoUsuarioRangoService
     {
         readonly IDescuentoUsuarioRangoRepository repository;
-        public DescuentoUsuarioRangoService(IDescuentoUsuarioRangoRepository repository)
+        readonly IUserRepository repositoryUser;
+
+        public DescuentoUsuarioRangoService(IDescuentoUsuarioRangoRepository repository, IUserRepository repositoryUser)
         {
             this.repository = repository;
+            this.repositoryUser = repositoryUser;
         }
 
         public bool Save(IList<TbFaDescuentoUsuarioRango> domain)
@@ -36,6 +40,25 @@ namespace AltivaWebApp.Services
         public bool Delete(TbFaDescuentoUsuarioRango domain)
         {
             return repository.Delete(domain);
+        }
+
+        public IList<TbSeUsuario> GetUsuarioSInDescRango(int idEmpresa)
+        {
+
+            var usuarios = repositoryUser.GetAllByIdEmpresa(idEmpresa);
+            var desc = repository.GetAll();
+            var usuariosDesc = new List<TbSeUsuario>();
+
+            foreach (var item in usuarios)
+            {
+                if (!desc.Any(u => u.IdUsuario == item.Id))
+                {
+                    usuariosDesc.Add(item);
+                }
+            }
+
+            return usuariosDesc;
+
         }
     }
 }

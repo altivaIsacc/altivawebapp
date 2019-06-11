@@ -41,8 +41,7 @@ namespace AltivaWebApp.Controllers
         {
             ViewData["Asignados"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["AsignadosRango"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
-            ViewData["AsignadosClave"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
-
+            ViewData["AsignadosClave"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa")); 
 
             var conf = service.GetRebajaConfig();
 
@@ -98,14 +97,9 @@ namespace AltivaWebApp.Controllers
         [HttpGet("_ListarDescuentoUsuario")]
         public ActionResult _ListarDescuentoUsuario()
         {
-            return PartialView(DescUserService.GetAll());
-        }
+            ViewData["usuarios"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
 
-        [HttpGet("_ListarDescuentoUsuarioFecha")]
-        public ActionResult _ListarDescuentoUsuarioFecha()
-        {
-            
-            return PartialView(DescUserServiceRango.GetAll());
+            return PartialView(DescUserService.GetAll());
         }
 
         [Route("EliminarDescuento")]
@@ -141,7 +135,37 @@ namespace AltivaWebApp.Controllers
             }
         }
 
+        [HttpGet("GetUsuarioSInDesc")]
+        public ActionResult GetUsuarioSInDesc()
+        {
 
+            try
+            {
+                var usr = DescUserService.GetUsuarioSInDesc((int)HttpContext.Session.GetInt32("idEmpresa"));
+                return Ok(usr);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        [HttpGet("GetUsuarioConDesc")]
+        public ActionResult GetUsuarioConDesc(int id)
+        {
+
+            try
+            {
+                //var usr = DescUserService.GetUsuarioSInDesc((int)HttpContext.Session.GetInt32("idEmpresa"));
+                return Ok(IUserService.GetSingleUser(id));
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
 
         //// ****************Rango**************///
 
@@ -198,7 +222,29 @@ namespace AltivaWebApp.Controllers
             }
         }
 
+        [HttpGet("_ListarDescuentoUsuarioFecha")]
+        public ActionResult _ListarDescuentoUsuarioFecha()
+        {
+            ViewData["usuarios"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
 
+            return PartialView(DescUserServiceRango.GetAll());
+        }
+
+        [HttpGet("GetUsuarioSInDescRango")]
+        public ActionResult GetUsuarioSInDescRango()
+        {
+
+            try
+            {
+                var usr = DescUserServiceRango.GetUsuarioSInDescRango((int)HttpContext.Session.GetInt32("idEmpresa"));
+                return Ok(usr);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
 
         //************** Clave***********//
         [HttpPost("GuardarDescMaximoClave")]
@@ -227,6 +273,8 @@ namespace AltivaWebApp.Controllers
         [HttpGet("_ListarDescuentoUsuarioClave")]
         public ActionResult _ListarDescuentoUsuarioClave()
         {
+            ViewData["usuarios"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+
             return PartialView(DescUserClaveService.GetAll());
         }
              
@@ -259,6 +307,22 @@ namespace AltivaWebApp.Controllers
             catch (Exception)
             {
                 BadRequest();
+                throw;
+            }
+        }
+
+        [HttpGet("GetUsuarioSInDescClave")]
+        public ActionResult GetUsuarioSInDescClave()
+        {
+
+            try
+            {
+                var usr = DescUserClaveService.GetUsuarioSInDescClave((int)HttpContext.Session.GetInt32("idEmpresa"));
+                return Ok(usr);
+            }
+            catch (Exception)
+            {
+
                 throw;
             }
         }

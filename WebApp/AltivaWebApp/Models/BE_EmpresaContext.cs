@@ -58,6 +58,7 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbFaDescuentoUsuario> TbFaDescuentoUsuario { get; set; }
         public virtual DbSet<TbFaDescuentoUsuarioClave> TbFaDescuentoUsuarioClave { get; set; }
         public virtual DbSet<TbFaDescuentoUsuarioRango> TbFaDescuentoUsuarioRango { get; set; }
+        public virtual DbSet<TbFaPromocionProducto> TbFaPromocionProducto { get; set; }
         public virtual DbSet<TbFaRebajaConfig> TbFaRebajaConfig { get; set; }
         public virtual DbSet<TbFdAjusteSaldoMenor> TbFdAjusteSaldoMenor { get; set; }
         public virtual DbSet<TbFdAperturaCaja> TbFdAperturaCaja { get; set; }
@@ -1431,6 +1432,42 @@ namespace AltivaWebApp.Models
                     .HasForeignKey(d => d.IdRebajaConfig)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Tb_FA_DescuentoUsuarioRango_Tb_FA_RebajaConfig");
+            });
+
+            modelBuilder.Entity<TbFaPromocionProducto>(entity =>
+            {
+                entity.HasKey(e => e.IdPromocionProducto);
+
+                entity.ToTable("Tb_FA_PromocionProducto");
+
+                entity.Property(e => e.CantTipo1Promo).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.CantTipo1Ref).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Clave)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.EsTipo2)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.FechaDesde).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaHasta).HasColumnType("datetime");
+
+                entity.Property(e => e.Nota)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdRebajaConfigNavigation)
+                    .WithMany(p => p.TbFaPromocionProducto)
+                    .HasForeignKey(d => d.IdRebajaConfig)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Tb_FA_PromocionProducto_Tb_FA_RebajaConfig");
             });
 
             modelBuilder.Entity<TbFaRebajaConfig>(entity =>
