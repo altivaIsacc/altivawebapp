@@ -10,6 +10,7 @@ using AltivaWebApp.Mappers;
 using AltivaWebApp.ViewModels;
 using System.Security.Claims;
 using AltivaWebApp.GEDomain;
+using Microsoft.Extensions.Localization;
 
 namespace AltivaWebApp.Controllers
 {
@@ -21,19 +22,15 @@ namespace AltivaWebApp.Controllers
         IUserMap userMap;
         IUserService userService;
         IPerfilService perfilService;
-        public EmailSender email;
-        public void notificar(string mensaje)
-        {
-            var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            //email.insertarNotificacion(int.Parse(id), mensaje);
 
-        }
-        public ManejoUsuariosController(EmailSender email, IPerfilService perfilService, IUserMap map, IUserService userservice)
+        private readonly IStringLocalizer<SharedResources> _sharedLocalizer;
+       
+        public ManejoUsuariosController(IStringLocalizer<SharedResources> sharedLocalizer, IPerfilService perfilService, IUserMap map, IUserService userservice)
         {
             this.userMap = map;
             this.userService = userservice;
             this.perfilService = perfilService;
-            this.email = email;
+            _sharedLocalizer = sharedLocalizer;
         }
 
         // GET: ManejoUsuarios
@@ -99,7 +96,25 @@ namespace AltivaWebApp.Controllers
 
             return View(userMap.DomainToViewModelSingle(model));
         }
+        [HttpPost("CambiarContrasena")]
+        public IActionResult CambiarContrasena(UsuarioViewModel model)
+        {
+            
 
+            try
+            {
+                var user = userService.GetSingleUser(model.id);
+                user.Contrasena = model.contrasena;
+                userService.UpdateUsuario(user);
+
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
 
         [Route("UserA/{codigo?}")]
         public ActionResult UserAccount(string codigo)
@@ -167,7 +182,7 @@ namespace AltivaWebApp.Controllers
         {
 
             var pu = userMap.CreatePU(model);
-            notificar("Se ha asignado un nuevo perfil");
+            
             if (pu)
                 return Json(new { success = true });
             else
@@ -202,11 +217,10 @@ namespace AltivaWebApp.Controllers
 
         // POST: ManejoUsuarios/Create
         [HttpPost("Nuevo-Usuario")]
-        [ValidateAntiForgeryToken]
         public ActionResult CrearUsuario(UsuarioViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View();
+            //if (!ModelState.IsValid)
+            //    return View();
             try
             {
                 var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -216,57 +230,49 @@ namespace AltivaWebApp.Controllers
 
                 if (userService.ExisteUsuarioPorCodigo(model.codigo))
                 {
-                    ModelState.AddModelError(string.Empty, "El código ya existe en el sistema");
-                    return View(model);
+                    return Json(new { success = false, err = _sharedLocalizer["usaurioCodigoExiste"]});
                 }
 
                 if (userService.ExisteUsuarioPorCorreo(model.correo))
                 {
-                    ModelState.AddModelError(string.Empty, "El correo ya existe en el sistema");
-                    return View(model);
+                    return Json(new { success = false, err = _sharedLocalizer["usaurioCorreoExiste"] });
                 }
 
                 var user = userMap.Create(model);
 
                 if (user != null)
                 {
-                    var uId = userService.GetUsuarioConPerfiles(user.codigo);
+                    //var uId = userService.GetUsuarioConPerfiles(user.codigo);
                     var idEmpresa = (int)HttpContext.Session.GetInt32("idEmpresa");
                     var empresaUsuarioRel = new TbSeEmpresaUsuario
                     {
                         IdEmpresa = idEmpresa,
                         Estado = true,
-                        IdUsuario = uId.Id
+                        IdUsuario = user.id
                     };
                     var configUsuario = new TbSeUsuarioConfiguraion
                     {
                         Idioma = "es",
-                        IdUsuario = uId.Id,
+                        IdUsuario = user.id,
                         Tema = "TemaCombinado"
                     };
 
                     var resCU = userService.CreateOrUpdateConfiguracion(configUsuario);
                     var resEU = userService.CreateEmpresaUsuarioRel(empresaUsuarioRel);
 
-                    if (resEU != null && resCU != null)
-                        return RedirectToAction("CuentaUsuario", new { codigo = model.codigo });
-                    else
-                    {
-                        userService.Delete(uId);
-                        return View(string.Empty, "Error al crear la relación del usuario y la empresa");
-                    }
+                    return Json(new { success = true, cod =  user.codigo});
 
                 }
                 else
                 {
-                    return View(string.Empty, "Error al crear el usuario");
+                    return Json(new { success = false, err = _sharedLocalizer["errorGeneral"] });
                 }
 
 
             }
             catch
             {
-
+                return BadRequest();
                 throw;
             }
         }
@@ -328,7 +334,9 @@ namespace AltivaWebApp.Controllers
 
 
             user.Avatar = directorio;
-            Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
+
+            if(codigo == User.Identity.Name)
+                Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
 
             userService.UpdateUsuario(user);
 

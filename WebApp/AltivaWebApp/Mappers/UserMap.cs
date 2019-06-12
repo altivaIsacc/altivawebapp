@@ -111,7 +111,8 @@ namespace AltivaWebApp.Mappers
             domain.Nombre = officeViewModel.nombre;
             domain.Estado = officeViewModel.estado;
             domain.Iniciales = officeViewModel.iniciales;
-            domain.Contrasena = officeViewModel.contrasena;
+            if(officeViewModel.contrasena != null || officeViewModel.contrasena != "")
+                domain.Contrasena = officeViewModel.contrasena;
             domain.Correo = officeViewModel.correo;
         
 

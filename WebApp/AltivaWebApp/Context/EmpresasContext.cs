@@ -1248,7 +1248,7 @@ namespace AltivaWebApp.Context
                 entity.ToTable("tb_CR_Contacto");
 
                 entity.Property(e => e.Apellidos)
-                    .HasMaxLength(50)
+                    .HasMaxLength(100)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Cedula)
@@ -1258,29 +1258,29 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.Correo)
                     .IsRequired()
-                    .HasMaxLength(50)
+                    .HasMaxLength(100)
                     .IsUnicode(false);
 
                 entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
 
                 entity.Property(e => e.MapLink)
-                    .HasMaxLength(8000)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Nombre)
-                    .HasMaxLength(50)
+                    .HasMaxLength(100)
                     .IsUnicode(false);
 
                 entity.Property(e => e.NombreComercial)
-                    .HasMaxLength(50)
+                    .HasMaxLength(150)
                     .IsUnicode(false);
 
                 entity.Property(e => e.NombreJuridico)
-                    .HasMaxLength(50)
+                    .HasMaxLength(150)
                     .IsUnicode(false);
 
                 entity.Property(e => e.OtrasSenas)
-                    .HasMaxLength(100)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Pais)
@@ -1290,7 +1290,7 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.Ruta)
                     .HasColumnName("ruta")
-                    .HasMaxLength(1000)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.TipoCedula)
@@ -1299,7 +1299,7 @@ namespace AltivaWebApp.Context
                     .IsUnicode(false);
 
                 entity.Property(e => e.WebLink)
-                    .HasMaxLength(8000)
+                    .HasMaxLength(200)
                     .IsUnicode(false);
             });
 

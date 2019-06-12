@@ -68,7 +68,7 @@ namespace AltivaWebApp.Mappers
                 CedJuridica = model.CedJuridica,
                 Correo = model.Correo,
                 Direccion = model.Direccion,
-                Estado = model.Estado,
+                Estado = true,
                 FechaCreacion = DateTime.Now,
                 FechaMod = DateTime.Now,
                 Nombre = model.Nombre,

@@ -1,62 +1,208 @@
 ﻿@model AltivaWebApp.ViewModels.UsuarioViewModel
-
-<h3 data-translate="MUNuevo">Nuevo Usuario</h3>
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+<h3>@SharedLocalizer["Nuevo"] @SharedLocalizer["Usuario"]</h3>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="CrearUsuario" method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-4 col-sm-6 col-xs-12">
+        <form id="frmUsuario" method="post" enctype="multipart/form-data">
+            @Html.HiddenFor(x => x.id)
+            @Html.HiddenFor(x => x.Id_Usuario)
+
             <div class="form-group">
-                <label data-translate="codigo" asp-for="codigo" class="control-label">Codigo:</label>
-                <input asp-for="codigo" class="form-control" />
-                <span asp-validation-for="codigo" class="text-danger"></span>
+                <label for="codigo" class="control-label">@SharedLocalizer["Codigo"]:</label>
+                <input  id="codigo" class="form-control" />
+                <div id="codigoValidation"></div>
             </div>
             <div class="form-group">
-                <label data-translate="nombre" asp-for="nombre" class="control-label">Nombre:</label>
-                <input asp-for="nombre" class="form-control" />
-                <span asp-validation-for="nombre" class="text-danger"></span>
+                <label for="nombre" class="control-label">@SharedLocalizer["Nombre"]:</label>
+                <input id="nombre" class="form-control" />
+                <div id="nombreValidation"></div>
             </div>
             <div class="form-group">
-                <label data-translate="estado" asp-for="estado" class="control-label">Estado:</label>
-                <select asp-for="estado" class="form-control">
-                    <option data-translate="estadoA" value="ACTIVO">ACTIVO</option>
-                    <option data-translate="estadoI" value="INACTIVO">INACTIVO</option>
+                <label for="estado" class="control-label">@SharedLocalizer["Estado"]:</label>
+                <select id="estado" class="form-control">
+                    <option value="ACTIVO">@SharedLocalizer["ACTIVO"]</option>
+                    <option value="INACTIVO">@SharedLocalizer["INACTIVO"]</option>
                 </select>
-                <span asp-validation-for="estado" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label data-translate="iniciales" asp-for="iniciales" class="control-label">Iniciales:</label>
-                <input asp-for="iniciales" class="form-control" />
-                <span asp-validation-for="iniciales" class="text-danger"></span>
+                <label for="iniciales" class="control-label">@SharedLocalizer["Iniciales"]:</label>
+                <input id="iniciales" class="form-control" />
+                <div id="inicialesValidation"></div>
             </div>
             <div class="form-group">
-                <label data-translate="contrasena" asp-for="contrasena" class="control-label">Contraseña: (Una Mayuscula y un caracter especial)</label>
-                <input type="password" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" title="Debe contener al menos 8 caracteres, un número, una mayúscula y un caracter especial" asp-for="contrasena" class="form-control" />
-                <span asp-validation-for="contrasena" class="text-danger"></span>
+                <label for="contrasena" class="control-label">@SharedLocalizer["Contraseña"]: </label>
+                <input type="password" id="contrasena" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" title="@SharedLocalizer["claveRequisitos"]" class="form-control" />
+                <div id="passwordValidation"></div>
             </div>
             <div class="form-group">
-                <label class="control-label">Confirmar Contraseña:</label>
-                <input type="password"  title="Debe contener al menos 8 caracteres, un número, una mayúscula y un caracter especial" asp-for="ConfirmPassowrd" class="form-control" />
-                <span asp-validation-for="ConfirmPassowrd" class="text-danger"></span>
+                <label class="control-label">@SharedLocalizer["Confirmar"] @SharedLocalizer["Contraseña"]:</label>
+                <input type="password" id="confirmContrasena" class="form-control" />
+                <div id="passwordConfirmValidation"></div>
             </div>
             <div class="form-group">
-                <label data-translate="correo" asp-for="correo" class="control-label">Correo</label>
-                <input type="email" asp-for="correo" class="form-control" />
-                <span asp-validation-for="correo" class="text-danger"></span>
+                <label for="correo" class="control-label">@SharedLocalizer["Correo"]:</label>
+                <input type="email" id="correo" class="form-control" />
+                <div id="correoValidation"></div>
             </div>
             <div class="form-group">
-                <span data-translate="avatar" class="input-group-text" id="inputGroup-sizing-sm">Cargar tu avatar</span>
-                <input type="file" asp-for="Foto" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
-            </div>
-            <div class="form-group" hidden>
-                <label asp-for="Id_Usuario" class="control-label">Id Usuario:</label>
-                <input asp-for="Id_Usuario" value="1" class="form-control" />
-                <span asp-validation-for="Id_Usuario" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-success"><span data-translate="guardar">Guardar </span><span><i class="fas fa-save"></i></span></button>
-                <a data-translate="cancelar"  class="btn btn-default btnAtras">Cancelar</a>
+                <span class="input-group-text" id="inputGroup-sizing-sm">@SharedLocalizer["Cargar"] Avatar</span>
+                <input type="file" accept="image/*"  id="fileUpload" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                <span hidden class="text-danger">@SharedLocalizer["tamanoValid"] (6MB)</span>
+                <span hidden class="text-danger">@SharedLocalizer["tipoArchivo"]</span>
             </div>
         </form>
+
+        <div class="form-group">
+            <button type="submit" id="btnCrearUsuario" onclick="validarForm()" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
+            <a class="btn btn-default btnAtras">Cancelar</a>
+        </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+
+
+    });
+
+    function crearUsuario() {
+
+
+        var model = $('#frmUsuario').serializeArray();
+
+        console.log(model);
+
+        var formData = new FormData();
+        var file = $('#fileUpload')[0].files[0];
+
+        formData.append('id', 0);
+        formData.append('codigo',$('#codigo').val());
+        formData.append('contrasena', $('#contrasena').val());
+        formData.append('correo', $('#correo').val());
+        formData.append('estado', $('#estado').val());
+        formData.append('iniciales', $('#iniciales').val());
+        formData.append('nombre', $('#nombre').val());
+        formData.append("id_Usuario", 1);
+        formData.append("direccion", "n/a");
+        formData.append("foto", file);
+
+
+         $.ajax({
+                type: "post",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+             url: '@Url.Action("CrearUsuario", "ManejoUsuarios")',
+             dataType: 'json',
+             contentType: false,
+             processData: false,
+             data: formData,
+             success: function (data) {
+                 if (data.success === true) {
+                     window.location.href = '@Url.Action("CuentaUsuario", "ManejoUsuarios", new { codigo = "__cod__" })'.replace("__cod__", data.cod);
+                 }
+                 else
+                     cargarAlert(data.err);
+
+                },
+             error: function (err) {
+                 cargarAlert('@SharedLocalizer["errorGeneral"]')
+                 console.log(err.success);
+             }
+            });
+
+    }
+
+    $('#fileUpload').bind('change', function () {
+
+        var file = $(this)[0].files[0];
+
+
+
+        if ($(this).val() != '') {
+           
+
+            var e = 0;
+            e = + file.size;
+
+            if (e > 60000) {
+                $('#tamanoArchivo').attr('hidden', false);
+                $(this).val('');
+            }
+
+            if (!(/\.(jpg|png|gif)$/i).test(file.name)) {
+                $('#tipoArchivo').attr('hidden', false);
+                $(this).val('');
+            }
+
+        }
+        
+
+
+
+    });
+
+    function validarForm() {
+
+        var flag = true;
+
+        if ($('#codigo').val().replace(/ /g, "") === "") {
+
+            $('#codigoValidation').empty();
+            $('#codigoValidation').append('<span class="text-danger">@SharedLocalizer["codigoValid"]</span>');
+
+            flag = false;
+        }
+
+        if ($('#nombre').val().replace(/ /g, "") === "") {
+            $('#nombreValidation').empty();
+            $('#nombreValidation').append('<span class="text-danger">@SharedLocalizer["nombreValid"]</span>');
+
+            flag = false;
+        }
+        if ($('#iniciales').val().replace(/ /g, "") === "") {
+            $('#inicialesValidation').empty();
+            $('#inicialesValidation').append('<span class="text-danger">@SharedLocalizer["inicialesValid"]</span>');
+
+            flag = false;
+        }
+        if ($('#contrasena').val().replace(/ /g, "") === "") {
+            $('#passwordValidation').empty();
+            $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["contrasenaValid"]</span>');
+
+            flag = false;
+        }
+        if ($('#confirmContrasena').val().replace(/ /g, "") === "") {
+            $('#passwordConfirmValidation').empty();
+            $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["confirmacionValid"]</span>');
+
+            flag = false;
+        } if ($('#correo').val().replace(/ /g, "") === "") {
+            $('#correoValidation').empty();
+            $('#correoValidation').append('<span class="text-danger">@SharedLocalizer["correoValid"]</span>');
+
+            flag = false;
+        }
+        if ($('#contrasena').val() != $('#confirmContrasena').val()) {
+            $('#passwordConfirmValidation').empty();
+            $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
+            $('#passwordValidation').empty();
+            $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
+
+            flag = false;
+        }
+
+        if (flag)
+            crearUsuario();
+
+    }
+
+</script>

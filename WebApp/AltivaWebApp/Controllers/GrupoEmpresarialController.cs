@@ -122,7 +122,7 @@ namespace AltivaWebApp.Controllers
         [HttpPost("Nueva-Empresa")]        
         public IActionResult CrearEmpresa(EmpresaViewModel model)
         {
-
+            var result = new TbGeEmpresa();
 
             try
             {
@@ -140,7 +140,7 @@ namespace AltivaWebApp.Controllers
 
                 model.Id_GE = (int)service.GetGE().Id;
 
-               var result = geMap.Create(model);
+               result = geMap.Create(model);
 
                
 
@@ -158,9 +158,9 @@ namespace AltivaWebApp.Controllers
                     else
                     {
                         ///eliminar datos si la bd no se crea
-                        var em = service.GetEmpresaById((int)result.Id);
+                        //var em = service.GetEmpresaById((int)result.Id);
 
-                        var deleted = service.EliminarEmpresa(em);
+                        var deleted = service.EliminarEmpresa(result);
 
                         return Json(new { success = _sharedLocalizer["errorGeneral"].ToString() });
                     }
@@ -169,14 +169,16 @@ namespace AltivaWebApp.Controllers
                 }
                 else
                 {
+                    
                     return Json(new { success = _sharedLocalizer["errorGeneral"].ToString() });
                 }
 
             }
             catch
             {
-                throw;
-                //return BadRequest(new { success = _sharedLocalizer["errorGeneral"].ToString() });
+                var deleted = service.EliminarEmpresa(result);
+                //throw;
+                return BadRequest(new { success = _sharedLocalizer["errorGeneral"].ToString() });
             }
         }
 
