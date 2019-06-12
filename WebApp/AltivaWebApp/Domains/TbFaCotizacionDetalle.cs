@@ -10,7 +10,7 @@ namespace AltivaWebApp.Domains
         public double? PrecioBase { get; set; }
         public double? PrecioDolar { get; set; }
         public double? PrecioEuro { get; set; }
-        public DateTime? FechaCreacion { get; set; }
+        public DateTime FechaCreacion { get; set; }
         public long? IdUsuarioCreador { get; set; }
         public double? SubTotalBase { get; set; }
         public double? SubTotalDolar { get; set; }

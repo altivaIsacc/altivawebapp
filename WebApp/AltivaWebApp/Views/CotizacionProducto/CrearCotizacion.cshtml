@@ -75,7 +75,30 @@
             </div>
         </div>
     </div>
+    @if (Model.IdCotizacion != 0)
+    {
+        
+    <div class="form-group">
+        <div class="form-row">
+            <div class="col-md-2">
+                <label>@SharedLocalizer["Estado"]:</label>
+                <select id="ddEstado" class="form-control search-key">
+                    <option value="0">@SharedLocalizer["Borrador"]</option>
+                    <option value="1">@SharedLocalizer["Enviada"]</option>
+                    <option value="2">@SharedLocalizer["Anulada"]</option>
+                    <option value="3">@SharedLocalizer["Aceptada"]</option>
+                    <option value="4">@SharedLocalizer["Rechazada"]</option>
+                    <option value="5">@SharedLocalizer["Facturada"]</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    }
+    else
 
+    {
+
+    }
 </form>
     <div class="form-group">
         <div class="form-row">
@@ -146,7 +169,7 @@
     </div>
 </div>
 
-    <div class="form-group row">
+    <div class="row">
         <div class="col-md-12">
             <button class="btn btn-success btnAccion" onclick="guardarSalir()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
             <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
@@ -165,14 +188,15 @@
     var items = $('#items');
     var _Existencia = 0;
     var contadorFila = 0;
-    var LineasAgregadas = [];
+    var lineasAgregadas = [];
     var lineas = [];
     var $precio = $('#lbCostoPromedio');
     var $cantidad = $('#lbCantidad');
     var $unidad = $('#unidad');
     var CambioDolar = 0;
     var CambioEuro = 0;
-
+    var _estado = 0;
+    var lineasEliminadas = [];
 
     //operaciones
     var subTotalGravadoBase = 0;
@@ -211,9 +235,9 @@
         getMonedas();
         getClientes();
         getUsuarios();
-        getInventario();
         fechasEditar();
-        traerDetalles();
+        getInventario();
+
 
         $('#fechaPicker').datetimepicker({
             defaultDate: new Date(),
@@ -237,7 +261,7 @@
             return false;
             });
 
-
+    });
 /////////////////////////////GETS///////////////////////////////////////////////////////////////////////////////////////////////
             function getCotizacionDetalle() {
         if(@Model.IdCotizacion != 0)
@@ -251,7 +275,7 @@
 
             success: function (data) {
                 compraDetalleBD = JSON.parse(JSON.stringify(data));
-                console.log(data);
+        
                 cargarLineas(data);
 
                },
@@ -279,12 +303,6 @@
                     console.log(err.statusText);
                 }
             });
-        }
-
-        function traerDetalles() {
-            if (@Model.IdCotizacion!= 0) {
-                getCotizacionDetalle();
-            }
         }
 
             function getMonedas() {
@@ -354,10 +372,9 @@
                 $("#lbCreador").text(Usuarios[i].nombre);
                     if (@Model.IdCotizacion != 0) {
                         $Creador.val(@Model.IdUsuarioCreador);
-                 }
-             
+                 }            
             }
-                }
+          }
         }
 
           function getInventario() {
@@ -370,9 +387,9 @@
             },
             dataType: "json",
             url: '@Url.Action("GetAllInventario", "Inventario")',
-           success: function (data) {
+                success: function (data) {
                cargarddInventario(data);
-               _Inventario = data;
+                    _Inventario = data;
                 inventario = JSON.parse(JSON.stringify(data));
             },
             error: function (err, scnd) {
@@ -381,10 +398,9 @@
             });
         }
 
-    });
+
 
         function existeItem(id) {
-
             var flag = false;
             for (var i = 0; i < _Inventario.length; i++) {
 
@@ -508,27 +524,51 @@
             }
                   if (@Model.IdCotizacion != 0) {
                       $Clientes.val(@Model.IdCliente);
+
+                      switch ("@Model.Estado") {
+                          case "Borrador":
+                              _estado = 0;
+                              break;
+                          case "Enviada":
+                              _estado = 1;
+                              break;
+                          case "Anulada":
+                              _estado = 2;
+                              break;
+                          case "Aceptada":
+                              _estado = 3;
+                              break;
+                          case "Rechazada":
+                              _estado = 4;
+                              break;
+                          case "Facturada":
+                              _estado = 5;
+                              break;
+
+                      }
+                      $("#ddEstado").val(_estado);
+
                  }
 
         }
 
         function cargarddInventario(inventario) {
-
             for (var i = 0; i < inventario.length; i++) {
                 var o = "<option value=" + inventario[i].idInventario + ">" + inventario[i].descripcion + "</option>";
-                $("#ddInventario").append(o);
+                $("#ddInventario").append(o);             
             }
+               if (@Model.IdCotizacion!= 0) {
+                   getCotizacionDetalle();
+
+                }
         }
 
-
     function NombreItem(IdInventario) {
-        console.log(IdInventario);
+
         for (var i = 0; i < _Inventario.length; i++) {
-            if (_Inventario[i].idInventario ===parseInt( IdInventario)) {
-                console.log(_Inventario[i].descripcion);
+            if (_Inventario[i].idInventario === parseInt(IdInventario)) {
                 return _Inventario[i].descripcion;
             }
-
         }
     }
 
@@ -536,22 +576,18 @@
         $('.filasCargadas').remove();
 
         contadorFila = 0;
-        console.log(data);
-
         for (var i = 0; i < data.length; i++) {
             contadorFila++;
             var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
-                + '< td style = "padding-top:2rem;" > ' +NombreItem(data[i].idInventario) + '</td> '
+                + '<td style="padding-top:2rem;">' + NombreItem(data[i].idInventario) + '</td> '
                 + '<td style="padding-top:2rem;">' + data[i].cantidad + '</td>'
                 + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].precioBase + '"/></td>'
                 + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].totalBase + '"/></td>'
-                + '<td><button  class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                + '<td><button  class="btn btn-link" value="' + contadorFila + '" onclick="eliminarCotizacionDetalle(value, ' + data[i].idCotizacionDetalle + ')" ><i class="fas fa-trash"></i></button></td></tr>';
             $('.lineaForm').before(body);
         }
 
-
         inicializaCampos();
-
     }
 
     ////////////////////////////////////////////////////////////FUNCIONES DE GUARDADO,EDITAR//////////////////////////////////////
@@ -568,7 +604,8 @@
     function inicializaCampos() {
 
        $("#ddInventario").val("0");
-        $("#lbCantidad").val(0);
+        $("#lbCantidad").val(1);
+        $("#lbTotal").val(0);
         setTotalLinea();
     }
 
@@ -634,56 +671,132 @@
         $(".dataTables_searching").hide();
     }
 
-             function crearModelo() {
-                 console.log("CrearModelo");
-                 console.log($('#fecha').val());
-                 console.log($('#fechaVencimiento').val());
+    function crearModelo() {
 
-        var ordenModel = {
-            idCotizacion: @Model.IdCotizacion,
-            fechaCotizacion:$('#fecha').val(),
-            idCliente: $("#ddClientes").val(),
-            estado:"Borrador",
-            idMoneda: $("#ddMoneda").val(),
-            idVendedor: $("#ddVendedor").val(),
-            fechaVencimiento: $('fechaVencimiento').val(),
-            idUsuarioCreador: IdUsuarioLogueado ,
-            subTotalBase: 0,
-            subTotalDolar: 0,
-            subTotalEuro:0,
-            subTotalGravadoBase: 0,
-            subTotalGravadoDolar: 0,
-            subTotalGravadoEuro: 0,
-            subTotalExcentoBase: 0,
-            subTotalExcentoDolar:0,
-            subTotalExcentoEuro: 0,
-            porcDescuentoBase: 0,
-            totalDescuentoBase: 0,
-            totalDescuentoDolar: 0,
-            totalDescuentoEuro:0,
-            subTotalGravadoNetoBase: 0,
-            subTotalGravadoNetoDolar: 0,
-            subTotalGravadoNetoEuro: 0,
-            subTotalExcentoNetoBase: 0,
-            subTotalExcentoNetoDolar: 0,
-            subTotalExcentoNetoEuro: 0,
-            montoIvaBase: 0,
-            montoIvaDolar: 0,
-            montoIvaEuro: 0,
-            totalBase: 0,
-            totalDolar:0,
-            totalEuro: 0,
-            tipoCambioDolar: CambioDolar,
-            tipoCambioEuro:CambioEuro,
-            cotizacionDetalle: crearModeloDetalle(lineasAgregadas)
-        };
-                 console.log("returnModel");
+        var _fechaCotizacion;
+        var _fechaVencimiento;
+        var _fechaCreacion;
+        var _estado;
+        var ordenModel;
+
+        if (@Model.IdCotizacion!= 0) {
+            _fechaCotizacion = " @Model.FechaCotizacion";
+            _fechaVencimiento = "@Model.FechaVencimiento";
+            _fechaCreacion = "@Model.FechaCreacion";
+
+            switch ($("#ddEstado option:selected").val()) {
+                case "0":
+                    _estado = "Borrador";
+                    break;
+                case "1":
+                    _estado = "Enviada";
+                    break;
+                case "2":
+                    _estado = "Anulada";       
+                    break;
+                case "3":
+                    _estado = "Aceptada";
+                    break;
+                case "4":
+                    _estado = "Rechazada";
+                    break;
+                case "5":
+                    _estado = "Facturada";
+                    break;
+            }
+     
+          ordenModel = {
+                idCotizacion: @Model.IdCotizacion,
+                fechaCotizacion: _fechaCotizacion,
+                idCliente: $("#ddClientes").val(),
+                estado: _estado,
+                idMoneda: $("#ddMoneda").val(),
+                idVendedor: $("#ddVendedor").val(),
+                fechaVencimiento: _fechaVencimiento,
+                idUsuarioCreador: IdUsuarioLogueado,
+                fechaCreacion: _fechaCreacion,
+                subTotalBase: 0,
+                subTotalDolar: 0,
+                subTotalEuro: 0,
+                subTotalGravadoBase: 0,
+                subTotalGravadoDolar: 0,
+                subTotalGravadoEuro: 0,
+                subTotalExcentoBase: 0,
+                subTotalExcentoDolar: 0,
+                subTotalExcentoEuro: 0,
+                porcDescuentoBase: 0,
+                totalDescuentoBase: 0,
+                totalDescuentoDolar: 0,
+                totalDescuentoEuro: 0,
+                subTotalGravadoNetoBase: 0,
+                subTotalGravadoNetoDolar: 0,
+                subTotalGravadoNetoEuro: 0,
+                subTotalExcentoNetoBase: 0,
+                subTotalExcentoNetoDolar: 0,
+                subTotalExcentoNetoEuro: 0,
+                montoIvaBase: 0,
+                montoIvaDolar: 0,
+                montoIvaEuro: 0,
+                totalBase: 0,
+                totalDolar: 0,
+                totalEuro: 0,
+                tipoCambioDolar: CambioDolar,
+                tipoCambioEuro: CambioEuro,
+                cotizacionDetalle: crearModeloDetalle(lineasAgregadas)
+            };                          
+        }
+        else {
+            _fechaCotizacion = $FechaCotizacion.val();
+            _fechaVencimiento = $FechaVencimiento.val();
+            _estado = "Borrador";
+
+              ordenModel = {
+                idCotizacion: @Model.IdCotizacion,
+                fechaCotizacion: _fechaCotizacion,
+                idCliente: $("#ddClientes").val(),
+                estado: _estado,
+                idMoneda: $("#ddMoneda").val(),
+                idVendedor: $("#ddVendedor").val(),
+                fechaVencimiento: _fechaVencimiento,
+                idUsuarioCreador: IdUsuarioLogueado,
+                subTotalBase: 0,
+                subTotalDolar: 0,
+                subTotalEuro: 0,
+                subTotalGravadoBase: 0,
+                subTotalGravadoDolar: 0,
+                subTotalGravadoEuro: 0,
+                subTotalExcentoBase: 0,
+                subTotalExcentoDolar: 0,
+                subTotalExcentoEuro: 0,
+                porcDescuentoBase: 0,
+                totalDescuentoBase: 0,
+                totalDescuentoDolar: 0,
+                totalDescuentoEuro: 0,
+                subTotalGravadoNetoBase: 0,
+                subTotalGravadoNetoDolar: 0,
+                subTotalGravadoNetoEuro: 0,
+                subTotalExcentoNetoBase: 0,
+                subTotalExcentoNetoDolar: 0,
+                subTotalExcentoNetoEuro: 0,
+                montoIvaBase: 0,
+                montoIvaDolar: 0,
+                montoIvaEuro: 0,
+                totalBase: 0,
+                totalDolar: 0,
+                totalEuro: 0,
+                tipoCambioDolar: CambioDolar,
+                tipoCambioEuro: CambioEuro,
+                cotizacionDetalle: crearModeloDetalle(lineasAgregadas)
+            };
+       
+        }
+         
+        console.log(ordenModel);
         return ordenModel;
     }
 
     function crearModeloDetalle(model) {
 
-        console.log("modelodetalle");
         for (var i = 0; i < model.length; i++) {
 
             model[i].subTotalBase = model[i].subTotalBase.toString().replace(".", ",");
@@ -715,7 +828,6 @@
             model[i].idCotizacion = model[i].idCotizacion.toString().replace(".", ",");
         }
 
-        console.log(model);
         return model;
     }
 
@@ -725,41 +837,57 @@
         bootbox.confirm(msj, function (result) {
 
             if (result)
-                window.location.href = "@Url.Action("CrearCotizacion","CotizacionProducto")";
+                window.location.href = "@Url.Action("ListarCotizacionProducto","CotizacionProducto")";
 
         });
     }
 
-    
-    function eliminarLinea(_id, idLinea) {
 
+        function eliminarCotizacionDetalle(_id, idLinea) {
         bootbox.confirm("@SharedLocalizer["confirmEliminarLinea"]", function (result) {
 
             if (result) {
-
-                var id = _id - 1;
-
-                if (validarExistencia(id)) {
-                    if (idLinea != 0)
-                        lineasEliminadas.push(lineas[id].id);
-                    else
-                        lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
-
-                    //la linea hay que convertirla a salida para que se reste
-                    lineas[id].movimiento = "false";
-                    recalcularExistencias(lineas[id]);
-
-                    lineas.splice(id, 1);
-
-                    cargarTabla(lineas);
-
-                }
-
-
+                eliminarDetalleDB(_id, idLinea);
             }
-
         });
+    }
+    
+    function eliminarDetalleDB(_id, idLinea) {
 
+
+
+                if (idLinea != 0) {
+                     $.ajax({
+                    type: "POST",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    dataType: "json",
+                    url: '@Url.Action("EliminarCotizacionDetalle")',
+                    data: { idCD: idLinea },
+                    success: function (data) {
+                        eliminarLinea(_id);
+                    },
+                    error: function (err, scnd) {
+                        cargarAlert('@SharedLocalizer["errorGeneral"]');
+                        console.log(err.statusText);
+                    }
+                    });
+                }
+                else
+            eliminarLinea(_id);
+        console.log(_id);
+
+    }
+
+    function eliminarLinea(key) {
+
+        lineasAgregadas.splice($.inArray(lineas[key], lineasAgregadas), 1);
+        lineas.splice(key, 1);
+
+        calcularTotales();
+        console.log(lineas);
+        cargarTabla(lineas);
 
     }
 
@@ -798,8 +926,8 @@
             return true;
     }
 
-       function guardarCompra() {
-           console.log("GuardarCompra");
+    function guardarCompra() {
+
         $.ajax({
               type: "POST",
               headers: {
@@ -816,9 +944,9 @@
                     cargarTabla(lineas);
                     if (@Model.IdCotizacion === 0) {
 
+           
                         var url = "@Url.Action("EditarCotizacion", new { id = "__id__" })";
                         window.location.href = url.replace("__id__", data.idCotizacion);
-
                     }
                 }
                 else
@@ -834,8 +962,7 @@
 
     }
 
-       function guardarLinea() {
-           console.log("Guardarlinea");
+    function guardarLinea() {
            var model = {
             idCotizacionDetalle: 0,
             idInventario: $("#ddInventario").val(),
@@ -873,6 +1000,7 @@
                cantidad: parseFloat($cantidad.val())
 
         };
+
         lineasAgregadas = [];
 
         lineasAgregadas.push(model);
@@ -884,7 +1012,7 @@
 
         function guardarSalir() {
 
-                guardarCompra();
+            guardarCompra();
 
             window.location.href = "@Url.Action("ListarCotizacionProducto")";
         
@@ -943,15 +1071,14 @@
             subTotalGravadoBase += parseFloat(lineas[i].subTotalGravadoBase);
             subTotalGravadoDolar += parseFloat(lineas[i].subTotalGravadoBase)*parseFloat(lineas[i].CambioDolar);
             subTotalGravadoEuro += parseFloat(lineas[i].subTotalGravadoBase) * parseFloat(lineas[i].CambioEuro);
-            subTotalExcentoBase += parseFloat(lineas[i].subtalExcentoBase);
-            subTotalExcentoDolar += parseFloat(lineas[i].subtalExcentoBase)*parseFloat(lineas[i].CambioDolar);
-            subTotalExcentoEuro += parseFloat(lineas[i].subtalExcentoBase)*parseFloat(lineas[i].CambioEuro);
+
         }
 
     }
 
     
     function cargarLineas(data) {
+
 
         for (var i = 0; i < data.length; i++) {
             var model = {
@@ -983,13 +1110,14 @@
             montoIvaBase: 0,
             montoIvaDolar: 0,
             montoIvaEuro: 0,
-            totalBase: 0,
+            totalBase: data[i].totalBase,
             totalDolar: 0,
-                totalEuro: 0,
+            totalEuro: 0,
             cantidad:data[i].cantidad
             };
             lineas.push(model);
         }
+
 
         cargarTabla(lineas);
         calcularTotales();
@@ -998,72 +1126,64 @@
     
     //////calculos de linea/////////////////////////////////////////////////////////////////////
 
-    function setSubTotalLinea() {
+    function fnSubTotalBase() {
+        return parseFloat($cantidad.val() * $precio.val());
+    }
 
-        var precio = parseFloat($precio.val());
-        var cantidad = parseFloat($cantidad.val());
+    function fnSubTotalDolar() {
+        return parseFloat(($cantidad.val() * $precio.val())*CambioDolar);
+    }
 
-        $subTotalLinea.val(cantidad * precio);
+    function fnSubTotalEuro() {
+        return parseFloat(($cantidad.val() * $precio.val()) * CambioEuro);
+    }
+
+    function fnSubTotalGravadoBase(IdInventario) {
+        for (var i = 0; i < _Inventario.length; i++)
+        {
+            if (_Inventario[i].idInventario == parseInt(IdInventario)) {
+
+                var imp = parseFloat(_Inventario[i].impuestoVenta);
+                if (imp != 0) {
+                    return parseFloat(($cantidad.val() * $precio.val()));
+                } else {
+                    return 0;
+                }
+            }
+        }
+     
+    }
+
+    function fnSubTotalGravadoDolar(IdInventario) {
+        for (var i = 0; i < _Inventario.length; i++) {
+            if (_Inventario[i].idInventario == parseInt(IdInventario)) {
+
+                var imp = parseFloat(_Inventario[i].impuestoVenta);
+                if (imp != 0) {
+                    return parseFloat(($cantidad.val() * $precio.val()) * CambioDolar);
+                } else {
+                    return 0;
+                }
+            }
+        }
 
     }
 
-    function calcularSubtotalGrabadoLinea() {
+    function fnSubTotalGravadoEuro(IdInventario) {
+        for (var i = 0; i < _Inventario.length; i++) {
+            if (_Inventario[i].idInventario == parseInt(IdInventario)) {
 
-        var iva = parseFloat($iva.val());
-        if (iva > 0)
-            return parseFloat($subTotalLinea.val());
-        else
-            return 0;
-    }
-
-    function calcularSubtotalExcentoLinea() {
-        var iva = parseFloat($iva.val());
-        if (iva === 0)
-            return parseFloat($subTotalLinea.val());
-        else
-            return 0;
-    }
-
-    function calcularSubtotalExcentoNetoLinea() {
-
-        var st = calcularSubtotalExcentoLinea();
-        var desc = calcularTotalDescuentoLinea();
-        if (st > 0)
-            return st - desc;
-        else
-            return 0;
+                var imp = parseFloat(_Inventario[i].impuestoVenta);
+                if (imp != 0) {
+                    return parseFloat(($cantidad.val() * $precio.val()) * CambioEuro);
+                } else {
+                    return 0;
+                }
+            }
+        }
 
     }
 
-    function calcularSubtotalGrabadoNetoLinea() {
-        var st = calcularSubtotalGrabadoLinea();
-        var desc = calcularTotalDescuentoLinea();
-        if (st > 0)
-            return st - desc;
-        else
-            return 0;
-
-    }
-
-
-    function calcularTotalIvaLinea() {
-        var iva = parseFloat($iva.val());
-        var subTotal = parseFloat($subTotalLinea.val()) - calcularTotalDescuentoLinea();
-        return (iva / 100) * subTotal;
-    }
-
-    function calcularTotalDescuentoLinea() {
-
-        var desc = parseFloat($descuento.val());
-        var subTotal = parseFloat($subTotalLinea.val());
-        return (desc / 100) * subTotal;
-
-    }
-    function calcularTotalLinea() {
-
-        return (calcularSubtotalGrabadoNetoLinea() + calcularSubtotalExcentoNetoLinea()) + calcularTotalIvaLinea();
-
-    }
 
 </script>
 

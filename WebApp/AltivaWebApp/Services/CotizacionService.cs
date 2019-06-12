@@ -64,6 +64,7 @@ namespace AltivaWebApp.Services
 
         public TbFaCotizacionDetalle GetCotizacionDetalleById(long id)
         {
+            
             return repository.GetCotizacionDetalleById(id);
         }
 

@@ -20,8 +20,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbFaCotizacion
-                                .Include(a => a.IdClienteNavigation).ToList();
+                return context.TbFaCotizacion.Include(a => a.IdClienteNavigation).ToList();
                                 
             }
             catch (Exception)
@@ -98,7 +97,7 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 throw;
@@ -126,9 +125,9 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbFaCotizacionDetalle.Include(c => c.IdCotizacionNavigation).FirstOrDefault(c => c.IdCotizacion == id);
+                return context.TbFaCotizacionDetalle.Include(c => c.IdCotizacionNavigation).FirstOrDefault(c => c.IdCotizacionDetalle == id);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 throw;

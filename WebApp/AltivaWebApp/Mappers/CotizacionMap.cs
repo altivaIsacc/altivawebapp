@@ -32,6 +32,7 @@ namespace AltivaWebApp.Mappers
                 FechaVencimiento = domain.FechaVencimiento,
                 TipoCambioDolar = domain.TipoCambioDolar,
                 TipoCambioEuro = domain.TipoCambioEuro,
+                FechaCreacion=domain.FechaCreacion
 
             };
 
@@ -57,7 +58,7 @@ namespace AltivaWebApp.Mappers
                 viewModel.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoDolar;
                 viewModel.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoEuro;
                 viewModel.MontoIvabase = domain.MontoIvabase;
-                viewModel.MontoIvabase = domain.MontoIvadolar;
+                viewModel.MontoIvadolar = domain.MontoIvadolar;
                 viewModel.MontoIvaeuro = domain.MontoIvaeuro;
                 viewModel.TotalBase = domain.TotalBase;
                 viewModel.TotalDolar = domain.TotalDolar;
@@ -86,7 +87,7 @@ namespace AltivaWebApp.Mappers
                 viewModel.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoDolar;
                 viewModel.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoEuro;
                 viewModel.MontoIvabase = domain.MontoIvabase;
-                viewModel.MontoIvabase = domain.MontoIvadolar;
+                viewModel.MontoIvadolar = domain.MontoIvadolar;
                 viewModel.MontoIvaeuro = domain.MontoIvaeuro;
                 viewModel.TotalBase = domain.TotalBase;
                 viewModel.TotalDolar = domain.TotalDolar;
@@ -114,7 +115,7 @@ namespace AltivaWebApp.Mappers
                 viewModel.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoDolar;
                 viewModel.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoEuro;
                 viewModel.MontoIvabase = domain.MontoIvabase;
-                viewModel.MontoIvabase = domain.MontoIvadolar;
+                viewModel.MontoIvadolar = domain.MontoIvadolar;
                 viewModel.MontoIvaeuro = domain.MontoIvaeuro;
                 viewModel.TotalBase = domain.TotalBase;
                 viewModel.TotalDolar = domain.TotalDolar;
@@ -171,6 +172,7 @@ namespace AltivaWebApp.Mappers
                 IdVendedor = domain.IdVendedor,
                 IdUsuarioCreador = domain.IdUsuarioCreador,
                 FechaVencimiento = domain.FechaVencimiento,
+                FechaCreacion=domain.FechaCreacion,
                 TipoCambioDolar = domain.TipoCambioDolar,
                 TipoCambioEuro = domain.TipoCambioEuro,
 
@@ -198,7 +200,7 @@ namespace AltivaWebApp.Mappers
                 viewModel.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoDolar;
                 viewModel.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoEuro;
                 viewModel.MontoIvabase = domain.MontoIvabase;
-                viewModel.MontoIvabase = domain.MontoIvadolar;
+                viewModel.MontoIvadolar = domain.MontoIvadolar;
                 viewModel.MontoIvaeuro = domain.MontoIvaeuro;
                 viewModel.TotalBase = domain.TotalBase;
                 viewModel.TotalDolar = domain.TotalDolar;
@@ -226,7 +228,7 @@ namespace AltivaWebApp.Mappers
                 viewModel.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoDolar;
                 viewModel.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoEuro;
                 viewModel.MontoIvabase = domain.MontoIvabase;
-                viewModel.MontoIvabase = domain.MontoIvadolar;
+                viewModel.MontoIvadolar = domain.MontoIvadolar;
                 viewModel.MontoIvaeuro = domain.MontoIvaeuro;
                 viewModel.TotalBase = domain.TotalBase;
                 viewModel.TotalDolar = domain.TotalDolar;
@@ -254,7 +256,7 @@ namespace AltivaWebApp.Mappers
                 viewModel.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoDolar;
                 viewModel.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoEuro;
                 viewModel.MontoIvabase = domain.MontoIvabase;
-                viewModel.MontoIvabase = domain.MontoIvadolar;
+                viewModel.MontoIvadolar = domain.MontoIvadolar;
                 viewModel.MontoIvaeuro = domain.MontoIvaeuro;
                 viewModel.TotalBase = domain.TotalBase;
                 viewModel.TotalDolar = domain.TotalDolar;
@@ -282,6 +284,8 @@ namespace AltivaWebApp.Mappers
                     FechaVencimiento = viewModel.FechaVencimiento,
                     TipoCambioDolar = viewModel.TipoCambioDolar,
                     TipoCambioEuro = viewModel.TipoCambioEuro,
+                    FechaCreacion=viewModel.FechaCreacion,
+                    
 
                     TbFaCotizacionDetalle = ViewModelToDomainCD(viewModel)
                 };
@@ -422,12 +426,13 @@ namespace AltivaWebApp.Mappers
             domain.FechaCotizacion = viewModel.FechaCotizacion;
             domain.IdCliente = viewModel.IdCliente;
             domain.Estado = viewModel.Estado;
-                domain.IdMoneda = viewModel.IdMoneda;
+            domain.IdMoneda = viewModel.IdMoneda;
             domain.IdVendedor = viewModel.IdVendedor;
             domain.IdUsuarioCreador = viewModel.IdUsuarioCreador;
             domain.FechaVencimiento = viewModel.FechaVencimiento;
             domain.TipoCambioDolar = viewModel.TipoCambioDolar;
             domain.TipoCambioEuro = viewModel.TipoCambioEuro;
+            domain.FechaCreacion = viewModel.FechaCreacion;
 
             if (domain.TipoCambioDolar != viewModel.TipoCambioDolar || domain.TipoCambioEuro != viewModel.TipoCambioEuro)
             {
@@ -667,7 +672,9 @@ namespace AltivaWebApp.Mappers
             FechaCreacion= viewModel.FechaCreacion,
             IdUsuarioCreador = viewModel.IdUsuarioCreador,
            IdCotizacion= viewModel.IdCotizacion,
-
+           Cantidad=viewModel.Cantidad
+           
+         
         };
 
             float dolar = (float)compra.TipoCambioDolar;

@@ -204,7 +204,7 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-              //  var detalles = _Service.GetAllCotizacionDetalleByIdCotizacion(id);
+                var detalles = _Service.GetAllCotizacionDetalleByIdCotizacion(id);
                 return Ok(_Service.GetAllCotizacionDetalleByIdCotizacion(id));
             
             }

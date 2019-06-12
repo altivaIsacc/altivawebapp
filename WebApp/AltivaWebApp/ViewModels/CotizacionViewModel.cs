@@ -14,7 +14,7 @@ namespace AltivaWebApp.ViewModels
         public string Estado { get; set; }
         public int? IdMoneda { get; set; }
         public long? IdVendedor { get; set; }
-        public DateTime? FechaCreacion { get; set; }
+        public DateTime FechaCreacion { get; set; }
         public long? IdUsuarioCreador { get; set; }
         public double? SubTotalBase { get; set; }
         public double? SubTotalDolar { get; set; }
