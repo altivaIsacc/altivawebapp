@@ -158,7 +158,8 @@ namespace AltivaWebApp.Controllers
             try
             {
                 //var usr = DescUserService.GetUsuarioSInDesc((int)HttpContext.Session.GetInt32("idEmpresa"));
-                return Ok(IUserService.GetSingleUser(id));
+                var usr = IUserService.GetSingleUser(id);
+                return Ok(usr);
             }
             catch (Exception)
             {

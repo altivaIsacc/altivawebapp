@@ -13,9 +13,7 @@
 }
 
 @{
-
     var usuarios = ViewData["usuarios"] as IList<TbSeUsuario>;
-
 }
 
 <div class="row">
@@ -275,7 +273,7 @@
 
                     <div class="form-group ">
                         <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
-                        <select class="form-control col-md-12 selUsuarios " multiple="multiple" data-live-search="true" id="asignado" onchange="cargarIdUsuarioSelect()" asp-for="@ViewData["Asignados"].[IdUsuario]">
+                        <select class="form-control selUsuarios " style="width:100%;" multiple="multiple" data-live-search="true" id="asignado" onchange="cargarIdUsuarioSelect()" @*asp-for="@ViewData["Asignados"].[IdUsuario]"*@>
                             @*@foreach (var asignados in ViewData["asignados"] as IList<TbSeUsuario>)
                                 {
                                     <option value="@asignados.Id">@asignados.Nombre</option>
@@ -326,8 +324,8 @@
                     <input id="txtIdUsuarioDescRango" type="text" hidden value="0" />
 
                     <div class="form-group">
-                        <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
-                        <select class="form-control selUsuarios" multiple="multiple" data-live-search="true" id="asignadoRango" onchange="cargarIdUsuarioRangoSelect()" asp-for="@ViewData.[IdUsuario]">
+                        <label class="form-label">Asignado:</label><br />
+                        <select class="form-control selUsuarios" style="width:100%;" multiple="multiple" data-live-search="true" id="asignadoRango" onchange="cargarIdUsuarioRangoSelect()" asp-for="@ViewData.[IdUsuario]">
                             @*@foreach (var asignados in ViewData["asignadosRango"] as IList<TbSeUsuario>)
                                 {
                                     <option value="@asignados.Id">@asignados.Nombre</option>
@@ -404,7 +402,7 @@
 
                     <div class="form-group">
                         <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
-                        <select class="form-control selUsuarios" multiple="multiple" data-live-search="true" id="asignadoClave" onchange="cargarIdUsuarioClaveSelect()" asp-for="@ViewData.[IdUsuario]">
+                        <select class="form-control selUsuarios" style="width:100%;" multiple="multiple" data-live-search="true" id="asignadoClave" onchange="cargarIdUsuarioClaveSelect()" asp-for="@ViewData.[IdUsuario]">
                             @*@foreach (var asignados in ViewData["asignadosClave"] as IList<TbSeUsuario>)
                                 {
                                     <option value="@asignados.Id">@asignados.Nombre</option>
@@ -537,7 +535,6 @@
             $('#modalAgregarMaximoDesc').modal("show");
             $('.selUsuarios').select2();
             obtenerUserSinDesc();
-
         });
             //**********************Fin Modal 1 ******************
 
@@ -623,15 +620,16 @@
 
     //***************Funciones de modal 1********************//
 
-        function cargarIdUsuarioSelect() {
+         function cargarIdUsuarioSelect() {
 
             var selectUser = $('#asignado').val();
 
             usuarios = $('#asignado').val();
     }
 
-        function guardarDescuentoUsuario() {
+         function guardarDescuentoUsuario() {
 
+            cargarIdUsuarioSelect();
             console.log(usuarios);
             var model = [];
             var _IdDescuentoUsuario = $('#txtIdUsuarioDesc').val();
@@ -669,11 +667,9 @@
                         console.log(err.statusText);
                 }
             });
-                        //obtenerUserSinDesc();
-
         }
 
-        function limpiarCampos() {
+         function limpiarCampos() {
 
             $('#txtIdUsuarioDesc').val('');
             $('#txtIdUsuarioDescRango').val('');
@@ -698,7 +694,7 @@
             $('.selUsuarios option').remove();
     }
 
-        function obtenerUserSinDesc() {
+         function obtenerUserSinDesc() {
 
              $.ajax({
                 type: "get",
@@ -707,24 +703,20 @@
                     },
                     url: '@Url.Action("GetUsuarioSInDesc", "DescuentoPromocion")',
 
-                 success: function (data) {
-                     for (var i = 0; i < data.length; i++) {
-                         var o = new Option(data[i].nombre, data[i].id);
-
-
-                         $("#asignado").append(o);
-
-                     }
-
-                 },
+                    success: function (data) {
+                         for (var i = 0; i < data.length; i++) {
+                             var o = new Option(data[i].nombre, data[i].id);
+                             $("#asignado").append(o);
+                         }
+                    },
                     error: function (err, scnd) {
                         @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
                         console.log(err.statusText);
-                }
+                    }
             });
     }
 
-    function obtenerUserConDesc(_id) {
+         function obtenerUserConDesc(_id) {
 
              $.ajax({
                 type: "get",
@@ -733,24 +725,20 @@
                     },
                     url: '@Url.Action("GetUsuarioConDesc", "DescuentoPromocion")',
                     data: {id: _id},
-                 success: function (data) {
-                     //for (var i = 0; i < data.id; i++) {
-                         //var o = new Option(data.idUsuario);
+                    success: function (data) {
+                         var o = new Option(data.nombre, data.id);
 
-
-                         $("#asignado").append();
-
-                     //}
-
-                 },
+                         $(o).attr('selected', true);
+                         $("#asignado").append(o);
+                    },
                     error: function (err, scnd) {
                         @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
                         console.log(err.statusText);
-                }
+                    }
             });
         }
 
-        function getDescuentoUsuario() {
+         function getDescuentoUsuario() {
 
             var url = '@Url.Action("_ListarDescuentoUsuario", "DescuentoPromocion")';
             $.ajax({
@@ -780,6 +768,8 @@
     }
 
          function guardarDescuentoUsuarioRango() {
+
+            cargarIdUsuarioRangoSelect();
 
             console.log(usuarios);
                 var model = [];
@@ -842,7 +832,7 @@
             });
     }
 
-    function obtenerUserSinDescRango() {
+         function obtenerUserSinDescRango() {
 
              $.ajax({
                 type: "get",
@@ -850,23 +840,41 @@
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                     },
                     url: '@Url.Action("GetUsuarioSInDescRango", "DescuentoPromocion")',
-
-                 success: function (data) {
-                     for (var i = 0; i < data.length; i++) {
-                         var o = new Option(data[i].nombre, data[i].id);
-
-
-                         $("#asignadoRango").append(o);
-
-                     }
-
-                 },
+                    success: function (data) {
+                         for (var i = 0; i < data.length; i++) {
+                             var o = new Option(data[i].nombre, data[i].id);
+                             $("#asignadoRango").append(o);
+                         }
+                    },
                     error: function (err, scnd) {
                         @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
                         console.log(err.statusText);
-                }
+                    }
             });
+    }
+
+         function obtenerUserConDescRango(_id) {
+
+                 $.ajax({
+                    type: "get",
+                        headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        url: '@Url.Action("GetUsuarioConDesc", "DescuentoPromocion")',
+                        data: {id: _id},
+                        success: function (data) {
+                             var o = new Option(data.nombre, data.id);
+
+                             $(o).attr('selected', true);
+                             $("#asignadoRango").append(o);
+                         },
+                        error: function (err, scnd) {
+                            @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
+                            console.log(err.statusText);
+                    }
+                });
         }
+
         //************Fin funcioines modal 2*******************//
 
        //***************Funciones de modal 3******************//
@@ -878,32 +886,52 @@
             usuariosClave = $('#asignadoClave').val();
     }
 
-    function obtenerUserSinDescClave() {
+         function obtenerUserSinDescClave() {
 
-             $.ajax({
-                type: "get",
-                    headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                    },
-                    url: '@Url.Action("GetUsuarioSInDescClave", "DescuentoPromocion")',
-
-                 success: function (data) {
-                     for (var i = 0; i < data.length; i++) {
-                         var o = new Option(data[i].nombre, data[i].id);
-                         $("#asignadoClave").append(o);
-
-                     }
-
-                 },
-                    error: function (err, scnd) {
-                        @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
-                        console.log(err.statusText);
-                }
-            });
+                 $.ajax({
+                    type: "get",
+                        headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        url: '@Url.Action("GetUsuarioSInDescClave", "DescuentoPromocion")',
+                        success: function (data) {
+                             for (var i = 0; i < data.length; i++) {
+                                 var o = new Option(data[i].nombre, data[i].id);
+                                 $("#asignadoClave").append(o);
+                             }
+                         },
+                        error: function (err, scnd) {
+                            @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
+                            console.log(err.statusText);
+                    }
+                });
         }
 
+         function obtenerUserConDescClave(_id) {
+
+                 $.ajax({
+                    type: "get",
+                        headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        url: '@Url.Action("GetUsuarioConDesc", "DescuentoPromocion")',
+                        data: {id: _id},
+                        success: function (data) {
+                             var o = new Option(data.nombre, data.id);
+
+                             $(o).attr('selected', true);
+                             $("#asignadoClave").append(o);
+                         },
+                        error: function (err, scnd) {
+                            @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
+                            console.log(err.statusText);
+                    }
+                });
+            }
 
          function guardarDescuentoUsuarioClave() {
+
+             cargarIdUsuarioClaveSelect();
 
             console.log(usuariosClave);
             var model = [];
