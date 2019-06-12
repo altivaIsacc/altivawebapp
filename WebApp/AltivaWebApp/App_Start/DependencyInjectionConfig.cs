@@ -125,10 +125,6 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IModuloRepository, ModuloRepository>();
             services.AddScoped<IModuloMap, ModuloMap>();
 
-            ///HistorialMoneda
-            services.AddScoped<IHistorialMonedaService, HistorialMonedaService>();
-            services.AddScoped<IHistorialMonedaMap, HistorialMonedaMap>();
-            services.AddScoped<IHistorialMonedaRepository, HistorialMonedaRepository>();
 
             //ModuloPerfil
             services.AddScoped<IModuloPerfilMap, ModuloPerfilMap>();

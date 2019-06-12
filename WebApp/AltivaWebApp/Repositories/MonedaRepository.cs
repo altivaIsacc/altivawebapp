@@ -6,6 +6,7 @@ using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
 using AltivaWebApp.GEDomain;
 using AltivaWebApp.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace AltivaWebApp.Repositories
 {
@@ -15,22 +16,106 @@ namespace AltivaWebApp.Repositories
         {
         }
 
-        public void CrearMoneda(IList<TbSeMoneda> historial)
+
+
+        public IList<TbSeMoneda> SaveMoneda(IList<TbSeMoneda> domain)
         {
-            context.TbSeMoneda.AddRange(historial);
-            context.SaveChanges();
+            try
+            {
+                context.TbSeMoneda.AddRange(domain);
+                context.SaveChanges();
+
+                return domain;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IList<TbSeMoneda> UpdateMoneda(IList<TbSeMoneda> domain)
+        {
+            try
+            {
+                context.TbSeMoneda.UpdateRange(domain);
+                context.SaveChanges();
+
+                return domain;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IList<TbSeHistorialMoneda> GetAllHMPorMoneda(int codigo)
+        {
+            try
+            {
+               return context.TbSeHistorialMoneda.Include(m =>m.CodigoMonedaNavigation)
+                    .Include(m => m.IdUsuarioNavigation)
+                    .Select(m => new TbSeHistorialMoneda
+                    {
+                        CodigoMoneda = m.CodigoMoneda,
+                        CodigoMonedaNavigation = new TbSeMoneda
+                        {
+                            Nombre = m.CodigoMonedaNavigation.Nombre,
+                            Simbolo = m.CodigoMonedaNavigation.Simbolo
+                        },
+                        Fecha = m.Fecha,
+                        Id = m.Id,
+                        IdUsuario = m.IdUsuario,
+                        ValorCompra = m.ValorCompra,
+                        ValorVenta = m.ValorVenta,
+                        IdUsuarioNavigation = new TbSeUsuario
+                        {
+                            Id = m.IdUsuarioNavigation.Id,
+                            Nombre = m.IdUsuarioNavigation.Nombre,
+                            Codigo = m.IdUsuarioNavigation.Codigo
+                        }
+                    })
+                    .Where(m => m.CodigoMoneda == codigo).ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IList<TbSeHistorialMoneda> CrearHistorialMoneda(IList<TbSeHistorialMoneda> historial)
+        {
+            try
+            {
+                context.TbSeHistorialMoneda.AddRange(historial);
+                context.SaveChanges();
+                return historial;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
             
         }
 
-        override
-        public IList<TbSeMoneda> GetAll()
-        {
-            return context.TbSeMoneda.ToList();
-        }
 
-        public TbSeMoneda GetMonedaByfecha(string id)
+        public TbSeHistorialMoneda EditarHistorialMoneda(TbSeHistorialMoneda historial)
         {
-            throw new NotImplementedException();
+            try
+            {
+                context.TbSeHistorialMoneda.Update(historial);
+                context.SaveChanges();
+
+                return historial;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            
+
+            
         }
 
         public TbSeMoneda GetMonedaById(int idMoneda)
@@ -38,8 +123,5 @@ namespace AltivaWebApp.Repositories
             return context.TbSeMoneda.Find(idMoneda);
         }
 
-       
-
-        
     }
 }

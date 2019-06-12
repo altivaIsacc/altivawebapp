@@ -9,12 +9,12 @@ namespace AltivaWebApp.Services
 {
    public interface IMonedaService
     {
-        TbSeMoneda Create(TbSeMoneda domain);
-        TbSeMoneda UpdateMoneda(TbSeMoneda domain);
-        void Delete(TbSeMoneda domain);
+        IList<TbSeMoneda> SaveMoneda(IList<TbSeMoneda> domain);
+        IList<TbSeMoneda> UpdateMoneda(IList<TbSeMoneda> domain);
         IList<TbSeMoneda> GetAll();
-        TbSeMoneda GetMoneda(int id);
-
-        void CrearMoneda(IList<TbSeMoneda>  historial);
+        IList<TbSeHistorialMoneda> GetAllHMPorMoneda(int codigo);
+        TbSeMoneda GetMonedaById(int id);
+        IList<TbSeHistorialMoneda> CrearHistorialMoneda(IList<TbSeHistorialMoneda> historial);
+        TbSeHistorialMoneda EditarHistorialMoneda(TbSeHistorialMoneda historial);
     }
 }

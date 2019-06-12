@@ -1,0 +1,158 @@
+﻿
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+<div class="row">
+    <div class="col-md12">
+        <div class="col-md-3">
+
+            <label class="control-label">
+                <input type="checkbox" id="habilitaFiltroFecha"> @Lb["FiltroFecha"]
+            </label>
+            <form id="frmFecha" class="form-horizontal">
+                <fieldset>
+                    <div class="control-group">
+                        <div class="controls">
+                            <div class="input-prepend input-group">
+                                <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                                <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="24/04/2019 - 24/04/2019" />
+                            </div>
+                        </div>
+                    </div>
+
+                </fieldset>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<table class="table" id="tblHistorial">
+    <thead>
+        <tr>
+            <th>
+                @Lb["Fecha"]
+            </th>
+            <th>
+                @Lb["Venta"]
+            </th>
+            <th>
+                @Lb["Compra"]
+            </th>
+            <th>
+                @Lb["Acción"]
+            </th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<div class="modal fade" id="historialModal" tabindex="-1" role="dialog" aria-labelledby="historialModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="historialModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group col-md-2 col-sm-6 col-xs-12">
+                        <fieldset disabled>
+                            <div class="form-group">
+                                <label for="fecha">@Lb["Fecha"]:</label>
+                                <div class='input-group date' id='fechaPicker'>
+                                    <input type='text' class="form-control" id="fecha" />
+                                    <span class="input-group-addon">
+                                        <span class="fas fa-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="form-group col-md-2 col-sm-6 col-xs-12">
+                        <label for="compra">@Lb["Compra"]</label>
+                        <input class="form-control numerico" id="compra" />
+                    </div>
+                    <div class="form-group col-md-2 col-sm-6 col-xs-12">
+                        <label for="compra">@Lb["Venta"]</label>
+                        <input class="form-control numerico" id="compra" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var historial = [];
+    $(document).ready(function () {
+
+        getHistorial();
+        $(".numerico").inputmask({
+            'alias': 'decimal',
+            rightAlign: true,
+        });
+
+    });
+
+    function getHistorial() {
+
+         $.ajax({
+            type: "get",
+            headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetHistorialMoneda", "Monedas")',
+             success: function (data) {
+                 historial = data;
+                 cargarDatos(data);
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+         });
+
+    }
+
+    function cargarDatos(data) {
+
+        $("#tblHistorial > tbody").remove();
+        $('#tblHistorial').append('<tbody></tbody>');
+
+        var contadorFila = 0;
+        var colorFila = "";
+        for (var i = 0; i < data.length; i++) {
+
+           
+
+            var body = '<tr class="fila' + contadorFila + ' filas" >'
+                + '<td><p style="padding-top:1rem;">' + data[i].fecha + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].valorCompra + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].valorVenta + '</p></td>'
+                + '<td>  <button value="' + data[i].id + '" onclick="editarRequisicion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+            $('#tblHistorial > tbody').append(body);
+            contadorFila++;
+
+        }
+
+
+
+        //inicializarTabla();
+
+    }
+
+</script>

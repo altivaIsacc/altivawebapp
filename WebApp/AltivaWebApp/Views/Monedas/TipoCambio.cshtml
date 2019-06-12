@@ -1,0 +1,58 @@
+﻿
+@model AltivaWebApp.GEDomain.TbSeMoneda
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@inject IStringLocalizer<SharedResources> Lb
+
+<script>
+
+    $(document).ready(function () {
+
+
+        $("#moneda").append(' <select class="btn btn-default btn-sm" id="tipoMoneda">< option value="0"> @Lb["Seleccione"]</option ><option value="2" selected="selected">Dolar</option><option value="3">Euro</option></select> ');
+
+        var valor1 = $("select#tipoMoneda").val();
+
+        cambioMoneda(valor1);
+
+        $("#tipoMoneda").change(function () {
+
+            var valor = $(this).children("option:selected").val();
+            if (valor === '0') {
+                $("#tipoCambio").val(0);
+            }
+            cambioMoneda(valor);
+        });
+
+    });
+
+    function cambioMoneda(valor) {
+          $.ajax({
+                headers: {
+                           "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              type: "get",
+              url: '@Url.Action("GetTipoCambio", "Monedas", new { id = "__id__" })'.replace("__id__", valor),
+              success: function (data) {
+
+                  $("#tipoCambioCompra").text(data.valorCompra);
+                  $("#tipoCambioVenta").text(data.valorVenta);
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+                
+
+        });
+
+    }
+
+</script>
+

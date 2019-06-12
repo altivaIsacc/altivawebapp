@@ -15,27 +15,18 @@ namespace AltivaWebApp.Services
          IMonedaRepository repository;
 
         public MonedaService(IMonedaRepository monedaRepository)
-
         {
-
             repository = monedaRepository;
-
         }
 
-        public void CrearMoneda(IList<TbSeMoneda> historial)
+        public IList<TbSeHistorialMoneda> CrearHistorialMoneda(IList<TbSeHistorialMoneda> historial)
         {
-
-            this.repository.CrearMoneda(historial);
+            return repository.CrearHistorialMoneda(historial);
         }
 
-        public TbSeMoneda Create(TbSeMoneda domain)
+        public TbSeHistorialMoneda EditarHistorialMoneda(TbSeHistorialMoneda historial)
         {
-            return repository.Save(domain);
-        }
-
-        public void Delete(TbSeMoneda domain)
-        {
-            
+            return repository.EditarHistorialMoneda(historial);
         }
 
         public IList<TbSeMoneda> GetAll()
@@ -43,17 +34,24 @@ namespace AltivaWebApp.Services
             return repository.GetAll();
         }
 
-        public TbSeMoneda GetMoneda(int id)
+        public IList<TbSeHistorialMoneda> GetAllHMPorMoneda(int codigo)
         {
-            
-                return repository.GetMonedaById(id);
-           
+            return repository.GetAllHMPorMoneda(codigo);
         }
 
-       
-        public TbSeMoneda UpdateMoneda(TbSeMoneda domain)
+        public TbSeMoneda GetMonedaById(int id)
         {
-            return repository.Update(domain);
+            return repository.GetMonedaById(id);
+        }
+
+        public IList<TbSeMoneda> SaveMoneda(IList<TbSeMoneda> domain)
+        {
+            return repository.SaveMoneda(domain);
+        }
+
+        public IList<TbSeMoneda> UpdateMoneda(IList<TbSeMoneda> domain)
+        {
+            return repository.UpdateMoneda(domain);
         }
     }
 }

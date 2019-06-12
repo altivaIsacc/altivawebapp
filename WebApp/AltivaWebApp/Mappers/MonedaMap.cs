@@ -11,76 +11,93 @@ namespace AltivaWebApp.Mappers
 {
     public class MonedaMap : IMonedaMap
     {
-        private IMonedaService monedaService;
+        private IMonedaService service;
 
         public MonedaMap(IMonedaService pMonedaService)
         {
-            this.monedaService = pMonedaService;
-
+            service = pMonedaService;
         }
 
-        public TbSeMoneda getTipoDeCambio(int id)
+        public IList<TbSeMoneda> Create()
         {
-            return monedaService.GetMoneda(id);
+            var monedas = new List<TbSeMoneda>();
 
-        }
-     
-
-        public void Delete(TbSeMoneda domain)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IList<MonedaViewModel> DomainToViewModel(IList<TbSeMoneda> domain)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IList<HistorialMonedaViewModel> DomainToViewModelSingle(IList<TbSeMoneda> domain)
-        {
-            throw new NotImplementedException();
-
-        }
-
-        public IList<MonedaViewModel> GetAll()
-        {
-            throw new NotImplementedException();
-        }
-
-       
-
-        public TbSeMoneda ViewModelToDomain(MonedaViewModel monedaViewModel)
-        {
-            TbSeMoneda domain = new TbSeMoneda();
-             domain = monedaService.GetMoneda(monedaViewModel.Codigo);
-            if (monedaViewModel.Nombre != null || monedaViewModel.Simbolo != null)
+            var mBase = new TbSeMoneda
             {
-                domain.Nombre = monedaViewModel.Nombre;
-                domain.Simbolo = monedaViewModel.Simbolo;
+                Activa = true,
+                Codigo = 1,
+                Nombre = "Colón",
+                Simbolo = "CRC",
+                ValorCompra = 1,
+                ValorVenta = 1
+            };
+
+            monedas.Add(mBase);
+
+            var dolar = new TbSeMoneda
+            {
+                Activa = true,
+                Codigo = 2,
+                Nombre = "Dolar",
+                Simbolo = "USD",
+                ValorCompra = 1,
+                ValorVenta = 1
+            };
+
+            monedas.Add(dolar);
+
+            var euro = new TbSeMoneda
+            {
+                Activa = true,
+                Codigo = 3,
+                Nombre = "Euro",
+                Simbolo = "EUR",
+                ValorCompra = 1,
+                ValorVenta = 1
+            };
+
+            monedas.Add(euro);
+
+            return service.SaveMoneda(monedas);
+
+        }
+
+        public IList<TbSeHistorialMoneda> CreateHM(IList<TbSeMoneda> domain, int idUsuario)
+        {
+            var hm = new List<TbSeHistorialMoneda>();
+            foreach (var item in domain)
+            {
+                var model = new TbSeHistorialMoneda
+                {
+                    CodigoMoneda = item.Codigo,
+                    Fecha = DateTime.Now,
+                    IdUsuario = idUsuario,
+                    ValorCompra = item.ValorCompra,
+                    ValorVenta = item.ValorVenta
+                };
+
+                hm.Add(model);
             }
-            domain.Codigo = monedaViewModel.Codigo;
-            domain.Activa = monedaViewModel.Activa;
-            domain.ValorCompra = monedaViewModel.ValorCompra;
-            domain.ValorVenta = monedaViewModel.ValorVenta;
-           
-            return domain;
+
+            return service.CrearHistorialMoneda(hm);
         }
 
-        public TbSeMoneda Create(MonedaViewModel viewModel)
-        {
-            throw new NotImplementedException();
-        }
 
-        public TbSeMoneda Update(MonedaViewModel viewModel)
-        {
-            TbSeMoneda fr;
-            fr = ViewModelToDomain(viewModel);
-            return monedaService.UpdateMoneda(fr);
-        }
+        //public TbSeMoneda ViewModelToDomain(MonedaViewModel monedaViewModel)
+        //{
+        //    var domain = monedaService.GetMonedaById(monedaViewModel.Codigo);         
+        //    domain.Nombre = monedaViewModel.Nombre;
+        //    domain.Simbolo = monedaViewModel.Simbolo;
+        //    //domain.Codigo = monedaViewModel.Codigo;
+        //    domain.Activa = monedaViewModel.Activa;
+        //    domain.ValorCompra = monedaViewModel.ValorCompra;
+        //    domain.ValorVenta = monedaViewModel.ValorVenta;
 
-        public IList<HistorialMonedaViewModel> DomainToViewModelById(int domain)
-        {
-            throw new NotImplementedException();
-        }
+        //    return domain;
+        //}
+
+
+
+
     }
 }
