@@ -31,8 +31,8 @@ namespace AltivaWebApp.Domains
         public double? SubTotalExcentoNetoBase { get; set; }
         public double? SubTotalExcentoNetoDolar { get; set; }
         public double? SubTotalExcentoNetoEuro { get; set; }
-        public double MontoIvabase { get; set; }
-        public double? MontoIvadolar { get; set; }
+        public double MontoIvaBase { get; set; }
+        public double? MontoIvaDolar { get; set; }
         public double? MontoIvaEuro { get; set; }
         public double? TotalBase { get; set; }
         public double? TotalDolar { get; set; }

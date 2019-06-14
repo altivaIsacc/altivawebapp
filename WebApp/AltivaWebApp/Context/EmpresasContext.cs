@@ -5002,9 +5002,9 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.IdUsuarioCreador).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.MontoIvabase).HasColumnName("MontoIVABase");
+                entity.Property(e => e.MontoIvaBase).HasColumnName("MontoIVABase");
 
-                entity.Property(e => e.MontoIvadolar)
+                entity.Property(e => e.MontoIvaDolar)
                     .HasColumnName("MontoIVADolar")
                     .HasDefaultValueSql("((0))");
 
