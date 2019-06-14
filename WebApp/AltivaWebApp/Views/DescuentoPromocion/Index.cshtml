@@ -61,14 +61,14 @@
             </p>
         </div>
 
-        <div class="form-group ActPromoUsuarioClave">
+        @*<div class="form-group ActPromoUsuarioClave">
             <input type="checkbox" class="form-check-input" id="chkActPromoUsuarioClave" asp-for="ActivaPromoProductoUsuario" />
             <label data-translate="chkActPromoUsuarioClave" class="form-check-label" for="chkActPromoUsuarioClave">Activar promociones de los productos solo mediante clave especial y usuarios que autorizan  </label>
 
             <p>
                 <a class="btn btn-primary btn-xs" id="btnActPromoUsuarioClave"><span data-translate="Configurar">Configurar </span>&nbsp;<i class="fas fa-cog"></i></a>
             </p>
-        </div>
+        </div>*@
 
         <div class="form-group ActDescProd">
             <input type="checkbox" class="form-check-input" id="chkActDescProd" asp-for="ActivaDescuentoPromoUsuario" />
@@ -79,20 +79,19 @@
             </p>
         </div>
 
-        <div class="form-group ActDescProdUsuarioClave">
+        @*<div class="form-group ActDescProdUsuarioClave">
             <input type="checkbox" class="form-check-input" id="chkActDescProdUsuarioClave" asp-for="ActivaDescuentoPromoUsuarioClave" />
             <label data-translate="chkActDescProdUsuarioClave" class="form-check-label acciones" for="chkActDescProdUsuarioClave">Activar descuentos de los productos solo mediante clave especial y usuarios que autorizan  </label>
 
             <p>
                 <a class="btn btn-primary btn-xs config" id="btnActDescProdUsuarioClave"><span data-translate="Configurar">Configurar </span>&nbsp;<i class="fas fa-cog"></i></a>
             </p>
-        </div>
+        </div>*@
 
         <hr />
 
         <div class="form-group">
             <button id="btnGuardar" class="btn btn-success" onclick="guardarConfiguracion()"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
-            <a class="btn btn-default" id="btnCancelar" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
         </div>
 
     </div>
@@ -209,7 +208,7 @@
 
 <div>
     <!-- Modal Activar Promociones de productos mediante clave-->
-    <div class="modal fade" id="modalPromoProdClave" tabindex="-1" role="dialog" aria-labelledby="PromoProdClaveModallabel" aria-hidden="true">
+    @*<div class="modal fade" id="modalPromoProdClave" tabindex="-1" role="dialog" aria-labelledby="PromoProdClaveModallabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -223,7 +222,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>*@
 </div>
 
 <div>
@@ -247,7 +246,7 @@
 
 <div>
     <!-- Modal Activar descuentos de productos mediante clave -->
-    <div class="modal fade" id="modalDescProdClave" tabindex="-1" role="dialog" aria-labelledby="DescProdClaveModallabel" aria-hidden="true">
+    @*<div class="modal fade" id="modalDescProdClave" tabindex="-1" role="dialog" aria-labelledby="DescProdClaveModallabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -261,7 +260,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>*@
 </div>
 
 <!--**********************SubModales ************************-->
@@ -443,7 +442,6 @@
     </div>
 </div>
 
-
 <div>
     <!-- SubModal Promocion Producto -->
     <div class="modal fade" role="dialog" id="modalAgregarPromocionProd" tabindex="-1" style="overflow-y: scroll; " aria-labelledby="AgregarPromocionProdModallabel" aria-hidden="true">
@@ -458,6 +456,7 @@
 
                 <div class="modal-body" id="crearEditarPartial">
 
+                    <input id="txtIdPromocionProducto" type="text" hidden value="0" />
 
                     <div class="form-group">
                         <div>
@@ -473,7 +472,8 @@
                         <input type="checkbox" class="form-check-input" id="chkClientePromo" />
 
                         <label class=" col-form-label">Para venta de clientes:</label><br />
-                        <select class="form-control selUsuarios " style="width:100%;" data-live-search="true" id="cliente" @*onchange="cargarIdUsuarioSelect()"*@ asp-for="@ViewData["Cliente"].[IdContacto]">
+                        <select class="form-control selPromocion " style="width:100%;" data-live-search="true" id="cliente" onchange="cargarIdPromocionProdSelect()" asp-for="@ViewData["Cliente"].[IdContacto]">
+
                             @foreach (var asignados in ViewData["Cliente"] as IList<TbCrContacto>)
                             {
                                 if (asignados.Empresa == null)
@@ -524,6 +524,13 @@
                             </div>
 
                         </div>
+                    </div>
+
+                    <div class="form-group col-xs-12 col-sm-12 col-md-12">
+                        <label class=" col-form-label">Nota:</label><br />
+                        <input type="text" class="form-control" id="txtNotaPromo" />
+
+
                     </div>
 
                     <div class="form-group ">
@@ -610,17 +617,15 @@
                                 <hr />
                                 <hr />
                             </div>
-
-                           
                         </div>
 
 
                     </div>
-                   
+
                     <!--****************Promocion tipo 2********************-->
                     <div class="form-group">
 
-                        
+
                         <div class="col-xs-12">
                             <input type="radio" class="form-check-input" id="rdbClientePromoTipo2" name="tipo" checked />
                             <label>Tipo 2</label><br />
@@ -635,7 +640,7 @@
                             <div class="col-md-7 col-sm-12  col-xs-12">
                                 <label class=" col-form-label">Productos de proveedor:</label><br />
 
-                                <select id="producto" class="form-control search-key">
+                                <select id="productoTipo2" class="form-control search-key">
                                     <option value="0">Seleccione</option>
                                     @foreach (var prod in ViewData["Inventario"] as IList<TbPrInventario>)
                                     {
@@ -649,12 +654,12 @@
 
                                 <label>% Descuento:</label><br />
                                 <input type="number" min="1" value="0" class="form-control col-md-4" id="txtporcTipo2" />
-                                
+
                             </div>
 
                             <div class="form-group">
                                 <input type="checkbox" class="form-check-input" id="chkFamiliasProducto" />
-                                <label>Para cierta familia de producto:</label><br />
+                                <label>Para cierta familia de proveedor:</label><br />
                             </div>
 
                             <div id="familiaDv" class="form-group">
@@ -664,7 +669,7 @@
                                 </div>
 
                                 <div class="col-md-4 col-sm-12 col-xs-12">
-                                   
+
                                     <label>Familia proveedor:</label>
                                     <select id="familiaProveedor" class="form-control search-key">
                                         <option selected value="0" data-translate="selecciones">Seleccione</option>
@@ -689,15 +694,14 @@
 
                     <div class="form-group">
                         <hr />
-                        <button id="btnGuardarDescUsuarioFecha" class="btn btn-success  " onclick="guardarDescuentoUsuarioRango()"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
-                        <a class="btn btn-default " id="btnCancelarFecha" onclick="limpiarCampos()" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
+                        <button id="btnGuardarPromoProd" class="btn btn-success  " onclick="guardarDescuentoUsuarioRango()"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
+                        <a class="btn btn-default " id="btnCancelarPromoProd" onclick="limpiarCampos()" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 
 <!--********************Fin SubModales ***********************-->
 
@@ -706,12 +710,11 @@
     var usuarios = [];
     var usuariosRango = [];
     var usuariosClave = [];
+    var promoProd = [];
 
     $(document).ready(function () {
 
-
             //*********************Mostrar Modales**********************************
-
             $('#btnDescMaximoUsuario').click(function () {
 
                 if ($('#chkDescMaximoUsuario').prop('checked')) {
@@ -815,7 +818,7 @@
            //**********************Modal 4 **********************
 
         //if (! $('#chkClavePromo').prop('checked')) {
-            $('#txtClavePromo').attr('disabled', true);
+        $('#txtClavePromo').attr('disabled', true);
         //}
 
         ///Bloquear Campos
@@ -828,15 +831,19 @@
         $('#tipoProveedor').attr('disabled', true);
         $('#familiaProveedor').attr('disabled', true);
         $('#subfamiliaProveedor').attr('disabled', true);
-       // (!$('#rdbClientePromoTipo2').prop('selected'));
-
+        $('#txtCantTipo1Ref').attr('disabled', true);
+        $('#productoRef').attr('disabled', true);
+        $('#txtCantTipo1').attr('disabled', true);
+        $('#producto').attr('disabled', true);
+        $('#txtPorcTipo1').attr('disabled', true);
+     
         $('#btnAgregarPromocionProd').click(function () {
-            $('.selUsuarios').select2();
+            $('.selPromocion').select2();
             $('#modalAgregarPromocionProd').modal("show");
         });
 
         getTiposClientes();
-         getTiposProveedor();
+        getTiposProveedor();
         $('.fechaPicker').datetimepicker({
             defaultDate: new Date(),
             locale: localStorage.getItem("idioma")
@@ -872,19 +879,19 @@
             }
         });
 
-         $('#chkClavePromo').change(function () {
-                if ($(this).prop('checked'))
-                    $('#txtClavePromo').attr('disabled', false);
-                else
-                    $('#txtClavePromo').attr('disabled', true);
-         });
+        $('#chkClavePromo').change(function () {
+            if ($(this).prop('checked'))
+                $('#txtClavePromo').attr('disabled', false);
+            else
+                $('#txtClavePromo').attr('disabled', true);
+        });
 
-           $('#chkClientePromo').change(function () {
-                if ($(this).prop('checked'))
-                    $('#cliente').attr('disabled', false);
-                else
-                    $('#cliente').attr('disabled', true);
-            });
+        $('#chkClientePromo').change(function () {
+            if ($(this).prop('checked'))
+                $('#cliente').attr('disabled', false);
+            else
+                $('#cliente').attr('disabled', true);
+        });
 
         $('#chkEntreFechasPromo').change(function () {
             if ($(this).prop('checked')) {
@@ -897,33 +904,70 @@
             }
         });
 
-         $('#chkFamilias').change(function () {
-             if ($(this).prop('checked')) {
-                 $('#tipoClientes').attr('disabled', false);
-                 $('#familia').attr('disabled', false);
-                 $('#subFamilia').attr('disabled', false);
-             }
+        $('#chkFamilias').change(function () {
+            if ($(this).prop('checked')) {
+                $('#tipoClientes').attr('disabled', false);
+                $('#familia').attr('disabled', false);
+                $('#subFamilia').attr('disabled', false);
+            }
             else {
-                 $('#tipoClientes').attr('disabled', true);
-                 $('#familia').attr('disabled', true);
-                 $('#subFamilia').attr('disabled', true);
+                $('#tipoClientes').attr('disabled', true);
+                $('#familia').attr('disabled', true);
+                $('#subFamilia').attr('disabled', true);
 
             }
-         });
+        });
 
-         $('#chkFamiliasProducto').change(function () {
-             if ($(this).prop('checked')) {
-                 $('#tipoProveedor').attr('disabled', false);
-                 $('#familiaProveedor').attr('disabled', false);
-                 $('#subfamiliaProveedor').attr('disabled', false);
-             }
-            else {
-                 $('#tipoProveedor').attr('disabled', true);
-                 $('#familiaProveedor').attr('disabled', true);
-                 $('#subfamiliaProveedor').attr('disabled', true);
-
+        $('#chkFamiliasProducto').change(function () {
+            if ($(this).prop('checked')) {
+                $('#tipoProveedor').attr('disabled', false);
+                $('#familiaProveedor').attr('disabled', false);
+                $('#subfamiliaProveedor').attr('disabled', false);
             }
-         });
+            else {
+                $('#tipoProveedor').attr('disabled', true);
+                $('#familiaProveedor').attr('disabled', true);
+                $('#subfamiliaProveedor').attr('disabled', true);
+            }
+        });
+
+        $('#rdbClientePromoTipo2').change(
+            function () {
+                if ($(this).prop('checked')) {
+                    $('#txtCantTipo1Ref').attr('disabled', true);
+                    $('#productoRef').attr('disabled', true);
+                    $('#txtCantTipo1').attr('disabled', true);
+                    $('#producto').attr('disabled', true);
+                    $('#txtPorcTipo1').attr('disabled', true);
+                    $('#txtCantTipo2').attr('disabled', false);
+                    $('#productoTipo2 ').attr('disabled', false);
+                    $('#txtporcTipo2').attr('disabled', false);
+
+                    $('#txtCantTipo1Ref').val(1);
+                    $('#productoRef').val(0);
+                    $('#txtCantTipo1').val(1);
+                    $('#producto').val(0);
+                    $('#txtPorcTipo1').val(0);
+                }
+            });
+
+        $('#rdbClientePromo').change(
+            function () {
+                if ($(this).prop('checked')) {
+                    $('#txtCantTipo1Ref').attr('disabled', false);
+                    $('#productoRef').attr('disabled', false);
+                    $('#txtCantTipo1').attr('disabled', false);
+                    $('#producto').attr('disabled', false);
+                    $('#txtPorcTipo1').attr('disabled', false);
+                    $('#txtCantTipo2').attr('disabled', true);
+                    $('#productoTipo2 ').attr('disabled', true);
+                    $('#txtporcTipo2').attr('disabled', true);
+
+                    $('#txtCantTipo2').val(0);
+                    $('#productoTipo2 ').val(0);
+                    $('#txtporcTipo2').val(0);
+                }
+            });
 
             //**********************Fin Modal 4 ******************
 
@@ -1040,27 +1084,80 @@
 
          function limpiarCampos() {
 
-            $('#txtIdUsuarioDesc').val('');
-            $('#txtIdUsuarioDescRango').val('');
-            $('#txtNotaDesc').val('');
-            $('#txtMaxDesc').val('');
-            $('#asignado').val('').removeAttr('disabled');
+             //SubModal 1
+             $('#txtIdUsuarioDesc').val('');
+             $('#txtIdUsuarioDescRango').val('');
+             $('#txtNotaDesc').val('');
+             $('#txtMaxDesc').val('');
+             $('#asignado').val('').removeAttr('disabled');
 
+             //SubModal 2
              $('#txtNotaDescRango').val('');
-            $('#txtMaxDescRango').val('');
-            $('#asignadoRango').val('').removeAttr('disabled');
-            $('#txtHasta').val('');
-            $('#txtInicio').val('');
-            $('#modalAgregarMaximoDesc').modal("hide");
-            $('#modalAgregarMaximoDescFecha').modal("hide");
-            $('#modalAgregarMaximoDescClave').modal("hide");
+             $('#txtMaxDescRango').val('');
+             $('#asignadoRango').val('').removeAttr('disabled');
+             $('#txtHasta').val('');
+             $('#txtInicio').val('');
 
-            $('#txtIdUsuarioDescClave').val('');
-            $('#txtNotaDescClave').val('');
-            $('#txtMaxDescClave').val('');
-            $('#txtClaveDescClave').val('');
-            $('#asignadoClave').val('').removeAttr('disabled');
-            $('.selUsuarios option').remove();
+             //SubModal 3
+             $('#txtIdUsuarioDescClave').val('');
+             $('#txtNotaDescClave').val('');
+             $('#txtMaxDescClave').val('');
+             $('#txtClaveDescClave').val('');
+             $('#asignadoClave').val('').removeAttr('disabled');
+             $('.selUsuarios option').remove();
+
+             //SubModal 4
+             $('#txtIdPromocionProducto').val('');
+             $('#chkClavePromo').prop('checked', false);
+             $('#txtClavePromo').val('');
+             $('#chkClientePromo').prop('checked', false);
+             $('#cliente ').val(0);
+             $('#chkEntreFechasPromo').prop('checked', false);;
+             $('#txtInicioPromo').val('');
+             $('#txtFinPromo').val('');
+             $('#txtNotaPromo').val('');
+             $('#chkFamilias').prop('checked', false);;
+             $('#tipoClientes ').val(0);
+             $('#familia').val(0);
+             $('#subFamilia ').val(0);
+             $('#rdbClientePromo').prop('checked', false);
+             $('#txtCantTipo1Ref').val(1);
+             $('#productoRef ').val(0);
+             $('#txtCantTipo1').val(1);
+             $('#producto ').val(0);
+             $('#txtPorcTipo1').val(0);
+             $('#rdbClientePromoTipo2').prop('checked', true);
+             $('#txtCantTipo2').val(0);
+             $('#productoTipo2 ').val(0);
+             $('#txtporcTipo2').val(0);
+             $('#chkFamiliasProducto').prop('checked', false);;
+             $('#tipoProveedor ').val(0);
+             $('#familiaProveedor ').val(0);
+             $('#subfamiliaProveedor ').val(0);
+             $('#txtClavePromo').attr('disabled', true);
+             $('#tipoClientes').attr('disabled', true);
+             $('#familia').attr('disabled', true);
+             $('#subFamilia').attr('disabled', true);
+             $('#txtInicioPromo').attr('disabled', true);
+             $('#txtFinPromo').attr('disabled', true);
+             $('#cliente').attr('disabled', true);
+             $('#tipoProveedor').attr('disabled', true);
+             $('#familiaProveedor').attr('disabled', true);
+             $('#subfamiliaProveedor').attr('disabled', true);
+             $('#txtCantTipo1Ref').attr('disabled', true);
+             $('#productoRef').attr('disabled', true);
+             $('#txtCantTipo1').attr('disabled', true);
+             $('#producto').attr('disabled', true);
+             $('#txtPorcTipo1').attr('disabled', true);
+
+             $('#txtCantTipo2').attr('disabled', false);
+             $('#productoTipo2').attr('disabled', false);
+             $('#txtporcTipo2').attr('disabled', false);
+
+             $('#modalAgregarMaximoDesc').modal("hide");
+             $('#modalAgregarMaximoDescFecha').modal("hide");
+             $('#modalAgregarMaximoDescClave').modal("hide");
+             $('#modalAgregarPromocionProd').modal("hide");
     }
 
          function obtenerUserSinDesc() {
@@ -1134,7 +1231,7 @@
             var selectUserRango = $('#asignadoRango').val();
 
             usuariosRango = $('#asignadoRango').val();
-    }
+          }
 
          function guardarDescuentoUsuarioRango() {
 
@@ -1363,13 +1460,10 @@
         }
     //************Fin funcioines modal 3*******************//
 
-
-
-
-
+    //***********Funciones Modal 4*******************//
 
        //function que devuelte las subfamilias por iD
-    function getSubFamilias(idTipoCliente) {
+         function getSubFamilias(idTipoCliente) {
          var url = '@Url.Action("GetSubFamilias", "TipoCliente")';
             $.ajax({
                 type: "get",
@@ -1386,12 +1480,8 @@
                         $("#subFamilia").append(option);
                         for (var i = 0; i < data.length; i++) {
 
-
                             var o = new Option(data[i].nombre, data[i].id);
-
-
                             $("#subFamilia").append(o);
-
                         }
 
                         $("#subFamilia").trigger('change');
@@ -1408,8 +1498,8 @@
                 }
             });
     }
-    //function que devuelve las familias por ID
-    function getFamilias(idTipoCliente) {
+            //function que devuelve las familias por ID
+         function getFamilias(idTipoCliente) {
          var url = '@Url.Action("GetFamiliasTipoCliente", "TipoCliente")';
             $.ajax({
                 type: "get",
@@ -1427,12 +1517,9 @@
                         $("#familia").append(option);
                         for (var i = 0; i < data.length; i++) {
 
-
                             var o = new Option(data[i].nombre, data[i].id);
 
-
                             $("#familia").append(o);
-
                         }
 
                         $("#familia").trigger('change');
@@ -1450,7 +1537,6 @@
                 }
             });
         }
-
 
          function getProductos() {
 
@@ -1475,7 +1561,6 @@
 
                             $("#producto").append(o);
 
-
                             $("#producto").append(o);
                         }
 
@@ -1495,7 +1580,7 @@
             });
         }
 
-             function getTiposClientes() {
+         function getTiposClientes() {
 
             var url = '@Url.Action("GetTiposClientes", "TipoCliente")';
             $.ajax({
@@ -1518,7 +1603,6 @@
 
                             $("#tipoClientes").append(o);
 
-
                             $("#tipoClientes").append(o);
                         }
 
@@ -1538,22 +1622,14 @@
             });
         }
 
-
-    //accion del select tipo cliente que llama ala familiaProveedor..
-    $("#tipoProveedor").change(function () {
+          //accion del select tipo cliente que llama ala familiaProveedor..
+         $("#tipoProveedor").change(function () {
         if ($(this).val() != 0) {
 
-
-            //$('#CreareditarfamiliaProveedor').attr("disabled", false);
-            //$('#editarTipoProveedor').attr("disabled", true);
-
-            //$('#editarTipoProveedor').attr("disabled", false);
-            //$('#editarfamiliaProveedor').attr("disabled", true);
-            //$('#eliminarTipoProveedor').attr("disabled", false);
             getfamiliaProveedors($(this).val());
 
         } else {
-           
+
             $("#subfamiliaProveedor option").remove();
             var option = new Option("Seleccione", 0);
             option.setAttribute("selected", "selected");
@@ -1566,9 +1642,10 @@
             $('#eliminarFamiliaProveedor').attr("disabled", true);
             $('#eliminaSubFamiliaProveedor').attr("disabled", true);
         }
-    });
-    //accion del select familiaProveedor que devuelve alas subfamiliaProveedors:
-    $("#familiaProveedor").change(function () {
+         });
+
+        //accion del select familiaProveedor que devuelve alas subfamiliaProveedors:
+         $("#familiaProveedor").change(function () {
         if ($(this).val() != 0) {
             getSubfamiliaProveedors($(this).val());
         } else {
@@ -1579,7 +1656,7 @@
         }
     });
 
-     function getTiposProveedor() {
+         function getTiposProveedor() {
 
             var url = '@Url.Action("GetTiposDeProveedores", "TipoProveedor")';
             $.ajax({
@@ -1602,7 +1679,6 @@
 
                             $("#tipoProveedor").append(o);
 
-
                             $("#tipoProveedor").append(o);
                         }
 
@@ -1622,7 +1698,7 @@
             });
         }
 
-     function getSubfamiliaProveedors(idTipoCliente) {
+         function getSubfamiliaProveedors(idTipoCliente) {
          var url = '@Url.Action("GetSubFamiliasProveedor", "TipoProveedor")';
             $.ajax({
                 type: "get",
@@ -1639,12 +1715,9 @@
                         $("#subfamiliaProveedor").append(option);
                         for (var i = 0; i < data.length; i++) {
 
-
                             var o = new Option(data[i].nombre, data[i].id);
 
-
                             $("#subfamiliaProveedor").append(o);
-
                         }
 
                         $("#subfamiliaProveedor").trigger('change');
@@ -1661,8 +1734,9 @@
                 }
             });
     }
-    //function que devuelve las familiaProveedors por ID
-    function getfamiliaProveedors(idTipoCliente) {
+
+          //function que devuelve las familiaProveedors por ID
+         function getfamiliaProveedors(idTipoCliente) {
          var url = '@Url.Action("GetFamiliasTipoProveedor", "TipoProveedor")';
             $.ajax({
                 type: "get",
@@ -1680,12 +1754,9 @@
                         $("#familiaProveedor").append(option);
                         for (var i = 0; i < data.length; i++) {
 
-
                             var o = new Option(data[i].nombre, data[i].id);
 
-
                             $("#familiaProveedor").append(o);
-
                         }
 
                         $("#familiaProveedor").trigger('change');
@@ -1700,6 +1771,118 @@
                 error: function (err, scnd) {
                     console.log(err.statusText);
                     cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+        }
+
+         function cargarIdPromocionProdSelect() {
+
+            var selectUserRango = $('#cliente').val();
+
+            promoProd = $('#cliente').val();
+          }
+
+         function guardarDescuentoUsuarioRango() {
+
+            cargarIdPromocionProdSelect();
+             var model = [];
+
+             var _IdPromocion = $('#txtIdPromocionProducto').val();
+             var _IdConfig = @Model.IdRebajaConfig;
+             var _ConClaveAutorizacion = $('#chkClavePromo').is(':checked');
+             var _Clave = $('#txtClavePromo').val();
+             var _VentaCliente = $('#chkClientePromo').is(':checked');
+             var _EntreFechas = $('#chkEntreFechasPromo').is(':checked');
+             var _FechaDesde = $('#txtInicioPromo').val();
+             var _FechaHasta = $('#txtFinPromo').val();
+             var _Nota = $('#txtNotaPromo').val();
+             var _FamiliaCliente = $('#chkFamilias').is(':checked');
+             if ($('#subFamilia ').val() != 0) {
+                 var _IdFamiliaCliente = $('#subFamilia').val();
+             } else {
+                  var _IdFamiliaCliente = $('#familia').val();
+             }
+             var _EsTipo1 = $('#rdbClientePromo').is(':checked');
+             var _CantTipo1Ref =  $('#txtCantTipo1Ref').val();
+             var _IdTipoInventarioRef = $('#productoRef  ').val();
+             var _CantTipo1Promo =$('#txtCantTipo1').val();
+             var _IdTipo1InventarioPromo =$('#producto   ').val();
+             var _PorcTipo1DescuentoPromo =$('#txtPorcTipo1').val();
+             var _EsTipo2 = $('#rdbClientePromoTipo2').is(':checked');
+             var _CantTipo2Ref = $('#txtCantTipo2').val();
+             var _IdTipo2Inventario = $('#productoTipo2').val();
+             var _PorcTipo2Descuento = $('#txtporcTipo2').val();
+             var _FamiliaProveedor = $('#chkFamiliasProducto').is(':checked');
+             if ($('#subfamiliaProveedor ').val() != 0) {
+                 var _IdProveedor = $('#subfamiliaProveedor').val();
+             }
+             else {
+                 var _IdProveedor = $('#familiaProveedor').val();
+             }
+
+            for (var i = 0; i < promoProd.length; i++) {
+                var m = {
+                    IdPromocionProducto: _IdPromocion,
+                    IdRebajaConfig: _IdConfig,
+                    ConClaveAutorizacion: _ConClaveAutorizacion,
+                    Clave: _Clave,
+                    VentaCliente: _VentaCliente,
+                    IdCliente: promoProd[i],
+                    EntreFechas: _EntreFechas,
+                    FechaDesde: _FechaDesde,
+                    FechaHasta: _FechaHasta,
+                    Nota: _Nota,
+                    FamiliaCliente: _FamiliaCliente,
+                    IdFamiliaCliente: _IdFamiliaCliente,
+                    EsTipo1: _EsTipo1,
+                    CantTipo1Ref: _CantTipo1Ref,
+                    IdTipoINventarioRef: _IdTipoInventarioRef,
+                    CantTipo1Promo: _CantTipo1Promo,
+                    IdTipo1InventarioPromo: _IdTipo1InventarioPromo,
+                    PorcTipo1DescuentoPromo: _PorcTipo1DescuentoPromo,
+                    EsTipo2: _EsTipo2,
+                    CantTipo2Ref: _CantTipo2Ref,
+                    IdTipo2Inventario: _IdTipo2Inventario,
+                    PorcTipo2Descuento: _PorcTipo2Descuento,
+                    FamiliaProveedor: _FamiliaProveedor,
+                    IdProveedor: _IdProveedor
+                };
+                model.push(m);
+            }
+
+            $.ajax({
+                type: "post",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: '@Url.Action("GuardarPromocionProducto")',
+                data: {model: model} ,
+                success: function (data) {
+                        //getDescuentoUsuarioFecha();
+                        limpiarCampos();
+                },
+                error: function (err, scnd) {
+                        cargarAlert('@SharedLocalizer["errorGeneral"]');
+                        console.log(err.statusText);
+                }
+            });
+        }
+
+         function getPromoCionProducto() {
+
+            var url = '@Url.Action("_ListarDescuentoUsuarioFecha", "DescuentoPromocion")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+                    $('#crearPartialDescuentoUsuariosFecha').html(data);
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
                 }
             });
     }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.ViewModels
 {
-    public class DescuentoPromocionViewModel
+    public class PromocionProductoViewModel
     {
         public int IdPromocionProducto { get; set; }
         public int IdRebajaConfig { get; set; }

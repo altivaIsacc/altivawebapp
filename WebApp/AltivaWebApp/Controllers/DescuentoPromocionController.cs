@@ -22,11 +22,19 @@ namespace AltivaWebApp.Controllers
         readonly IDescuentoUsuarioClaveService DescUserClaveService;
         readonly IDescuentoUsuarioRangoMap mapDescUserRango;
         readonly IDescuentoUsuarioRangoService DescUserServiceRango;
+        readonly IPromocionProductoService promoProdService;
+        readonly IPromocionProductoMap promoProdMap;
         public IUserService IUserService;
         public IContactoService IClienteService;
         public IInventarioService IInventarioService;
 
-        public DescuentoPromocionController(IInventarioService IInventarioService, IContactoService IClienteService, IDescuentoUsuarioClaveService DescUserClaveService, IDescuentoUsuarioClaveMap mapDesClavecUser, IDescuentoPromocionMap map, IDescuentoUsuarioRangoMap mapDescUserRango, IDescuentoUsuarioRangoService DescUserServiceRango, IDescuentoUsuarioService DescUserService, IDescuentoPromocionService service, IUserService IUserService, IDescuentoUsuarioMap mapDescUser)
+
+        public DescuentoPromocionController(IPromocionProductoMap promoProdMap, IPromocionProductoService promoProdService, 
+            IInventarioService IInventarioService, IContactoService IClienteService,
+            IDescuentoUsuarioClaveService DescUserClaveService, IDescuentoUsuarioClaveMap mapDesClavecUser,
+            IDescuentoPromocionMap map, IDescuentoUsuarioRangoMap mapDescUserRango, 
+            IDescuentoUsuarioRangoService DescUserServiceRango, IDescuentoUsuarioService DescUserService, 
+            IDescuentoPromocionService service, IUserService IUserService, IDescuentoUsuarioMap mapDescUser)
         {
             this.service = service;
             this.map = map;
@@ -39,13 +47,12 @@ namespace AltivaWebApp.Controllers
             this.mapDesClavecUser = mapDesClavecUser;
             this.IClienteService = IClienteService;
             this.IInventarioService = IInventarioService;
+            this.promoProdMap = promoProdMap;
+            this.promoProdService = promoProdService;
         }
 
         public IActionResult Index()
         {
-            ViewData["Asignados"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
-            ViewData["AsignadosRango"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
-            ViewData["AsignadosClave"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["Cliente"] = IClienteService.GetAllClientes();
             ViewData["Inventario"] = IInventarioService.GetAllInventario();
 
@@ -80,12 +87,9 @@ namespace AltivaWebApp.Controllers
         [HttpPost("GuardarDescMaximo")]
         public ActionResult GuardarDescMaximo(IList<DescuentoUsuarioViewModel> model)
         {
-
             try
             {
-                //return Ok(mapDescUser.SaveDescuentoUsuarioClave(model));
                 var pu = mapDescUser.SaveDescuentoUsuario(model);
-                //notificar("Se ha asignado un nuevo perfil");
                 if (pu)
                     return Json(new { success = true });
                 else
@@ -94,10 +98,7 @@ namespace AltivaWebApp.Controllers
             catch (Exception)
             {
                 throw;
-                //return BadRequest();
             }
-
-
         }
 
         [HttpGet("_ListarDescuentoUsuario")]
@@ -131,7 +132,6 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var descuento = DescUserService.GetDescuentoUsuarioById(id);
-
                 return Json(descuento);
             }
             catch (Exception)
@@ -144,7 +144,6 @@ namespace AltivaWebApp.Controllers
         [HttpGet("GetUsuarioSInDesc")]
         public ActionResult GetUsuarioSInDesc()
         {
-
             try
             {
                 var usr = DescUserService.GetUsuarioSInDesc((int)HttpContext.Session.GetInt32("idEmpresa"));
@@ -152,7 +151,6 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -160,17 +158,14 @@ namespace AltivaWebApp.Controllers
         [HttpGet("GetUsuarioConDesc")]
         public ActionResult GetUsuarioConDesc(int id)
         {
-
             try
             {
-                //var usr = DescUserService.GetUsuarioSInDesc((int)HttpContext.Session.GetInt32("idEmpresa"));
                 var usr = IUserService.GetSingleUser(id);
                 usr.TbSePerfilUsuario = null;
                 return Ok(usr);
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -182,9 +177,8 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                //return Ok(mapDescUser.SaveDescuentoUsuarioClave(model));
                 var pu = mapDescUserRango.SaveDescuentoUsuarioRango(model);
-                //notificar("Se ha asignado un nuevo perfil");
+
                 if (pu)
                     return Json(new { success = true });
                 else
@@ -193,7 +187,6 @@ namespace AltivaWebApp.Controllers
             catch (Exception)
             {
                 throw;
-                //return BadRequest();
             }
         }
 
@@ -241,7 +234,6 @@ namespace AltivaWebApp.Controllers
         [HttpGet("GetUsuarioSInDescRango")]
         public ActionResult GetUsuarioSInDescRango()
         {
-
             try
             {
                 var usr = DescUserServiceRango.GetUsuarioSInDescRango((int)HttpContext.Session.GetInt32("idEmpresa"));
@@ -249,7 +241,6 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -258,12 +249,9 @@ namespace AltivaWebApp.Controllers
         [HttpPost("GuardarDescMaximoClave")]
         public ActionResult GuardarDescMaximoClave(IList<DescuentoUsuarioClaveViewModel> model)
         {
-
             try
             {
-                //return Ok(mapDescUser.SaveDescuentoUsuarioClave(model));
                 var pu = mapDesClavecUser.SaveDescuentoUsuarioClave(model);
-                //notificar("Se ha asignado un nuevo perfil");
                 if (pu)
                     return Json(new { success = true });
                 else
@@ -272,10 +260,7 @@ namespace AltivaWebApp.Controllers
             catch (Exception)
             {
                 throw;
-                //return BadRequest();
             }
-
-
         }
 
         [HttpGet("_ListarDescuentoUsuarioClave")]
@@ -322,7 +307,6 @@ namespace AltivaWebApp.Controllers
         [HttpGet("GetUsuarioSInDescClave")]
         public ActionResult GetUsuarioSInDescClave()
         {
-
             try
             {
                 var usr = DescUserClaveService.GetUsuarioSInDescClave((int)HttpContext.Session.GetInt32("idEmpresa"));
@@ -330,19 +314,60 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
 
-
         //***************** Promocion Producto******************//
-        [Route("PromocionProducto")]
-        public ActionResult PromocionProducto()
+        [HttpPost("GuardarPromocionProducto")]
+        public ActionResult GuardarPromocionProducto(IList<PromocionProductoViewModel> model)
         {
-
-            return View();
+            try
+            {
+                var pu = promoProdMap.SavePromocionProducto(model);
+           
+                if (pu)
+                    return Json(new { success = true });
+                else
+                    return Json(new { success = false });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
+        [Route("EliminarPromocionProducto")]
+        public ActionResult EliminarPromocionProducto(int id)
+        {
+            try
+            {
+                var promocion = promoProdService.GetPromocionById(id);
+
+                promoProdService.Delete(promocion);
+                return Json(new { data = true });
+            }
+            catch (Exception)
+            {
+                return Json(new { data = false });
+                throw;
+            }
+        }
+
+        [Route("ObtenerPromocionProducto")]
+        public ActionResult ObtenerPromocionProducto(int id)
+        {
+            try
+            {
+                var promocion = promoProdService.GetPromocionById(id);
+
+                return Json(promocion);
+            }
+            catch (Exception)
+            {
+                BadRequest();
+                throw;
+            }
+        }
     }
 }

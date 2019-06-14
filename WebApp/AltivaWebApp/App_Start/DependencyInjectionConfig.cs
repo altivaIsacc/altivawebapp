@@ -237,6 +237,11 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IDescuentoUsuarioClaveService, DescuentoUsuarioClaveService>();
             services.AddScoped<IDescuentoUsuarioClaveMap, DescuentoUsuarioClaveMap>();
 
+            //PromocionProducto
+            services.AddScoped<IPromocionProductoRepository, PromocionProductoRepositoy>();
+            services.AddScoped<IPromocionProductoService, PromocionProductoService>();
+            services.AddScoped<IPromocionProductoMap, PromocionProductoMap>();
+
         }
     }
 }
