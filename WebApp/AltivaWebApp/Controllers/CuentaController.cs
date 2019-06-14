@@ -111,7 +111,7 @@ namespace AltivaWebApp.Controllers
                 props.IsPersistent = model.recuerdame;
 
                 //HttpContext.Session.SetString("nombreUsuario", user.Nombre);
-
+             
                 Sesion.Sesion.SetNombreUsuario(HttpContext.Session, user.Nombre);
                 Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
                 //Sesion.Sesion.SetIdioma(HttpContext.Session, user.TbSeUsuarioConfiguraion.First().Idioma);

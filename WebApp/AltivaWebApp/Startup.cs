@@ -20,8 +20,8 @@ namespace AltivaWebApp
     public class Startup
     {
 
-            public IConfiguration Configuration { get; set; }
-         public static IHostingEnvironment entorno { get; set; }
+        public IConfiguration Configuration { get; set; }
+        public static IHostingEnvironment entorno { get; set; }
         public Startup(IHostingEnvironment env)
             {
             entorno = env;
@@ -38,10 +38,10 @@ namespace AltivaWebApp
 
 
             DependencyInjectionConfig.AddScope(services);
-
-
+            services.AddDbContext<BaseConta>();
             services.AddDbContext<EmpresasContext>();
             services.AddDbContext<GrupoEmpresarialContext>();
+         
 
 
             services.Configure<CookiePolicyOptions>(options =>

@@ -17,6 +17,7 @@ namespace AltivaWebApp.Context
         public EmpresasContext(DbContextOptions<EmpresasContext> options)
             : base(options)
         {
+
         }
 
         public virtual DbSet<TbBaConciliacion> TbBaConciliacion { get; set; }

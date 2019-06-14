@@ -108,6 +108,7 @@ namespace AltivaWebApp.App_Start
 
             services.AddScoped<IPaisMap, PaisMap>();
             services.AddScoped<EmpresasContext, EmpresasContext>();
+            services.AddScoped<BaseConta, BaseConta>();
 
             services.AddScoped<IUserMap, UserMap>();
 
