@@ -88,11 +88,14 @@ namespace AltivaWebApp.Controllers
                 if (this.ITipoTareaService.GetByDefecto(domain.EsTipoDefecto) == true) {
                     return Json(new { defecto = true });
                 }
+                else
+                {
+                    var tt = this.ITipoTareaMapper.Save(domain);
+                }
             }
             else
             {
-                TbFdTareaTipo tt = new TbFdTareaTipo();
-                tt = this.ITipoTareaMapper.Save(domain);
+                var tt = this.ITipoTareaMapper.Save(domain);
             }
             return Json(new { titulo = false, color= false, defecto = false });
         }

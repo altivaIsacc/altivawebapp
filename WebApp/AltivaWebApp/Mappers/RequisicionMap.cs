@@ -43,7 +43,7 @@ namespace AltivaWebApp.Mappers
                 Id = viewModel.Id,
                 Anulado = false,
                 Descripcion = viewModel.Descripcion,
-                Fecha = DateTime.Now,
+                Fecha = viewModel.Fecha,
                 FechaCreacion = DateTime.Now,
                 IdDepartamento = viewModel.IdDepartamento,
                 IdBodega = viewModel.IdBodega,
@@ -61,6 +61,7 @@ namespace AltivaWebApp.Mappers
             req.Descripcion = viewModel.Descripcion;
             req.Fecha = viewModel.Fecha;
             req.Total = viewModel.Total;
+            req.IdDepartamento = viewModel.IdDepartamento;
 
             return req;
             

@@ -254,7 +254,7 @@ else
 
 
     /////////////////////////////eventos del dom////////////////////////////////////////
-    $cantidad.on('focusout, change', function () {
+    $cantidad.on('focusout', function () {
         if ($(this).val() <= 0 || $(this).val() === "")
             $(this).val(1);
 
@@ -389,6 +389,8 @@ else
              success: function (data) {
                  departamentos = data;
 
+                 var depaAnulados = [];
+
                  $('#departamento').empty();
 
                  var flag = false;
@@ -398,21 +400,21 @@ else
                          var o = new Option(data[i].descripcion, data[i].id);
                          if (data[i].id === parseInt(pos)) {
                              $(o).attr('selected', true);
-                             flag = false;
-                         }                            
-                         else {
                              flag = true;
                          }
+
                          $("#departamento").append(o);
                      }
+                     else
+                         depaAnulados.push(data[i]);
                  }
 
-                 if (flag) 
+                 if (!flag) 
                      if (@Model.Id != 0) {
 
-                         for (var i = 0; i < data.length; i++) {
-                             if (data[i].id === @Model.IdDepartamento) {
-                                 var o2 = new Option(data[i].descripcion, data[i].id);
+                         for (var i = 0; i < depaAnulados.length; i++) {
+                             if (depaAnulados[i].id === @Model.IdDepartamento) {
+                                 var o2 = new Option(depaAnulados[i].descripcion, depaAnulados[i].id);
                                  $(o2).attr('selected', true);
                                  $("#departamento").append(o2);
                                  $("#departamentoValid").attr("hidden", false);
@@ -585,8 +587,6 @@ else
 
         var detalle = lineas[key - 1];
 
-        console.log(detalle);
-
         $item.val(detalle.idInventario);
         $('.selectItems').trigger('change.select2');
         $cantidad.val(detalle.cantidad);
@@ -596,6 +596,9 @@ else
 
 
         eliminarLineaDirect(key, id);
+
+        var itemInfo = getItem(detalle.idInventario);
+        $lblItemInfo.text(itemInfo.existenciaBodega + " " + itemInfo.idInventarioNavigation.idUnidadMedidaNavigation.abreviatura);
 
     }
 
@@ -666,18 +669,39 @@ else
             total: parseFloat($cantidad.val()) * parseFloat($precio.val())
         };
 
-        if (getItem(model.idInventario).existenciaBodega >= model.cantidad) {
-            lineasAgregadas.push(model);
-            lineas.push(model);
-            cargarTabla(lineas);
 
-            actualizarInventarioLocal(model.idInventario, false, model.cantidad);
-            $('.selectItems').trigger('change');
+        if (!existeItemLineas(model.idInventario)) {
+            if (getItem(model.idInventario).existenciaBodega >= model.cantidad) {
+                lineasAgregadas.push(model);
+                lineas.push(model);
+                cargarTabla(lineas);
+
+                actualizarInventarioLocal(model.idInventario, false, model.cantidad);
+                $('.selectItems').trigger('change');
+            }
+            else
+                cargarAlert('@SharedLocalizer["cantidaMayorQueExistencias"]');
         }
         else
-            cargarAlert('@SharedLocalizer["cantidaMayorQueExistencias"]');
+            cargarAlert("@SharedLocalizer["lineaExistente"]");
+      
+        
 
 
+    }
+
+    function existeItemLineas(idInventario) {
+
+        var flag = false;
+
+        for (var i = 0; i < lineas.length; i++) {
+            if (idInventario.toString() === lineas[i].idInventario.toString()) {
+                flag = true;
+                break;
+            }
+        }
+
+        return flag;
     }
 
     function actualizarInventarioLocal(idItem, isDeleted, cantidad) {
@@ -687,14 +711,15 @@ else
         for (var i = 0; i < arrayInventario.length; i++) {
             if (arrayInventario[i].idInventario === parseInt(idItem) && arrayInventario[i].idBodega === parseInt($bodega.val())) {
                 if (isDeleted)
-                    arrayInventario[i].existenciaBodega += cantidad;
+                    arrayInventario[i].existenciaBodega = arrayInventario[i].existenciaBodega + cantidad;
                 else
-                    arrayInventario[i].existenciaBodega -= cantidad;
+                    arrayInventario[i].existenciaBodega = arrayInventario[i].existenciaBodega - cantidad;
             }
 
         }
 
-        //$('.selectItems').trigger('change');
+
+       // $('.selectItems').trigger('change');
 
     }
 
@@ -720,6 +745,7 @@ else
             if (result) {
 
                 eliminarLineaDirect(_key, idLinea);
+                $('.selectItems').trigger('change');
             }
 
         });
@@ -741,7 +767,10 @@ else
 
         cargarTabla(lineas);
 
+       
 
+        //$('.selectItems').trigger('change');
+      
 
     }
 

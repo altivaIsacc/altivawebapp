@@ -30,7 +30,7 @@ namespace AltivaWebApp.Controllers
         //
         public IContactoMap contactoMap;
         // GET: Contacto
-        public IcontactoCamposMap pContactoCamposMap;
+        public IcontactoCamposMap contactoCamposMap;
 
         //
         public IEstadoTareaService IEstadoService;
@@ -43,20 +43,18 @@ namespace AltivaWebApp.Controllers
         public IUserRepository userMap;
         //variable de contactosCamposPersonalizadosService:
         public IContactoCamposService ICCService;
-        public ContactoController(IUserService IUserService, IHostingEnvironment hostingEnvironment, ITipoTareaService ITipoService, IEstadoTareaService IEstadoService, FotosService pFotos, IUserRepository IUserRepository, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IcontactoCamposMap pContactoCamposMap, IcontactoCamposMap pContactoMap)
+        public ContactoController(IUserService IUserService, IHostingEnvironment hostingEnvironment, ITipoTareaService ITipoService, IEstadoTareaService IEstadoService, FotosService pFotos, IUserRepository IUserRepository, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IcontactoCamposMap pContactoCamposMap)
         {
             this.contactoService = contactoService;
             this.contactoMap = contactoMap;
-            this.pContactoCamposMap = pContactoCamposMap;
-            this.pContactoCamposMap = pContactoMap;
+            contactoCamposMap = pContactoCamposMap;
             this.ICCService = ICCService;
-            this.userMap = IUserRepository;
-            this.Fotos = pFotos;
+            userMap = IUserRepository;
+            Fotos = pFotos;
             this.IUserService = IUserService;
             this.hostingEnvironment = hostingEnvironment;
             this.ITipoService = ITipoService;
             this.IEstadoService = IEstadoService;
-
 
         }
         //metodo que devuele en el edit las condiciones de pago.
@@ -67,7 +65,7 @@ namespace AltivaWebApp.Controllers
             condiciones = this.contactoService.GetCondiciones(idContacto);
             if (condiciones.Count() > 0)
             {
-                return new JsonResult(condiciones);
+                return Ok(condiciones);
             }
             else
             {
@@ -78,11 +76,9 @@ namespace AltivaWebApp.Controllers
         //metodo que devuelve los cuentas de un contacto
 
         [HttpGet("GetCuentasByContacto/{idContacto?}")]
-
         public IActionResult GetCuentasByContacto(int idContacto)
         {
-            IList<TbFdCuentasBancarias> cb = new List<TbFdCuentasBancarias>();
-            cb = this.contactoService.GetByContacto(idContacto);
+            var cb = contactoService.GetByContacto(idContacto);
             if (cb.Count() > 0)
             {
                 return new JsonResult(cb);
@@ -323,22 +319,23 @@ namespace AltivaWebApp.Controllers
             IList<TbCrContactosCamposPersonalizados> contactosCampos = new List<TbCrContactosCamposPersonalizados>();
             try
             {
-                correo = this.contactoService.GetByEmailContacto(model2.Correo);
-                if (model2.TipoCedula == "CedulaFisica")
+                correo = contactoService.GetByEmailContacto(model2.Correo);
+                cedula = contactoService.GetByCedulaContacto(model2.Cedula);
+                if (model2.TipoCedula == "1")
                 {
                     cedula = this.contactoService.GetByCedulaContacto(model2.Cedula);
                 }
-                else if (model2.TipoCedula == "CedulaJuridica")
+                else if (model2.TipoCedula == "2")
                 {
                     cedula = this.contactoService.GetByCedulaContacto(model2.juridica);
                 }
-                else if (model2.dimex == "Dimex")
+                else if (model2.dimex == "3")
 
                 {
                     cedula = this.contactoService.GetByCedulaContacto(model2.dimex);
 
                 }
-                else if (model2.nite == "NITE")
+                else if (model2.nite == "4")
                 {
                     cedula = this.contactoService.GetByCedulaContacto(model2.nite);
 
@@ -358,7 +355,7 @@ namespace AltivaWebApp.Controllers
                     contacto = this.contactoMap.NuevoContacto(model2);
                     if (contacto != null)
                     {
-                        this.pContactoCamposMap.Agregar(model, contacto.IdContacto);
+                        this.contactoCamposMap.Agregar(model, contacto.IdContacto);
                     }
                 }
 
@@ -474,7 +471,7 @@ namespace AltivaWebApp.Controllers
 
                 if (contacto != null)
                 {
-                    this.pContactoCamposMap.Update(model1, contacto.IdContacto);
+                    this.contactoCamposMap.Update(model1, contacto.IdContacto);
 
                 }
                 return Json(new { id = contacto.IdContacto, correo = "libre", cedula = "Libre" });

@@ -20,9 +20,6 @@ namespace AltivaWebApp.ViewModels
             IdTipoProveedor = 0;
         }
         public long Id { get; set; }
-
-        [StringLength(20, MinimumLength = 2)]
-        [Required(ErrorMessage = "Nombre  es Requerido")]
         public string Nombre { get; set; }
         public string Apellidos { get; set; }
         public string NombreComercial { get; set; }
