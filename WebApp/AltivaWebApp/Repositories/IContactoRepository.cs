@@ -11,6 +11,7 @@ public interface IContactoRepository
     {
         IList<TbCrContacto> GetAll();
         IList<TbCrContacto> GetAllPersonas();
+        IList<TbCrContacto> GetAllClientes();
         ContactoViewModel GetByEdit(int id);
         IList<TbCrContacto> GetAllEmpresas();
         TbCrContacto Save(TbCrContacto domain);

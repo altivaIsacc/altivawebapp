@@ -9,6 +9,7 @@ namespace AltivaWebApp.Services
     public interface IContactoService
     {
         IList<TbCrContacto> GetAllPersonas();
+        IList<TbCrContacto> GetAllClientes();
         IList<TbCrContacto> GetAllEmpresas();
         TbCrContacto GetByIdContacto(long domain);
         TbCrContacto Edit(TbCrContacto domain);

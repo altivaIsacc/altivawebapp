@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace AltivaWebApp.Models
+namespace AltivaWebApp.ViewModels
 {
-    public partial class TbFaPromocionProducto
+    public class DescuentoPromocionViewModel
     {
         public int IdPromocionProducto { get; set; }
         public int IdRebajaConfig { get; set; }
@@ -29,7 +31,5 @@ namespace AltivaWebApp.Models
         public double PorcTipo2Descuento { get; set; }
         public bool FamiliaProveedor { get; set; }
         public long IdProveedor { get; set; }
-
-        public virtual TbFaRebajaConfig IdRebajaConfigNavigation { get; set; }
     }
 }

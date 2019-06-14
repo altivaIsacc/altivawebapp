@@ -189,6 +189,15 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
+
+                    <hr />
+
+                    <div class="form-group" style="margin-left:1rem; padding-top:0.7rem">
+                        <p>
+                            <a class="btn btn-primary btn-xs" id="btnAgregarPromocionProd"><span data-translate="Agregar">Agregar</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+                        </p>
+                    </div>
+
                 </div>
                 <div class="modal-body" id="crearEditarPartial">
 
@@ -325,12 +334,7 @@
 
                     <div class="form-group">
                         <label class="form-label">Asignado:</label><br />
-                        <select class="form-control selUsuarios" style="width:100%;" multiple="multiple" data-live-search="true" id="asignadoRango" onchange="cargarIdUsuarioRangoSelect()" asp-for="@ViewData.[IdUsuario]">
-                            @*@foreach (var asignados in ViewData["asignadosRango"] as IList<TbSeUsuario>)
-                                {
-                                    <option value="@asignados.Id">@asignados.Nombre</option>
-                                }*@
-                        </select>
+                        <select class="form-control selUsuarios" style="width:100%;" multiple="multiple" data-live-search="true" id="asignadoRango" onchange="cargarIdUsuarioRangoSelect()" asp-for="@ViewData.[IdUsuario]"></select>
                     </div>
 
                     <div class="form-group descuentoGeneralnGroup ">
@@ -439,6 +443,262 @@
     </div>
 </div>
 
+
+<div>
+    <!-- SubModal Promocion Producto -->
+    <div class="modal fade" role="dialog" id="modalAgregarPromocionProd" tabindex="-1" style="overflow-y: scroll; " aria-labelledby="AgregarPromocionProdModallabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered big">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 data-translate="Configuracion" class="modal-title" id="AgregarPromocionProdModallabel">@SharedLocalizer["Promociones de producto"]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="limpiarCampos()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body" id="crearEditarPartial">
+
+
+                    <div class="form-group">
+                        <div>
+                            <input type="checkbox" class="form-check-input" id="chkClavePromo" />
+                            <label data-translate="chkClavePromo" class="form-check-label" for="chkClavePromo">Con cierta clave de autorizacion.</label>
+                        </div>
+                        <div>
+                            <input type="password" class="form-control" id="txtClavePromo" />
+                        </div>
+                    </div>
+
+                    <div class="form-group ">
+                        <input type="checkbox" class="form-check-input" id="chkClientePromo" />
+
+                        <label class=" col-form-label">Para venta de clientes:</label><br />
+                        <select class="form-control selUsuarios " style="width:100%;" data-live-search="true" id="cliente" @*onchange="cargarIdUsuarioSelect()"*@ asp-for="@ViewData["Cliente"].[IdContacto]">
+                            @foreach (var asignados in ViewData["Cliente"] as IList<TbCrContacto>)
+                            {
+                                if (asignados.Empresa == null)
+                                {
+                                    <option value="@asignados.IdContacto">@asignados.Nombre  </option>
+                                }
+                                else
+                                {
+                                    <option value="@asignados.IdContacto">@asignados.NombreComercial  </option>
+                                }
+                            }
+
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <div>
+                            <input type="checkbox" class="form-check-input" id="chkEntreFechasPromo" />
+                            <label data-translate="chkClavePromo" class="form-check-label" for="chkClavePromo">Entre fechas definidas.</label>
+                        </div>
+                        <div>
+                            <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                                <fieldset>
+                                    <div class="form-group">
+                                        <label for="fecha">@SharedLocalizer["Desde"]:</label>
+                                        <div class='input-group date fechaPicker' id='fechaPicker'>
+                                            <input type='text' class="form-control" id="txtInicioPromo" />
+                                            <span class="input-group-addon">
+                                                <span class="fas fa-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                            <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                                <fieldset>
+                                    <div class="form-group">
+                                        <label for="fecha">@SharedLocalizer["Desde"]:</label>
+                                        <div class='input-group date fechaPicker' id='fechaPicker'>
+                                            <input type='text' class="form-control" id="txtFinPromo" />
+                                            <span class="input-group-addon">
+                                                <span class="fas fa-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group ">
+                        <input type="checkbox" class="form-check-input" id="chkFamilias" />
+
+                        <label class=" col-form-label">Para cierta familia o sub familia de cliente:</label><br />
+                        <div id="familiaDv" class="form-group">
+                            <div class="col-md-4 col-sm-12 col-xs-12">
+                                <label>Tipo Cliente:</label>
+                                <select id="tipoClientes" class="form-control search-key"></select>
+                            </div>
+
+                            <div class="col-md-4 col-sm-12 col-xs-12">
+                                <label>Familia cliente:</label>
+                                <select id="familia" class="form-control search-key">
+                                    <option selected value="0" data-translate="selecciones">Seleccione</option>
+
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 col-sm-12 col-xs-12 ">
+                                <label>Sub-Familia:</label>
+                                <select id="subFamilia" class="form-control search-key">
+                                    <option selected value="0" data-translate="selecciones">Seleccione</option>
+
+                                </select>
+                            </div>
+                            <br />
+                            <hr />
+                        </div>
+
+                    </div>
+
+                    <!--**************Tipo 1 ***********************-->
+                    <div class="form-group">
+                        <br />
+                        <div class="col-xs-12">
+                            <input type="radio" class="form-check-input" id="rdbClientePromo" name="tipo" />
+                            <label>Tipo 1</label><br />
+                        </div>
+                        <div>
+                            <div class="col-md-3 col-sm-12 col-xs-12">
+
+                                <label>Si lleva:</label><br />
+                                <input type="number" min="1" value="1" class="form-control col-md-4" id="txtCantTipo1Ref" />
+                            </div>
+
+                            <div class="col-md-9 col-sm-12 col-xs-12">
+                                <label class=" col-form-label">Articulo:</label><br />
+
+                                <select id="productoRef" class="form-control search-key">
+                                    <option value="0">Seleccione</option>
+                                    @foreach (var prod in ViewData["Inventario"] as IList<TbPrInventario>)
+                                    {
+
+                                        <option value="@prod.IdInventario">@prod.Descripcion  </option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-3 col-sm-12 col-xs-12">
+
+                                <label>Llevar:</label><br />
+                                <input type="number" min="1" value="1" class="form-control col-md-4" id="txtCantTipo1" />
+                            </div>
+
+                            <div class="col-md-6 col-sm-12 col-xs-12 ">
+                                <label class=" col-form-label">Articulo:</label><br />
+
+                                <select id="producto" class="form-control search-key">
+                                    <option value="0">Seleccione</option>
+                                    @foreach (var prod in ViewData["Inventario"] as IList<TbPrInventario>)
+                                    {
+
+                                        <option value="@prod.IdInventario">@prod.Descripcion  </option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-3 col-sm-12 col-xs-12">
+
+                                <label>% Descuento</label><br />
+                                <input type="number" min="1" value="0" class="form-control col-md-4" id="txtPorcTipo1" />
+                                <hr />
+                                <hr />
+                            </div>
+
+                           
+                        </div>
+
+
+                    </div>
+                   
+                    <!--****************Promocion tipo 2********************-->
+                    <div class="form-group">
+
+                        
+                        <div class="col-xs-12">
+                            <input type="radio" class="form-check-input" id="rdbClientePromoTipo2" name="tipo" checked />
+                            <label>Tipo 2</label><br />
+                        </div>
+                        <div>
+                            <div class="col-md-2 col-sm-12 col-xs-12">
+
+                                <label>Mayor que:</label><br />
+                                <input type="number" min="1" value="0" class="form-control col-md-4" id="txtCantTipo2" />
+                            </div>
+
+                            <div class="col-md-7 col-sm-12  col-xs-12">
+                                <label class=" col-form-label">Productos de proveedor:</label><br />
+
+                                <select id="producto" class="form-control search-key">
+                                    <option value="0">Seleccione</option>
+                                    @foreach (var prod in ViewData["Inventario"] as IList<TbPrInventario>)
+                                    {
+
+                                        <option value="@prod.IdInventario">@prod.Descripcion  </option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-3 col-sm-12 col-xs-12">
+
+                                <label>% Descuento:</label><br />
+                                <input type="number" min="1" value="0" class="form-control col-md-4" id="txtporcTipo2" />
+                                
+                            </div>
+
+                            <div class="form-group">
+                                <input type="checkbox" class="form-check-input" id="chkFamiliasProducto" />
+                                <label>Para cierta familia de producto:</label><br />
+                            </div>
+
+                            <div id="familiaDv" class="form-group">
+                                <div class="col-md-4 col-sm-12 col-xs-12">
+                                    <label>Tipo Proveedor:</label>
+                                    <select id="tipoProveedor" class="form-control search-key"></select>
+                                </div>
+
+                                <div class="col-md-4 col-sm-12 col-xs-12">
+                                   
+                                    <label>Familia proveedor:</label>
+                                    <select id="familiaProveedor" class="form-control search-key">
+                                        <option selected value="0" data-translate="selecciones">Seleccione</option>
+
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4 col-sm-12 col-xs-12">
+                                    <label>Sub-Familia Proveedor:</label>
+                                    <select id="subfamiliaProveedor" class="form-control search-key">
+                                        <option selected value="0" data-translate="selecciones">Seleccione</option>
+
+                                    </select>
+                                </div>
+                                <br />
+                                <hr />
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="form-group">
+                        <hr />
+                        <button id="btnGuardarDescUsuarioFecha" class="btn btn-success  " onclick="guardarDescuentoUsuarioRango()"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
+                        <a class="btn btn-default " id="btnCancelarFecha" onclick="limpiarCampos()" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!--********************Fin SubModales ***********************-->
 
 <script>
@@ -449,10 +709,6 @@
 
     $(document).ready(function () {
 
-        $('.fechaPicker').datetimepicker({
-            defaultDate: new Date(),
-            locale: localStorage.getItem("idioma")
-        });
 
             //*********************Mostrar Modales**********************************
 
@@ -556,7 +812,120 @@
         });
             //**********************Fin Modal 3 ******************
 
+           //**********************Modal 4 **********************
 
+        //if (! $('#chkClavePromo').prop('checked')) {
+            $('#txtClavePromo').attr('disabled', true);
+        //}
+
+        ///Bloquear Campos
+        $('#tipoClientes').attr('disabled', true);
+        $('#familia').attr('disabled', true);
+        $('#subFamilia').attr('disabled', true);
+        $('#txtInicioPromo').attr('disabled', true);
+        $('#txtFinPromo').attr('disabled', true);
+        $('#cliente').attr('disabled', true);
+        $('#tipoProveedor').attr('disabled', true);
+        $('#familiaProveedor').attr('disabled', true);
+        $('#subfamiliaProveedor').attr('disabled', true);
+       // (!$('#rdbClientePromoTipo2').prop('selected'));
+
+        $('#btnAgregarPromocionProd').click(function () {
+            $('.selUsuarios').select2();
+            $('#modalAgregarPromocionProd').modal("show");
+        });
+
+        getTiposClientes();
+         getTiposProveedor();
+        $('.fechaPicker').datetimepicker({
+            defaultDate: new Date(),
+            locale: localStorage.getItem("idioma")
+        });
+
+        $("#tipoClientes").change(function () {
+            if ($(this).val() != 0) {
+
+                getFamilias($(this).val());
+
+            } else {
+                $("#familia option").remove();
+
+                var option = new Option("Seleccione", 0);
+                option.setAttribute("selected", "selected");
+                $("#familia").append(option);
+                $('#subFamilia option').remove();
+                var option = new Option("Seleccione", 0);
+                option.setAttribute("selected", "selected");
+                $("#subFamilia").append(option)
+            }
+        });
+
+        $("#familia").change(function () {
+            if ($(this).val() != 0) {
+                getSubFamilias($(this).val());
+
+            } else {
+                $('#subFamilia option').remove();
+                var option = new Option("Seleccione", 0);
+                option.setAttribute("selected", "selected");
+                $("#subFamilia").append(option)
+            }
+        });
+
+         $('#chkClavePromo').change(function () {
+                if ($(this).prop('checked'))
+                    $('#txtClavePromo').attr('disabled', false);
+                else
+                    $('#txtClavePromo').attr('disabled', true);
+         });
+
+           $('#chkClientePromo').change(function () {
+                if ($(this).prop('checked'))
+                    $('#cliente').attr('disabled', false);
+                else
+                    $('#cliente').attr('disabled', true);
+            });
+
+        $('#chkEntreFechasPromo').change(function () {
+            if ($(this).prop('checked')) {
+                $('#txtInicioPromo').attr('disabled', false);
+                $('#txtFinPromo').attr('disabled', false);
+            }
+            else {
+                $('#txtInicioPromo').attr('disabled', true);
+                $('#txtFinPromo').attr('disabled', true);
+            }
+        });
+
+         $('#chkFamilias').change(function () {
+             if ($(this).prop('checked')) {
+                 $('#tipoClientes').attr('disabled', false);
+                 $('#familia').attr('disabled', false);
+                 $('#subFamilia').attr('disabled', false);
+             }
+            else {
+                 $('#tipoClientes').attr('disabled', true);
+                 $('#familia').attr('disabled', true);
+                 $('#subFamilia').attr('disabled', true);
+
+            }
+         });
+
+         $('#chkFamiliasProducto').change(function () {
+             if ($(this).prop('checked')) {
+                 $('#tipoProveedor').attr('disabled', false);
+                 $('#familiaProveedor').attr('disabled', false);
+                 $('#subfamiliaProveedor').attr('disabled', false);
+             }
+            else {
+                 $('#tipoProveedor').attr('disabled', true);
+                 $('#familiaProveedor').attr('disabled', true);
+                 $('#subfamiliaProveedor').attr('disabled', true);
+
+            }
+         });
+
+            //**********************Fin Modal 4 ******************
 
     }); //Fin de document ready
 
@@ -862,7 +1231,8 @@
                         },
                         url: '@Url.Action("GetUsuarioConDesc", "DescuentoPromocion")',
                         data: {id: _id},
-                        success: function (data) {
+                     success: function (data) {
+
                              var o = new Option(data.nombre, data.id);
 
                              $(o).attr('selected', true);
@@ -992,4 +1362,345 @@
             });
         }
     //************Fin funcioines modal 3*******************//
+
+
+
+
+
+
+       //function que devuelte las subfamilias por iD
+    function getSubFamilias(idTipoCliente) {
+         var url = '@Url.Action("GetSubFamilias", "TipoCliente")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { idCliente: idTipoCliente },
+                success: function (data) {
+                    if (data != false) {
+                        $("#subFamilia option").remove();
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#subFamilia").append(option);
+                        for (var i = 0; i < data.length; i++) {
+
+
+                            var o = new Option(data[i].nombre, data[i].id);
+
+
+                            $("#subFamilia").append(o);
+
+                        }
+
+                        $("#subFamilia").trigger('change');
+                    } else {
+                        $("#subFamilia option").remove();
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#subFamilia").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+    }
+    //function que devuelve las familias por ID
+    function getFamilias(idTipoCliente) {
+         var url = '@Url.Action("GetFamiliasTipoCliente", "TipoCliente")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { idCliente: idTipoCliente },
+                success: function (data) {
+                    if (data != false) {
+                        $("#familia option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#familia").append(option);
+                        for (var i = 0; i < data.length; i++) {
+
+
+                            var o = new Option(data[i].nombre, data[i].id);
+
+
+                            $("#familia").append(o);
+
+                        }
+
+                        $("#familia").trigger('change');
+                    } else {
+                        $("#familia option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#familia").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+        }
+
+
+         function getProductos() {
+
+            var url = '@Url.Action("GetAllInventarios", "Inventario")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+                    if (data != false) {
+                        $("#producto option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#producto").append(option);
+
+                        for (var i = 0; i < data.length; i++) {
+
+                            var o = new Option(data[i].descripcion, data[i].codigo);
+
+                            $("#producto").append(o);
+
+
+                            $("#producto").append(o);
+                        }
+
+                        $("#producto").trigger('change');
+                    } else {
+                        $("#producto option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#producto").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+        }
+
+             function getTiposClientes() {
+
+            var url = '@Url.Action("GetTiposClientes", "TipoCliente")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+                    if (data != false) {
+                        $("#tipoClientes option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#tipoClientes").append(option);
+
+                        for (var i = 0; i < data.length; i++) {
+
+                            var o = new Option(data[i].nombre, data[i].id);
+
+                            $("#tipoClientes").append(o);
+
+
+                            $("#tipoClientes").append(o);
+                        }
+
+                        $("#tipoClientes").trigger('change');
+                    } else {
+                        $("#tipoClientes option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#tipoClientes").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+        }
+
+
+    //accion del select tipo cliente que llama ala familiaProveedor..
+    $("#tipoProveedor").change(function () {
+        if ($(this).val() != 0) {
+
+
+            //$('#CreareditarfamiliaProveedor').attr("disabled", false);
+            //$('#editarTipoProveedor').attr("disabled", true);
+
+            //$('#editarTipoProveedor').attr("disabled", false);
+            //$('#editarfamiliaProveedor').attr("disabled", true);
+            //$('#eliminarTipoProveedor').attr("disabled", false);
+            getfamiliaProveedors($(this).val());
+
+        } else {
+           
+            $("#subfamiliaProveedor option").remove();
+            var option = new Option("Seleccione", 0);
+            option.setAttribute("selected", "selected");
+            $("#subfamiliaProveedor").append(option);
+            $("#familiaProveedor option").remove();
+            var option = new Option("Seleccione", 0);
+            option.setAttribute("selected", "selected");
+            $("#familiaProveedor").append(option);
+            $('#editarSubfamiliaProveedor').attr("disabled", true);
+            $('#eliminarFamiliaProveedor').attr("disabled", true);
+            $('#eliminaSubFamiliaProveedor').attr("disabled", true);
+        }
+    });
+    //accion del select familiaProveedor que devuelve alas subfamiliaProveedors:
+    $("#familiaProveedor").change(function () {
+        if ($(this).val() != 0) {
+            getSubfamiliaProveedors($(this).val());
+        } else {
+            $("#subfamiliaProveedor option").remove();
+            var option = new Option("Seleccione", 0);
+            option.setAttribute("selected", "selected");
+            $("#subfamiliaProveedor").append(option);
+        }
+    });
+
+     function getTiposProveedor() {
+
+            var url = '@Url.Action("GetTiposDeProveedores", "TipoProveedor")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+                    if (data != false) {
+                        $("#tipoProveedor option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#tipoProveedor").append(option);
+
+                        for (var i = 0; i < data.length; i++) {
+
+                            var o = new Option(data[i].nombre, data[i].id);
+
+                            $("#tipoProveedor").append(o);
+
+
+                            $("#tipoProveedor").append(o);
+                        }
+
+                        $("#tipoProveedor").trigger('change');
+                    } else {
+                        $("#tipoProveedor option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#tipoProveedor").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+        }
+
+     function getSubfamiliaProveedors(idTipoCliente) {
+         var url = '@Url.Action("GetSubFamiliasProveedor", "TipoProveedor")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { idProveedor: idTipoCliente },
+                success: function (data) {
+                    if (data != false) {
+                        $("#subfamiliaProveedor option").remove();
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#subfamiliaProveedor").append(option);
+                        for (var i = 0; i < data.length; i++) {
+
+
+                            var o = new Option(data[i].nombre, data[i].id);
+
+
+                            $("#subfamiliaProveedor").append(o);
+
+                        }
+
+                        $("#subfamiliaProveedor").trigger('change');
+                    } else {
+                        $("#subfamiliaProveedor option").remove();
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#subfamiliaProveedor").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+    }
+    //function que devuelve las familiaProveedors por ID
+    function getfamiliaProveedors(idTipoCliente) {
+         var url = '@Url.Action("GetFamiliasTipoProveedor", "TipoProveedor")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { idProveedor: idTipoCliente },
+                success: function (data) {
+                    if (data != false) {
+                        $("#familiaProveedor option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#familiaProveedor").append(option);
+                        for (var i = 0; i < data.length; i++) {
+
+
+                            var o = new Option(data[i].nombre, data[i].id);
+
+
+                            $("#familiaProveedor").append(o);
+
+                        }
+
+                        $("#familiaProveedor").trigger('change');
+                    } else {
+                        $("#familiaProveedor option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#familiaProveedor").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+    }
 </script>

@@ -23,8 +23,10 @@ namespace AltivaWebApp.Controllers
         readonly IDescuentoUsuarioRangoMap mapDescUserRango;
         readonly IDescuentoUsuarioRangoService DescUserServiceRango;
         public IUserService IUserService;
+        public IContactoService IClienteService;
+        public IInventarioService IInventarioService;
 
-        public DescuentoPromocionController(IDescuentoUsuarioClaveService DescUserClaveService, IDescuentoUsuarioClaveMap mapDesClavecUser, IDescuentoPromocionMap map, IDescuentoUsuarioRangoMap mapDescUserRango, IDescuentoUsuarioRangoService DescUserServiceRango, IDescuentoUsuarioService DescUserService, IDescuentoPromocionService service, IUserService IUserService, IDescuentoUsuarioMap mapDescUser)
+        public DescuentoPromocionController(IInventarioService IInventarioService, IContactoService IClienteService, IDescuentoUsuarioClaveService DescUserClaveService, IDescuentoUsuarioClaveMap mapDesClavecUser, IDescuentoPromocionMap map, IDescuentoUsuarioRangoMap mapDescUserRango, IDescuentoUsuarioRangoService DescUserServiceRango, IDescuentoUsuarioService DescUserService, IDescuentoPromocionService service, IUserService IUserService, IDescuentoUsuarioMap mapDescUser)
         {
             this.service = service;
             this.map = map;
@@ -35,13 +37,17 @@ namespace AltivaWebApp.Controllers
             this.DescUserServiceRango = DescUserServiceRango;
             this.DescUserClaveService = DescUserClaveService;
             this.mapDesClavecUser = mapDesClavecUser;
+            this.IClienteService = IClienteService;
+            this.IInventarioService = IInventarioService;
         }
 
         public IActionResult Index()
         {
             ViewData["Asignados"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["AsignadosRango"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
-            ViewData["AsignadosClave"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa")); 
+            ViewData["AsignadosClave"] = IUserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+            ViewData["Cliente"] = IClienteService.GetAllClientes();
+            ViewData["Inventario"] = IInventarioService.GetAllInventario();
 
             var conf = service.GetRebajaConfig();
 
@@ -159,6 +165,7 @@ namespace AltivaWebApp.Controllers
             {
                 //var usr = DescUserService.GetUsuarioSInDesc((int)HttpContext.Session.GetInt32("idEmpresa"));
                 var usr = IUserService.GetSingleUser(id);
+                usr.TbSePerfilUsuario = null;
                 return Ok(usr);
             }
             catch (Exception)
@@ -326,6 +333,15 @@ namespace AltivaWebApp.Controllers
 
                 throw;
             }
+        }
+
+
+        //***************** Promocion Producto******************//
+        [Route("PromocionProducto")]
+        public ActionResult PromocionProducto()
+        {
+
+            return View();
         }
 
     }
