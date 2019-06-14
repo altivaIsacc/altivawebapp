@@ -65,18 +65,25 @@ namespace AltivaWebApp.Mappers
         public IList<TbSeHistorialMoneda> CreateHM(IList<TbSeMoneda> domain, int idUsuario)
         {
             var hm = new List<TbSeHistorialMoneda>();
+
+            var date = DateTime.Now;
+
             foreach (var item in domain)
             {
-                var model = new TbSeHistorialMoneda
+                if(item.Codigo != 1)
                 {
-                    CodigoMoneda = item.Codigo,
-                    Fecha = DateTime.Now,
-                    IdUsuario = idUsuario,
-                    ValorCompra = item.ValorCompra,
-                    ValorVenta = item.ValorVenta
-                };
+                    var model = new TbSeHistorialMoneda
+                    {
+                        CodigoMoneda = item.Codigo,
+                        Fecha = date.Date,
+                        IdUsuario = idUsuario,
+                        ValorCompra = item.ValorCompra,
+                        ValorVenta = item.ValorVenta
+                    };
 
-                hm.Add(model);
+                    hm.Add(model);
+                }
+                
             }
 
             return service.CrearHistorialMoneda(hm);

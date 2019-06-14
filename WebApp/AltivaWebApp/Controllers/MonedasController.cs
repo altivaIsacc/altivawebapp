@@ -60,9 +60,8 @@ namespace AltivaWebApp.Controllers
             try
             {
                 viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
-                var list = new List<TbSeHistorialMoneda>();
-                list.Add(viewModel);
-                var moneda = service.CrearHistorialMoneda(list);
+                
+                var moneda = service.CrearHistorialMonedaSingle(viewModel);
 
                 return Ok(moneda);
             }
@@ -78,7 +77,10 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var moneda = service.EditarHistorialMoneda(viewModel);
+                var moneda = service.GetHMById(viewModel.Id);
+                moneda.ValorCompra = viewModel.ValorCompra;
+                moneda.ValorVenta = viewModel.ValorVenta;
+                moneda = service.EditarHistorialMoneda(moneda);
 
                 return Json(new { success = true });
             }
@@ -92,7 +94,7 @@ namespace AltivaWebApp.Controllers
         [Route("Historial/{cod}")]
         public IActionResult HistorialMoneda(int cod)
         {
-            ViewBag.id = cod;
+            ViewBag.cod = cod;
             return View();
         }
 

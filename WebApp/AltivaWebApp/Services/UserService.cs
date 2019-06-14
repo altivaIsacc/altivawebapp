@@ -87,9 +87,9 @@ namespace AltivaWebApp.Services
        
         public TbSeUsuario GetSingleUser(int id)
         {
-           // var user = context.TbSeUsuario.Where(u => u.Nombre == model.usuario && u.Contraseña == model.contrasena).ToList();
             return repository.GetUsuarioById(id);
         }
+
         public TbSeUsuario GetUsuarioConPerfiles(string usuario)
         {
             return repository.GetUsuarioConPerfiles(usuario);

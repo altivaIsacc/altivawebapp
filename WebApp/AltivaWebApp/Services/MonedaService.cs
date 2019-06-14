@@ -24,6 +24,11 @@ namespace AltivaWebApp.Services
             return repository.CrearHistorialMoneda(historial);
         }
 
+        public TbSeHistorialMoneda CrearHistorialMonedaSingle(TbSeHistorialMoneda domain)
+        {
+            return repository.CrearHistorialMonedaSingle(domain);
+        }
+
         public TbSeHistorialMoneda EditarHistorialMoneda(TbSeHistorialMoneda historial)
         {
             return repository.EditarHistorialMoneda(historial);
@@ -37,6 +42,11 @@ namespace AltivaWebApp.Services
         public IList<TbSeHistorialMoneda> GetAllHMPorMoneda(int codigo)
         {
             return repository.GetAllHMPorMoneda(codigo);
+        }
+
+        public TbSeHistorialMoneda GetHMById(long id)
+        {
+            return repository.GetHMById(id);
         }
 
         public TbSeMoneda GetMonedaById(int id)

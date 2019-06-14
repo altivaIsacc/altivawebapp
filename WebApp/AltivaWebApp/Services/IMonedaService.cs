@@ -14,7 +14,9 @@ namespace AltivaWebApp.Services
         IList<TbSeMoneda> GetAll();
         IList<TbSeHistorialMoneda> GetAllHMPorMoneda(int codigo);
         TbSeMoneda GetMonedaById(int id);
+        TbSeHistorialMoneda CrearHistorialMonedaSingle(TbSeHistorialMoneda domain);
         IList<TbSeHistorialMoneda> CrearHistorialMoneda(IList<TbSeHistorialMoneda> historial);
         TbSeHistorialMoneda EditarHistorialMoneda(TbSeHistorialMoneda historial);
+        TbSeHistorialMoneda GetHMById(long id);
     }
 }

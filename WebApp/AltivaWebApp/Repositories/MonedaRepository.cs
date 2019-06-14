@@ -48,6 +48,11 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+        public TbSeHistorialMoneda GetHMById(long id)
+        {
+            return context.TbSeHistorialMoneda.FirstOrDefault(h => h.Id == id);
+        }
+
         public IList<TbSeHistorialMoneda> GetAllHMPorMoneda(int codigo)
         {
             try
@@ -82,11 +87,62 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+        public TbSeHistorialMoneda CrearHistorialMonedaSingle(TbSeHistorialMoneda domain)
+        {
+            try
+            {
+                var historial = context.TbSeHistorialMoneda.Include(h => h.CodigoMonedaNavigation).FirstOrDefault(h => h.Fecha == domain.Fecha);
+                if(historial == null)
+                    context.TbSeHistorialMoneda.Add(domain);
+                else
+                {
+                    historial.ValorCompra = domain.ValorCompra;
+                    historial.ValorVenta = domain.ValorVenta;
+
+                    historial.CodigoMonedaNavigation.ValorCompra = domain.ValorCompra;
+                    historial.CodigoMonedaNavigation.ValorVenta = domain.ValorVenta;
+
+                }
+                context.SaveChanges();
+                return domain;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public IList<TbSeHistorialMoneda> CrearHistorialMoneda(IList<TbSeHistorialMoneda> historial)
         {
             try
             {
-                context.TbSeHistorialMoneda.AddRange(historial);
+                var date = DateTime.Now;
+                var hEuro = context.TbSeHistorialMoneda.FirstOrDefault(h => h.Fecha == date.Date && h.CodigoMoneda == 3);
+                var hDolar = context.TbSeHistorialMoneda.FirstOrDefault(h => h.Fecha == date.Date && h.CodigoMoneda == 2);
+
+                if (hEuro == null && hDolar == null)
+                    context.TbSeHistorialMoneda.AddRange(historial);
+                else if(hEuro != null && hDolar == null)
+                {
+                    context.TbSeHistorialMoneda.Add(historial.First());
+                    hEuro.ValorCompra = historial.Last().ValorCompra;
+                    hEuro.ValorVenta = historial.Last().ValorVenta;
+                }
+                else if(hEuro == null && hDolar != null)
+                {
+                    context.TbSeHistorialMoneda.Add(historial.Last());
+                    hDolar.ValorCompra = historial.First().ValorCompra;
+                    hDolar.ValorVenta = historial.First().ValorVenta;
+                }
+                else if(hEuro != null && hDolar != null)
+                {
+                    hEuro.ValorCompra = historial.Last().ValorCompra;
+                    hEuro.ValorVenta = historial.Last().ValorVenta;
+                    hDolar.ValorCompra = historial.First().ValorCompra;
+                    hDolar.ValorVenta = historial.First().ValorVenta;
+                }
+
                 context.SaveChanges();
                 return historial;
             }
@@ -104,7 +160,17 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
+                var date = DateTime.Now;
+
                 context.TbSeHistorialMoneda.Update(historial);
+                if(historial.Fecha == date.Date)
+                {
+                    var moneda = context.TbSeMoneda.FirstOrDefault(m => m.Codigo == historial.CodigoMoneda);
+                    moneda.ValorCompra = historial.ValorCompra;
+                    moneda.ValorVenta = historial.ValorVenta;
+                }
+                
+
                 context.SaveChanges();
 
                 return historial;

@@ -37,7 +37,8 @@ namespace AltivaWebApp.Repositories
         public TbSeUsuario GetUsuarioById(int id)
         {
 
-            return context.TbSeUsuario.Include(p => p.TbSePerfilUsuario).ThenInclude(pu => pu.IdPerfilNavigation).SingleOrDefault(u=>u.Id == id);
+            //return context.TbSeUsuario.Include(p => p.TbSePerfilUsuario).ThenInclude(pu => pu.IdPerfilNavigation).SingleOrDefault(u=>u.Id == id);
+            return context.TbSeUsuario.FirstOrDefault(u => u.Id == id);
             // return context.TbSeUsuario.
         }
 

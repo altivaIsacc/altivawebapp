@@ -8,88 +8,123 @@
     }
 }
 
-<div class="row">
-    <div class="col-md12">
-        <div class="col-md-3">
+@{ 
+    var date = DateTime.Now;
+}
 
-            <label class="control-label">
-                <input type="checkbox" id="habilitaFiltroFecha"> @Lb["FiltroFecha"]
-            </label>
-            <form id="frmFecha" class="form-horizontal">
-                <fieldset>
-                    <div class="control-group">
-                        <div class="controls">
-                            <div class="input-prepend input-group">
-                                <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
-                                <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="24/04/2019 - 24/04/2019" />
-                            </div>
+<div class="row">
+
+    <div class="col-md-8 col-sm-8 col-xs-12">
+        <h3>@Lb["Histótrico"]</h3>
+        <hr />
+    </div>
+    
+
+</div>
+
+<div class="row">
+
+    <div class="col-md-2 col-sm-6 col-xs-12">
+        <div class="form-group" style="padding-top:0.4rem">
+            <label class="control-label">@Lb["Moneda"]:</label>
+            <select class="form-control monedas" id="selectMoneda"></select>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-12 col-xs-12">
+        <label class="control-label">
+            <input type="checkbox" id="habilitaFiltroFecha"> @Lb["FiltroFecha"]
+        </label>
+        <form id="frmFecha" class="form-horizontal">
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="input-prepend input-group">
+                            <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                            <input disabled type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="@date.Date - @date.Date" />
                         </div>
                     </div>
+                </div>
 
-                </fieldset>
-            </form>
+            </fieldset>
+        </form>
+    </div>
 
-        </div>
+    <div class="col-md-2 col-sm-12 col-xs-12" style="padding-top:2.5rem">
+        <a onclick="modalCrear()" class="btn btn-primary"><span>@Lb["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
     </div>
 </div>
 
-<table class="table" id="tblHistorial">
-    <thead>
-        <tr>
-            <th>
-                @Lb["Fecha"]
-            </th>
-            <th>
-                @Lb["Venta"]
-            </th>
-            <th>
-                @Lb["Compra"]
-            </th>
-            <th>
-                @Lb["Acción"]
-            </th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
+<div class="table-responsive">
+    <table class="table table-bordered" style="min-width: 330px; max-width: 660px" id="tblHistorial">
+        <thead>
+            <tr>
+                <th style="width:35%">
+                    @Lb["Fecha"]
+                </th>
+                <th style="width:25%">
+                    @Lb["Venta"]
+                </th>
+                <th style="width:25%">
+                    @Lb["Compra"]
+                </th>
+                <th style="width:15%">
+                    @Lb["Acción"]
+                </th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
 
 <div class="modal fade" id="historialModal" tabindex="-1" role="dialog" aria-labelledby="historialModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="historialModalLabel">Modal title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="modal-title" id="historialModalLabel"><span id="titulo1"></span><span>@Lb["Histórico"]</span></h5>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="modal-body">
                 <form>
-                    <div class="form-group col-md-2 col-sm-6 col-xs-12">
-                        <fieldset disabled>
-                            <div class="form-group">
-                                <label for="fecha">@Lb["Fecha"]:</label>
-                                <div class='input-group date' id='fechaPicker'>
-                                    <input type='text' class="form-control" id="fecha" />
-                                    <span class="input-group-addon">
-                                        <span class="fas fa-calendar"></span>
-                                    </span>
+                    <div class="row">
+                        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+                            <fieldset disabled>
+                                <div class="form-group">
+                                    <label for="fecha">@Lb["Fecha"]:</label>
+                                    <div class='input-group date' id='fechaPicker'>
+                                        <input type='text' class="form-control" id="fecha" />
+                                        <span class="input-group-addon">
+                                            <span class="fas fa-calendar"></span>
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        </fieldset>
-                    </div>
-                    <div class="form-group col-md-2 col-sm-6 col-xs-12">
-                        <label for="compra">@Lb["Compra"]</label>
-                        <input class="form-control numerico" id="compra" />
-                    </div>
-                    <div class="form-group col-md-2 col-sm-6 col-xs-12">
-                        <label for="compra">@Lb["Venta"]</label>
-                        <input class="form-control numerico" id="compra" />
+                            </fieldset>
+                        </div>
+                        <div hidden><input readonly id="idHistorico" /> </div>
+                        <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                            <label for="compra">@Lb["Compra"]:</label>
+                            <input class="form-control numerico" id="compra" />
+                            <span hidden id="compraValid" class="text-danger">@Lb["compraValid"]</span>
+                        </div>
+                        <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                            <label for="venta">@Lb["Venta"]:</label>
+                            <input class="form-control numerico" id="venta" />
+                            <span hidden id="ventaValid" class="text-danger">@Lb["ventaValid"]</span>
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" onclick="validarCampos()" class="btn btn-success">@Lb["Guardar"] <i class="fas fa-save"></i></button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">@Lb["Cancelar"]</button>
             </div>
         </div>
     </div>
@@ -97,25 +132,134 @@
 
 <script type="text/javascript">
     var historial = [];
+
+    ///form historial
+    var $compra = $('#compra');
+    var $venta = $('#venta');
+    var $fecha = $('#fecha');
+    var $idHistorico = $('#idHistorico');
+    var $moneda = $('.monedas');
+
+    ///editar 1 -- crear 0
+    var opt = 0;
+
+    var hasta;
+    var desde;
+
     $(document).ready(function () {
 
-        getHistorial();
+        getHistorial(@ViewBag.cod);
+        getMonedas();
         $(".numerico").inputmask({
             'alias': 'decimal',
             rightAlign: true,
         });
 
+        $('#fechaPicker').datetimepicker({
+            //defaultDate: new Date,
+            locale: localStorage.getItem("idioma"),
+            format: "@Lb["DD/MM/YYYY"]",
+            maxDate: new Date()
+        });
+
+        //$('#filtroFecha').attr('disabled', true);
+
+        $('#filtroFecha').daterangepicker({
+            opens: 'left',
+            "locale": {
+                format: "@Lb["formatoFecha"]",
+                "separator": " - ",
+                "applyLabel": "@Lb["Aplicar"]",
+                "cancelLabel": "@Lb["Cancelar"]",
+                "fromLabel": "@Lb["DE"]",
+                "toLabel": "@Lb["Hasta"]",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "@Lb["Dom"]",
+                    "@Lb["Lun"]",
+                    "@Lb["Mar"]",
+                    "@Lb["Mie"]",
+                    "@Lb["Jue"]",
+                    "@Lb["Vie"]",
+                    "@Lb["Sáb"]"
+                ],
+                "monthNames": [
+                    "@Lb["Enero"]",
+                    "@Lb["Febrero"]",
+                    "@Lb["Marzo"]",
+                    "@Lb["Abril"]",
+                    "@Lb["Mayo"]",
+                    "@Lb["Junio"]",
+                    "@Lb["Julio"]",
+                    "@Lb["Agosto"]",
+                    "@Lb["Septiembre"]",
+                    "@Lb["Octubre"]",
+                    "@Lb["Noviembre"]",
+                    "@Lb["Diciembre"]"
+                ],
+                "firstDay": 1
+            }
+        },
+        function (start, end, label) {
+
+            desde = start.format('YYYY-MM-DD');
+            hasta = end.format('YYYY-MM-DD');
+            filtroFecha(historial, desde, hasta);
+
+        });   
+
+
+        
+
     });
 
-    function getHistorial() {
+    $('#selectMoneda').on('change', function () {
 
+        getHistorial($(this).val());
+        history.pushState(null, "", $(this).val());
+        if ($('#habilitaFiltroFecha').prop('checked'))
+            $('#habilitaFiltroFecha').trigger('click');
+    });
+
+    function getMonedas() {
+
+            $.ajax({
+                type: "get",
+                headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                dataType: "json",
+                url: '@Url.Action("GetMonedas", "Monedas")',
+                success: function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        var o = new Option(data[i].nombre, data[i].codigo);
+                        if (@ViewBag.cod === data[i].codigo)
+                            $(o).attr('selected', true);
+                        if (data[i].codigo != 1)
+                            $(".monedas").append(o);
+                    }
+                    
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@Lb["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+
+    }    
+
+    function getHistorial(codigo) {
+
+        
          $.ajax({
-            type: "get",
+            type: "post",
             headers: {
                             "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
             },
             dataType: "json",
-            url: '@Url.Action("GetHistorialMoneda", "Monedas")',
+             url: '@Url.Action("GetHistorialMoneda", "Monedas")',
+             data: { cod: codigo },
              success: function (data) {
                  historial = data;
                  cargarDatos(data);
@@ -136,22 +280,202 @@
         var contadorFila = 0;
         var colorFila = "";
         for (var i = 0; i < data.length; i++) {
-
-           
-
             var body = '<tr class="fila' + contadorFila + ' filas" >'
-                + '<td><p style="padding-top:1rem;">' + data[i].fecha + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].valorCompra + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].valorVenta + '</p></td>'
-                + '<td>  <button value="' + data[i].id + '" onclick="editarRequisicion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+                + '<td><p style="padding-top:1rem;">' + recuperarFecha(data[i].fecha) + '</p></td>'
+                + '<td style="text-align: right"><p style="padding-top:1rem;">' + data[i].valorCompra + '</p></td>'
+                + '<td style="text-align: right"><p style="padding-top:1rem;">' + data[i].valorVenta + '</p></td>'
+                + '<td>  <button value="' + data[i].id + '" onclick="modalEditar(' + contadorFila + ')" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
             $('#tblHistorial > tbody').append(body);
             contadorFila++;
 
         }
 
-
-
         //inicializarTabla();
+
+    }
+
+    function modalEditar(key) {
+        $('#compraValid').prop('hidden', true);
+        $('#ventaValid').prop('hidden', true);
+        $('#fechaPicker').datetimepicker('hide');
+
+        var date = new Date(historial[key].fecha);
+
+        $compra.val(historial[key].valorCompra);
+        $venta.val(historial[key].valorVenta);
+        $fecha.val(date.toLocaleDateString());
+        $fecha.prop('disabled', true);
+        $idHistorico.val(key);
+
+        $('#titulo1').text('@Lb["Editar"] ');
+
+        opt = 1;
+
+        $('#historialModal').modal('show');
+
+       
+
+    }
+
+    function modalCrear() {
+        $('#compraValid').prop('hidden', true);
+        $('#ventaValid').prop('hidden', true);
+        $('#fechaPicker').datetimepicker('hide');
+
+        var date = new Date;
+
+        $compra.val(0);
+        $venta.val(0);
+        $fecha.val(date.toLocaleDateString());
+        $fecha.attr('disabled', false);
+
+        $idHistorico.val(0);
+
+        $('#titulo1').text('@Lb["Nuevo"] ');
+
+        opt = 0;
+
+        $('#historialModal').modal('show');
+    }
+
+    function validarCampos() {
+
+        var flag = true;
+
+        if ($compra.val().replace(/ /g, "") === "") {
+            flag = false;
+            $('#compraValid').prop('hidden', false);
+        }
+        if ($venta.val().replace(/ /g, "") === "") {
+            flag = false;
+            $('#ventaValid').prop('hidden', false);
+        }
+
+        if (flag)
+            guardarCambios();
+
+
+
+    }
+
+    function guardarCambios() {
+
+        var key = $idHistorico.val();
+
+        if (opt == 0) {
+
+            var model = {
+                id: 0,
+                valorCompra: $compra.val().replace(".", ","),
+                valorVenta: $venta.val().replace(".", ","),
+                idUsuario: 0,
+                codigoMoneda: $moneda.val(),
+                fecha: $fecha.val()
+
+            };
+
+
+            $.ajax({
+                type: "POST",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                dataType: "json",
+                url: '@Url.Action("CrearHistorialMoneda")',
+                data: { viewModel: model },
+                success: function (data) {
+                    $('#historialModal').modal('hide');
+                    model.id = data.id;
+                    model.idUsuario = data.idUsuario;
+
+                    historial.push(model);
+
+                    cargarAlert('@Lb["actualizadoCorrectamente"]');
+                    cargarDatos(historial);
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@Lb["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+        }
+        else {
+
+            historial[key].valorCompra = $compra.val().replace(".", ",");
+            historial[key].valorVenta = $venta.val().replace(".", ",");
+
+            $.ajax({
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("EditarHistorialMoneda")',
+            data: { viewModel: historial[key] },
+            success: function (data) {
+                $('#historialModal').modal('hide');
+                cargarAlert('@Lb["actualizadoCorrectamente"]');
+                cargarDatos(historial);
+            },
+            error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+            }
+        });
+        }
+
+        
+    }
+
+
+    $('#habilitaFiltroFecha').change(function () {
+
+        if (!$(this).prop('checked')) {
+            filtroFecha(historial, desde, hasta);
+            $('#filtroFecha').attr('disabled', true);
+        }
+
+        else {
+            $('#filtroFecha').attr('disabled', false);
+            filtroFecha(historial, desde, hasta);
+        }
+
+    });
+
+    function filtroFecha(array, _desde, _hasta) {
+
+        
+
+        var arrayH = [];
+
+        if ($('#habilitaFiltroFecha').prop('checked')) {
+
+            var desdeLocal = new Date(_desde).getTime();
+            var hastaLocal = new Date(_hasta).getTime();
+
+            for (var i = 0; i < array.length; i++) {
+
+                var documento = new Date(array[i].fecha).getTime();
+
+                if (documento >= desdeLocal && documento <= hastaLocal)
+                    arrayH.push(array[i]);
+
+            }
+
+            console.log(arrayH);
+            cargarDatos(arrayH);
+        }
+        else
+            cargarDatos(array);
+
+
+    }
+
+    function recuperarFecha(_fecha) {
+
+        var f = new Date(_fecha);
+
+        return f.toLocaleDateString();
 
     }
 

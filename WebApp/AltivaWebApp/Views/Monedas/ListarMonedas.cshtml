@@ -12,8 +12,8 @@
     ViewData["Title"] = "ListarMonedas";
 }
 
-<h3>@Lb["Monedas"]</h3>
-
+<h3>@Lb["Moneda"]</h3>
+<hr />
 <div class="table-responsive">
 
         <table id="tblMoneda" class="table table-bordered" style="min-width: 400px; max-width: 800px">
@@ -32,7 +32,7 @@
                         @Lb["Venta"]
                     </th>
                     <th style="width:16%">
-                        @Lb["Accion"]
+                        @Lb["Acción"]
                     </th>
                 </tr>
             </thead>
@@ -55,10 +55,17 @@
 
         getMonedas();
 
+       
+
     });
 
 
     function guardarCambios() {
+
+        for (var i = 0; i < monedas.length; i++) {
+            monedas[i].valorCompra = monedas[i].valorCompra.toString().replace(".", ",");
+            monedas[i].valorVenta = monedas[i].valorVenta.toString().replace(".", ",");
+        }
 
         if(validarCampos())
         $.ajax({
@@ -133,7 +140,7 @@
             if (i === 0)
                 readOnly = "readonly"
             else {
-                historial = '<button value="' + data[i].codigo + '" onclick="hitorialMoneda(value)" class="btn btn-link btnEditar"><i class="fas fa-history"></i></button>';
+                historial = '<button value="' + data[i].codigo + '" onclick="historialMoneda(value)" class="btn btn-link btnEditar"><i class="fas fa-history"></i></button>';
                 readOnly = "";
             }
                 
@@ -194,7 +201,7 @@
     }
 
     function historialMoneda(codigoMoneda) {
-        window.location.href = '@Url.Action("HistorialMoneda")';
+        window.location.href = '@Url.Action("HistorialMoneda", new { cod = "__cod__" })'.replace("__cod__", codigoMoneda);
     }
 
 </script>
