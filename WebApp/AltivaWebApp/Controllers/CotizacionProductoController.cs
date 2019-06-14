@@ -125,7 +125,7 @@ namespace AltivaWebApp.Controllers
                         if (viewModel.IdCotizacion != 0 && viewModel.CotizacionDetalle.Count() > 0)
                         {
                             var cd = _Map.CreateCD(viewModel);
-                            idCD = cd.IdCotizacion;
+                            idCD = cd.IdCotizacionDetalle;
                         }
 
                         return Json(new { success = true, idCD = idCD });
@@ -184,7 +184,7 @@ namespace AltivaWebApp.Controllers
 
         [HttpPost("Eliminar-CotizacionDetalle")]
         public ActionResult EliminarCotizacionDetalle(int idCD)
-        {
+         {
             try
             {
                 var cd = _Service.GetCotizacionDetalleById(idCD);
