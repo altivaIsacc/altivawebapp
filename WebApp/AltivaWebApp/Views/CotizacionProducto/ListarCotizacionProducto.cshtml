@@ -31,7 +31,7 @@
 
 <div class="row collapse" id="collapseFiltros">
     <div class="col-md-2" style="margin-top: 0.2rem">
-        <label>@SharedLocalizer["BuscarPorId"]:</label>
+        <label class="numerico">@SharedLocalizer["BuscarPorId"]:</label>
         <input type="text" id="filtroId" class="form-control" />
     </div>
     <div class="col-md-2" style="margin-top: 0.2rem">
@@ -110,6 +110,9 @@
     </div>
 
 </div>
+
+<input readonly hidden id="monedaFormater" />
+
 <script>
     var Cotizaciones = [];
     var CotizacionFiltro = [];
@@ -118,6 +121,7 @@
     var tblCotizacion;
     var hasta;
     var desde;
+    var monedas = [];
 
 
     $(document).ready(function () {
@@ -176,7 +180,6 @@
 
     });
 
-
     function getCotizacion() {
             ///get ajustes
         $.ajax({
@@ -188,7 +191,11 @@
             url: '@Url.Action("GetCotizacion", "CotizacionProducto")',
             success: function (data) {
                 Cotizaciones = JSON.parse(JSON.stringify(data));
-                cargarDatos(data);
+
+
+                    cargarDatos(data);  
+                
+               
             },
             error: function (err, scnd) {
                 cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -250,46 +257,108 @@
     }
 
     function cargarDatos(data) {
-
         var contadorFila = 0;
         $("#tblCotizacion > tbody").remove();
         $('#tblCotizacion').append('<tbody></tbody>');
 
-
-
+        console.log(data);
         for (var i = 0; i < data.length; i++) {
+            var body;
+            switch (parseInt( data[i].idMoneda)) {
 
-
-            var body = '<tr class="fila' + contadorFila + ' filas">'
-                + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCotizacion + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCotizacion) + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].idClienteNavigation.nombre + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].estado + '</p></td>'
-                + '<td><p style="padding-top:1rem">' +darFormato( data[i].idMoneda) + '</p></td>'
-                + '<td><p style="padding-top:1rem">' +GetUsuarioxId(data[i].idVendedor)+ '</p></td>'
-                + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
-                + '<td style="display:none;"><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
-                + '<td><p style="padding-top:1rem">' +recuperarFecha( data[i].fechaVencimiento) + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].totalBase + '</p></td>'
-                + '<td>  <button value="' + data[i].idCotizacion + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+                case 1:
+                    body = '<tr class="fila' + contadorFila + ' filas">'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCotizacion + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCotizacion) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + data[i].idClienteNavigation.nombre + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + data[i].estado + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + darFormato1(data[i].idMoneda) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + GetUsuarioxId(data[i].idVendedor) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
+                        + '<td style="display:none;"><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaVencimiento) + '</p></td>'
+                        + '<td><p style="padding-top:1rem" >' +formatoMoneda(1, data[i].totalBase) + '</p></td>'
+                        + '<td>  <button value="' + data[i].idCotizacion + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+                    break;
+                case 2:
+                    body = '<tr class="fila' + contadorFila + ' filas">'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCotizacion + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCotizacion) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + data[i].idClienteNavigation.nombre + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + data[i].estado + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + darFormato1(data[i].idMoneda) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + GetUsuarioxId(data[i].idVendedor) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
+                        + '<td style="display:none;"><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaVencimiento) + '</p></td>'
+                        + '<td><p style="padding-top:1rem" >' +formatoMoneda(2, data[i].totalDolar) + '</p></td>'
+                        + '<td>  <button value="' + data[i].idCotizacion + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+                    break;
+                case 3:
+                    body = '<tr class="fila' + contadorFila + ' filas">'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCotizacion + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCotizacion) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + data[i].idClienteNavigation.nombre + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + data[i].estado + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + darFormato1(data[i].idMoneda) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + GetUsuarioxId(data[i].idVendedor) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
+                        + '<td style="display:none;"><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaVencimiento) + '</p></td>'
+                        + '<td><p style="padding-top:1rem" >' +formatoMoneda(3,data[i].totalEuro) + '</p></td>'
+                        + '<td>  <button value="' + data[i].idCotizacion + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+                    break;
+            }
             $('#tblCotizacion > tbody').append(body);
             contadorFila++;
-        }
-
-
-
+    }
+      
         inicializarTabla();
 
+    }
+    function formatoMoneda(moneda, value) {
+
+        $('#monedaFormater').addClass(darFormato(moneda));
+
+        //inicializa formato
+        $(".colon").inputmask('currency', {
+            prefix: monedas[0].simbolo,
+            rightAlign: true
+        });
+        $(".dolar").inputmask('currency', {
+            prefix: monedas[1].simbolo,
+            rightAlign: true
+        });
+        $(".euro").inputmask('currency', {
+            prefix: monedas[2].simbolo,
+            rightAlign: true
+        });
+
+        $('#monedaFormater').val(value);
+
+        return $('#monedaFormater').val();
     }
 
     function darFormato(idMoneda) {
 
         if (idMoneda === 1)
-            return monedas[0].nombre;
+            return "colon";
         else if (idMoneda === 2)
-            return monedas[1].nombre;
+            return "dolar"
         else if (idMoneda === 3)
-            return monedas[2].nombre;
+            return "euro"
+
+    }
+
+    function darFormato1(idMoneda) {
+
+        if (idMoneda === 1)
+            return monedas[0].simbolo;
+        else if (idMoneda === 2)
+            return monedas[1].simbolo;
+        else if (idMoneda === 3)
+            return monedas[2].simbolo;
+
     }
 
     function inicializarTabla() {
@@ -373,7 +442,7 @@
         //var date = new Date();
         //console.log(fecha);
 
-        return d + "-" + m + "-" + y + " " + _fecha.substr(-8, 8);///new Date(fecha).toLocaleDateString(); //fecha.replace(/-/g, "/");
+        return d + "-" + m + "-" + y ;///new Date(fecha).toLocaleDateString(); //fecha.replace(/-/g, "/");
 
     }
 
