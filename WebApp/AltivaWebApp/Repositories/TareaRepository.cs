@@ -63,5 +63,16 @@ namespace AltivaWebApp.Repositories
             context.SaveChanges();
             return query;
         }
+
+        public bool ExisteTipo()
+        {
+            return context.TbFdTareaTipo.Any();
+        }
+
+        public bool ExisteEstado()
+        {
+            return context.TbFdTareaEstado.Any();
+        }
+
     }
 }

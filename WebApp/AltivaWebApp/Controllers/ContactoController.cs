@@ -415,7 +415,6 @@ namespace AltivaWebApp.Controllers
         public IActionResult Editar(IList<CamposViewModel> model1, ContactoViewModel model2)
 
         {
-
             try
             {
 
@@ -424,44 +423,36 @@ namespace AltivaWebApp.Controllers
                 correo = this.contactoService.GetByEmailContacto(model2.Correo);
                 if (correo != null)
                 {
-                    if (correo.IdContacto == model2.Id)
-                    {
-
-                    }
-                    else
+                    if (correo.IdContacto != model2.Id)
                     {
                         return Json(new { correo = "correo" });
                     }
+                   
                 }
-                if (model2.TipoCedula == "CedulaFisica")
+                if (model2.TipoCedula == "1")
                 {
 
                     cedula = this.contactoService.GetByCedulaContacto(model2.Cedula);
 
                 }
-                else if (model2.TipoCedula == "CedulaJuridica")
+                else if (model2.TipoCedula == "2")
                 {
                     cedula = this.contactoService.GetByCedulaContacto(model2.juridica);
                 }
-                else if (model2.dimex == "Dimex")
+                else if (model2.TipoCedula == "3")
 
                 {
                     cedula = this.contactoService.GetByCedulaContacto(model2.dimex);
 
                 }
-                else if (model2.nite == "NITE")
+                else if (model2.TipoCedula == "4")
                 {
                     cedula = this.contactoService.GetByCedulaContacto(model2.nite);
-
                 }
 
                 if (cedula != null)
                 {
-                    if (cedula.IdContacto == model2.Id)
-                    {
-
-                    }
-                    else
+                    if (cedula.IdContacto != model2.Id)
                     {
                         return Json(new { cedula = "cedula" });
                     }
@@ -472,7 +463,6 @@ namespace AltivaWebApp.Controllers
                 if (contacto != null)
                 {
                     this.contactoCamposMap.Update(model1, contacto.IdContacto);
-
                 }
                 return Json(new { id = contacto.IdContacto, correo = "libre", cedula = "Libre" });
             }

@@ -244,9 +244,8 @@ namespace AltivaWebApp.Controllers
         [HttpGet("QuitarFiltro/{idConf}")]
         public IActionResult QuitarFiltro(int idConf)
         {
-            TbFdConfiguracionFiltros tareas = new TbFdConfiguracionFiltros();
-            tareas = this.IConfigService.GetFiltro();
-            this.IConfigService.Delete(tareas);
+            var tareas = this.IConfigService.GetFiltro();
+            IConfigService.Delete(tareas);
             return Ok(true);
         }
         [HttpGet("EliminarTarea/{idContacto}")]
@@ -308,9 +307,9 @@ namespace AltivaWebApp.Controllers
         public IActionResult ExisteConfigurarion()
         {
             ///crear consulta
-            var estados = false;
-            var tipos = false;
-            return Json(new { estado = estados, tipos = tipos });
+            var estados = TareaServiceInterface.ExisteEstado();
+            var tipos = TareaServiceInterface.ExisteTipo();
+            return Json(new { estados = estados, tipos = tipos });
         }
     }
 }

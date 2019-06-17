@@ -159,19 +159,19 @@ namespace AltivaWebApp.Mappers
             {
                 domain.Empresa = true;
             }
-            if (domain.Cedula != null)
+            if (domain.TipoCedula == "1")
             {
                 cedula = domain.Cedula;
             }
-            else if (domain.juridica != null)
+            else if (domain.TipoCedula == "2")
             {
                 cedula = domain.juridica;
             }
-            else if (domain.dimex != null)
+            else if (domain.TipoCedula == "3")
             {
                 cedula = domain.dimex;
             }
-            else if (domain.nite != null)
+            else if (domain.TipoCedula == "4")
             {
                 cedula = domain.nite;
             }

@@ -7,6 +7,8 @@
     }
 }
 
+@inject IStringLocalizer<SharedResources> Lb;
+
 <style>
     .color {
         color: #fff;
@@ -64,33 +66,26 @@
 
     <div id="divVerMas" class="collapse collapseCamposTareas">
         <div class="row ">
-  
-                <div class="form-group col-md-4 col-sm-10 col-xs-9">
-                    <label class=" col-form-label">Tipo:</label>
-                    <select class=" form-control" id="tipos"></select>
-                </div>
-                <div class=" form-group col-md-2 col-sm-2 col-xs-3" style="margin-top:25px;">
-                    <button class="btn-link" onclick="crearTipos()"><i class="fas fa-plus-circle dark" style="font-size:1.5rem;"></i></button>
-                    <button class=" btn-link" onclick="EditarTipo()"> <i class="fas fa-edit dark" style="font-size:1.5rem;"></i></button>
-                </div>
 
-                <div class="form-group col-md-4 col-sm-10 col-xs-9">
-                    <label class=" col-form-label">Estado:</label>
-                    <select class=" form-control" id="estados">
-                        <option>Seleccione</option>
-                    </select>
-
-                </div>
-                <div class="form-group col-md-2 col-sm-2 col-xs-3" style="margin-top:25px;">
-
-                    <button class=" btn-link" onclick="CrearEstado()"><i class="fas fa-plus-circle dark" style="font-size:1.5rem;"></i></button>
-                    <button class="btn-link" onclick="EditarEstadoTarea()"> <i class="fas fa-edit dark" style="font-size:1.5rem;"></i></button>
-                </div>
-     
+            <div class="form-group col-md-9 col-sm-9 col-xs-10">
+                <label class=" col-form-label">Tipo:</label>
+                <select class=" form-control" id="tipos"></select>
+            </div>
+            <div class=" form-group col-md-3 col-sm-3 col-xs-2" style="padding-top:3rem;">
+                <button class="btn-link" onclick="crearTipos()"><i class="fas fa-plus-circle dark" style="font-size:1.5rem;"></i></button>
+                <button class=" btn-link" onclick="EditarTipo()"> <i class="fas fa-edit dark" style="font-size:1.5rem;"></i></button>
+            </div>
+            <div class="form-group col-md-9 col-sm-9 col-xs-10">
+                <label class=" col-form-label">Estado:</label>
+                <select class=" form-control" id="estados">
+                    <option>Seleccione</option>
+                </select>
+            </div>
+            <div class="form-group col-md-3 col-sm-3 col-xs-2" style="padding-top:3rem;">
+                <button class=" btn-link" onclick="CrearEstado()"><i class="fas fa-plus-circle dark" style="font-size:1.5rem;"></i></button>
+                <button class="btn-link" onclick="EditarEstadoTarea()"> <i class="fas fa-edit dark" style="font-size:1.5rem;"></i></button>
+            </div>
         </div>
-
-
-
 
         <div class=" row">
 
@@ -102,6 +97,7 @@
                 <label class="col-form-label">Días reales:</label><br />
                 <input type="text" class="form-control" placeholder="0" id="diasReales" asp-for="DiasReales" disabled="disabled" />
             </div>
+
         </div>
 
         <div class=" row">
@@ -153,7 +149,7 @@
     {
         <div class="row col-md-8">
             <div class="col-md-4">
-                <button type="submit" id="btnGuardarTarea" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+                <button disabled type="submit" id="btnGuardarTarea" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
 
             </div><div class="col-md-4">
 
@@ -174,11 +170,10 @@
         <br />
         <div class="row col-md-9">
             <div class="col-md-4">
-                <button type="button" id="btnEditarTarea" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
+                <button disabled type="button" id="btnEditarTarea" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
 
             </div>
             <div class="col-md-4">
-
                 <button type="button" onclick="btnCancelarTarea()" class="btn btn-default">Cancelar</button>
             </div>
         </div>
@@ -202,7 +197,7 @@
 
         <div class="modal-content">
             <div class="modal-header" id="head">
-                <h4 class="modal-title w-100" id="myModalLabel">Modal title</h4>
+                <h4 class="modal-title w-100" id="myModalLabel">@Lb["Tipo"]</h4>
                 <button type="button" class="close" id="btnCancelar">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -225,7 +220,7 @@
 
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title w-100" id="myModalLabel">Estado</h4>
+                <h4 class="modal-title w-100" id="myModalLabel">@Lb["Estado"]</h4>
                 <button type="button" class="close" id="btnCancelarEstados">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -240,6 +235,10 @@
 
 
 <script>
+
+
+    var tiposT = [];
+    var estadosT = [];
     function btnCancelarTarea() {
         var titulo = $('#titulo').val();
         var idContacto = $('#contacto').val();
@@ -358,10 +357,13 @@
     }
 
      $(document).ready(function () {
+         if (@Model.Id != 0) {
+             GetComentario("Tareas", @Model.Id);
+             GetSubTareas();
+         }
+         
 
-         GetComentario("Tareas", @Model.Id);
-
-         GetSubTareas();
+         existeConfiguracion();
 
     });
     //editar subtareas:
@@ -745,7 +747,7 @@
     });
     $(document).ready(function () {
 
-
+        
 
         $("#esCobrado").click(function () {
         //valida que si cobrado habilita el campo
@@ -760,6 +762,7 @@
         $('.selectpicker').selectpicker();
         getTipos();
         getEstados();
+        
     });
 
     //Mostrar div con la opcion ver mas
@@ -789,30 +792,96 @@
                 url: url,
                 success: function (data) {
 
-                    $("#estados option").remove();
-                    for (var i = 0; i < data.length; i++) {
-                        if (data[i].activo == true) {
-                            if (data[i].esDefecto == true) {
-                                var o = new Option(data[i].titulo, data[i].id);
-                                o.setAttribute("style", "background:" + data[i].color);
-                                o.setAttribute("class", "color");
-                                o.setAttribute("selected", "selected");
-                                $("#estados").append(o);
+                    var selected = "";
 
-                            } else {
-                                var o = new Option(data[i].titulo, data[i].id);
-                                o.setAttribute("style", "background:" + data[i].color);
-                                o.setAttribute("class", "color");
-                                $("#estados").append(o);
+                    var flag = false;
+
+                    if ($('#estados').has('option').length > 0) {
+                        flag = true;
+                        selected = $('#estados').val();
+                        $('#btnEditarTarea').attr('disabled', false);
+                        $('#btnGuardarTarea').attr('disabled', false);
+                    } else
+                        estadosT = data;
+
+
+                    $("#estados option").remove();
+                    $('#estados').selectpicker('destroy');
+
+                    for (var i = 0; i < data.length; i++) {
+
+                        if (data[i].activo == true) {
+
+                            var o = new Option(data[i].titulo, data[i].id);
+
+                            o.setAttribute("data-content", "<img class='img-circle' style='width:2rem; height: 2rem; background: " + data[i].color + " '>  <span>" + data[i].titulo + "</span>");
+
+                            if (@Model.Id === 0) {
+
+                                if (!flag) {
+
+                                    if (data[i].esTipoDefecto) 
+                                        o.setAttribute("selected", "selected");
+                                }
+                                else {
+
+                                    if (estadosT.length === data.length) {
+                                        console.log(selected);
+                                        console.log(data[i].id);
+                                        if (parseInt(selected) === data[i].id) {
+                                            $(o).attr("selected", true);
+                                        }
+
+                                    }
+                                    else {
+                                        var pos = data.length - 1;
+                                        if (i === pos) {
+                                            $(o).attr("selected", true);
+                                            estadosT = data;
+                                        }
+
+                                    }
+
+                                }
                             }
+                            else {
+                                if (!flag) {
+
+                                    if (data[i].id.toString() === "@Model.IdEstado") {
+                                        $(o).attr("selected", true);
+                                    }
+                                }
+                                else{
+
+                                    if (estadosT.length === data.length) {
+                                        
+                                        if (parseInt(selected) === data[i].id)
+                                            $(o).attr("selected", true);
+                                    }
+                                    else {
+                                        var pos = data.length - 1;
+                                        if (i === pos) {
+                                            $(o).attr("selected", true);
+                                            estadosT = data;
+                                        }
+
+                                    }
+                                }
+                            }
+
+                            $("#estados").append(o);
+
                         }
                     }
 
-                    $("#estados").trigger('change');
+                    $('#estados').selectpicker();
+
+                    
+
                 },
                 error: function (err, scnd) {
-                    console.log(err.statusText);
-                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                    //console.log(err.statusText);
+                    cargarAlert("@Lb["errorGeneral"]");
                 }
             });
     }
@@ -827,40 +896,106 @@
                 url: url,
                 success: function (data) {
                     tipoTareas = [];
+
+                    var selected = "";
+
+                    var flag = false;
+
+                    if ($('#tipos').has('option').length > 0) {
+                        flag = true;
+                        selected = $('#tipos').val();
+                        $('#btnEditarTarea').attr('disabled', false);
+                        $('#btnGuardarTarea').attr('disabled', false);
+                    } else
+                        tiposT = data;
+
+
                     $("#tipos option").remove();
+                    $('#tipos').selectpicker('destroy');
+
                     for (var i = 0; i < data.length; i++) {
 
                         if (data[i].activo == true) {
 
                             tipoTareas.push(JSON.parse(JSON.stringify(data[i].controlaFechaLimite)));
-                            if (data[i].esTipoDefecto == true) {
-                                var o = new Option(data[i].titulo, data[i].id);
-                                o.setAttribute("style", "background:" + data[i].color);
-                                o.setAttribute("class", "color");
-                                o.setAttribute("selected", "selected");
-                                $("#tipos").append(o);
-                                if (data[i].controlaFechaLimite == true) {
-                                    $('#fechaLimite').attr('disabled', true);
+
+                            var o = new Option(data[i].titulo, data[i].id);
+
+                            o.setAttribute("data-content", "<img class='img-circle' style='width:2rem; height: 2rem; background: " + data[i].color + " '>  <span>" + data[i].titulo + "</span>");
+
+                            if (@Model.Id === 0) {
+
+                                if (!flag) {
+
+                                    if (data[i].esTipoDefecto) {
+                                        o.setAttribute("selected", "selected");
+                                    }
                                 }
-                            } else {
-                                var o = new Option(data[i].titulo, data[i].id);
-                                o.setAttribute("style", "background:" + data[i].color);
-                                o.setAttribute("class", "color");
-                                if (data[i].controlaFechaLimite == true) {
-                                    $('#fechaLimite').attr('disabled', true);
+                                else if (flag) {
+
+                                    if (tiposT.length === data.length) {
+                                        console.log(selected);
+                                        console.log(data[i].id);
+                                        if (parseInt(selected) === data[i].id) {
+                                            $(o).attr("selected", true);
+                                        }
+
+                                    }
+                                    else {
+                                        var pos = data.length - 1;
+                                        if (i === pos) {
+                                            $(o).attr("selected", true);
+                                            tiposT = data;
+                                        }
+
+                                    }
+
                                 }
-                                $("#tipos").append(o);
                             }
+                            else {
+                                if (!flag) {
+
+                                    if (data[i].id.toString() === "@Model.IdTipo") {
+                                        o.setAttribute("selected", "selected");
+                                    }
+                                }
+                                else if (flag) {
+
+                                    if (tiposT.length === data.length) {
+
+                                        if (parseInt(selected) === data[i].id) {
+                                            $(o).attr("selected", true);
+                                        }
+
+                                    }
+                                    else {
+                                        var pos = data.length - 1;
+                                        if (i === pos) {
+                                            $(o).attr("selected", true);
+                                            tiposT = data;
+                                        }
+
+                                    }
+
+                                }
+                            }
+
+                            if (data[i].controlaFechaLimite) {
+                                $('#fechaLimite').attr('disabled', true);
+                            }
+
+
+                            $("#tipos").append(o);
+
                         }
                     }
-                    console.log(tipoTareas);
 
-    $("#tipos").trigger('change');
+                    $('#tipos').selectpicker();
 
                 },
                 error: function (err, scnd) {
-                    console.log(err.statusText);
-                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                    //console.log(err.statusText);
+                    cargarAlert("@Lb["errorGeneral"]");
                 }
             });
         }
@@ -882,7 +1017,8 @@
                     },
 
                     error: function (err, scnd) {
-                        console.log(err.statusText);
+                        //console.log(err.statusText);
+                        cargarAlert("@Lb["errorGeneral"]");
                     }
 
                 });
@@ -906,10 +1042,43 @@
                     },
 
                     error: function (err, scnd) {
-                        console.log(err.statusText);
+                        //console.log(err.statusText);
+                        cargarAlert("@Lb["errorGeneral"]");
                     }
 
                 });
+    }
+
+    function existeConfiguracion() {
+
+         $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+
+                url: '@Url.Action("ExisteConfigurarion", "Tarea")',
+             success: function (data) {
+
+                 if (!data.estados && !data.tipos) {
+                     cargarAlert("@Lb["NoEstadosNiTipos"]");
+                 }
+                 else if (data.estados && !data.tipos) {
+                     cargarAlert("@Lb["NoTipos"]");
+                 }
+                 else if (!data.estados && data.tipos) {
+                     cargarAlert("@Lb["NoEstados"]");
+                 }
+                 else if (data.estados && data.tipos) {
+                     $('#btnEditarTarea').attr('disabled', false); 
+                     $('#btnGuardarTarea').attr('disabled', false);
+                 }
+
+             },
+             error: function (err, scnd) {
+                console.log(err.statusText);
+             }
+         });
     }
 
     function ValidarDatos() {

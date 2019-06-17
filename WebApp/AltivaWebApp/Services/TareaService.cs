@@ -29,6 +29,16 @@ namespace AltivaWebApp.Services
             return this.TareaRepository.Update(eliminarTarea);
         }
 
+        public bool ExisteEstado()
+        {
+            return TareaRepository.ExisteEstado();
+        }
+
+        public bool ExisteTipo()
+        {
+            return TareaRepository.ExisteTipo();
+        }
+
         public IList<TbFdTarea> GetAll()
         {
             return this.TareaRepository.GetAll();

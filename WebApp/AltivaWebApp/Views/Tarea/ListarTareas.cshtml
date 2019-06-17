@@ -1,11 +1,12 @@
 ﻿@model AltivaWebApp.Domains.TbFdConfiguracionFiltros
+
+@inject IStringLocalizer<SharedResources> Lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
     {
         return Xsrf.GetAndStoreTokens(Context).RequestToken;
     }
-
 
 }
 
@@ -15,13 +16,13 @@
         background: red;
     }
 </style>
+
 <div class="row">
     <div class="col-md-2 col-sm-4 col-xs-12">
         <h3>Lista de tareas</h3>
     </div>
     <div class="col-md-2 col-sm-2 col-xs-12" style="margin-left:1rem; padding-top:0.7rem">
-
-        <button disabled class=" btn btn-primary " id="btnNuevaTarea"><span>Agregar <i class="fas fa-plus-circle "></i></span></button>
+        <button class=" btn btn-primary " id="btnNuevaTarea"><span>Agregar <i class="fas fa-plus-circle "></i></span></button>
     </div>
     <div class="col-md-2 col-sm-4 col-xs-12" style="margin-left:1rem; padding-top:0.7rem">
 
@@ -115,7 +116,7 @@
             </fieldset>
         </form>
     </div>
-    <div class="col-md-2">
+    <div class="col-md-12">
 
         <div id="fijarH">
             <label style="padding-top: 0.2rem">Fijar Filtros:</label>
@@ -124,7 +125,7 @@
     </div>
 </div>
 
-
+<hr />
 
 
 <table class="table TablaTareas" style="width:100%;" id="TablaTareas">
@@ -247,7 +248,7 @@
                 }
             });
         } else {
-                     var url1 = '@Url.Action("QuitarFiltro", "Tarea")';
+                     var url1 = '@Url.Action("QuitarFiltro", "Tarea", new { idConf = 0})';
             $.ajax({
                 type: "Get",
                 headers: {
@@ -255,18 +256,14 @@
                 },
 
                 url: url1,
-                data: { idConf: 0 },
-
-          success: function (data) {
-              $('#fijar').prop('checked', false);
-
-
-                  cargarTabla();
+                success: function (data) {
+                    $('#fijar').prop('checked', false);
+                    cargarTabla();
                 },
-                    error: function (err, scnd) {
-                        console.log(err.statusText);
+                error: function (err, scnd) {
+                    console.log(err.statusText);
                 }
-        });
+            });
         }
     });
 
@@ -340,10 +337,9 @@
 
                 var body = '<tr class="fila' + contadorFila + ' filas">'
                     + '<td><button class="btn btn-link dark" onclick="darPrioridad(' + data[i].id + ')">' + icono + '</button><button class="btn btn-link dark" onclick="quitarPrioridad(' + data[i].id + ')">' + icono2 + '</i></button></td>'
-                    + '<td ><div  style="background: ' + data[i].idTipoNavigation.color + '; color:white;">' + data[i].idTipoNavigation.titulo + '</div></td>'
-
                     + '<td>' + data[i].titulo + '</td>'
-                    + '<td ><div style="background:' + data[i].idEstadoNavigation.color + ';color:white;">' + data[i].idEstadoNavigation.titulo + '</div></td>'
+                    + '<td ><img style="width:2rem; height: 2rem; border-radius: 1rem; background: ' + data[i].idTipoNavigation.color + ';"><span>  ' + data[i].idTipoNavigation.titulo + '</span></td>'
+                    + '<td ><img style="width:2rem; height: 2rem; border-radius: 1rem; background: ' + data[i].idEstadoNavigation.color + ';"><span>' + data[i].idEstadoNavigation.titulo + '</span></td>'
                     + '<td>' + nombre + '</td>'
                     + '<td bgColor=' + color + '>' + recuperarFecha(data[i].fechaLimite) + '</td>'
                     + '<td hidden>' + data[i].idUsuario + ' </td>'
@@ -542,7 +538,6 @@
     function cargarFiltros() {
 
         TareasMostrar = JSON.parse(JSON.stringify(tareas));
-        console.log(TareasMostrar);
         TareasMostrar = filtroContacto(TareasMostrar);
         TareasMostrar = filtroEstado(TareasMostrar);
         TareasMostrar = filtroTipos(TareasMostrar);
@@ -710,7 +705,7 @@
     }
     $(document).ready(function () {
 
-        existeConfiguracion();
+        
 
         $('#filtroFecha').daterangepicker({
             opens: 'left',
@@ -761,43 +756,7 @@
     });
 
 
-    function existeConfiguracion() {
-
-
-         $.ajax({
-                type: "get",
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-
-                url: '@Url.Action("ExisteConfigurarion", "Tarea")',
-             success: function (data) {
-                 var flag = true;
-
-                 if (!data.estados && !data.tipos) {
-                     flag = false;
-                     cargarAlert("NoEstadosNiTipos");
-                 }
-                 else if (data.estados && !data.tipos) {
-                     flag = false;
-                     cargarAlert("NoTipos");
-                 }
-                 else if (!data.estados && data.tipos) {
-                     flag = false;
-                     cargarAlert("NoEstados");
-                 }
-                 else
-                     $('#btnNuevaTarea').prop('disabled', false);
-                 
-
-
-                },
-                error: function (err, scnd) {
-                    console.log(err.statusText);
-                }
-            });
-
-    }
+    
 
 
     //cargar tabla
@@ -876,3 +835,11 @@
 
     }
 </script>
+
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

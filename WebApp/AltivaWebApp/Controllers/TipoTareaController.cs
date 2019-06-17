@@ -72,6 +72,7 @@ namespace AltivaWebApp.Controllers
             TbFdTareaTipo tp = new TbFdTareaTipo();
             return PartialView("_CrearEditarTipos", tp);
         }
+
         [HttpPost("CrearTipo")]
         public JsonResult CrearTipo(TipoTareaViewModel domain)
         {
@@ -99,6 +100,7 @@ namespace AltivaWebApp.Controllers
             }
             return Json(new { titulo = false, color= false, defecto = false });
         }
+
         [HttpGet("EditarTipo")]
         public IActionResult EditarTipo(int idTipoTarea)
         {
