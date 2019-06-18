@@ -17,31 +17,10 @@ namespace AltivaWebApp.Mappers
             this.service = service;
         }
 
-        //public IList<TbFaDescuentoUsuario> SaveDescuentoUsuarioClave(IList<DescuentoUsuarioViewModel> viewModel)
-        //{
-        //     return service.Save(ViewModelToDomainDescuentoUsuario(viewModel));
-        //}
-
         public bool SaveDescuentoUsuario(IList<DescuentoUsuarioViewModel> model)
         {
             return service.Save((ViewModelToDomainDescuentoUsuario(model)));
         }
-
-        //public TbFaDescuentoUsuario ViewModelToDomainDescuentoUsuario(DescuentoUsuarioViewModel viewModel)
-        //{
-        //    return new TbFaDescuentoUsuario
-        //    {
-
-        //        IdDescuentoUsuario = viewModel.IdDescuentoUsuario,
-        //        IdRebajaConfig = viewModel.IdRebajaConfig,
-        //        IdUsuario = viewModel.IdUsuario,
-        //        MaxDescuento = viewModel.MaxDescuento,
-        //        FechaCreacion = DateTime.Now,
-        //        IdUsuarioCreador = viewModel.IdUsuarioCreador,
-        //        Nota = viewModel.Nota
-        //    };
-        //}
-
 
         public IList<TbFaDescuentoUsuario> ViewModelToDomainDescuentoUsuario(IList<DescuentoUsuarioViewModel> viewModel)
         {

@@ -117,6 +117,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFdNotasDebito> TbFdNotasDebito { get; set; }
         public virtual DbSet<TbFdOrigenReserva> TbFdOrigenReserva { get; set; }
         public virtual DbSet<TbFdPagoCliente> TbFdPagoCliente { get; set; }
+        public virtual DbSet<TbFaDescuentoProducto> TbFaDescuentoProducto { get; set; }
         public virtual DbSet<TbFaDescuentoUsuario> TbFaDescuentoUsuario { get; set; }
         public virtual DbSet<TbFaDescuentoUsuarioClave> TbFaDescuentoUsuarioClave { get; set; }
         public virtual DbSet<TbFaDescuentoUsuarioRango> TbFaDescuentoUsuarioRango { get; set; }
@@ -226,6 +227,20 @@ namespace AltivaWebApp.Context
 
                 entity.ToTable("Tb_FA_RebajaConfig");
             });
+
+            modelBuilder.Entity<TbFaDescuentoProducto>(entity =>
+            {
+                entity.HasKey(e => e.IdDescuentoProducto);
+
+                entity.ToTable("Tb_FA_DescuentoProducto");
+
+                entity.Property(e => e.Tipo)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('Tipo 1')");
+            });
+
 
             modelBuilder.Entity<TbFaDescuentoUsuarioRango>(entity =>
             {
