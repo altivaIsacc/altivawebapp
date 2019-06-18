@@ -108,6 +108,12 @@ namespace AltivaWebApp.Services
             return this.ContactoRepository.getById(id);
         }
 
+
+        public bool EliminarRelacion(int idRelacion)
+        {
+            return ContactoRepository.EliminarRelacion(idRelacion);
+        }
+
         public TbCrContacto GetByIdContacto(long id)
         {
             return this.ContactoRepository.GetByIdContacto(id);

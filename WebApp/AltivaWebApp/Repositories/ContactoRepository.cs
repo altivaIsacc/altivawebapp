@@ -236,6 +236,25 @@ namespace AltivaWebApp.Repositories
             return model;
         }
 
+           
+        public bool EliminarRelacion(int idRelacion)
+        {
+            try
+            {
+                var rel = context.TbCrContactoRelacion.FirstOrDefault(r => r.Id == idRelacion);
+
+                context.TbCrContactoRelacion.Remove(rel);
+                context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public IList<TbCeDistrito> GetDistrito(int idCanton, int idProvincia)
         {
             return context.TbCeDistrito.Where(u => u.IdCanton == idCanton && u.IdProvincia == idProvincia).ToList();

@@ -1,0 +1,69 @@
+﻿@model IList<AltivaWebApp.ViewModels.ContactoRelacionGETViewModel>
+@inject IStringLocalizer<SharedResources> Lb
+
+<div class="table-responsive">
+    <table class="table table-bordered">
+
+        <thead>
+            <tr>
+                <th hidden>idRelacion</th>
+                <th hidden>id</th>
+                <th class="col-md-2">@Lb["Nombre"]</th>
+                <th class="col-md-2">@Lb["Cédula"]</th>
+                <th class="col-md-2">@Lb["Nota"]</th>
+                <th class="col-md-1">@Lb["Acción"]</th>
+            </tr>
+        </thead>
+        <tbody id="tr">
+            @{
+                int x = 0;
+            }
+            @foreach (var cr in Model)
+            {
+                <tr>
+                    <td hidden>@cr.Id</td>
+                    <td hidden>@cr.IdContactoHijo</td>
+                    @if (cr.Nombre != null)
+                    {
+                        <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.Nombre</button></td>
+                    }
+                    else
+                    {
+                        <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.NombreComercial</button></td>
+                    }
+
+                    <td>@cr.Cedula</td>
+
+                    <td id="nota @x"><button class="btn btn-link" id="nota @x" onclick="EditarRelacionLista(@cr.Id,@x)">@cr.NotaRelacion</button><input hidden type="text" id="as_@x" value="@cr.NotaRelacion " /> </td>
+                    <td><button class="btn btn-link" onclick="eliminarRelacion(@cr.Id)"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                x++;
+            }
+        </tbody>
+    </table>
+</div>
+    <script>
+    function eliminarRelacion(idRelacion) {
+
+        bootbox.confirm("@Lb["confirmEliminar"]", function (result) {
+
+            if (result) {
+
+                $.ajax({
+                    type: "post",
+                    url: '@Url.Action("EliminarRelacionContacto", "Contacto")',
+                    data: { idRelacion: idRelacion },
+                    success: function (data) {
+                        getContactoRelaciones();
+                    },
+                    error: function (err, scnd) {
+                        cargarAlert("errorGeneral")
+                        console.log(err.statusText);
+                    }
+                });
+            }
+
+        });
+
+    }
+    </script>

@@ -399,65 +399,14 @@
         </div>
         <div id="menu1" class="container tab-pane fade ">
             <div class="btnSubContacto">
-
                 <button style="font-size:2rem;" type="button" class="btn btn-link" data-toggle="modal" data-target="#exampleModalCenter">
                     <i class="far fa-plus-square"></i>
                 </button>
             </div>
-            <div class="col-md-8" style="align-content:center;">
-                @if (contactoRelacion != null)
-                {
-                    <div class="row x_content">
-
-                        <table id="example" class="display table-bordered example" style="width:100%">
-
-                            <thead>
-                                <tr>
-                                    <th hidden>idRelacion</th>
-                                    <th hidden>id</th>
-                                    <th class="col-md-2">Nombre</th>
-                                    <th class="col-md-2">Nombre Comercial</th>
-                                    <th class="col-md-2">Cédula</th>
-                                    <th class="col-md-2">Nota de relación</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tr">
-                                @{
-                                    int x = 0;
-                                }
-                                @foreach (var cr in contactoRelacion)
-                                {
-                                    <tr>
-                                        <td hidden>@cr.Id</td>
-                                        <td hidden>@cr.IdContactoHijo</td>
-                                        @if (cr.Nombre != null)
-                                        {
-                                            <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.Nombre</button></td>
-                                        }
-                                        else
-                                        {
-                                            <td>---</td>
-                                        }
-                                        @if (cr.NombreComercial != null)
-                                        {
-                                            <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.NombreComercial</button></td>
-                                        }
-                                        else
-                                        {
-                                            <td>---</td>
-                                        }
-
-                                        <td>@cr.Cedula</td>
-
-                                        <td id="nota @x"><button class="btn btn-link" id="nota @x" onclick="EditarRelacionLista(@cr.Id,@x)">@cr.NotaRelacion</button><input hidden type="text" id="as_@x" value="@cr.NotaRelacion " /> </td>
-
-                                    </tr>
-                                    x++;
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
+            <div style="align-content:center;">
+                <div class="contactoRelaciones">
+                    @*<partial name="_RelacionContacto" model="contactoRelacion" />*@
+                </div>
             </div>
 
         </div>
@@ -495,11 +444,7 @@
                                 <option value="na">No Asignados</option>
                                 @foreach (var asignados in ViewData["Asignados"] as IList<TbSeUsuario>)
                                 {
-
-
                                     <option value="@asignados.Id">@asignados.Nombre</option>
-
-
                                 }
                             </select>
                         </div>
@@ -679,41 +624,34 @@
                 </button>
             </div>
             <div class="modal-body">
-
-
-
-
                 <div class="row">
-
-
-
                     <table id="example1" class="display table-bordered  " style="width:100%">
                         <thead>
                             <tr>
-                                <th>Accion</th>
-                                <th>Nombre</th>
-                                <th>Nombre Comercial</th>
-                                <th>Cedula</th>
-                                <th>Correo</th>
-
+                                <th>@Lb["Acción"]</th>
+                                <th>@Lb["Nombre"]</th>
+                                <th>@Lb["Cedula"]</th>
+                                <th>@Lb["Correo"]</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var items in contactos)
                             {
-
-                                <tr>
-                                    <td><button class="btn btn-link" id="agregarSubcontacto" onclick="Relacion(@Model.Id,@items.IdContacto);"><i style="font-size:1rem;" class="fas fa-plus"></i></button></td>
+                            <tr>
+                                <td><button class="btn btn-link" id="agregarSubcontacto" onclick="Relacion(@Model.Id,@items.IdContacto);"><i style="font-size:1rem;" class="fas fa-plus"></i></button></td>
+                                @if (items.Nombre != null)
+                                {
                                     <td>@items.Nombre</td>
+                                }
+                                else
+                                {
                                     <td> @items.NombreComercial</td>
-                                    <td>
-                                        @items.Cedula
-                                    </td>
-                                    <td>@items.Correo</td>
-
-
-                                </tr>
-
+                                }
+                                <td>
+                                    @items.Cedula
+                                </td>
+                                <td>@items.Correo</td>
+                            </tr>
                             }
                         </tbody>
                     </table>
@@ -1153,7 +1091,13 @@
 
     $(document).ready(function () {
 
-        GetComentario("Contacto", @Model.Id);
+        if (@Model.Id != 0) {
+            GetComentario("Contacto", @Model.Id);
+            getContactoRelaciones();
+        }
+        
+
+
     });
     $("#filtroByTitulo").on("keyup", function () {
         TablaTareas
@@ -1406,26 +1350,23 @@
                         nota: nota
         };
         console.log(ContactoRelacionEditar);
-         $.ajax({
+        $.ajax({
             headers: {
                 "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
             },
             type: "POST",
-
             url: '@Url.Action("EditarRelacion", "Contacto")',
-             data: { domain: ContactoRelacionEditar },
-
+            data: { domain: ContactoRelacionEditar },
             success: function (data) {
+                getContactoRelaciones();
+                $("#editarRelacion").modal('hide');
+            },
 
-                window.location.reload();
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
 
-                    },
-
-                    error: function (err, scnd) {
-                        console.log(err.statusText);
-                    }
-
-                });
+        });
     }
     $('#edit').on('click',function () {
 
@@ -1504,31 +1445,7 @@
         $("#Hijo").val(IdHijo);
 
     }
-    $("#example").DataTable({
-
-        "bLengthChange": false,
-        "bFilter": true,
-        "bInfo": false,
-        "bAutoWidth": false,
-        language: {
-            "decimal": "",
-            "emptyTable": "No hay información",
-            "infoPostFix": "",
-            "thousands": ",",
-
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-            "search": "<i class='fas fa-search '></i>",
-            "zeroRecords": "Sin resultados encontrados",
-            "paginate": {
-                "first": "Primero",
-                "last": "Ultimo",
-                "next": "Siguiente",
-                "previous": "Anterior"
-            }
-        }
-
-    });
+   
     $("#example1").DataTable({
         "bLengthChange": false,
         "bInfo": false,
@@ -1583,8 +1500,12 @@
 
               data: { domain: ContactoRelacion },
               success: function (data) {
-                  window.location.reload();
-                    },
+                  //getContactoRelaciones();
+                  //$('#myModal').modal('hide');
+
+                  window.location.href = window.location.href; 
+
+              },
 
                     error: function (err, scnd) {
                         console.log(err.statusText);
@@ -1594,6 +1515,26 @@
 
 
     });
+
+    function getContactoRelaciones() {
+
+                $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: '@Url.Action("_RelacionContacto", new { idContacto = Model.Id })',
+                    success: function (data) {
+                        $('.contactoRelaciones').html(data);
+                    },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+                });
+
+    }
+
+    
 
     //function validar
     function validarContactos() {

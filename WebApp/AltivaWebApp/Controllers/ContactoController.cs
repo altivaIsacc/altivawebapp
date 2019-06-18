@@ -89,6 +89,29 @@ namespace AltivaWebApp.Controllers
             }
 
         }
+
+        [HttpGet("RelacionContacto/{idContacto}")]
+        public IActionResult _RelacionContacto(int idContacto)
+        {
+            var contactos = contactoService.GetContactosRelacion(idContacto);
+            return PartialView("_RelacionContacto", contactos);
+        }
+
+        [HttpPost("EliminarRelacionContacto")]
+        public IActionResult EliminarRelacionContacto(int idRelacion)
+        {
+            try
+            {
+                contactoService.EliminarRelacion(idRelacion);
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
         //metodo para agregar condiciones de pago
         [HttpPost("AddCondicionesPago")]
         public IActionResult AddCondicionesPago(TbFdCondicionesDePago domain)
@@ -329,13 +352,13 @@ namespace AltivaWebApp.Controllers
                 {
                     cedula = this.contactoService.GetByCedulaContacto(model2.juridica);
                 }
-                else if (model2.dimex == "3")
+                else if (model2.TipoCedula == "3")
 
                 {
                     cedula = this.contactoService.GetByCedulaContacto(model2.dimex);
 
                 }
-                else if (model2.nite == "4")
+                else if (model2.TipoCedula == "4")
                 {
                     cedula = this.contactoService.GetByCedulaContacto(model2.nite);
 

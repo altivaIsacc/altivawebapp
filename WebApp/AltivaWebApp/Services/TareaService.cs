@@ -21,10 +21,10 @@ namespace AltivaWebApp.Services
             throw new NotImplementedException();
         }
 
-        public TbFdTarea EliminarTarea(int idContacto)
+        public TbFdTarea EliminarTarea(int idTarea)
         {
             TbFdTarea eliminarTarea = new TbFdTarea();
-            eliminarTarea = this.GetById(idContacto);
+            eliminarTarea = this.GetById(idTarea);
             eliminarTarea.Eliminada = true;
             return this.TareaRepository.Update(eliminarTarea);
         }

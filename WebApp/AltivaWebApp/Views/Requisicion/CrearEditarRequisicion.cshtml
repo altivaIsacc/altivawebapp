@@ -69,8 +69,8 @@ else
                     <span hidden id="departamentoValid" class="text-danger">@SharedLocalizer["departementoValid"]</span>
                 </div>
                 <div class="col-md-4">
-                    <a style="padding-top:2.5rem" href="#" class="btn btn-link" onclick="getCrearEditarPartial(0)"><span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span></a>
-                    <a style="padding-top:2.5rem" href="#" class="btn btn-link" onclick="getEditarPartial()"><span style="font-size: 2rem"><i class="fas fa-edit"></i></span></a>
+                    <a @estado style="padding-top:2.5rem" class="btn btn-link" onclick="getCrearEditarPartial(0)"><span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span></a>
+                    <a @estado style="padding-top:2.5rem" class="btn btn-link" onclick="getEditarPartial()"><span style="font-size: 2rem"><i class="fas fa-edit"></i></span></a>
                 </div>
             </div>
 
@@ -182,6 +182,7 @@ else
     var departamentos = [];
     var bodegas = [];
     var monedad = [];
+    var depaAnulado = false;
 
 
     $(document).ready(function () {
@@ -244,9 +245,22 @@ else
 
         $("#bodegas").change(function () {
 
+
             for (var i = 0; i < bodegas.length; i++) {
-                if (bodegas[i].id === parseInt($(this).val()))
+                if (bodegas[i].id === parseInt($(this).val()))                  
                     cargarItems(bodegas[i].tbPrInventarioBodega);
+            }
+        });
+
+        $("#departamento").on('change', function () {
+
+            if (!getDepaAnulado($(this).val())) {
+                depaAnulado = false;
+                $("#departamentoValid").attr("hidden", true);
+            }
+            else {
+                $("#departamentoValid").attr("hidden", false);
+                depaAnulado = true;
             }
 
         });
@@ -271,8 +285,11 @@ else
 
 
     function getEditarPartial() {
-        getCrearEditarPartial($departamento.val());
+        if("@Model.Anulado" !== "True")
+            getCrearEditarPartial($departamento.val());
     }
+
+    
 
 
     ////////////////////////////////////////ajax////////////////////////////////////////////
@@ -302,28 +319,30 @@ else
 
     function getCrearEditarPartial(id)
     {
-        var url = "@Url.Action("_CrearDepartamento", "Departamento")";
-        if (id != 0) {
-            url = '@Url.Action("_EditarDepartamento", "Departamento", new { id = "__id__"})';
-            url = url.replace("__id__", id);
-        }
-            
-         $.ajax({
-            type: "GET",
-            headers: {
-                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-            },
-            url: url,
-
-            success: function (data) {
-                $('#crearEditarPartial').html(data);
-                $('#modalDepartamento').modal('show');
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
+        if ("@Model.Anulado" !== "True") {
+            var url = "@Url.Action("_CrearDepartamento", "Departamento")";
+            if (id != 0) {
+                url = '@Url.Action("_EditarDepartamento", "Departamento", new { id = "__id__"})';
+                url = url.replace("__id__", id);
             }
+            
+            $.ajax({
+                type: "GET",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
 
-        });
+                success: function (data) {
+                    $('#crearEditarPartial').html(data);
+                    $('#modalDepartamento').modal('show');
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+        }
     }
 
     function getMonedas() {
@@ -349,32 +368,6 @@ else
                   console.log(err.statusText);
               }
           });
-    }
-
-    function getInventario() {
-
-         $.ajax({
-              type: "get",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
-              url: '@Url.Action("GetAllInventario", "Inventario")',
-             success: function (data) {
-
-                 for (var i = 0; i < data.length; i++) {
-                     if (!data[i].inactiva)
-                         items.push(data[i]);
-                 }
-                 //items = data;
-                 cargarItems(items);
-                 getReqDetalle();
-               },
-              error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-         });
     }
 
     function getDepartamentos(pos) {
@@ -418,6 +411,7 @@ else
                                  $(o2).attr('selected', true);
                                  $("#departamento").append(o2);
                                  $("#departamentoValid").attr("hidden", false);
+                                 depaAnulado = true;
                              }
                          }
                        
@@ -525,11 +519,15 @@ else
               dataType: "json",
               url: '@Url.Action("GetBodegaInventario", "AjusteInventario")',
               success: function (data) {
-                  bodegas = data;
-                  cargarBodegas(data);
+                  //bodegas = JSON.parse(JSON.stringify(data));
+                  for (var i = 0; i < data.length; i++) {
+                      if (data[i].tbPrInventarioBodega.length > 0)
+                          bodegas.push(data[i]);
+                  }
 
+                  cargarBodegas(bodegas);
                   getReqDetalle();
-               },
+              },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
                   console.log(err.statusText);
@@ -540,7 +538,12 @@ else
 
     //////////////////////////////////////////////////////helpers///////////////////////////////////
 
-
+    function getDepaAnulado(idDepa) {
+        for (var i = 0; i < departamentos.length; i++) {
+            if (parseInt(idDepa) === departamentos[i].id)
+                return departamentos[i].anulado;
+        }
+    }
     
 
     function formatearFecha() {
@@ -563,22 +566,12 @@ else
                 flag = false;
             }
 
+
             $("#bodegas").append(o);
         }
 
         if (flag)
             cargarItems(data[0].tbPrInventarioBodega);
-
-
-        @*if (@Model.Id != 0)
-            $bodega.val(@Model.IdBodega);
-        else
-            $bodega.val(1);
-
-        $('.selectItems').trigger('change.select2');*@
-
-
-        //getAjusteInventario();
 
     }
 
@@ -734,6 +727,10 @@ else
             cargarAlert('@SharedLocalizer["requisicionSinDetalle"]');
             return false;
         }
+        else if (depaAnulado) {
+            cargarAlert("@SharedLocalizer["depaAnulado"]");
+            return false;
+        }
 
         return true;
     }
@@ -805,21 +802,12 @@ else
 
     }
 
-    //function getItem(id) {
-    //    for (var i = 0; i < items.length; i++) {
-    //        if (items[i].idInventario == parseInt(id))
-    //            return items[i];
-    //    }
-
-    //}
-
-
     function getItem(id) {
 
 
         var it = {};
         for (var i = 0; i < arrayInventario.length; i++) {
-            if (arrayInventario[i].idInventarioNavigation.idInventario === parseInt(id))
+            if (arrayInventario[i].idInventario === parseInt(id))
                 it = arrayInventario[i];
         }
 
@@ -832,20 +820,14 @@ else
 
         $('#item option').remove();
 
-        arrayItems = [];
-
         for (var i = 0; i < data.length; i++) {
 
             if (!data[i].idInventarioNavigation.inactiva) {
                 var o = new Option(data[i].idInventarioNavigation.codigo, data[i].idInventarioNavigation.idInventario);
                 $("#item").append(o);
-                items.push(data[i].idInventarioNavigation);
             }
 
         }
-
-
-        //console.log(items);
 
         $("#item").trigger('change');
 

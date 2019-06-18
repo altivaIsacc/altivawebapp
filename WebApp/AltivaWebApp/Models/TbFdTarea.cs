@@ -13,7 +13,7 @@ namespace AltivaWebApp.Models
         public long Id { get; set; }
         public string Titulo { get; set; }
         public long? IdUsuario { get; set; }
-        public long IdContacto { get; set; }
+        public long? IdContacto { get; set; }
         public long? IdEstado { get; set; }
         public long? IdTipo { get; set; }
         public bool? Eliminada { get; set; }

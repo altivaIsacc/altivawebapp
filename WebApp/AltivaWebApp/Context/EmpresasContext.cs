@@ -3232,16 +3232,19 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.FechaLimite).HasColumnType("datetime");
 
+                entity.Property(e => e.IdContacto).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdUsuario).HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.Titulo)
                     .IsRequired()
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
                 entity.HasOne(d => d.IdContactoNavigation)
-                    .WithMany(p => p.TbFdTarea)
-                    .HasForeignKey(d => d.IdContacto)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_tb_FD_Tarea_tb_CR_Contacto");
+                   .WithMany(p => p.TbFdTarea)
+                   .HasForeignKey(d => d.IdContacto)
+                   .HasConstraintName("FK_tb_FD_Tarea_tb_CR_Contacto");
 
                 entity.HasOne(d => d.IdEstadoNavigation)
                     .WithMany(p => p.TbFdTarea)

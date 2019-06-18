@@ -127,61 +127,62 @@
 
 <hr />
 
-
-<table class="table TablaTareas" style="width:100%;" id="TablaTareas">
-    <thead>
-        <tr>
-            <th>Prioridad</th>
-            <th>
-                Tipo tarea
-            </th>
-            <th>
-                Título
-            </th>
-            <th>
-                Estado tarea
-            </th>
-            <th>
-                Contacto
-            </th>
-            <th>
-                Fecha Limite
-            </th>
-            <th hidden>
-                Asignado
-            </th>
-
-
-
-            <th hidden>
-                Descripción
-            </th>
-            <th hidden>
-                Dias estimados
-            </th>
-            <th hidden>
-                Dias reales
-            </th>
-            <th hidden>
-                Costo estimado
-            </th>
-            <th hidden>
-                Costo Real
-            </th>
-
-            <th>
-                Fecha inicio
-            </th>
-            <th>
-                Fecha final
-            </th>
+<div class="table-responsive">
+    <table class="table TablaTareas table-bordered" style="min-width: 1200px" id="TablaTareas">
+        <thead>
+            <tr>
+                <th>Prioridad</th>
+                <th>
+                    Título
+                </th>
+                <th>
+                    Tipo tarea
+                </th>
+                <th>
+                    Estado tarea
+                </th>
+                <th>
+                    Contacto
+                </th>
+                <th>
+                    Fecha Limite
+                </th>
+                <th hidden>
+                    Asignado
+                </th>
 
 
-            <th>Acción</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
+
+                <th hidden>
+                    Descripción
+                </th>
+                <th hidden>
+                    Dias estimados
+                </th>
+                <th hidden>
+                    Dias reales
+                </th>
+                <th hidden>
+                    Costo estimado
+                </th>
+                <th hidden>
+                    Costo Real
+                </th>
+
+                <th>
+                    Fecha inicio
+                </th>
+                <th>
+                    Fecha final
+                </th>
+
+
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
 <script src="~/js/comentario.js"></script>
 
 <div class="modal fade" role="dialog" id="nuevaTarea">
@@ -290,6 +291,9 @@
     });
     //cargar datos de las tareas..
     function cargarDatos(data) {
+
+        console.log(data);
+
         var contadorFila = 0;
         var fecha1 = ""
         var fecha = "";
@@ -304,11 +308,17 @@
         var icono2 = "";
         var nombre = "";
         for (var i = 0; i < data.length; i++) {
-            if (data[i].idContactoNavigation.persona == true) {
-                nombre = data[i].idContactoNavigation.nombre;
-            } else {
-                nombre = data[i].idContactoNavigation.nombreComercial;
+
+            if (data[i].idContacto !== 0) {
+                if (data[i].idContactoNavigation.persona == true) {
+                    nombre = data[i].idContactoNavigation.nombre + " " + data[i].idContactoNavigation.apellidos;
+                } else {
+                    nombre = data[i].idContactoNavigation.nombreComercial;
+                }
             }
+            else
+                nombre = "";
+            
             if (data[i].posicion == 1) {
 
                 icono = "";
@@ -348,8 +358,8 @@
                     + '<td hidden>' + data[i].diasReales + '</td>'
                     + '<td hidden>' + data[i].costoEstimado + '</td>'
                     + '<td hidden>' + data[i].costoReal + '</td>'
-                    + '<td >' + data[i].fechaInicio + '</td>'
-                    + '<td >' + data[i].fechaFinal + '</td>'
+                    + '<td >' + recuperarFecha(data[i].fechaInicio) + '</td>'
+                    + '<td >' + recuperarFecha(data[i].fechaFinal) + '</td>'
 
                     + '<td>  <button value="' + data[i].id + '" onclick="editarTarea(' + data[i].id + ')" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="Eliminar(' + data[i].id + ')" class="btn btn-link"> <i class="fas fa-trash"></i></button></td></tr>';
                 $('#TablaTareas > tbody').append(body);
@@ -359,45 +369,47 @@
         $('#TablaTareas').DataTable().destroy();
 
         TablaTareas = $('#TablaTareas').DataTable({
+            "info": false,
             dom: 'Bfrtip',
-
-            scrollY: '50rem',
-            "ordering": false,
-            scrollX: '50rem',
-
             language: {
                 "decimal": "",
-                "emptyTable": "No hay información",
-
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
                 "infoPostFix": "",
                 "thousands": ",",
-
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
                 "loadingRecords": "Cargando...",
                 "processing": "Procesando...",
-                "search": "<a ><i  class='fas fa-search ' ></i></a>",
-                "zeroRecords": "Sin resultados encontrados",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
                 "paginate": {
-                    "first": "Primero",
-                    "last": "Ultimo",
-                    "next": "Siguiente",
-                    "previous": "Anterior"
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
                 }
             },
             buttons: [
                 {
                     extend: 'copyHtml5',
-                    text: '<i class="fas fa-copy   " ></i>',
+                    text: '<i class="fas fa-copy   "></i>',
                     titleAttr: 'Copy',
-                    title: 'tareas',
-                    pageSize: 'LEGAL'
+                    title: '@Lb["Tareas"]',
+                    exportOptions: {
+                        columns: [0, 1,2, 3, 4, 5, 6]
+                    }
 
                 },
                 {
                     extend: 'excelHtml5',
                     text: '<i class="fas fa-file-excel  "></i>',
                     titleAttr: 'Excel',
-                    title: 'tareas',
-                    pageSize: 'LEGAL'
+                    title: '@Lb["Tareas"]',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    }
 
                 },
 
@@ -405,46 +417,48 @@
                     extend: 'pdfHtml5',
                     text: '<i class="fas fa-file-pdf   "></i>',
                     titleAttr: 'PDF',
-                    title: 'Tareas',
-                    pageSize: 'LEGAL',
-                    orientation: 'landscape',
+                    title: '@Lb["Tareas"]',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    }
                 }
             ]
         });
+
     }
     //eliminar tarea..
-    function Eliminar(idContacto) {
+    function Eliminar(idTarea) {
         bootbox.confirm({
 
-            message: "<h4 class='text-center'><span >Esta seguro que desea eliminar la tarea? Se advierte se no se podra recuperar.</span></h4>",
+            message: "<h4 class='text-center'><span >@Lb["confirmEliminar"]</span></h4>",
             buttons: {
 
                 confirm: {
-                    label: '<i class="fa fa-check"></i> Aceptar'
+                    label: '<i class="fa fa-check"></i> @Lb["Aceptar"]'
                 },
                 cancel: {
-                    label: '<i class="fa fa-times"></i> Cancelar'
+                    label: '<i class="fa fa-times"></i> @Lb["Cancelar"]'
                 }
             },
             callback: function (result) {
                 if (result) {
-                         var url = '@Url.Action("EliminarTarea", "Tarea")';
+
+                    var url = '@Url.Action("EliminarTarea", "Tarea")';
                     $.ajax({
-                        type: "get",
+                        type: "post",
                         headers: {
                             "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                         },
                         url: url,
-                        data: { idContacto: idContacto },
+                        data: { idTarea: idTarea },
 
-              success: function (data) {
-                  return false;
-                  cargarTabla();
-                },
-                    error: function (err, scnd) {
-                        console.log(err.statusText);
-                }
-            });
+                        success: function (data) {
+                            cargarTabla();
+                        },
+                        error: function (err, scnd) {
+                            console.log(err.statusText);
+                        }
+                    });
 
                 } else {
                     return;
@@ -712,35 +726,35 @@
 
 
             "locale": {
-                format: "DD/MM/YYYY",
+                 format: "@Lb["formatoFecha"]",
                 "separator": " - ",
-                "applyLabel": "Aplicar",
-                "cancelLabel":"Cancelar",
-                "fromLabel": "DE",
-                "toLabel": "Hasta",
+                "applyLabel": "@Lb["Aplicar"]",
+                "cancelLabel": "@Lb["Cancelar"]",
+                "fromLabel": "@Lb["DE"]",
+                "toLabel": "@Lb["Hasta"]",
                 "customRangeLabel": "Custom",
                 "daysOfWeek": [
-                    "Dom",
-                  "Lun",
-                    "Mar",
-                   "Mie",
-                   "Jue",
-                   "Vie",
-                    "Sáb"
+                    "@Lb["Dom"]",
+                    "@Lb["Lun"]",
+                    "@Lb["Mar"]",
+                    "@Lb["Mie"]",
+                    "@Lb["Jue"]",
+                    "@Lb["Vie"]",
+                    "@Lb["Sáb"]"
                 ],
                 "monthNames": [
-                    "Enero",
-                    "Febrero",
-                    "Marzo",
-                    "Abril",
-                    "Mayo",
-                    "Junio",
-                    "Julio",
-                    "Agosto",
-                    "Septiembre",
-                    "Octubre",
-                    "Noviembre",
-                    "Diciembre"
+                    "@Lb["Enero"]",
+                    "@Lb["Febrero"]",
+                    "@Lb["Marzo"]",
+                    "@Lb["Abril"]",
+                    "@Lb["Mayo"]",
+                    "@Lb["Junio"]",
+                    "@Lb["Julio"]",
+                    "@Lb["Agosto"]",
+                    "@Lb["Septiembre"]",
+                    "@Lb["Octubre"]",
+                    "@Lb["Noviembre"]",
+                    "@Lb["Diciembre"]"
                 ],
                 "firstDay": 1
             }
@@ -773,7 +787,7 @@
             success: function (data) {
                 tareas = JSON.parse(JSON.stringify(data));
 
-                cargarDatos(tareas);
+                //cargarDatos(tareas);
                 cargarFiltros();
 
                 },
@@ -810,17 +824,15 @@
     });
     function recuperarFecha(_fecha) {
 
-        var fecha = _fecha.substr(0, 10);
-        var y = fecha.substr(0, 4);
-        var m = fecha.substr(6, 1);
-        var d = fecha.substr(8, 3);
+        if (_fecha === null)
+            return "";
 
-        //var date = new Date();
-        //console.log(fecha);
+        var f = new Date(_fecha);
 
-        return d+"/"+m+"/"+y+" "+_fecha.substr(-8, 8);
+        return f.toLocaleString();
 
     }
+
     function recuperarFechaSinHora(_fecha) {
 
         var fecha = _fecha.substr(0, 10);

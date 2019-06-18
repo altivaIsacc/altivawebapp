@@ -55,13 +55,13 @@ namespace AltivaWebApp.Controllers
 
             IList<TbFdTarea> listaTareas = new List<TbFdTarea>();
             listaTareas = this.TareaServiceInterface.GetTareas();
-            foreach (var item in listaTareas)
-            {
+            //foreach (var item in listaTareas)
+            //{
 
-                item.IdContactoNavigation.TbFdTarea = null;
-                item.IdEstadoNavigation.TbFdTarea = null;
-                item.IdTipoNavigation.TbFdTarea = null;
-            }
+            //    item.IdContactoNavigation.TbFdTarea = null;
+            //    item.IdEstadoNavigation.TbFdTarea = null;
+            //    item.IdTipoNavigation.TbFdTarea = null;
+            //}
             return Ok(listaTareas);
         }
         [HttpGet("ListarTareas")]
@@ -248,12 +248,12 @@ namespace AltivaWebApp.Controllers
             IConfigService.Delete(tareas);
             return Ok(true);
         }
-        [HttpGet("EliminarTarea/{idContacto}")]
-        public IActionResult EliminarTarea(int idContacto)
+        [HttpPost("EliminarTarea")]
+        public IActionResult EliminarTarea(int idTarea)
         {
 
             TbFdTarea tbfdtarea = new TbFdTarea();
-            tbfdtarea = this.TareaServiceInterface.EliminarTarea(idContacto);
+            tbfdtarea = this.TareaServiceInterface.EliminarTarea(idTarea);
             if (tbfdtarea != null)
             {
                 return Ok(true);
