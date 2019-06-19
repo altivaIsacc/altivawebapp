@@ -19,6 +19,6 @@ namespace AltivaWebApp.Context
         public DbSet<PeriodoFiscal> PeriodoFiscal { get; set; }
         public DbSet<PeriodoTrabajo> PeriodoTrabajo { get; set; }
         public DbSet<ConfiguracionContable> ConfiguracionContable { get; set; }
-
+        public DbSet<CatalogoContable> CatalogoContable { get; set; }
     }
 }
