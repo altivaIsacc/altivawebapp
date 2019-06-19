@@ -72,7 +72,5 @@ namespace AltivaWebApp.Services
         {
             return repository.UpdateCotizacionDetalle(domain);
         }
-
-
     }
 }
