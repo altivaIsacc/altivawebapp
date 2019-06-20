@@ -121,18 +121,19 @@ namespace AltivaWebApp.Controllers
                 {
                   
                         long? idCD = 0;
+                   
                         var orden = _Map.Update(viewModel);
                         if (viewModel.IdCotizacion != 0 && viewModel.CotizacionDetalle.Count() > 0)
                     {
-                        var count = viewModel.CotizacionDetalle.Count();
-                       
+                        var count = viewModel.CotizacionDetalle.Count();                    
                             var cd = _Map.CreateCD(viewModel);
                             idCD = cd.IdCotizacionDetalle;
 
-                        }
-
+                     
+                    }
+               
                         return Json(new { success = true, idCD = idCD });
-     
+                    
 
                 }
                 else
@@ -149,7 +150,7 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
-                throw;
+               throw;
                 //return BadRequest();
             }
         }

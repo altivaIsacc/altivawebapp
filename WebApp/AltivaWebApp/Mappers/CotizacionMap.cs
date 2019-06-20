@@ -333,37 +333,37 @@ namespace AltivaWebApp.Mappers
                 {
 
                     domain.SubTotalBase = viewModel.SubTotalBase * domain.TipoCambioDolar;
-                    domain.SubTotalDolar = domain.SubTotalDolar;
+                    domain.SubTotalDolar = viewModel.SubTotalDolar;
                     domain.SubTotalEuro = domain.SubTotalBase / domain.TipoCambioDolar;
 
                     domain.SubTotalGravadoBase = viewModel.SubTotalGravadoBase * domain.TipoCambioDolar;
-                    domain.SubTotalGravadoDolar = domain.SubTotalGravadoDolar;
+                    domain.SubTotalGravadoDolar = viewModel.SubTotalGravadoDolar;
                     domain.SubTotalGravadoEuro = domain.SubTotalGravadoBase / domain.TipoCambioEuro;
 
                     domain.SubTotalExcentoBase = viewModel.SubTotalExcentoBase * domain.TipoCambioDolar;
-                    domain.SubTotalExcentoDolar = domain.SubTotalExcentoDolar;
+                    domain.SubTotalExcentoDolar = viewModel.SubTotalExcentoDolar;
                     domain.SubTotalExcentoEuro = domain.SubTotalExcentoBase / domain.TipoCambioEuro;
 
                     domain.PorcDescuentoBase = viewModel.PorcDescuentoBase;
 
                     domain.TotalDescuentoBase = viewModel.TotalDescuentoBase * domain.TipoCambioDolar;
-                    domain.TotalDescuentoDolar = domain.TotalDescuentoDolar;
+                    domain.TotalDescuentoDolar = viewModel.TotalDescuentoDolar;
                     domain.TotalDescuentoEuro = domain.TotalDescuentoBase / domain.TipoCambioEuro;
 
                     domain.SubTotalGravadoNetoBase = viewModel.SubTotalGravadoNetoBase * domain.TipoCambioDolar;
-                    domain.SubTotalGravadoNetoDolar = domain.SubTotalGravadoNetoDolar;
+                    domain.SubTotalGravadoNetoDolar = viewModel.SubTotalGravadoNetoDolar;
                     domain.SubTotalGravadoNetoEuro = domain.SubTotalGravadoNetoBase / domain.TipoCambioEuro;
 
                     domain.SubTotalExcentoNetoBase = viewModel.SubTotalExcentoNetoBase * domain.TipoCambioDolar;
-                    domain.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoDolar;
+                    domain.SubTotalExcentoNetoDolar = viewModel.SubTotalExcentoNetoDolar;
                     domain.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoBase / domain.TipoCambioEuro;
 
                     domain.MontoIvabase = viewModel.MontoIvabase * domain.TipoCambioDolar;
-                    domain.MontoIvadolar = domain.MontoIvadolar;
+                    domain.MontoIvadolar = viewModel.MontoIvadolar;
                     domain.MontoIvaeuro = domain.MontoIvabase / domain.TipoCambioEuro;
 
                     domain.TotalBase = viewModel.TotalBase * domain.TipoCambioDolar;
-                    domain.TotalDolar = domain.TotalDolar;
+                    domain.TotalDolar = viewModel.TotalDolar;
                     domain.TotalEuro = domain.TotalBase / domain.TipoCambioEuro;
                 }
                 else if (viewModel.IdMoneda == 3)
@@ -371,37 +371,37 @@ namespace AltivaWebApp.Mappers
 
                     domain.SubTotalBase = viewModel.SubTotalBase * domain.TipoCambioEuro;
                     domain.SubTotalDolar = domain.SubTotalBase / domain.TipoCambioDolar;
-                    domain.SubTotalEuro = domain.SubTotalEuro;
+                    domain.SubTotalEuro = viewModel.SubTotalEuro;
 
                     domain.SubTotalGravadoBase = viewModel.SubTotalGravadoBase * domain.TipoCambioEuro;
                     domain.SubTotalGravadoDolar = domain.SubTotalGravadoBase / domain.TipoCambioDolar;
-                    domain.SubTotalGravadoEuro = domain.SubTotalGravadoEuro;
+                    domain.SubTotalGravadoEuro = viewModel.SubTotalGravadoEuro;
 
                     domain.SubTotalExcentoBase = viewModel.SubTotalExcentoBase * domain.TipoCambioEuro;
                     domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase / domain.TipoCambioDolar;
-                    domain.SubTotalExcentoEuro = domain.SubTotalExcentoEuro;
+                    domain.SubTotalExcentoEuro = viewModel.SubTotalExcentoEuro;
 
                     domain.PorcDescuentoBase = viewModel.PorcDescuentoBase;
 
                     domain.TotalDescuentoBase = viewModel.TotalDescuentoBase * domain.TipoCambioEuro;
                     domain.TotalDescuentoDolar = domain.TotalDescuentoBase / domain.TipoCambioDolar;
-                    domain.TotalDescuentoEuro = domain.TotalDescuentoEuro;
+                    domain.TotalDescuentoEuro = viewModel.TotalDescuentoEuro;
 
                     domain.SubTotalGravadoNetoBase = viewModel.SubTotalGravadoNetoBase * domain.TipoCambioEuro;
                     domain.SubTotalGravadoNetoDolar = domain.SubTotalGravadoNetoBase / domain.TipoCambioDolar;
-                    domain.SubTotalGravadoNetoEuro = domain.SubTotalGravadoNetoEuro;
+                    domain.SubTotalGravadoNetoEuro = viewModel.SubTotalGravadoNetoEuro;
 
                     domain.SubTotalExcentoNetoBase = viewModel.SubTotalExcentoNetoBase * domain.TipoCambioEuro;
                     domain.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoBase / domain.TipoCambioDolar;
-                    domain.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoEuro;
+                    domain.SubTotalExcentoNetoEuro = viewModel.SubTotalExcentoNetoEuro;
 
                     domain.MontoIvabase = viewModel.MontoIvabase * domain.TipoCambioEuro;
                     domain.MontoIvadolar = domain.MontoIvabase / domain.TipoCambioDolar;
-                    domain.MontoIvaeuro = domain.MontoIvaeuro;
+                    domain.MontoIvaeuro = viewModel.MontoIvaeuro;
 
                     domain.TotalBase = viewModel.TotalBase * domain.TipoCambioEuro;
                     domain.TotalDolar = domain.TotalBase / domain.TipoCambioDolar;
-                    domain.TotalEuro = domain.TotalEuro;
+                    domain.TotalEuro = viewModel.TotalEuro;
 
                    
                 }
@@ -724,85 +724,85 @@ namespace AltivaWebApp.Mappers
             else if (compra.IdMoneda == 2)
             {
 
-                domain.PrecioBase = viewModel.PrecioBase*dolar;
-                domain.PrecioDolar = domain.PrecioBase ;
+                domain.PrecioBase = viewModel.PrecioBase;
+                domain.PrecioDolar = viewModel.PrecioBase/dolar ;
                 domain.PrecioEuro = domain.PrecioBase / euro;
 
-                domain.SubTotalBase = viewModel.SubTotalBase*dolar;
-                domain.SubTotalDolar = domain.SubTotalBase ;
+                domain.SubTotalBase = viewModel.SubTotalBase;
+                domain.SubTotalDolar = viewModel.SubTotalBase/dolar ;
                 domain.SubTotalEuro = domain.SubTotalBase / euro;
 
-                domain.SubTotalGravadoBase = viewModel.SubTotalGravadoBase*dolar;
-                domain.SubTotalGravadoDolar = domain.SubTotalGravadoBase;
+                domain.SubTotalGravadoBase = viewModel.SubTotalGravadoBase;
+                domain.SubTotalGravadoDolar = viewModel.SubTotalGravadoBase/dolar;
                 domain.SubTotalGravadoEuro = domain.SubTotalGravadoBase / euro;
 
-                domain.SubTotalExcentoBase = viewModel.SubTotalExcentoBase*dolar;
-                domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase;
+                domain.SubTotalExcentoBase = viewModel.SubTotalExcentoBase;
+                domain.SubTotalExcentoDolar = viewModel.SubTotalExcentoBase/dolar;
                 domain.SubTotalExcentoEuro = domain.SubTotalExcentoBase / euro;
 
                 domain.PorcDescuento = viewModel.PorcDescuento;
 
-                domain.TotalDescuentoBase = viewModel.TotalDescuentoBase*dolar;
-                domain.TotalDescuentoDolar = domain.TotalDescuentoBase;
+                domain.TotalDescuentoBase = viewModel.TotalDescuentoBase;
+                domain.TotalDescuentoDolar = viewModel.TotalDescuentoBase/dolar;
                 domain.TotalDescuentoEuro = domain.TotalDescuentoBase / euro;
 
-                domain.SubTotalGravadoNetoBase = viewModel.SubTotalGravadoNetoBase*dolar;
-                domain.SubTotalGravadoNetoDolar = domain.SubTotalGravadoNetoBase;
+                domain.SubTotalGravadoNetoBase = viewModel.SubTotalGravadoNetoBase;
+                domain.SubTotalGravadoNetoDolar = viewModel.SubTotalGravadoNetoBase/dolar;
                 domain.SubTotalGravadoNetoEuro = domain.SubTotalGravadoNetoBase / euro;
 
-                domain.SubTotalExcentoNetoBase = viewModel.SubTotalExcentoNetoBase*dolar;
-                domain.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoBase;
+                domain.SubTotalExcentoNetoBase = viewModel.SubTotalExcentoNetoBase;
+                domain.SubTotalExcentoNetoDolar = viewModel.SubTotalExcentoNetoBase/dolar;
                 domain.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoBase / euro;
 
-                domain.MontoIvaBase = viewModel.MontoIvaBase*dolar;
-                domain.MontoIvaDolar = domain.MontoIvaBase ;
+                domain.MontoIvaBase = viewModel.MontoIvaBase;
+                domain.MontoIvaDolar = viewModel.MontoIvaBase/dolar ;
                 domain.MontoIvaEuro = domain.MontoIvaBase / euro;
 
-                domain.TotalBase = viewModel.TotalBase*dolar;
-                domain.TotalDolar = domain.TotalBase;
+                domain.TotalBase = viewModel.TotalBase;
+                domain.TotalDolar = viewModel.TotalBase/dolar;
                 domain.TotalEuro = domain.TotalBase / euro;
 
             }
             else if (compra.IdMoneda == 3)
             {
 
-                domain.PrecioBase = viewModel.PrecioBase*euro;
+                domain.PrecioBase = viewModel.PrecioBase;
                 domain.PrecioDolar = domain.PrecioBase / dolar;
-                domain.PrecioEuro = domain.PrecioBase;
+                domain.PrecioEuro = viewModel.PrecioBase/euro;
 
-                domain.SubTotalBase = viewModel.SubTotalBase*euro;
+                domain.SubTotalBase = viewModel.SubTotalBase;
                 domain.SubTotalDolar = domain.SubTotalBase/dolar;
-                domain.SubTotalEuro = domain.SubTotalBase;
+                domain.SubTotalEuro = viewModel.SubTotalBase/euro;
 
-                domain.SubTotalGravadoBase = viewModel.SubTotalGravadoBase*euro;
+                domain.SubTotalGravadoBase = viewModel.SubTotalGravadoBase;
                 domain.SubTotalGravadoDolar = domain.SubTotalGravadoBase / dolar;
-                domain.SubTotalGravadoEuro = domain.SubTotalGravadoBase;
+                domain.SubTotalGravadoEuro = viewModel.SubTotalGravadoBase/euro;
 
-                domain.SubTotalExcentoBase = viewModel.SubTotalExcentoBase*euro;
+                domain.SubTotalExcentoBase = viewModel.SubTotalExcentoBase;
                 domain.SubTotalExcentoDolar = domain.SubTotalExcentoBase / dolar;
-                domain.SubTotalExcentoEuro = domain.SubTotalExcentoBase;
+                domain.SubTotalExcentoEuro = viewModel.SubTotalExcentoBase/euro;
 
                 domain.PorcDescuento = viewModel.PorcDescuento;
 
-                domain.TotalDescuentoBase = viewModel.TotalDescuentoBase*euro;
+                domain.TotalDescuentoBase = viewModel.TotalDescuentoBase;
                 domain.TotalDescuentoDolar = domain.TotalDescuentoBase / dolar;
-                domain.TotalDescuentoEuro = domain.TotalDescuentoBase;
+                domain.TotalDescuentoEuro = viewModel.TotalDescuentoBase/euro;
 
-                domain.SubTotalGravadoNetoBase = viewModel.SubTotalGravadoNetoBase*euro;
+                domain.SubTotalGravadoNetoBase = viewModel.SubTotalGravadoNetoBase;
                 domain.SubTotalGravadoNetoDolar = domain.SubTotalGravadoNetoBase / dolar;
-                domain.SubTotalGravadoNetoEuro = domain.SubTotalGravadoNetoBase ;
+                domain.SubTotalGravadoNetoEuro = viewModel.SubTotalGravadoNetoBase/euro ;
 
-                domain.SubTotalExcentoNetoBase = viewModel.SubTotalExcentoNetoBase*euro;
+                domain.SubTotalExcentoNetoBase = viewModel.SubTotalExcentoNetoBase;
                 domain.SubTotalExcentoNetoDolar = domain.SubTotalExcentoNetoBase / dolar;
-                domain.SubTotalExcentoNetoEuro = domain.SubTotalExcentoNetoBase;
+                domain.SubTotalExcentoNetoEuro = viewModel.SubTotalExcentoNetoBase/euro;
 
-                domain.MontoIvaBase = viewModel.MontoIvaBase*euro;
+                domain.MontoIvaBase = viewModel.MontoIvaBase;
                 domain.MontoIvaDolar = domain.MontoIvaBase / dolar;
-                domain.MontoIvaEuro = domain.MontoIvaBase ;
+                domain.MontoIvaEuro = viewModel.MontoIvaBase/euro ;
 
-                domain.TotalBase = viewModel.TotalBase*euro;
+                domain.TotalBase = viewModel.TotalBase;
                 domain.TotalDolar = domain.TotalBase / dolar;
-                domain.TotalEuro = domain.TotalBase;
+                domain.TotalEuro = viewModel.TotalBase/euro;
 
             }
 
