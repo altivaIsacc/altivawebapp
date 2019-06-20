@@ -312,7 +312,7 @@ namespace AltivaWebApp.Controllers
             ViewData["contactos"] = contactos;
             return View();
         }
-        [HttpGet("editFoto")]
+        [HttpPost("editFoto")]
         public IActionResult editFoto(IFormCollection id, IFormFile foto)
         {
             IList<ContactoRelacionGETViewModel> cr = null;

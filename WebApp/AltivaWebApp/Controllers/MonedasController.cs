@@ -103,7 +103,7 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                return Ok(service.GetAllHMPorMoneda(cod));
+                return Ok(service.GetAllHMPorMoneda(cod).OrderByDescending(m => m.Fecha));
             }
             catch
             {
@@ -151,9 +151,6 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
-
-
-
 
     }
 }

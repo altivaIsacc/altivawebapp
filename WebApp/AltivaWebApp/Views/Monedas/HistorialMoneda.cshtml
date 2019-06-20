@@ -8,17 +8,19 @@
     }
 }
 
-@{ 
+@{
     var date = DateTime.Now;
 }
 
 <div class="row">
 
-    <div class="col-md-8 col-sm-8 col-xs-12">
+    <div class="col-md-2 col-sm-2 col-xs-4">
         <h3>@Lb["Histótrico"]</h3>
         <hr />
     </div>
-    
+    <div class="col-md-10 col-sm-10 col-xs-8" style="padding-top: 0.5rem">
+        <a href="@Url.Action("ListarMonedas")" class="btn btn-default">@Lb["Cancelar"]</a>
+    </div>
 
 </div>
 
@@ -54,26 +56,29 @@
     </div>
 </div>
 
-<div class="table-responsive">
-    <table class="table table-bordered" style="min-width: 330px; max-width: 660px" id="tblHistorial">
-        <thead>
-            <tr>
-                <th style="width:35%">
-                    @Lb["Fecha"]
-                </th>
-                <th style="width:25%">
-                    @Lb["Venta"]
-                </th>
-                <th style="width:25%">
-                    @Lb["Compra"]
-                </th>
-                <th style="width:15%">
-                    @Lb["Acción"]
-                </th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+<div class="row">
+    <div class="col-md-6 col-xs-12 table-responsive">
+        <table class="table table-bordered" style="min-width: 330px; max-width: 660px" id="tblHistorial">
+            <thead>
+                <tr>
+                    <th style="width:35%">
+                        @Lb["Fecha"]
+                    </th>
+                    <th style="width:25%">
+                        @Lb["Venta"]
+                    </th>
+                    <th style="width:25%">
+                        @Lb["Compra"]
+                    </th>
+                    <th style="width:15%">
+                        @Lb["Acción"]
+                    </th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    
 </div>
 
 
@@ -206,10 +211,10 @@
             hasta = end.format('YYYY-MM-DD');
             filtroFecha(historial, desde, hasta);
 
-        });   
+        });
 
 
-        
+
 
     });
 
@@ -239,7 +244,7 @@
                         if (data[i].codigo != 1)
                             $(".monedas").append(o);
                     }
-                    
+
                 },
                 error: function (err, scnd) {
                     cargarAlert('@Lb["errorGeneral"]');
@@ -247,11 +252,11 @@
                 }
             });
 
-    }    
+    }
 
     function getHistorial(codigo) {
 
-        
+
          $.ajax({
             type: "post",
             headers: {
@@ -262,7 +267,7 @@
              data: { cod: codigo },
              success: function (data) {
                  historial = data;
-                 cargarDatos(data);
+                 cargarFiltros(data);
             },
             error: function (err, scnd) {
                 cargarAlert('@Lb["errorGeneral"]');
@@ -284,13 +289,13 @@
                 + '<td><p style="padding-top:1rem;">' + recuperarFecha(data[i].fecha) + '</p></td>'
                 + '<td style="text-align: right"><p style="padding-top:1rem;">' + data[i].valorCompra + '</p></td>'
                 + '<td style="text-align: right"><p style="padding-top:1rem;">' + data[i].valorVenta + '</p></td>'
-                + '<td>  <button value="' + data[i].id + '" onclick="modalEditar(' + contadorFila + ')" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+                + '<td>  <button value="' + data[i].id + '" onclick="modalEditar(' + data[i].id + ')" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
             $('#tblHistorial > tbody').append(body);
             contadorFila++;
 
         }
 
-        //inicializarTabla();
+        inicializarTabla();
 
     }
 
@@ -299,13 +304,16 @@
         $('#ventaValid').prop('hidden', true);
         $('#fechaPicker').datetimepicker('hide');
 
-        var date = new Date(historial[key].fecha);
+        var pos = getItemPos(key);
 
-        $compra.val(historial[key].valorCompra);
-        $venta.val(historial[key].valorVenta);
+
+        var date = new Date(historial[pos].fecha);
+
+        $compra.val(historial[pos].valorCompra);
+        $venta.val(historial[pos].valorVenta);
         $fecha.val(date.toLocaleDateString());
         $fecha.prop('disabled', true);
-        $idHistorico.val(key);
+        $idHistorico.val(pos);
 
         $('#titulo1').text('@Lb["Editar"] ');
 
@@ -313,7 +321,7 @@
 
         $('#historialModal').modal('show');
 
-       
+
 
     }
 
@@ -358,6 +366,13 @@
 
     }
 
+    function getItemPos(id) {
+        for (var i = 0; i < historial.length; i++) {
+            if (historial[i].id === id)
+                return i;
+        }
+    }
+
     function guardarCambios() {
 
         var key = $idHistorico.val();
@@ -391,7 +406,8 @@
                     historial.push(model);
 
                     cargarAlert('@Lb["actualizadoCorrectamente"]');
-                    cargarDatos(historial);
+
+                    cargarFiltros(historial);
                 },
                 error: function (err, scnd) {
                     cargarAlert('@Lb["errorGeneral"]');
@@ -400,6 +416,7 @@
             });
         }
         else {
+
 
             historial[key].valorCompra = $compra.val().replace(".", ",");
             historial[key].valorVenta = $venta.val().replace(".", ",");
@@ -415,7 +432,7 @@
             success: function (data) {
                 $('#historialModal').modal('hide');
                 cargarAlert('@Lb["actualizadoCorrectamente"]');
-                cargarDatos(historial);
+                cargarFiltros(historial);
             },
             error: function (err, scnd) {
                   cargarAlert('@Lb["errorGeneral"]');
@@ -424,27 +441,29 @@
         });
         }
 
-        
+
     }
 
 
     $('#habilitaFiltroFecha').change(function () {
 
         if (!$(this).prop('checked')) {
-            filtroFecha(historial, desde, hasta);
+            cargarFiltros(filtroFecha(historial, desde, hasta));
             $('#filtroFecha').attr('disabled', true);
         }
 
         else {
+            cargarFiltros(filtroFecha(historial, desde, hasta));
             $('#filtroFecha').attr('disabled', false);
-            filtroFecha(historial, desde, hasta);
         }
 
     });
 
-    function filtroFecha(array, _desde, _hasta) {
+    function cargarFiltros(data) {
+        cargarDatos(filtroFecha(data, desde, hasta));
+    }
 
-        
+    function filtroFecha(array, _desde, _hasta) {
 
         var arrayH = [];
 
@@ -462,13 +481,10 @@
 
             }
 
-            console.log(arrayH);
-            cargarDatos(arrayH);
+            return arrayH;
         }
         else
-            cargarDatos(array);
-
-
+            return array;
     }
 
     function recuperarFecha(_fecha) {
@@ -478,5 +494,72 @@
         return f.toLocaleDateString();
 
     }
+
+
+    function inicializarTabla() {
+
+        $('#tblHistorial').DataTable().destroy();
+
+        $('#tblHistorial').DataTable({
+            "info": false,
+            dom: 'Bfrtip',
+            "order": [[0, "desc"]],
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   "></i>',
+                    titleAttr: 'Copy',
+                    title: '@Lb["Histótrico"]',
+                    exportOptions: {
+                        columns: [0, 1,2]
+                    }
+
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: '@Lb["Histótrico"]',
+                    exportOptions: {
+                        columns: [0, 1, 2]
+                    }
+
+                },
+
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: '@Lb["Histótrico"]',
+                    exportOptions: {
+                        columns: [0, 1, 2]
+                    }
+                }
+            ]
+        });
+
+        //$(".dataTables_searching").hide();
+    }
+
 
 </script>

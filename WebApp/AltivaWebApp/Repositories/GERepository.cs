@@ -19,6 +19,21 @@ namespace AltivaWebApp.Repositories
 
         }
 
+        public TbGeGrupoEmpresarial UpdateGE(TbGeGrupoEmpresarial domain)
+        {
+            try
+            {
+                context.TbGeGrupoEmpresarial.Update(domain);
+                context.SaveChanges();
+                return domain;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public bool CrearBD(string nombre)
         {
             try

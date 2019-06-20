@@ -230,12 +230,12 @@ namespace AltivaWebApp.Controllers
 
                 if (userService.ExisteUsuarioPorCodigo(model.codigo))
                 {
-                    return Json(new { success = false, err = _sharedLocalizer["usaurioCodigoExiste"]});
+                    return Json(new { success = false, err = _sharedLocalizer["usaurioCodigoExiste"].ToString() });
                 }
 
                 if (userService.ExisteUsuarioPorCorreo(model.correo))
                 {
-                    return Json(new { success = false, err = _sharedLocalizer["usaurioCorreoExiste"] });
+                    return Json(new { success = false, err = _sharedLocalizer["usaurioCorreoExiste"].ToString() });
                 }
 
                 var user = userMap.Create(model);
@@ -265,7 +265,7 @@ namespace AltivaWebApp.Controllers
                 }
                 else
                 {
-                    return Json(new { success = false, err = _sharedLocalizer["errorGeneral"] });
+                    return Json(new { success = false, err = _sharedLocalizer["errorGeneral"].ToString() });
                 }
 
 

@@ -61,7 +61,7 @@ namespace AltivaWebApp.Mappers
 
         public TbGeEmpresa ViewModelToDomainCrear(EmpresaViewModel model)
         {
-            var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "Files");
+            var savePath = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "uploads");
             var domain = new TbGeEmpresa
             {
                 Bd = model.Bd,
