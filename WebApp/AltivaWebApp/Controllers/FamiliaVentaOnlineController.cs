@@ -83,6 +83,7 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var familia = new TbPrFamiliaVentaOnline();
+                var edita = false;
                 if (id == 0)
                 {
                     viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
@@ -91,9 +92,16 @@ namespace AltivaWebApp.Controllers
                 else
                 {
                     familia = map.Update(id, viewModel);
+                    edita = true;
                 }
 
-                return Json(new { descripcion = familia.Descripcion, id = familia.Id });
+                familia.IdFamiliaNavigation = null;
+                foreach (var item in familia.InverseIdFamiliaNavigation)
+                {
+                    item.IdFamiliaNavigation = null;
+                }
+
+                return Json(new { familia = familia, edita = edita });
             }
             catch
             {
