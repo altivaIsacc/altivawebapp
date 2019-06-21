@@ -104,6 +104,7 @@
 
 </div>
 
+
 <input readonly hidden id="monedaFormater" />
 
 <script>
@@ -116,6 +117,9 @@
     var desde;
     var monedas = [];
     var _Estado = "";
+    var _Anuladas = [];
+    var _Cotizaciones = [];
+    var _CotizacionesFiltro = [];
 
     $(document).ready(function () {
 
@@ -173,6 +177,21 @@
 
     });
 
+    function anuladas(data) {
+        _CotizacionesFiltro = data;
+        for (var i = 0; i < _CotizacionesFiltro.length; i++) {
+            if (_CotizacionesFiltro[i].estado === "Anulada") {
+                console.log("entro");
+                _Anuladas.push(_CotizacionesFiltro[i]);
+                _CotizacionesFiltro.splice($.inArray(_Cotizaciones[i],_CotizacionesFiltro ),1);
+                console.log(_Anuladas);
+              
+            }
+         
+        }
+        console.log(_Cotizaciones);
+    }
+
     function getCotizacion() {
             ///get ajustes
         $.ajax({
@@ -185,15 +204,17 @@
             success: function (data) {
                 Cotizaciones = JSON.parse(JSON.stringify(data));
 
+                _Cotizaciones = data;
+                _CotizacionesFiltro = data;
+                anuladas(data);
+                cargarDatos(_Cotizaciones);  
 
-                    cargarDatos(data);  
-                
+      
                
             },
             error: function (err, scnd) {
                 cargarAlert('@SharedLocalizer["errorGeneral"]');
                 console.log(err.statusText);
-                console.log("error traer cotizacion");
 
             }
         });
@@ -249,24 +270,21 @@
         }
     }
 
+
     function cargarDatos(data) {
-        console.log(data);
+
         var contadorFila = 0;
         $("#tblCotizacion > tbody").remove();
         $('#tblCotizacion').append('<tbody></tbody>');
 
-        console.log(data);
+
         for (var i = 0; i < data.length; i++) {
             var body;
-             _Estado = "";
             switch (parseInt(data[i].idMoneda)) {
 
                 case 1:
-                    if (data[i].estado === "Anulada") {
-                        _Estado = "none";
-                    }
 
-                    body = '<tr class="fila' + contadorFila + ' filas" style="display:'+_Estado+'">'
+                    body = '<tr class="fila' + contadorFila + ' filas">'
                         + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCotizacion + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCotizacion) + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + data[i].idClienteNavigation.nombre + '</p></td>'
@@ -280,10 +298,8 @@
                         + '<td>  <button value="' + data[i].idCotizacion + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
                     break;
                 case 2:
-                    if (data[i].estado === "Anulada") {
-                        _Estado = "none";
-                    }
-                    body = '<tr class="fila' + contadorFila + ' filas" style="display:' + _Estado +'">'
+
+                    body = '<tr class="fila' + contadorFila + ' filas" >'
                         + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCotizacion + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCotizacion) + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + data[i].idClienteNavigation.nombre + '</p></td>'
@@ -297,10 +313,8 @@
                         + '<td>  <button value="' + data[i].idCotizacion + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
                     break;
                 case 3:
-                    if (data[i].estado === "Anulada") {
-                        _Estado = "none";
-                    }
-                    body = '<tr class="fila' + contadorFila + ' filas" style="display:' + _Estado +'">'
+
+                    body = '<tr class="fila' + contadorFila + ' filas">'
                         + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCotizacion + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCotizacion) + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + data[i].idClienteNavigation.nombre + '</p></td>'
@@ -456,43 +470,73 @@
 
         switch (this.value) {
             case "1":
+                cargarDatos(_Cotizaciones);
                 tblCotizacion
                     .columns(3)
                     .search("Borrador")
                     .draw();
+
+                $('#filtroId').val("");
+                $('#filtroCliente').val("");
+                $('#filtroVendedor').val("");
                 break;
             case "2":
+                cargarDatos(_Cotizaciones);
                 tblCotizacion
                     .columns(3)
                     .search("Enviada")
                     .draw();
+
+                $('#filtroId').val("");
+                $('#filtroCliente').val("");
+                $('#filtroVendedor').val("");
                 break;
             case "3":
-                _Estado = "";
-                tblCotizacion
-                    .columns(3)
-                    .search("Anulada")
-                    .draw();
+                cargarDatos(_Anuladas);
+
+                $('#filtroId').val("");
+                $('#filtroCliente').val("");
+                $('#filtroVendedor').val("");
                 break;
             case "4":
+                cargarDatos(_Cotizaciones);
                 tblCotizacion
                     .columns(3)
                     .search("Aceptada")
                     .draw();
+
+                $('#filtroId').val("");
+                $('#filtroCliente').val("");
+                $('#filtroVendedor').val("");
                 break;
             case "5":
+                cargarDatos(_Cotizaciones);
                 tblCotizacion
                     .columns(3)
                     .search("Rechazada")
                     .draw();
+
+                $('#filtroId').val("");
+                $('#filtroCliente').val("");
+                $('#filtroVendedor').val("");
                 break;
             case "6":
+                cargarDatos(_Cotizaciones);
                 tblCotizacion
                     .columns(3)
                     .search("Facturada")
                     .draw();
+
+                $('#filtroId').val("");
+                $('#filtroCliente').val("");
+                $('#filtroVendedor').val("");
                 break;
             case "0":
+                cargarDatos(_Cotizaciones);
+                $('#filtroId').val("");
+                $('#filtroCliente').val("");
+                $('#filtroVendedor').val("");
+
                 inicializarTabla();
         }
             });
@@ -536,7 +580,6 @@
     function cargarFiltros() {
 
         ajusteFiltrado = JSON.parse(JSON.stringify(Cotizaciones));
-        console.log("CargarFiltro:" + ajusteFiltrado);
 
         ajusteFiltrado = filtroFecha(ajusteFiltrado, desde, hasta);
 

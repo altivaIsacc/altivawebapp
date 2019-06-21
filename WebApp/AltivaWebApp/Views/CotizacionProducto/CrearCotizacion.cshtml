@@ -18,21 +18,20 @@
 
 @if (Model.IdCotizacion != 0)
 {
-<div class="row">
-    <div class="col-md-3">
-        <h2>@Lb["CrearCotizacion"]</h2>
-    </div>
-    <div class="col-md-7"></div>
-    <div class="col-md-2">
-        <button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button>
+    <div class="row">
+        <div class="col-md-3">
+            <h2>@Lb["CrearCotizacion"]</h2>
+        </div>
+        <div class="col-md-7"></div>
+        <div class="col-md-2">
+            <button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button>
 
+        </div>
     </div>
-</div>
-
 }
 else
 {
-<h2>@Lb["CrearCotizacion"]</h2>
+    <h2>@Lb["CrearCotizacion"]</h2>
 }
 <form id="CrearCotizacion">
     @Html.HiddenFor(x => x.IdCotizacion)
@@ -110,11 +109,7 @@ else
                         </select>
                     </div>
                 }
-                else
 
-                {
-
-                }
             }
             <div class="col-md-2">
                 <label>@Lb["DescuentoGeneral"]:</label>
@@ -209,6 +204,8 @@ else
 
 <input readonly hidden id="monedaFormater" />
 <div hidden><input hidden id="formater" class="currency" type="text" /></div>
+
+<script src="~/js/base64ImageCreator.js"></script>
 
 <script>
     var Usuarios = [];
@@ -598,6 +595,10 @@ else
 
         if ($(this).val() !=0) {
 
+            if ($(this).val() > 100) {
+                $(this).val(100);
+            }
+
             $porcDescuento.val($(this).val());
             $porcDescuento.prop('disabled', true);
             ActualizarLineasDescuento($(this).val(),$Moneda.val());
@@ -804,8 +805,8 @@ else
                     contadorFila++;
                     var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
                         + '<td style="padding-top:2rem;">' + NombreItem(data[i].idInventario) + '</td> '
-                        + '<td style="padding-top:2rem;">' + data[i].cantidad + '</td>'
-                        + '<td style="padding-top:2rem;">' + data[i].porcDescuento + '</td>'
+                        + '<td style="padding-top:2rem;text-align: right;">' + data[i].cantidad + '</td>'
+                        + '<td style="padding-top:2rem;text-align: right;">' + data[i].porcDescuento + '</td>'
                         + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + darFormatoMoneda(data[i].precioBase.toString().replace(",", ".")) + '"/></td>'
                         + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].totalBase.toString().replace(",", ".") + '"/></td>'
                         + '<td><button  class="btn btn-link" value="' + contadorFila + '" onclick="eliminarCotizacionDetalle(value, ' + data[i].idCotizacionDetalle + ')" ><i class="fas fa-trash"></i></button></td></tr>';
@@ -817,8 +818,8 @@ else
                     contadorFila++;
                     var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
                         + '<td style="padding-top:2rem;">' + NombreItem(data[i].idInventario) + '</td> '
-                        + '<td style="padding-top:2rem;">' + data[i].cantidad + '</td>'
-                        + '<td style="padding-top:2rem;">' + data[i].porcDescuento + '</td>'
+                        + '<td style="padding-top:2rem;text-align: right;">' + data[i].cantidad + '</td>'
+                        + '<td style="padding-top:2rem;text-align: right;">' + data[i].porcDescuento + '</td>'
                         + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + darFormatoMoneda(data[i].precioBase.toString().replace(",", ".")) + '"/></td>'
                         + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].totalBase.toString().replace(",", ".") + '"/></td>'
                         + '<td><button  class="btn btn-link" value="' + contadorFila + '" onclick="eliminarCotizacionDetalle(value, ' + data[i].idCotizacionDetalle + ')" ><i class="fas fa-trash"></i></button></td></tr>';
@@ -830,8 +831,8 @@ else
                     contadorFila++;
                     var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
                         + '<td style="padding-top:2rem;">' + NombreItem(data[i].idInventario) + '</td> '
-                        + '<td style="padding-top:2rem;">' + data[i].cantidad + '</td>'
-                        + '<td style="padding-top:2rem;">' + data[i].porcDescuento + '</td>'
+                        + '<td style="padding-top:2rem;text-align: right;">' + data[i].cantidad + '</td>'
+                        + '<td style="padding-top:2rem;text-align: right;">' + data[i].porcDescuento + '</td>'
                         + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + darFormatoMoneda(data[i].precioDolar.toString().replace(",", ".")) + '"/></td>'
                         + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].totalDolar.toString().replace(",", ".") + '"/></td>'
                         + '<td><button  class="btn btn-link" value="' + contadorFila + '" onclick="eliminarCotizacionDetalle(value, ' + data[i].idCotizacionDetalle + ')" ><i class="fas fa-trash"></i></button></td></tr>';
@@ -1889,32 +1890,57 @@ else
                 telefono: empresaModel.tel,
                 correo: empresaModel.correo,
                 cedJuridica: empresaModel.ced,
-               // logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
+             // logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
                 nombreTitulo: "@Lb["Nombre"]:",
                 telTitulo: "@Lb["Tel"]:",
                 correoTitulo: "@Lb["Correo"]:",
-                cedTitulo: getTittulos().cedJuridica
+                cedTitulo: getTitulos().cedJuridica
             },
-
-          nombreDoc: '@Lb["AjusteManual"] ' + '#@Model.IdCotizacion',
-          nombreDescarga: '@Lb["ajustemanual"]_' + @Model.IdCotizacion + '.pdf',
+            subtotal: formatTotales().subtotal,
+            descuento: formatTotales().desc,
+            impuesto: formatTotales().imp,
+            total: formatTotales().total,
+          nombreDoc: getTitulos().nombreDoc + ' #@Model.IdCotizacion',
+          nombreDescarga: getTitulos().nombreDoc+"_" + @Model.IdCotizacion + '.pdf',
             columnas: {
                 item: "Item",
                 cantidad: "@Lb["Cantidad"]",
                 descuento: "@Lb["Descuento1"]",
                 precioUnitario: "@Lb["PrecioUnitario"]",
                 total: "@Lb["Total"]"
-   
+
             },
             filas: crearFilasPdf(),
             resumen: {
+                subtotal: "@Lb["SubTotal"]:",
+                descuento: "@Lb["Descuento"]:",
+                impuesto: "@Lb["Impuesto"]:",
+                total: "@Lb["Total"]:",
                 autorizado: "@Lb["Autorizado por"]:______________________"
             },
 
+            proveedor: $('#ddProveedor option:selected').text(),
+            tipoCambio: '@Lb["Tipo de cambio"]',
+            dolarTitulo: '@Lb["Dolar"]:',
+            euroTitulo: '@Lb["Euro"]:',
+            dolar: CambioDolar.toString(),
+            euro: CambioEuro.toString(),
+            fechaTitulo:'@Lb["Fecha"]:',
             fecha: $('#fecha').val(),
+            fechaVencimientoTitulo:'@Lb["ValidaHasta"]:',
             fechaVencimiento:$('#fechaVencimiento').val(),
-            descripcionTitulo: getTittulos().desc,
-            estado: getEstado()
+            descripcionTitulo: getTitulos().desc,
+            estadoTitulo:'@Lb["Estado"]:',
+            estado: getEstado(),
+            monedaTitulo: '@Lb["Moneda"]:',
+            moneda: $('#ddMoneda option:selected').text(),
+            clienteTitulo: '@Lb["Cliente"]',
+            cliente: $('#ddClientes option:selected').text(),
+            usuarioTitulo: '@Lb["Usuario"]',
+            usuario: $('#lbCreador').text(),
+            vendedorTitulo:'@Lb["Vendedor"]' ,
+            vendedor: $('#ddVendedor option:selected').text()
+
 
         };
 
@@ -1922,52 +1948,28 @@ else
 
     }
 
-
     function formatTotales() {
-        var tam = 0;
-        var space = 0;
-        var s = "";
-        var e = "";
-        var saldo = "";
 
-        if ($salidas.val().length > $entradas.val().length && $salidas.val().length > $saldo.val().length)
-            tam = $salidas.val().length;
-        else if ($entradas.val().length > $salidas.val().length && $entradas.val().length > $saldo.val().length)
-            tam = $entradas.val().length;
-        else if ($saldo.val().length > $salidas.val().length && $saldo.val().length > $entradas.val().length)
-                tam = $saldo.val().length;
-
-        else
-            tam = $saldo.val().length;
-
-        tam = tam - 1;
-        if ($saldo.val().indexOf("-") > -1)
-            tam = tam + 1;
-
-        for (var i = $saldo.val().length; i < tam; i++) {
-            saldo += "\ \ ";
-        }
-        for (var i = $salidas.val().length; i < tam; i++) {
-            s += "\ \ ";
-        }
-        for (var i = $entradas.val().length; i < tam; i++) {
-            e += "\ \ ";
-        }
-
+        var subtotal = "";
+        var imp = "";
+        var desc = "";
 
         return {
-            salidas: s + $salidas.val(),
-            entradas: e + $entradas.val(),
-            saldo: saldo + $saldo.val()
+
+            subtotal: subtotal + $txtSubTotal.val().replace("₡", ""),
+            imp: imp + $txtImpuesto.val().replace("₡", ""),
+            desc: desc + $txtDescuento.val().replace("₡", ""),
+            total: $txtTotal.val().replace("₡", "")
         }
 
     }
+
     function getEstado() {
 
-        switch ($('#ddEstado').val()) {
+        switch ($('#ddEstado option:selected').text()) {
 
             case "Borrador":
-                  return "@Lb["Borrador"]";
+                  return Borrador;
                 break;
             case "Enviada":
                 return "@Lb["Enviada"]";
@@ -1989,17 +1991,19 @@ else
 
     }
 
-    function getTittulos() {
+    function getTitulos() {
         var idioma = localStorage.getItem("idioma");
         if (idioma === "es")
             return {
                 desc: "Descripción:",
-                cedJuridica: "Cédula Jurídica:"
+                cedJuridica: "Cédula Jurídica:",
+                nombreDoc:"Cotización"
             };
         else
             return {
                 desc: "Description:",
-                cedJuridica: "Legal Number:"
+                cedJuridica: "Legal Number:",
+                nombreDoc:"Quotation"
             };
     }
 
@@ -2016,10 +2020,12 @@ else
 
         var row = [];
         for (var i = 0; i < lineas.length; i++) {
+
             var model = {
-       item: NombreItem(lineas[i].idInventario),
+
+                item: NombreItem(lineas[i].idInventario),
                 cantidad:lineas[i].cantidad ,
-                descuento: lineas[i].porcdescuento,
+                descuento: lineas[i].porcDescuento,
                 precioUnitario: darFormatoMoneda(lineas[i].precioBase.toString().replace(",",".")),
                 total: darFormatoMoneda(lineas[i].totalBase.toString().replace(",",".")),
             };
@@ -2029,7 +2035,14 @@ else
         return row;
     }
 
+    function formatearMoneda(val) {
+        $('#formater').val(val);
+        return $('#formater').val().replace("₡", "");
+    }
+
 
 </script>
 
-<script src="~/lib/vendors/jsPDF/AM.js"></script>
+<script src="~/lib/vendors/jsPDF/CotizacionesPDf.js"></script>
+<script src="~/js/XMLtoJSON.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/x2js/1.2.0/xml2json.min.js"></script>

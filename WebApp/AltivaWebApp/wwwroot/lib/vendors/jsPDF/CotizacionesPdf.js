@@ -1,5 +1,4 @@
-﻿///////////////Compra Inventario/////////////////////////
-
+﻿
 function generate_cutomPDF(modelo) {
 
 
@@ -54,21 +53,19 @@ function generate_cutomPDF(modelo) {
     var startX = 40;
     var InitialstartY = 50;
     var startY = 0;
+    var midY = 5;
 
     var lineHeights = 12;
 
-    var res = doc.autoTableHtmlToJson(document.getElementById("tblCompra"));
+    var res = doc.autoTableHtmlToJson(document.getElementById("tblDetalleCotizacion"));
     //res = doc.autoTableHtmlToJson(document.getElementById("tblInvoiceItemsList"));
-
 
     doc.setFontSize(fontSizes.SubTitleFontSize);
     doc.setFont('times');
     doc.setFontType('bold');
 
-
-
     //pdf.addImage(agency_logo.src, 'PNG', logo_sizes.centered_x, _y, logo_sizes.w, logo_sizes.h);
-    doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
+  //  doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
 
     doc.textAlign(comapnyJSON.nombre, { align: "left" }, startX, startY += 15 + company_logo.h);
     doc.setFontSize(fontSizes.NormalFontSize);
@@ -92,9 +89,10 @@ function generate_cutomPDF(modelo) {
 
     var tempY = InitialstartY;
 
-
     doc.setFontType('bold');
-    doc.textAlign(modelo.estado, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
+    doc.textAlign(modelo.estadoTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
+    doc.setFontType('normal');
+    doc.textAlign(modelo.estado, { align: "left" }, rightStartCol2, tempY);
 
     doc.setFontType('bold');
     doc.textAlign(modelo.fechaTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
@@ -102,7 +100,12 @@ function generate_cutomPDF(modelo) {
     doc.textAlign(modelo.fecha, { align: "left" }, rightStartCol2, tempY);
 
     doc.setFontType('bold');
-    doc.textAlign(modelo.proveedorTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
+    doc.textAlign(modelo.fechaVencimientoTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
+    doc.setFontType('normal');
+    doc.textAlign(modelo.fechaVencimiento, { align: "left" }, rightStartCol2, tempY);
+
+    //doc.setFontType('bold');
+   // doc.textAlign(modelo.proveedorTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
     doc.setFontType('normal');
     doc.textAlign(modelo.proveedor, { align: "left" }, rightStartCol2, tempY);
 
@@ -111,24 +114,7 @@ function generate_cutomPDF(modelo) {
     doc.setFontType('normal');
     doc.textAlign(modelo.moneda, { align: "left" }, rightStartCol2, tempY);
 
-    doc.setFontType('bold');
-    doc.textAlign(modelo.tipoCambio, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
 
-    doc.setFontType('bold');
-    doc.textAlign(modelo.dolarTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
-    doc.setFontType('normal');
-    doc.textAlign(modelo.dolar, { align: "left" }, rightStartCol2, tempY);
-
-    doc.setFontType('bold');
-    doc.textAlign(modelo.euroTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
-    doc.setFontType('normal');
-    doc.textAlign(modelo.euro, { align: "left" }, rightStartCol2, tempY);
-
-    doc.setFontType('bold');
-    doc.textAlign(modelo.tipoDocumentoTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
-    doc.setFontType('normal');
-    doc.textAlign(modelo.tipoDocumento, { align: "left" }, rightStartCol2, tempY);
-    
 
     doc.setLineWidth(1);
     // doc.line(20, startY+lineSpacing.NormalSpacing, 580, startY+=lineSpacing.NormalSpacing);
@@ -143,7 +129,36 @@ function generate_cutomPDF(modelo) {
     doc.setFontType('bold');
 
 
-    
+    doc.setFontType('bold');
+    doc.textAlign(modelo.tipoCambio, { align: "left" }, startX, startY +=  lineSpacing.NormalSpacing);
+
+    doc.setFontType('bold');
+    doc.textAlign(modelo.dolarTitulo, { align: "left" }, startX, startY += lineSpacing.NormalSpacing);
+    doc.setFontType('normal');
+    doc.textAlign(modelo.dolar, { align: "left" }, 85, startY);
+
+    doc.setFontType('bold');
+    doc.textAlign(modelo.euroTitulo, { align: "left" }, startX, startY += lineSpacing.NormalSpacing);
+    doc.setFontType('normal');
+    doc.textAlign(modelo.euro, { align: "left" }, 85, startY);
+
+    var _midY = midY;
+
+    doc.setFontType('bold');
+    doc.textAlign(modelo.clienteTitulo, { align: "left" }, 150, 129);
+    doc.setFontType('normal');
+    doc.textAlign(modelo.cliente, { align: "left" }, 150, 139);
+
+    doc.setFontType('bold'); 
+    doc.textAlign(modelo.usuarioTitulo, { align: "left" }, rightStartCol1-10, 129);
+    doc.setFontType('normal');
+    doc.textAlign(modelo.usuario, { align: "left" }, rightStartCol1-10,139);
+
+    doc.setFontType('bold');
+    doc.textAlign(modelo.vendedorTitulo, { align: "left" }, rightStartCol2, 129);
+    doc.setFontType('normal');
+    doc.textAlign(modelo.vendedor, { align: "left" }, rightStartCol2,139);
+
 
     var header = function (data) {
         doc.setFontSize(8);
@@ -165,33 +180,30 @@ function generate_cutomPDF(modelo) {
         },
         styles: {
             overflow: 'linebreak',
-            fontSize: 8,
+            fontSize: 10,
             rowHeight: 'auto',
-            columnWidth: '100%'
+            columnWidth: '100%',
+          
+         
+          
+            
         },
         columnStyles: {
             1: { columnWidth: 'auto' },
             2: { columnWidth: 'auto' },
             3: { columnWidth: 'auto' },
             4: { columnWidth: 'auto' },
-            5: { columnWidth: 'auto' },
-            6: { columnWidth: 'auto' },
-            7: { columnWidth: 'auto' },
-            8: { columnWidth: 'auto' }
-
+            5: { columnWidth: 'auto' }
         },
         startY: startY += 50
     };
 
     var columns = [
         { title: modelo.columnas.item, dataKey: "item", width: 90 },
-        { title: modelo.columnas.descripcion, dataKey: "descripcion", width: 40 },
         { title: modelo.columnas.cantidad, dataKey: "cantidad", width: 40 },
-        { title: modelo.columnas.precioUnid, dataKey: "precioUnid", width: 40 },
         { title: modelo.columnas.descuento, dataKey: "descuento", width: 40 },
-        { title: modelo.columnas.iva, dataKey: "iva", width: 40 },
-        { title: modelo.columnas.subtotal, dataKey: "subtotal", width: 40 },
-        { title: modelo.columnas.bodega, dataKey: "bodega", width: 40 }
+        { title: modelo.columnas.precioUnitario, dataKey: "precioUnitario", width: 40 },
+        { title: modelo.columnas.total, dataKey: "total", width: 40 },
     ];
 
     //var rows = [
@@ -211,8 +223,8 @@ function generate_cutomPDF(modelo) {
 
 
     //-------Invoice Footer---------------------
-    var rightcol1 = 385;
-    var rightcol2 = 445;
+    var rightcol1 = 400;
+    var rightcol2 = 490;
 
     startY = doc.autoTableEndPosY() + 30;
     doc.setFontSize(fontSizes.NormalFontSize);
@@ -220,23 +232,23 @@ function generate_cutomPDF(modelo) {
     doc.setFontType('bold');
     doc.textAlign(modelo.resumen.subtotal, { align: "left" }, rightcol1, startY += lineSpacing.NormalSpacing);
     doc.setFontType('normal');
-    doc.textAlign(invoiceJSON.subtotal.toString(), { align: "left" }, rightcol2, startY);
+    doc.textAlign(invoiceJSON.subtotal.toString(), { align: "rigth" }, rightcol2, startY);
     doc.setFontSize(fontSizes.NormalFontSize);
     doc.setFontType('bold');
     doc.textAlign(modelo.resumen.descuento, { align: "left" }, rightcol1, startY += lineSpacing.NormalSpacing);
     doc.setFontType('normal');
-    doc.textAlign(invoiceJSON.descuento.toString(), { align: "left" }, rightcol2, startY);
+    doc.textAlign(invoiceJSON.descuento.toString(), { align: "rigth" }, rightcol2, startY);
 
 
     doc.setFontType('bold');
     doc.textAlign(modelo.resumen.impuesto, { align: "left" }, rightcol1, startY += lineSpacing.NormalSpacing);
     doc.setFontType('normal');
-    doc.textAlign(invoiceJSON.impuesto.toString(), { align: "left" }, rightcol2, startY);
+    doc.textAlign(invoiceJSON.impuesto.toString(), { align: "rigth" }, rightcol2, startY);
 
     doc.setFontType('bold');
     doc.textAlign(modelo.resumen.total, { align: "left" }, rightcol1, startY += lineSpacing.NormalSpacing);
     doc.setFontType('normal');
-    doc.textAlign(invoiceJSON.total.toString(), { align: "left" }, rightcol2, startY);
+    doc.textAlign(invoiceJSON.total.toString(), { align: "rigth" }, rightcol2, startY);
 
 
     doc.setFontType('bold');
