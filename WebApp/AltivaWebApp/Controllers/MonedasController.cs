@@ -121,13 +121,13 @@ namespace AltivaWebApp.Controllers
                 var model = service.GetMonedaById(id);
                 if (model != null)
                 {
-                    return Json(new { valorCompra = model.ValorCompra, valorVenta = model.ValorVenta });
+                    return Json(new { valorCompra = model.ValorCompra, valorVenta = model.ValorVenta, simbolo = model.Simbolo });
                 }
                 else
                 {
                     var monedas = map.Create();
                     var moneda = monedas.FirstOrDefault(m => m.Codigo == id);
-                    return Json(new { valorCompra = moneda.ValorCompra, valorVenta = moneda.ValorVenta });
+                    return Json(new { valorCompra = moneda.ValorCompra, valorVenta = moneda.ValorVenta, simbolo = model.Simbolo });
                 }
 
             }

@@ -130,12 +130,12 @@ namespace AltivaWebApp.Controllers
                 var existeEmpresaN = service.GetEmpresaByNombre(model.Nombre);
                 if(existeEmpresaN != null)
                 {
-                    return Json(new { success = _sharedLocalizer["yaExisteEmpresaN"].ToString() });
+                    return Json(new { success = _sharedLocalizer["yaExisteEmpresa"].ToString() });
                 }
                 var existeEmpresaC = service.GetByCedula(model.CedJuridica);
                 if (existeEmpresaN != null)
                 {
-                    return Json(new { success = _sharedLocalizer["yaExisteEmpresaC"].ToString() });
+                    return Json(new { success = _sharedLocalizer["yaExisteEmpresa"].ToString() });
                 }
 
                 model.Id_GE = (int)service.GetGE().Id;

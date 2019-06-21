@@ -34,7 +34,7 @@ namespace AltivaWebApp.Controllers
         }
 
         // GET: ManejoUsuarios
-        [HttpGet("Listar-Usarios")]
+        [HttpGet("Listar-Usuarios")]
         public ActionResult ListaUsuarios(string estado)
         {
 

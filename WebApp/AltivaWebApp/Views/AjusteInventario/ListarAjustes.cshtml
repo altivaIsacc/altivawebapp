@@ -69,7 +69,9 @@
         <table class=" table table-bordered" style="width:100%" id="tblAjustes">
             <thead>
                 <tr>
-                    
+                    <th hidden >
+                        <span >Id</span>
+                    </th>
                     <th>
                         <span>@SharedLocalizer["Fecha"]</span>
                     </th>
@@ -92,7 +94,7 @@
 
 </div>
 
-
+<input readonly hidden id="monedaFormatter" />
 
 <style>
     .dataTables_wrapper .dataTables_filter {
@@ -113,7 +115,7 @@
 
     $(document).ready(function () {
 
-
+        getMonedaBase();
         getAjustes();
 
         $('#filtroFecha').attr('disabled', true);
@@ -154,7 +156,7 @@
                 ],
                 "firstDay": 1
             }
-                },
+        },
             function (start, end, label) {
 
                 desde = start.format('YYYY-MM-DD');
@@ -164,8 +166,31 @@
 
             });
 
+        
+
 
     });
+
+    function getMonedaBase() {
+        $.ajax({
+            type: "get",
+            headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetTipoCambio", "Monedas", new { id = 1 })',
+            success: function (data) {
+                $("#monedaFormatter").inputmask('currency', {
+                    prefix: data.simbolo + " ",
+                    rightAlign: true
+                });
+            },
+            error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
 
     function getAjustes() {
             ///get ajustes
@@ -203,9 +228,10 @@
                 estado = '@SharedLocalizer["Si"]';
 
             var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td hidden><p style="padding-top:1rem">' + data[i].id + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaDocumento) + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + data[i].descripcion + '</p></td>'
-                + '<td class="col-md-2"><input style="padding-top:1rem; border:0; background-color : #F7F7F7" class="colon" value="' + data[i].saldoAjuste + '"/></td>'
+                + '<td style="text-align:right"><p style="padding-top:1rem">' + getSaldoAjuste(data[i].saldoAjuste) + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + estado + '</p></td>'
                 + '<td>  <button value="' + data[i].id + '" onclick="editarAjuste(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
             $('#tblAjustes > tbody').append(body);
@@ -213,20 +239,25 @@
         }
 
         //inicializar formato
-        $(".colon").inputmask('currency', {
-            prefix: "₡",
-            rightAlign: true
-        });
+       
 
         inicializarTabla();
 
     }
+
+    function getSaldoAjuste(val) {
+        $('#monedaFormatter').val(val);
+
+        return $('#monedaFormatter').val();
+    }
+
     function inicializarTabla() {
         $('#tblAjustes').DataTable().destroy();
 
         tblAjustes = $('#tblAjustes').DataTable({
             "info": false,
             dom: 'Bfrtip',
+            "order": [[0, "desc"]],
             language: {
                 "decimal": "",
                 "emptyTable": "@SharedLocalizer["NoDatos"]",
@@ -254,7 +285,7 @@
                     titleAttr: 'Copy',
                     title: '@SharedLocalizer["AjusteManual"]',
                     exportOptions: {
-                        columns: [0, 1, 3]
+                        columns: [1, 3, 4]
                     }
                    
                 },
@@ -264,7 +295,7 @@
                     titleAttr: 'Excel',
                     title: '@SharedLocalizer["AjusteManual"]',
                     exportOptions: {
-                        columns: [0, 1, 3]
+                        columns: [1, 3, 4]
                     }
                     
                 },
@@ -275,7 +306,7 @@
                     titleAttr: 'PDF',
                     title: '@SharedLocalizer["AjusteManual"]',
                     exportOptions: {
-                        columns: [0, 1, 3]
+                        columns: [1, 3, 4]
                     }
                 }
             ]

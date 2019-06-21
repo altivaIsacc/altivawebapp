@@ -10,14 +10,14 @@
 <h3>@SharedLocalizer["Nuevo"] @SharedLocalizer["Usuario"]</h3>
 <hr />
 <div class="row">
-    <div class="col-md-4 col-sm-6 col-xs-12">
+    <div class="col-md-6 col-sm-8 col-xs-12">
         <form id="frmUsuario" method="post" enctype="multipart/form-data">
             @Html.HiddenFor(x => x.id)
             @Html.HiddenFor(x => x.Id_Usuario)
 
             <div class="form-group">
                 <label for="codigo" class="control-label">@SharedLocalizer["Codigo"]:</label>
-                <input  id="codigo" class="form-control" />
+                <input  id="codigo" class="form-control" autofocus />
                 <div id="codigoValidation"></div>
             </div>
             <div class="form-group">
@@ -38,9 +38,10 @@
                 <div id="inicialesValidation"></div>
             </div>
             <div class="form-group">
-                <label for="contrasena" class="control-label">@SharedLocalizer["Contraseña"]: </label>
-                <input type="password" id="contrasena" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" title="@SharedLocalizer["claveRequisitos"]" class="form-control" />
+                <label for="contrasena" class="control-label">@SharedLocalizer["Contraseña"]: (@SharedLocalizer["claveRequisitos"]) </label>
+                <input type="password" id="contrasena" title="@SharedLocalizer["claveRequisitos"]" class="form-control" />
                 <div id="passwordValidation"></div>
+                <span hidden id="claveInvalida" class="text-danger">@SharedLocalizer["claveInvalida"]</span>
             </div>
             <div class="form-group">
                 <label class="control-label">@SharedLocalizer["Confirmar"] @SharedLocalizer["Contraseña"]:</label>
@@ -51,18 +52,19 @@
                 <label for="correo" class="control-label">@SharedLocalizer["Correo"]:</label>
                 <input type="email" id="correo" class="form-control" />
                 <div id="correoValidation"></div>
+                <span hidden id="correoInvalido" class="text-danger">@SharedLocalizer["correoInvalido"]</span>
             </div>
             <div class="form-group">
                 <span class="input-group-text" id="inputGroup-sizing-sm">@SharedLocalizer["Cargar"] Avatar</span>
                 <input type="file" accept="image/*"  id="fileUpload" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
-                <span hidden class="text-danger">@SharedLocalizer["tamanoValid"] (6MB)</span>
+                <span hidden class="text-danger">@SharedLocalizer["tamanoArchivo"] (6MB)</span>
                 <span hidden class="text-danger">@SharedLocalizer["tipoArchivo"]</span>
             </div>
         </form>
 
         <div class="form-group">
             <button type="submit" id="btnCrearUsuario" onclick="validarForm()" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
-            <a class="btn btn-default btnAtras">Cancelar</a>
+            <button  id="btnCancelar" class="btn btn-default">@SharedLocalizer["Cancelar"]</button>
         </div>
     </div>
 </div>
@@ -70,7 +72,17 @@
 <script>
     $(document).ready(function () {
 
+        $('#btnCancelar').click(function () {
 
+            bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) {
+            if (result)
+                window.location.href = "@Url.Action("ListaUsuarios")";
+            else
+                $('#codigo').focus();
+            });
+
+        });
+        
     });
 
     function crearUsuario() {
@@ -137,11 +149,15 @@
                 $('#tamanoArchivo').attr('hidden', false);
                 $(this).val('');
             }
+            else
+                $('#tamanoArchivo').attr('hidden', true);
 
-            if (!(/\.(jpg|png|gif)$/i).test(file.name)) {
+            if (!(/\.(jpg|png)$/i).test(file.name)) {
                 $('#tipoArchivo').attr('hidden', false);
                 $(this).val('');
             }
+            else
+                $('#tipoArchivo').attr('hidden', true);
 
         }
         
@@ -161,6 +177,8 @@
 
             flag = false;
         }
+        else
+            $('#codigoValidation').empty();
 
         if ($('#nombre').val().replace(/ /g, "") === "") {
             $('#nombreValidation').empty();
@@ -168,41 +186,111 @@
 
             flag = false;
         }
+        else
+            $('#nombreValidation').empty();
+
         if ($('#iniciales').val().replace(/ /g, "") === "") {
             $('#inicialesValidation').empty();
             $('#inicialesValidation').append('<span class="text-danger">@SharedLocalizer["inicialesValid"]</span>');
 
             flag = false;
         }
+        else
+            $('#inicialesValidation').empty();
+
         if ($('#contrasena').val().replace(/ /g, "") === "") {
             $('#passwordValidation').empty();
             $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["contrasenaValid"]</span>');
 
             flag = false;
         }
+        else {
+            $('#passwordValidation').empty();
+            if (!validarContrasena($('#contrasena').val())) {
+                $('#claveInvalida').prop("hidden", false);
+                flag = false;
+            }
+            else
+                $('#claveInvalida').prop("hidden", true);
+        }
+
         if ($('#confirmContrasena').val().replace(/ /g, "") === "") {
             $('#passwordConfirmValidation').empty();
             $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["confirmacionValid"]</span>');
 
             flag = false;
-        } if ($('#correo').val().replace(/ /g, "") === "") {
+        }
+        else
+            $('#passwordConfirmValidation').empty();
+
+        if ($('#correo').val().replace(/ /g, "") === "") {
             $('#correoValidation').empty();
             $('#correoValidation').append('<span class="text-danger">@SharedLocalizer["correoValid"]</span>');
 
             flag = false;
+        } else {
+            $('#correoValidation').empty();
+            if (!isEmail($('#correo').val())) {
+                $('#correoInvalido').prop("hidden", false);
+                flag = false;
+            } else
+                $('#correoInvalido').prop("hidden", true);
+
         }
+            
+
         if ($('#contrasena').val() != $('#confirmContrasena').val()) {
             $('#passwordConfirmValidation').empty();
             $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
-            $('#passwordValidation').empty();
-            $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
+            @*$('#passwordValidation').empty();
+            $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');*@
 
             flag = false;
         }
+        else {
+            $('#passwordValidation').empty();
+            $('#passwordConfirmValidation').empty();
+        }
+            
 
         if (flag)
             crearUsuario();
 
     }
+
+    function isEmail(email) {
+        var regex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        return regex.test(email);
+    }
+
+    function validarContrasena(val) {
+
+        
+        var flag = true;
+        
+            var pswd = val;
+            if (pswd.length < 8 || pswd.length > 16) {
+                flag = false;
+            } 
+
+            if (!pswd.match(/[a-z]/g)) {
+                flag = false;
+            } 
+
+            //validate capital letter
+            if (!pswd.match(/[A-Z]/g)) {
+                flag = false;
+            } 
+
+            //validate number
+            if (!pswd.match(/[0-9]/g)) {
+                flag = false;
+            } 
+
+        
+        return flag;
+    }
+
+    
 
 </script>
