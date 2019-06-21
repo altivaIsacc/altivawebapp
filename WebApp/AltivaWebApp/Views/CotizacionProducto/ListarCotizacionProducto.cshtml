@@ -79,7 +79,7 @@
 <br />
 
 <div class="row">
-    <div class="col-md-10  table-responsive">
+    <div class="col-md-12  table-responsive">
         <table class=" table table-bordered" style="width:100%" id="tblCotizacion">
             <thead>
                 <tr>
@@ -115,7 +115,7 @@
     var hasta;
     var desde;
     var monedas = [];
-
+    var _Estado = "";
 
     $(document).ready(function () {
 
@@ -258,10 +258,15 @@
         console.log(data);
         for (var i = 0; i < data.length; i++) {
             var body;
+             _Estado = "";
             switch (parseInt(data[i].idMoneda)) {
 
                 case 1:
-                    body = '<tr class="fila' + contadorFila + ' filas">'
+                    if (data[i].estado === "Anulada") {
+                        _Estado = "none";
+                    }
+
+                    body = '<tr class="fila' + contadorFila + ' filas" style="display:'+_Estado+'">'
                         + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCotizacion + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCotizacion) + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + data[i].idClienteNavigation.nombre + '</p></td>'
@@ -271,11 +276,14 @@
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
                         + '<td style="display:none;"><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaVencimiento) + '</p></td>'
-                        + '<td><p style="padding-top:1rem" class="colon" >' +formatoMoneda(1, data[i].totalBase) + '</p></td>'
+                        + '<td><p style="padding-top:1rem;text-align: right;" class="colon" >' +formatoMoneda(1, data[i].totalBase) + '</p></td>'
                         + '<td>  <button value="' + data[i].idCotizacion + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
                     break;
                 case 2:
-                    body = '<tr class="fila' + contadorFila + ' filas">'
+                    if (data[i].estado === "Anulada") {
+                        _Estado = "none";
+                    }
+                    body = '<tr class="fila' + contadorFila + ' filas" style="display:' + _Estado +'">'
                         + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCotizacion + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCotizacion) + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + data[i].idClienteNavigation.nombre + '</p></td>'
@@ -285,11 +293,14 @@
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
                         + '<td style="display:none;"><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaVencimiento) + '</p></td>'
-                        + '<td><p style="padding-top:1rem" class="dolar" >' +formatoMoneda(2, data[i].totalDolar) + '</p></td>'
+                        + '<td><p style="padding-top:1rem;text-align: right;" class="dolar" >' +formatoMoneda(2, data[i].totalDolar) + '</p></td>'
                         + '<td>  <button value="' + data[i].idCotizacion + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
                     break;
                 case 3:
-                    body = '<tr class="fila' + contadorFila + ' filas">'
+                    if (data[i].estado === "Anulada") {
+                        _Estado = "none";
+                    }
+                    body = '<tr class="fila' + contadorFila + ' filas" style="display:' + _Estado +'">'
                         + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCotizacion + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCotizacion) + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + data[i].idClienteNavigation.nombre + '</p></td>'
@@ -299,7 +310,7 @@
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
                         + '<td style="display:none;"><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaVencimiento) + '</p></td>'
-                        + '<td><p style="padding-top:1rem" class="euro" >' +formatoMoneda(3,data[i].totalEuro) + '</p></td>'
+                        + '<td><p style="padding-top:1rem;text-align: right;" class="euro" >' +formatoMoneda(3,data[i].totalEuro) + '</p></td>'
                         + '<td>  <button value="' + data[i].idCotizacion + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
                     break;
             }
@@ -457,6 +468,7 @@
                     .draw();
                 break;
             case "3":
+                _Estado = "";
                 tblCotizacion
                     .columns(3)
                     .search("Anulada")

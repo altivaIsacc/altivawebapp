@@ -25,7 +25,7 @@ namespace AltivaWebApp.ViewModels
         public double? SubTotalExcentoBase { get; set; }
         public double? SubTotalExcentoDolar { get; set; }
         public double? SubTotalExcentoEuro { get; set; }
-        public double? PorcDescuentoBase { get; set; }
+        public double PorcDescuentoBase { get; set; }
         public double? TotalDescuentoBase { get; set; }
         public double? TotalDescuentoDolar { get; set; }
         public double? TotalDescuentoEuro { get; set; }

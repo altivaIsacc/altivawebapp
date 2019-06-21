@@ -123,7 +123,7 @@ namespace AltivaWebApp.Controllers
                         long? idCD = 0;
                    
                         var orden = _Map.Update(viewModel);
-                        if (viewModel.IdCotizacion != 0 && viewModel.CotizacionDetalle.Count() > 0)
+                        if (viewModel.IdCotizacion != 0 && viewModel.CotizacionDetalle.Count()>0)
                     {
                         var count = viewModel.CotizacionDetalle.Count();                    
                             var cd = _Map.CreateCD(viewModel);
@@ -150,7 +150,7 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
-               throw;
+                throw;
                 //return BadRequest();
             }
         }

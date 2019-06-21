@@ -47,7 +47,7 @@ namespace AltivaWebApp.Mappers
                 viewModel.SubTotalExcentoBase = domain.SubTotalExcentoBase;
                 viewModel.SubTotalExcentoDolar = domain.SubTotalExcentoDolar;
                 viewModel.SubTotalExcentoEuro = domain.SubTotalExcentoEuro;
-                viewModel.PorcDescuentoBase = domain.PorcDescuentoBase;
+                viewModel.PorcDescuentoBase =Convert.ToDouble( domain.PorcDescuentoBase);
                 viewModel.TotalDescuentoBase = domain.TotalDescuentoBase;
                 viewModel.TotalDescuentoDolar = domain.TotalDescuentoDolar;
                 viewModel.TotalDescuentoEuro = domain.TotalDescuentoEuro;
@@ -76,7 +76,7 @@ namespace AltivaWebApp.Mappers
                 viewModel.SubTotalExcentoBase = domain.SubTotalExcentoBase;
                 viewModel.SubTotalExcentoDolar = domain.SubTotalExcentoDolar;
                 viewModel.SubTotalExcentoEuro = domain.SubTotalExcentoEuro;
-                viewModel.PorcDescuentoBase = domain.PorcDescuentoBase;
+                viewModel.PorcDescuentoBase = Convert.ToDouble( domain.PorcDescuentoBase);
                 viewModel.TotalDescuentoBase = domain.TotalDescuentoBase;
                 viewModel.TotalDescuentoDolar = domain.TotalDescuentoDolar;
                 viewModel.TotalDescuentoEuro = domain.TotalDescuentoEuro;
@@ -104,7 +104,7 @@ namespace AltivaWebApp.Mappers
                 viewModel.SubTotalExcentoBase = domain.SubTotalExcentoBase;
                 viewModel.SubTotalExcentoDolar = domain.SubTotalExcentoDolar;
                 viewModel.SubTotalExcentoEuro = domain.SubTotalExcentoEuro;
-                viewModel.PorcDescuentoBase = domain.PorcDescuentoBase;
+                viewModel.PorcDescuentoBase = Convert.ToDouble( domain.PorcDescuentoBase);
                 viewModel.TotalDescuentoBase = domain.TotalDescuentoBase;
                 viewModel.TotalDescuentoDolar = domain.TotalDescuentoDolar;
                 viewModel.TotalDescuentoEuro = domain.TotalDescuentoEuro;

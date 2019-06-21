@@ -73,7 +73,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-
+              
 
                 context.TbFaCotizacionDetalle.Add(domain);
                 context.SaveChanges();
