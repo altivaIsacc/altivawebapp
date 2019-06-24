@@ -34,39 +34,29 @@
 <hr />
 <div class="row">
     <div class="col-md-12">
-        <form id="frmFamilia">
-
-            <div class="form-group" hidden>
-                <label asp-for="Id" class="control-label">Id</label>
-                <input asp-for="Id" class="form-control" />
-                <span asp-validation-for="Id" class="text-danger"></span>
-            </div>
+        <form id="frmFamiliaOnline">
+            @Html.HiddenFor(x => x.Id)
+            @Html.HiddenFor(x => x.IdUsuario)
+            @Html.HiddenFor(x => x.FechaCreacion)
+           
             <div class="form-group">
                 <label asp-for="Descripcion" class="control-label">@SharedLocalizer["descripcion"]</label>
                 <input asp-for="Descripcion" class="form-control" />
-                <span hidden id="validatedTextDescripcion" class="text-danger">@SharedLocalizer["descripcionRequerida"]Descripción es requerída.</span>
+                <span hidden id="validatedTextDescripcion" class="text-danger">@SharedLocalizer["descripcionRequerida"].</span>
+                <span hidden id="repetidoValid" class="text-danger">@SharedLocalizer["repetidoValid"].</span>
             </div>
-            <div class="form-group" hidden>
-                <label data-translate="fechaCreacion" asp-for="FechaCreacion" class="control-label">Fecha de Creación</label>
-                <input asp-for="FechaCreacion" class="form-control" />
-                <span asp-validation-for="FechaCreacion" class="text-danger"></span>
-            </div>
-            <div class="form-group" hidden>
-                <label asp-for="IdUsuario" class="control-label"></label>
-                <input asp-for="IdUsuario" class="form-control" />
-                <span asp-validation-for="IdUsuario" class="text-danger"></span>
-            </div>
+            
             <div class="form-group">
                 <div class="form-check">
-                    <input id="esSubfamilia" type="checkbox" class="form-check-input" />
-                    <label data-translate="esSubfamilia" class="form-check-label">
+                    <input id="esSubfamiliaOnline" type="checkbox" class="form-check-input" />
+                    <label  class="form-check-label">
                         @SharedLocalizer["esSubFamilia"]
                     </label>
                 </div>
             </div>
-            <div id="familiaPadre" class="form-group">
+            <div id="familiaPadreOnline" class="form-group">
                 <label data-translate="familia" class="control-label">Familia</label>
-                <select onchange="validarFamiliaPadre()" asp-for="IdFamilia" id="familiaPadreSelect" class="form-control search-key">
+                <select onchange="validarFamiliaPadreOnline()" asp-for="IdFamilia" id="familiaPadreOnlineSelect" class="form-control search-key">
                     <option value="null" selected>Seleccione</option>
                     @{
                         foreach (var item in ViewData["familiasOnline"] as List<TbPrFamiliaVentaOnline>)
@@ -85,7 +75,7 @@
 
     <div class="form-group row">
         <div class="col-md-2 col-sm-4 col-xs-12">
-            <button onclick="guardarFamilia()" id="submitFrmFamilia" class="btn btn-success"><span>@SharedLocalizer["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
+            <button onclick="guardarFamiliaOnline()" id="submitFrmFamiliaOnline" class="btn btn-success"><span>@SharedLocalizer["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
         </div>
         <div class="col-md-2 col-sm-4 col-xs-12">
             <button class="btn btn-default" data-dismiss="modal">@SharedLocalizer["Cancelar"]</button>
@@ -99,31 +89,31 @@
 
 
 
-        var familiaPadre = $('#familiaPadreSelect').val();
+        var familiaPadre = $('#familiaPadreOnlineSelect').val();
         var familia = familiaPadre;
-        $('#familiaPadre').hide();
+        $('#familiaPadreOnline').hide();
 
         if (familiaPadre != 'null') {
-            $('#familiaPadre').show();
-            $('#esSubfamilia').prop('checked', true);
+            $('#familiaPadreOnline').show();
+            $('#esSubfamiliaOnline').prop('checked', true);
         }
 
 
 
-        $('#esSubfamilia').change(function () {
+        $('#esSubfamiliaOnline').change(function () {
 
-            if ($('#esSubfamilia').is(':checked')) {
-                $('#familiaPadre').show();
-                validarFamiliaPadre();
+            if ($('#esSubfamiliaOnline').is(':checked')) {
+                $('#familiaPadreOnline').show();
+                validarFamiliaPadreOnline();
             }
             else {
                 //var text = "";
                 //var o = new Option(text, null);
                 //$(o).attr('selected', true);
                 //$("#familiaPadre").append(o);
-                $('#familiaPadreSelect').val('null')
-                $('#familiaPadre').hide();
-                $('#submitFrmFamilia').attr('disabled', false);
+                $('#familiaPadreOnlineSelect').val('null')
+                $('#familiaPadreOnline').hide();
+                $('#submitFrmFamiliaOnline').attr('disabled', false);
             }
 
 
@@ -131,9 +121,9 @@
 
 
     });
-    function guardarFamilia() {
+    function guardarFamiliaOnline() {
 
-        var model = $('#frmFamilia').serializeArray();
+        var model = $('#frmFamiliaOnline').serializeArray();
 
             if (validarForm(model)) {
 
@@ -143,9 +133,13 @@
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
                 url: '@Url.Action("CrearEditarFamilia", "FamiliaVentaOnline", new { id = Model.Id })',@*//'../Familias/CrearEditar-Familia/' + @Model.Id,*@
-                data: $('#frmFamilia').serialize(),
+                data: $('#frmFamiliaOnline').serialize(),
                 success: function (data) {
-                    setFamiliasOnline(data);
+                    if (data.success)
+                        setFamiliasOnline(data);
+                    else {
+                        $('#repetidoValid').prop('hidden', false);
+                    }
                 },
                 error: function (err, scnd) {
                     console.log(err.statusText);
@@ -157,8 +151,8 @@
 
     function validarForm(model) {
 
-
-        if (model[1].value != '') {
+        console.log(model);
+        if (model[3].value.replace(/ /g, "") != '') {
             return true;
         }
         else {
@@ -168,13 +162,13 @@
 
     }
 
-    function validarFamiliaPadre() {
+    function validarFamiliaPadreOnline() {
 
-        console.log($('#familiaPadreSelect').val());
-        if ($('#familiaPadreSelect').val() === "null")
-            $('#submitFrmFamilia').attr('disabled', true);
+        
+        if ($('#familiaPadreOnlineSelect').val() === "null")
+            $('#submitFrmFamiliaOnline').attr('disabled', true);
         else
-            $('#submitFrmFamilia').attr('disabled', false);
+            $('#submitFrmFamiliaOnline').attr('disabled', false);
     }
 
 </script>

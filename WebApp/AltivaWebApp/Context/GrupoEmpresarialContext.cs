@@ -170,7 +170,7 @@ namespace AltivaWebApp.Context
                 entity.ToTable("tb_SE_Bitacora");
 
                 entity.Property(e => e.Descripcion)
-                    .HasMaxLength(50)
+                    .HasMaxLength(250)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Fecha).HasColumnType("datetime");

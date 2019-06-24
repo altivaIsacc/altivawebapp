@@ -18,8 +18,9 @@
 
     if(Model.Id != 0 && Model.Anulado || !Model.Borrador)
     {
-        editable = "readonly";
+        editable = "disabled";
     }
+    
 
     if(Model.Id != 0 && !Model.Borrador)
     {
@@ -51,17 +52,17 @@ else
         @Html.HiddenFor(x => x.Anulado)
         @Html.HiddenFor(x => x.Borrador)
 
-        <div class="form-group col-md-2 col-sm-6 col-xs-12">
+        <div class="form-group col-md-2 col-sm-4 col-xs-12">
             <label asp-for="IdBodega" class="control-label">@SharedLocalizer["Bodega"]:</label>
             <select @estadoContrario class="form-control selectBodegas" id="bodegas" onchange="cambioBodega()"><option value="0">@SharedLocalizer["Seleccione"]</option></select>
         </div>
 
-        <div class="form-group col-md-2 col-sm-6 col-xs-12">
-            <fieldset disabled>
+        <div class="form-group col-md-3 col-sm-6 col-xs-12">
+            <fieldset>
                 <div class="form-group">
                     <label for="fecha">@SharedLocalizer["Fecha"]:</label>
                     <div class='input-group date' id='fechaPicker'>
-                        <input type='text' class="form-control" id="fecha" />
+                        <input type='text' class="form-control fechas" id="fecha" />
                         <span class="input-group-addon">
                             <span class="fas fa-calendar"></span>
                         </span>
@@ -71,7 +72,7 @@ else
         </div>
         @if (!ViewBag.existeTomaInicial)
         {
-            <div class="form-group col-md-2 col-sm-6 col-xs-12 " style="padding-top:2rem">
+            <div class="form-group col-md-2 col-sm-4 col-xs-12 " style="padding-top:2rem">
                 <div class="checkbox">
                     <label>
                         <input checked="@Model.EsInicial" @editarInicial type="checkbox" class="flat" name="iCheck" id="esInicial" /> @SharedLocalizer["EsInventarioInicial"]
@@ -132,7 +133,7 @@ else
         <button @estado class="btn btn-danger btnAccion" style="width:100%" onclick="anularToma()">@SharedLocalizer["Anular"] </button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
-        <button class="btn btn-success btnAccion" style="width:100%" onclick="guardarCambios(2)">@SharedLocalizer["Ajustar"] @SharedLocalizer["Inventario"]</button>
+        <button class="btn btn-success btnAccion" style="width:100%" onclick="ajustarInventario()">@SharedLocalizer["Ajustar"] @SharedLocalizer["Inventario"]</button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
         <a onclick="cancelar()" style="width:100%" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
@@ -185,7 +186,7 @@ else
     $(document).ready(function () {
 
       
-
+        $('.fechas').mask('00/00/0000 00:00');
         getBodegas();
         getFamilias();
 
@@ -198,8 +199,8 @@ else
             GetComentarios("TF", @Model.Id);
             $('#bodegas').attr('disabled', true);
             date = new Date(formatearFecha());
-            
-        }
+
+        } 
 
         $('#fechaPicker').datetimepicker({
             defaultDate: date,
@@ -276,9 +277,14 @@ else
 
         var data = modeloTabla(_data);
 
+        var editable = '@editable';
+
+        if (@Model.Id == 0)
+            editable = '';
+
         for (var i = 0; i < data.length; i++) {
 
-
+            
 
             var body = '<tr class="fila' + contadorFila + ' filas">'
                 + '<td><p style="padding-top:1rem;">' + data[i].codigo + '</p></td>'
@@ -289,7 +295,7 @@ else
                 + '<td><p style="padding-top:1rem;">' + data[i].entradas + '</p></td>'
                 + '<td><p style="padding-top:1rem;">' + data[i].salidas + '</p></td>'
                 + '<td><p style="padding-top:1rem;">' + data[i].existencia + '</p></td>'
-                + '<td><p style="padding-top:1rem;"> <input @editable class="form-control numerico" onkeyup="editarLinea(value, ' + contadorFila + ')" value="' + data[i].toma + '" /></p></td>'
+                + '<td><p style="padding-top:1rem;"> <input' + editable + ' class="form-control numerico" onkeyup="editarLinea(value, ' + contadorFila + ')" value="' + data[i].toma + '" /></p></td>'
             $('#tblTomaD > tbody').append(body);
             contadorFila++;
 
@@ -414,6 +420,7 @@ else
                     success: function (data) {
                         $('#combinables').html(data);
                         $('#modalCombinables').modal('show');
+                        $('#' +@Model.Id).prop('checked', true);
                     },
                     error: function (err, scnd) {
                         console.log(err.statusText);
@@ -530,23 +537,43 @@ else
 
         //console.log(crearModelo());
         $.ajax({
-              type: "POST",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
             url: '@Url.Action("CrearEditarToma")',
             data: crearModelo(),
             success: function (data) {
 
-                @*window.location.href = "@Url.Action("ListarTomas")";*@
-               },
-              error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
-                  console.log(err.statusText);
-              }
+               window.location.href = "@Url.Action("ListarTomas")";
+            },
+            error: function (err, scnd) {
+                 cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
         });
 
+    }
+
+    function ajustarInventario() {
+         $.ajax({
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("AjustarInventario")',
+            data: crearModelo(),
+            success: function (data) {
+
+               @*//window.location.href = "@Url.Action("ListarTomas")";*@
+            },
+            error: function (err, scnd) {
+                 cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
     }
 
 

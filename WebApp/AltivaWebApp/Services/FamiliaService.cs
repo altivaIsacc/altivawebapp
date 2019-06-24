@@ -47,5 +47,9 @@ namespace AltivaWebApp.Services
         {
             repository.UpdateSubFamilia(subFamilias);
         }
+        public TbPrFamilia GetFamiliaByDescripcion(string descripcion)
+        {
+            return repository.GetFamiliaByDescripcion(descripcion);
+        }
     }
 }

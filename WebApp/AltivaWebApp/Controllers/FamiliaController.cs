@@ -84,13 +84,23 @@ namespace AltivaWebApp.Controllers
             {
                 var familia = new TbPrFamilia();
                 var edita = false;
+
+                var existeFamilia = service.GetFamiliaByDescripcion(viewModel.Descripcion);
+
                 if (id == 0)
                 {
+                    if (existeFamilia != null)
+                        return Json(new { success = false });
+
                     viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     familia = map.Create(viewModel);
                 }
                 else
                 {
+                    if (existeFamilia != null)
+                        if(existeFamilia.Id != id)
+                            return Json(new { success = false });
+
                     familia = map.Update(id, viewModel);
                     edita = true;
                 }
@@ -102,7 +112,7 @@ namespace AltivaWebApp.Controllers
                 }
 
 
-                return Json(new { familia = familia, edita = edita });
+                return Json(new {success = true, familia = familia, edita = edita });
             }
             catch
             {

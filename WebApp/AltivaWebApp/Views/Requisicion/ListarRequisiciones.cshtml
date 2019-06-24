@@ -217,6 +217,7 @@
         tblCompras = $('#tblReq').DataTable({
             "info": false,
             dom: 'Bfrtip',
+            "order": [[0, "desc"]],
             language: {
                 "decimal": "",
                 "emptyTable": "@SharedLocalizer["NoDatos"]",
@@ -242,7 +243,7 @@
                     extend: 'copyHtml5',
                     text: '<i class="fas fa-copy   "></i>',
                     titleAttr: 'Copy',
-                    title: '@SharedLocalizer["Departamento"]',
+                    title: '@SharedLocalizer["Requisiciones"]',
                     exportOptions: {
                         columns: [0, 1,2]
                     }
@@ -252,7 +253,7 @@
                     extend: 'excelHtml5',
                     text: '<i class="fas fa-file-excel  "></i>',
                     titleAttr: 'Excel',
-                    title: '@SharedLocalizer["Departamento"]',
+                    title: '@SharedLocalizer["Requisiciones"]',
                     exportOptions: {
                         columns: [0, 1, 2]
                     }
@@ -263,7 +264,7 @@
                     extend: 'pdfHtml5',
                     text: '<i class="fas fa-file-pdf   "></i>',
                     titleAttr: 'PDF',
-                    title: '@SharedLocalizer["Departamento"]',
+                    title: '@SharedLocalizer["Requisiciones"]',
                     exportOptions: {
                         columns: [0, 1, 2]
                     }
@@ -316,9 +317,9 @@
 
         reqsFiltrado = reqs;//JSON.parse(JSON.stringify(ordenes));
 
-        reqsFiltrado = filtroAnuladas(reqsFiltrado);
-
         reqsFiltrado = filtroFecha(reqsFiltrado, desde, hasta);
+
+        reqsFiltrado = filtroAnuladas(reqsFiltrado);
 
         cargarDatos(reqsFiltrado);
 
@@ -332,12 +333,14 @@
 
         if ($('#habilitaFiltroFecha').prop('checked')) {
 
+            console.log(_desde, _hasta);
+
             var desdeLocal = new Date(_desde).getTime();
             var hastaLocal = new Date(_hasta).getTime();
 
             for (var i = 0; i < array.length; i++) {
 
-                var documento = new Date(array[i].fecha).getTime();
+                var documento = new Date(array[i].fecha.substring(0, 10)).getTime();
 
                 if (documento >= desdeLocal && documento <= hastaLocal)
                     arrayReqs.push(reqs[i]);

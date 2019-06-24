@@ -88,6 +88,7 @@ else
         </form>
     </div>
     <div class="col-md-12 table-responsive">
+        <span hidden id="sinDetalleValid" class="text-danger">@SharedLocalizer["docSinDetalle"].</span>
         <table class="table table-bordered table-striped" id="tblReq" style="min-width:900px">
             <thead>
                 <tr>
@@ -718,21 +719,27 @@ else
 
     function validarForm() {
         //var frmOrden = $('#frmOrden').serializeArray();
+        var flag = true;
 
         if ($descripcion.val().replace(/ /g, "") === "") {
             $('#descripcionValid').attr("hidden", false);
-            return false;
-        }
-        else if (lineas.length <= 0) {
-            cargarAlert('@SharedLocalizer["requisicionSinDetalle"]');
-            return false;
-        }
-        else if (depaAnulado) {
-            cargarAlert("@SharedLocalizer["depaAnulado"]");
-            return false;
-        }
+            flag = false;
+        } else
+            $('#descripcionValid').attr("hidden", true);
 
-        return true;
+        if (lineas.length <= 0) {
+            $('#sinDetalleValid').prop('hidden', false);
+            flag = false;
+        } else
+            $('#sinDetalleValid').prop('hidden', true);
+
+        if (depaAnulado) {
+            cargarAlert("@SharedLocalizer["depaAnulado"]");
+            flag = false;
+        } 
+
+
+        return flag;
     }
 
     function eliminarLinea(_key, idLinea) {
@@ -891,7 +898,7 @@ else
             },          
             total: $total.val(),
             nombreDoc: getTittulos().req + '#@Model.Id',
-            nombreDescarga: '@SharedLocalizer["requisicion"]_ ' + ' ' + @Model.Id + '.pdf',
+            nombreDescarga: '@SharedLocalizer["Requisicion"]_ ' + ' ' + @Model.Id + '.pdf',
             columnas: {
                 item: "Item",
                 descripcion: getTittulos().desc,
@@ -977,7 +984,7 @@ else
 
     function getEstado() {
         if ('@Model.Anulado' === "True")
-            return "@SharedLocalizer["OrdenAnulada"]";
+            return "@SharedLocalizer["ReqAnulada"]";
         else
             return "";
     }

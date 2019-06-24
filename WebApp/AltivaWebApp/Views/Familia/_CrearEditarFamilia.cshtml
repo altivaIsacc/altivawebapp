@@ -35,39 +35,29 @@
 <div class="row">
     <div class="col-md-12">
         <form id="frmFamilia">
-
-            <div class="form-group" hidden>
-                <label asp-for="Id" class="control-label">Id</label>
-                <input asp-for="Id" class="form-control" />
-                <span asp-validation-for="Id" class="text-danger"></span>
-            </div>
+            @Html.HiddenFor(x => x.Id)
+            @Html.HiddenFor(x => x.IdUsuario)
+            @Html.HiddenFor(x => x.FechaCreacion)
+            
             <div class="form-group">
                 <label asp-for="Descripcion" class="control-label">@SharedLocalizer["descripcion"]</label>
-                <input asp-for="Descripcion" class="form-control" />
-                <span hidden id="validatedTextDescripcion" class="text-danger">@SharedLocalizer["descripcionRequerida"]Descripción es requerída.</span>
+                <input asp-for="Descripcion" maxlength="50" class="form-control" />
+                <span hidden id="validatedTextDescripcion" class="text-danger">@SharedLocalizer["descripcionRequerida"]</span>
+                <span hidden id="repetidoValid" class="text-danger">@SharedLocalizer["repetidoValid"].</span>
             </div>
-            <div class="form-group" hidden>
-                <label data-translate="fechaCreacion" asp-for="FechaCreacion" class="control-label">Fecha de Creación</label>
-                <input asp-for="FechaCreacion" class="form-control" />
-                <span asp-validation-for="FechaCreacion" class="text-danger"></span>
-            </div>
-            <div class="form-group" hidden>
-                <label asp-for="IdUsuario" class="control-label"></label>
-                <input asp-for="IdUsuario" class="form-control" />
-                <span asp-validation-for="IdUsuario" class="text-danger"></span>
-            </div>
+            
             <div class="form-group">
                 <div class="form-check">
                     <input id="esSubfamilia" type="checkbox" class="form-check-input" />
-                    <label data-translate="esSubfamilia" class="form-check-label">
+                    <label class="form-check-label">
                         @SharedLocalizer["esSubFamilia"]
                     </label>
                 </div>
             </div>
             <div id="familiaPadre" class="form-group">
-                <label data-translate="familia" class="control-label">Familia</label>
+                <label class="control-label">@SharedLocalizer["Familia"]</label>
                 <select onchange="validarFamiliaPadre()" asp-for="IdFamilia" id="familiaPadreSelect" class="form-control search-key">
-                    <option value="null" selected>Seleccione</option>
+                    <option value="null" selected>@SharedLocalizer["Seleccione"]</option>
                     @{
                         foreach (var item in ViewData["familias"] as List<TbPrFamilia>)
                         {
@@ -147,7 +137,22 @@
                 url: '@Url.Action("CrearEditarFamilia", "Familia", new { id = Model.Id })',@*//'../Familias/CrearEditar-Familia/' + @Model.Id,*@
                 data: $('#frmFamilia').serialize(),
                 success: function (data) {
-                    setFamilias(data);
+                    if (data.success)
+                        setFamilias(data);
+                    else {
+                        $('#repetidoValid').prop('hidden', false);
+                        //if (data.idFamilia === null) {
+                        //    $('#repetidoPadreValid').prop('hidden', false);
+                        //    $('#repetidoHijoValid').prop('hidden', true);
+                        //}
+                        //else {
+                        //    $('#repetidoPadreValid').prop('hidden', true);
+                        //    $('#repetidoHijoValid').prop('hidden', false);
+                        //}
+                            
+                    }
+                        
+                    
                 },
                 error: function (err, scnd) {
                     console.log(err.statusText);
@@ -159,8 +164,8 @@
 
     function validarForm(model) {
 
-
-        if (model[1].value != '') {
+        console.log(model);
+        if (model[3].value.replace(/ /g, "") != '') {
             return true;
         }
         else {
@@ -172,7 +177,7 @@
 
     function validarFamiliaPadre() {
 
-        console.log($('#familiaPadreSelect').val());
+        
         if ($('#familiaPadreSelect').val() === "null")
             $('#submitFrmFamilia').attr('disabled', true);
         else

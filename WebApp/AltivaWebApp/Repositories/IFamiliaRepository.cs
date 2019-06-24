@@ -16,5 +16,6 @@ namespace AltivaWebApp.Repositories
         IList<TbPrFamilia> GetAllFamilias();
         IList<TbPrFamilia> GetAllSubFamilias();
         void UpdateSubFamilia(IList<TbPrFamilia> subFamilias);
+        TbPrFamilia GetFamiliaByDescripcion(string descripcion);
     }
 }

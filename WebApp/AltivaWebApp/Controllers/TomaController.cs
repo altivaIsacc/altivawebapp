@@ -119,13 +119,13 @@ namespace AltivaWebApp.Controllers
 
 
         [HttpPost("AjustarInventario")]
-        public IActionResult AjustarInventario(int idToma)
+        public IActionResult AjustarInventario(TomaViewModel viewModel)
         {
             try
             {
-                var toma = service.GetTomaByID(idToma);
-                toma.Borrador = false;
-                service.Update(toma);
+                var toma = service.GetTomaByID(viewModel.Id);
+                //toma.Borrador = false;
+                //service.Update(toma);
 
                 return Json(new { success = true });
             }
