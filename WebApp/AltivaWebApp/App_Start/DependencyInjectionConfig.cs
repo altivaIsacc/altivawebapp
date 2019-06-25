@@ -216,10 +216,15 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IRequisicionService, RequisicionService>();
             services.AddScoped<IRequisicionMap, RequisicionMap>();
 
-            /// Cotizaciones
+            //Cotizaciones
             services.AddScoped<ICotizacionRepository,CotizacionRepository>();
             services.AddScoped<ICotizacionService, CotizacionService>();
             services.AddScoped<ICotizacionMap, CotizacionMap>();
+
+            //Denominaciones
+            services.AddScoped<IDenominacionRepository,DenominacionRepository>();
+            services.AddScoped<IDenominacionesService, DenominacionesService>();
+            services.AddScoped<IDenominacionMap, DenominacionMap>();
 
         }
     }

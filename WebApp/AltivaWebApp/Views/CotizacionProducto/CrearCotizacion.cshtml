@@ -33,6 +33,7 @@ else
 {
     <h2>@Lb["CrearCotizacion"]</h2>
 }
+
 <form id="CrearCotizacion">
     @Html.HiddenFor(x => x.IdCotizacion)
     @Html.HiddenFor(x => x.FechaCotizacion)
@@ -299,12 +300,6 @@ else
 
         });
 
-        Descuento();
-
-        getInventario();
-        getClientes();
-        getUsuarios();
-        fechasEditar();
 
     });
 
@@ -366,6 +361,13 @@ else
              success: function (data) {
                  monedas = data;
                  cargarddMoneda(data);
+
+                 Descuento();
+
+                 getInventario();
+                 getClientes();
+                 getUsuarios();
+                 fechasEditar();
 
               },
               error: function (err, scnd) {
@@ -600,7 +602,8 @@ else
             }
 
             $porcDescuento.val($(this).val());
-            $porcDescuento.prop('disabled', true);
+            $porcDescuento.prop('disabled', true);    
+            $("#lbExistencia").text(0);
             ActualizarLineasDescuento($(this).val(),$Moneda.val());
 
         } else {
@@ -608,6 +611,7 @@ else
             $porcDescuento.prop('disabled', false);
             $porcDescuento.val(0);
             $porcDescuentoGlobal.val(0);
+            $("#lbExistencia").text(0);
             ActualizarLineasDescuento($(this).val(), $Moneda.val());
         }
 
@@ -1890,19 +1894,19 @@ else
                 telefono: empresaModel.tel,
                 correo: empresaModel.correo,
                 cedJuridica: empresaModel.ced,
-             // logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
+                logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
                 nombreTitulo: "@Lb["Nombre"]:",
                 telTitulo: "@Lb["Tel"]:",
                 correoTitulo: "@Lb["Correo"]:",
                 cedTitulo: getTitulos().cedJuridica
             },
-            subtotal: formatTotales().subtotal,
-            descuento: formatTotales().desc,
-            impuesto: formatTotales().imp,
-            total: formatTotales().total,
-          nombreDoc: getTitulos().nombreDoc + ' #@Model.IdCotizacion',
-          nombreDescarga: getTitulos().nombreDoc+"_" + @Model.IdCotizacion + '.pdf',
-            columnas: {
+               subtotal: formatTotales().subtotal,
+               descuento: formatTotales().desc,
+               impuesto: formatTotales().imp,
+               total: formatTotales().total,
+               nombreDoc: getTitulos().nombreDoc + ' #@Model.IdCotizacion',
+               nombreDescarga: getTitulos().nombreDoc+"_" + @Model.IdCotizacion + '.pdf',
+               columnas: {
                 item: "Item",
                 cantidad: "@Lb["Cantidad"]",
                 descuento: "@Lb["Descuento1"]",
@@ -1940,12 +1944,8 @@ else
             usuario: $('#lbCreador').text(),
             vendedorTitulo:'@Lb["Vendedor"]' ,
             vendedor: $('#ddVendedor option:selected').text()
-
-
         };
-
         return modelo;
-
     }
 
     function formatTotales() {
@@ -1961,7 +1961,6 @@ else
             desc: desc + $txtDescuento.val().replace("₡", ""),
             total: $txtTotal.val().replace("₡", "")
         }
-
     }
 
     function getEstado() {
@@ -1986,9 +1985,7 @@ else
             case "Facturada":
                 return "@Lb["Facturada"]";
                 break;
-
         }
-
     }
 
     function getTitulos() {
@@ -2022,7 +2019,6 @@ else
         for (var i = 0; i < lineas.length; i++) {
 
             var model = {
-
                 item: NombreItem(lineas[i].idInventario),
                 cantidad:lineas[i].cantidad ,
                 descuento: lineas[i].porcDescuento,

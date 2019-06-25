@@ -1,0 +1,318 @@
+﻿@model AltivaWebApp.ViewModels.DenominacionesViewModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@inject IStringLocalizer<SharedResources> Lb
+
+    @{
+        ViewData["Title"] = "ListarDenominaciones";
+    }
+
+    <h2>Denominaciones</h2>
+    <div class="row">
+        <label>@Lb["Id"]:</label>
+        <label id="lbId"></label>
+    </div>
+        <div class="row">
+            <div class="col-md-12 table-responsive">
+                <br />
+                <table class="table table-bordered" style="width:100%" id="tblDenominaciones">
+                    <thead>
+                        <tr>
+
+                            <th style="width:10%">
+                                <span>@Lb["Moneda"]</span>
+                            </th>
+                            <th style="width:6%;">
+                                <span>@Lb["Tipo"]</span>
+                            </th>
+                            <th style="width:6%;">
+                                <span> @Lb["Valor"]</span>
+                            </th>
+                            <th style="width:10%;">
+                                <span>@Lb["Accion"]</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="lineaForm">
+                            <td class="col-md-3">
+                                    <select id="ddMoneda" class="form-control search-key">
+                                        <option selected value="0">@Lb["Seleccione"]</option>
+                                    </select>
+                            </td>
+                            <td class="col-md-3">
+                                <select id="ddTipo" class="form-control search-key">
+                                    <option selected value="0">@Lb["Seleccione"]</option>
+                                    <option value="1">@Lb["Monedas"]</option>
+                                    <option value="2">@Lb["Billetes"]</option>
+                                </select>
+                            </td>
+                            <td class="col-md-3" ><input id="inpValor" class="form-control numerico" type="text" min="0" value="0" /></td>
+                            <td class="col-md-3">
+                                <button class="btn btn-link btnAccion" onclick="guardarCambios()"><i class="fas fa-save"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+<input readonly hidden id="lbEstado"/>
+<input readonly hidden id="lbCreador" />
+
+<script>
+
+    var $Id = $('#lbId');
+    var $Tipo = $('#ddTipo option:selected');
+    var $Moneda = $('#ddMoneda option:selected');
+    var $Creador = $('#lbCreador');
+    var $Estado = $('#lbEstado');
+    var $Valor = $('#inpValor');
+    var lineas = [];
+
+    $(document).ready(function () {
+
+        getMonedas();
+        getUsuarios();
+
+    });
+
+/////////////////////////////////////////////////////GETS/////////////////////////////////////////////////////////////////////////////////////////////////
+
+    function getDenominaciones() {
+        if(@Model.IdDenominaciones != 0)
+        $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("GetDenominaciones")',
+
+            success: function (data) {
+                compraDetalleBD = JSON.parse(JSON.stringify(data));
+                cargarLineas(data);
+
+               },
+            error: function (err, scnd) {
+               cargarAlert('@Lb["errorGeneral"]');
+            }
+        });
+    }
+
+    function getMonedas() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+                 monedas = data;
+                 getDenominaciones();
+                 cargarddMoneda(data);
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+               function getUsuarios() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
+             success: function (data) {
+                 Usuarios = data;
+
+                 getIdUsuarioLogueado();
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+        }
+
+           function getIdUsuarioLogueado() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetInfoLogueado", "CotizacionProducto")',
+             success: function (data) {
+                 IdUsuarioLogueado = data;
+                 GetUsuarioLogueado();
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function GetUsuarioLogueado() {
+
+        for (var i = 0; i <Usuarios.length; i++) {
+            if (Usuarios[i].id === IdUsuarioLogueado) {
+                $("#lbCreador").val(Usuarios[i].nombre);
+                    if (@Model.IdDenominaciones != 0) {
+                        $Creador.val(@Model.IdUsuario);
+                 }
+            }
+          }
+        }
+//////////////////////////////////////////////////////CARGAR DOM///////////////////////////////////////////////////////////////////////////////////////
+          function cargarddMoneda(moneda) {
+
+            for (var i = 0; i < moneda.length; i++) {
+                var o = "<option value=" + moneda[i].codigo + ">" + moneda[i].nombre + "</option>";
+                $("#ddMoneda").append(o);
+            }
+               @*if (@Model.IdDenominaciones != 0) {
+                    $Moneda.val(@Model.IdMoneda);
+
+                 }*@
+              
+    }
+
+    function cargarLineas(data) {
+
+        for (var i = 0; i < data.length; i++) {
+
+            var model = {
+                idDenominaciones: data[i].idDenominaciones,
+                fechaCreacion: data[i].fechaCreacion,
+                idUsuario: data[i].idUsuario,
+                estado: data[i].estado,
+                idMoneda: data[i].idMoneda,
+                valor: data[i].valor,
+                tipo: data[i].tipo,
+
+            };
+
+            lineas.push(model);
+
+        }
+
+        cargarTabla(lineas);
+    }
+
+    function cargarTabla(data) {
+
+        moneda = moneda.toString();
+        $('.filasCargadas').remove();
+
+        contadorFila = 0;
+
+                for (var i = 0; i < data.length; i++) {
+                    contadorFila++;
+                    var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
+                        + '<td style="padding-top:2rem;">' + data[i].idMoneda + '</td> '
+                        + '<td style="padding-top:2rem;text-align: right;">' + data[i].tipo + '</td>'
+                        + '<td style="padding-top:2rem;text-align: right;">' + data[i].valor + '</td>'
+                        + '<td><button  class="btn btn-link" value="' + contadorFila + '" onclick="eliminarCotizacionDetalle(value, ' + data[i].idCotizacionDetalle + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                    $('.lineaForm').before(body);
+                }
+  
+        // CalcularTotalesCotizacion(data, moneda);
+        inicializaCampos();
+
+    }
+/////////////////////////////////////////////////////////////FUNCIONES GUARDADO DB/////////////////////////////////////////////////////////////////////////
+    function guardarCambios() {
+
+        guardarCotizacion();
+    }
+
+    function guardarSalir() {
+
+        guardarCotizacion();
+
+    }
+
+        function guardarCotizacion() {
+
+        $.ajax({
+              type: "POST",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("GuardarDenominacion", "Denominaciones")',
+            data: crearModelo(),
+            success: function (data) {
+                if (data.success) {
+                        lineas[lineas.length - 1].idCotizacionDetalle = data.idCD;
+                        lineasAgregadas[lineasAgregadas.length - 1].idCotizacionDetalle = data.idCD;
+
+                    cargarTabla(lineas,$('#ddMoneda').val());
+                }
+                else
+                    cargarAlert("@Lb["numCompraRepitida"]");
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+    }
+
+    
+    function crearModelo() {
+
+        var _fechaVencimiento;
+        var _estado;
+        var ordenModel;
+
+            _fechaCreacion = "@Model.FechaCreacion";
+
+        if (@Model.IdDenominaciones!= 0) {
+            _estado = 1;
+        } else {
+            _estado = $('#lbEstado').val();
+        }
+
+          ordenModel = {
+                idDenominaciones: @Model.IdDenominaciones,
+                fechaCreacion:@Model.FechaCreacion,
+                idUsuario: $Creador.val(),
+                estado: _estado,
+                idMoneda: $("#ddMoneda option:selected").val(),
+                valor: $Valor.val(),
+                tipo:$Tipo.val(),
+
+            };
+     
+        
+        return ordenModel;
+    }
+//////////////////////////////////////////////FUNCIONES COMPLEMENTARIAS/////////////////////////////////////////////////////////////////////////
+
+    function inicializaCampos() {
+        $Moneda.val(0);
+        $Tipo.val(0);
+        $Estado.val("");
+        $Creador.val("");
+        $Valor.val(0);
+
+    }
+</script>
