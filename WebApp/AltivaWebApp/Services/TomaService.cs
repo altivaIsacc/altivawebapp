@@ -84,5 +84,9 @@ namespace AltivaWebApp.Services
             return repository.CombinarTomas(id, domain);
         }
 
+        public TbPrToma GetTomaByIDCompleto(long id)
+        {
+            return repository.GetTomaByIDCompleto(id);
+        }
     }
 }

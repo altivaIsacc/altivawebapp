@@ -16,5 +16,6 @@ namespace AltivaWebApp.Mappers
         IList<TbPrTomaDetalle> CreateTD(IList<TomaDetalleViewModel> viewModel);
         IList<TbPrTomaDetalle> UpdateTD(IList<TomaDetalleViewModel> viewModel);
         TbPrToma ViewModelToDomain(TomaViewModel viewModel);
+        TbPrAjuste AjustarInventario(long id);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AltivaWebApp.Domains;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
+using Microsoft.Extensions.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,12 @@ namespace AltivaWebApp.Mappers
     public class TomaMap: ITomaMap
     {
         private readonly ITomaService service;
-        public TomaMap(ITomaService service)
+        private readonly IStringLocalizer<SharedResources> _lb;
+
+        public TomaMap(ITomaService service, IStringLocalizer<SharedResources> _lb)
         {
             this.service = service;
+            this._lb = _lb;
         }
 
         public TbPrToma Create(TomaViewModel viewModel)
@@ -25,6 +29,68 @@ namespace AltivaWebApp.Mappers
         {
             return service.Update(ViewModelToDomainEdit(viewModel));
         }
+
+        public TbPrAjuste AjustarInventario(long id)
+        {
+            var toma = service.GetTomaByIDCompleto(id);
+            var detalle = CrearDetalleAjuste(toma.TbPrTomaDetalle.ToList());
+            double entradas = GetTotalMovimiento(detalle, true);
+            double salidas = GetTotalMovimiento(detalle, false);
+            var am = new TbPrAjuste
+            {
+                Anulada = false,
+                Descripcion = _lb["generadoPorTF"] + " " + toma.Id,
+                IdBodega = toma.IdBodega,
+                IdBodegaNavigation = toma.IdBodegaNavigation,
+                FechaCreacion = DateTime.Now,
+                IdUsuario = toma.IdUsuarioCreacion,
+                SaldoAjuste = entradas - salidas,
+                TbPrAjusteInventario = detalle,
+                FechaDocumento = toma.FechaToma,
+                TotalEntrada = entradas,
+                TotalSalida = salidas
+            };
+
+            return am;
+        }
+
+        public double GetTotalMovimiento(IList<TbPrAjusteInventario> ai, bool mov)
+        {
+            double total = 0;
+            foreach (var item in ai)
+            {
+                if (item.Movimiento == mov)
+                    total += item.TotalMovimiento;
+            }
+
+            return total;
+        }
+        
+        public IList<TbPrAjusteInventario> CrearDetalleAjuste(IList<TbPrTomaDetalle> domain)
+        {
+            var ajusteDetalle = new List<TbPrAjusteInventario>();
+            foreach (var item in domain)
+            {
+                if(item.Toma != item.Existencia)
+                {
+                    ajusteDetalle.Add(new TbPrAjusteInventario
+                    {
+                        Cantidad = item.Toma < item.Existencia ? item.Existencia - item.Toma : item.Toma - item.Existencia,
+                        CostoPromedio = item.CostoPromedio,
+                        Descripcion = "n/a",
+                        IdAjuste = 0,
+                        IdCentroGastos = 1,
+                        IdCuentaContable = 1,
+                        IdInventario = item.IdInventario,
+                        Movimiento = item.Toma > item.Existencia ? true : false,
+                        TotalMovimiento = item.CostoPromedio * item.Toma < item.Existencia ? item.Existencia - item.Toma : item.Toma - item.Existencia
+                    });
+                }
+               
+            }
+            return ajusteDetalle;
+        }
+       
 
         public IList<TbPrTomaDetalle> CreateTD(IList<TomaDetalleViewModel> viewModel)
         {

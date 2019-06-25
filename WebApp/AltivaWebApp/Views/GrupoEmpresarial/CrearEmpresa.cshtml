@@ -24,24 +24,24 @@
 
             <div class="form-group">
                 <label asp-for="@Model.Nombre" class="control-label">@SharedLocalizer["Nombre"]:</label>
-                <input asp-for="@Model.Nombre" id="txt_nombre" class="form-control sinCaracteresE" autofocus />
+                <input asp-for="@Model.Nombre" maxlength="50" onpaste="return false" id="txt_nombre" class="form-control sinCaracteresE" autofocus />
                 <span hidden id="nombreValid" class="text-danger">@SharedLocalizer["nombreValid"]</span>
             </div>
 
             <div class="form-group">
                 <label asp-for="@Model.Correo" class="control-label">@SharedLocalizer["Correo"]:</label>
-                <input asp-for="@Model.Correo" type="email" id="txtCorreo" class="form-control" />
+                <input asp-for="@Model.Correo" maxlength="50" type="email" id="txtCorreo" class="form-control" />
                 <span hidden id="correoValid" class="text-danger">@SharedLocalizer["correoRequerido"]</span>
             </div>
 
             <div class="form-group">
                 <label asp-for="@Model.Telefono1" class="control-label">@SharedLocalizer["Teléfono"] 1:</label>
-                <input asp-for="@Model.Telefono1" id="txtTelefono1" class="form-control" />
+                <input asp-for="@Model.Telefono1" id="txtTelefono1" maxlength="25" class="form-control telefono" />
                 <span hidden id="telefonoValid" class="text-danger">@SharedLocalizer["telefonoRequerido"]</span>
             </div>
             <div class="form-group">
                 <label asp-for="@Model.Telefono2" class="control-label">@SharedLocalizer["Teléfono"] 2:</label>
-                <input asp-for="@Model.Telefono2" id="txtTelefono2" class="form-control" />
+                <input asp-for="@Model.Telefono2" id="txtTelefono2" maxlength="25" class="form-control telefono" />
 
             </div>
 
@@ -59,7 +59,7 @@
 
             <div class="form-group">
                 <label asp-for="@Model.Direccion" class="control-label">@SharedLocalizer["Dirección"]:</label>
-                <input asp-for="@Model.Direccion" id="txtDireccion" class="form-control" />
+                <textarea asp-for="@Model.Direccion" id="txtDireccion" rows="4" maxlength="500" class="form-control"></textarea>
                 <span hidden id="direccionValid" class="text-danger">@SharedLocalizer["direccionRequerido"]</span>
             </div>
             <div class="form-group" hidden>
@@ -109,8 +109,8 @@
         });
 
         $('#txtCedJuridica').mask('0-000-000000');
-        $('#txtTelefono1').mask('0000-0000');
-        $('#txtTelefono2').mask('0000-0000');
+        //$('#txtTelefono1').mask('0000-0000');
+        //$('#txtTelefono2').mask('0000-0000');
 
     });
 
@@ -131,6 +131,7 @@
             flag = false;
         } else
             $('#nombreValid').attr('hidden', true);
+
         if (correo.length < 1) {
             $('#correoValid').attr('hidden', false);
             flag = false;
@@ -198,6 +199,8 @@
 
         var model = $('form').serializeArray();
 
+        console.log(model);
+
         var formData = new FormData();
         var file = $('#fileUpload')[0].files[0];
 
@@ -244,7 +247,7 @@
             if (result)
                 window.location.href = "@Url.Action("ListarEmpresas")";
             else {
-                $('input:visible:enabled:first').focus();
+                setTimeout(function () { $('#txt_nombre').focus(); }, 1);// $('input:visible:enabled:first').focus();
             }
                 
         });

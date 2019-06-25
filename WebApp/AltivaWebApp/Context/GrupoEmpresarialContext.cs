@@ -78,7 +78,7 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.Direccion)
                     .IsRequired()
-                    .HasMaxLength(200)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
@@ -97,11 +97,11 @@ namespace AltivaWebApp.Context
                     .IsUnicode(false);
 
                 entity.Property(e => e.Telefono1)
-                    .HasMaxLength(16)
+                    .HasMaxLength(25)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Telefono2)
-                    .HasMaxLength(16)
+                    .HasMaxLength(25)
                     .IsUnicode(false);
 
                 entity.HasOne(d => d.IdGrupoEmpresarialNavigation)

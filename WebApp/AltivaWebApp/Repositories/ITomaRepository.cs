@@ -12,6 +12,7 @@ namespace AltivaWebApp.Repositories
         TbPrToma Update(TbPrToma domain);
         IList<TbPrToma> GetAll();
         TbPrToma GetTomaByID(long id);
+        TbPrToma GetTomaByIDCompleto(long id);
         IList<TbPrTomaDetalle> GetDetallesByTomaId(long id);
         IList<TbPrTomaDetalle> GetAllDetalleByIdD(IList<int> domain);
         IList<TbPrTomaDetalle> SaveTomaDetalle(IList<TbPrTomaDetalle> domain);

@@ -55,7 +55,7 @@ namespace AltivaWebApp.Controllers
                 }
             }
 
-            return View(usariosFiltrados);
+            return View(usariosFiltrados.OrderByDescending(u => u.Id));
 
         }
         [Route("Cuenta-Usuario/{codigo}")]
@@ -230,12 +230,12 @@ namespace AltivaWebApp.Controllers
 
                 if (userService.ExisteUsuarioPorCodigo(model.codigo))
                 {
-                    return Json(new { success = false, err = _sharedLocalizer["usaurioCodigoExiste"].ToString() });
+                    return Json(new { success = false, err = _sharedLocalizer["usuarioCodigoExiste"].ToString() });
                 }
 
                 if (userService.ExisteUsuarioPorCorreo(model.correo))
                 {
-                    return Json(new { success = false, err = _sharedLocalizer["usaurioCorreoExiste"].ToString() });
+                    return Json(new { success = false, err = _sharedLocalizer["usuarioCorreoExiste"].ToString() });
                 }
 
                 var user = userMap.Create(model);

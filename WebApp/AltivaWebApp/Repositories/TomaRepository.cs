@@ -126,7 +126,6 @@ namespace AltivaWebApp.Repositories
 
         public IList<TbPrToma> GetAllTomaConBodega()
         {
-            //return context.TbPrToma.Include(t => t.IdBodegaNavigation).ToList();
 
             return (from t in context.TbPrToma
                     join b in context.TbPrBodega on t.IdBodega equals b.Id
@@ -403,5 +402,9 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+        public TbPrToma GetTomaByIDCompleto(long id)
+        {
+            return context.TbPrToma.Include(t => t.TbPrTomaDetalle).ThenInclude(i => i.IdInventarioNavigation).FirstOrDefault(t => t.Id == id);
+        }
     }
 }

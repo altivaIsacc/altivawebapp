@@ -1,4 +1,5 @@
 ﻿@model AltivaWebApp.ViewModels.UsuarioViewModel
+@inject IStringLocalizer<SharedResources> Lb
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
@@ -24,54 +25,85 @@
 <div class="row">
 
     <form method="post" id="frmAvatar" enctype="multipart/form-data">
-        @Html.HiddenFor(x => x.id)
-        @Html.HiddenFor(x => x.codigo)
-        @Html.HiddenFor(x => x.contrasena)
-        @Html.HiddenFor(x => x.correo)
-        @Html.HiddenFor(x => x.estado)
-        @Html.HiddenFor(x => x.iniciales)
-        @Html.HiddenFor(x => x.nombre)
-        @Html.HiddenFor(x => x.Id_Usuario)
+        @Html.HiddenFor(x => x.id, new { @id = "idAvatar" })
+        @Html.HiddenFor(x => x.codigo, new { @id = "codigoAvatar" })
+        @Html.HiddenFor(x => x.contrasena, new { @id = "contrasenaAvatar" })
+        @Html.HiddenFor(x => x.correo, new { @id = "correoAvatar" })
+        @Html.HiddenFor(x => x.estado, new { @id = "estadoAvatar" })
+        @Html.HiddenFor(x => x.iniciales, new { @id = "inicialesAvatar" })
+        @Html.HiddenFor(x => x.nombre, new { @id = "nombreAvatar" })
+        @Html.HiddenFor(x => x.Id_Usuario, new { @id = "idUsuarioAvatar" })
 
         <div class="form-group">
             <div class="input-group input-group-sm mb-3">
                 <div class="input-group-prepend custom-file">
-                    <span data-translate="avatar" class="input-group-text" id="inputGroup-sizing-sm">Cargar tu avatar</span>
+                    <span class="input-group-text" id="inputGroup-sizing-sm">@Lb["cargarFoto"] (6MB)</span>
                 </div>
-                <input accept=".png, .jpg" type="file" asp-for="Foto" id="fileUpload" class="form-control custom-file-input" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                <input accept=".png, .jpg" type="file" asp-for="Foto" id="fileUploadAvatar" class="form-control custom-file-input" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                <span hidden id="tamanoArchivo" class="text-danger">@Lb["tamanoArchivo"]</span>
+                <span hidden id="tipoArchivo" class="text-danger">@Lb["tipoArchivo"]</span>
             </div>
         </div>
 
 
     </form>
-    <button data-translate="cancelar" type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancelar</button>
-    <button data-translate="guardar" id="btnAvatar" onclick="guardarAvatar()" class="btn btn-success btn-sm" type="submit">
-        Guardar
+    <button id="btnAvatar" onclick="guardarAvatar()" class="btn btn-success btn-sm" type="submit">
+        @Lb["Guardar"]
     </button>
+    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">@Lb["Cancelar"]</button>
 </div>
 
 
 <script>
 
+    $('#fileUploadAvatar').bind('change', function () {
 
+        var file = $(this)[0].files[0];
+
+
+
+        if ($(this).val() != '') {
+            $('#btnAvatar').attr('disabled', false);
+
+            var e = 0;
+            e = + file.size;
+
+            if (e > 60000) {
+                $('#tamanoArchivo').attr('hidden', false);
+                $(this).val('');
+            }
+            else
+                $('#tamanoArchivo').attr('hidden', true);
+
+            if (!(/\.(jpg|png|gif)$/i).test(file.name)) {
+                $('#tipoArchivo').attr('hidden', false);
+                $(this).val('');
+            }
+            else
+                $('#tipoArchivo').attr('hidden', true);
+
+        }
+        else
+            $('#btnAvatar').attr('disabled', true);
+    });
 
     function guardarAvatar() {
 
-        $('#fileUpload').change(function () {
+        //$('#fileUploadAvatar').change(function () {
 
-            if ($(this).val() != "")
-                $('#btnAvatar').attr('disabled', false);
+        //    if ($(this).val() != "")
+        //        $('#btnAvatar').attr('disabled', false);
 
-        });
+        //});
         
-        
+
 
         var model = $('#frmAvatar').serializeArray();
 
-       
+
 
         var formData = new FormData();
-        var file = $('#fileUpload')[0].files[0];
+        var file = $('#fileUploadAvatar')[0].files[0];
 
         formData.append('id', model[0].value);
         formData.append('codigo', model[1].value);
