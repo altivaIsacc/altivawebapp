@@ -41,11 +41,10 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Crear-Denominaciones")]
         public IActionResult CrearDenominacion()
         {
-
             ViewData["usuario"] = _UserService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
-            var model = new CotizacionViewModel { };
+            var model = new DenominacionesViewModel { };
 
-            return View("CrearDenominaciones", model);
+            return View("ListarDenominaciones", model);
         }
 
 
@@ -57,48 +56,36 @@ namespace AltivaWebApp.Controllers
             {
                 //var CotizacionProducto = new List<TbFaCotizacion>();
                 var Denominaciones = _Service.GetAllDenominaciones();
+                foreach (var item in Denominaciones)
+                {
 
+                    item.TbFaCajaAperturaDenominacion= null;
+                    item.TbFaCajaArqueoDenominacion = null;
+
+
+                }
                 return Ok(Denominaciones);
 
             }
-            catch
+            catch(Exception ex)
             {
                 return BadRequest();
             }
         }
 
 
-        [HttpPost("Guardar-DEnominaciones")]
+        [HttpPost("Guardar-Denominaciones")]
         public ActionResult GuardarDenominacion(DenominacionesViewModel viewModel)
         {
             try
             {
-                if (viewModel.IdDenominaciones != 0)
-                {
 
-                    long? idCD = 0;
-
-                    var orden = _Map.Update(viewModel);
-
-                    if (viewModel.IdDenominaciones != 0)
-                    {
-                        var cd = _Map.Create(viewModel);
-                        idCD = cd.IdDenominaciones;
-                    }
-
-                    return Json(new { success = true, idCD = idCD });
-                }
-                else
-                {
-
-                    viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+                viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     var Denominacion = _Map.Create(viewModel);
+                
 
-
-                    return Json(new { success = true, idDenominaciones = Denominacion.IdDenominaciones });
-
-                }
-
+                    return Json(new { success = true, idCD = Denominacion.IdDenominaciones,fechacreacion = Denominacion.FechaCreacion });
+           
             }
             catch
             {
@@ -107,13 +94,22 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        [Route("Editar-Denominacion/{id}")]
-        public ActionResult EditarDenominacion(int id)
+
+        //POST: Orden/Create
+        [HttpPost("CambiarEstado-Denominacion")]
+        public ActionResult CambiarEstadoDenominacion(DenominacionesViewModel viewModel)
         {
-            var Cotizacion = _Map.DomainToViewModel(_Service.GetDenominacionesById(id));
-            ViewData["usuario"] = _UserService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
-            ViewData["monedas"] = _MonedaService.GetAll();
-            return View("CrearCotizacion", Cotizacion);
+            try
+            {
+                viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+                var res = _Map.Update(viewModel);
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet("InfoLogueado")]

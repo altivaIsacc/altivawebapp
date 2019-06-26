@@ -19,10 +19,9 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbFaDenominacion
-                                    .Include(a => a.IdDenominaciones).ToList();
+                return context.TbFaDenominacion.ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 throw;

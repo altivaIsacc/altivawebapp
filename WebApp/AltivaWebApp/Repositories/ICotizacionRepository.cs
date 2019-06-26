@@ -8,7 +8,7 @@ namespace AltivaWebApp.Repositories
 {
    public interface ICotizacionRepository
     {
-     IList<TbFaCotizacion> GetInfoCotizacion();
+        IList<TbFaCotizacion> GetInfoCotizacion();
         TbFaCotizacion Save(TbFaCotizacion domain);
         TbFaCotizacion Update(TbFaCotizacion domain);
         IList<TbFaCotizacion> GetAllCotizacion();
