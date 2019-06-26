@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Repositories
 {
-    interface ICajaRepository
+   public interface ICajaRepository
     {
         IList<TbFaCaja> GetInfoCaja();
         TbFaCaja Save(TbFaCaja domain);
         TbFaCaja Update(TbFaCaja domain);
         IList<TbFaCaja> GetAllCajas();
         TbFaCaja GetCajaById(int id);
+        bool UpdateCajaAperturaDenominacion(IList<TbFaCajaAperturaDenominacion> domain);
+        TbFaCajaAperturaDenominacion SaveCajaAperturaDenominacion(TbFaCajaAperturaDenominacion domain);
 
     }
 }

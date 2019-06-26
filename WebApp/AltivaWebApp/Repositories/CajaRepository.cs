@@ -16,14 +16,48 @@ namespace AltivaWebApp.Repositories
 
         }
 
+        public TbFaCajaAperturaDenominacion SaveCajaAperturaDenominacion(TbFaCajaAperturaDenominacion domain)
+        {
+            try
+            {
+
+
+                context.TbFaCajaAperturaDenominacion.Add(domain);
+                context.SaveChanges();
+
+                return domain;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public bool UpdateCajaAperturaDenominacion(IList<TbFaCajaAperturaDenominacion> domain)
+        {
+            try
+            {
+                context.TbFaCajaAperturaDenominacion.UpdateRange(domain);
+                context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
         public IList<TbFaCaja> GetInfoCaja()
         {
             try
             {
-                return context.TbFaCaja.Include(a => a.IdCaja).ToList();
+               return context.TbFaCaja.ToList();
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 throw;
             }
@@ -46,11 +80,10 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-            //    return context.TbFaCaja.Include(c => c.TbFaCajaAperturaDenominacion).ThenInclude(cd => cd.IdCotizacionNavigation).FirstOrDefault(c => c.IdCotizacion == id);
+                return context.TbFaCaja.Include(c => c.TbFaCajaAperturaDenominacion).ThenInclude(cd => cd.IdCajaNavigation).FirstOrDefault(c => c.IdCaja == id);
             }
             catch (Exception)
             {
-
                 throw;
             }
         }

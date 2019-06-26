@@ -14,6 +14,5 @@ namespace AltivaWebApp.Mappers
         TbFaCotizacionDetalle CreateCD(CotizacionViewModel viewModel);
         CotizacionViewModel DomainToViewModel(TbFaCotizacion domain);
         bool UpdateCD(CotizacionViewModel viewModel);
-
     }
 }

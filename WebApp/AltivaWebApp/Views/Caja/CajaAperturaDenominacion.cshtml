@@ -1,0 +1,228 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@inject IStringLocalizer<SharedResources> Lb
+
+@{
+    ViewData["Title"] = "CajaAperturaDenominacion";
+}
+
+<div class="row">
+    <div class="col-md-3">
+        <h2>@Lb["CajaApertura"]</h2>
+    </div>
+    <div class="col-md-7"></div>
+    <div class="col-md-2">
+        <button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button>
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <label>@Lb["Usuario"]:</label>
+        <label id="lbCreador" class="form-control" disabled></label>
+    </div>
+
+    <div class="col-md-4">
+        <label>@Lb["Estado"]:</label>
+        <label id="lbEstado" class="form-control" disabled></label>
+    </div>
+
+    <div class="col-md-4">
+        <label>@Lb["FechaCreacion"]:</label>
+        <label id="lbFechaCreacion" class="form-control" disabled></label>
+    </div>
+</div>
+
+<div class="form-group">
+    <div class="form-row">
+        <div class="col-md-12 card-body">
+            <br />
+            <table class=" table table-bordered" style="width:100%;z-index:-1" id="tblDetalleCotizacion">
+                <thead>
+                    <tr>
+                        <th style="width:10%">
+                            <span>@Lb["Denominacion"]</span>
+                        </th>
+                        <th style="width:6%;">
+                            <span>@Lb["Cantidad"]</span>
+                        </th>
+                        <th style="width:6%;">
+                            <span> @Lb["Monto"]</span>
+                        </th>
+                        <th style="width:6%;">
+                            <span>@Lb["accion"]</span>
+                        </th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="lineaForm">
+                        <td class="col-md-4">
+                            <select style="z-index:1000;" class="form-control" id="ddDenominaciones">
+                                <option selected value="0">@Lb["Seleccione"]</option>
+                            </select>
+
+                        </td>
+                        <td class="col-md-4"><input id="lbCantidad" class="form-control cantidad numerico" type="text" min="1" value="1" /></td>
+                        <td class="col-md-4"><input id="lbMonto" class="form-control numerico" type="text" min="0" value="0" /></td>
+
+                        <td>
+                            <button class="btn btn-link btnAccion" onclick="guardarDenominacion()"><i class="fas fa-save"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <button class="btn btn-success btnAccion" onclick="guardarSalir()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
+        <a onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
+    </div>
+</div>
+
+<script>
+
+    var Usuarios = [];
+    var IdUsuarioLogueado = 0;
+    var _Denominaciones = [];
+
+
+    $(document).ready(function () {
+        getUsuarios();
+        getDenominaciones();
+
+        $(".numerico").inputmask({
+
+            'alias': 'decimal',
+            rightAlign: true,
+
+        });
+
+        $('.table-responsive').on('show.bs.select', function () {
+
+            console.log("triggered show bs select");
+
+            $('.table-responsive').css("overflow", "hidden");
+
+        });
+
+        $('.table-responsive').on('hide.bs.select', function () {
+
+            console.log("triggered hide bs select");
+
+            $('.table-responsive').css("overflow", "auto");
+
+        })
+
+    });
+///////////////////////////////////////////////////////GETS/////////////////////////////////////////////////////////////////////////////////////
+    function getDenominaciones() {
+
+        $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("GetDenominaciones","Denominaciones")',
+            success: function (data) {
+                _Denominaciones = JSON.parse(JSON.stringify(data));
+                cargarddDenominaciones(data);
+               },
+            error: function (err, scnd) {
+               cargarAlert('@Lb["errorGeneral"]');
+            }
+        });
+    }
+
+
+    function getUsuarios() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
+             success: function (data) {
+                 Usuarios = data;
+
+                 getIdUsuarioLogueado();
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+         function getIdUsuarioLogueado() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetInfoLogueado", "CotizacionProducto")',
+             success: function (data) {
+                 IdUsuarioLogueado = data;
+                 GetUsuarioLogueado();
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+
+
+
+
+/////////////////////////////////////////////////////////CARGAR  DOM////////////////////////////////////////////////////////////////////////////
+    function cargarddDenominaciones(Denominaciones) {
+        var tipo = "";
+        var o;
+        $('#ddDenominaciones').selectpicker();
+        for (var i = 0; i < Denominaciones.length; i++) {
+
+            if (Denominaciones[i].tipo === 1) {
+                // var o = "<option value=" + Denominaciones[i].idDenominaciones + ">" + Denominaciones[i].valor + " ("+tipo+")"+ "</option>";
+                 o = new Option(Denominaciones[i].idDenominaciones, Denominaciones[i].idDenominacion);
+                o.setAttribute("data-content", "<img class='img-circle' style='width:2rem; height: 2rem;' src='/../uploads/MonedasIcon.png'>  <span>" + Denominaciones[i].valor + "</span>");
+
+            } else {
+                o = new Option(Denominaciones[i].idDenominaciones, Denominaciones[i].idDenominacion);
+                o.setAttribute("data-content", "<img class='img-circle' style='width:2rem; height: 2rem;' src='/../uploads/BilleteIcon.png'>  <span>" + Denominaciones[i].valor + "</span>");
+
+            }
+
+            $("#ddDenominaciones").append(o);
+            }
+
+        }
+/////////////////////////////////////////////////////////FUNCIONES COMPLEMENTARIAS//////////////////////////////////////////////////////////////
+
+        function GetUsuarioLogueado() {
+        for (var i = 0; i <Usuarios.length; i++) {
+            if (Usuarios[i].id === IdUsuarioLogueado) {
+                $("#lbCreador").text(Usuarios[i].nombre);
+                $("#lbEstado").text("Abierta");
+            }
+          }
+        }
+
+</script>

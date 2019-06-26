@@ -226,6 +226,11 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IDenominacionesService, DenominacionesService>();
             services.AddScoped<IDenominacionMap, DenominacionMap>();
 
+            //Caja
+            services.AddScoped<ICajaService, CajaService>();
+            services.AddScoped<ICajaRepository, CajaRepository>();
+            services.AddScoped<ICajaMap, CajaMap>();
+
         }
     }
 }
