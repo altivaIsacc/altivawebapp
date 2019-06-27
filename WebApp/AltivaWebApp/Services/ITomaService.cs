@@ -19,9 +19,11 @@ namespace AltivaWebApp.Services
         IList<TbPrTomaDetalle> UpdateTomaDetalle(IList<TbPrTomaDetalle> domain);
         IList<TbPrToma> GetAllTomaConBodega();
         IList<TbPrTomaDetalle> GenerateTD(TbPrToma domain);
-        bool ExisteTomaInicial();
+        bool ExisteTomaInicial(int idBodega);
         IList<TbPrToma> GetCombinables(int idBodega);
         TbPrToma CombinarTomas(int id, IList<int> domain);
         TbPrToma GetTomaByIDCompleto(long id);
+        bool TieneToma(DateTime fechaDoc);
+        void AnularTomasBorrador(long id);
     }
 }

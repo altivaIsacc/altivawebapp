@@ -25,8 +25,9 @@ namespace AltivaWebApp.Controllers
         private readonly IKardexMap kardexMap;
         private readonly IHaciendaMap haciendaMap;
         private readonly IHaciendaService haciendaService;
+        private readonly ITomaService tomaService;
 
-        public CompraController(IHaciendaService haciendaService, IHaciendaMap haciendaMap, IKardexMap kardexMap, IBodegaService bodegaService, IUserService userService, ICompraMap map, IInventarioService inventarioService, IMonedaService monedaService, ICompraService service, IContactoService contactoService)
+        public CompraController(ITomaService tomaService, IHaciendaService haciendaService, IHaciendaMap haciendaMap, IKardexMap kardexMap, IBodegaService bodegaService, IUserService userService, ICompraMap map, IInventarioService inventarioService, IMonedaService monedaService, ICompraService service, IContactoService contactoService)
         {
             this.service = service;
             this.contactoService = contactoService;
@@ -38,6 +39,7 @@ namespace AltivaWebApp.Controllers
             this.kardexMap = kardexMap;
             this.haciendaMap = haciendaMap;
             this.haciendaService = haciendaService;
+            this.tomaService = tomaService;
         }
 
         // GET: Compra
@@ -61,6 +63,7 @@ namespace AltivaWebApp.Controllers
                 Borrador = true
             };
             ViewData["monedas"] = tipoCambio;
+            ViewBag.existeToma = false;
             return View("CrearEditarCompra", model);
         }
 
@@ -71,6 +74,8 @@ namespace AltivaWebApp.Controllers
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             ViewData["bodegas"] = bodegaService.GetAllActivas();
             ViewData["monedas"] = monedaService.GetAll();
+            ViewBag.tieneToma = tomaService.TieneToma(compra.FechaCreacion);
+
             return View("CrearEditarCompra", compra);
         }
 

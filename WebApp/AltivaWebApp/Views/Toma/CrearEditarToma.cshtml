@@ -11,28 +11,34 @@
 @{
     ViewData["Title"] = "CrearEditarToma";
 
-    var estado = "disabled";
-    var estadoContrario = "";
+    var esAnulable = "";
+    var tieneModelo = "";
     var editarInicial = "";
-    var editable = "";
+    var editable = "false";
+    var esBorrador = "";
 
     if(Model.Id != 0 && Model.Anulado || !Model.Borrador)
     {
-        editable = "disabled";
+        editable = "true";
+        esBorrador = "disabled";
     }
-    
+
 
     if(Model.Id != 0 && !Model.Borrador)
     {
         editarInicial = "disabled";
     }
 
+    if(Model.Id != 0 && Model.Anulado || !Model.Borrador)
+    {
+        esAnulable = "disabled";
+    }
+
 }
 
 @if (Model.Id != 0)
 {
-    estado = "";
-    estadoContrario = "disabled";
+    tieneModelo = "disabled";
     <div class="row">
         <div class="col-md-3"><h3>@SharedLocalizer["editarToma"]</h3></div>
         <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
@@ -44,6 +50,7 @@ else
     <h3>@SharedLocalizer["nuevaToma"]</h3>
 }
 
+
 <hr />
 <div class="row">
 
@@ -54,15 +61,15 @@ else
 
         <div class="form-group col-md-2 col-sm-4 col-xs-12">
             <label asp-for="IdBodega" class="control-label">@SharedLocalizer["Bodega"]:</label>
-            <select @estadoContrario class="form-control selectBodegas" id="bodegas" onchange="cambioBodega()"><option value="0">@SharedLocalizer["Seleccione"]</option></select>
+            <select @tieneModelo  class="form-control selectBodegas" id="bodegas" onchange="cambioBodega()"><option value="0">@SharedLocalizer["Seleccione"]</option></select>
         </div>
 
         <div class="form-group col-md-3 col-sm-6 col-xs-12">
-            <fieldset>
+            <fieldset @esBorrador >
                 <div class="form-group">
                     <label for="fecha">@SharedLocalizer["Fecha"]:</label>
                     <div class='input-group date' id='fechaPicker'>
-                        <input type='text' class="form-control fechas" id="fecha" />
+                        <input @esBorrador type='text' class="form-control fechas" id="fecha" />
                         <span class="input-group-addon">
                             <span class="fas fa-calendar"></span>
                         </span>
@@ -73,9 +80,9 @@ else
         @if (!ViewBag.existeTomaInicial)
         {
             <div class="form-group col-md-2 col-sm-4 col-xs-12 " style="padding-top:2rem">
-                <div class="checkbox">
+                <div class="checkbox" id="divEsInicial">
                     <label>
-                        <input checked="@Model.EsInicial" @editarInicial type="checkbox" class="flat" name="iCheck" id="esInicial" /> @SharedLocalizer["EsInventarioInicial"]
+                        <input  checked="@Model.EsInicial" @esAnulable @editarInicial type="checkbox" class="flat" name="iCheck" id="esInicial" /> @SharedLocalizer["EsInventarioInicial"]
                     </label>
                 </div>
             </div>
@@ -83,8 +90,8 @@ else
 
 
         <div class="form-group col-md-2 col-sm-12 col-xs-12 ">
-            <label>@SharedLocalizer["OrdenadoPor"]:</label>
-            <select @estadoContrario class="form-control inactiveControl" id="ordenadoBy">
+            <label>@SharedLocalizer["Ordenado"] @SharedLocalizer["Por"]:</label>
+            <select @tieneModelo class="form-control inactiveControl" id="ordenadoBy">
                 <option value="producto">@SharedLocalizer["Producto"]</option>
                 <option value="familia">@SharedLocalizer["Familia"]</option>
             </select>
@@ -94,7 +101,7 @@ else
     </form>
 
     <div class="form-group col-md-12 col-sm-12 col-xs-12 ">
-        <button @estadoContrario class="btn btn-primary inactiveControl" id="btnGenerar" onclick="generarToma()">@SharedLocalizer["Generar"] </button>
+        <button @tieneModelo class="btn btn-primary inactiveControl" id="btnGenerar" onclick="generarToma()">@SharedLocalizer["Generar"] </button>
     </div>
 
 </div>
@@ -124,16 +131,16 @@ else
 
 <div class="row">
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
-        <button @editarInicial class="btn btn-info btnAccion" style="width:100%" onclick="guardarCambiosBorrador()">@SharedLocalizer["Guardar"] @SharedLocalizer["Borrador"] </button>
+        <button @editarInicial  @esAnulable class="btn btn-info btnAccion" style="width:100%" onclick="guardarCambiosBorrador()">@SharedLocalizer["Guardar"] @SharedLocalizer["Borrador"] </button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
-        <button @editarInicial @estado class="btn btn-dark btnAccion" style="width:100%" onclick="combinarToma()">@SharedLocalizer["Combinar"]</button>
+        <button @editarInicial @esAnulable class="btn btn-dark btnAccion" style="width:100%" onclick="combinarToma()">@SharedLocalizer["Combinar"]</button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
-        <button @estado class="btn btn-danger btnAccion" style="width:100%" onclick="anularToma()">@SharedLocalizer["Anular"] </button>
+        <button @esAnulable class="btn btn-danger btnAccion" style="width:100%" onclick="anularToma()">@SharedLocalizer["Anular"] </button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
-        <button class="btn btn-success btnAccion" style="width:100%" onclick="ajustarInventario()">@SharedLocalizer["Ajustar"] @SharedLocalizer["Inventario"]</button>
+        <button @esBorrador class="btn btn-success btnAccion" style="width:100%" onclick="ajustarInventario()">@SharedLocalizer["Ajustar"] @SharedLocalizer["Inventario"]</button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
         <a onclick="cancelar()" style="width:100%" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
@@ -191,6 +198,8 @@ else
         getFamilias();
 
         $esInicial.prop("checked");
+
+        console.log(@Model.Id);
 
         var date = new Date();
 
@@ -277,10 +286,10 @@ else
 
         var data = modeloTabla(_data);
 
-        var editable = '@editable';
+        var editable = @editable;
 
         if (@Model.Id == 0)
-            editable = '';
+            editable = false;
 
         for (var i = 0; i < data.length; i++) {
 
@@ -295,17 +304,20 @@ else
                 + '<td><p style="padding-top:1rem;">' + data[i].entradas + '</p></td>'
                 + '<td><p style="padding-top:1rem;">' + data[i].salidas + '</p></td>'
                 + '<td><p style="padding-top:1rem;">' + data[i].existencia + '</p></td>'
-                + '<td><p style="padding-top:1rem;"> <input' + editable + ' class="form-control numerico" onkeyup="editarLinea(value, ' + contadorFila + ')" value="' + data[i].toma + '" /></p></td>'
+                + '<td><p style="padding-top:1rem;"> <input class="form-control numerico" onkeyup="editarLinea(value, ' + contadorFila + ')" value="' + data[i].toma + '" /></p></td>'
             $('#tblTomaD > tbody').append(body);
             contadorFila++;
 
         }
 
+        
 
         $(".numerico").inputmask({
             'alias': 'decimal',
             rightAlign: false,
         });
+
+        $(".numerico").prop('readonly', editable);
     }
 
 
@@ -383,6 +395,8 @@ else
             anulado: "@Model.Anulado",
             tomaDetalle: crearModeloDetalle(tdGenerada)
         };
+
+        console.log(model);
 
         return model;
     }
@@ -565,16 +579,63 @@ else
             },
             dataType: "json",
             url: '@Url.Action("AjustarInventario")',
-            data: {id : @Model.Id },
+            data: crearModelo(),
             success: function (data) {
 
-               @*//window.location.href = "@Url.Action("ListarTomas")";*@
+                window.location.href = "@Url.Action("EditarAjuste", "AjusteInventario", new { id = "__id__" })".replace("__id__", data.idAjuste);
             },
             error: function (err, scnd) {
                  cargarAlert('@SharedLocalizer["errorGeneral"]');
                 console.log(err.statusText);
             }
         });
+    }
+
+
+    function anularToma() {
+
+         bootbox.prompt({
+            title: "@SharedLocalizer["confirmAnularToma"]",
+            message: '<p>@SharedLocalizer["Justificación"]</p>',
+            inputType: 'textarea',
+            callback: function (result) {
+
+                if (result != null) {
+                    if (result.replace(/ /g, "") != "") {
+                        $.ajax({
+                            type: "POST",
+                            headers: {
+                                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                            },
+                            dataType: "json",
+                            url: '@Url.Action("AnularToma")',
+                            data: {idToma : @Model.Id },
+                            success: function (data) {
+                                if (data.success) {
+                                    cargarJustificacion(result);
+                                    window.location.href = window.location.href;
+                                }
+                                else
+                                    cargarAlert('@SharedLocalizer["anulacionInvalida"]');
+                                
+                            },
+                            error: function (err, scnd) {
+                                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                                console.log(err.statusText);
+                            }
+                        });
+
+                }
+                else
+                    cargarAlert('@SharedLocalizer["JustificacionInvalida"]');
+                }
+
+
+            }
+        });
+
+
+
     }
 
 
@@ -601,16 +662,18 @@ else
             data: { model: model },
             success: function (data) {
 
-                tdGenerada = ordenarArray(data);
+                tdGenerada = ordenarArray(data.tomas);
                 cargarDatos(tdGenerada);
 
-                if (data.length === 0) {
+                if (data.tomas.length === 0) {
                     cargarAlert("@SharedLocalizer["BodegaSinMovimientosRecientes"]");
                 }
                 else {
                     $('.inactiveControl').attr('disabled', 'disabled');
-
                 }
+
+                if (data.esInicial)
+                    $('#divEsInicial').prop('hidden', true);
 
               },
               error: function (err, scnd) {
@@ -620,6 +683,8 @@ else
         });
     }
 
-
+    function cargarJustificacion(mensaje) {
+        setMensajeFromOut(mensaje);
+    }
 </script>
 

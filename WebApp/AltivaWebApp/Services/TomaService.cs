@@ -68,9 +68,9 @@ namespace AltivaWebApp.Services
         {
             return repository.UpdateTomaDetalle(domain);
         }
-        public bool ExisteTomaInicial()
+        public bool ExisteTomaInicial(int idBodega)
         {
-            return repository.ExisteTomaInicial();
+            return repository.ExisteTomaInicial(idBodega);
         }
 
         public IList<TbPrToma> GetCombinables(int idBodega)
@@ -87,6 +87,16 @@ namespace AltivaWebApp.Services
         public TbPrToma GetTomaByIDCompleto(long id)
         {
             return repository.GetTomaByIDCompleto(id);
+        }
+
+        public bool TieneToma(DateTime fechaDoc)
+        {
+            return repository.TieneToma(fechaDoc);
+        }
+
+        public void AnularTomasBorrador(long id)
+        {
+            repository.AnularTomasBorrador(id);
         }
     }
 }

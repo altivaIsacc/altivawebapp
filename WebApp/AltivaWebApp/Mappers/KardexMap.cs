@@ -47,14 +47,14 @@ namespace AltivaWebApp.Mappers
 
                     if (item.Movimiento)
                     {
-                        existencia = item.IdInventarioNavigation.ExistenciaGeneral + domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == true && i.IdInventario == item.IdInventario).Cantidad;
-                        existenciaB = item.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdBodega == domain.IdBodega).ExistenciaBodega + domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == true && i.IdInventario == item.IdInventario).Cantidad;
+                        existencia = item.IdInventarioNavigation.ExistenciaGeneral + item.Cantidad; //domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == true && i.IdInventario == item.IdInventario).Cantidad;
+                        existenciaB = item.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdBodega == domain.IdBodega).ExistenciaBodega + item.Cantidad; //domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == true && i.IdInventario == item.IdInventario).Cantidad;
                         k.CantidadMov = item.Cantidad;
                     }
                     else
                     {
-                        existencia = item.IdInventarioNavigation.ExistenciaGeneral - domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == false && i.IdInventario == item.IdInventario).Cantidad;
-                        existenciaB = item.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdBodega == domain.IdBodega).ExistenciaBodega - domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == false && i.IdInventario == item.IdInventario).Cantidad;
+                        existencia = item.IdInventarioNavigation.ExistenciaGeneral - item.Cantidad;//domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == false && i.IdInventario == item.IdInventario).Cantidad;
+                        existenciaB = item.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdBodega == domain.IdBodega).ExistenciaBodega - item.Cantidad;//domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == false && i.IdInventario == item.IdInventario).Cantidad;
                         k.CantidadMov = item.Cantidad * -1;
                     }
 
@@ -66,7 +66,7 @@ namespace AltivaWebApp.Mappers
 
 
                     k.CostoMov = item.TotalMovimiento;
-                    k.CostoPromedio = 0;//item.CostoPromedio;
+                    k.CostoPromedio = item.CostoPromedio;
                     k.ExistAct = existencia;
                     k.ExistActBod = existenciaB;
                     k.ExistAnt = item.IdInventarioNavigation.ExistenciaGeneral;
@@ -79,9 +79,9 @@ namespace AltivaWebApp.Mappers
                     k.IdMoneda = 1;
                     k.IdUsuario = domain.IdUsuario;
                     k.Observaciones = domain.Descripcion;
-                    k.PrecioPromedio = 0;
+                    k.PrecioPromedio = 0;//item.CostoPromedio;
                     k.PrecioUnit = item.IdInventarioNavigation.UltimoPrecioCompra;
-                    k.SaldoFinal = 0;//item.CostoPromedio * existenciaB,
+                    k.SaldoFinal = item.CostoPromedio * existenciaB;
                     k.TipoDocumento = "AM";
 
 

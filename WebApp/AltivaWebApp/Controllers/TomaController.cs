@@ -19,13 +19,15 @@ namespace AltivaWebApp.Controllers
         private readonly ITomaMap map;
         private readonly IBodegaService bodegaService;
         private readonly IUserService userService;
+        private readonly IKardexMap kardexMap;
 
-        public TomaController(IUserService userService, ITomaService service, ITomaMap map, IBodegaService bodegaService)
+        public TomaController(IKardexMap kardexMap, IUserService userService, ITomaService service, ITomaMap map, IBodegaService bodegaService)
         {
             this.service = service;
             this.map = map;
             this.bodegaService = bodegaService;
             this.userService = userService;
+            this.kardexMap = kardexMap;
         }
 
         [Route("Todo")]
@@ -37,8 +39,12 @@ namespace AltivaWebApp.Controllers
         [Route("Nueva")]
         public IActionResult CrearToma()
         {
-            ViewBag.existeTomaInicial = service.ExisteTomaInicial();
-            return View("CrearEditarToma", new TomaViewModel());
+            ViewBag.existeTomaInicial = false;
+
+            var toma = new TomaViewModel();
+            toma.Borrador = true;
+            toma.Anulado = false;
+            return View("CrearEditarToma", toma);
         }
 
         [Route("Editar/{id}")]
@@ -48,7 +54,7 @@ namespace AltivaWebApp.Controllers
             if (toma.EsInicial && !toma.Anulado && !toma.Borrador)
                 ViewBag.existeTomaInicial = !toma.EsInicial;
             else
-                ViewBag.existeTomaInicial = service.ExisteTomaInicial();
+                ViewBag.existeTomaInicial = service.ExisteTomaInicial((int)toma.IdBodega);
 
             ViewBag.titulo = "TomaFisica";
             return View("CrearEditarToma", toma);
@@ -59,20 +65,8 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var toma = new TbPrToma();
-
-                if (viewModel.Id != 0)
-                {
-                    toma = map.Update(viewModel);
-                    if (viewModel.TomaDetalle != null)
-                    {
-                        var tomaDetalle = map.UpdateTD(viewModel.TomaDetalle);
-                    }
-                }
-                else
-                {
-                    toma = map.Create(viewModel);
-                }
+                viewModel.Borrador = true;
+                var toma = GestionaToma(viewModel);
 
                 return Json(new { success = true, idToma = toma.Id });
 
@@ -85,6 +79,46 @@ namespace AltivaWebApp.Controllers
 
         }
 
+        [HttpPost("AjustarInventario")]
+        public IActionResult AjustarInventario(TomaViewModel viewModel)
+        {
+            try
+            {
+
+                viewModel.Borrador = false;
+                var toma = GestionaToma(viewModel);
+
+                var ajuste = map.AjustarInventario(toma.Id);
+
+                var kardex = kardexMap.CreateKardexAM(null, (int)ajuste.Id);
+
+                return Json(new { success = true, idAjuste = ajuste.Id });
+            }
+            catch (Exception)
+            {
+                //return BadRequest();
+                throw;
+            }
+        }
+
+        private TbPrToma GestionaToma(TomaViewModel viewModel)
+        {
+            var toma = new TbPrToma();
+            if (viewModel.Id != 0)
+            {
+                toma = map.Update(viewModel);
+                if (viewModel.TomaDetalle != null)
+                {
+                    var tomaDetalle = map.UpdateTD(viewModel.TomaDetalle);
+                }
+            }
+            else
+            {
+                toma = map.Create(viewModel);
+            }
+
+            return toma;
+        }
 
         [Route("Combinables/id/idBodega")]
         public IActionResult GetCombinables(int id, int idBodega)
@@ -116,25 +150,27 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-
-
-        [HttpPost("AjustarInventario")]
-        public IActionResult AjustarInventario(long id)
+        [HttpPost("AnularToma")]
+        public IActionResult AnularToma(int idToma)
         {
             try
             {
-                var toma = map.AjustarInventario(id);
-                //toma.Borrador = false;
-                //service.Update(toma);
+                var toma = service.GetTomaByID(idToma);
+                if(toma.Borrador)
+                    toma.Anulado = true;
+                toma = service.Update(toma);
 
                 return Json(new { success = true });
+                
             }
             catch (Exception)
             {
                 return BadRequest();
-                //throw;
+                throw;
             }
         }
+
+        
 
 
         [HttpGet("GetTomaDetalles/{id}")]
@@ -197,7 +233,7 @@ namespace AltivaWebApp.Controllers
                 //if(model.Ordenado == "producto")
                 //    return Ok(tomas.OrderBy(o=>o.IdInventarioNavigation.Descripcion));
                 //else
-                return Ok(tomas);
+                return Json(new {tomas = tomas, esInicial = service.ExisteTomaInicial((int)toma.IdBodega) });
 
             }
             catch (Exception)

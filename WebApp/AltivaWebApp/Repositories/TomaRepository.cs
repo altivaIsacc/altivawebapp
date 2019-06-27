@@ -95,9 +95,9 @@ namespace AltivaWebApp.Repositories
             return context.TbPrToma.FirstOrDefault(t => t.Id == id);
         }
 
-        public bool ExisteTomaInicial()
+        public bool ExisteTomaInicial(int idBodega)
         {
-            return context.TbPrToma.Any(t => t.Anulado == false && t.Borrador == false && t.EsInicial == true);
+            return context.TbPrToma.Any(t => t.Anulado == false && t.Borrador == false && t.EsInicial == true && t.IdBodega == idBodega);
         }
 
         public IList<TbPrToma> GetCombinables(int idBodega)
@@ -210,7 +210,7 @@ namespace AltivaWebApp.Repositories
         {
             if (toma.Any(t => t.IdInventario == idInventario))
             {
-                var _fecha = toma.FirstOrDefault(t => t.IdInventario == idInventario).IdTomaNavigation.FechaToma;
+                var _fecha = toma.FirstOrDefault(t => t.IdInventario == idInventario).IdTomaNavigation.FechaCreacion;
                 if (_fecha == null)
                     _fecha = DateTime.MinValue;
                 return _fecha;
@@ -239,7 +239,7 @@ namespace AltivaWebApp.Repositories
                 .Include(a => a.IdAjusteNavigation)
                 .Include(a => a.IdInventarioNavigation)
                     .ThenInclude(i => i.TbPrInventarioBodega)
-                 .Where(a => a.IdAjusteNavigation.IdBodega == domain.IdBodega && a.IdAjusteNavigation.Anulada == false && a.IdAjusteNavigation.FechaDocumento > GetUltimaFechaToma(ultimaTd, a.IdInventario) && a.IdAjusteNavigation.FechaDocumento < DateTime.Now)
+                 .Where(a => a.IdAjusteNavigation.IdBodega == domain.IdBodega && a.IdAjusteNavigation.Anulada == false && a.IdAjusteNavigation.FechaCreacion > GetUltimaFechaToma(ultimaTd, a.IdInventario) && a.IdAjusteNavigation.FechaCreacion < DateTime.Now)
 
                  .Select(td => new TbPrTomaDetalle
                  {
@@ -265,7 +265,7 @@ namespace AltivaWebApp.Repositories
                  .Include(c => c.IdCompraNavigation)
                  .Include(a => a.IdInventarioNavigation)
                     .ThenInclude(i => i.TbPrInventarioBodega)
-                 .Where(c => c.IdBodega == domain.IdBodega && c.IdCompraNavigation.Borrador == false && c.IdCompraNavigation.Anulado == false && c.IdCompraNavigation.FechaDocumento > GetUltimaFechaToma(ultimaTd, c.IdInventario) && c.IdCompraNavigation.FechaDocumento < DateTime.Now)
+                 .Where(c => c.IdBodega == domain.IdBodega && c.IdCompraNavigation.Borrador == false && c.IdCompraNavigation.Anulado == false && c.IdCompraNavigation.FechaCreacion > GetUltimaFechaToma(ultimaTd, c.IdInventario) && c.IdCompraNavigation.FechaCreacion < DateTime.Now)
                  .Select(td => new TbPrTomaDetalle
                  {
 
@@ -288,7 +288,7 @@ namespace AltivaWebApp.Repositories
                  .Include(rd => rd.IdRequisicionNavigation)
                  .Include(a => a.IdInventarioNavigation)
                     .ThenInclude(i => i.TbPrInventarioBodega)
-                 .Where(rd => rd.IdRequisicionNavigation.IdBodega == domain.IdBodega && rd.IdRequisicionNavigation.Anulado == false && rd.IdRequisicionNavigation.Fecha > GetUltimaFechaToma(ultimaTd, rd.IdInventario) && rd.IdRequisicionNavigation.Fecha < DateTime.Now)
+                 .Where(rd => rd.IdRequisicionNavigation.IdBodega == domain.IdBodega && rd.IdRequisicionNavigation.Anulado == false && rd.IdRequisicionNavigation.FechaCreacion > GetUltimaFechaToma(ultimaTd, rd.IdInventario) && rd.IdRequisicionNavigation.FechaCreacion < DateTime.Now)
 
                  .Select(td => new TbPrTomaDetalle
                  {
@@ -404,7 +404,33 @@ namespace AltivaWebApp.Repositories
 
         public TbPrToma GetTomaByIDCompleto(long id)
         {
-            return context.TbPrToma.Include(t => t.TbPrTomaDetalle).ThenInclude(i => i.IdInventarioNavigation).FirstOrDefault(t => t.Id == id);
+            return context.TbPrToma.Include(t => t.TbPrTomaDetalle).ThenInclude(i => i.IdInventarioNavigation).ThenInclude(b => b.TbPrInventarioBodega).FirstOrDefault(t => t.Id == id);
+        }
+
+        public bool TieneToma(DateTime fechaDoc)
+        {
+            return context.TbPrToma.Any(t => t.FechaCreacion > fechaDoc && t.Borrador == false && t.Anulado == false);
+        }
+
+        public void AnularTomasBorrador(long id)
+        {
+            try
+            {
+                var tomas = context.TbPrToma.Where(t => t.Id != id && t.Borrador == true && t.Anulado == false).ToList();
+                foreach (var item in tomas)
+                {
+                    item.Anulado = true;
+                }
+
+                context.SaveChanges();
+
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

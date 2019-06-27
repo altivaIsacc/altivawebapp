@@ -13,11 +13,13 @@ namespace AltivaWebApp.Mappers
     {
         private readonly ITomaService service;
         private readonly IStringLocalizer<SharedResources> _lb;
+        private readonly IAjusteService ajusteService;
 
-        public TomaMap(ITomaService service, IStringLocalizer<SharedResources> _lb)
+        public TomaMap(IAjusteService ajusteService, ITomaService service, IStringLocalizer<SharedResources> _lb)
         {
             this.service = service;
             this._lb = _lb;
+            this.ajusteService = ajusteService;
         }
 
         public TbPrToma Create(TomaViewModel viewModel)
@@ -33,6 +35,10 @@ namespace AltivaWebApp.Mappers
         public TbPrAjuste AjustarInventario(long id)
         {
             var toma = service.GetTomaByIDCompleto(id);
+
+            //anula las tomas borrador para evitar duplicaion de datos
+            service.AnularTomasBorrador(id);
+
             var detalle = CrearDetalleAjuste(toma.TbPrTomaDetalle.ToList());
             double entradas = GetTotalMovimiento(detalle, true);
             double salidas = GetTotalMovimiento(detalle, false);
@@ -42,7 +48,7 @@ namespace AltivaWebApp.Mappers
                 Descripcion = _lb["generadoPorTF"] + " " + toma.Id,
                 IdBodega = toma.IdBodega,
                 IdBodegaNavigation = toma.IdBodegaNavigation,
-                FechaCreacion = DateTime.Now,
+                FechaCreacion = toma.FechaCreacion,
                 IdUsuario = toma.IdUsuarioCreacion,
                 SaldoAjuste = entradas - salidas,
                 TbPrAjusteInventario = detalle,
@@ -51,7 +57,7 @@ namespace AltivaWebApp.Mappers
                 TotalSalida = salidas
             };
 
-            return am;
+            return ajusteService.Save(am);
         }
 
         public double GetTotalMovimiento(IList<TbPrAjusteInventario> ai, bool mov)
@@ -82,8 +88,9 @@ namespace AltivaWebApp.Mappers
                         IdCentroGastos = 1,
                         IdCuentaContable = 1,
                         IdInventario = item.IdInventario,
+                        IdInventarioNavigation = item.IdInventarioNavigation,
                         Movimiento = item.Toma > item.Existencia ? true : false,
-                        TotalMovimiento = item.CostoPromedio * item.Toma < item.Existencia ? item.Existencia - item.Toma : item.Toma - item.Existencia
+                        TotalMovimiento = item.CostoPromedio * (item.Toma < item.Existencia ? item.Existencia - item.Toma : item.Toma - item.Existencia)
                     });
                 }
                
@@ -108,7 +115,7 @@ namespace AltivaWebApp.Mappers
             return new TbPrToma
             {
                 Anulado = false,
-                Borrador = true,
+                Borrador = viewModel.Borrador,
                 EsInicial = viewModel.EsInicial,
                 FechaCreacion = DateTime.Now,
                 FechaToma = viewModel.FechaToma,

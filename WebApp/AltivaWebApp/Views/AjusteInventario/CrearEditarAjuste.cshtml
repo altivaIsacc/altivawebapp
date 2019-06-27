@@ -14,10 +14,16 @@
     var usuario = ViewData["usuario"] as TbSeUsuario;
 
     var estado = "";
+    var estado2 = "";
 
     if (Model.Anulada)
     {
         estado = "disabled";
+    }
+
+    if (ViewBag.tieneToma)
+    {
+        estado2 = "disabled";
     }
 }
 
@@ -38,7 +44,7 @@ else
 <hr />
 
 <div class="row">
-    @if (Model.Id != 0 && !Model.Anulada)
+    @if (Model.Id != 0 && !Model.Anulada )
     {
         <div class="col-md-12 text-right"><button class="btn btn-danger btn-sm" onclick="anularAjuste()">@SharedLocalizer["Anular"]</button></div>
     }
@@ -60,11 +66,11 @@ else
 
             <div class="form-group col-md-2 col-sm-6 col-xs-12">
 
-                <fieldset>
+                <fieldset @estado2>
                     <div class="form-group">
                         <label for="fecha">@SharedLocalizer["Fecha"]:</label>
                         <div class='input-group date' id='fechaPicker'>
-                            <input type='text' class="form-control" id="fecha" />
+                            <input @estado2 type='text' class="form-control" id="fecha" />
                             <span class="input-group-addon">
                                 <span class="fas fa-calendar"></span>
                             </span>
@@ -81,7 +87,7 @@ else
             </div>
             <div class="form-group col-md-5 col-sm-6 col-xs-12">
                 <label asp-for="Descripcion" class="control-label">@SharedLocalizer["Descripción"]:</label>
-                <textarea data-limit-rows="true" asp-for="Descripcion" id="descripcionAjuste" rows="6" maxlength="500" class="form-control"></textarea>
+                <textarea  data-limit-rows="true" asp-for="Descripcion" id="descripcionAjuste" rows="6" maxlength="500" class="form-control"></textarea>
                 <span hidden class="text-danger" id="descripcionAjusteValid">@SharedLocalizer["descripcionValid"]</span>
             </div>
 
@@ -133,24 +139,24 @@ else
             </thead>
             <tbody>
                 <tr class="lineaForm">
-                    <td class="col-md-3"><div class="col-md-9"><select class="form-control" id="items"></select></div><div style="padding-top: 1rem" class="col-md-3"><label id="lblItemInfo"></label></div></td>
+                    <td class="col-md-3"><div class="col-md-9"><select @estado2 class="form-control" id="items"></select></div><div style="padding-top: 1rem" class="col-md-3"><label id="lblItemInfo"></label></div></td>
                     <td>
-                        <select class="form-control" id="movimiento">
+                        <select @estado2 class="form-control" id="movimiento">
                             <option value="true">@SharedLocalizer["Entrada"]</option>
                             <option value="false">@SharedLocalizer["Salida"]</option>
                         </select>
                     </td>
-                    <td><input id="cantidad" class="form-control numerico" type="text" min="1" value="1" /></td>
-                    <td><input id="costoPromedio" class="form-control moneda" type="text" /></td>
+                    <td><input @estado2 id="cantidad" class="form-control numerico" type="text" min="1" value="1" /></td>
+                    <td><input @estado2 id="costoPromedio" class="form-control moneda" type="text" /></td>
                     <td><input type="text" class="form-control moneda" readonly id="total" /></td>
                     <td>
-                        <select class="form-control selectItem" id="cuentaContable"></select>
+                        <select @estado2 class="form-control selectItem" id="cuentaContable"></select>
                     </td>
                     <td>
-                        <select class="form-control selectItem" id="cuentaCosto"></select>
+                        <select @estado2 class="form-control selectItem" id="cuentaCosto"></select>
                     </td>
                     <td>
-                        <button class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button>
+                        <button @estado2 class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button>
                     </td>
                 </tr>
             </tbody>
@@ -181,7 +187,7 @@ else
 </div>
 <div class="form-group row">
     <div class="col-md-12">
-        <button class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+        <button @estado2 class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
         <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
     </div>
 </div>
@@ -251,6 +257,10 @@ else
         if (@Model.Id != 0) {
             GetComentarios("Ajuste", @Model.Id);
             $('#bodegas').attr('disabled', true);
+        }
+
+        if ('@ViewBag.tieneToma' === "True") {
+            $('#descripcionAjuste').prop('disabled', "disabled");
         }
 
 
@@ -622,7 +632,7 @@ else
                 + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].totalMovimiento + '"/></td>'
                 + '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaContable.codigo + ' - ' + data[i].cuentaContable.descripcion + '</a></td>'
                 + '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaCosto.codigo + ' - ' + data[i].cuentaCosto.descripcion + '</a></td>'
-                + '<td><button  @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                + '<td><button @estado2  @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
 
             $('.lineaForm').before(body);
 
