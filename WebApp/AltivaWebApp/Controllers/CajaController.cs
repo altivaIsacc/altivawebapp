@@ -16,7 +16,7 @@ using Microsoft.Extensions.Localization;
 
 namespace AltivaWebApp.Controllers
 {
-    [Route("{culture}/Caja")]
+    [Route("{culture}/Cajas")]
     public class CajaController:Controller
     {
         private readonly ICajaService _Service;
@@ -32,8 +32,8 @@ namespace AltivaWebApp.Controllers
             _MonedaService = monedaService;
         }
 
-        [HttpGet("Crear-Caja")]
-        public IActionResult CrearCaja()
+        [HttpGet("Caja-Apertura")]
+        public IActionResult CajaApertura()
         {
             ViewData["usuario"] = _UserService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             var model = new CajaViewModel
@@ -44,8 +44,59 @@ namespace AltivaWebApp.Controllers
             return View("CajaAperturaDenominacion", model);
         }
 
+        [Route("Editar-Caja/{id}")]
+        public ActionResult EditarCaja(int id)
+        {
+            var Caja= _Map.DomainToViewModel(_Service.GetCajaById(id));
+            ViewData["usuario"] = _UserService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
+            ViewData["monedas"] = _MonedaService.GetAll();
+            return View("CajaAperturaDenominacion", Caja);
+        }
 
-        [HttpGet("Cajas")]
+        [HttpPost("CrearEditar-Caja")]
+        public ActionResult CrearEditarCaja(CajaViewModel viewModel)
+        {
+            try
+            {
+                if (viewModel.IdCaja != 0)
+                {
+
+                    long? idCD = 0;
+
+                    var orden = _Map.Update(viewModel);
+                    if (viewModel.IdCaja!= 0 && viewModel.TbFaCajaAperturaDenominacion.Count() > 0)
+                    {
+                
+                        var cd = _Map.CreateCD(viewModel);
+                        idCD = cd.IdDenominacion;
+
+
+                    }
+
+                    return Json(new { success = true, idCD = idCD });
+
+                }
+                else
+                {
+
+                    viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+                    
+                    var compra = _Map.Create(viewModel);
+
+
+                    return Json(new { success = true, idCotizacion = compra.IdCaja });
+
+                }
+
+            }
+            catch
+            {
+                throw;
+                //return BadRequest();
+            }
+        }
+
+
         public IActionResult ListarCajas()
         {
             return View();
@@ -66,6 +117,20 @@ namespace AltivaWebApp.Controllers
 
             }
             catch(Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("Get-CajaAperturaDenominacion/{id}")]
+        public ActionResult GetCajaAperturaDenominacion(int id)
+        {
+            try
+            {
+                var detalles = _Service.GetAllCajaAperturaDenominacionByIdCaja(id);
+                return Ok(_Service.GetAllCajaAperturaDenominacionByIdCaja(id));
+            }
+            catch
             {
                 return BadRequest();
             }

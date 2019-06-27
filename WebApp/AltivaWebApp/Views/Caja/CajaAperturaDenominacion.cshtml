@@ -1,4 +1,5 @@
-﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+﻿@model AltivaWebApp.ViewModels.CajaViewModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
     {
@@ -28,61 +29,53 @@
         <label id="lbCreador" class="form-control" disabled></label>
     </div>
 
-    <div class="col-md-4">
+
+    <div class="col-md-2">
         <label>@Lb["Estado"]:</label>
-        <label id="lbEstado" class="form-control" disabled></label>
+        <select id="lbEstado" class="form-control search-key" disabled>
+            <option value="0">@Lb["Todos"]</option>
+            <option value="1">@Lb["Abierta"]</option>
+            <option value="2">@Lb["Arqueo"]</option>
+            <option value="3">@Lb["ArqueoReabierto"]</option>
+            <option value="4">@Lb["Cerrada"]</option>
+            <option value="5">@Lb["CierreReabierto"]</option>
+        </select>
     </div>
 
     <div class="col-md-4">
-        <label>@Lb["FechaCreacion"]:</label>
-        <label id="lbFechaCreacion" class="form-control" disabled></label>
+        <fieldset>
+            <div class="form-group">
+                <label for="fecha">@Lb["Fecha"]:</label>
+                <div class='input-group date' id='fechaPicker'>
+                    <input type='text' class="form-control" id="lbFechaCreacion" disabled />
+                    <span class="input-group-addon">
+                        <span class="fas fa-calendar"></span>
+                    </span>
+                </div>
+            </div>
+        </fieldset>
     </div>
 </div>
 
-<div class="form-group">
-    <div class="form-row">
-        <div class="col-md-12 card-body">
-            <br />
-            <table class=" table table-bordered" style="width:100%;z-index:-1" id="tblDetalleCotizacion">
-                <thead>
-                    <tr>
-                        <th style="width:10%">
-                            <span>@Lb["Denominacion"]</span>
-                        </th>
-                        <th style="width:6%;">
-                            <span>@Lb["Cantidad"]</span>
-                        </th>
-                        <th style="width:6%;">
-                            <span> @Lb["Monto"]</span>
-                        </th>
-                        <th style="width:6%;">
-                            <span>@Lb["accion"]</span>
-                        </th>
+<div class="row">
+    <div class="col-md-12  table-responsive">
+        <table class="table table-bordered" style="width:100%" id="tblCajaApertura">
+            <thead>
+                <tr>
+                    <th><span class="letratbDenominaciones">@Lb["Denominacion"]</span> </th>
+                    <th><span class="letratbDenominaciones"> @Lb["Cantidad"]</span> </th>
+                    <th><span class="letratbDenominaciones">@Lb["Monto"]</span> </th>
+                </tr>
+            </thead>
+            <tbody>
 
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="lineaForm">
-                        <td class="col-md-4">
-                            <select style="z-index:1000;" class="form-control" id="ddDenominaciones">
-                                <option selected value="0">@Lb["Seleccione"]</option>
-                            </select>
+                <tr class="lineaForm"></tr>
+            </tbody>
 
-                        </td>
-                        <td class="col-md-4"><input id="lbCantidad" class="form-control cantidad numerico" type="text" min="1" value="1" /></td>
-                        <td class="col-md-4"><input id="lbMonto" class="form-control numerico" type="text" min="0" value="0" /></td>
-
-                        <td>
-                            <button class="btn btn-link btnAccion" onclick="guardarDenominacion()"><i class="fas fa-save"></i></button>
-                        </td>
-                    </tr>
-                </tbody>
-
-            </table>
-
-        </div>
+        </table>
 
     </div>
+
 </div>
 
 <div class="row">
@@ -91,17 +84,44 @@
         <a onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
     </div>
 </div>
+<input readonly hidden id="monedaFormater" />
+<div hidden><input hidden id="formater" class="currency" type="text" /></div>
+
+<style>
+    .letratbDenominaciones {
+        font-size: 18px !important;
+    }
+</style>
 
 <script>
 
     var Usuarios = [];
     var IdUsuarioLogueado = 0;
     var _Denominaciones = [];
+    var monedas = [];
+    var $cantidad = $('#lbCantidad');
+    var $monto = $('#lbMonto');
+    var Apertura = [];
+    var _LineaCajaAperturaDenominaciones = [];
+    var CajaApertura = [];
 
-
+////////////////////////////////////////////////////////////DOCUMENT READY///////////////////////////////////////////////////////////////////
     $(document).ready(function () {
+
         getUsuarios();
         getDenominaciones();
+        if (@Model.IdCaja!= 0) {
+            getCajaApertura();
+        }
+                $('#fechaPicker').datetimepicker({
+            defaultDate: new Date(),
+            locale: localStorage.getItem("idioma"),
+            format: "@Lb["DD/MM/YYYY"]",
+
+        }).on('keypress paste', function (e) {
+            e.preventDefault();
+            return false;
+            });
 
         $(".numerico").inputmask({
 
@@ -110,26 +130,40 @@
 
         });
 
-        $('.table-responsive').on('show.bs.select', function () {
 
-            console.log("triggered show bs select");
+        $(".numerico").inputmask({
 
-            $('.table-responsive').css("overflow", "hidden");
+            'alias': 'decimal',
+
+            rightAlign: true,
 
         });
 
-        $('.table-responsive').on('hide.bs.select', function () {
-
-            console.log("triggered hide bs select");
-
-            $('.table-responsive').css("overflow", "auto");
-
-        })
-
     });
 ///////////////////////////////////////////////////////GETS/////////////////////////////////////////////////////////////////////////////////////
-    function getDenominaciones() {
+         function getCajaApertura() {
+        if(@Model.IdCaja != 0)
+        $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("GetCajaAperturaDenominacion")',
 
+            success: function (data) {
+                CajaApertura = JSON.parse(JSON.stringify(data));
+                _LineaCajaAperturaDenominaciones = data;
+                console.log(data);
+                cargarLineas(data);
+               },
+            error: function (err, scnd) {
+               cargarAlert('@Lb["errorGeneral"]');
+            }
+        });
+    }
+
+    function getDenominaciones() {
         $.ajax({
               type: "get",
               headers: {
@@ -139,7 +173,10 @@
             url: '@Url.Action("GetDenominaciones","Denominaciones")',
             success: function (data) {
                 _Denominaciones = JSON.parse(JSON.stringify(data));
-                cargarddDenominaciones(data);
+                getMonedas();
+
+
+
                },
             error: function (err, scnd) {
                cargarAlert('@Lb["errorGeneral"]');
@@ -147,6 +184,26 @@
         });
     }
 
+    function getMonedas() {
+
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+                 monedas = data;
+
+                 cargarTabla(_Denominaciones);
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
 
     function getUsuarios() {
          $.ajax({
@@ -192,37 +249,238 @@
 
 
 
-/////////////////////////////////////////////////////////CARGAR  DOM////////////////////////////////////////////////////////////////////////////
-    function cargarddDenominaciones(Denominaciones) {
-        var tipo = "";
-        var o;
-        $('#ddDenominaciones').selectpicker();
-        for (var i = 0; i < Denominaciones.length; i++) {
+/////////////////////////////////////////////////////////CARGAR-DOM////////////////////////////////////////////////////////////////////////////
+    function cargarLineas(data) {
+        console.log(data.length);
+        for (var i = 0; i < data.length; i++) {
+            console.log("hola");
+            var model = {
+      
+                idCajaApertura: data[i].idCajaApertura,
+                idCaja: data[i].idCaja,
+                fechaCreacion: data[i].fechaCreacion,
+                idUsuario: data[i].idUsuario,
+                idDenominacion: data[i].idDenominacion,
+                cantidad: data[i].cantidad,
+                monto: data[i].monto
+            };
 
-            if (Denominaciones[i].tipo === 1) {
-                // var o = "<option value=" + Denominaciones[i].idDenominaciones + ">" + Denominaciones[i].valor + " ("+tipo+")"+ "</option>";
-                 o = new Option(Denominaciones[i].idDenominaciones, Denominaciones[i].idDenominacion);
-                o.setAttribute("data-content", "<img class='img-circle' style='width:2rem; height: 2rem;' src='/../uploads/MonedasIcon.png'>  <span>" + Denominaciones[i].valor + "</span>");
-
-            } else {
-                o = new Option(Denominaciones[i].idDenominaciones, Denominaciones[i].idDenominacion);
-                o.setAttribute("data-content", "<img class='img-circle' style='width:2rem; height: 2rem;' src='/../uploads/BilleteIcon.png'>  <span>" + Denominaciones[i].valor + "</span>");
-
-            }
-
-            $("#ddDenominaciones").append(o);
-            }
+            _LineaCajaAperturaDenominaciones.push(model);
 
         }
-/////////////////////////////////////////////////////////FUNCIONES COMPLEMENTARIAS//////////////////////////////////////////////////////////////
+      
+        cargarTabla(_LineaCajaAperturaDenominaciones);
 
-        function GetUsuarioLogueado() {
-        for (var i = 0; i <Usuarios.length; i++) {
+    }
+
+    function GetUsuarioLogueado() {
+        for (var i = 0; i < Usuarios.length; i++) {
             if (Usuarios[i].id === IdUsuarioLogueado) {
                 $("#lbCreador").text(Usuarios[i].nombre);
-                $("#lbEstado").text("Abierta");
+                $("#lbEstado").val(1);
             }
-          }
+        }
+    }
+
+    function cargarTabla(data) {
+
+        $('.filasCargadas').remove();
+        contadorFila = 0;
+        var tipomoneda = 0;
+        var coin = "";
+        var _valor = 0;
+
+        for (var i = 0; i < data.length; i++) {
+
+            tipomoneda = data[i].idMoneda;
+
+            var _moneda = 0;
+            switch (tipomoneda) {
+                case 0:
+                    _moneda = monedas[0].simbolo;
+                    coin = "colon";
+                    break;
+                case 1:
+                    _moneda = monedas[0].simbolo;
+                    coin = "colon";
+                    break;
+                case 2:
+                    _moneda = monedas[1].simbolo;
+                    coin = "dolar";
+                    break;
+                case 3:
+                    _moneda = monedas[2].simbolo;
+                    coin = "euro";
+                    break;
+            }
+
+            $(".currency").inputmask('currency', {
+                prefix: _moneda + ' ',
+                rightAlign: true
+            });
+
+            if (@Model.IdCaja!= 0) {
+
+                for (var i = 0; i < _Denominaciones.length; i++) {
+
+                    if (parseInt(_Denominaciones[i].idDenominaciones) === data[i].idDenominacion) {
+                        _valor = _Denominaciones[i].valor;
+                    }
+                }
+
+            } else {
+                _valor = data[i].valor;
+            }
+
+            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
+                + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><img id="' + data[i].idDenominaciones + '" width="45px" height="45px"/>&nbsp;<label class="'+coin+'" id="lb' + data[i].idDenominaciones + '"> ' + _valor + '</label></td> '
+                + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input onkeyup="calcularLinea(' + contadorFila + ',value)" id="inpCantidad' + data[i].idDenominaciones + '" class="form-control moneda numerico" type="text" min="0" value="0" /></td>'
+                + '<td style="padding-top:2rem;text-align: right;" class="letratbDenominaciones"><input id="inpMonto' + data[i].idDenominaciones + '" class="form-control moneda numerico" type="text" min="0" value="0" disabled /></td></tr>';
+            $('.lineaForm').before(body);
+
+
+            darFormatoTipo(data[i].tipo, data[i].idDenominaciones);
+            contadorFila++;
         }
 
+        //inicializa formato
+        $(".colon").inputmask('currency', {
+            prefix: monedas[0].simbolo + " ",
+            rightAlign: true
+        });
+        $(".dolar").inputmask('currency', {
+            prefix: monedas[1].simbolo + " ",
+            rightAlign: true
+        });
+        $(".euro").inputmask('currency', {
+            prefix: monedas[2].simbolo + " ",
+            rightAlign: true
+        });
+
+        inicializaCampos();
+
+    }
+
+
+/////////////////////////////////////////////////////////FUNCIONES COMPLEMENTARIAS//////////////////////////////////////////////////////////////
+
+    function darFormatoMoneda(idMoneda) {
+
+        if (idMoneda === 1)
+            return monedas[0].simbolo;
+        else if (idMoneda === 2)
+            return monedas[1].simbolo;
+        else if (idMoneda === 3)
+            return monedas[2].simbolo;
+    }
+
+    function inicializaCampos() {
+
+        $cantidad.val(1);
+    }
+
+    function darFormatoTipo(idTipo, id) {
+
+        if (idTipo === 1)
+            $('#' + id).prop('src', "/../uploads/MonedasIcon.png");
+        else if (idTipo === 2)
+            $('#' + id).prop('src', "/../uploads/BilleteIcon.png");
+    }
+///////////////////////////////////////////////////////////////////FUNCIONES PARA GUARDAR///////////////////////////////////////////////////////
+    function guardarSalir() {
+
+        GuardarApertura();
+        guardarCajaApertura();
+    }
+
+    
+    function guardarCajaApertura() {
+
+        $.ajax({
+              type: "POST",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("CrearEditarCotizacion", "Caja")',
+            data: crearModelo(),
+            success: function (data) {
+                if (data.success) {    
+            window.location.href = "@Url.Action("ListarCajas")";
+                }
+                else
+                    cargarAlert("@Lb["numCompraRepitida"]");
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+    }
+
+    function crearModelo() {
+     
+
+          ordenModel = {
+                idCaja: @Model.IdCaja,
+                fechaCreacion: $('#lbFechaCreacion').val(),
+                idUsuario: IdUsuarioLogueado,
+                estado:$('#lbEstado option:selected').val(),
+              tbFaCajaAperturaDenominacion:  crearModeloApertura(Apertura)
+        };      
+        console.log(ordenModel);
+        return ordenModel;
+    }
+
+    function crearModeloApertura(model) {
+
+        for (var i = 0; i < model.length; i++) {
+            model[i].idCajaApertura = model[i].idCajaApertura,
+            model[i].idCaja=model[i].idCaja,
+            model[i].fechaCreacion= model[i].fechaCreacion,
+            model[i].idUsuario= model[i].idUsuario,
+            model[i].idDenominacion=model[i].idDenominacion,
+            model[i].cantidad = model[i].cantidad;
+            model[i].monto = model[i].monto;
+        }
+        return model;
+    }
+
+    function GuardarApertura() {
+        for (var i = 0; i < _Denominaciones.length; i++) {
+  
+            var model = {
+                idCajaApertura: 0,
+                idCaja:@Model.IdCaja,
+                fechaCreacion: $('#lbFechaCreacion').val(),
+                idUsuario: IdUsuarioLogueado,
+                idDenominacion:_Denominaciones[i].idDenominaciones,
+                cantidad: $("#inpCantidad" + _Denominaciones[i].idDenominaciones + "").val().toString().replace(".",","),
+                monto: $("#inpMonto" + _Denominaciones[i].idDenominaciones + "").val().toString().replace(".", ","),
+            }
+
+            Apertura.push(model);
+        }
+        console.log(Apertura);
+   
+    }
+//////////////////////////////////////////////////////////////////CALCULOS//////////////////////////////////////////////////////////////////////
+
+
+    function calcularLinea(fila, cant) {
+
+        var _valor =parseFloat( _Denominaciones[fila].valor);
+        var total = 0;
+        total = parseFloat(_valor * cant);
+        $('#inpMonto' + _Denominaciones[fila].idDenominaciones).val(total);
+        
+    }
+
+    function setTotalLinea(valor,campo,cant) {
+
+        var total = 0;
+        total = parseFloat(valor * cant);
+        $(campo).val(total);
+
+    }
 </script>

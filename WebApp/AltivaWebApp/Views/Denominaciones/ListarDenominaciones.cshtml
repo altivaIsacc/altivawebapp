@@ -251,7 +251,7 @@
                     var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
                         + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones">' +darFormatoMoneda( data[i].idMoneda) + '</td> '
                         + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><img id="' + data[i].idDenominaciones +'" width="45px" height="45px"/></td>'
-                        + '<td style="padding-top:2rem;text-align: right;" class="letratbDenominaciones '+coin+'">' + data[i].valor + '</td>'
+                        + '<td style="padding-top:2rem;text-align: right;" class="letratbDenominaciones ' + coin + '">' + data[i].valor.toString().replace(",", ".") + '</td>'
                         + '<td><button  class="btn btn-link letratbDenominaciones" value="' + contadorFila + '" onclick="CambiarEstadoDenominacion(value, ' + data[i].idDenominaciones + ')" >' + darFormatoEstado(data[i].estado)+'</button></td></tr>';
                            $('.lineaForm').before(body);
 
@@ -261,15 +261,15 @@
 
         //inicializa formato
         $(".colon").inputmask('currency', {
-            prefix: monedas[0].simbolo,
+            prefix: monedas[0].simbolo+" ",
             rightAlign: true
         });
         $(".dolar").inputmask('currency', {
-            prefix: monedas[1].simbolo,
+            prefix: monedas[1].simbolo+" ",
             rightAlign: true
         });
         $(".euro").inputmask('currency', {
-            prefix: monedas[2].simbolo,
+            prefix: monedas[2].simbolo+" ",
             rightAlign: true
         });
 
@@ -353,7 +353,7 @@
                     _fechaCreacion = LineasyNuevas[i].fechaCreacion;
                     _id = id;
                     _idMoneda = LineasyNuevas[i].idMoneda;
-                    _valor = LineasyNuevas[i].valor;
+                    _valor = LineasyNuevas[i].valor.toString().replace(".", ",");
                     _tipo = LineasyNuevas[i].tipo;
 
                 }
@@ -362,7 +362,7 @@
             _id = 0;
             _idMoneda = $("#ddMoneda option:selected").val();
             $Estado.val(1)
-            _valor = $Valor.val();
+            _valor = $Valor.val().toString().replace(".", ",");
             _tipo = $("#ddTipo option:selected").val();
         }
 
@@ -372,7 +372,7 @@
             idUsuario: $Creador.val(),
             estado: parseInt($Estado.val()),
             idMoneda: parseInt(_idMoneda),
-            valor: parseFloat(_valor),
+            valor: _valor,
             tipo: parseInt(_tipo),
         };
 
@@ -403,7 +403,7 @@
                     _fechaCreacion = LineasyNuevas[i].fechaCreacion;
                     _id = id;
                     _idMoneda = LineasyNuevas[i].idMoneda;
-                    _valor = LineasyNuevas[i].valor;
+                    _valor = LineasyNuevas[i].valor.toString().replace(".",",");
                     _tipo = LineasyNuevas[i].tipo;
 
                 }
@@ -412,7 +412,7 @@
             _id = 0;
             _idMoneda =  $("#ddMoneda option:selected").val();
             $Estado.val(1)
-            _valor = $Valor.val();
+            _valor = $Valor.val().toString().replace(".", ",");
             _tipo = $("#ddTipo option:selected").val();
         }
 
@@ -422,7 +422,7 @@
                 idUsuario:  $Creador.val(),
                 estado:parseInt( $Estado.val()),
                 idMoneda:parseInt( _idMoneda),
-                valor:parseFloat( _valor),
+                valor: _valor,
                 tipo:parseInt( _tipo),
             };
         if (LineasAgregadas.length >= 1) {
@@ -492,9 +492,7 @@
         });
                 }
             }
-        }
-
-      
+        }     
     }
 
     function CambiarEstadoDenominacionDB(_id, idLinea) {

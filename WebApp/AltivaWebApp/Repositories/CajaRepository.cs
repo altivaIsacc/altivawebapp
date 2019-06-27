@@ -76,6 +76,19 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+        public IList<TbFaCajaAperturaDenominacion> GetAllCajaAperturaDenominacionByIdCaja(int id)
+        {
+            try
+            {
+                return context.TbFaCajaAperturaDenominacion.Where(c => c.IdCajaNavigation.IdCaja == id).ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public TbFaCaja GetCajaById(int id)
         {
             try

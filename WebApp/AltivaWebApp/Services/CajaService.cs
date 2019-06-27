@@ -15,6 +15,11 @@ namespace AltivaWebApp.Services
             repository = cajaRepository;
         }
 
+        public IList<TbFaCajaAperturaDenominacion> GetAllCajaAperturaDenominacionByIdCaja(int id)
+        {
+            return repository.GetAllCajaAperturaDenominacionByIdCaja(id);
+        }
+
         public IList<TbFaCaja> GetInfoCaja()
         {
             return repository.GetInfoCaja();
