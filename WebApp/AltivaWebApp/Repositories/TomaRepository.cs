@@ -409,7 +409,7 @@ namespace AltivaWebApp.Repositories
 
         public bool TieneToma(DateTime fechaDoc)
         {
-            return context.TbPrToma.Any(t => t.FechaCreacion > fechaDoc && t.Borrador == false && t.Anulado == false);
+            return context.TbPrToma.Any(t => t.FechaCreacion >= fechaDoc && t.Borrador == false && t.Anulado == false);
         }
 
         public void AnularTomasBorrador(long id)

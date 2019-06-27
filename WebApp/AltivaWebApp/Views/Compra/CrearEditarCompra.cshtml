@@ -11,6 +11,7 @@
 @{
     var monedas = ViewData["monedas"] as IList<TbSeMoneda>;
     var estado = "";
+    var estado2 = "";
     var usuario = ViewData["usuario"] as TbSeUsuario;
     if (Model.Anulado || Model.EnCola)
     {
@@ -19,11 +20,14 @@
 
     var numDocumento = Model.NumeroDocumento;
 
-    if(Model.NumeroDocumento == "AutogeneradoXML")
+    if (Model.NumeroDocumento == "AutogeneradoXML")
     {
         numDocumento = Model.Id.ToString();
     }
-
+    if (ViewBag.tieneToma)
+    {
+        estado2 = "disabled";
+    }
 
 }
 
@@ -44,18 +48,27 @@ else
 }
 
 
+
+
 <hr />
 
 <div class="row">
     @if (Model.Id != 0 && !Model.Anulado)
     {
-        <div class="col-md-12 text-right"><button class="btn btn-danger btn-sm" onclick="anularCompra()">@SharedLocalizer["Anular"]</button></div>
+        <div class="col-md-12 text-right"><button @estado2 class="btn btn-danger btn-sm" onclick="anularCompra()">@SharedLocalizer["Anular"]</button></div>
     }
     else if (Model.Id != 0)
     {
         <div class="col-md-12 text-left"><h4 class="text-danger">@SharedLocalizer["CompraAnulada"]</h4></div>
     }
+    @if (ViewBag.tieneToma)
+    {
+        estado2 = "disabled";
+        <div class="col-md-12 text-left"><h5 class="text-danger">@SharedLocalizer["DocumentoConToma"]</h5></div>
+        
+    }
 </div>
+
 <div class="row well">
 
     <form id="frmCompra">
@@ -65,7 +78,7 @@ else
         @Html.HiddenFor(x => x.IdUsuario)
         @Html.HiddenFor(x => x.Borrador)
         <div class="form-group col-md-2 col-sm-6 col-xs-12">
-            <fieldset>
+            <fieldset >
                 <div class="form-group">
                     <label for="fecha">@SharedLocalizer["Fecha"]:</label>
                     <div class='input-group date' id='fechaPicker'>
@@ -102,11 +115,11 @@ else
                 <label asp-for="IdMoneda" class="control-label">@SharedLocalizer["Moneda"]:</label>
                 <select onchange="recalcularPrecio()" id="moneda" class="form-control tipoMoneda">
                     @*@{
-                        foreach (var item in monedas)
-                        {
-                            <option value="@item.Codigo">@item.Nombre</option>
-                        }
-                    }*@
+                            foreach (var item in monedas)
+                            {
+                                <option value="@item.Codigo">@item.Nombre</option>
+                            }
+                        }*@
                 </select>
             </div>
 
@@ -144,20 +157,20 @@ else
             <tbody>
                 <tr class="lineaForm">
                     <td>
-                        <select @estado class="form-control selectItems" id="item"></select>
+                        <select @estado2 @estado class="form-control selectItems" id="item"></select>
                     </td>
                     <td>
                         <input readonly class="form-control" id="descripcion" />
                     </td>
-                    <td><div class="col-md-9"><input @estado class="form-control numerico" type="text" min="0" id="cantidad" /></div><div class="col-md-3" style="padding-top:1rem"><span id="unidad"></span></div></td>
-                    <td><input @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
-                    <td><input @estado class="form-control numerico" type="text" id="descuento" /></td>
+                    <td><div class="col-md-9"><input @estado2 @estado class="form-control numerico" type="text" min="0" id="cantidad" /></div><div class="col-md-3" style="padding-top:1rem"><span id="unidad"></span></div></td>
+                    <td><input @estado2 @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
+                    <td><input @estado2 @estado class="form-control numerico" type="text" id="descuento" /></td>
                     <td><input class="form-control" readonly type="number" id="iva" /></td>
                     <td><input class="form-control moneda" readonly type="text" id="subtotalLinea" /></td>
                     <td>
                         <select class="form-control bodegas" id="bodega"></select>
                     </td>
-                    <td><button @estado class="btn btn-link btnAccion" onclick="guardarCambios()"><i class="fas fa-save"></i></button></td>
+                    <td><button @estado2 @estado class="btn btn-link btnAccion" onclick="guardarCambios()"><i class="fas fa-save"></i></button></td>
                 </tr>
             </tbody>
         </table>
@@ -189,14 +202,14 @@ else
 <div class="row">
     <div class="col-md-12">
         <div class="form-group" col-md-3>
-            <label @estado class="control-label" style="padding-left:1rem">
-                <input  type="checkbox" asp-for="EnCola" id="enCola" /> @SharedLocalizer["EnviarACola"]
+            <label @estado2 @estado class="control-label" style="padding-left:1rem">
+                <input type="checkbox" asp-for="EnCola" id="enCola" /> @SharedLocalizer["EnviarACola"]
             </label>
         </div>
     </div>
     <div class="col-md-12">
         <div class="form-group col-md-3">
-            <button @estado class="btn btn-success btnAccion" onclick="guardarSalir()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+            <button @estado2 @estado class="btn btn-success btnAccion" onclick="guardarSalir()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
             <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
         </div>
     </div>
@@ -303,7 +316,7 @@ else
         if (@Model.Id != 0) {
 
             GetComentarios("Compra", @Model.Id);
-            date = new Date(formatearFecha());           
+            date = new Date(formatearFecha());
         }
 
 
@@ -324,6 +337,9 @@ else
          });
 
          if('@Model.Anulado' === 'True')
+            $('input, select').attr('disabled', true);
+
+         if('@ViewBag.tieneToma' === 'True')
             $('input, select').attr('disabled', true);
 
         $(".numerico").inputmask({
@@ -561,7 +577,7 @@ else
                     cargarAlert("@SharedLocalizer["numCompraRepitida"]");
                     eliminarLinea(lineas.length -1);
                 }
-                    
+
 
 
                },
@@ -676,7 +692,7 @@ else
         });
     }
 
-   
+
 
 
 
@@ -712,7 +728,7 @@ else
                         guardarCompra();
 
                      window.location.href = "@Url.Action("ListarCompras")";
-                    
+
                 });
             }
 
@@ -726,9 +742,9 @@ else
                  window.location.href = "@Url.Action("ListarCompras")";
             }
 
-           
-            
-           
+
+
+
         }
 
     }
@@ -941,7 +957,7 @@ else
                 + '<td style="padding-top:2rem;">' + data[i].porcIva + '%</td>'
                 + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(subtotal) + '</td>'
                 + '<td style="padding-top:2rem;">' + data[i].bodega + ' </td>'
-                + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="elimarCompraDetalle(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
+                + '<td><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="elimarCompraDetalle(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
 
             $('.lineaForm').before(body);
 
@@ -1132,7 +1148,7 @@ else
         $total.val(totalCompra);
     }
 
-    
+
 
     function getPrecioAlCambio(item) {
 
@@ -1238,7 +1254,7 @@ else
 
         var euro = parseFloat($euro.val());
 
-        
+
 
         if (moneda === 1 && item.idMonedaCD === 1)
             return item.precioUnitario;
@@ -1261,7 +1277,7 @@ else
 
     }
 
-    
+
     function recuperarPrecio(data) {
 
         var moneda = parseInt($('.tipoMoneda').val());
@@ -1598,10 +1614,10 @@ else
 
             guardarCompra();
         }
-        
-        
 
-            
+
+
+
     }
 
     function crearModeloCompra(data) {
@@ -1667,7 +1683,7 @@ else
         var doc = file.FacturaElectronica;
 
         if (doc === undefined) {
-            
+
             cargarAlert("@SharedLocalizer["XMLInvalido"]");
             return false;
         }
@@ -1679,22 +1695,22 @@ else
 
 
         if (doc.Receptor.Identificacion.Numero["#text"] != cedEmpresa) {
-            flag = false;          
+            flag = false;
         }
-                   
-            
+
+
         if (doc.ResumenFactura.CodigoMoneda["#text"] != monedas[0].nombre) {
-            flag = false;           
+            flag = false;
         }
-            
+
 
 
         if (detalle.length === undefined) {
             if (getItemPorCodigo(detalle.Codigo.Codigo["#text"]) === undefined) {
                 flag = false;
-                
+
             }
-                
+
         }
         else {
             for (var i = 0; i < detalle.length; i++) {

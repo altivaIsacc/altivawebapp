@@ -11,43 +11,41 @@
 @{
     ViewData["Title"] = "CrearEditarToma";
 
-    var esAnulable = "";
-    var tieneModelo = "";
-    var editarInicial = "";
-    var editable = "false";
-    var esBorrador = "";
 
-    if(Model.Id != 0 && Model.Anulado || !Model.Borrador)
+    var editable = "false";
+
+    var editar = "";
+    var esInicialeEditable = "";
+
+
+    if (Model.Id != 0 && Model.Anulado || !Model.Borrador)
     {
         editable = "true";
-        esBorrador = "disabled";
-    }
-
-
-    if(Model.Id != 0 && !Model.Borrador)
-    {
-        editarInicial = "disabled";
-    }
-
-    if(Model.Id != 0 && Model.Anulado || !Model.Borrador)
-    {
-        esAnulable = "disabled";
+        esInicialeEditable = "disabled";
     }
 
 }
 
 @if (Model.Id != 0)
 {
-    tieneModelo = "disabled";
+    editar = "disabled";
     <div class="row">
-        <div class="col-md-3"><h3>@SharedLocalizer["editarToma"]</h3></div>
+        @if (!Model.Anulado)
+        {
+            <div class="col-md-3"><h3>@SharedLocalizer["Editar"] @SharedLocalizer["TomaFisica"]</h3></div>
+        }
+        else
+        {
+            <div class="col-md-3 text-danger"><h3>@SharedLocalizer["TomaFisica"] @SharedLocalizer["Anulada"]</h3></div>
+        }
         <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
+
     </div>
 
 }
 else
 {
-    <h3>@SharedLocalizer["nuevaToma"]</h3>
+    <h3>@SharedLocalizer["Nueva"] @SharedLocalizer["TomaFisica"]</h3>
 }
 
 
@@ -61,15 +59,15 @@ else
 
         <div class="form-group col-md-2 col-sm-4 col-xs-12">
             <label asp-for="IdBodega" class="control-label">@SharedLocalizer["Bodega"]:</label>
-            <select @tieneModelo  class="form-control selectBodegas" id="bodegas" onchange="cambioBodega()"><option value="0">@SharedLocalizer["Seleccione"]</option></select>
+            <select class="form-control selectBodegas inactiveControl" id="bodegas" onchange="cambioBodega()"><option value="0">@SharedLocalizer["Seleccione"]</option></select>
         </div>
 
         <div class="form-group col-md-3 col-sm-6 col-xs-12">
-            <fieldset @esBorrador >
+            <fieldset @editar>
                 <div class="form-group">
                     <label for="fecha">@SharedLocalizer["Fecha"]:</label>
                     <div class='input-group date' id='fechaPicker'>
-                        <input @esBorrador type='text' class="form-control fechas" id="fecha" />
+                        <input @editar type='text' class="form-control fechas" id="fecha" />
                         <span class="input-group-addon">
                             <span class="fas fa-calendar"></span>
                         </span>
@@ -79,10 +77,10 @@ else
         </div>
         @if (!ViewBag.existeTomaInicial)
         {
-            <div class="form-group col-md-2 col-sm-4 col-xs-12 " style="padding-top:2rem">
-                <div class="checkbox" id="divEsInicial">
+            <div class="form-group col-md-2 col-sm-4 col-xs-12 " id="divEsInicial" style="padding-top:2rem">
+                <div class="checkbox">
                     <label>
-                        <input  checked="@Model.EsInicial" @esAnulable @editarInicial type="checkbox" class="flat" name="iCheck" id="esInicial" /> @SharedLocalizer["EsInventarioInicial"]
+                        <input checked="@Model.EsInicial" @esInicialeEditable type="checkbox" id="esInicial" /> @SharedLocalizer["EsInventarioInicial"]
                     </label>
                 </div>
             </div>
@@ -91,7 +89,7 @@ else
 
         <div class="form-group col-md-2 col-sm-12 col-xs-12 ">
             <label>@SharedLocalizer["Ordenado"] @SharedLocalizer["Por"]:</label>
-            <select @tieneModelo class="form-control inactiveControl" id="ordenadoBy">
+            <select @editar class="form-control inactiveControl" id="ordenadoBy">
                 <option value="producto">@SharedLocalizer["Producto"]</option>
                 <option value="familia">@SharedLocalizer["Familia"]</option>
             </select>
@@ -101,7 +99,7 @@ else
     </form>
 
     <div class="form-group col-md-12 col-sm-12 col-xs-12 ">
-        <button @tieneModelo class="btn btn-primary inactiveControl" id="btnGenerar" onclick="generarToma()">@SharedLocalizer["Generar"] </button>
+        <button @editar class="btn btn-primary inactiveControl" id="btnGenerar" onclick="generarToma()">@SharedLocalizer["Generar"] </button>
     </div>
 
 </div>
@@ -114,12 +112,12 @@ else
                     <th style="width:12%">@SharedLocalizer["Código"]</th>
                     <th style="width:18%">@SharedLocalizer["Producto"]</th>
                     <th style="width:20%">@SharedLocalizer["Familia"]</th>
-                    <th style="width:8%">@SharedLocalizer["Costo"] @SharedLocalizer["Promedio"]</th>
-                    <th style="width:5%">@SharedLocalizer["Saldo"] @SharedLocalizer["Inicial"]</th>
-                    <th style="width:5%">@SharedLocalizer["Entradas"]</th>
-                    <th style="width:5%">@SharedLocalizer["Salidas"]</th>
-                    <th style="width:5%">@SharedLocalizer["Existencia"]</th>
-                    <th style="width:8%">@SharedLocalizer["TomaFisica"]</th>
+                    <th style="width:12%">@SharedLocalizer["Costo"] @SharedLocalizer["Promedio"]</th>
+                    <th style="width:12%">@SharedLocalizer["Saldo"] @SharedLocalizer["Inicial"]</th>
+                    <th style="width:6%">@SharedLocalizer["Entradas"]</th>
+                    <th style="width:6%">@SharedLocalizer["Salidas"]</th>
+                    <th style="width:6%">@SharedLocalizer["Existencia"]</th>
+                    <th style="width:8%">@SharedLocalizer["Toma"]</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -131,16 +129,16 @@ else
 
 <div class="row">
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
-        <button @editarInicial  @esAnulable class="btn btn-info btnAccion" style="width:100%" onclick="guardarCambiosBorrador()">@SharedLocalizer["Guardar"] @SharedLocalizer["Borrador"] </button>
+        <button disabled id="btnBorrador" class="btn btn-info btnAccion" style="width:100%" onclick="guardarCambiosBorrador()">@SharedLocalizer["Guardar"] @SharedLocalizer["Borrador"] </button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
-        <button @editarInicial @esAnulable class="btn btn-dark btnAccion" style="width:100%" onclick="combinarToma()">@SharedLocalizer["Combinar"]</button>
+        <button disabled id="btnCombinar" class="btn btn-dark btnAccion" style="width:100%" onclick="combinarToma()">@SharedLocalizer["Combinar"]</button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
-        <button @esAnulable class="btn btn-danger btnAccion" style="width:100%" onclick="anularToma()">@SharedLocalizer["Anular"] </button>
+        <button disabled id="btnAnular" class="btn btn-danger btnAccion" style="width:100%" onclick="anularToma()">@SharedLocalizer["Anular"] </button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
-        <button @esBorrador class="btn btn-success btnAccion" style="width:100%" onclick="ajustarInventario()">@SharedLocalizer["Ajustar"] @SharedLocalizer["Inventario"]</button>
+        <button disabled id="btnAjustar" class="btn btn-success btnAccion" style="width:100%" onclick="ajustarInventario()">@SharedLocalizer["Ajustar"] @SharedLocalizer["Inventario"]</button>
     </div>
     <div class="form-group col-md-2 col-sm-6 col-xs-6">
         <a onclick="cancelar()" style="width:100%" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
@@ -189,17 +187,21 @@ else
     var $ordenadoBy = $('#ordenadoBy');
     var $esInicial = $('#esInicial');
     var btnGenerar = $('#btnGenerar');
+    var btnAnular = $('#btnAnular');
+    var btnBorrador = $('#btnBorrador');
+    var btnAjustar = $('#btnAjustar');
+    var btnCombinar = $('#btnCombinar');
+
+
     var familias = [];
     $(document).ready(function () {
 
-      
+        manejarBotones();
         $('.fechas').mask('00/00/0000 00:00');
         getBodegas();
         getFamilias();
 
         $esInicial.prop("checked");
-
-        console.log(@Model.Id);
 
         var date = new Date();
 
@@ -209,11 +211,16 @@ else
             $('#bodegas').attr('disabled', true);
             date = new Date(formatearFecha());
 
-        } 
+        }
 
         $('#fechaPicker').datetimepicker({
             defaultDate: date,
             locale: localStorage.getItem("idioma")
+        });
+
+        $(".currency").inputmask('currency', {
+            prefix: ' ',
+            rightAlign: true
         });
 
     });
@@ -222,10 +229,20 @@ else
     //////////////////////////////////////////////manejo del dom
 
 
-    
+    function manejarBotones() {
+
+        if (@Model.Id !== 0 && '@Model.Borrador' === 'True' && '@Model.Anulado' === 'False') {
+            btnBorrador.prop('disabled', false);
+            btnCombinar.prop('disabled', false);
+            btnAjustar.prop('disabled', false);
+            btnAnular.prop('disabled', false);
+        }
+    }
+
 
     function cambioBodega() {
         $('.inactiveControl').attr('disabled', false);
+
     }
 
 
@@ -293,14 +310,14 @@ else
 
         for (var i = 0; i < data.length; i++) {
 
-            
+
 
             var body = '<tr class="fila' + contadorFila + ' filas">'
                 + '<td><p style="padding-top:1rem;">' + data[i].codigo + '</p></td>'
                 + '<td><p style="padding-top:1rem;">' + data[i].descripcion + '</p></td>'
                 + '<td><p style="padding-top:1rem;">' + data[i].familia + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].costoPromedio + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].inicial + '</p></td>'
+                + '<td style="text-align: right"><p style="padding-top:1rem;">' + formatearMoneda(data[i].costoPromedio) + '</p></td>'
+                + '<td style="text-align: right"><p style="padding-top:1rem;">' + formatearMoneda(data[i].inicial) + '</p></td>'
                 + '<td><p style="padding-top:1rem;">' + data[i].entradas + '</p></td>'
                 + '<td><p style="padding-top:1rem;">' + data[i].salidas + '</p></td>'
                 + '<td><p style="padding-top:1rem;">' + data[i].existencia + '</p></td>'
@@ -310,7 +327,7 @@ else
 
         }
 
-        
+
 
         $(".numerico").inputmask({
             'alias': 'decimal',
@@ -387,7 +404,7 @@ else
         var model = {
             id: @Model.Id,
             fechaToma: $fecha.val(),
-            esInicial: $esInicial.val(),
+            esInicial: $esInicial.prop('checked'),
             idBodega: $bodega.val(),
             ordenado: $ordenadoBy.val(),
             idUsuarioCreacion: 1,
@@ -443,25 +460,27 @@ else
     }
 
     function guardarCombinar() {
+        bootbox.confirm("@SharedLocalizer["confirmCombinar"]", function (result) {
+            if (result){
+                $.ajax({
+                    type: "post",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: '@Url.Action("CombinarTomas", new { id = Model.Id })',
+                    data: { tomas:  tomasBorrador},
+                    success: function (data) {
+                        window.location.href = "@Url.Action("EditarToma", new { id = "__id__" })".replace("__id__", data.id);
+                    },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+                });
 
-        $.ajax({
-            type: "post",
-            headers: {
-                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-            },
-            url: '@Url.Action("CombinarTomas", new { id = Model.Id })',
-            data: { tomas:  tomasBorrador},
-            success: function (data) {
-                window.location.href = "@Url.Action("EditarToma", new { id = "__id__" })".replace("__id__", data.id);
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
+                $('#modalCombinables').modal('hide');
             }
         });
 
-        //console.log(tomasBorrador);
-
-        $('#modalCombinables').modal('hide');
     }
 
     function getBodegas() {
@@ -513,7 +532,7 @@ else
 
                 if(@Model.Id != 0)
                     getTomaDetalles();
-                
+
                },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -542,7 +561,7 @@ else
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
                   console.log(err.statusText);
              }
-          });
+         });
 
     }
 
@@ -572,23 +591,29 @@ else
     }
 
     function ajustarInventario() {
-        $.ajax({
-            type: "POST",
-            headers: {
-                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-            },
-            dataType: "json",
-            url: '@Url.Action("AjustarInventario")',
-            data: crearModelo(),
-            success: function (data) {
+        bootbox.confirm("@SharedLocalizer["confirmAjustar"]", function (result) {
+            if (result) {
+                $.ajax({
+                    type: "POST",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    dataType: "json",
+                    url: '@Url.Action("AjustarInventario")',
+                    data: crearModelo(),
+                    success: function (data) {
+                        window.location.href = "@Url.Action("EditarAjuste", "AjusteInventario", new { id = "__id__" })".replace("__id__", data.idAjuste);
+                    },
+                    error: function (err, scnd) {
+                        cargarAlert('@SharedLocalizer["errorGeneral"]');
+                        console.log(err.statusText);
+                    }
+                });
 
-                window.location.href = "@Url.Action("EditarAjuste", "AjusteInventario", new { id = "__id__" })".replace("__id__", data.idAjuste);
-            },
-            error: function (err, scnd) {
-                 cargarAlert('@SharedLocalizer["errorGeneral"]');
-                console.log(err.statusText);
             }
+
         });
+
     }
 
 
@@ -617,7 +642,7 @@ else
                                 }
                                 else
                                     cargarAlert('@SharedLocalizer["anulacionInvalida"]');
-                                
+
                             },
                             error: function (err, scnd) {
                                 cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -666,14 +691,21 @@ else
                 cargarDatos(tdGenerada);
 
                 if (data.tomas.length === 0) {
+                    btnBorrador.prop('disabled', true);
                     cargarAlert("@SharedLocalizer["BodegaSinMovimientosRecientes"]");
                 }
                 else {
-                    $('.inactiveControl').attr('disabled', 'disabled');
+                    btnBorrador.prop('disabled', false);
+                    btnAjustar.prop('disabled', false);
+                    $('.inactiveControl').prop('disabled', 'disabled');
                 }
 
-                if (data.esInicial)
+                if (data.esInicial) {
                     $('#divEsInicial').prop('hidden', true);
+                    $('#esInicial').prop('checked', false);
+                } else
+                    $('#divEsInicial').prop('hidden', false);
+
 
               },
               error: function (err, scnd) {
@@ -686,5 +718,127 @@ else
     function cargarJustificacion(mensaje) {
         setMensajeFromOut(mensaje);
     }
-</script>
 
+
+
+
+    /////////////////////////////crear pdf///////////////////////
+
+
+    function crearPdf() {
+
+        generate_cutomPDF(crearModeloPDF());
+
+    }
+
+    function crearModeloPDF() {
+
+        var empresaModel = JSON.parse(localStorage.getItem("empresaInfo"));
+
+        var modelo = {
+            empresa: {
+                nombre: localStorage.getItem("empresa"),
+                telefono: empresaModel.tel,
+                correo: empresaModel.correo,
+                cedJuridica: empresaModel.ced,
+                logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
+                nombreTitulo: "@SharedLocalizer["Nombre"]:",
+                telTitulo: "@SharedLocalizer["Tel"]:",
+                correoTitulo: "@SharedLocalizer["Correo"]:",
+                cedTitulo: getTittulos().cedJuridica
+            },
+
+            nombreDoc: getTittulos().fisica + ' ' + '#@Model.Id',
+            nombreDescarga: '@SharedLocalizer["tf"]_' + @Model.Id + '.pdf',
+            columnas: {
+                codigo: getTittulos().codigo,
+                producto: "@SharedLocalizer["Producto"]",
+                familia: "@SharedLocalizer["Familia"]",
+                costo: "@SharedLocalizer["Costo"]",
+                saldo: "@SharedLocalizer["SaldoInicial"]",
+                entradas: "@SharedLocalizer["Entradas"]",
+                salidas: "@SharedLocalizer["Salidas"]",
+                existencia: "@SharedLocalizer["Existencia"]",
+                toma: "@SharedLocalizer["Toma"]"
+            },
+            filas: crearFilasPdf(),
+            resumen: {
+                autorizado: "@SharedLocalizer["Autorizado por"]:______________________"
+            },
+            bodega: $('#bodegas option:selected').text(),
+            fecha: $('#fecha').val(),
+            bodegaTitulo: "@SharedLocalizer["Bodega"]:",
+            fechaTitulo: "@SharedLocalizer["Fecha"]:",
+            estado: getEstado(),
+            esInicial: getEsInicial(),
+            esInicialTitulo: "@SharedLocalizer["EsInventarioInicial"]"
+
+        };
+
+        return modelo;
+
+    }
+
+    function crearFilasPdf() {
+
+        var row = [];
+        for (var i = 0; i < tdGenerada.length; i++) {
+            var model = {
+                codigo: tdGenerada[i].idInventarioNavigation.codigo,
+                producto: tdGenerada[i].idInventarioNavigation.descripcion,
+                familia: getFamiliaByIdSub(tdGenerada[i].idInventarioNavigation.idSubFamilia) + " / " + getSubFamiliaById(tdGenerada[i].idInventarioNavigation.idSubFamilia),
+                costo: formatearMoneda(tdGenerada[i].costoPromedio),
+                saldo: formatearMoneda(tdGenerada[i].inicial),
+                entradas: tdGenerada[i].entradas,
+                salidas: tdGenerada[i].salidas,
+                existencia: tdGenerada[i].existencia,
+                toma: tdGenerada[i].toma,
+            };
+
+            row.push(model);
+        }
+        return row;
+    }
+
+    function formatearMoneda(val) {
+        $('#formater').val(val);
+        return $('#formater').val();
+    }
+
+    function getEsInicial() {
+        if ($esInicial.prop('checked')) {
+            return '@SharedLocalizer["Si"]';
+        }
+        else
+            return '@SharedLocalizer["No"]';
+    }
+    function getEstado() {
+        if ('@Model.Anulado' === "True")
+            return getTittulos() +  " @SharedLocalizer["Anulada"]";
+        else
+            return "";
+    }
+
+    function getTittulos() {
+        var idioma = localStorage.getItem("idioma");
+        if (idioma === "es")
+            return {
+                desc: "Descripción:",
+                cedJuridica: "Cédula Jurídica:",
+                fisica: "Toma Física",
+                codigo: "Código"
+            };
+        else
+            return {
+                desc: "Description:",
+                cedJuridica: "Legal Number:",
+                fisica: "Physical Taking",
+                codigo: "Code"
+            };
+    }
+
+
+
+
+</script>
+<script src="~/lib/vendors/jsPDF/TF.js"></script>

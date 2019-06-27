@@ -8,6 +8,16 @@
     }
 }
 
+@{ 
+
+    var inactivo = "";
+
+    if(Model.estado == "INACTIVO")
+    {
+        inactivo = "disabled";
+    }
+
+}
 
 
 <style>
@@ -47,9 +57,9 @@
             <div class="well" style="background-color:#EDEDED; padding: 1rem; text-align:center">
                 <img style="height: 10rem; width:10rem" src="@Model.avatar" class="img-circle" />
                 <div class="row">
-                    <a data-translate="avatar" class="btn btn-link" data-toggle="modal" data-target="#exampleModal">
+                    <button @inactivo data-translate="avatar" class="btn btn-link" data-toggle="modal" data-target="#exampleModal">
                         Cargar tu avatar
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -78,54 +88,55 @@
     <div class="col-md-6 col-sm-6 col-xs-12">
         <h4 data-translate="datosUsuario">Datos</h4>
         <form id="frmUsuario" method="post">
-            @Html.HiddenFor(x => x.id)
-            @Html.HiddenFor(x => x.Id_Usuario)
-            @Html.HiddenFor(x => x.contrasena)
-            @Html.HiddenFor(x => x.ConfirmPassowrd)
+            <fieldset @inactivo>
+                @Html.HiddenFor(x => x.id)
+                @Html.HiddenFor(x => x.Id_Usuario)
+                @Html.HiddenFor(x => x.contrasena)
+                @Html.HiddenFor(x => x.ConfirmPassowrd)
 
-            <div class="form-group">
-                <label asp-for="codigo" class="control-label">@SharedLocalizer["Codigo"]:</label>
-                <input asp-for="codigo" id="codigo" class="form-control" />
-                <div id="codigoValidation"></div>
-            </div>
-            <div class="form-group">
-                <label data-translate="nombre" asp-for="nombre" class="control-label">@SharedLocalizer["Nombre"]:</label>
-                <input asp-for="nombre" maxlength="50" id="nombre" class="form-control" />
-                <div id="nombreValidation"></div>
-            </div>
-            <div class="form-group">
-                <label asp-for="estado" class="control-label">@SharedLocalizer["Estado"]:</label>
-                <select asp-for="estado" id="estado" class="form-control">
-                    <option value="ACTIVO">@SharedLocalizer["ACTIVO"]</option>
-                    <option value="INACTIVO">@SharedLocalizer["INACTIVO"]</option>
-                </select>
-                <span asp-validation-for="estado" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="iniciales" class="control-label">@SharedLocalizer["Iniciales"]:</label>
-                <input asp-for="iniciales" maxlength="15" id="inciales" class="form-control" />
-                <div id="inicialesValidation"></div>
-            </div>
+                <div class="form-group">
+                    <label asp-for="codigo" class="control-label">@SharedLocalizer["Codigo"]:</label>
+                    <input asp-for="codigo" id="codigo" class="form-control" />
+                    <div id="codigoValidation"></div>
+                </div>
+                <div class="form-group">
+                    <label data-translate="nombre" asp-for="nombre" class="control-label">@SharedLocalizer["Nombre"]:</label>
+                    <input asp-for="nombre" maxlength="50" id="nombre" class="form-control" />
+                    <div id="nombreValidation"></div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="estado" class="control-label">@SharedLocalizer["Estado"]:</label>
+                    <select asp-for="estado" id="estado" class="form-control">
+                        <option value="ACTIVO">@SharedLocalizer["ACTIVO"]</option>
+                        <option value="INACTIVO">@SharedLocalizer["INACTIVO"]</option>
+                    </select>
+                    <span asp-validation-for="estado" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="iniciales" class="control-label">@SharedLocalizer["Iniciales"]:</label>
+                    <input asp-for="iniciales" maxlength="15" id="inciales" class="form-control" />
+                    <div id="inicialesValidation"></div>
+                </div>
 
 
 
-            <div class="form-group">
-                <label data-translate="correo" asp-for="correo" class="control-label">@SharedLocalizer["Correo"]:</label>
-                <input type="email" asp-for="correo" id="corre" maxlength="50" class="form-control" />
-                <div id="correoValidation"></div>
-            </div>
-
+                <div class="form-group">
+                    <label data-translate="correo" asp-for="correo" class="control-label">@SharedLocalizer["Correo"]:</label>
+                    <input type="email" asp-for="correo" id="corre" maxlength="50" class="form-control" />
+                    <div id="correoValidation"></div>
+                </div>
+            </fieldset>
         </form>
         @if (Model.codigo == User.Identity.Name)
         {
             <div>
-                <a class="btn btn-link" data-toggle="modal" data-target="#claveModal">@SharedLocalizer["Cambiar"] @SharedLocalizer["Contraseña"]</a>
+                <button @inactivo class="btn btn-link" data-toggle="modal" data-target="#claveModal">@SharedLocalizer["Cambiar"] @SharedLocalizer["Contraseña"]</button>
             </div>
         }
 
     </div>
     <div class="col-md-4 col-sm-6 col-xs-12">
-        <h4>@SharedLocalizer["PerfilesAsignados"]</h4>
+        <h4>@SharedLocalizer["Perfiles Asignados"]</h4>
         <table class="table table-bordered" id="perfiles">
             <thead>
                 <tr>
@@ -145,7 +156,7 @@
                             @Html.DisplayFor(modelItem => item.Nombre)
                         </td>
                         <td>
-                            @Html.ActionLink("Quitar", "QuitarPerfil", "ManejoUsuarios", new { usuario = Model.id, id = item.Id })
+                             <button @inactivo class="btn btn-link" onclick="eliminarPerfilUsuario(value)" value="@item.Id"><i class="fas fa-trash"></i></button> 
                         </td>
 
                     </tr>
@@ -153,9 +164,9 @@
                 }
                 <tr>
                     <td>
-                        <a class="btn btn-link" data-toggle="modal" data-target="#perfilModal">
+                        <button @inactivo class="btn btn-link" data-toggle="modal" data-target="#perfilModal">
                             <span style="font-size:3rem"><i class="fas fa-plus-circle"></i></span>
-                        </a>
+                        </button>
                     </td>
                     <td></td>
                 </tr>
@@ -167,7 +178,7 @@
 </div>
 <div class="row">
     <div class="form-group col-md-12">
-        <button type="submit" onclick="validarForm()" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
+        <button @inactivo type="submit" onclick="validarForm()" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
         <a class="btn btn-default btnAtras">Cancelar</a>
     </div>
 </div>
@@ -411,6 +422,9 @@
 
     }
 
+    function eliminarPerfilUsuario(id) {
+        window.location.href = '@Url.Action("QuitarPerfil", "ManejoUsuarios", new { usuario = Model.id, id = "__id__" })'.replace("__id__", id);
+    }
 
     function cambiarContrasena() {
 

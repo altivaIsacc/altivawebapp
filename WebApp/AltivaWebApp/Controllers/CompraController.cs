@@ -63,7 +63,7 @@ namespace AltivaWebApp.Controllers
                 Borrador = true
             };
             ViewData["monedas"] = tipoCambio;
-            ViewBag.existeToma = false;
+            ViewBag.tieneToma = false;
             return View("CrearEditarCompra", model);
         }
 

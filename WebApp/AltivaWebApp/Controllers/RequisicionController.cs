@@ -37,7 +37,7 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Nueva-Rquisicion")]
         public IActionResult CrearRequisicion()
         {
-            ViewBag.existeToma = false;
+            ViewBag.tieneToma = false;
             return View("CrearEditarRequisicion", new RequisicionViewModel());
         }
 
