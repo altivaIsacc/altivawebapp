@@ -14,8 +14,7 @@ namespace AltivaWebApp.Repositories
         {
          
         }
- 
-    
+     
         public IList<TbFaCotizacion> GetInfoCotizacion()
         {
             try
@@ -46,7 +45,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbFaCotizacion.Include(c => c.TbFaCotizacionDetalle).ThenInclude(cd => cd.IdCotizacionNavigation).FirstOrDefault(c => c.IdCotizacion == id);
+                return context.TbFaCotizacion.FirstOrDefault(c => c.IdCotizacion == id);
             }
             catch (Exception)
             {

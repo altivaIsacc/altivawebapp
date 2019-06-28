@@ -38,6 +38,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
+                //var users = context.TbFaCajaAperturaDenominacion.AsNoTracking().ToList();
                 context.TbFaCajaAperturaDenominacion.UpdateRange(domain);
                 context.SaveChanges();
 
@@ -93,7 +94,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbFaCaja.Include(c => c.TbFaCajaAperturaDenominacion).ThenInclude(cd => cd.IdCajaNavigation).FirstOrDefault(c => c.IdCaja == id);
+                return context.TbFaCaja.FirstOrDefault(c => c.IdCaja == id);
             }
             catch (Exception)
             {

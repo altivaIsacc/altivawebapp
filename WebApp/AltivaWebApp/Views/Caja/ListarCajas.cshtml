@@ -53,6 +53,7 @@
             <option value="3">@Lb["ArqueoReabierto"]</option>
             <option value="4">@Lb["Cerrada"]</option>
             <option value="5">@Lb["CierreReabierto"]</option>
+            <option value="6">@Lb["Anulada"]</option>
         </select>
     </div>
 
@@ -100,13 +101,7 @@
 
 <input readonly hidden id="monedaFormater" />
 
-<style>
-    .dataTables_wrapper .dataTables_filter {
-        float: right;
-        text-align: right;
-        visibility: hidden;
-    }
-</style>
+
 
 <script>
 //////////////////////////////////////////////////////////DOCUMENT READY//////////////////////////////////////////////////////////////////////////////////////////
@@ -190,7 +185,7 @@
                         _CajasCerradas.push(data[i]);
                     }
                 }
-
+ 
                 cargarDatos(data);  
          
 
@@ -280,7 +275,17 @@
                         + '<td>  <button value="' + data[i].idCaja + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
                     break;
                 case 5:
-                    colorLinea = "#eff176 ";
+                    colorLinea = "#eff176";
+                    body = '<tr style="background-color:' + colorLinea + ' ;" class="fila' + contadorFila + ' filas">'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCaja + '</p></td>'
+                        + '<td><p style="padding-top:1rem;">' + GetUsuarioxId(data[i].idUsuario) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + data[i].idCaja + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + GetEstado(data[i].estado) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
+                        + '<td>  <button value="' + data[i].idCaja + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+                    break;
+                case 6:
+                    colorLinea = "#858281 ";
                     body = '<tr style="background-color:' + colorLinea + ' ;" class="fila' + contadorFila + ' filas">'
                         + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCaja + '</p></td>'
                         + '<td><p style="padding-top:1rem;">' + GetUsuarioxId(data[i].idUsuario) + '</p></td>'
@@ -314,7 +319,7 @@
 
         tblCajas = $('#tblCajas').DataTable({
             "info": false,
-            dom: 'Bfrtip',
+  
             language: {
                 "decimal": "",
                 "emptyTable": "@Lb["NoDatos"]",
@@ -416,6 +421,9 @@
             case 5:
                    return "@Lb["CierreReabierto"]";
                 break;
+            case 6:
+                return "@Lb["Anulada"]";
+                break;
         }
 
     }
@@ -482,10 +490,20 @@
                 $('#filtroUsuario').val("");
                 break;
             case 0:
-                cargarDatos(_Cajas);
+                cargarDatos(Cajas);
                 $('#filtroId').val("");
                 $('#filtroCliente').val("");
                 $('#filtroVendedor').val("");
+                break;
+             case 6:
+                tblCajas
+                    .columns(3)
+                    .search("@Lb["Anulada"]")
+                    .draw();
+
+                $('#filtroId').val("");
+                $('#filtroUsuario').val("");
+                break;
         }
     });
 
@@ -598,3 +616,10 @@
 
 </script>
 
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

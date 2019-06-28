@@ -67,13 +67,12 @@ namespace AltivaWebApp.Controllers
                     if (viewModel.IdCaja!= 0 && viewModel.TbFaCajaAperturaDenominacion.Count() > 0)
                     {
                 
-                        var cd = _Map.CreateCD(viewModel);
-                        idCD = cd.IdDenominacion;
-
+                        var cd = _Map.UpdateCD(viewModel);
+                       // idCD = cd.IdDenominacion;
 
                     }
 
-                    return Json(new { success = true, idCD = idCD });
+                    return Json(new { success = true});
 
                 }
                 else
@@ -81,10 +80,10 @@ namespace AltivaWebApp.Controllers
 
                     viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     
-                    var compra = _Map.Create(viewModel);
+                    var caja = _Map.Create(viewModel);
 
 
-                    return Json(new { success = true, idCotizacion = compra.IdCaja });
+                    return Json(new { success = true, idCotizacion = caja.IdCaja });
 
                 }
 

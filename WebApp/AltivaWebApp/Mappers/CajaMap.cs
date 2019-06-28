@@ -56,8 +56,8 @@ namespace AltivaWebApp.Mappers
             {
                 IdCaja = domain.IdCaja,
                 FechaCreacion = Convert.ToDateTime( domain.FechaCreacion),
-                IdUsuario = domain.IdUsuario,
-                Estado = domain.Estado,
+                IdUsuario =Convert.ToInt32( domain.IdUsuario),
+                Estado =Convert.ToInt32( domain.Estado),
             };
 
             return viewModel;
@@ -86,10 +86,10 @@ namespace AltivaWebApp.Mappers
             {
                 domain = new TbFaCaja
                 {
-                    IdCaja = domain.IdCaja,
-                    FechaCreacion = Convert.ToDateTime(domain.FechaCreacion),
-                    IdUsuario = domain.IdUsuario,
-                    Estado = domain.Estado,
+                    IdCaja = viewModel.IdCaja,
+                    FechaCreacion = Convert.ToDateTime(viewModel.FechaCreacion),
+                    IdUsuario = viewModel.IdUsuario,
+                    Estado = viewModel.Estado,
 
                     TbFaCajaAperturaDenominacion = ViewModelToDomainCD(viewModel)
                 };

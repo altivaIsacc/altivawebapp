@@ -14,12 +14,19 @@
 
 <div class="row">
     <div class="col-md-3">
-        <h2>@Lb["CajaApertura"]</h2>
+        @{ if (Model.IdCaja != 0)
+            {
+            <h2>@Lb["Caja"]&nbsp;#@Model.IdCaja</h2>
+            }
+            else
+            {
+            <h2>@Lb["Caja"]</h2>
+                }
+            }
     </div>
     <div class="col-md-7"></div>
     <div class="col-md-2">
         <button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button>
-
     </div>
 </div>
 
@@ -32,13 +39,7 @@
 
     <div class="col-md-2">
         <label>@Lb["Estado"]:</label>
-        <select id="lbEstado" class="form-control search-key" disabled>
-            <option value="0">@Lb["Todos"]</option>
-            <option value="1">@Lb["Abierta"]</option>
-            <option value="2">@Lb["Arqueo"]</option>
-            <option value="3">@Lb["ArqueoReabierto"]</option>
-            <option value="4">@Lb["Cerrada"]</option>
-            <option value="5">@Lb["CierreReabierto"]</option>
+        <select id="lbEstado" class="form-control search-key">
         </select>
     </div>
 
@@ -78,6 +79,24 @@
 
 </div>
 
+<div class="form-group">
+    <div class="form-row">
+        <div class="col-md-6"></div>
+        <div class="col-md-2">
+            <label>@Lb["TotalBase"]:</label>
+            <input type="text" class="form-control currency" id="txtTotalBase" disabled />
+        </div>
+        <div class="col-md-2">
+            <label>@Lb["TotalDolar"]:</label>
+            <input type='text' class="form-control currency" id="txtTotalDolar" disabled />
+        </div>
+        <div class="col-md-2">
+            <label>@Lb["TotalEuro"]:</label>
+            <input type='text' class="form-control currency" id="txtTotalEuro" disabled />
+        </div>  
+    </div>
+</div>
+
 <div class="row">
     <div class="col-md-12">
         <button class="btn btn-success btnAccion" onclick="guardarSalir()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
@@ -96,6 +115,8 @@
 <script>
 
     var Usuarios = [];
+    var $Creador = $('#lbCreador');
+    var $Estado = $('#lbEstado');
     var IdUsuarioLogueado = 0;
     var _Denominaciones = [];
     var monedas = [];
@@ -104,14 +125,24 @@
     var Apertura = [];
     var _LineaCajaAperturaDenominaciones = [];
     var CajaApertura = [];
+    var $FechaCreacion = $('#lbFechaCreacion');
+    var TotalEuro = [];
+    var TotalDolar = [];
+    var TotalBase = [];
+    var $TotalBase = $('#txtTotalBase');
+    var $TotalDolar = $('#txtTotalDolar');
+    var $TotalEuro = $('#txtTotalEuro');
 
 ////////////////////////////////////////////////////////////DOCUMENT READY///////////////////////////////////////////////////////////////////
     $(document).ready(function () {
 
         getUsuarios();
         getDenominaciones();
+        cargarlbEstado();
+
         if (@Model.IdCaja!= 0) {
-            getCajaApertura();
+            $FechaCreacion.val(formatearFechaCreacion());
+
         }
                 $('#fechaPicker').datetimepicker({
             defaultDate: new Date(),
@@ -141,7 +172,8 @@
 
     });
 ///////////////////////////////////////////////////////GETS/////////////////////////////////////////////////////////////////////////////////////
-         function getCajaApertura() {
+
+    function getCajaApertura() {
         if(@Model.IdCaja != 0)
         $.ajax({
               type: "get",
@@ -150,12 +182,10 @@
               },
               dataType: "json",
             url: '@Url.Action("GetCajaAperturaDenominacion")',
-
             success: function (data) {
                 CajaApertura = JSON.parse(JSON.stringify(data));
-                _LineaCajaAperturaDenominaciones = data;
-                console.log(data);
-                cargarLineas(data);
+                cargarLineas(CajaApertura);
+                setTotalGlobal();
                },
             error: function (err, scnd) {
                cargarAlert('@Lb["errorGeneral"]');
@@ -173,9 +203,24 @@
             url: '@Url.Action("GetDenominaciones","Denominaciones")',
             success: function (data) {
                 _Denominaciones = JSON.parse(JSON.stringify(data));
+
+                for (var i = 0; i <_Denominaciones.length; i++) {
+
+                    switch (parseInt(_Denominaciones[i].idMoneda)) {
+                        case 1:
+                            TotalBase.push(_Denominaciones[i]);
+                            break;
+                        case 2:
+                            TotalDolar.push(_Denominaciones[i]);
+                            break;
+                        case 3:
+                            TotalEuro.push( _Denominaciones[i]);
+                            break;
+
+                    }
+                }
+         
                 getMonedas();
-
-
 
                },
             error: function (err, scnd) {
@@ -195,8 +240,12 @@
               url: '@Url.Action("GetMonedas", "Monedas")',
              success: function (data) {
                  monedas = data;
-
-                 cargarTabla(_Denominaciones);
+                 if (@Model.IdCaja!= 0) {
+                     getCajaApertura();
+         
+                 } else {
+                     cargarTabla(_Denominaciones);
+                 }
               },
               error: function (err, scnd) {
                   cargarAlert('@Lb["errorGeneral"]');
@@ -245,39 +294,91 @@
           });
     }
 
-
-
-
-
 /////////////////////////////////////////////////////////CARGAR-DOM////////////////////////////////////////////////////////////////////////////
+
+    function cargarlbEstado() {
+
+            if (@Model.IdCaja!= 0) {
+                switch (parseInt( @Model.Estado)) {
+                    case 1:
+                        $Estado.val(1);
+                        var o = "<option value=" + 1+ ">@Lb["Abierta"]</option><option value=" + 2+ ">@Lb["Arqueo"]</option><option value=" + 6+ ">@Lb["Anulada"]</option>";
+                        $("#lbEstado").append(o);
+                        break;
+                    case 2:
+                        $Estado.val(2);
+                         var o = "<option value=" + 2+ ">@Lb["Arqueo"]</option><option value=" + 4 + ">@Lb["Cerrada"]</option><option value=" +3+ ">  @Lb["ArqueoReabierto"]  </option>";
+                        $("#lbEstado").append(o);
+                        break;
+                    case 3:
+                        $Estado.val(3);
+                         var o = "<option value=" + 3+ ">@Lb["ArqueoReabierto"]</option><option value=" + 2+ ">@Lb["Arqueo"]</option>";
+                        $("#lbEstado").append(o);
+                        break;
+                    case 4:
+                        $Estado.val(4);
+                        var o = "<option value=" + 4+ ">@Lb["Cerrada"]</option><option value=" + 5+ ">@Lb["CierreReabierto"]</option>";
+                        $("#lbEstado").append(o);
+                        break;
+                    case 5:
+                        $Estado.val(5);
+                        var o = "<option value=" + 5+ ">@Lb["CierreReabierto"]</option><option value=" + 4+ ">@Lb["Cerrada"]</option><option value=" + 3+ ">@Lb["ArqueoReabierto"]</option>";
+                        $("#lbEstado").append(o);
+                        break;
+                    case 6:
+                           $Estado.val(5);
+                        var o = "<option value=" + 6+ ">@Lb["Anulada"]</option>";
+                        $("#lbEstado").append(o);
+                        break;
+                }
+            }
+            else {
+                $Estado.val(1);
+                var o = "<option value=" + 1 + "> @Lb["Abierta"]</option>";
+                $("#lbEstado").append(o);
+                $("#lbEstado").prop('disabled', true);
+            }
+            
+        }
+
     function cargarLineas(data) {
-        console.log(data.length);
-        for (var i = 0; i < data.length; i++) {
-            console.log("hola");
+        var count = data.length;
+       for (var i = 0; i < count; i++) {
             var model = {
       
                 idCajaApertura: data[i].idCajaApertura,
                 idCaja: data[i].idCaja,
                 fechaCreacion: data[i].fechaCreacion,
                 idUsuario: data[i].idUsuario,
-                idDenominacion: data[i].idDenominacion,
+                idDenominaciones: data[i].idDenominacion,
                 cantidad: data[i].cantidad,
-                monto: data[i].monto
-            };
+                monto: data[i].monto,
 
+            };
+        
             _LineaCajaAperturaDenominaciones.push(model);
 
         }
-      
-        cargarTabla(_LineaCajaAperturaDenominaciones);
 
+        cargarTabla(_LineaCajaAperturaDenominaciones);   
     }
 
     function GetUsuarioLogueado() {
         for (var i = 0; i < Usuarios.length; i++) {
             if (Usuarios[i].id === IdUsuarioLogueado) {
-                $("#lbCreador").text(Usuarios[i].nombre);
-                $("#lbEstado").val(1);
+                if (@Model.IdCaja!= 0) {
+
+                    for (var i = 0; i < Usuarios.length; i++) {
+                        if (Usuarios[i].id === @Model.IdUsuario) {
+                            $Creador.text(Usuarios[i].nombre)
+                        }
+                    }
+                    $Estado.val(@Model.Estado);
+
+                } else {
+                    $("#lbCreador").text(Usuarios[i].nombre);
+                    $("#lbEstado").val(1);
+                }
             }
         }
     }
@@ -288,11 +389,12 @@
         contadorFila = 0;
         var tipomoneda = 0;
         var coin = "";
-        var _valor = 0;
+        var _cantidad = 0;
+        var _monto = 0;
 
-        for (var i = 0; i < data.length; i++) {
+        for (var i = 0; i < _Denominaciones.length; i++) {
 
-            tipomoneda = data[i].idMoneda;
+            tipomoneda = _Denominaciones[i].idMoneda;
 
             var _moneda = 0;
             switch (tipomoneda) {
@@ -320,26 +422,22 @@
             });
 
             if (@Model.IdCaja!= 0) {
-
-                for (var i = 0; i < _Denominaciones.length; i++) {
-
-                    if (parseInt(_Denominaciones[i].idDenominaciones) === data[i].idDenominacion) {
-                        _valor = _Denominaciones[i].valor;
-                    }
-                }
-
+         
+                _cantidad = data[i].cantidad;
+                _monto = data[i].monto;
             } else {
-                _valor = data[i].valor;
+                _cantidad = 0;
+                _monto = 0;
             }
-
+     
             var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
-                + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><img id="' + data[i].idDenominaciones + '" width="45px" height="45px"/>&nbsp;<label class="'+coin+'" id="lb' + data[i].idDenominaciones + '"> ' + _valor + '</label></td> '
-                + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input onkeyup="calcularLinea(' + contadorFila + ',value)" id="inpCantidad' + data[i].idDenominaciones + '" class="form-control moneda numerico" type="text" min="0" value="0" /></td>'
-                + '<td style="padding-top:2rem;text-align: right;" class="letratbDenominaciones"><input id="inpMonto' + data[i].idDenominaciones + '" class="form-control moneda numerico" type="text" min="0" value="0" disabled /></td></tr>';
+                + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><img id="' + data[i].idDenominaciones + '" width="45px" height="45px"/>&nbsp;<label class="'+coin+'" id="lb' + data[i].idDenominaciones + '"> ' + _Denominaciones[i].valor + '</label></td> '
+                + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input onkeyup="calcularLinea(' + contadorFila + ',value)" value="'+_cantidad+'" id="inpCantidad' + data[i].idDenominaciones + '" class="form-control moneda numerico" type="text" min="0" value="0" /></td>'
+                + '<td style="padding-top:2rem;text-align: right;" class="letratbDenominaciones"><input id="inpMonto' + data[i].idDenominaciones + '" value="'+_monto+'" class="form-control moneda numerico" type="text" min="0" value="0" disabled /></td></tr>';
             $('.lineaForm').before(body);
 
 
-            darFormatoTipo(data[i].tipo, data[i].idDenominaciones);
+            darFormatoTipo(_Denominaciones[i].tipo, data[i].idDenominaciones);
             contadorFila++;
         }
 
@@ -363,6 +461,12 @@
 
 
 /////////////////////////////////////////////////////////FUNCIONES COMPLEMENTARIAS//////////////////////////////////////////////////////////////
+
+        function formatearFechaCreacion() {
+
+        return '@Model.FechaCreacion.Day' + "-" + '@Model.FechaCreacion.Month' + "-" + '@Model.FechaCreacion.Year';
+
+    }
 
     function darFormatoMoneda(idMoneda) {
 
@@ -402,7 +506,7 @@
                   "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
               },
               dataType: "json",
-            url: '@Url.Action("CrearEditarCotizacion", "Caja")',
+            url: '@Url.Action("CrearEditarCaja", "Caja")',
             data: crearModelo(),
             success: function (data) {
                 if (data.success) {    
@@ -419,16 +523,21 @@
     }
 
     function crearModelo() {
-     
+        var usuario = 0;
+        if (@Model.IdCaja!= 0) {
+            usuario =@Model.IdUsuario;
+        } else {
+            usuario = IdUsuarioLogueado;
+        }
 
           ordenModel = {
                 idCaja: @Model.IdCaja,
                 fechaCreacion: $('#lbFechaCreacion').val(),
-                idUsuario: IdUsuarioLogueado,
+                idUsuario: usuario,
                 estado:$('#lbEstado option:selected').val(),
               tbFaCajaAperturaDenominacion:  crearModeloApertura(Apertura)
         };      
-        console.log(ordenModel);
+
         return ordenModel;
     }
 
@@ -448,9 +557,9 @@
 
     function GuardarApertura() {
         for (var i = 0; i < _Denominaciones.length; i++) {
-  
+
             var model = {
-                idCajaApertura: 0,
+                idCajaApertura:0,
                 idCaja:@Model.IdCaja,
                 fechaCreacion: $('#lbFechaCreacion').val(),
                 idUsuario: IdUsuarioLogueado,
@@ -461,8 +570,20 @@
 
             Apertura.push(model);
         }
-        console.log(Apertura);
+        if (@Model.IdCaja!= 0) {
+            EditarLineasApertura(Apertura);
+        }
    
+    }
+
+    function EditarLineasApertura(lineas) {
+
+        for (var i = 0; i < lineas.length; i++) {
+
+            Apertura[i].idCajaApertura = CajaApertura[i].idCajaApertura;
+
+        }
+
     }
 //////////////////////////////////////////////////////////////////CALCULOS//////////////////////////////////////////////////////////////////////
 
@@ -476,11 +597,52 @@
         
     }
 
-    function setTotalLinea(valor,campo,cant) {
+    function setTotalGlobal() {
+        var _totalBase = 0;
+        var _totalDolar = 0;
+        var _totalEuro = 0;
+        var _montoBase = 0;
+        var _montoDolar = 0;
+        var _montoEuro = 0;
+        var _idDenominacion = 0;
 
-        var total = 0;
-        total = parseFloat(valor * cant);
-        $(campo).val(total);
+        for (var i = 0; i < _Denominaciones.length; i++) {
+ 
+            switch (parseInt(_Denominaciones[i].idMoneda)) {
 
+                case 1:           
+                    _idDenominacion = _Denominaciones[i].idDenominaciones;
+                    for (var i = 0; i < _Denominaciones.length; i++) {
+                        if (parseInt(_idDenominacion) ===parseInt( CajaApertura[i].idDenominacion)) {
+                            _montoBase =parseFloat( CajaApertura[i].monto);
+                        }
+                    }
+                    _totalBase = parseFloat(_totalBase + _montoBase);
+
+                    break;
+                case 2:
+                    _idDenominacion = _Denominaciones[i].idDenominaciones;
+                    for (var i = 0; i < _Denominaciones.length; i++) {
+                        if (parseInt(_idDenominacion) ===parseInt( CajaApertura[i].idDenominacion)) {
+                            _montoDolar = parseFloat(CajaApertura[i].monto);
+                        }
+                    }
+                    _totalDolar = parseInt(_totalDolar + _montoDolar);
+                    break;
+                case 3:
+                    _idDenominacion = _Denominaciones[i].idDenominaciones;
+                    for (var i = 0; i < _Denominaciones.length; i++) {
+                        if (parseInt(_idDenominacion) ===parseInt( CajaApertura[i].idDenominacion)) {
+                            _montoEuro = parseFloat(CajaApertura[i].monto);
+                        }
+                    }
+                    _totalEuro = parseFloat(_totalEuro + _montoEuro);
+                    break;
+            }
+        }
+
+        $TotalBase.val(_totalBase);
+        $TotalDolar.val(_totalDolar);
+        $TotalEuro.val(_totalEuro);
     }
 </script>

@@ -286,7 +286,6 @@ namespace AltivaWebApp.Mappers
                     TipoCambioEuro = viewModel.TipoCambioEuro,
                     FechaCreacion=viewModel.FechaCreacion,
                     
-
                     TbFaCotizacionDetalle = ViewModelToDomainCD(viewModel)
                 };
 
