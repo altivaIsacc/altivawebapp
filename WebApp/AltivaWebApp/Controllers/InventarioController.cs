@@ -42,9 +42,10 @@ namespace AltivaWebApp.Controllers
 
 
         // GET: Inventario
-        [Route("Lista-Inventario")]
-        public ActionResult ListarInventario()
+        [Route("Lista-Inventario/{cod?}")]
+        public ActionResult ListarInventario(string cod)
         {
+            ViewBag.cod = cod;
             ViewData["bodegas"] = bodegaService.GetAllActivas();
             return View();
         }
@@ -169,6 +170,7 @@ namespace AltivaWebApp.Controllers
                 var inventario = new TbPrInventario();
 
                 var idInventario = 0;
+                var codigoInventario = "";
 
                 if(id == 0)
                 {
@@ -197,6 +199,7 @@ namespace AltivaWebApp.Controllers
                     {
                         inventario = map.Update(id, model);
                         idInventario = id;
+                        codigoInventario = inventario.Codigo;
                     }
 
 
@@ -204,7 +207,7 @@ namespace AltivaWebApp.Controllers
 
                 }
 
-                return Json(new { id = idInventario });
+                return Json(new { id = idInventario, codigo = codigoInventario });
             }
             
             catch
