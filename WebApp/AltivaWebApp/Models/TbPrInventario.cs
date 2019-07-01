@@ -55,8 +55,6 @@ namespace AltivaWebApp.Models
         public double PrecioVentaOnline { get; set; }
         public string SkuOnline { get; set; }
 
-        public virtual TbPrFamilia IdSubFamiliaNavigation { get; set; }
-        public virtual TbPrUnidadMedida IdUnidadMedidaNavigation { get; set; }
         public virtual ICollection<TbPrAjusteInventario> TbPrAjusteInventario { get; set; }
         public virtual ICollection<TbPrCompraDetalle> TbPrCompraDetalle { get; set; }
         public virtual ICollection<TbPrEquivalencia> TbPrEquivalenciaIdEquivalenciaNavigation { get; set; }

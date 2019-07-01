@@ -49,6 +49,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbCoTipoCuenta> TbCoTipoCuenta { get; set; }
         public virtual DbSet<TbCoTiposDocumentos> TbCoTiposDocumentos { get; set; }
         public virtual DbSet<TbCoUtilidadRenta> TbCoUtilidadRenta { get; set; }
+        public virtual DbSet<TbCpCategoriaGasto> TbCpCategoriaGasto { get; set; }
         public virtual DbSet<TbCpGastoDetallado> TbCpGastoDetallado { get; set; }
         public virtual DbSet<TbCpGastos> TbCpGastos { get; set; }
         public virtual DbSet<TbCpPago> TbCpPago { get; set; }
@@ -1141,6 +1142,28 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.Tcvd).HasColumnName("TCVD");
 
                 entity.Property(e => e.Tcve).HasColumnName("TCVE");
+            });
+
+            modelBuilder.Entity<TbCpCategoriaGasto>(entity =>
+            {
+                entity.ToTable("tb_CP_CategoriaGasto");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Tipo)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
             });
 
             modelBuilder.Entity<TbCpGastoDetallado>(entity =>

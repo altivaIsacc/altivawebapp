@@ -217,6 +217,11 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<ITomaService, TomaService>();
             services.AddScoped<ITomaMap, TomaMap>();
 
+            /// CategoriaGasto
+            services.AddScoped<ICategoriaGastoRepository, CategoriaGastoRepository>();
+            services.AddScoped<ICategoriaGastoService, CategoriaGastoService>();
+            services.AddScoped<ICategoriaGastoMap, CategoriaGastoMap>();
+
 
 
         }

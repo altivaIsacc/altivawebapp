@@ -9,7 +9,6 @@ namespace AltivaWebApp.Models
         {
             TbPrConversionIdUnidadDestinoNavigation = new HashSet<TbPrConversion>();
             TbPrConversionIdUnidadOrigenNavigation = new HashSet<TbPrConversion>();
-            TbPrInventario = new HashSet<TbPrInventario>();
         }
 
         public long Id { get; set; }
@@ -20,6 +19,5 @@ namespace AltivaWebApp.Models
 
         public virtual ICollection<TbPrConversion> TbPrConversionIdUnidadDestinoNavigation { get; set; }
         public virtual ICollection<TbPrConversion> TbPrConversionIdUnidadOrigenNavigation { get; set; }
-        public virtual ICollection<TbPrInventario> TbPrInventario { get; set; }
     }
 }

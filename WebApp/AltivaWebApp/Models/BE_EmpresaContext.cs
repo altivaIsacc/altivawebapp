@@ -46,6 +46,7 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbCoTipoCuenta> TbCoTipoCuenta { get; set; }
         public virtual DbSet<TbCoTiposDocumentos> TbCoTiposDocumentos { get; set; }
         public virtual DbSet<TbCoUtilidadRenta> TbCoUtilidadRenta { get; set; }
+        public virtual DbSet<TbCpCategoriaGasto> TbCpCategoriaGasto { get; set; }
         public virtual DbSet<TbCpGastoDetallado> TbCpGastoDetallado { get; set; }
         public virtual DbSet<TbCpGastos> TbCpGastos { get; set; }
         public virtual DbSet<TbCpPago> TbCpPago { get; set; }
@@ -196,15 +197,15 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbSeConfiguracion> TbSeConfiguracion { get; set; }
         public virtual DbSet<TbSePuntoVenta> TbSePuntoVenta { get; set; }
 
-        // Unable to generate entity type for table 'dbo.tb_FD_NotaCreditoAjusteSaldoMenor'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_CuentaEnCasaNotaCredito'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_NotaDebitoAjusteSaldoMenor'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.Tmp_tb_PR_Requisicion'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomaticaDetalle'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_NotaCreditoAjusteSaldoMenor'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_AmadeLlave'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.Tmp_tb_PR_Requisicion'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomaticaDetalle'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_NotaDebitoAjusteSaldoMenor'. Please see the warning messages.
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -1146,6 +1147,28 @@ namespace AltivaWebApp.Models
                 entity.Property(e => e.Tcvd).HasColumnName("TCVD");
 
                 entity.Property(e => e.Tcve).HasColumnName("TCVE");
+            });
+
+            modelBuilder.Entity<TbCpCategoriaGasto>(entity =>
+            {
+                entity.ToTable("tb_CP_CategoriaGasto");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Tipo)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
             });
 
             modelBuilder.Entity<TbCpGastoDetallado>(entity =>
@@ -3959,18 +3982,6 @@ namespace AltivaWebApp.Models
                     .HasMaxLength(60)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('''')");
-
-                entity.HasOne(d => d.IdSubFamiliaNavigation)
-                    .WithMany(p => p.TbPrInventario)
-                    .HasForeignKey(d => d.IdSubFamilia)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_tb_PR_Inventario_tb_PR_Familia");
-
-                entity.HasOne(d => d.IdUnidadMedidaNavigation)
-                    .WithMany(p => p.TbPrInventario)
-                    .HasForeignKey(d => d.IdUnidadMedida)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_tb_PR_Inventario_tb_PR_UnidadMedida");
             });
 
             modelBuilder.Entity<TbPrInventarioBodega>(entity =>

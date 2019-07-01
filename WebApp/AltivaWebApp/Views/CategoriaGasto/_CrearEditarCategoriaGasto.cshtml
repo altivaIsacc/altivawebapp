@@ -1,0 +1,139 @@
+﻿@model AltivaWebApp.ViewModels.CategoriaGastoVIewModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@inject IStringLocalizer<SharedResources> Lb
+
+<div class="row">
+    <div class="col-md-6">
+        @if (Model.Id != 0)
+        {
+            <h4 class="modal-title" id="categoriaGastoModallabel">@Lb["Editar"] @Lb["Categoría"]</h4>
+        }
+        else
+        {
+            <h4 class="modal-title" id="categoriaGastoModallabel">@Lb["Nueva"] @Lb["Categoría"]</h4>
+        }
+
+    </div>
+    <div class="col-md-6">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form>
+            @Html.HiddenFor(x => x.Id)
+            @Html.HiddenFor(x => x.FechaCreacion)
+            @Html.HiddenFor(x => x.IdUsuario)
+           
+            <div class="form-group">
+                <label asp-for="Tipo" class="control-label">@Lb["Tipo"]:</label>
+                <select asp-for="Tipo" class="form-control">
+                    <option value="True">@Lb["Deducible"]</option>
+                    <option value="False">@Lb["NoDeducible"]</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Nombre" class="control-label">@Lb["Nombre"]</label>
+                <input asp-for="Nombre" class="form-control" />
+                <span hidden id="nombreValid" class="text-danger">@Lb["nombreValid"]</span>
+                <span hidden id="repetidoValid" class="text-danger">@Lb["repetidoValid"]</span>
+            </div>
+
+            @if (Model.Id != 0)
+            {
+                <div class="form-group">
+                    <label asp-for="Estado" class="control-label">@Lb["Estado"]:</label>
+                    <select asp-for="Estado" class="form-control">
+                        <option value="True">@Lb["Activo"]</option>
+                        <option value="False">@Lb["Inactivo"]</option>
+                    </select>
+                </div>
+            }
+            else
+            {
+                @Html.HiddenFor(x => x.Estado)
+            }
+
+        </form>
+    </div>
+</div>
+<div class="form-group row">
+    <div class="col-md-2 col-sm-2 col-xs-4">
+        <button onclick="guardarCategoria()" id="submitFrmCategoria" class="btn btn-success"><span>@Lb["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
+    </div>
+    <div class="col-md-2 col-sm-2 col-xs-4">
+        <button class="btn btn-default" data-dismiss="modal">@Lb["Cancelar"]</button>
+    </div>
+</div>
+
+<script>
+
+    function guardarCategoria() {
+         if (validarForm()) {
+
+            $.ajax({
+                type: "post",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: '@Url.Action("CrearEditarCategoriaGasto", "CategoriaGasto", new { id = Model.Id })',@*//'../Familias/CrearEditar-Familia/' + @Model.Id,*@
+                data: crearModelo(),
+                success: function (data) {
+                    if (data.success) {
+                        getCategoriaGasto();
+                        $('#modalCategoriaGasto').modal('hide');
+                    }
+                    else {
+                        $('#repetidoValid').prop('hidden', false);
+                    }
+                        
+                },
+                error: function (err, scnd) {
+                    cargarAlert("@Lb["errorGeneral"]");
+                }
+            });
+         }
+    }
+
+
+    function validarForm() {
+
+        var flag = true;
+        if ($('#Nombre').val().replace(/ /g, "") === "") {
+            falg = false;
+            $('#nombreValid').prop('hidden', false);
+        }
+        else
+            $('#nombreValid').prop('hidden', true);
+
+        return flag;
+
+
+    }
+
+    function crearModelo() {
+
+        return model = {
+            id: $('#Id').val(),
+            tipo: $('#Tipo').val(),
+            nombre: $('#Nombre').val(),
+            estado: $('#Estado').val(),
+            idUsuario: $('#IdUsuario').val(),
+            fechaCreacion: $('#FechaCreacion').val()
+
+        };
+
+
+    }
+
+</script>

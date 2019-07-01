@@ -1,0 +1,172 @@
+﻿@model IEnumerable<AltivaWebApp.Domains.TbCpCategoriaGasto>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@inject IStringLocalizer<SharedResources> Lb
+
+
+
+<table class="table table-bordered" id="tblCategoria">
+    <thead>
+        <tr>
+            <th hidden>
+                @Lb["Id"]
+            </th>
+            <th>
+                @Lb["Tipo"]
+            </th>
+            <th>
+                @Lb["Nombre"]
+            </th>
+            <th>
+                @Lb["Estado"]
+            </th>
+            <th hidden>
+                
+            </th>
+            <th>
+                @Lb["Acción"]
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr >
+            <td hidden>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td style="padding-top:2rem">
+                @if ((bool)item.Tipo)
+                {
+                    <span>@Lb["Deducible"]</span>
+                }
+                else
+                {
+                    <span>@Lb["NoDeducible"]</span>
+                }
+            </td>
+            <td style="padding-top:2rem">
+                @Html.DisplayFor(modelItem => item.Nombre)
+            </td>
+            <td style="padding-top:2rem">
+                @if ((bool)item.Estado)
+                {
+                    <span>@Lb["Activo"]</span>
+                }
+                else
+                {
+                    <span>@Lb["Inactivo"]</span>
+                }
+            </td>
+            <td >
+                @item.Estado
+            </td>
+           
+            <td>
+                <button class="btn btn-link " onclick="crearEditarPartial(@item.Id)" ><i class="fas fa-edit"></i></button>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+
+<script>
+    var tblCategoria;
+    $(document).ready(function () {
+
+        inicializarTabla();
+        filtrarInactivos();
+
+    });
+
+    $("#buscarPorNombre").on("keyup", function () {
+        tblCategoria
+            .columns(2)
+            .search(this.value)
+            .draw();
+    });
+
+    function filtrarInactivos(value) {
+        tblCategoria
+            .columns(3)
+            .search(value)
+            .draw();
+    }
+
+    function inicializarTabla() {
+        $('#tblCategoria').DataTable().destroy();
+
+        tblCategoria = $('#tblCategoria').DataTable({
+            "info": false,
+            dom: 'Bfrtip',
+            "order": [[0, "desc"]],
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   "></i>',
+                    titleAttr: 'Copy',
+                    title: '@Lb["CategoriaGastos"]',
+                    exportOptions: {
+                        columns: [1, 2,3]
+                    }
+
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: '@Lb["CategoriaGastos"]',
+                    exportOptions: {
+                        columns: [1, 2, 3]
+                    }
+
+                },
+
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: '@Lb["CategoriaGastos"]',
+                    exportOptions: {
+                        columns: [1, 2, 3]
+                    }
+                }
+            ]
+        });
+
+
+    }
+</script>
+
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>
