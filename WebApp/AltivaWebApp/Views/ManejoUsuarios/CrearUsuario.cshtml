@@ -17,7 +17,7 @@
 
             <div class="form-group">
                 <label for="codigo" class="control-label">@SharedLocalizer["Codigo"]:</label>
-                <input  id="codigo" class="form-control" autofocus />
+                <input  id="codigo" maxlength="25" class="form-control sinEspaciosNiEspeciales" autofocus />
                 <div id="codigoValidation"></div>
             </div>
             <div class="form-group">
@@ -40,7 +40,7 @@
             <div class="form-group">
                 <label for="contrasena" class="control-label">@SharedLocalizer["Contraseña"]: (@SharedLocalizer["claveRequisitos"]) </label>
                 <input type="password" id="contrasena" title="@SharedLocalizer["claveRequisitos"]" class="form-control" />
-                <div id="passwordValidation"></div>
+                <span hidden id="contrasenaValid" class="text-danger">@SharedLocalizer["contrasenaValid"]</span>
                 <span hidden id="claveInvalida" class="text-danger">@SharedLocalizer["claveInvalida"]</span>
             </div>
             <div class="form-group">
@@ -83,6 +83,7 @@
 
         });
         
+        $("#correo").inputmask({ alias: "email" });
     });
 
     function crearUsuario() {
@@ -199,9 +200,7 @@
             $('#inicialesValidation').empty();
 
         if ($('#contrasena').val().replace(/ /g, "") === "") {
-            $('#passwordValidation').empty();
-            $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["contrasenaValid"]</span>');
-
+            $('#contrasenaValid').prop("hidden", false);
             flag = false;
         }
         else {
@@ -241,14 +240,19 @@
 
         if ($('#contrasena').val() != $('#confirmContrasena').val()) {
             $('#passwordConfirmValidation').empty();
-            $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
-            @*$('#passwordValidation').empty();
-            $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');*@
+            
+            if ($('#contrasena').val().replace(/ /g, "") !== "") {
+                $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
+                $('#contrasenaValid').prop("hidden", true);
+            }
+                
 
             flag = false;
         }
         else {
-            $('#passwordValidation').empty();
+            if ($('#contrasena').val().replace(/ /g, "") !== "")
+                $('#contrasenaValid').prop("hidden", true);
+           
             $('#passwordConfirmValidation').empty();
         }
             
@@ -292,5 +296,8 @@
     }
 
     
+    function sinEspacios(e) {
+        
+    }
 
 </script>

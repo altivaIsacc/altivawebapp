@@ -557,7 +557,8 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                return Ok(contactoService.GetAllProveedores());
+                var prov = contactoService.GetAllProveedores().OrderBy(p => p.Nombre ?? p.NombreJuridico);
+                return Ok(prov);
             }
             catch (Exception)
             {

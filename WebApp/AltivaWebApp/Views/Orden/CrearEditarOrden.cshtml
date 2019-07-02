@@ -73,15 +73,10 @@ else
                     </div>
                 </fieldset>
             </div>
+            
             <div class="form-group col-md-3 col-sm-6 col-xs-12">
                 <label asp-for="IdProveedor" class="control-label">@SharedLocalizer["Proveedor"]</label>
-                <select @estado class="form-control selectItems" id="proveedores">
-                    @foreach (var item in ViewData["proveedores"] as IList<TbCrContacto>)
-                    {
-                        <option value="@item.IdContacto">@item.Nombre</option>
-                    }
-
-                </select>
+                <select class="form-control selectItems" id="proveedores"></select>
             </div>
 
             <div class="form-group col-md-5 col-sm-6 col-xs-12">
@@ -235,6 +230,8 @@ else
 
     $(document).ready(function () {
 
+        getProveedores();
+
         var date = new Date();
         if (@Model.Id != 0) {
             $proveedores.val(@Model.IdProveedor);
@@ -269,7 +266,7 @@ else
         });
 
         getInventario();
-
+        
 
         $('.selectItems').select2({ width: null, language: localStorage.getItem("idioma") });
 
@@ -627,6 +624,40 @@ else
                 window.location.href = "@Url.Action("ListarOrdenes")";
 
         });
+    }
+
+    function getProveedores() {
+
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetProveedores", "Contacto")',
+             success: function (data) {
+                 proveedores = data;
+                 for (var i = 0; i < data.length; i++) {
+                     var nombre = "";
+                     if (data[i].persona)
+                         nombre = data[i].nombre + ' ' + data[i].apellidos;
+                     else
+                         nombre = data[i].nombreJuridico;
+                    var o = new Option(nombre, data[i].idContacto);
+                    $("#proveedores").append(o);
+                 }
+                 if (@Model.Id != 0) {
+                    $proveedores.val(@Model.IdProveedor);
+                 }
+
+
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+         });
     }
 
     function guardarCambios() {

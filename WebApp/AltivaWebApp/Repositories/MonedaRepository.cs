@@ -91,7 +91,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                var historial = context.TbSeHistorialMoneda.Include(h => h.CodigoMonedaNavigation).FirstOrDefault(h => h.Fecha == domain.Fecha);
+                var historial = context.TbSeHistorialMoneda.Include(h => h.CodigoMonedaNavigation).FirstOrDefault(h => h.CodigoMoneda == domain.CodigoMoneda && h.Fecha == domain.Fecha);
                 if(historial == null)
                     context.TbSeHistorialMoneda.Add(domain);
                 else

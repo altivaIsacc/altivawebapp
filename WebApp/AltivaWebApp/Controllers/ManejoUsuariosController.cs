@@ -310,7 +310,8 @@ namespace AltivaWebApp.Controllers
                     }
 
                 var user = userMap.Update(model);
-                Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
+                if(user.Id.ToString() == User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value)
+                    Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
                 i = user.Codigo;
                 return Json(new { success = true });
 

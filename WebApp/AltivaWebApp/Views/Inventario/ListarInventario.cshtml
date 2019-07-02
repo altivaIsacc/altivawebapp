@@ -22,25 +22,47 @@
 </div>
 
 <hr />
-
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-6 col-sm-6 col-xs-6" style="padding-top:2rem">
         <button value="0" class="btn btn-dark btnEstado" id="btnInactivo"><span>@SharedLocalizer["VerInactivos"]</span></button>
         <button value="1" class="btn btn-dark btnEstado" id="btnActivo"><span>@SharedLocalizer["VerActivos"]</span></button>
     </div>
 
-    <div class="col-md-2 col-sm-6 col-xs-12">
-        <label >@SharedLocalizer["buscarPorNombre"]:</label>
+    <div class="col-md-offset-2 col-md-4 col-sm-6 col-xs-6 right">
+        <label for="filtroBodega">@SharedLocalizer["Bodega"]:</label>
+        <select class="form-control selectFiltro" id="filtroBodega">
+            <option id="seleccione" value="0" selected>@SharedLocalizer["Todas"]</option>
+            @{
+                foreach (var item in ViewData["bodegas"] as IList<TbPrBodega>)
+                {
+                    <option value="@item.Id">@item.Nombre</option>
+                }
+
+            }
+        </select>
+    </div>
+</div>
+
+<br />
+
+<div class="row">
+
+    <div class="col-md-2 col-sm-6 col-xs-12" style="padding-top:0.4rem">
+        <label>@SharedLocalizer["buscarPorCodigo"]:</label>
         <input type="text" id="filtroBuscar" class="form-control" />
     </div>
-    <div class="col-md-2 col-sm-6 col-xs-6">
-        <label for="filtroFamilia">@SharedLocalizer["Familia"]</label>
+    <div class="col-md-2 col-sm-6 col-xs-12" style="padding-top:0.4rem">
+        <label>@SharedLocalizer["buscarPorDescripcion"]:</label>
+        <input type="text" id="filtroBuscarDescripcion" class="form-control" />
+    </div>
+    <div class="col-md-2 col-sm-6 col-xs-6" style="padding-top:0.4rem">
+        <label for="filtroFamilia">@SharedLocalizer["Familia"]:</label>
         <select id="filtroFamilia" class="form-control search-key selectFiltro">
             <option value="0" selected>Todos</option>
         </select>
     </div>
-    <div class="col-md-2 col-sm-6 col-xs-6">
-        <label for="filtroSubFamilias">@SharedLocalizer["Sub-Familia"]</label>
+    <div class="col-md-2 col-sm-6 col-xs-6" style="padding-top:0.4rem">
+        <label for="filtroSubFamilias">@SharedLocalizer["Sub-Familia"]:</label>
         <select id="filtroSubFamilias" class="form-control search-key selectFiltro">
             <option id="seleccione" value="0" selected>@SharedLocalizer["Todos"]</option>
         </select>
@@ -69,19 +91,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-2 col-sm-6 col-xs-12">
-        <label for="filtroBodega">@SharedLocalizer["Bodega"]</label>
-        <select class="form-control selectFiltro" id="filtroBodega">
-            <option id="seleccione" value="0" selected>@SharedLocalizer["Todas"]</option>
-            @{
-                foreach (var item in ViewData["bodegas"] as IList<TbPrBodega>)
-                {
-                    <option value="@item.Id">@item.Nombre</option>
-                }
 
-            }
-        </select>
-    </div>
 </div>
 
 <hr />
@@ -576,6 +586,13 @@
 
     //////////////////////////////filtros/////////////////////////////////////////////////
 
+    $("#filtroBuscarDescripcion").on("keyup", function () {
+
+        tblCatalogo
+            .columns(2)
+            .search(this.value)
+            .draw();
+    });
 
     $("#filtroBuscar").on("keyup", function () {
 
@@ -589,16 +606,6 @@
             .search(value)
             .draw();
 
-     
-
-        //for (var i = 1; i <= 2; i++) {
-        //    tblCatalogo
-        //        .column(i)
-        //        .search(value)
-        //        .draw();
-        //}
-
-        
     }
 
 

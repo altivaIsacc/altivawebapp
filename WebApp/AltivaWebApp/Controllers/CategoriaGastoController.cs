@@ -45,7 +45,7 @@ namespace AltivaWebApp.Controllers
         public IActionResult _EditarCategoriaGasto(int id)
         {
             var cat = service.GetCGById(id);
-            ViewBag.usuarios = userService.GetSingleUser((int)cat.IdUsuario);
+            ViewData["Usuario"] = userService.GetSingleUser((int)cat.IdUsuario);
             return PartialView("_CrearEditarCategoriaGasto", map.DomainToViewModel(cat));
         }
 

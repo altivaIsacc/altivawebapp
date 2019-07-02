@@ -8,6 +8,10 @@
 }
 @inject IStringLocalizer<SharedResources> Lb
 
+@{ 
+    var usuario = ViewData["Usuario"] as TbSeUsuario;
+}
+
 <div class="row">
     <div class="col-md-6">
         @if (Model.Id != 0)
@@ -29,12 +33,12 @@
 
 <hr />
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-8 col-sm-10 col-xs-12">
         <form>
             @Html.HiddenFor(x => x.Id)
             @Html.HiddenFor(x => x.FechaCreacion)
             @Html.HiddenFor(x => x.IdUsuario)
-           
+
             <div class="form-group">
                 <label asp-for="Tipo" class="control-label">@Lb["Tipo"]:</label>
                 <select asp-for="Tipo" class="form-control">
@@ -43,7 +47,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label asp-for="Nombre" class="control-label">@Lb["Nombre"]</label>
+                <label asp-for="Nombre" class="control-label">@Lb["Nombre"]:</label>
                 <input asp-for="Nombre" class="form-control" />
                 <span hidden id="nombreValid" class="text-danger">@Lb["nombreValid"]</span>
                 <span hidden id="repetidoValid" class="text-danger">@Lb["repetidoValid"]</span>
@@ -54,7 +58,7 @@
                 <div class="form-group">
                     <label asp-for="Estado" class="control-label">@Lb["Estado"]:</label>
                     <select asp-for="Estado" class="form-control">
-                        <option value="True">@Lb["Activo"]</option>
+                        <option selected value="True">@Lb["Activo"]</option>
                         <option value="False">@Lb["Inactivo"]</option>
                     </select>
                 </div>
@@ -66,8 +70,20 @@
 
         </form>
     </div>
+    @if (Model.Id != 0)
+    {
+
+        <div class="col-md-8 col-sm-10 col-xs-12">
+            <span>@Lb["Creado"]: @Model.FechaCreacion @Lb["por"] </span><span><a href="@Url.Action("CuentaUsuario", "ManejoUsuarios", new { codigo = usuario.Codigo })">@usuario.Nombre</a></span>
+        </div>
+
+    }
+    
 </div>
 <div class="form-group row">
+
+    <br />
+
     <div class="col-md-2 col-sm-2 col-xs-4">
         <button onclick="guardarCategoria()" id="submitFrmCategoria" class="btn btn-success"><span>@Lb["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
     </div>
@@ -78,9 +94,17 @@
 
 <script>
 
+    $(document).ready(function () {
+
+        if (@Model.Id === 0) {
+            $('#Tipo').val("True");
+        }
+
+    });
+
     function guardarCategoria() {
          if (validarForm()) {
-
+             
             $.ajax({
                 type: "post",
                 headers: {
@@ -90,7 +114,12 @@
                 data: crearModelo(),
                 success: function (data) {
                     if (data.success) {
-                        getCategoriaGasto();
+                        
+                        if (@Model.Id !== 0)
+                            getCategoriaGasto(true);
+                        else
+                            getCategoriaGasto(false);
+                        
                         $('#modalCategoriaGasto').modal('hide');
                     }
                     else {
@@ -108,17 +137,17 @@
 
     function validarForm() {
 
-        var flag = true;
+       
         if ($('#Nombre').val().replace(/ /g, "") === "") {
-            falg = false;
             $('#nombreValid').prop('hidden', false);
+            $('#repetidoValid').prop('hidden', true);
+            return false;
         }
-        else
+        else {
             $('#nombreValid').prop('hidden', true);
-
-        return flag;
-
-
+            return true;
+        }
+           
     }
 
     function crearModelo() {
@@ -130,9 +159,7 @@
             estado: $('#Estado').val(),
             idUsuario: $('#IdUsuario').val(),
             fechaCreacion: $('#FechaCreacion').val()
-
         };
-
 
     }
 

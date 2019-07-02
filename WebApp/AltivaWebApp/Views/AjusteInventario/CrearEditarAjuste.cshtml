@@ -109,63 +109,64 @@ else
     </div>
 
 
-
-
-    <div class="table-responsive">
-        <table class="table table-striped table-bordered" id="tblAjusteInventario" style="min-width:1200px">
-            <thead>
-                <tr>
-                    <th style="width:19%;">
-                        <span>@SharedLocalizer["Item"]</span>
-                    </th>
-                    <th style="width:13%;">
-                        <span>@SharedLocalizer["Movimiento"]</span>
-                    </th>
-                    <th style="width:6%;">
-                        <span>@SharedLocalizer["Cantidad"]</span>
-                    </th>
-                    <th style="width:10%;">
-                        <span>@SharedLocalizer["CostoPromedio"]</span>
-                    </th>
-                    <th style="width:10%;">
-                        <span>@SharedLocalizer["Total"]</span>
-                    </th>
-                    <th style="width:18%;">
-                        <span>@SharedLocalizer["cuentaContable"]</span>
-                    </th>
-                    <th style="width:18%;">
-                        <span>@SharedLocalizer["CuentaCosto"]</span>
-                    </th>
-                    <th style="width:6%;">
-                        <span>@SharedLocalizer["accion"]</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="lineaForm">
-                    <td class="col-md-3"><div class="col-md-9"><select @estado2 class="form-control" id="items"></select></div><div style="padding-top: 1rem" class="col-md-3"><label id="lblItemInfo"></label></div></td>
-                    <td>
-                        <select @estado2 class="form-control" id="movimiento">
-                            <option value="true">@SharedLocalizer["Entrada"]</option>
-                            <option value="false">@SharedLocalizer["Salida"]</option>
-                        </select>
-                    </td>
-                    <td><input @estado2 id="cantidad" class="form-control numerico" type="text" min="1" value="1" /></td>
-                    <td><input @estado2 id="costoPromedio" class="form-control moneda" type="text" /></td>
-                    <td><input type="text" class="form-control moneda" readonly id="total" /></td>
-                    <td>
-                        <select @estado2 class="form-control selectItem" id="cuentaContable"></select>
-                    </td>
-                    <td>
-                        <select @estado2 class="form-control selectItem" id="cuentaCosto"></select>
-                    </td>
-                    <td>
-                        <button @estado2 class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="row">
+        <div class="table-responsive col-md-12 col-sm-12 col-xs-12">
+            <table class="table table-striped table-bordered" id="tblAjusteInventario" style="min-width:1200px">
+                <thead>
+                    <tr>
+                        <th style="width:22%;">
+                            <span>@SharedLocalizer["Item"]</span>
+                        </th>
+                        <th style="width:12%;">
+                            <span>@SharedLocalizer["Movimiento"]</span>
+                        </th>
+                        <th style="width:8%;">
+                            <span>@SharedLocalizer["Cantidad"]</span>
+                        </th>
+                        <th style="width:8%;">
+                            <span>@SharedLocalizer["CostoPromedio"]</span>
+                        </th>
+                        <th style="width:8%;">
+                            <span>@SharedLocalizer["Total"]</span>
+                        </th>
+                        <th style="width:18%;">
+                            <span>@SharedLocalizer["cuentaContable"]</span>
+                        </th>
+                        <th style="width:18%;">
+                            <span>@SharedLocalizer["CuentaCosto"]</span>
+                        </th>
+                        <th style="width:6%;">
+                            <span>@SharedLocalizer["accion"]</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="lineaForm">
+                        <td ><div style="display:inline-block; width:80%"><select @estado2 class="form-control" id="items"></select></div><div style="display:inline-block; width: 20%; padding-left: 0.1rem"><label id="lblItemInfo"></label></div></td>
+                        <td>
+                            <select @estado2 class="form-control" id="movimiento">
+                                <option value="true">@SharedLocalizer["Entrada"]</option>
+                                <option value="false">@SharedLocalizer["Salida"]</option>
+                            </select>
+                        </td>
+                        <td><input @estado2 id="cantidad" class="form-control numerico" type="text" min="1" value="1" /></td>
+                        <td><input @estado2 id="costoPromedio" class="form-control moneda" type="text" /></td>
+                        <td><input type="text" class="form-control moneda" readonly id="total" /></td>
+                        <td>
+                            <select @estado2 class="form-control selectItem" id="cuentaContable"></select>
+                        </td>
+                        <td>
+                            <select @estado2 class="form-control selectItem" id="cuentaCosto"></select>
+                        </td>
+                        <td>
+                            <button @estado2 class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
+
 
     <div class="row">
         <form class="col-md-3 col-md-offset-9 frmAjuste2">
@@ -431,8 +432,12 @@ else
                     else
                         lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
 
-                    //la linea hay que convertirla a salida para que se reste
-                    lineas[id].movimiento = "false";
+                    //la linea hay que convertirla a salida para que se reste o al revez para que se sume
+                    if (lineas[id].movimiento === "true")
+                        lineas[id].movimiento = "false";
+                    else
+                        lineas[id].movimiento = "true";
+
                     recalcularExistencias(lineas[id]);
 
                     lineas.splice(id, 1);
@@ -630,7 +635,7 @@ else
 
 
             var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' +  data[i].nombreItem + '</td>'
-                + '<td style="padding-top:2rem;"><input style="width:100%; border:0; background-color : #F7F7F7" value="' + getMovimiento(data[i].movimiento) + '"/></td>'
+                + '<td style="padding-top:2rem;">' + getMovimiento(data[i].movimiento) + '</td>'
                 + '<td style="padding-top:2rem;">' + data[i].cantidad + '</td>'
                 + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].costoPromedio + '"/></td>'
                 + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].totalMovimiento + '"/></td>'
