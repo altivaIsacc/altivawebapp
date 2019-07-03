@@ -67,7 +67,8 @@ namespace AltivaWebApp.Controllers
                     if (viewModel.IdCaja!= 0 && viewModel.TbFaCajaAperturaDenominacion.Count() > 0)
                     {
                 
-                        var cd = _Map.UpdateCD(viewModel);
+                        var Cd = _Map.UpdateCD(viewModel); //AperturaCaja
+                        var Apertura = _Map.UpdateAr(viewModel);
                        // idCD = cd.IdDenominacion;
 
                     }
@@ -80,7 +81,7 @@ namespace AltivaWebApp.Controllers
 
                     viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     
-                    var caja = _Map.Create(viewModel);
+                    var caja = _Map.Create(viewModel);//CajaApertura
 
 
                     return Json(new { success = true, idCotizacion = caja.IdCaja });
@@ -128,6 +129,21 @@ namespace AltivaWebApp.Controllers
             {
                 var detalles = _Service.GetAllCajaAperturaDenominacionByIdCaja(id);
                 return Ok(_Service.GetAllCajaAperturaDenominacionByIdCaja(id));
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+
+        [HttpGet("Get-CajaArqueoDenominacion/{id}")]
+        public ActionResult GetCajaArqueoDenominacion(int id)
+        {
+            try
+            {
+                var detalles = _Service.GetAllCajaArqueoDenominacionByIdCaja(id);
+                return Ok(_Service.GetAllCajaArqueoDenominacionByIdCaja(id));
             }
             catch
             {

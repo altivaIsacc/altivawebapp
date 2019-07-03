@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace AltivaWebApp.Domains
+namespace AltivaWebApp.ViewModels
 {
-    public partial class TbFaCajaArqueoDenominacion
+    public class CajaArqueoDenominacionViewModel
     {
         public long IdCajaArqueoDenominacion { get; set; }
         public long? IdCaja { get; set; }
@@ -13,7 +15,5 @@ namespace AltivaWebApp.Domains
         public double? Cantidad { get; set; }
         public double? Monto { get; set; }
 
-        public virtual TbFaCaja IdCajaNavigation { get; set; }
-        public virtual TbFaDenominacion IdDenominacionNavigation { get; set; }
     }
 }

@@ -40,6 +40,25 @@ namespace AltivaWebApp.Repositories
             {
                 //var users = context.TbFaCajaAperturaDenominacion.AsNoTracking().ToList();
                 context.TbFaCajaAperturaDenominacion.UpdateRange(domain);
+
+                context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        public bool UpdateCajaArqueoDenominacion(IList<TbFaCajaArqueoDenominacion> domain)
+        {
+            try
+            {
+                //var users = context.TbFaCajaAperturaDenominacion.AsNoTracking().ToList();
+                context.TbFaCajaArqueoDenominacion.UpdateRange(domain);
+
                 context.SaveChanges();
 
                 return true;
@@ -82,6 +101,19 @@ namespace AltivaWebApp.Repositories
             try
             {
                 return context.TbFaCajaAperturaDenominacion.Where(c => c.IdCajaNavigation.IdCaja == id).ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public IList<TbFaCajaArqueoDenominacion> GetAllCajaArqueoDenominacionByIdCaja(int id)
+        {
+            try
+            {
+                return context.TbFaCajaArqueoDenominacion.Where(c => c.IdCajaNavigation.IdCaja == id).ToList();
             }
             catch (Exception)
             {

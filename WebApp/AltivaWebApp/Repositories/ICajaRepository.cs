@@ -14,8 +14,10 @@ namespace AltivaWebApp.Repositories
         IList<TbFaCaja> GetAllCajas();
         TbFaCaja GetCajaById(int id);
         bool UpdateCajaAperturaDenominacion(IList<TbFaCajaAperturaDenominacion> domain);
+        bool UpdateCajaArqueoDenominacion(IList<TbFaCajaArqueoDenominacion> domain);
         TbFaCajaAperturaDenominacion SaveCajaAperturaDenominacion(TbFaCajaAperturaDenominacion domain);
         IList<TbFaCajaAperturaDenominacion> GetAllCajaAperturaDenominacionByIdCaja(int id);
+        IList<TbFaCajaArqueoDenominacion> GetAllCajaArqueoDenominacionByIdCaja(int id);
 
     }
 }

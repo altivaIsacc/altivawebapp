@@ -16,13 +16,13 @@
     <div class="col-md-3">
         @{ if (Model.IdCaja != 0)
             {
-            <h2>@Lb["Caja"]&nbsp;#@Model.IdCaja</h2>
+                <h2>@Lb["Caja"]&nbsp;#@Model.IdCaja</h2>
             }
             else
             {
-            <h2>@Lb["Caja"]</h2>
-                }
+                <h2>@Lb["Caja"]</h2>
             }
+        }
     </div>
     <div class="col-md-7"></div>
     <div class="col-md-2">
@@ -39,8 +39,7 @@
 
     <div class="col-md-2">
         <label>@Lb["Estado"]:</label>
-        <select id="lbEstado" class="form-control search-key">
-        </select>
+        <select id="lbEstado" class="form-control search-key"></select>
     </div>
 
     <div class="col-md-4">
@@ -93,13 +92,34 @@
         <div class="col-md-2">
             <label>@Lb["TotalEuro"]:</label>
             <input type='text' class="form-control euro" id="txtTotalEuro" disabled />
-        </div>  
+        </div>
     </div>
 </div>
 
+@if (Model.Estado == 2)
+{
+
+    <div class="row" style="margin-top:100px;">
+        <div class="col-md-6  table-responsive">
+            <table class="table table-bordered" style="width:100%" id="tblCajaArqueo">
+                <thead>
+                    <tr>
+                        <th><span class="letratbDenominaciones">@Lb["Denominacion"]</span> </th>
+                        <th><span class="letratbDenominaciones"> @Lb["Monto"]</span> </th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr class="lineaFormArqueo"></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+}
 <div class="row">
     <div class="col-md-12">
-        <button class="btn btn-success btnAccion" onclick="guardarSalir()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
+        <button class="btn btn-success btnAccion" id="btGuardar" onclick="guardarSalir()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
         <a onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
     </div>
 </div>
@@ -123,8 +143,10 @@
     var $cantidad = $('#lbCantidad');
     var $monto = $('#lbMonto');
     var Apertura = [];
+    var Arqueo = [];
     var _LineaCajaAperturaDenominaciones = [];
     var CajaApertura = [];
+    var CajaArqueo = [];
     var $FechaCreacion = $('#lbFechaCreacion');
     var TotalEuro = [];
     var TotalDolar = [];
@@ -136,6 +158,10 @@
     var _totalBase = 0;
     var _totalDolar = 0;
     var _totalEuro = 0;
+    var totalBaseArray = [];
+    var totalDolarArray = [];
+    var totalEuroArray = [];
+    var _DenominacionesTotales = [];
 
 ////////////////////////////////////////////////////////////DOCUMENT READY///////////////////////////////////////////////////////////////////
     $(document).ready(function () {
@@ -147,7 +173,27 @@
         if (@Model.IdCaja!= 0) {
             $FechaCreacion.val(formatearFechaCreacion());
 
+            switch (@Model.Estado) {
+
+                case 1:
+
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    $('#btGuardar').prop("disabled", true);
+                    $('#lbEstado').prop("disabled", true);
+                    break;
+            }
+
         }
+
                 $('#fechaPicker').datetimepicker({
             defaultDate: new Date(),
             locale: localStorage.getItem("idioma"),
@@ -174,8 +220,29 @@
             url: '@Url.Action("GetCajaAperturaDenominacion")',
             success: function (data) {
                 CajaApertura = JSON.parse(JSON.stringify(data));
-                cargarLineas(CajaApertura);
-               // setTotalGlobal();
+                cargarLineasApertura(CajaApertura);
+                setTotalGlobal();
+               },
+            error: function (err, scnd) {
+               cargarAlert('@Lb["errorGeneral"]');
+            }
+        });
+    }
+
+        function getCajaArqueoDenominacion() {
+        if(@Model.IdCaja != 0)
+        $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("GetCajaArqueoDenominacion")',
+            success: function (data) {
+                CajaArqueo = JSON.parse(JSON.stringify(data));
+                console.log(CajaArqueo);
+                cargarLineasArqueo(CajaArqueo);
+                //setTotalGlobal();
                },
             error: function (err, scnd) {
                cargarAlert('@Lb["errorGeneral"]');
@@ -194,7 +261,11 @@
             success: function (data) {
                 _Denominaciones = JSON.parse(JSON.stringify(data));
 
-                for (var i = 0; i <_Denominaciones.length; i++) {
+                _DenominacionesTotales= JSON.parse(JSON.stringify(data));
+                for (var k = 0; k <_DenominacionesTotales.length; k++) {
+                    _DenominacionesTotales[k].valor = 0;
+                }
+                for (var i = 0; i < _Denominaciones.length; i++) {
 
                     switch (parseInt(_Denominaciones[i].idMoneda)) {
                         case 1:
@@ -209,7 +280,7 @@
 
                     }
                 }
-         
+
                 getMonedas();
 
                },
@@ -233,7 +304,8 @@
                  if (@Model.IdCaja!= 0) {
 
                      getCajaApertura();
-         
+                     getCajaArqueoDenominacion();
+
                  } else {
                      cargarTabla(_Denominaciones);
                  }
@@ -329,14 +401,14 @@
                 $("#lbEstado").append(o);
                 $("#lbEstado").prop('disabled', true);
             }
-            
+
         }
 
-    function cargarLineas(data) {
+    function cargarLineasApertura(data) {
         var count = data.length;
        for (var i = 0; i < count; i++) {
             var model = {
-      
+
                 idCajaApertura: data[i].idCajaApertura,
                 idCaja: data[i].idCaja,
                 fechaCreacion: data[i].fechaCreacion,
@@ -346,12 +418,34 @@
                 monto: data[i].monto,
 
             };
-        
+
             _LineaCajaAperturaDenominaciones.push(model);
 
         }
 
-        cargarTabla(_LineaCajaAperturaDenominaciones);   
+        cargarTabla(_LineaCajaAperturaDenominaciones);
+    }
+
+    function cargarLineasArqueo(data) {
+        var count = data.length;
+        for (var i = 0; i < count; i++) {
+            var model = {
+
+                idCajaArqueoDenominacion: data[i].idCajaArqueoDenominacion,
+                idCaja: data[i].idCaja,
+                fechaCreacion: data[i].fechaCreacion,
+                idUsuario: data[i].idUsuario,
+                idDenominaciones: data[i].idDenominacion,
+                cantidad: data[i].cantidad,
+                monto: data[i].monto,
+
+            };
+
+            _LineaCajaAperturaDenominaciones.push(model);
+
+        }
+
+     //   cargarTabla(_LineaCajaAperturaDenominaciones);
     }
 
     function GetUsuarioLogueado() {
@@ -384,6 +478,31 @@
         var _monto = 0;
         var _idDenominacion = 0;
         var idMoneda = 0;
+        var estado = "";
+
+        if (@Model.IdCaja!= 0) {
+            switch (@Model.Estado) {
+                case 1:
+                    estado = "";
+                    break;
+                case 2:
+                    estado = "disabled";
+                    break;
+                case 3:
+                    estado = "";
+                    break;
+                case 4:
+                    estado = "disabled";
+                    break;
+                case 5:
+                    estado = "";
+                    break;
+                case 6:
+                    estado = "disabled";
+                    break;
+
+            }
+        }
 
         for (var i = 0; i < _Denominaciones.length; i++) {
 
@@ -434,10 +553,10 @@
                 _cantidad = 0;
                 _monto = 0;
             }
-     
+
             var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
                 + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><img id="' + _idDenominacion + '" width="45px" height="45px"/>&nbsp;<label class="'+coin+'" id="lb' + _idDenominacion + '"> ' + _Denominaciones[i].valor + '</label></td> '
-                + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input onkeyup="calcularLinea(' + contadorFila + ',value,'+idMoneda+');" value="'+_cantidad+'" id="inpCantidad' + _idDenominacion + '" class="form-control cantidad" type="text" min="0" value="0" /></td>'
+                + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input onkeyup="calcularLinea(' + contadorFila + ',value,'+idMoneda+');" value="'+_cantidad+'" id="inpCantidad' + _idDenominacion + '" class="form-control cantidad" type="text" min="0" value="0" '+estado+' /></td>'
                 + '<td style="padding-top:2rem;text-align: right;" class="letratbDenominaciones"><input id="inpMonto' + _idDenominacion + '" value="'+_monto+'" class="form-control moneda numerico" type="text" min="0" value="0" disabled /></td></tr>';
             $('.lineaForm').before(body);
 
@@ -512,14 +631,103 @@
 
         });
     }
+
+    $("#lbEstado").change(function () {
+
+        console.log($('#lbEstado option:selected').text());
+        switch ($('#lbEstado option:selected').text()) {
+
+            case "@Lb["Abierta"]":
+                guardarSalirEstado();
+                break;
+            case "@Lb["Arqueo"]":
+
+                  var msj = "@Lb["confirmEstado"]";
+                bootbox.confirm(msj, function (result) {
+
+                    if (result) {
+                        guardarSalirEstado();
+                    } else {
+                        $('#lbEstado').val(@Model.Estado);
+                    }
+                });
+                break;
+            case "@Lb["ArquoeReabierto"]":
+                guardarSalirEstado();
+                break;
+            case "@Lb["Cerrada"]":
+                                  var msj = "@Lb["confirmEstado"]";
+
+                bootbox.confirm(msj, function (result) {
+
+                    if (result) {
+                        guardarSalirEstado();
+                    }else {
+                        $('#lbEstado').val(@Model.Estado);
+                    }
+                });
+                break;
+            case "@Lb["CierreReabierto"]":
+                guardarSalirEstado();
+
+                break;
+            case "@Lb["Anulada"]":
+                                  var msj = "@Lb["confirmEstado"]";
+
+                bootbox.confirm(msj, function (result) {
+
+                    if (result) {
+                        guardarSalirEstado();
+                    }else {
+                        $('#lbEstado').val(@Model.Estado);
+                    }
+                });
+                break;
+        }
+
+    });
 ///////////////////////////////////////////////////////////////////FUNCIONES PARA GUARDAR///////////////////////////////////////////////////////
     function guardarSalir() {
 
         GuardarApertura();
+        GuardarArqueo();
         guardarCajaApertura();
     }
 
-    
+    function guardarSalirEstado() {
+
+        GuardarApertura();
+        GuardarArqueo();
+        guardarCajaAperturaEstado();
+    }
+
+        function guardarCajaAperturaEstado() {
+
+        $.ajax({
+              type: "POST",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("CrearEditarCaja", "Caja")',
+            data: crearModelo(),
+            success: function (data) {
+                if (data.success) {
+                    var id=@Model.IdCaja;
+        var url = '@Url.Action("EditarCaja", "Caja", new { id = "__id__" })';
+        window.location.href = url.replace("__id__", id);
+
+                }
+                else
+                    cargarAlert("@Lb["numCompraRepitida"]");
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+    }
+
     function guardarCajaApertura() {
 
         $.ajax({
@@ -531,7 +739,7 @@
             url: '@Url.Action("CrearEditarCaja", "Caja")',
             data: crearModelo(),
             success: function (data) {
-                if (data.success) {    
+                if (data.success) {
 
             window.location.href = "@Url.Action("ListarCajas")";
                 }
@@ -553,13 +761,15 @@
             usuario = IdUsuarioLogueado;
         }
 
-          ordenModel = {
-                idCaja: @Model.IdCaja,
-                fechaCreacion: $('#lbFechaCreacion').val(),
-                idUsuario: usuario,
-                estado:$('#lbEstado option:selected').val(),
-              tbFaCajaAperturaDenominacion:  crearModeloApertura(Apertura)
-        };      
+         var ordenModel = {
+              idCaja: @Model.IdCaja,
+              fechaCreacion: $('#lbFechaCreacion').val(),
+              idUsuario: usuario,
+              estado:$('#lbEstado option:selected').val(),
+             tbFaCajaAperturaDenominacion: crearModeloApertura(Apertura),
+             tbFaCajaArqueoDenominacion: crearModeloArqueo(Arqueo),
+
+        };
 
         return ordenModel;
     }
@@ -577,6 +787,21 @@
         }
         return model;
     }
+
+    function crearModeloArqueo(model) {
+
+        for (var i = 0; i < model.length; i++) {
+                model[i].idCajaArqueoDenominacion = model[i].idCajaArqueoDenominacion,
+                model[i].idCaja = model[i].idCaja,
+                model[i].fechaCreacion = model[i].fechaCreacion,
+                model[i].idUsuario = model[i].idUsuario,
+                model[i].idDenominacion = model[i].idDenominacion,
+                model[i].cantidad = model[i].cantidad;
+            model[i].monto = model[i].monto;
+        }
+        return model;
+    }
+
 
     function GuardarApertura() {
         var _cantidad = 0;
@@ -601,7 +826,34 @@
         if (@Model.IdCaja!= 0) {
             EditarLineasApertura(Apertura);
         }
-   
+
+    }
+
+        function GuardarArqueo() {
+        var _cantidad = 0;
+        for (var i = 0; i < _Denominaciones.length; i++) {
+            if ($("#inpCantidad" + _Denominaciones[i].idDenominaciones + "").val() === "") {
+                _cantidad = 0;
+            } else {
+                _cantidad = $("#inpCantidad" + _Denominaciones[i].idDenominaciones + "").val().toString().replace(".", ",");
+            }
+            var model = {
+                idCajaArqueoDenominacion:0,
+                idCaja:@Model.IdCaja,
+                fechaCreacion: $('#lbFechaCreacion').val(),
+                idUsuario: IdUsuarioLogueado,
+                idDenominacion:_Denominaciones[i].idDenominaciones,
+                cantidad: _cantidad,
+                monto: $("#inpMonto" + _Denominaciones[i].idDenominaciones + "").val().toString().replace(".", ","),
+            }
+
+            Arqueo.push(model);
+        }
+            if (@Model.IdCaja!= 0) {
+
+            EditarLineasArqueo(Arqueo);
+        }
+
     }
 
     function EditarLineasApertura(lineas) {
@@ -609,10 +861,26 @@
         for (var i = 0; i < lineas.length; i++) {
             try {
                 Apertura[i].idCajaApertura = CajaApertura[i].idCajaApertura;
+
             } catch{
                 Apertura[i].idCajaApertura = 0;
             }
-        
+
+        }
+
+    }
+
+        function EditarLineasArqueo(lineas) {
+
+        for (var i = 0; i < lineas.length; i++) {
+            try {
+
+                Arqueo[i].idCajaArqueoDenominacion = CajaArqueo[i].idCajaArqueoDenominacion;
+            } catch{
+
+                Arqueo[i].idCajaArqueoDenominacion = 0;
+            }
+
         }
 
     }
@@ -625,6 +893,7 @@
 
         var _valor =parseFloat( _Denominaciones[fila].valor);
         var total = 0;
+
         total = parseFloat(_valor * cant);
         $('#inpMonto' + _Denominaciones[fila].idDenominaciones).val(total);
 
@@ -658,19 +927,74 @@
 
             setTotalGlobal();
         } else {
-            switch (parseInt(moneda)) {
-                case 1:
 
-                    break;
-                case 2:
+            _DenominacionesTotales[fila].valor = total;
 
-                    break;
-                case 3:
+            var _totalBase = 0;
+            var _totalDolar = 0;
+            var _totalEuro = 0;
+            var _idDenominaciones = 0;
+            var _montoBase = 0;
+            var _montoDolar = 0;
+            var _montoEuro = 0;
 
-                    break;
+
+            for (var k = 0; k < _Denominaciones.length; k++) {
+
+                switch (parseInt(_Denominaciones[k].idMoneda)) {
+
+                    case 1:
+                            _idDenominaciones = _Denominaciones[k].idDenominaciones;
+
+                        for (var a = 0; a < _DenominacionesTotales.length; a++) {
+
+                                if (_idDenominaciones === _DenominacionesTotales[a].idDenominaciones) {
+                                    _montoBase = _DenominacionesTotales[a].valor;
+                                }
+                            }
+
+                            _totalBase = parseFloat(_totalBase + parseFloat(_montoBase));
+
+                            _montoBase = 0;
+                        break;
+                    case 2:
+
+
+                            _idDenominaciones = _Denominaciones[k].idDenominaciones;
+
+                            for (var a = 0; a < _DenominacionesTotales.length; a++) {
+                                if (_idDenominaciones === _DenominacionesTotales[a].idDenominaciones) {
+                                    _montoDolar = _DenominacionesTotales[a].valor;
+                                }
+                            }
+                            _totalDolar = parseFloat(_totalDolar + parseFloat(_montoDolar));
+
+                            _montoDolar = 0;
+
+                        break;
+                    case 3:
+
+
+                            _idDenominaciones = _Denominaciones[k].idDenominaciones;
+
+                            for (var a = 0; a < _DenominacionesTotales.length; a++) {
+                                if (_idDenominaciones === _DenominacionesTotales[a].idDenominaciones) {
+                                    _montoEuro = _DenominacionesTotales[a].valor;
+                                }
+                            }
+                            _totalEuro = parseFloat(_totalEuro + parseFloat(_montoEuro));
+                            _montoEuro = 0;
+
+                        break;
+                }
             }
+
+
+            $TotalBase.val(_totalBase);
+            $TotalDolar.val(_totalDolar);
+            $TotalEuro.val(_totalEuro);
         }
-      
+
 
     }
 
@@ -689,9 +1013,9 @@
 
             switch (parseInt(_Denominaciones[k].idMoneda)) {
 
-                case 1:    
+                case 1:
                     if (TotalBase.length > 0) {
-                  
+
                         _idDenominaciones = _Denominaciones[k].idDenominaciones;
 
                         for (var a = 0; a < CajaApertura.length; a++) {
@@ -699,11 +1023,11 @@
                                 _montoBase = CajaApertura[a].monto;
                             }
                         }
-                     
+
                         _totalBase = parseFloat(_totalBase + parseFloat(_montoBase));
 
                         _montoBase = 0;
-                    } 
+                    }
                     break;
                 case 2:
                     if (TotalDolar.length > 0) {
@@ -718,7 +1042,7 @@
                         _totalDolar = parseFloat(_totalDolar + parseFloat(_montoDolar));
 
                         _montoDolar = 0;
-                    } 
+                    }
                     break;
                 case 3:
                     if (TotalEuro.length > 0) {
@@ -732,7 +1056,7 @@
                         }
                         _totalEuro = parseFloat(_totalEuro + parseFloat(_montoEuro));
                         _montoEuro = 0;
-                    } 
+                    }
                     break;
             }
         }

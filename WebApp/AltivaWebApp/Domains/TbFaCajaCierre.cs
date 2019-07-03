@@ -5,10 +5,7 @@ namespace AltivaWebApp.Domains
 {
     public partial class TbFaCajaCierre
     {
-        public TbFaCajaCierre()
-        {
-            TbFaCajaArqueo = new HashSet<TbFaCajaArqueo>();
-        }
+      
 
         public long IdCajaCierre { get; set; }
         public long? IdCaja { get; set; }
@@ -25,6 +22,6 @@ namespace AltivaWebApp.Domains
         public double? Salidas { get; set; }
 
         public virtual TbFaCaja IdCajaNavigation { get; set; }
-        public virtual ICollection<TbFaCajaArqueo> TbFaCajaArqueo { get; set; }
+
     }
 }

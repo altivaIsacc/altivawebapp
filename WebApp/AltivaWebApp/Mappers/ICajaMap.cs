@@ -13,5 +13,7 @@ namespace AltivaWebApp.Mappers
         TbFaCajaAperturaDenominacion CreateCD(CajaViewModel viewModel);
         CajaViewModel DomainToViewModel(TbFaCaja domain);
         bool UpdateCD(CajaViewModel viewModel);
+        bool UpdateAr(CajaViewModel viewModel);
+
     }
 }

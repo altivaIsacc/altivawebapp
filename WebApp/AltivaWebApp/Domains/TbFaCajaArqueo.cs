@@ -5,13 +5,9 @@ namespace AltivaWebApp.Domains
 {
     public partial class TbFaCajaArqueo
     {
-        public TbFaCajaArqueo()
-        {
-            TbFaCajaArqueoDenominacion = new HashSet<TbFaCajaArqueoDenominacion>();
-        }
+     
 
         public long IdCajaArqueo { get; set; }
-        public long? IdCajaCierre { get; set; }
         public DateTime? FechaCreacion { get; set; }
         public long? IdUsuario { get; set; }
         public int? IdMoneda { get; set; }
@@ -20,8 +16,8 @@ namespace AltivaWebApp.Domains
         public double? TarjetaReal { get; set; }
         public long? IdCaja { get; set; }
 
-        public virtual TbFaCajaCierre IdCajaCierreNavigation { get; set; }
+
         public virtual TbFaCaja IdCajaNavigation { get; set; }
-        public virtual ICollection<TbFaCajaArqueoDenominacion> TbFaCajaArqueoDenominacion { get; set; }
+
     }
 }

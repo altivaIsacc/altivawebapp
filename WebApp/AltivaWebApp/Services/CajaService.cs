@@ -20,6 +20,11 @@ namespace AltivaWebApp.Services
             return repository.GetAllCajaAperturaDenominacionByIdCaja(id);
         }
 
+        public IList<TbFaCajaArqueoDenominacion> GetAllCajaArqueoDenominacionByIdCaja(int id)
+        {
+            return repository.GetAllCajaArqueoDenominacionByIdCaja(id);
+        }
+
         public IList<TbFaCaja> GetInfoCaja()
         {
             return repository.GetInfoCaja();
@@ -29,6 +34,12 @@ namespace AltivaWebApp.Services
         {
             return repository.UpdateCajaAperturaDenominacion(domain);
         }
+
+        public bool UpdateCajaArqueoDenominacion(IList<TbFaCajaArqueoDenominacion> domain)
+        {
+            return repository.UpdateCajaArqueoDenominacion(domain);
+        }
+
 
         public TbFaCajaAperturaDenominacion SaveCajaAperturaDenominacion(TbFaCajaAperturaDenominacion domain)
         {

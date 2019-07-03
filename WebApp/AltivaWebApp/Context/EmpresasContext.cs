@@ -5156,7 +5156,6 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.IdCaja).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.IdCajaCierre).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.IdMoneda).HasDefaultValueSql("((0))");
 
@@ -5169,10 +5168,7 @@ namespace AltivaWebApp.Context
                     .HasForeignKey(d => d.IdCaja)
                     .HasConstraintName("FK_tb_FA_CajaArqueo_tb_FA_CajaArqueo");
 
-                entity.HasOne(d => d.IdCajaCierreNavigation)
-                    .WithMany(p => p.TbFaCajaArqueo)
-                    .HasForeignKey(d => d.IdCajaCierre)
-                    .HasConstraintName("FK_tb_FA_CajaArqueo_tb_FA_CajaCierre");
+
             });
 
             modelBuilder.Entity<TbFaCajaArqueoDenominacion>(entity =>
@@ -5189,7 +5185,6 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.IdCaja).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.IdCajaArqueo).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.IdDenominacion).HasDefaultValueSql("((0))");
 
@@ -5202,10 +5197,6 @@ namespace AltivaWebApp.Context
                     .HasForeignKey(d => d.IdCaja)
                     .HasConstraintName("FK_tb_FA_CajaArqueoDenominacion_tb_FA_Caja");
 
-                entity.HasOne(d => d.IdCajaArqueoNavigation)
-                    .WithMany(p => p.TbFaCajaArqueoDenominacion)
-                    .HasForeignKey(d => d.IdCajaArqueo)
-                    .HasConstraintName("FK_tb_FA_CajaArqueoDenominacion_tb_FA_CajaArqueo");
 
                 entity.HasOne(d => d.IdDenominacionNavigation)
                     .WithMany(p => p.TbFaCajaArqueoDenominacion)

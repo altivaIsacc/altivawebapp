@@ -35,6 +35,12 @@ namespace AltivaWebApp.Mappers
             return _Service.UpdateCajaAperturaDenominacion(ViewModelToDomainCD(viewModel));
         }
 
+        public bool UpdateAr(CajaViewModel viewModel)
+        {
+            return _Service.UpdateCajaArqueoDenominacion(ViewModelToDomainAr(viewModel));
+        }
+
+
         public TbFaCaja ViewModelToDomainEdit(CajaViewModel viewModel)
         {
 
@@ -79,6 +85,7 @@ namespace AltivaWebApp.Mappers
 
         }
 
+
         public TbFaCaja ViewModelToDomain(CajaViewModel viewModel)
         {
             var domain = new TbFaCaja { };
@@ -90,8 +97,9 @@ namespace AltivaWebApp.Mappers
                     FechaCreacion = Convert.ToDateTime(viewModel.FechaCreacion),
                     IdUsuario = viewModel.IdUsuario,
                     Estado = viewModel.Estado,
+                    TbFaCajaAperturaDenominacion = ViewModelToDomainCD(viewModel),
+                    TbFaCajaArqueoDenominacion= ViewModelToDomainAr(viewModel)
 
-                    TbFaCajaAperturaDenominacion = ViewModelToDomainCD(viewModel)
                 };
 
                 return domain;
@@ -105,6 +113,7 @@ namespace AltivaWebApp.Mappers
 
         }
 
+
         public IList<TbFaCajaAperturaDenominacion> ViewModelToDomainCD(CajaViewModel viewModel)
         {
             var domain = new List<TbFaCajaAperturaDenominacion>();
@@ -115,6 +124,20 @@ namespace AltivaWebApp.Mappers
 
             return domain;
         }
+
+        public IList<TbFaCajaArqueoDenominacion> ViewModelToDomainAr(CajaViewModel viewModel)
+        {
+            var domain = new List<TbFaCajaArqueoDenominacion>();
+            foreach (var item in viewModel.TbFaCajaArqueoDenominacion)
+            {
+                domain.Add(ViewModelToDomainSingleAr(item, viewModel));
+            }
+
+            return domain;
+        }
+
+
+
 
         public TbFaCajaAperturaDenominacion ViewModelToDomainSingleCD(CajaAperturaDenominacionViewModel viewModel, CajaViewModel compra)
         {
@@ -132,7 +155,21 @@ namespace AltivaWebApp.Mappers
             return domain;
         }
 
+        public TbFaCajaArqueoDenominacion ViewModelToDomainSingleAr(CajaArqueoDenominacionViewModel viewModel, CajaViewModel compra)
+        {
+            var domain = new TbFaCajaArqueoDenominacion
+            {
+                IdCajaArqueoDenominacion = viewModel.IdCajaArqueoDenominacion,
+                IdCaja = viewModel.IdCaja,
+                FechaCreacion = Convert.ToDateTime(viewModel.FechaCreacion),
+                IdUsuario = viewModel.IdUsuario,
+                IdDenominacion = viewModel.IdDenominacion,
+                Cantidad = viewModel.Cantidad,
+                Monto = viewModel.Monto,
+            };
 
+            return domain;
+        }
 
 
     }
