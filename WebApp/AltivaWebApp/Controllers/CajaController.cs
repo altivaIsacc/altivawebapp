@@ -68,8 +68,12 @@ namespace AltivaWebApp.Controllers
                     {
                 
                         var Cd = _Map.UpdateCD(viewModel); //AperturaCaja
-                        var Apertura = _Map.UpdateAr(viewModel);
-                       // idCD = cd.IdDenominacion;
+                        var ArqueoDenominacion = _Map.UpdateAr(viewModel); //ArqueoDenominacion
+                        if (viewModel.TbFaCajaArqueo != null)
+                        {
+                            var Arqueo = _Map.UpdateArqueo(viewModel); //Arqueo
+                        }
+                        // idCD = cd.IdDenominacion;
 
                     }
 
@@ -144,6 +148,20 @@ namespace AltivaWebApp.Controllers
             {
                 var detalles = _Service.GetAllCajaArqueoDenominacionByIdCaja(id);
                 return Ok(_Service.GetAllCajaArqueoDenominacionByIdCaja(id));
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("Get-CajaArqueo/{id}")]
+        public ActionResult GetCajaArqueo(int id)
+        {
+            try
+            {
+                var detalles = _Service.GetAllCajaArqueoByIdCaja(id);
+                return Ok(_Service.GetAllCajaArqueoByIdCaja(id));
             }
             catch
             {

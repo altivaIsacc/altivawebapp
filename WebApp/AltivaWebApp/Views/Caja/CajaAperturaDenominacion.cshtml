@@ -1,4 +1,6 @@
-﻿@model AltivaWebApp.ViewModels.CajaViewModel
+﻿@*Apertura de Caja,Arqueo de Caja*@
+
+@model AltivaWebApp.ViewModels.CajaViewModel
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -100,17 +102,47 @@
 {
 
     <div class="row" style="margin-top:100px;">
-        <div class="col-md-6  table-responsive">
-            <table class="table table-bordered" style="width:100%" id="tblCajaArqueo">
+        <div class="col-md-4  table-responsive">
+            <table class="table table-bordered" style="width:100%" id="tblCajaArqueoBase">
                 <thead>
                     <tr>
-                        <th><span class="letratbDenominaciones">@Lb["Denominacion"]</span> </th>
+                        <th><span class="letratbDenominaciones"></span> </th>
                         <th><span class="letratbDenominaciones"> @Lb["Monto"]</span> </th>
                     </tr>
                 </thead>
                 <tbody>
 
-                    <tr class="lineaFormArqueo"></tr>
+                    <tr class="lineaFormArqueoBase"></tr>
+                </tbody>
+            </table>
+        </div>
+   
+        <div class="col-md-4  table-responsive">
+            <table class="table table-bordered" style="width:100%" id="tblCajaArqueoDolar">
+                <thead>
+                    <tr>
+                        <th><span class="letratbDenominaciones"></span> </th>
+                        <th><span class="letratbDenominaciones"> @Lb["Monto"]</span> </th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr class="lineaFormArqueoDolar"></tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <div class="col-md-4  table-responsive">
+            <table class="table table-bordered" style="width:100%" id="tblCajaArqueoEuro">
+                <thead>
+                    <tr>
+                        <th><span class="letratbDenominaciones"></span> </th>
+                        <th><span class="letratbDenominaciones"> @Lb["Monto"]</span> </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="lineaFormArqueoEuro"></tr>
                 </tbody>
             </table>
         </div>
@@ -145,8 +177,10 @@
     var Apertura = [];
     var Arqueo = [];
     var _LineaCajaAperturaDenominaciones = [];
+    var _LineaCajaArqueo = [];
     var CajaApertura = [];
-    var CajaArqueo = [];
+    var CajaArqueoDenominaciones = [];
+    var _CajaArqueo = [];
     var $FechaCreacion = $('#lbFechaCreacion');
     var TotalEuro = [];
     var TotalDolar = [];
@@ -162,6 +196,10 @@
     var totalDolarArray = [];
     var totalEuroArray = [];
     var _DenominacionesTotales = [];
+    var Base = [];
+    var Dolar = [];
+    var Euro = [];
+    var ArrayCajaAperturaUnido = [];
 
 ////////////////////////////////////////////////////////////DOCUMENT READY///////////////////////////////////////////////////////////////////
     $(document).ready(function () {
@@ -239,9 +277,29 @@
               dataType: "json",
             url: '@Url.Action("GetCajaArqueoDenominacion")',
             success: function (data) {
-                CajaArqueo = JSON.parse(JSON.stringify(data));
-                console.log(CajaArqueo);
-                cargarLineasArqueo(CajaArqueo);
+                CajaArqueoDenominaciones = JSON.parse(JSON.stringify(data));
+                cargarLineasArqueoDenominaciones(CajaArqueoDenominaciones);
+                //setTotalGlobal();
+               },
+            error: function (err, scnd) {
+               cargarAlert('@Lb["errorGeneral"]');
+            }
+        });
+    }
+
+       function getCajaArqueo() {
+        if(@Model.IdCaja != 0)
+        $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("GetCajaArqueo")',
+            success: function (data) {
+                _CajaArqueo = JSON.parse(JSON.stringify(data));
+                console.log(_CajaArqueo)
+                cargarLineasArqueo(_CajaArqueo);
                 //setTotalGlobal();
                },
             error: function (err, scnd) {
@@ -305,6 +363,10 @@
 
                      getCajaApertura();
                      getCajaArqueoDenominacion();
+                     if (@Model.Estado=== 2) {
+                         getCajaArqueo();
+                     }
+
 
                  } else {
                      cargarTabla(_Denominaciones);
@@ -426,7 +488,7 @@
         cargarTabla(_LineaCajaAperturaDenominaciones);
     }
 
-    function cargarLineasArqueo(data) {
+    function cargarLineasArqueoDenominaciones(data) {
         var count = data.length;
         for (var i = 0; i < count; i++) {
             var model = {
@@ -442,10 +504,103 @@
             };
 
             _LineaCajaAperturaDenominaciones.push(model);
-
         }
 
-     //   cargarTabla(_LineaCajaAperturaDenominaciones);
+       // cargarTablaArqueo(_LineaCajaAperturaDenominaciones);
+    }
+
+    function cargarLineasArqueo(data) {
+        var count = data.length;
+        if (count != 0) {
+
+
+            for (var i = 0; i < count; i++) {
+                var model = {
+
+                    idCajaArqueo: data[i].idCajaArqueo,
+                    idCaja: data[i].idCaja,
+                    fechaCreacion: data[i].fechaCreacion,
+                    idUsuario: data[i].idUsuario,
+                    idMoneda: data[i].idMoneda,
+                    efectivoReal: data[i].efectivoReal,
+                    bancoReal: data[i].bancoReal,
+                    tarjetaReal: data[i].tarjetaReal,
+
+                };
+
+               _LineaCajaArqueo.push(model);
+            }
+
+
+            for (var o = 0; o < _LineaCajaArqueo.length; o++) {
+
+                switch (_LineaCajaArqueo[o].idMoneda) {
+                    case 1:
+                        Base.push(_LineaCajaArqueo[o]);
+                        break;
+                    case 2:
+                        Dolar.push(_LineaCajaArqueo[o]);
+                        break;
+                    case 3:
+                        Euro.push(_LineaCajaArqueo[o]);
+                        break;
+                }
+
+            }
+        } else {
+
+            var _moneda = 0;
+
+            for (var i = 0; i < 3; i++) {
+
+                switch (i) {
+                    case 0:
+                        _moneda = 1;
+                        break;
+                    case 1:
+                        _moneda = 2;
+                        break;
+                    case 2:
+                        _moneda = 3;
+                        break;
+                }
+
+                var model = {
+
+                    idCajaArqueo: 0,
+                    idCaja: @Model.IdCaja,
+                    fechaCreacion: "",
+                    idUsuario: @Model.IdUsuario,
+                    idMoneda: _moneda,
+                    efectivoReal: 0,
+                    bancoReal:0,
+                    tarjetaReal: 0,
+
+                };
+
+                _LineaCajaArqueo.push(model);
+            }
+       
+            for (var o = 0; o < _LineaCajaArqueo.length; o++) {
+
+                switch (_LineaCajaArqueo[o].idMoneda) {
+                    case 1:
+                        Base.push(_LineaCajaArqueo[o]);
+                        break;
+                    case 2:
+                        Dolar.push(_LineaCajaArqueo[o]);
+                        break;
+                    case 3:
+                        Euro.push(_LineaCajaArqueo[o]);
+                        break;
+                }
+
+            }
+        }
+
+        cargarTablaArqueoBase(Base);
+        cargarTablaArqueoDolar(Dolar);
+        cargarTablaArqueoEuro(Euro);
     }
 
     function GetUsuarioLogueado() {
@@ -471,7 +626,7 @@
     function cargarTabla(data) {
 
         $('.filasCargadas').remove();
-        contadorFila = 0;
+     var   contadorFila = 0;
         var tipomoneda = 0;
         var coin = "";
         var _cantidad = 0;
@@ -589,6 +744,237 @@
 
     }
 
+        function cargarTablaArqueoBase(data) {
+
+        $('.filasCargadasArqueoBase').remove();
+            var contadorFila = 0;
+            var coin = 0;
+            var txtEfectivo = "";
+            var txtTarjeta = "";
+            var txtBanco = "";
+            var idFila = 0;
+            var montoEfectivo = 0;
+            var montoTarjeta = 0;
+            var montoBanco = 0;
+            var body;
+
+
+            for (var i = 0; i < data.length; i++) {
+
+
+                if (_CajaArqueo.length <= 0) {
+                    idFila = contadorFila;
+                    montoEfectivo = 0;
+                    montoTarjeta = 0;
+                    montoBanco = 0;
+
+                } else {
+                    idFila = data[i].idCajaArqueo;
+                    montoEfectivo = data[i].efectivoReal;
+                    montoTarjeta = data[i].tarjetaReal;
+                    montoBanco = data[i].bancoReal;
+                }
+                            txtEfectivo = "@Lb["Efectivo"]";
+                            txtTarjeta = "@Lb["Tarjetas"]";
+                            txtBanco = "@Lb["Banco"]";
+
+                        
+                            coin = "colon";
+                            simbolo = monedas[0].simbolo;
+
+
+                    body = '<tr class="filasCargadasArqueoBase" id="filaBase' + contadorFila + '">'
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbEfectivoBase' + idFila + '"> ' + simbolo + " " + txtEfectivo + '</label></td> '
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoEfectivo + '" id="inpEfectivoBase" class="form-control cantidad ' + coin + '" type="text" min="0" value="0" /></td></tr>'
+                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbTarjetaBase' + idFila + '"> ' + simbolo + " " + txtTarjeta + '</label></td> '
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoTarjeta + '" id="inpTarjetaBase" class="form-control cantidad ' + coin + '" type="text" min="0" value="0" /></td></tr>'
+                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbBancoBase' + idFila + '"> ' + simbolo + " " + txtBanco + '</label></td> '
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoBanco + '" id="inpBancoBase" class="form-control cantidad ' + coin + '" type="text" min="0" value="0" /></td></tr>'
+
+                $('.lineaFormArqueoBase').before(body);
+
+            contadorFila++;
+        }
+
+        //inicializa formato
+        $(".colon").inputmask('currency', {
+            prefix: monedas[0].simbolo + " ",
+            rightAlign: true
+        });
+        $(".dolar").inputmask('currency', {
+            prefix: monedas[1].simbolo + " ",
+            rightAlign: true
+        });
+        $(".euro").inputmask('currency', {
+            prefix: monedas[2].simbolo + " ",
+            rightAlign: true
+        });
+
+        $(".cantidad").inputmask({
+
+            'alias': 'decimal',
+
+            rightAlign: false,
+
+        });
+
+    }
+
+            function cargarTablaArqueoDolar(data) {
+
+        $('.filasCargadasArqueoDolar').remove();
+            var contadorFila = 0;
+            var coin = 0;
+                var txtEfectivo = "";
+                var txtTarjeta = "";
+                var txtBanco = "";
+                var montoEfectivo = 0;
+                var montoTarjeta = 0;
+                var montoBanco = 0;
+            var idFila = 0;
+
+            var body;
+
+     
+
+            for (var i = 0; i < data.length; i++) {
+
+
+
+                if (_CajaArqueo.length <= 0) {
+                    idFila = contadorFila;
+                    montoEfectivo = 0;
+                    montoTarjeta = 0;
+                    montoBanco = 0;
+                } else {
+                    idFila = data[i].idCajaArqueo
+                    montoEfectivo = data[i].efectivoReal;
+                    montoTarjeta = data[i].tarjetaReal;
+                    montoBanco = data[i].bancoReal;
+                }
+
+                txtEfectivo = "@Lb["Efectivo"]";
+                txtTarjeta = "@Lb["Tarjetas"]";
+                txtBanco= "@Lb["Banco"]";
+
+                
+                            coin = "dolar";
+                            simbolo = monedas[1].simbolo;
+
+
+                    body = '<tr class="filasCargadasArqueoDolar" id="filaDolar' + contadorFila + '">'
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbEfectivoDolar' + idFila + '"> ' + simbolo + " " + txtEfectivo + '</label></td> '
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoEfectivo + '" id="inpEfectivoDolar" class="form-control cantidad ' + coin + '" type="text" min="0" value="0" /></td></tr>'
+                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbTarjetaDolar' + idFila + '"> ' + simbolo + " " + txtTarjeta + '</label></td> '
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoTarjeta + '" id="inpTarjetaDolar" class="form-control cantidad ' + coin + '" type="text" min="0" value="0" /></td></tr>'
+                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbBancoDolar' + idFila + '"> ' + simbolo + " " + txtBanco + '</label></td> '
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoBanco + '" id="inpBancoDolar" class="form-control cantidad ' + coin + '" type="text" min="0" value="0" /></td></tr>'
+
+                $('.lineaFormArqueoDolar').before(body);
+
+            contadorFila++;
+        }
+
+        //inicializa formato
+        $(".colon").inputmask('currency', {
+            prefix: monedas[0].simbolo + " ",
+            rightAlign: true
+        });
+        $(".dolar").inputmask('currency', {
+            prefix: monedas[1].simbolo + " ",
+            rightAlign: true
+        });
+        $(".euro").inputmask('currency', {
+            prefix: monedas[2].simbolo + " ",
+            rightAlign: true
+        });
+
+        $(".cantidad").inputmask({
+
+            'alias': 'decimal',
+
+            rightAlign: false,
+
+        });
+
+    }
+
+            function cargarTablaArqueoEuro(data) {
+
+        $('.filasCargadasArqueoEuro').remove();
+            var contadorFila = 0;
+            var coin = 0;
+                var txtEfectivo = "";
+                var txtTarjeta = "";
+                var txtBanco = "";
+            var idFila = 0;
+                var montoEfectivo = 0;
+                var montoTarjeta = 0;
+                var montoBanco = 0;
+            var body;
+
+            for (var i = 0; i < data.length; i++) {
+
+
+
+                if (_CajaArqueo.length <= 0) {
+                    idFila = contadorFila;
+                    montoEfectivo = 0;
+                    montoTarjeta = 0;
+                    montoBanco = 0;
+                } else {
+                    idFila = data[i].idCajaArqueo
+                    montoEfectivo = data[i].efectivoReal;
+                    montoTarjeta = data[i].tarjetaReal;
+                    montoBanco = data[i].bancoReal;
+                }
+
+                txtEfectivo = "@Lb["Efectivo"]";
+                txtTarjeta = "@Lb["Tarjetas"]";
+                txtBanco = "@Lb["Banco"]";
+
+              
+                            coin = "euro";
+                            simbolo = monedas[2].simbolo;
+
+
+
+                    body = '<tr class="filasCargadasArqueoEuro" id="filaEuro' + contadorFila + '">'
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbEfectivoEuro' + idFila + '"> ' + simbolo + " " + txtEfectivo + '</label></td> '
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoEfectivo + '" id="inpEfectivoEuro" class="form-control cantidad ' + coin + '" type="text" min="0" value="0" /></td></tr>'
+                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbTarjetaEuro' + idFila + '"> ' + simbolo + " " + txtTarjeta + '</label></td> '
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoTarjeta + '" id="inpTarjetaEuro" class="form-control cantidad ' + coin + '" type="text" min="0" value="0" /></td></tr>'
+                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbBancoEuro' + idFila + '"> ' + simbolo + " " + txtBanco + '</label></td> '
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoBanco + '" id="inpBancoEuro" class="form-control cantidad ' + coin + '" type="text" min="0" value="0" /></td></tr>'
+                $('.lineaFormArqueoEuro').before(body);
+
+            contadorFila++;
+        }
+
+        //inicializa formato
+        $(".colon").inputmask('currency', {
+            prefix: monedas[0].simbolo + " ",
+            rightAlign: true
+        });
+        $(".dolar").inputmask('currency', {
+            prefix: monedas[1].simbolo + " ",
+            rightAlign: true
+        });
+        $(".euro").inputmask('currency', {
+            prefix: monedas[2].simbolo + " ",
+            rightAlign: true
+        });
+
+        $(".cantidad").inputmask({
+
+            'alias': 'decimal',
+
+            rightAlign: false,
+
+        });
+
+    }
+
 
 /////////////////////////////////////////////////////////FUNCIONES COMPLEMENTARIAS//////////////////////////////////////////////////////////////
 
@@ -635,6 +1021,7 @@
     $("#lbEstado").change(function () {
 
         console.log($('#lbEstado option:selected').text());
+        console.log("@Lb["ArqueoReabierto"]");
         switch ($('#lbEstado option:selected').text()) {
 
             case "@Lb["Abierta"]":
@@ -652,8 +1039,17 @@
                     }
                 });
                 break;
-            case "@Lb["ArquoeReabierto"]":
-                guardarSalirEstado();
+            case "@Lb["ArqueoReabierto"]":
+
+             var msj = "@Lb["confirmEstado"]";
+                bootbox.confirm(msj, function (result) {
+
+                    if (result) {
+                        guardarSalirEstado();
+                    } else {
+                        $('#lbEstado').val(@Model.Estado);
+                    }
+                });
                 break;
             case "@Lb["Cerrada"]":
                                   var msj = "@Lb["confirmEstado"]";
@@ -690,6 +1086,7 @@
     function guardarSalir() {
 
         GuardarApertura();
+        GuardarArqueoDenominaciones();
         GuardarArqueo();
         guardarCajaApertura();
     }
@@ -697,7 +1094,7 @@
     function guardarSalirEstado() {
 
         GuardarApertura();
-        GuardarArqueo();
+        GuardarArqueoDenominaciones();
         guardarCajaAperturaEstado();
     }
 
@@ -767,7 +1164,8 @@
               idUsuario: usuario,
               estado:$('#lbEstado option:selected').val(),
              tbFaCajaAperturaDenominacion: crearModeloApertura(Apertura),
-             tbFaCajaArqueoDenominacion: crearModeloArqueo(Arqueo),
+             tbFaCajaArqueoDenominacion: crearModeloArqueoDenominaciones(Arqueo),
+             tbFaCajaArqueo: crearModeloArqueo(ArrayCajaAperturaUnido),
 
         };
 
@@ -788,7 +1186,7 @@
         return model;
     }
 
-    function crearModeloArqueo(model) {
+    function crearModeloArqueoDenominaciones(model) {
 
         for (var i = 0; i < model.length; i++) {
                 model[i].idCajaArqueoDenominacion = model[i].idCajaArqueoDenominacion,
@@ -798,6 +1196,21 @@
                 model[i].idDenominacion = model[i].idDenominacion,
                 model[i].cantidad = model[i].cantidad;
             model[i].monto = model[i].monto;
+        }
+        return model;
+    }
+
+    function crearModeloArqueo(model) {
+
+        for (var i = 0; i < model.length; i++) {
+                model[i].idCajaArqueo = model[i].idCajaArqueo,
+                model[i].idCaja = model[i].idCaja,
+                model[i].fechaCreacion = model[i].fechaCreacion,
+                model[i].idUsuario = model[i].idUsuario,
+                model[i].idMoneda = model[i].idMoneda,
+                model[i].efectivoReal = model[i].efectivoReal;
+                model[i].tarjetaReal = model[i].tarjetaReal;
+                model[i].bancoReal = model[i].bancoReal;
         }
         return model;
     }
@@ -829,7 +1242,7 @@
 
     }
 
-        function GuardarArqueo() {
+        function GuardarArqueoDenominaciones() {
         var _cantidad = 0;
         for (var i = 0; i < _Denominaciones.length; i++) {
             if ($("#inpCantidad" + _Denominaciones[i].idDenominaciones + "").val() === "") {
@@ -851,7 +1264,54 @@
         }
             if (@Model.IdCaja!= 0) {
 
-            EditarLineasArqueo(Arqueo);
+            EditarLineasArqueoDenominaciones(Arqueo);
+        }
+
+    }
+
+    function GuardarArqueo() {
+
+     
+
+        var _cantidad = 0;
+        var imputEfectivo = "";
+        var imputTarjeta = "";
+        var imputBanco = "";
+
+                for (var i = 0; i < _LineaCajaArqueo.length; i++) {
+
+                    if (i === 0) {
+                        imputEfectivo = "inpEfectivoBase";
+                        imputTarjeta = "inpTarjetaBase";
+                        imputBanco = "inpBancoBase";
+                    } else if (i === 1) {
+                        imputEfectivo = "inpEfectivoDolar";
+                        imputTarjeta = "inpTarjetaDolar";
+                        imputBanco = "inpBancoDolar";
+                    } else {
+                        imputEfectivo = "inpEfectivoEuro";
+                        imputTarjeta = "inpTarjetaEuro";
+                        imputBanco = "inpBancoEuro";
+                    }
+
+            var model = {
+                idCajaArqueo:0,
+                idCaja:@Model.IdCaja,
+                fechaCreacion: $('#lbFechaCreacion').val(),
+                idUsuario: IdUsuarioLogueado,
+                idMoneda:_LineaCajaArqueo[i].idMoneda,
+                efectivoReal:$('#'+imputEfectivo+'').val() ,
+                tarjetaReal: $('#' + imputTarjeta + '').val(),
+                bancoReal: $('#' + imputBanco + '').val(),
+            }
+
+            ArrayCajaAperturaUnido.push(model);
+        }
+
+        console.log(ArrayCajaAperturaUnido);
+            if (_CajaArqueo.length >= 0) {
+
+            EditarLineasArqueo(ArrayCajaAperturaUnido);
         }
 
     }
@@ -870,15 +1330,30 @@
 
     }
 
+    function EditarLineasArqueoDenominaciones(lineas) {
+
+        for (var i = 0; i < lineas.length; i++) {
+            try {
+
+                Arqueo[i].idCajaArqueoDenominacion = CajaArqueoDenominaciones[i].idCajaArqueoDenominacion;
+            } catch{
+
+                Arqueo[i].idCajaArqueoDenominacion = 0;
+            }
+
+        }
+
+    }
+
         function EditarLineasArqueo(lineas) {
 
         for (var i = 0; i < lineas.length; i++) {
             try {
 
-                Arqueo[i].idCajaArqueoDenominacion = CajaArqueo[i].idCajaArqueoDenominacion;
+                ArrayCajaAperturaUnido[i].idCajaArqueo = _CajaArqueo[i].idCajaArqueo;
             } catch{
 
-                Arqueo[i].idCajaArqueoDenominacion = 0;
+                ArrayCajaAperturaUnido[i].idCajaArqueo = 0;
             }
 
         }

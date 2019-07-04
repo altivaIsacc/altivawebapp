@@ -35,6 +35,11 @@ namespace AltivaWebApp.Mappers
             return _Service.UpdateCajaAperturaDenominacion(ViewModelToDomainCD(viewModel));
         }
 
+        public bool UpdateArqueo(CajaViewModel viewModel)
+        {
+            return _Service.UpdateCajaArqueo(ViewModelToDomainArqueo(viewModel));
+        }
+
         public bool UpdateAr(CajaViewModel viewModel)
         {
             return _Service.UpdateCajaArqueoDenominacion(ViewModelToDomainAr(viewModel));
@@ -125,6 +130,18 @@ namespace AltivaWebApp.Mappers
             return domain;
         }
 
+
+        public IList<TbFaCajaArqueo> ViewModelToDomainArqueo(CajaViewModel viewModel)
+        {
+            var domain = new List<TbFaCajaArqueo>();
+            foreach (var item in viewModel.TbFaCajaArqueo)
+            {
+                domain.Add(ViewModelToDomainSingleArqueo(item, viewModel));
+            }
+
+            return domain;
+        }
+
         public IList<TbFaCajaArqueoDenominacion> ViewModelToDomainAr(CajaViewModel viewModel)
         {
             var domain = new List<TbFaCajaArqueoDenominacion>();
@@ -166,6 +183,23 @@ namespace AltivaWebApp.Mappers
                 IdDenominacion = viewModel.IdDenominacion,
                 Cantidad = viewModel.Cantidad,
                 Monto = viewModel.Monto,
+            };
+
+            return domain;
+        }
+
+        public TbFaCajaArqueo ViewModelToDomainSingleArqueo(CajaArqueoViewModel viewModel, CajaViewModel compra)
+        {
+            var domain = new TbFaCajaArqueo
+            {
+                IdCajaArqueo = viewModel.IdCajaArqueo,
+                IdCaja = viewModel.IdCaja,
+                FechaCreacion = Convert.ToDateTime(viewModel.FechaCreacion),
+                IdUsuario = viewModel.IdUsuario,
+                IdMoneda = viewModel.IdMoneda,
+                EfectivoReal = viewModel.EfectivoReal,
+                TarjetaReal = viewModel.TarjetaReal,
+                BancoReal = viewModel.BancoReal,
             };
 
             return domain;

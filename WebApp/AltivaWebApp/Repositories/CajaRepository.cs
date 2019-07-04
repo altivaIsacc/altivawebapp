@@ -34,6 +34,12 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+       
+     public IList<TbFaCajaArqueo> GetAllById(int id)
+        {
+            return context.TbFaCajaArqueo.ToList();
+        }
+
         public bool UpdateCajaAperturaDenominacion(IList<TbFaCajaAperturaDenominacion> domain)
         {
             try
@@ -58,6 +64,24 @@ namespace AltivaWebApp.Repositories
             {
                 //var users = context.TbFaCajaAperturaDenominacion.AsNoTracking().ToList();
                 context.TbFaCajaArqueoDenominacion.UpdateRange(domain);
+
+                context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        public bool UpdateCajaArqueo(IList<TbFaCajaArqueo> domain)
+        {
+            try
+            {
+                //var users = context.TbFaCajaAperturaDenominacion.AsNoTracking().ToList();
+                context.TbFaCajaArqueo.UpdateRange(domain);
 
                 context.SaveChanges();
 
@@ -114,6 +138,19 @@ namespace AltivaWebApp.Repositories
             try
             {
                 return context.TbFaCajaArqueoDenominacion.Where(c => c.IdCajaNavigation.IdCaja == id).ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public IList<TbFaCajaArqueo> GetAllCajaArqueoByIdCaja(int id)
+        {
+            try
+            {
+                return context.TbFaCajaArqueo.Where(c => c.IdCajaNavigation.IdCaja == id).ToList();
             }
             catch (Exception)
             {

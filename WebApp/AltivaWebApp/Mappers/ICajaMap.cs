@@ -14,6 +14,7 @@ namespace AltivaWebApp.Mappers
         CajaViewModel DomainToViewModel(TbFaCaja domain);
         bool UpdateCD(CajaViewModel viewModel);
         bool UpdateAr(CajaViewModel viewModel);
+        bool UpdateArqueo(CajaViewModel viewModel);
 
     }
 }

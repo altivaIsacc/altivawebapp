@@ -15,6 +15,11 @@ namespace AltivaWebApp.Services
             repository = cajaRepository;
         }
 
+        public IList<TbFaCajaArqueo> GetAllById(int id)
+        {
+            return repository.GetAllById(id);
+        }
+
         public IList<TbFaCajaAperturaDenominacion> GetAllCajaAperturaDenominacionByIdCaja(int id)
         {
             return repository.GetAllCajaAperturaDenominacionByIdCaja(id);
@@ -25,6 +30,11 @@ namespace AltivaWebApp.Services
             return repository.GetAllCajaArqueoDenominacionByIdCaja(id);
         }
 
+        public IList<TbFaCajaArqueo> GetAllCajaArqueoByIdCaja(int id)
+        {
+            return repository.GetAllCajaArqueoByIdCaja(id);
+        }
+
         public IList<TbFaCaja> GetInfoCaja()
         {
             return repository.GetInfoCaja();
@@ -33,6 +43,11 @@ namespace AltivaWebApp.Services
         public bool UpdateCajaAperturaDenominacion(IList<TbFaCajaAperturaDenominacion> domain)
         {
             return repository.UpdateCajaAperturaDenominacion(domain);
+        }
+
+        public bool UpdateCajaArqueo(IList<TbFaCajaArqueo> domain)
+        {
+            return repository.UpdateCajaArqueo(domain);
         }
 
         public bool UpdateCajaArqueoDenominacion(IList<TbFaCajaArqueoDenominacion> domain)
