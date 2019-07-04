@@ -23,10 +23,15 @@ namespace AltivaWebApp.Services
 
         public bool Delete(int idTipo)
         {
-            TbFdTareaTipo tp = new TbFdTareaTipo();
-            tp = this.ITipoTareaRepository.GetById(idTipo);
-            
-            return this.ITipoTareaRepository.Delete(tp);
+            if (!ITipoTareaRepository.TieneTareasAsignadas(idTipo))
+            {
+                TbFdTareaTipo tp = new TbFdTareaTipo();
+                tp = this.ITipoTareaRepository.GetById(idTipo);
+                return this.ITipoTareaRepository.Delete(tp);
+            }
+            else
+                return false;
+           
         }
 
         public IList<TbFdTareaTipo> GetAll()
@@ -66,6 +71,10 @@ namespace AltivaWebApp.Services
 
         public TbFdTareaTipo Update(TbFdTareaTipo domain)
         {
+            if ((bool)!domain.Activo)
+            {
+                domain.EsTipoDefecto = false;
+            }
             return this.ITipoTareaRepository.Update(domain);
         }
 

@@ -25,20 +25,20 @@ namespace AltivaWebApp.Controllers
         EmailSender email;
         //variable bitacora map 
         IBitacoraMapper IBitacoraMap;
-        public PaisController(IBitacoraMapper IbitacoraMap,EmailSender email,IPaisService pPaisService, IPaisMap pIPaisMap)
+        public PaisController(IBitacoraMapper IbitacoraMap, EmailSender email, IPaisService pPaisService, IPaisMap pIPaisMap)
         {
             this.PaisService = pPaisService;
             this.PaisMap = pIPaisMap;
             this.email = email;
             this.IBitacoraMap = IbitacoraMap;
-            
+
         }
         // GET: Pais
         [HttpGet("Lista-Paises/{mensaje?}")]
         public ActionResult Index(string mensaje)
         {
 
-            var PaisesFiltrados =new List<TbSePais>();
+            var PaisesFiltrados = new List<TbSePais>();
             IList<TbSePais> paises = new List<TbSePais>();
             paises = PaisService.GetAll();
             if (mensaje == null)
@@ -61,19 +61,19 @@ namespace AltivaWebApp.Controllers
                     {
                         PaisesFiltrados.Add(item);
                     }
+                }
             }
-            }
-       
-           
+
+
 
             return View(PaisesFiltrados);
 
         }
-       
+
         public void notificar(string mensaje)
         {
             var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            email.insertarNotificacion(int.Parse(id),mensaje);
+            email.insertarNotificacion(int.Parse(id), mensaje);
 
         }
         [HttpGet("Detalles")]
@@ -91,7 +91,7 @@ namespace AltivaWebApp.Controllers
         {
             return View();
         }
-        
+
         // POST: Pais/Create
         [HttpPost("Nuevo-Pais")]
         [ValidateAntiForgeryToken]
@@ -108,20 +108,20 @@ namespace AltivaWebApp.Controllers
                     ModelState.AddModelError(string.Empty, "Ya existe un pais con este nombre.");
                     return View();
                 }
-         
-                pais= PaisService.Create(collection);
+
+                pais = PaisService.Create(collection);
                 if (pais != null)
                 {
                     TbSeMensaje msj = new TbSeMensaje("Has creado un Pais");
-                   // Email("Se creo un Pais", msj);
-                
-                    this.IBitacoraMap.CrearBitacora(Convert.ToInt32(ids), "Creo un nuevo pais",pais.Id,"Pais");
+                    // Email("Se creo un Pais", msj);
+
+                    this.IBitacoraMap.CrearBitacora(Convert.ToInt32(ids), "Creo un nuevo pais", pais.Id, "Pais");
                 }
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                throw;  
+                throw;
             }
         }
 
@@ -146,20 +146,57 @@ namespace AltivaWebApp.Controllers
                 {
                     return View();
                 }
-               // Email("Se Edito un Pais", msj);
-             pais=   PaisMap.Update(collection);
+                // Email("Se Edito un Pais", msj);
+                pais = PaisMap.Update(collection);
                 if (pais != null)
                 {
                     var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
 
 
-                    this.IBitacoraMap.CrearBitacora(Convert.ToInt32(ids), "Edito los datos de un pais",pais.Id,"Pais");
+                    this.IBitacoraMap.CrearBitacora(Convert.ToInt32(ids), "Edito los datos de un pais", pais.Id, "Pais");
                 }
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
                 return View();
+            }
+        }
+
+        [HttpPost("CrearEditarPais")]
+        public IActionResult CrearEditarPais(PaisViewModel viewModel)
+        {
+            try
+            {
+                var existePais = PaisService.GetPaisById(viewModel.Id);
+                if (viewModel.Id != 0)
+                {
+                    if (existePais != null && existePais.Id != viewModel.Id)
+                    {
+                        return Json(new { success = false });
+                    }
+
+                    var nuevoPais = PaisMap.Update(viewModel);
+
+                }
+                else
+                {
+                    if (existePais != null)
+                    {
+                        return Json(new { success = false });
+                    }
+
+                    var nuevoPais = PaisMap.Create(viewModel);
+
+                }
+
+                return Json(new { success = true });
+
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
             }
         }
 
@@ -198,13 +235,14 @@ namespace AltivaWebApp.Controllers
             {
                 TbSePais pais;
                 TbSeMensaje msj = new TbSeMensaje("Has Eliminado un Pais");
-               // Email("Se Elimino un Pais", msj);
-              pais=  PaisService.Delete(id);
-                if (pais != null) {
+                // Email("Se Elimino un Pais", msj);
+                pais = PaisService.Delete(id);
+                if (pais != null)
+                {
                     var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
 
 
-                    this.IBitacoraMap.CrearBitacora(Convert.ToInt32(ids), "Elimino un pais",pais.Id,"Pais");
+                    this.IBitacoraMap.CrearBitacora(Convert.ToInt32(ids), "Elimino un pais", pais.Id, "Pais");
                 }
                 return RedirectToAction(nameof(Index));
             }

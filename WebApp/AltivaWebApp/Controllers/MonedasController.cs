@@ -103,7 +103,8 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                return Ok(service.GetAllHMPorMoneda(cod).OrderByDescending(m => m.Fecha));
+                var historial = service.GetAllHMPorMoneda(cod).OrderByDescending(m => m.Fecha);
+                return Ok(historial);
             }
             catch
             {

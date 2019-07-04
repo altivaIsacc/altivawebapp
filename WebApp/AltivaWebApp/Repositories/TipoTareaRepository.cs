@@ -14,9 +14,9 @@ namespace AltivaWebApp.Repositories
         {
         }
 
-        public bool Delete(int idTipo)
+        public bool TieneTareasAsignadas(int idTipo)
         {
-            throw new NotImplementedException();
+            return context.TbFdTarea.Any(t => t.IdTipo == idTipo);
         }
 
         public bool GetByColor(string color)
@@ -26,8 +26,7 @@ namespace AltivaWebApp.Repositories
 
         public bool GetByDefecto(bool? defecto)
         {
-            return context.TbFdTareaTipo.Any(u => u.EsTipoDefecto == defecto);
-
+            return context.TbFdTareaTipo.Any(u => u.EsTipoDefecto == defecto && u.Activo == true);
         }
 
         public TbFdTareaTipo GetById(int idTipo)

@@ -61,6 +61,7 @@
         <table class="table table-bordered" style="min-width: 330px; max-width: 660px" id="tblHistorial">
             <thead>
                 <tr>
+                    <th hidden></th>
                     <th style="width:35%">
                         @Lb["Fecha"]
                     </th>
@@ -134,6 +135,7 @@
         </div>
     </div>
 </div>
+
 
 <script type="text/javascript">
     var historial = [];
@@ -286,6 +288,7 @@
         var colorFila = "";
         for (var i = 0; i < data.length; i++) {
             var body = '<tr class="fila' + contadorFila + ' filas" >'
+                + '<td hidden ><p style="padding-top:1rem;">' + new Date(data[i].fecha).getTime() + '</p></td>'
                 + '<td><p style="padding-top:1rem;">' + recuperarFecha(data[i].fecha) + '</p></td>'
                 + '<td style="text-align: right"><p style="padding-top:1rem;">' + data[i].valorCompra + '</p></td>'
                 + '<td style="text-align: right"><p style="padding-top:1rem;">' + data[i].valorVenta + '</p></td>'
@@ -405,6 +408,11 @@
                     model.idUsuario = data.idUsuario;
                     model.fecha = data.fecha;
 
+                    for (var i = 0; i < historial.length; i++) {
+                        if (historial[i].fecha === data.fecha)
+                            historial.splice(i, 1);
+                    }
+
                     historial.push(model);
 
                     cargarAlert('@Lb["actualizadoCorrectamente"]');
@@ -493,7 +501,20 @@
 
         var f = new Date(_fecha);
 
-        return f.toLocaleDateString();
+        var today = f;
+        var dd = today.getDate();
+        var mm = today.getMonth() + 1; //January is 0!
+
+        var yyyy = today.getFullYear();
+        if (dd < 10) {
+            dd = '0' + dd;
+        }
+        if (mm < 10) {
+            mm = '0' + mm;
+        }
+        var today = dd + '/' + mm + '/' + yyyy;
+
+        return today;
 
     }
 
@@ -502,9 +523,11 @@
 
         $('#tblHistorial').DataTable().destroy();
 
+
         $('#tblHistorial').DataTable({
             "info": false,
             dom: 'Bfrtip',
+            "bSort": false,
             "order": [[0, "desc"]],
             language: {
                 "decimal": "",
@@ -533,7 +556,7 @@
                     titleAttr: 'Copy',
                     title: '@Lb["Histótrico"]',
                     exportOptions: {
-                        columns: [0, 1,2]
+                        columns: [1,2,3]
                     }
 
                 },
@@ -543,7 +566,7 @@
                     titleAttr: 'Excel',
                     title: '@Lb["Histótrico"]',
                     exportOptions: {
-                        columns: [0, 1, 2]
+                        columns: [1, 2, 3]
                     }
 
                 },
@@ -554,7 +577,7 @@
                     titleAttr: 'PDF',
                     title: '@Lb["Histótrico"]',
                     exportOptions: {
-                        columns: [0, 1, 2]
+                        columns: [1, 2, 3]
                     }
                 }
             ]
