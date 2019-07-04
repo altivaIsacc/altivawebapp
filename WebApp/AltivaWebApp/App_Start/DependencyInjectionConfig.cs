@@ -242,6 +242,12 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IPromocionProductoService, PromocionProductoService>();
             services.AddScoped<IPromocionProductoMap, PromocionProductoMap>();
 
+            //Flujo Categoria
+
+            services.AddScoped<IFlujoCategoriaRepository, FlujoCategoriaRepository>();
+            services.AddScoped<IFlujoCategoriaService, FlujoCategoriaService>();
+            services.AddScoped<IFlujoCategoriaMap, FlujoCategoriaMap>();
+
         }
     }
 }

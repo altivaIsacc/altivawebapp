@@ -19,6 +19,9 @@ namespace AltivaWebApp.Context
         {
         }
 
+        //agregado por lenin
+        public virtual DbSet<TbBaFlujoCategoria> TbBaFlujoCategoria { get; set; }
+
         public virtual DbSet<TbBaConciliacion> TbBaConciliacion { get; set; }
         public virtual DbSet<TbBaConciliacionDetalle> TbBaConciliacionDetalle { get; set; }
         public virtual DbSet<TbBaCuentasBancarias> TbBaCuentasBancarias { get; set; }
@@ -1831,6 +1834,35 @@ namespace AltivaWebApp.Context
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_FD_CierreCaja_tb_FD_ArqueoCaja");
             });
+
+            //agregado por lenin
+            modelBuilder.Entity<TbBaFlujoCategoria>(entity =>
+            {
+                entity.HasKey(e => e.IdCategoriaFlujo)
+                    .HasName("PK_dbo.tb_BA_FlujoCategoria");
+
+                entity.ToTable("tb_BA_FlujoCategoria");
+
+                entity.Property(e => e.Codigo)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Estado).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdTipoFlujo).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(250)
+                    .HasDefaultValueSql("('')");
+            });
+
+
 
             modelBuilder.Entity<TbFdCliente>(entity =>
             {
