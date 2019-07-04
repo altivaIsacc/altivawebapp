@@ -143,6 +143,7 @@ namespace AltivaWebApp.Controllers
             {
                 var msj = IMensajeMap.EliminarComentario(idComentario);
                 ImensajeService.Update(msj);
+                       
                 return Json(new { success = true });
             }
             catch (Exception)
