@@ -60,7 +60,7 @@ namespace AltivaWebApp.App_Start
          
             services.AddScoped<FotosService>();
             //
-            services.AddScoped< IcontactoCamposMap, ContactosCamposMap>();
+            services.AddScoped< IContactoCamposMap, ContactosCamposMap>();
             //
 
             services.AddScoped<IContactoRelacionRepository, ContactoRelacionRepository>();
@@ -70,7 +70,7 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<ICamposPersonalizadosService, CamposPersonalizadosServices>();
             services.AddScoped<ICamposPersonalizadosRepository, CamposPersonalizadosRepository>();
             //
-            services.AddScoped<IContactoMap, ContactoMapper>();
+            services.AddScoped<IContactoMap, ContactoMap>();
             //
             services.AddScoped<IContactoService, ContactoService>();
             services.AddScoped<IContactoRepository, ContactoRepository>();

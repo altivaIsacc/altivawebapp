@@ -80,6 +80,7 @@ namespace AltivaWebApp.Controllers
 
                     var bodega = map.Update(model, model.Id);
                     var idUsuario = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
                     string comentarioES = "Editó la bodega " + bodega.Nombre;
 
                     bitacoraMap.CrearBitacora(int.Parse(idUsuario), comentarioES, (int)bodega.Id, "Bodega");

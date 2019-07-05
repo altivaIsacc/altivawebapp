@@ -30,7 +30,7 @@ namespace AltivaWebApp.Controllers
        {
 
             ViewBag.id = 0;
-            CamposPersonalizadosViewModelSingle domain2 = new CamposPersonalizadosViewModelSingle();
+            CamposPersonalizadosViewModel domain2 = new CamposPersonalizadosViewModel();
 
             return PartialView("_CrearEditar",domain2 );
         }
@@ -44,7 +44,7 @@ namespace AltivaWebApp.Controllers
             return PartialView("ListasDesplegables", vs);
         }
         [HttpPost("CrearCampos")]
-        public IActionResult CrearCampos(CamposPersonalizadosViewModelSingle model1)
+        public IActionResult CrearCampos(CamposPersonalizadosViewModel model1)
         {
             TbCrCamposPersonalizados vd = new TbCrCamposPersonalizados();
            vd = this.map.Save(model1);
@@ -58,7 +58,7 @@ namespace AltivaWebApp.Controllers
                 ViewBag.id = 1;
                 TbCrCamposPersonalizados contactoMap = new TbCrCamposPersonalizados();
                 contactoMap = this.pCamposPersonalizados.getById(id);
-                CamposPersonalizadosViewModelSingle domain2 = new CamposPersonalizadosViewModelSingle();
+                CamposPersonalizadosViewModel domain2 = new CamposPersonalizadosViewModel();
                 domain2.Id = Convert.ToInt32(contactoMap.Id);
                 domain2.Nombre = contactoMap.Nombre;
                 domain2.Tipo = contactoMap.Tipo;

@@ -7,70 +7,59 @@ using AltivaWebApp.ViewModels;
 using AltivaWebApp.Services;
 namespace AltivaWebApp.Mappers
 {
-    public class ContactosCamposMap : IcontactoCamposMap
+    public class ContactosCamposMap : IContactoCamposMap
     {
 
-        public IContactoCamposService pContactoCamposService;
+        public IContactoCamposService service;
 
         public ContactosCamposMap(IContactoCamposService pContactoCamposService)
         {
-            this.pContactoCamposService = pContactoCamposService;
+            this.service = pContactoCamposService;
         }
-        public void Agregar(IList<CamposViewModel> domain,long? id)
+
+        public void Create(IList<CCPersonalizadosViewModel> domain,long? id)
         {
-            CamposViewModel campos = new CamposViewModel();
+            CCPersonalizadosViewModel campos = new CCPersonalizadosViewModel();
             List<TbCrContactosCamposPersonalizados> ContactosCampos = new List<TbCrContactosCamposPersonalizados>();
 
             foreach (var item in domain)
             {
                 campos.IdCampoPersonalizados = item.IdCampoPersonalizados;
                 campos.Valor = item.Valor;
-                ContactosCampos.Add(viewToModelContacto(campos,id));
+                ContactosCampos.Add(ViewModelToDomaiCP(campos,id));
             }
-            this.pContactoCamposService.Crear(ContactosCampos);
+            this.service.Crear(ContactosCampos);
           
         }
 
-   
-
-
-        public TbCrContactosCamposPersonalizados viewToModelContacto(CamposViewModel domain,long? id)
+        public void Update(IList<CCPersonalizadosViewModel> domain, long? id)
         {
-            IList<TbCrContactosCamposPersonalizados> ContactosCampos = new List<TbCrContactosCamposPersonalizados>();
-
-            TbCrContactosCamposPersonalizados campos = new TbCrContactosCamposPersonalizados();
-            campos.IdCampoPersonalizados = domain.IdCampoPersonalizados;
-            campos.Valor = domain.Valor;
-            campos.IdContacto = id;
-      
-            return campos;
-        }
-
-        public TbCrContactosCamposPersonalizados viewToModelContactoEdit(CamposViewModel domain, long? id)
-        {
-            IList<TbCrContactosCamposPersonalizados> ContactosCampos = new List<TbCrContactosCamposPersonalizados>();
-            TbCrContactosCamposPersonalizados getById = new TbCrContactosCamposPersonalizados();
-            TbCrContactosCamposPersonalizados campos = new TbCrContactosCamposPersonalizados();
-            getById = this.pContactoCamposService.GetById(domain.IdCampoPersonalizados);
-
-            getById.Valor = domain.Valor;
-        
-            return getById;
-        }
-
-
-        public void Update(IList<CamposViewModel> domain, long? id)
-        {
-            CamposViewModel campos = new CamposViewModel();
+            CCPersonalizadosViewModel campos = new CCPersonalizadosViewModel();
             List<TbCrContactosCamposPersonalizados> ContactosCampos = new List<TbCrContactosCamposPersonalizados>();
             foreach (var item in domain)
             {
                 campos.IdCampoPersonalizados = item.IdCampoPersonalizados;
                 campos.Valor = item.Valor;
-                ContactosCampos.Add(viewToModelContactoEdit(campos, id));
+                ContactosCampos.Add(ViewModelToDomaiCP(campos, id));
             }
-            this.pContactoCamposService.Update(ContactosCampos);
-
+            this.service.Update(ContactosCampos);
         }
+
+        public TbCrContactosCamposPersonalizados ViewModelToDomaiCP(CCPersonalizadosViewModel viewModel,long? id)
+        {
+
+            return new TbCrContactosCamposPersonalizados
+            {
+                IdCampoPersonalizados = viewModel.IdCampoPersonalizados,
+                Valor = viewModel.Valor,
+                IdContacto = id,
+                Id = viewModel.Id
+            };
+        }
+
+       
+
+
+        
     }
 }

@@ -19,15 +19,12 @@ namespace AltivaWebApp.ViewModels
             IdTipoCliente = 0;
             IdTipoProveedor = 0;
         }
-        public long Id { get; set; }
+        public long IdContacto { get; set; }
         public string Nombre { get; set; }
         public string Apellidos { get; set; }
         public string NombreComercial { get; set; }
         public string NombreJuridico { get; set; }
         public string Cedula { get; set; }
-        public string juridica { get; set; }
-        public string dimex { get; set; }
-        public string nite { get; set; }
         public string TipoCedula { get; set; }
         public int Telefono { get; set; }
         public string Correo { get; set; }

@@ -43,7 +43,7 @@ namespace AltivaWebApp.Services
             return this.ICuentasBancariasRepository.Delete(domain);
         }
 
-        public TbCrContacto Edit(TbCrContacto domain)
+        public TbCrContacto Update(TbCrContacto domain)
         {
             return this.ContactoRepository.Update(domain);
         }
@@ -62,16 +62,16 @@ namespace AltivaWebApp.Services
             return ContactoRepository.GetAllProveedores();
         }
 
-        public TbCrContactoRelacion EditarRelacion(EditarRelacionContactoViewModel domain)
-        {
-            return this.IContactoRelacionRepository.Update(viewModelEditarRelacion(domain));
-        }
 
         public IList<TbCrContacto> GetAll()
         {
             return this.ContactoRepository.GetAll();
         }
 
+        public IList<TbCrContactoRelacion> GetContactoRelacion(int id)
+        {
+            return ContactoRepository.GetContactosRelacion(id);
+        }
 
         public IList<TbCrContacto> GetAllEmpresas()
         {
@@ -93,19 +93,10 @@ namespace AltivaWebApp.Services
             return this.ICuentasBancariasRepository.GetByContacto(idContacto);
         }
 
-        public ContactoViewModel GetByEdit(int id)
-        {
-            return this.ContactoRepository.GetByEdit(id);
-        }
 
         public TbCrContacto GetByEmailContacto(string correo)
         {
             return this.ContactoRepository.GetByEmailContacto(correo);
-        }
-
-        public ContactoViemModelDetalle getById(int id)
-        {
-            return this.ContactoRepository.getById(id);
         }
 
 
@@ -129,10 +120,6 @@ namespace AltivaWebApp.Services
             return this.ICondicionesDePagoRepository.GetById(idContacto);
         }
 
-        public IList<ContactoRelacionGETViewModel> GetContactosRelacion(int id)
-        {
-            return this.ContactoRepository.GetContactosRelacion(id);
-        }
 
         public TbFdCuentasBancarias GetCuentasById(int id)
         {
@@ -154,23 +141,20 @@ namespace AltivaWebApp.Services
             return this.ContactoRepository.GetTareas(idContacto);
         }
 
-        public TbCrContactoRelacion InsertarRelacion(TbCrContactoRelacion domain)
+        public TbCrContactoRelacion SaveRelacion(TbCrContactoRelacion domain)
         {
             return this.IContactoRelacionRepository.Save(domain);
+        }
+
+        public TbCrContactoRelacion UpdateRelacion(TbCrContactoRelacion domain)
+        {
+            return this.IContactoRelacionRepository.Update(domain);
         }
 
         public TbCrContacto Save(TbCrContacto domain)
         {
             return this.ContactoRepository.Save(domain) ;
         }
-
-        public TbCrContactoRelacion viewModelEditarRelacion(EditarRelacionContactoViewModel domain)
-        {
-            TbCrContactoRelacion cr = new TbCrContactoRelacion();
-            cr = this.IContactoRelacionRepository.GetById(Convert.ToInt32(domain.IdRelacion));
-
-            cr.NotaRelacion = domain.Nota;
-            return cr;
-        }
+       
     }
 }
