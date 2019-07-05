@@ -42,6 +42,17 @@ namespace AltivaWebApp.Services
 
         }
 
+        public IList<TbSePerfilModulo> GetAllPerfilModulo()
+        {
+            return repository.GetAllPerfilModulo();
+        }
+
+        public IList<TbSePerfilUsuario> GetAllPerfilUsuario()
+        {
+            return repository.GetAllPerfilUsuario();
+        }
+
+
         public TbSeEmpresaUsuario CreateEmpresaUsuarioRel(TbSeEmpresaUsuario domain)
         {
             return repository.CreateEmpresaUsuarioRel(domain);

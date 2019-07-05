@@ -114,14 +114,10 @@ namespace AltivaWebApp.Controllers
         [HttpGet("ListarCajas")]
         public IActionResult GetCajas()
         {
-
             try
             {
                 //var CotizacionProducto = new List<TbFaCotizacion>();
-                var Cajas = _Service.GetInfoCaja();
-
-           
-
+                var Cajas = _Service.GetInfoCaja();        
                 return Ok(Cajas);
 
             }
@@ -191,14 +187,10 @@ namespace AltivaWebApp.Controllers
         [HttpGet("ListarDenominaciones")]
         public IActionResult GetDenominaciones()
         {
-
             try
             {
                 //var CotizacionProducto = new List<TbFaCotizacion>();
                 var Cajas = _Service.GetInfoCaja();
-
-
-
                 return Ok(Cajas);
 
             }
@@ -207,5 +199,7 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+
+
     }
 }

@@ -14,17 +14,18 @@ namespace AltivaWebApp.Repositories
 
     {
        
-
         public UserRepository(GrupoEmpresarialContext context)
              : base(context)
         {
         }
+
         public IList<TbSeUsuario> GetAllById(int id)
         {
 
             return context.TbSeUsuario.Where(u => u.IdUsuario == id).ToList();
 
         }
+
         public bool ExisteUsuarioPorCodigo(string codigo)
         {
             return context.TbSeUsuario.Any(u => u.Codigo == codigo);
@@ -222,6 +223,32 @@ namespace AltivaWebApp.Repositories
                     }
                     ).ToList();
 
+        }
+
+        public IList<TbSePerfilModulo> GetAllPerfilModulo()
+        {
+            try
+            {
+                return context.TbSePerfilModulo.Where(u=>u.Opcion1==true).ToList();
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public IList<TbSePerfilUsuario> GetAllPerfilUsuario()
+        {
+            try
+            {
+                return context.TbSePerfilUsuario.ToList();
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         public IList<TbSeUsuario> GetAllByIdUsuario(int id)

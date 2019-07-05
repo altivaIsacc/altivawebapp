@@ -372,10 +372,25 @@ namespace AltivaWebApp.Controllers
             }
         }
 
+
         [HttpGet("GetUsuariosPorEmpresa")]
         public ActionResult GetUsuariosPorEmpresa()
         {
             return Ok(userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa")));
+        }
+
+        [HttpGet("GetAllPerfilModulo")]
+        public ActionResult GetAllPerfilModulo()
+        {
+           
+            return Ok(userService.GetAllPerfilModulo());
+        }
+
+        [HttpGet("GetAllPerfilUsuario")]
+        public ActionResult GetAllPerfilUsuario()
+        {
+            
+            return Ok(userService.GetAllPerfilUsuario());
         }
 
     }
