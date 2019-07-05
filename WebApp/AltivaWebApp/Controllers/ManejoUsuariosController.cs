@@ -372,5 +372,19 @@ namespace AltivaWebApp.Controllers
                 return RedirectToAction("ListaUsuarios");
             }
         }
+
+
+
+
+        [HttpGet("GetUsuariosPorEmpresa")]
+        public ActionResult GetUsuariosPorEmpresa()
+        {
+            return Ok(userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa")));
+        }
+
+
+
+
+
     }
 }

@@ -60,12 +60,12 @@ namespace AltivaWebApp.Controllers
             try
             {
 
-                var existeFlujoCate = service.GetFlujoCategoriaByDesc(viewModel.Codigo);
+                var existeFlujoCate = service.GetFlujoCategoriaByDesc(viewModel.Codigo);//devuelve solo el codigo
                 var categoria = new TbBaFlujoCategoria();
 
                 if (viewModel.IdCategoriaFlujo != 0)
                 {
-                    if (existeFlujoCate == null || existeFlujoCate.IdCategoriaFlujo == viewModel.IdCategoriaFlujo)
+                    if (existeFlujoCate == null || existeFlujoCate.Codigo == viewModel.Codigo)
                     {
                         categoria = map.Update(viewModel);
                     }
@@ -88,8 +88,8 @@ namespace AltivaWebApp.Controllers
 
             catch
             {
-                //throw;
-                return BadRequest();
+                throw;
+                //return BadRequest();
             }
 
         }
@@ -104,11 +104,11 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var categoria = service.GetAllFlujoCategoria();
+                var categoria = service.GetAllFlujoCategoria();//obtiene todos los ususarios
 
                 return Ok(categoria);
             }
-            catch (Exception ex)
+            catch
             {
                 return BadRequest();
             }
