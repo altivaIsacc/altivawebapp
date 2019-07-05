@@ -21,33 +21,36 @@ namespace AltivaWebApp.Controllers
     [Route("{culture}/Contactos")]
     public class ContactoController : Controller
     {
-       
-        public IContactoService contactoService;
-        public IContactoMap contactoMap;
-        public IContactoCamposMap cpMap;
-        public IEstadoTareaService IEstadoService;
-        public ITipoTareaService ITipoService;
-        public IUserService IUserService;
+
+        private readonly IContactoService contactoService;
+        private readonly IContactoMap contactoMap;
+        private readonly IContactoCamposMap ccMap;
+        private readonly IEstadoTareaService estadoTareaService;
+        private readonly ITipoTareaService tipoTareaService;
+        private readonly IUserService userService;
         private readonly IHostingEnvironment hostingEnvironment;
-        
-        public IUserRepository userMap;
-        
-        public IContactoCamposService ICCService;
-        public ContactoController(IUserService IUserService, IHostingEnvironment hostingEnvironment, ITipoTareaService ITipoService, IEstadoTareaService IEstadoService, IUserRepository IUserRepository, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IContactoCamposMap pContactoCamposMap)
+        private readonly IContactoCamposService ccService;
+        private readonly IPaisService paisService;
+        private readonly ICamposPersonalizadosService cpService;
+
+        public ContactoController(ICamposPersonalizadosService cpService, IPaisService paisService, IUserService IUserService, IHostingEnvironment hostingEnvironment, ITipoTareaService ITipoService, IEstadoTareaService IEstadoService, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IContactoCamposMap pContactoCamposMap)
         {
             this.contactoService = contactoService;
             this.contactoMap = contactoMap;
-            cpMap = pContactoCamposMap;
-            this.ICCService = ICCService;
-            userMap = IUserRepository;
-            this.IUserService = IUserService;
+            ccMap = pContactoCamposMap;
+            this.ccService = ICCService;
+            this.userService = IUserService;
             this.hostingEnvironment = hostingEnvironment;
-            this.ITipoService = ITipoService;
-            this.IEstadoService = IEstadoService;
+            this.tipoTareaService = ITipoService;
+            this.estadoTareaService = IEstadoService;
+            this.paisService = paisService;
+            this.cpService = cpService;
 
         }
 
-
+       
+        /// /////////////////////////////////////////////////listar contactos
+        
         [HttpGet("Todo")]
         public IActionResult ListarContactos()
         {
@@ -66,6 +69,83 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+
+
+
+        /// //////////////////////////////////////////////////////////////////////////crear o editar contacto
+        /// 
+
+        [HttpGet("Nuevo")]
+        public IActionResult CrearContacto()
+        {
+
+            ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+            ViewData["paises"] = paisService.GetAll();
+            var camposP = cpService.GetAll();
+            ViewData["camposP"] = camposP;
+
+            var contacto = new ContactoViewModel();
+            contacto.TipoCedula = "1";
+
+            return View("CrearEditarContacto", contacto);
+        }
+
+        [HttpGet("Editar/{id}")]
+        public IActionResult EditarContacto(int id)
+        {
+
+            ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+            ViewData["paises"] = paisService.GetAll();
+            var contacto = contactoService.GetByIdContacto(id);
+
+
+            return View("CrearEditarContacto", contacto);
+        }
+
+        [HttpPost("CrearEditarContacto")]
+        public IActionResult CrearEditarContacto(IList<CCPersonalizadosViewModel> cpViewModel, ContactoViewModel cViewModel)
+        {
+            try
+            {
+                var existeContacto = contactoService.GetByCedulaContacto(cViewModel.Cedula);
+                var nuevoContacto = new TbCrContacto();
+                if (cViewModel.IdContacto != 0)
+                {
+                    if (existeContacto != null && existeContacto.IdContacto != cViewModel.IdContacto)
+                    {
+                        return Json(new { success = false });
+                    }
+
+                    nuevoContacto = contactoMap.UpdateContacto(cViewModel);
+                    ccMap.Create(cpViewModel, cViewModel.IdContacto);
+
+                    return Json(new { success = true, accion = false, nombre = (bool)nuevoContacto.Persona ? nuevoContacto.Nombre + " " + nuevoContacto.Apellidos : nuevoContacto.NombreComercial });
+
+                }
+                else
+                {
+                    if (existeContacto != null)
+                    {
+                        return Json(new { success = false });
+                    }
+
+                    nuevoContacto = contactoMap.CreateContacto(cViewModel);
+                    ccMap.Update(cpViewModel, cViewModel.IdContacto);
+
+                    return Json(new { success = true, accion = false, id = nuevoContacto.IdContacto });
+
+
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
+
 
 
         //metodo que devuele en el edit las condiciones de pago.
@@ -184,53 +264,13 @@ namespace AltivaWebApp.Controllers
         }
         
 
-        [HttpPost("CrearEditarContacto")]
-        public IActionResult CrearEditarContacto(IList<CCPersonalizadosViewModel> cpViewModel, ContactoViewModel cViewModel)
-        {
-            try
-            {
-                var existeContacto = contactoService.GetByCedulaContacto(cViewModel.Cedula);
-                var nuevoContacto = new TbCrContacto();
-                if(cViewModel.IdContacto != 0)
-                {
-                    if(existeContacto != null && existeContacto.IdContacto != cViewModel.IdContacto)
-                    {
-                        return Json(new { success = false });
-                    }
-
-                    nuevoContacto = contactoMap.UpdateContacto(cViewModel);
-                    cpMap.Create(cpViewModel, cViewModel.IdContacto);
-
-                    return Json(new { success = true, accion = false, nombre = (bool) nuevoContacto.Persona ? nuevoContacto.Nombre + " " + nuevoContacto.Apellidos : nuevoContacto.NombreComercial });
-                   
-                }
-                else
-                {
-                    if (existeContacto != null)
-                    {
-                        return Json(new { success = false });
-                    }
-
-                    nuevoContacto = contactoMap.CreateContacto(cViewModel);
-                    cpMap.Update(cpViewModel, cViewModel.IdContacto);
-
-                    return Json(new { success = true, accion = false, id = nuevoContacto.IdContacto});
-
-
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
+        
         [HttpGet("camposEdit/{id?}")]
         public IActionResult CamposEdit(int id)
         {
 
             IList<ContactoViewModel> con = new List<ContactoViewModel>();
-            con = this.ICCService.GetCamposEdit(id);
+            con = this.ccService.GetCamposEdit(id);
             return Ok(con);
         }
         [HttpGet("GetContactosRelacion/{id?}")]

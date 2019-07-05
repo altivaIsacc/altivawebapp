@@ -8,14 +8,24 @@
 @inject IStringLocalizer<SharedResources> Lb
 
 
+
 <div class="row">
     <div class="col-md-3">
         <h3>@Lb["Contactos"]</h3>
     </div>
     <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
         <p>
-            <a asp-action="CrearContacto" class="btn btn-primary"><span>@Lb["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+            <a asp-action="CrearContacto" class="btn btn-primary"><span>@Lb["Agregar"] </span>&nbsp;<i class="fa fa-plus-circle"></i></a>
         </p>
+    </div>
+    
+    <div class="col-md-4 col-sm-4 col-xs-12 form-group pull-right top_search">
+        <div class="input-group" style="padding-top:1.2rem">
+            <input id="keyword" type="text" class="form-control" placeholder="@Lb["nombre"], @Lb["Cédula"]...">
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+            </span>
+        </div>
     </div>
 </div>
 
@@ -25,8 +35,8 @@
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12 text-center">
         <ul class="pagination pagination-split">
-            <li><button id="All" class="btn btn-sm abecedario" value="All">@Lb["Todos"]</button></li>
-            <li><button id="A" class="btn btn-sm abecedario" value="A">A</button></li>
+            <li><button id="All" class="btn btn-sm abecedario " value="All">@Lb["Todos"]</button></li>
+            <li><button id="A" class="btn btn-sm abecedario activo" value="A">A</button></li>
             <li><button id="B" class="btn btn-sm abecedario" value="B">B</button></li>
             <li><button id="C" class="btn btn-sm abecedario" value="C">C</button></li>
             <li><button id="D" class="btn btn-sm abecedario" value="D">D</button></li>
@@ -64,9 +74,12 @@
 </div>
 
 
+
+
 <script>
 
     var contactos = [];
+    var letra = "All";
 
     $(document).ready(function () {
 
@@ -85,9 +98,9 @@
                 url: '@Url.Action("GetAllContactos", "Contacto")',
                 success: function (data) {
 
-                    contactos = data;
+                    contactos = modeloToRender(data);
                     console.log(data);
-                    cargarContactos(data);
+                    cargarContactos(contactos);
                 },
                 error: function (err, scnd) {
                     cargarAlert('@Lb["errorGeneral"]');
@@ -96,34 +109,93 @@
             });
     }
 
-    function cargarFiltro(key) {
+
+    $('.abecedario').on('click', function () {
+
+        letra = this.value;
         
+       // cargarContactos(filtroLetra(this.value));
+
+        cargarFiltros(letra, $('#keyword').val());
+
+        $('.abecedario').removeAttr('style');
+        $(this).css({
+            "background-color": "#337AB7",
+            "color": "#fff",
+            "font-weight": "bold"
+        });
+
+    });
+
+    $('#keyword').on('keyup', function(){
+
+        cargarFiltros(letra, this.value);
+
+    });
+
+
+
+    function filtroLetra(array, key) {
+
+        var filtrado = [];
+        //var array = contactos;
+        if (key === "All") {
+            return array;
+        }
+        else {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].nombre.charAt(0).toUpperCase() == key)
+                    filtrado.push(array[i]);
+            }
+
+            return filtrado;
+        }
+           
+
     }
 
-    function modeloToRender(data) {
 
-        var array = [];
-        for (var i = 0; i < data.length; i++) {
-            var model = {
-                id: data[i].idContacto,
-                nombre: getNombre(data[i]),
-                cedula: data[i].cedula,
-                telefono: data[i].telefono,
-                correo: data[i].correo,
-                ruta: data[i].ruta
+    function filtroPalabra(array, _keyword) {
 
-            };
+        var keyword = _keyword.toUpperCase();
+        var filtrado = [];
+        //var array = contactos;
+        if (keyword.replace(/ /g, "") === "") {
+            return array;
+        }
+        else {
+            for (var i = 0; i < array.length; i++) {
 
-            array.push(model);
+                var keyArray = array[i].nombre.toUpperCase();
+
+                if (keyArray.indexOf(keyword) > -1)
+                    filtrado.push(array[i]);
+                else
+                    if (array[i].cedula.indexOf(keyword) > -1)
+                        filtrado.push(array[i]);
+            }
+
+            return filtrado;
         }
 
-        return array;
+    }
 
+
+    function cargarFiltros(letra, keyword) {
+
+        $('#contactosContainer').empty();
+        var filtradoFinal = [];
+
+        filtradoFinal = filtroLetra(contactos, letra);
+        filtradoFinal = filtroPalabra(filtradoFinal, keyword);
+
+
+        cargarContactos(filtradoFinal);
     }
 
     function ordenarArray(data){
 
-        return modeloToRender(data).sort(function (a, b) {
+        return data.sort(function (a, b) {
             if (a.nombre < b.nombre) { return -1; }
             if (a.nombre > b.nombre) { return 1; }
             return 0;
@@ -133,6 +205,7 @@
     function cargarContactos(data) {
 
         var array = ordenarArray(data);
+
         for (var i = 0; i < array.length; i++) {
             $('#contactosContainer').append(reenderizarCard(array[i]))
         }
@@ -161,7 +234,7 @@
             "                          <div class=\"col-xs-12 bottom text-center\">" +
             "                            <div class=\"col-xs-12 col-sm-6 emphasis\">" +
             "                              <button type=\"button\" class=\"btn btn-primary btn-xs\">" +
-            "                                <i class=\"fa fa-user\"> </i> View Profile" +
+            "                                <i class=\"fa fa-user\"> </i> @Lb["VerPerfil"]" +
             "                              </button>" +
             "                            </div>" +
             "                          </div>" +
@@ -181,7 +254,24 @@
 
     }
 
-    function getTipo() {
+    function modeloToRender(data) {
+
+        var array = [];
+        for (var i = 0; i < data.length; i++) {
+            var model = {
+                id: data[i].idContacto,
+                nombre: getNombre(data[i]),
+                cedula: data[i].cedula,
+                telefono: data[i].telefono,
+                correo: data[i].correo,
+                ruta: data[i].ruta
+
+            };
+
+            array.push(model);
+        }
+
+        return array;
 
     }
 

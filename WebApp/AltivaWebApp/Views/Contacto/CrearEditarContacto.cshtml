@@ -1,0 +1,340 @@
+﻿@model AltivaWebApp.ViewModels.ContactoViewModel
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+
+    var tipoEmpresa = "";
+    var tipoPersona = "";
+    var tipoCliente = "";
+    var tipoProveedor = "";
+
+    if (Model.Persona)
+    {
+        tipoEmpresa = "hidden";
+    }
+    else
+    {
+        tipoPersona = "hidden";
+    }
+
+    if (!Model.Cliente)
+    {
+        tipoCliente = "hidden";
+    }
+
+    if (!Model.Proveedor)
+    {
+        tipoProveedor = "hidden";
+    }
+
+}
+
+
+<div class="row">
+    @if (Model.IdContacto != 0)
+    {
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <h3> @Lb["Editar"] @Lb["Contacto"]</h3>
+        </div>
+    }
+    else
+    {
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <h3> @Lb["Nuevo"] @Lb["Contacto"]</h3>
+        </div>
+    }
+</div>
+
+
+<div class="row well">
+
+    <form id="frmContacto">
+        @Html.HiddenFor(x => x.IdContacto)
+        @Html.HiddenFor(x => x.Ruta)
+
+        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+            <label class="radio-inline" for="persona"><input type="radio" name="radioTipo" onchange="ocultarCamposNombre(1)" checked="@Model.Persona" id="persona" />@Lb["Persona"]</label>
+            <label class="radio-inline" for="empresa"><input type="radio" name="radioTipo" onchange="ocultarCamposNombre(2)" checked="@Model.Empresa" id="empresa" />@Lb["Empresa"]</label>
+        </div>
+
+        <div @tipoPersona class="form-group col-md-4 col-sm-4 col-xs-12 nombrePersona">
+            <label asp-for="Nombre" class="control-label">@Lb["Nombre"]:</label>
+            <input asp-for="Nombre" autofocus maxlength="50" class="form-control" />
+            <span hidden id="nombre" class="text-danger">@Lb["nombreValid"]</span>
+        </div>
+        <div @tipoPersona class="form-group col-md-4 col-sm-4 col-xs-12 nombrePersona">
+            <label asp-for="Apellidos" class="control-label">@Lb["Apellidos"]:</label>
+            <input asp-for="Apellidos" maxlength="75" class="form-control" />
+            <span hidden id="apellidosValid" class="text-danger">@Lb["apellidosValid"]</span>
+        </div>
+        <div @tipoEmpresa class="form-group col-md-4 col-sm-4 col-xs-12 nombreEmpresa">
+            <label asp-for="NombreComercial" class="control-label">@Lb["NombreComercial"]:</label>
+            <input asp-for="NombreComercial" maxlength="90" class="form-control" />
+            <span hidden id="nombreComercialValid" class="text-danger">@Lb["nombreValid"]</span>
+        </div>
+        <div @tipoEmpresa class="form-group col-md-4 col-sm-4 col-xs-12 nombreEmpresa">
+            <label asp-for="NombreJuridico" class="control-label">@Lb["NombreJuridico"]:</label>
+            <input asp-for="NombreJuridico" class="form-control" />
+            <span hidden id="nombreJuridicaValid" class="text-danger">@Lb["nombreValid"]</span>
+        </div>
+
+        <div class="form-group col-md-2 col-sm-4 col-xs-12">
+            <label asp-for="TipoCedula" class="control-label">@Lb["TipoCedula"]:</label>
+            <select asp-for="TipoCedula" onchange="tipoCedula(value)" class="form-control">
+                <option value="1">@Lb["Física"]</option>
+                <option value="2">@Lb["Jurídica"]</option>
+                <option value="3">@Lb["Dimex"]</option>
+                <option value="4">@Lb["NITE"]</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-2 col-sm-4 col-xs-12">
+            <label asp-for="Cedula" class="control-label">@Lb["Cédula"]:</label>
+            <input asp-for="Cedula" class="form-control" />
+            <span hidden id="cedulaValid" class="text-danger">@Lb["cedulaValid"]</span>
+        </div>
+
+        <div class="form-group col-md-4 col-sm-4 col-xs-12">
+            <label asp-for="Telefono" class="control-label">@Lb["Teléfono"]:</label>
+            <input asp-for="Telefono" type="text" class="form-control" />
+            <span hidden id="telefonoValid" class="text-danger">@Lb["telefonoValid"]</span>
+        </div>
+        <div class="form-group col-md-4 col-sm-4 col-xs-12">
+            <label asp-for="Correo" class="control-label">@Lb["Correo"]:</label>
+            <input asp-for="Correo" class="form-control" />
+            <span hidden id="correoValid" class="text-danger">@Lb["correoValid"]</span>
+        </div>
+
+
+
+
+        <div class="form-group col-md-4 col-sm-4 col-xs-12">
+            <label asp-for="IdUsuario" class="control-label">@Lb["UsuarioEncargado"]</label>
+
+            <select asp-for="IdUsuario" class="form-control">
+                @foreach (var item in ViewData["usuarios"] as IList<TbSeUsuario>)
+                {
+                    <option value="@item.Id">@item.Nombre</option>
+                }
+            </select>
+        </div>
+
+        <div class="form-group col-md-4 col-sm-4 col-xs-12">
+            <label class="input-group-text" id="inputGroup-sizing-sm">@Lb["CargarImagen"] (6MB)</label>
+            <input type="file" accept="image/*" id="fileUpload" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+            <span hidden id="tamanoArchivo" class="text-danger">@Lb["tamanoArchivo"]</span>
+            <span hidden id="tipoArchivo" class="text-danger">@Lb["tipoArchivo"]</span>
+        </div>
+
+        <div class="form-group col-md-4 col-sm-4 col-xs-12">
+            <label asp-for="WebLink" class="control-label">@Lb["PaginaWeb"]</label>
+            <input asp-for="WebLink" maxlength="150" class="form-control" />
+        </div>
+
+
+        <div class="form-group col-md-4 col-sm-4 col-xs-12">
+            <label asp-for="MapLink" class="control-label">@Lb["LinkUbicacion"]</label>
+            <input asp-for="MapLink" maxlength="500" class="form-control" />
+        </div>
+
+
+
+        <div class="form-group col-md-4 col-sm-4 col-xs-12">
+            <label asp-for="Pais" class="control-label">@Lb["País"]:</label>
+            <select asp-for="Pais" class="form-control">
+                @foreach (var item in ViewData["paises"] as IList<TbSePais>)
+                {
+                    <option value="@item.Id">@item.NombreEs</option>
+                }
+            </select>
+        </div>
+        <div class="form-group col-md-4 col-sm-4 col-xs-12">
+            <label asp-for="Provincia" class="control-label">@Lb["Provincia"]:</label>
+            <select class="form-control" asp-for="Provincia"></select>
+        </div>
+        <div class="form-group col-md-4 col-sm-4 col-xs-12">
+            <label asp-for="Canton" class="control-label">@Lb["Cantón"]:</label>
+            <select class="form-control" asp-for="Canton"></select>
+        </div>
+
+        <div class="form-group col-md-4 col-sm-4 col-xs-12">
+            <label asp-for="Distrito" class="control-label">@Lb["Distrito"]:</label>
+            <select class="form-control" asp-for="Distrito"></select>
+        </div>
+        <div class="form-group col-md-8 col-sm-8 col-xs-12">
+            <label asp-for="OtrasSenas" class="control-label">@Lb["OtrasSenas"]</label>
+            <textarea asp-for="OtrasSenas" maxlength="450" rows="4" class="form-control">@Model.OtrasSenas</textarea>
+            <span hidden id="otrasSenasValid" class="text-danger">@Lb["otrasSenasValid"]</span>
+        </div>
+
+        <div class="form-group col-md-12 col-sm-12 col-xs-6">
+            <label asp-for="Cliente" class="control-label">@Lb["Cliente"]</label>
+            <input type="checkbox" onchange="mostrarTipoCliente()" asp-for="Cliente" />
+        </div>
+
+        <div @tipoCliente class="form-group col-md-4 col-sm-3 col-xs-12 tipoCliente">
+            <label asp-for="IdTipoCliente" class="control-label">@Lb["TipoCliente"]</label>
+            <select asp-for="IdTipoCliente" class="form-control"></select>
+        </div>
+
+        <div @tipoCliente class="form-group col-md-4 col-sm-3 col-xs-12 tipoCliente">
+            <label asp-for="IdFamiliaCliente" class="control-label">@Lb["FamiliaCliente"]</label>
+            <select asp-for="IdFamiliaCliente" class="form-control"></select>
+        </div>
+        <div @tipoCliente class="form-group col-md-4 col-sm-3 col-xs-12 tipoCliente">
+            <label asp-for="IdSubFamiliaCliente" class="control-label">@Lb["SubFamiliaCliente"]</label>
+            <select asp-for="IdSubFamiliaCliente" class="form-control"></select>
+        </div>
+
+
+
+        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+            <label asp-for="Proveedor" class="control-label">@Lb["Proveedor"]</label>
+            <input type="checkbox" onchange="mostrarTipoProveedor()" asp-for="Proveedor" />
+        </div>
+
+        <div @tipoProveedor class="form-group col-md-4 col-sm-4 col-xs-12 tipoProveedor">
+            <label asp-for="IdTipoProveedor" class="control-label">@Lb["TipoProveedor"]</label>
+            <select asp-for="IdTipoProveedor" class="form-control"></select>
+        </div>
+        <div @tipoProveedor class="form-group col-md-4 col-sm-4 col-xs-12 tipoProveedor">
+            <label asp-for="IdFamiliaProveedor" class="control-label">@Lb["FamiliaProveedor"]</label>
+            <select asp-for="IdFamiliaProveedor" class="form-control"></select>
+        </div>
+        <div @tipoProveedor class="form-group col-md-4 col-sm-4 col-xs-12 tipoProveedor">
+            <label asp-for="IdSubFamiliaProveedor" class="control-label">@Lb["SubFamiliaProveedor"]</label>
+            <select asp-for="IdSubFamiliaProveedor" class="form-control"></select>
+        </div>
+
+    </form>
+
+    <hr />
+
+    <div class="form-group col-md-12 col-sm-12 col-xs-12">
+        <h4>@Lb["CamposPersonalizados"]</h4>
+    </div>
+    @foreach (var item in ViewData["camposP"] as IList<TbCrCamposPersonalizados>)
+    {
+        if (item.Tipo != "lista")
+        {
+            @if (item.Tipo == "checkbox")
+            {
+                <div class="form-group col-md-2 col-sm-3 col-xs-12" style="padding-top:3rem; text-align:center">
+                    <label for="@item.Id"> @item.Nombre <input id="@item.Id" type="@item.Tipo" /></label>
+                    
+                </div>
+
+            }
+            else
+            {
+                <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                    <label for="@item.Id">@item.Nombre:</label>
+                    <input id="@item.Id" class="form-control" type="@item.Tipo" />
+                </div>
+            }
+
+        }
+        else
+        {
+            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                <label for="@item.Id">@item.Nombre:</label>
+                <select id="@item.Id" type="@item.Tipo" class="form-control">
+                    @foreach (var opt in item.TbCrListaDesplegables)
+                    {
+                        <option value="@opt.Id">@opt.Valor</option>
+                    }
+                </select>
+            </div>
+        }
+    }
+
+</div>
+
+<div class="row">
+    <div class="form-group col-md-3">
+        <button class="btn btn-success btnAccion" onclick="guardarCambios()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
+        <a onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
+    </div>
+</div>
+
+<script>
+
+    var $cedula = $('#Cedula');
+
+    $(document).ready(function () {
+
+        $('.cedFisica').mask('0-0000-0000');
+        $('.cedJuridica').mask('0-000-000000');
+        $('.cedDimex').mask('000000000000');
+        $('.cedNite').mask('000000000000');
+
+        tipoCedula("@Model.TipoCedula");
+
+
+    });
+
+    function tipoCedula(key) {
+
+        $cedula.removeClass("cedFisica cedJuridica cedDimex cedNite");
+
+        switch (key) {
+
+            case "1":
+                $cedula.addClass("cedFisica");
+                $cedula.prop('placeholder', "0-0000-0000");
+                break;
+            case "2":
+                $cedula.addClass("cedJuridica");
+                $cedula.prop('placeholder', "0-000-000000");
+                break;
+            case "3":
+                $cedula.addClass("cedDimex");
+                $cedula.prop('placeholder', "000000000000");
+                break;
+            case "4":
+                $cedula.addClass("cedNite");
+                $cedula.prop('placeholder', "000000000000");
+                break;
+        }
+    }
+
+    function ocultarCamposNombre(value) {
+        if (value === 1) {
+            $('.nombrePersona').prop("hidden", false);
+            $('.nombreEmpresa').prop("hidden", true);
+        }
+        else {
+            $('.nombrePersona').prop("hidden", true);
+            $('.nombreEmpresa').prop("hidden", false);
+        }
+
+    }
+
+    function mostrarTipoProveedor() {
+
+        if ($('#Proveedor').prop('checked'))
+            $('.tipoProveedor').prop('hidden', false);
+        else
+            $('.tipoProveedor').prop('hidden', true);
+    }
+    function mostrarTipoCliente() {
+        if ($('#Cliente').prop('checked'))
+            $('.tipoCliente').prop('hidden', false);
+        else
+            $('.tipoCliente').prop('hidden', true);
+    }
+
+    function cancelar() {
+        bootbox.confirm("@Lb["confirmCancelar"]", function (result) {
+            if (result)
+                window.location.href = "@Url.Action("ListarContactos")";
+
+        });
+    }
+</script>
