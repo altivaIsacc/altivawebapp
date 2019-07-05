@@ -15,6 +15,8 @@ namespace AltivaWebApp.ViewModels
         public IList<CajaAperturaDenominacionViewModel> TbFaCajaAperturaDenominacion { get; set; }
         public IList<CajaArqueoDenominacionViewModel> TbFaCajaArqueoDenominacion { get; set; }
         public IList<CajaArqueoViewModel> TbFaCajaArqueo { get; set; }
+        public IList<CajaCierreViewModel> TbFaCajaCierre { get; set; }
+
 
     }
 }

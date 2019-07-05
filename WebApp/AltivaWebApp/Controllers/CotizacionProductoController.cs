@@ -138,13 +138,18 @@ namespace AltivaWebApp.Controllers
                 }
                 else
                 {
-                   
+                    if (viewModel.CotizacionDetalle.Count() > 0)
+                    {
                         viewModel.IdUsuarioCreador = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                         var compra = _Map.Create(viewModel);
 
 
                         return Json(new { success = true, idCotizacion = compra.IdCotizacion });
-
+                    }
+                    else
+                    {
+                        return BadRequest();
+                    }
                 }
 
             }

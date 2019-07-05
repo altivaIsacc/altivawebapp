@@ -73,6 +73,11 @@ namespace AltivaWebApp.Controllers
                         {
                             var Arqueo = _Map.UpdateArqueo(viewModel); //Arqueo
                         }
+
+                        if (viewModel.TbFaCajaCierre != null)
+                        {
+                            var Cierre = _Map.UpdateCierre(viewModel);
+                        }
                         // idCD = cd.IdDenominacion;
 
                     }
@@ -162,6 +167,20 @@ namespace AltivaWebApp.Controllers
             {
                 var detalles = _Service.GetAllCajaArqueoByIdCaja(id);
                 return Ok(_Service.GetAllCajaArqueoByIdCaja(id));
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("Get-CajaCierre/{id}")]
+        public ActionResult GetCajaCierre(int id)
+        {
+            try
+            {
+                var detalles = _Service.GetAllCajaCierreByIdCaja(id);
+                return Ok(_Service.GetAllCajaCierreByIdCaja(id));
             }
             catch
             {

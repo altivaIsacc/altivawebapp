@@ -40,6 +40,11 @@ namespace AltivaWebApp.Mappers
             return _Service.UpdateCajaArqueo(ViewModelToDomainArqueo(viewModel));
         }
 
+        public bool UpdateCierre(CajaViewModel viewModel)
+        {
+            return _Service.UpdateCajaCierre(ViewModelToDomainCierre(viewModel));
+        }
+
         public bool UpdateAr(CajaViewModel viewModel)
         {
             return _Service.UpdateCajaArqueoDenominacion(ViewModelToDomainAr(viewModel));
@@ -142,6 +147,17 @@ namespace AltivaWebApp.Mappers
             return domain;
         }
 
+        public IList<TbFaCajaCierre> ViewModelToDomainCierre(CajaViewModel viewModel)
+        {
+            var domain = new List<TbFaCajaCierre>();
+            foreach (var item in viewModel.TbFaCajaCierre)
+            {
+                domain.Add(ViewModelToDomainSingleCierre(item, viewModel));
+            }
+
+            return domain;
+        }
+
         public IList<TbFaCajaArqueoDenominacion> ViewModelToDomainAr(CajaViewModel viewModel)
         {
             var domain = new List<TbFaCajaArqueoDenominacion>();
@@ -190,16 +206,58 @@ namespace AltivaWebApp.Mappers
 
         public TbFaCajaArqueo ViewModelToDomainSingleArqueo(CajaArqueoViewModel viewModel, CajaViewModel compra)
         {
+            DateTime fechaCreacion = new DateTime();
+            if (viewModel.FechaCreacion != null)
+            {
+                fechaCreacion = Convert.ToDateTime(viewModel.FechaCreacion);
+
+            }
+            else
+            {
+                fechaCreacion = DateTime.Now;
+            }
             var domain = new TbFaCajaArqueo
             {
                 IdCajaArqueo = viewModel.IdCajaArqueo,
                 IdCaja = viewModel.IdCaja,
-                FechaCreacion = Convert.ToDateTime(viewModel.FechaCreacion),
+                FechaCreacion = fechaCreacion,
                 IdUsuario = viewModel.IdUsuario,
                 IdMoneda = viewModel.IdMoneda,
                 EfectivoReal = viewModel.EfectivoReal,
                 TarjetaReal = viewModel.TarjetaReal,
                 BancoReal = viewModel.BancoReal,
+            };
+
+            return domain;
+        }
+
+        public TbFaCajaCierre ViewModelToDomainSingleCierre(CajaCierreViewModel viewModel, CajaViewModel compra)
+        {
+            DateTime fechaCreacion = new DateTime();
+            if (viewModel.FechaCreacion!=null)
+            {
+                fechaCreacion =Convert.ToDateTime( viewModel.FechaCreacion);
+
+            }
+            else
+            {
+                fechaCreacion = DateTime.Now;
+            }
+            var domain = new TbFaCajaCierre
+            {
+                IdCajaCierre = viewModel.IdCajaCierre,
+                IdCaja = viewModel.IdCaja,
+                FechaCreacion = fechaCreacion,
+                IdUsuario = viewModel.IdUsuario,
+                IdMoneda = viewModel.IdMoneda,
+                Efectivo=viewModel.Efectivo,
+                EfectivoReal = viewModel.EfectivoReal,
+                Tarjeta=viewModel.Tarjeta,
+                TarjetaReal = viewModel.TarjetaReal,
+                Bancos=viewModel.Bancos,
+                BancoReal = viewModel.BancoReal,
+                Entradas=viewModel.Entradas,
+                Salidas=viewModel.Salidas,
             };
 
             return domain;

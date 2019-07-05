@@ -15,6 +15,7 @@ namespace AltivaWebApp.Mappers
         bool UpdateCD(CajaViewModel viewModel);
         bool UpdateAr(CajaViewModel viewModel);
         bool UpdateArqueo(CajaViewModel viewModel);
+        bool UpdateCierre(CajaViewModel viewModel);
 
     }
 }
