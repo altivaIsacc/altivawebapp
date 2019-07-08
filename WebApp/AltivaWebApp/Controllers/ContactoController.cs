@@ -81,8 +81,8 @@ namespace AltivaWebApp.Controllers
 
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["paises"] = paisService.GetAll();
-            var camposP = cpService.GetAll();
-            ViewData["camposP"] = camposP;
+            //var camposP = cpService.GetAll(7);
+            //ViewData["camposP"] = camposP;
 
             var contacto = new ContactoViewModel();
             contacto.TipoCedula = "1";
@@ -145,7 +145,20 @@ namespace AltivaWebApp.Controllers
         }
 
 
-
+        [HttpGet("CamposPersonalizados/{idContacto?}")]
+        public IActionResult GetCamposPersonalizados(int idContacto)
+        {
+            try
+            {
+                var campos = cpService.GetAll(idContacto);
+                return Json(campos);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
 
 
         //metodo que devuele en el edit las condiciones de pago.

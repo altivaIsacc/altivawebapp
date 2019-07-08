@@ -40,7 +40,7 @@ namespace AltivaWebApp.Controllers
         public ActionResult Index()
         {
             IList<TbCrCamposPersonalizados> campos = new List<TbCrCamposPersonalizados>();
-            campos = this.pCamposPersonalizados.GetAll();
+            campos = this.pCamposPersonalizados.GetAll(0);
             return View(campos);
             // return View(campos);
         }

@@ -115,7 +115,7 @@
 
 
         <div class="form-group col-md-4 col-sm-4 col-xs-12">
-            <label asp-for="IdUsuario" class="control-label">@Lb["UsuarioEncargado"]</label>
+            <label asp-for="IdUsuario" class="control-label">@Lb["UsuarioEncargado"]:</label>
 
             <select asp-for="IdUsuario" class="form-control">
                 @foreach (var item in ViewData["usuarios"] as IList<TbSeUsuario>)
@@ -133,13 +133,13 @@
         </div>
 
         <div class="form-group col-md-4 col-sm-4 col-xs-12">
-            <label asp-for="WebLink" class="control-label">@Lb["PaginaWeb"]</label>
+            <label asp-for="WebLink" class="control-label">@Lb["PaginaWeb"]:</label>
             <input asp-for="WebLink" maxlength="150" class="form-control" />
         </div>
 
 
         <div class="form-group col-md-4 col-sm-4 col-xs-12">
-            <label asp-for="MapLink" class="control-label">@Lb["LinkUbicacion"]</label>
+            <label asp-for="MapLink" class="control-label">@Lb["LinkUbicacion"]:</label>
             <input asp-for="MapLink" maxlength="500" class="form-control" />
         </div>
 
@@ -147,7 +147,7 @@
 
         <div class="form-group col-md-4 col-sm-4 col-xs-12">
             <label asp-for="Pais" class="control-label">@Lb["País"]:</label>
-            <select asp-for="Pais" class="form-control">
+            <select onchange="getProvincias()" asp-for="Pais" class="form-control">
                 @foreach (var item in ViewData["paises"] as IList<TbSePais>)
                 {
                     <option value="@item.Id">@item.NombreEs</option>
@@ -156,11 +156,11 @@
         </div>
         <div class="form-group col-md-4 col-sm-4 col-xs-12">
             <label asp-for="Provincia" class="control-label">@Lb["Provincia"]:</label>
-            <select class="form-control" asp-for="Provincia"></select>
+            <select onchange="getCantones(value)" class="form-control" asp-for="Provincia"></select>
         </div>
         <div class="form-group col-md-4 col-sm-4 col-xs-12">
             <label asp-for="Canton" class="control-label">@Lb["Cantón"]:</label>
-            <select class="form-control" asp-for="Canton"></select>
+            <select onchange="getDistritos(value)" class="form-control" asp-for="Canton"></select>
         </div>
 
         <div class="form-group col-md-4 col-sm-4 col-xs-12">
@@ -168,7 +168,7 @@
             <select class="form-control" asp-for="Distrito"></select>
         </div>
         <div class="form-group col-md-8 col-sm-8 col-xs-12">
-            <label asp-for="OtrasSenas" class="control-label">@Lb["OtrasSenas"]</label>
+            <label asp-for="OtrasSenas" class="control-label">@Lb["OtrasSenas"]:</label>
             <textarea asp-for="OtrasSenas" maxlength="450" rows="4" class="form-control">@Model.OtrasSenas</textarea>
             <span hidden id="otrasSenasValid" class="text-danger">@Lb["otrasSenasValid"]</span>
         </div>
@@ -179,16 +179,16 @@
         </div>
 
         <div @tipoCliente class="form-group col-md-4 col-sm-3 col-xs-12 tipoCliente">
-            <label asp-for="IdTipoCliente" class="control-label">@Lb["TipoCliente"]</label>
+            <label asp-for="IdTipoCliente" class="control-label">@Lb["TipoCliente"]:</label>
             <select asp-for="IdTipoCliente" class="form-control"></select>
         </div>
 
         <div @tipoCliente class="form-group col-md-4 col-sm-3 col-xs-12 tipoCliente">
-            <label asp-for="IdFamiliaCliente" class="control-label">@Lb["FamiliaCliente"]</label>
+            <label asp-for="IdFamiliaCliente" class="control-label">@Lb["FamiliaCliente"]:</label>
             <select asp-for="IdFamiliaCliente" class="form-control"></select>
         </div>
         <div @tipoCliente class="form-group col-md-4 col-sm-3 col-xs-12 tipoCliente">
-            <label asp-for="IdSubFamiliaCliente" class="control-label">@Lb["SubFamiliaCliente"]</label>
+            <label asp-for="IdSubFamiliaCliente" class="control-label">@Lb["SubFamiliaCliente"]:</label>
             <select asp-for="IdSubFamiliaCliente" class="form-control"></select>
         </div>
 
@@ -200,15 +200,15 @@
         </div>
 
         <div @tipoProveedor class="form-group col-md-4 col-sm-4 col-xs-12 tipoProveedor">
-            <label asp-for="IdTipoProveedor" class="control-label">@Lb["TipoProveedor"]</label>
+            <label asp-for="IdTipoProveedor" class="control-label">@Lb["TipoProveedor"]:</label>
             <select asp-for="IdTipoProveedor" class="form-control"></select>
         </div>
         <div @tipoProveedor class="form-group col-md-4 col-sm-4 col-xs-12 tipoProveedor">
-            <label asp-for="IdFamiliaProveedor" class="control-label">@Lb["FamiliaProveedor"]</label>
+            <label asp-for="IdFamiliaProveedor" class="control-label">@Lb["FamiliaProveedor"]:</label>
             <select asp-for="IdFamiliaProveedor" class="form-control"></select>
         </div>
         <div @tipoProveedor class="form-group col-md-4 col-sm-4 col-xs-12 tipoProveedor">
-            <label asp-for="IdSubFamiliaProveedor" class="control-label">@Lb["SubFamiliaProveedor"]</label>
+            <label asp-for="IdSubFamiliaProveedor" class="control-label">@Lb["SubFamiliaProveedor"]:</label>
             <select asp-for="IdSubFamiliaProveedor" class="form-control"></select>
         </div>
 
@@ -217,42 +217,19 @@
     <hr />
 
     <div class="form-group col-md-12 col-sm-12 col-xs-12">
-        <h4>@Lb["CamposPersonalizados"]</h4>
+        <div class="col-md-3 col-sm-3 col-xs-8">
+            <h4>@Lb["CamposPersonalizados"]</h4>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-4">
+            <a class="btn btn-link" data-toggle="collapse" data-target="#collapseFrmCP" aria-expanded="false" aria-controls="collapseFrmCP"><span id="optFrmCP">@Lb["VerMas"]...</span></a>
+        </div>
     </div>
-    @foreach (var item in ViewData["camposP"] as IList<TbCrCamposPersonalizados>)
-    {
-        if (item.Tipo != "lista")
-        {
-            @if (item.Tipo == "checkbox")
-            {
-                <div class="form-group col-md-2 col-sm-3 col-xs-12" style="padding-top:3rem; text-align:center">
-                    <label for="@item.Id"> @item.Nombre <input id="@item.Id" type="@item.Tipo" /></label>
-                    
-                </div>
 
-            }
-            else
-            {
-                <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                    <label for="@item.Id">@item.Nombre:</label>
-                    <input id="@item.Id" class="form-control" type="@item.Tipo" />
-                </div>
-            }
-
-        }
-        else
-        {
-            <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                <label for="@item.Id">@item.Nombre:</label>
-                <select id="@item.Id" type="@item.Tipo" class="form-control">
-                    @foreach (var opt in item.TbCrListaDesplegables)
-                    {
-                        <option value="@opt.Id">@opt.Valor</option>
-                    }
-                </select>
-            </div>
-        }
-    }
+    <div class="collapse" id="collapseFrmCP">
+        <div class="card card-body ">
+            <form id="frmCP" ></form>
+        </div>
+    </div>
 
 </div>
 
@@ -264,7 +241,9 @@
 </div>
 
 <script>
-
+    var camposPersonalizados = [];
+    var ccPersonalizados = [];
+    var paises = [];
     var $cedula = $('#Cedula');
 
     $(document).ready(function () {
@@ -276,8 +255,230 @@
 
         tipoCedula("@Model.TipoCedula");
 
+        getCamposPersonalizados();
+
+        getProvincias();
+
 
     });
+
+
+    //////////////////////////////////////helpers/////////////////////////////
+
+    function guardarCambios() {
+
+        var frmContacto = $('#frmContacto').serializeArray();
+       
+        console.log(frmContacto);
+        console.log(ccPersonalizados);
+    }
+
+    function editarCCPersonalizado(value, key) {
+
+        ccPersonalizados[key].valor = value;
+
+    }
+
+
+
+    /////////////////////////////////////////////////ajax////////////////////////////////
+    function getCamposPersonalizados() {
+
+         $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetCamposPersonalizados", "Contacto")',
+            data: {idContacto: @Model.IdContacto},
+            success: function (data) {
+
+                camposPersonalizados = data;
+
+                for (var i = 0; i < data.length; i++) {
+                    var idCampoContacto = 0;
+                    var valor = '';
+                    if (data[i].tbCrContactosCamposPersonalizados.length != 0) {
+                        idCampoContacto = data[i].tbCrContactosCamposPersonalizados[0].id;
+                        valor = data[i].tbCrContactosCamposPersonalizados[0].valor;
+                    }
+                    var model = {
+                        id: idCampoContacto,
+                        idContacto: @Model.IdContacto,
+                        idCampoPersonalizados: data[i].id,
+                        valor: valor
+                    };
+
+                    ccPersonalizados.push(model);
+
+                }
+
+                cargarCamposPersonalizados(camposPersonalizados);
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+         });
+    }
+
+    function getTipoClientes() {
+
+         $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetCamposPersonalizados", "Contacto")',
+            data: {id: @Model.IdContacto},
+            success: function (data) {
+
+                 camposPersonalizados = data;
+                 cargarCamposPersonalizados(camposPersonalizados);
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+         });
+    }
+
+
+
+
+    /////////////////////////////////////////////////////////////////manejo del dom//////////////////////////////////////////////
+
+   
+    function getProvincias() {
+        if ($("#Pais option:selected").text() === "Costa Rica") {
+            
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Provincias", "Contacto")',
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        $("#Provincia").append('<option class="provin" value=' + data[i].idProvincia + '>' + data[i].descProvincia+' </option>');
+                    }
+                    $("#Provincia").prop("disabled", false);
+                    $("#Provincia").trigger("change");
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+
+        } else {
+            $("#Provincia").prop("disabled", true);
+            $("#Canton").prop("disabled", true);
+            $("#Distrito").prop("disabled", true);
+            $("#Provincia").find('option').remove();
+            $("#Canton").find('option').remove();
+            $("#Distrito").find('option').remove();
+        }      
+    }
+
+    function getCantones(idProvincia) {
+        $("#Canton").find('option').remove();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Cantones", "Contacto")',
+            data: { idProvincia: idProvincia },
+            success: function (data) {
+
+                for (var i = 0; i < data.length; i++) {
+                    $("#Canton").append('<option class="canton" value=' + data[i].idCanton + '>' + data[i].descCanton+' </option>');
+                }
+                $("#Canton").prop("disabled", false);
+                $("#Canton").trigger("change");
+            },
+
+            error: function (err, scnd) {
+                console.log(err.statusText);
+                }
+
+        });
+    }
+
+    function getDistritos(value) {
+        $("#Distrito").find('option').remove();
+        $.ajax({
+                    
+            type: "POST",
+            url: '@Url.Action("Distritos", "Contacto")',
+            data: { idDistrito: value, idProvincia: $('#Provincia').val()},
+            success: function (data) {
+
+
+                for (var i = 0; i < data.length; i++) {
+                    $("#Distrito").append('<option class="distrito" value=' + data[i].idDistrito + '>' + data[i].descDistrito+' </option>');
+                }
+
+                $("#Distrito").prop("disabled", false);
+                
+            },
+
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+    }
+
+    function cargarCamposPersonalizados(data) {
+
+        var contador = 0;
+        var input = '';
+        for (var i = 0; i < data.length; i++) {
+
+            var value = '';
+            if (data[i].tbCrContactosCamposPersonalizados.length != 0) {
+                value = data[i].tbCrContactosCamposPersonalizados[0].valor;
+            }
+
+            if (data[i].tipo != "lista") {
+
+                if (data[i].tipo === "checkbox") {
+                    input = '<div class="form-group col-md-2 col-sm-3 col-xs-12" >'
+                        + '<label for="' + data[i].id + '"> ' + data[i].nombre + ' <input onchange="editarCCPersonalizado(value, ' + contador + ')" id="' + data[i].id + '" type="' + data[i].tipo + '" checked="' + value + '" /></label>'
+                        + '</div > ';
+                }
+                else {
+                    input = '<div class="form-group col-md-4 col-sm-4 col-xs-12">'
+                        + '<label for="' + data[i].id + '">' + data[i].nombre + ':</label>'
+                        + '<input onchange="editarCCPersonalizado(value, ' + contador + ')" id="' + data[i].id + '" class="form-control" value="' + value + '" type="' + data[i].tipo + '" />'
+                        + '</div>';
+                }
+            }
+            else {
+                var valoresLista = '';
+                for (var k = 0; k < data[i].tbCrListaDesplegables.length; k++) {
+
+                    var selected = '';
+                    if (data[i].tbCrListaDesplegables[k].id.toString() === value) {
+                        selected = 'selected';
+                    }
+
+                    valoresLista += '<option ' + selected + ' value="' + data[i].tbCrListaDesplegables[k].id + '" >' + data[i].tbCrListaDesplegables[k].valor + '</option>';
+                }
+
+                input = '<div class="form-group col-md-4 col-sm-4 col-xs-12">'
+                    + '<label for="' + data[i].id + '">' + data[i].nombre + ':</label>'
+                    + '<select onchange="editarCCPersonalizado(value, ' + contador + ')" id="' + data[i].id + '" class="form-control">'
+                    + valoresLista
+                    + '</select></div>';
+            }
+
+            contador++;
+            $('#frmCP').append(input);
+
+        }
+
+
+    }
+    
 
     function tipoCedula(key) {
 
