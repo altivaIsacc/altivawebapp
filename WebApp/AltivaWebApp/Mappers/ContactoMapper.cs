@@ -75,6 +75,44 @@ namespace AltivaWebApp.Mappers
             };
         }
 
+        public ContactoViewModel DomainToViewModelC(TbCrContacto domain)
+        {
+
+
+            return new ContactoViewModel
+            {
+                Nombre = domain.Nombre,
+                Apellidos = domain.Apellidos,
+                TipoCedula = domain.TipoCedula,
+                Cedula = domain.Cedula,
+                NombreComercial = domain.NombreComercial,
+                NombreJuridico = domain.NombreJuridico,
+                Telefono = domain.Telefono,
+                Correo = domain.Correo,
+                Pais = domain.Pais,
+                Provincia = domain.Provincia,
+                Cliente = (bool) domain.Cliente,
+                Proveedor = (bool)domain.Proveedor,
+                Canton = domain.Canton,
+                Distrito = domain.Distrito,
+                OtrasSenas = domain.OtrasSenas,
+                Persona = (bool) domain.Persona,
+                Empresa = (bool)domain.Empresa,
+                IdUsuario = domain.IdUsuario,
+                WebLink = domain.WebLink,
+                MapLink = domain.MapLink,
+                IdTipoCliente = (int) domain.IdTipoCliente,
+                IdFamiliaCliente = (int)domain.IdFamiliaCliente,
+                IdSubFamiliaCliente = (int)domain.IdSubFamiliaCliente,
+                IdTipoProveedor = (int)domain.IdTipoProveedor,
+                IdFamiliaProveedor = (int)domain.IdFamiliaProveedor,
+                IdSubFamiliaProveedor = (int) domain.IdSubFamiliaProveedor,
+                Ruta = domain.Ruta,
+                IdContacto = domain.IdContacto,
+            };
+
+        }
+
         public TbCrContacto ViewModelToDomainC(ContactoViewModel viewModel)
         {
 

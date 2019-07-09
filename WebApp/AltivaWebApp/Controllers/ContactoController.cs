@@ -51,9 +51,12 @@ namespace AltivaWebApp.Controllers
        
         /// /////////////////////////////////////////////////listar contactos
         
-        [HttpGet("Todo")]
-        public IActionResult ListarContactos()
+        [HttpGet("Todo/{nombreContacto?}")]
+        public IActionResult ListarContactos(string nombreContacto)
         {
+            ViewBag.nombre = "";
+            if (nombreContacto != null)
+                ViewBag.nombre = nombreContacto;
             return View();
         }
 
@@ -81,8 +84,6 @@ namespace AltivaWebApp.Controllers
 
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["paises"] = paisService.GetAll();
-            //var camposP = cpService.GetAll(7);
-            //ViewData["camposP"] = camposP;
 
             var contacto = new ContactoViewModel();
             contacto.TipoCedula = "1";
@@ -96,7 +97,7 @@ namespace AltivaWebApp.Controllers
 
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["paises"] = paisService.GetAll();
-            var contacto = contactoService.GetByIdContacto(id);
+            var contacto = contactoMap.DomainToViewModelC(contactoService.GetByIdContacto(id));
 
 
             return View("CrearEditarContacto", contacto);
@@ -108,7 +109,7 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var existeContacto = contactoService.GetByCedulaContacto(cViewModel.Cedula);
-                var nuevoContacto = new TbCrContacto();
+                var contacto = new TbCrContacto();
                 if (cViewModel.IdContacto != 0)
                 {
                     if (existeContacto != null && existeContacto.IdContacto != cViewModel.IdContacto)
@@ -116,10 +117,25 @@ namespace AltivaWebApp.Controllers
                         return Json(new { success = false });
                     }
 
-                    nuevoContacto = contactoMap.UpdateContacto(cViewModel);
-                    ccMap.Create(cpViewModel, cViewModel.IdContacto);
+                    contacto = contactoMap.UpdateContacto(cViewModel);
+                    var listaCCPCrear = new List<CCPersonalizadosViewModel>();
+                    var listaCCPAct = new List<CCPersonalizadosViewModel>();
 
-                    return Json(new { success = true, accion = false, nombre = (bool)nuevoContacto.Persona ? nuevoContacto.Nombre + " " + nuevoContacto.Apellidos : nuevoContacto.NombreComercial });
+                    foreach (var item in cpViewModel)
+                    {
+                        if (item.Id != 0)
+                            listaCCPAct.Add(item);
+                        else
+                            listaCCPCrear.Add(item);
+                    }
+
+                    if (listaCCPCrear.Count() != 0)
+                        ccMap.Create(listaCCPCrear, (int) cViewModel.IdContacto);
+                    else
+                        ccMap.Update(listaCCPAct, (int) cViewModel.IdContacto);
+
+
+                    return Json(new { success = true, accion = true, id= contacto.IdContacto, nombre = contacto.Cedula });
 
                 }
                 else
@@ -129,10 +145,10 @@ namespace AltivaWebApp.Controllers
                         return Json(new { success = false });
                     }
 
-                    nuevoContacto = contactoMap.CreateContacto(cViewModel);
-                    ccMap.Update(cpViewModel, cViewModel.IdContacto);
+                    contacto = contactoMap.CreateContacto(cViewModel);
+                    ccMap.Create(cpViewModel,(int) contacto.IdContacto);
 
-                    return Json(new { success = true, accion = false, id = nuevoContacto.IdContacto });
+                    return Json(new { success = true, accion = false, id = contacto.IdContacto });
 
 
                 }
@@ -143,6 +159,27 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
         }
+
+        [HttpPost("GuardarImagen/{idContacto}")]
+        public IActionResult GuardarImagen(int idContacto, IFormFile foto)
+        {
+            try
+            {
+                var contacto = contactoService.GetByIdContacto(idContacto);
+                var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "uploads");
+                contacto.Ruta = FotosService.SubirFotoContacto(foto, savePath);
+
+                contactoService.Update(contacto);
+
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
 
 
         [HttpGet("CamposPersonalizados/{idContacto?}")]

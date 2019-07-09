@@ -17,35 +17,36 @@ namespace AltivaWebApp.Mappers
             this.service = pContactoCamposService;
         }
 
-        public void Create(IList<CCPersonalizadosViewModel> domain,long? id)
+        public void Create(IList<CCPersonalizadosViewModel> domain,int id)
         {
-            CCPersonalizadosViewModel campos = new CCPersonalizadosViewModel();
-            List<TbCrContactosCamposPersonalizados> ContactosCampos = new List<TbCrContactosCamposPersonalizados>();
-
-            foreach (var item in domain)
-            {
-                campos.IdCampoPersonalizados = item.IdCampoPersonalizados;
-                campos.Valor = item.Valor;
-                ContactosCampos.Add(ViewModelToDomaiCP(campos,id));
-            }
-            this.service.Crear(ContactosCampos);
-          
+            this.service.Crear(ViewModelToDomainList(domain, id));
         }
 
-        public void Update(IList<CCPersonalizadosViewModel> domain, long? id)
+        public void Update(IList<CCPersonalizadosViewModel> domain, int id)
         {
-            CCPersonalizadosViewModel campos = new CCPersonalizadosViewModel();
-            List<TbCrContactosCamposPersonalizados> ContactosCampos = new List<TbCrContactosCamposPersonalizados>();
+            this.service.Update(ViewModelToDomainList(domain, id));
+        }
+
+        public IList<TbCrContactosCamposPersonalizados> ViewModelToDomainList(IList<CCPersonalizadosViewModel> domain , int id)
+        {
+            var ContactosCampos = new List<TbCrContactosCamposPersonalizados>();
             foreach (var item in domain)
             {
-                campos.IdCampoPersonalizados = item.IdCampoPersonalizados;
-                campos.Valor = item.Valor;
+                CCPersonalizadosViewModel campos = new CCPersonalizadosViewModel
+                {
+                    IdCampoPersonalizados = item.IdCampoPersonalizados,
+                    Valor = item.Valor,
+                    Id = item.Id,
+                    IdContacto = item.IdContacto
+                };
+
                 ContactosCampos.Add(ViewModelToDomaiCP(campos, id));
             }
-            this.service.Update(ContactosCampos);
+
+            return ContactosCampos;
         }
 
-        public TbCrContactosCamposPersonalizados ViewModelToDomaiCP(CCPersonalizadosViewModel viewModel,long? id)
+        public TbCrContactosCamposPersonalizados ViewModelToDomaiCP(CCPersonalizadosViewModel viewModel, int id)
         {
 
             return new TbCrContactosCamposPersonalizados

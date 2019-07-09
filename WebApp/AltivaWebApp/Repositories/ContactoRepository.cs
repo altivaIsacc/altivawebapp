@@ -50,7 +50,7 @@ namespace AltivaWebApp.Repositories
         {
             TbCrContacto con = new TbCrContacto();
 
-            con = context.TbCrContacto.Where(cont => cont.Cedula == cedula).FirstOrDefault();
+            con = context.TbCrContacto.AsNoTracking().Where(cont => cont.Cedula == cedula).FirstOrDefault();
 
             return con;
         }
@@ -75,7 +75,7 @@ namespace AltivaWebApp.Repositories
 
         public TbCrContacto GetByIdContacto(long id)
         {
-            return context.TbCrContacto.Where(u => u.IdContacto == id).FirstOrDefault();
+            return context.TbCrContacto.AsNoTracking().Where(u => u.IdContacto == id).FirstOrDefault();
         }
 
         public IList<TbCeCanton> GetCantones(int idProvincia)

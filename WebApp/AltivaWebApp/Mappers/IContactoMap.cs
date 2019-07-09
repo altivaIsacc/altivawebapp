@@ -19,5 +19,6 @@ namespace AltivaWebApp.Mappers
         TbCrCamposPersonalizados EliminarCP(int id);
         TbCrCamposPersonalizados UpdateCP(CamposPersonalizadosViewModel domain);
         TbCrCamposPersonalizados ViewModelToDomainCP(CamposPersonalizadosViewModel domain);
+        ContactoViewModel DomainToViewModelC(TbCrContacto domain);
     }
 }
