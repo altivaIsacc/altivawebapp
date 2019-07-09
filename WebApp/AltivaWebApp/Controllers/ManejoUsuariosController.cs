@@ -37,7 +37,7 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Listar-Usuarios")]
         public ActionResult ListaUsuarios(string estado)
         {
-
+            ViewBag.Perfiles = perfilService.GetAll();
 
             if (estado == null || estado == "")
                 estado = "ACTIVO";
@@ -286,6 +286,7 @@ namespace AltivaWebApp.Controllers
             return View(modelView);
 
         }
+        
         [HttpPost("Editar-Usuario/{id?}")]
         public ActionResult EditarUsuario(UsuarioViewModel model)
         {

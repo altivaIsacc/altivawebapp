@@ -24,6 +24,7 @@ namespace AltivaWebApp.Services
         {
             return this.repository.GetAllByIdUsuario(id);
         }
+       
 
         public bool ExisteUsuarioPorCodigo(string codigo)
         {
