@@ -43,6 +43,7 @@ namespace AltivaWebApp.ViewModels
         public IFormFile Foto { get; set; }
 
         public int Id_Usuario { get; set; }
+        public long IdPerfil { get; set; }
 
         public string avatar { get; set; }
 

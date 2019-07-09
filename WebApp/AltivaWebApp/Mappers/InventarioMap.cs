@@ -242,6 +242,25 @@ namespace AltivaWebApp.Mappers
             };
         }
 
+        public InventarioBodegaViewModel DomainToViewModelIBodega(TbPrInventarioBodega domain)
+        {
+            return new InventarioBodegaViewModel
+            {
+                Id = domain.Id,
+                IdInventario = domain.IdInventario,
+                IdBodega = domain.IdBodega,
+                ExistenciaMinima = domain.ExistenciaMinima,
+                ExistenciaMaxima = domain.ExistenciaMaxima,
+                ExistenciaBodega = domain.ExistenciaBodega,
+                CostoPromedioBodega = domain.CostoPromedioBodega,
+                SaldoBodega = domain.SaldoBodega,
+                UltimoCostoBodega = domain.UltimoCostoBodega,
+                ExistenciaMedia = domain.ExistenciaMedia
+
+
+            };
+        }
+
 
 
     }

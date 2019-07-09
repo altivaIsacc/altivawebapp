@@ -19,6 +19,10 @@ namespace AltivaWebApp.Services
         {
             return repository.GetInventarioById(id);
         }
+        public TbPrInventarioBodega GetInventarioBodegaById(int id)
+        {
+            return repository.GetInventarioBodegaById(id);
+        }
         public TbPrInventario GetInventarioByCodigo(string codigo)
         {
             return repository.GetInventarioByCodigo(codigo);

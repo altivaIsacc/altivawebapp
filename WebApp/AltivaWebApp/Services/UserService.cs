@@ -85,7 +85,9 @@ namespace AltivaWebApp.Services
 
         }
 
-       
+        
+
+
         public TbSeUsuario GetSingleUser(int id)
         {
             return repository.GetUsuarioById(id);
@@ -105,7 +107,7 @@ namespace AltivaWebApp.Services
         {
             return repository.GetUsuarioConEmpresas(usuario);
         }
-
+       
         public IEnumerable<TbSePerfil> GetPerfiles(int id)
         {
             return repository.GetPerfiles(id);
@@ -119,6 +121,10 @@ namespace AltivaWebApp.Services
         public IList<TbSeUsuario> GetAllByIdEmpresa(int idEmpresa)
         {
             return repository.GetAllByIdEmpresa(idEmpresa);
+        }
+        public IList<TbSeUsuario> GetAllByIdEmpresaConPerfiles(int idEmpresa)
+        {
+            return repository.GetAllByIdEmpresaConPerfiles(idEmpresa);
         }
     }
 }

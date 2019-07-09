@@ -16,6 +16,7 @@ namespace AltivaWebApp.Mappers
         IList<TbPrImagenInventario> ViewModelToDomainNuevoImagen(int id, IFormFile[] files);
         TbPrInventario ViewModelToDomainEditar(int id, InventarioViewModel viewModel);
         InventarioViewModel DomainToViewModel(TbPrInventario domain);
+        InventarioBodegaViewModel DomainToViewModelIBodega(TbPrInventarioBodega domain);
         void CreateInventarioBodega(int idInventario, IList<InventarioBodegaViewModel> viewModelaRel);
         void CreateImagen(int id, IFormFile[] files);
         void CreateCaracteristica(int id, string caracteristica);

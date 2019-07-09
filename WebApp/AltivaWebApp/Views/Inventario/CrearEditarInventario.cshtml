@@ -591,6 +591,22 @@ else
         </div>
     </div>
 </div>
+<button  id="btnEditarBodega"  class="btn btn-link" type="button" data-toggle="modal" data-target="#modalEditarBodega">
+    <span style="font-size: 2rem"><i class="fas fa-edit"></i></span>
+</button>
+
+<div>
+    <!-- Modal Editar -->
+    <div class="modal fade" id="modalEditarBodega" tabindex="-1" role="dialog" >
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body" id="editarBodega">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div>
     <!-- Modal Imagenes-->
@@ -674,6 +690,35 @@ else
     var inventarioBodegaNuevas = [];
 
     $(document).ready(function () {
+        $('#btnEditarBodega').on('click', function () {
+            
+
+            var url = '@Url.Action("EditarBodegaIventario", "Inventario")';
+           
+
+        $.ajax({
+        type: "GET",
+        headers: {
+        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+        },
+        url:url,
+
+            success: function (data) {
+
+                 console.log("Abrir modal>>" + err.statusText);
+        $('#editarBodega').html(data);
+        $('#modalEditarBodega').modal('show');
+        },
+        error: function (err, scnd) {
+        console.log("Error Modal>>" + err.statusText);
+        }
+
+        });
+
+        });
+
+
+
 
         if (@Model.IdInventario != 0) {
 
@@ -1363,7 +1408,8 @@ else
                 + '<td>' + data[i].existenciaBodega + '</td>'
                 + '<td style="text-align: right">' + formatMoneda(data[i].costoPromedioBodega) + '</td>'
                 + '<td style="text-align: right">' + formatMoneda(data[i].saldoBodega) + '</td>'
-                + '<td><button class="btn btn-link" value="' + contadorFila + '" onclick="eliminarBodegaInventario( value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                + '<td><button class="btn btn-link" value="' + contadorFila + '" onclick="eliminarBodegaInventario( value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button>'
+            + '<button class="btn btn-link" value="' + contadorFila + '" onclick="editarBodegaInventario( value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
 
             $('.bodegaInventarioForm').before(body);
         }
@@ -1374,7 +1420,28 @@ else
 
         return $('#formatterMoneda').val();
     }
+    function editarBodegaInventario(fila, idRelacion) {
+       // alert("hola");
+         console.log("Fila >>" + fila);
+         var url = "@Url.Action("EditarBodegaIventario", "Inventario", new { id = "__id__" })";
+        url = url.replace("__id__", idRelacion);
 
+       
+        $.ajax({
+        type: "get",
+        headers: {
+        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+        },
+        url: url,
+        //data: { id: idRelacion },
+        success: function (data) {
+        $('#editarBodega').html(data);
+        $('#modalEditarBodega').modal('show');
+        }
+        
+        });
+
+        }
     function eliminarBodegaInventario(fila, idRelacion) {
 
         bootbox.confirm("@SharedLocalizer["confirmEliminar"]", function (result) {

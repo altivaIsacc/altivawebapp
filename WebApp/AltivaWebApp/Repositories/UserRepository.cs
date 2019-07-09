@@ -25,6 +25,7 @@ namespace AltivaWebApp.Repositories
             return context.TbSeUsuario.Where(u => u.IdUsuario == id).ToList();
 
         }
+
         public bool ExisteUsuarioPorCodigo(string codigo)
         {
             return context.TbSeUsuario.Any(u => u.Codigo == codigo);

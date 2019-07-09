@@ -215,6 +215,20 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+        [HttpGet("Editar-BodegaInventario/{id?}")]
+        public ActionResult EditarBodegaIventario(int id)
+        {
+                ViewBag.id = id;
+                var inventario = map.DomainToViewModelIBodega(service.GetInventarioBodegaById(id));
+                return PartialView("_EditarBodega", inventario);
+         }
+        [HttpPost("Editar-BodegaInventario/{id?}")]
+        public ActionResult EditarIventarioBodega(int id)
+        {
+            ViewBag.id = id;
+            var inventario = map.DomainToViewModel(service.GetInventarioById(id));
+            return PartialView("_EditarBodega", inventario);
+        }
 
         [HttpPost("CrearEditar-InventarioBodega/{id}")]
         public ActionResult CrearInventarioBodega(int id, IList<InventarioBodegaViewModel> inventarioBodega)

@@ -37,6 +37,7 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Listar-Usuarios")]
         public ActionResult ListaUsuarios(string estado)
         {
+
             ViewBag.Perfiles = perfilService.GetAll();
 
             if (estado == null || estado == "")
@@ -45,7 +46,7 @@ namespace AltivaWebApp.Controllers
             ViewBag.estado = estado;
 
             var usariosFiltrados = new List<TbSeUsuario>();
-            IList<TbSeUsuario> usuarios = userService.GetAll();
+            IList<TbSeUsuario> usuarios = userService.GetAllByIdEmpresaConPerfiles((int)HttpContext.Session.GetInt32("idEmpresa"));
 
             foreach (var item in usuarios)
             {
@@ -54,6 +55,7 @@ namespace AltivaWebApp.Controllers
                     usariosFiltrados.Add(item);
                 }
             }
+            
 
             return View(usariosFiltrados.OrderByDescending(u => u.Id));
 

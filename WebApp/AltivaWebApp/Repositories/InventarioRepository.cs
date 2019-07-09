@@ -20,6 +20,11 @@ namespace AltivaWebApp.Repositories
             return context.TbPrInventario.FirstOrDefault(i => i.IdInventario == id);
         }
 
+        public TbPrInventarioBodega GetInventarioBodegaById(int id)
+        {
+            return context.TbPrInventarioBodega.FirstOrDefault(i => i.Id == id);
+        }
+
         public IList<TbPrImagenInventario> GetInventarioImagenByCodigo(int id)
         {
             return context.TbPrImagenInventario.Where(i => i.IdInventario == id).ToList();
