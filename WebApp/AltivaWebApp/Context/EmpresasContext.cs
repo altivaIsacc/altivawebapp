@@ -18,7 +18,7 @@ namespace AltivaWebApp.Context
             : base(options)
         {
         }
-
+   
         public virtual DbSet<TbBaConciliacion> TbBaConciliacion { get; set; }
         public virtual DbSet<TbBaConciliacionDetalle> TbBaConciliacionDetalle { get; set; }
         public virtual DbSet<TbBaCuentasBancarias> TbBaCuentasBancarias { get; set; }
@@ -593,7 +593,7 @@ namespace AltivaWebApp.Context
 
             modelBuilder.Entity<TbCeColaAprobacion>(entity =>
             {
-                entity.ToTable("tb_CE_ColaAprobacion");               
+                entity.ToTable("tb_CE_ColaAprobacion");
 
                 entity.Property(e => e.Estado)
                     .IsRequired()
@@ -611,107 +611,107 @@ namespace AltivaWebApp.Context
                     .IsRequired()
                     .HasMaxLength(10);
             });
-
+        
             modelBuilder.Entity<TbCeComprobantesEnviados>(entity =>
-            {
-                entity.ToTable("TB_CE_ComprobantesEnviados");
+                {
+                    entity.ToTable("TB_CE_ComprobantesEnviados");
 
-                entity.Property(e => e.Id).HasColumnName("id");
+                    entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.Clave)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                    entity.Property(e => e.Clave)
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false);
 
-                entity.Property(e => e.ConsecutivoHacienda)
-                    .IsRequired()
-                    .HasColumnName("Consecutivo_Hacienda")
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('00000000000000000000')");
+                    entity.Property(e => e.ConsecutivoHacienda)
+                        .IsRequired()
+                        .HasColumnName("Consecutivo_Hacienda")
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasDefaultValueSql("('00000000000000000000')");
 
-                entity.Property(e => e.EstadoEnvio)
-                    .IsRequired()
-                    .HasColumnName("Estado_Envio")
-                    .HasMaxLength(10);
+                    entity.Property(e => e.EstadoEnvio)
+                        .IsRequired()
+                        .HasColumnName("Estado_Envio")
+                        .HasMaxLength(10);
 
-                entity.Property(e => e.FechaCreacion)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    entity.Property(e => e.FechaCreacion)
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
 
-                entity.Property(e => e.FechaEmision)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                    entity.Property(e => e.FechaEmision)
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false);
 
-                entity.Property(e => e.IdAjuste)
-                    .HasColumnName("id_ajuste")
-                    .HasDefaultValueSql("((0))");
+                    entity.Property(e => e.IdAjuste)
+                        .HasColumnName("id_ajuste")
+                        .HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.IdFactura).HasColumnName("idFactura");
+                    entity.Property(e => e.IdFactura).HasColumnName("idFactura");
 
-                entity.Property(e => e.MensajeHacienda)
-                    .IsRequired()
-                    .HasColumnName("Mensaje_Hacienda")
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
+                    entity.Property(e => e.MensajeHacienda)
+                        .IsRequired()
+                        .HasColumnName("Mensaje_Hacienda")
+                        .IsUnicode(false)
+                        .HasDefaultValueSql("('')");
 
-                entity.Property(e => e.Moneda)
-                    .IsRequired()
-                    .HasMaxLength(10);
+                    entity.Property(e => e.Moneda)
+                        .IsRequired()
+                        .HasMaxLength(10);
 
-                entity.Property(e => e.NombreReceptor)
-                    .IsRequired()
-                    .IsUnicode(false);
+                    entity.Property(e => e.NombreReceptor)
+                        .IsRequired()
+                        .IsUnicode(false);
 
-                entity.Property(e => e.OpcionDePago)
-                    .IsRequired()
-                    .HasColumnName("Opcion_de_Pago")
-                    .HasMaxLength(2)
-                    .HasDefaultValueSql("('')");
+                    entity.Property(e => e.OpcionDePago)
+                        .IsRequired()
+                        .HasColumnName("Opcion_de_Pago")
+                        .HasMaxLength(2)
+                        .HasDefaultValueSql("('')");
 
-                entity.Property(e => e.PathArchivoPdf)
-                    .IsRequired()
-                    .HasColumnName("Path_ArchivoPdf")
-                    .IsUnicode(false);
+                    entity.Property(e => e.PathArchivoPdf)
+                        .IsRequired()
+                        .HasColumnName("Path_ArchivoPdf")
+                        .IsUnicode(false);
 
-                entity.Property(e => e.PathArchivoRespuestaXml)
-                    .IsRequired()
-                    .HasColumnName("Path_Archivo_RespuestaXml")
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
+                    entity.Property(e => e.PathArchivoRespuestaXml)
+                        .IsRequired()
+                        .HasColumnName("Path_Archivo_RespuestaXml")
+                        .IsUnicode(false)
+                        .HasDefaultValueSql("('')");
 
-                entity.Property(e => e.PathArchivoRespuestatxt)
-                    .IsRequired()
-                    .HasColumnName("Path_Archivo_Respuestatxt")
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
+                    entity.Property(e => e.PathArchivoRespuestatxt)
+                        .IsRequired()
+                        .HasColumnName("Path_Archivo_Respuestatxt")
+                        .IsUnicode(false)
+                        .HasDefaultValueSql("('')");
 
-                entity.Property(e => e.PathArchivoXml)
-                    .IsRequired()
-                    .HasColumnName("Path_ArchivoXml")
-                    .IsUnicode(false);
+                    entity.Property(e => e.PathArchivoXml)
+                        .IsRequired()
+                        .HasColumnName("Path_ArchivoXml")
+                        .IsUnicode(false);
 
-                entity.Property(e => e.RespuestaHacienda)
-                    .IsRequired()
-                    .HasColumnName("Respuesta_Hacienda")
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
+                    entity.Property(e => e.RespuestaHacienda)
+                        .IsRequired()
+                        .HasColumnName("Respuesta_Hacienda")
+                        .IsUnicode(false)
+                        .HasDefaultValueSql("('')");
 
-                entity.Property(e => e.TieneNotaCredito).HasColumnName("Tiene_NotaCredito");
+                    entity.Property(e => e.TieneNotaCredito).HasColumnName("Tiene_NotaCredito");
 
-                entity.Property(e => e.TieneNotaDebito).HasColumnName("Tiene_NotaDebito");
+                    entity.Property(e => e.TieneNotaDebito).HasColumnName("Tiene_NotaDebito");
 
-                entity.Property(e => e.TipoDocElectronico)
-                    .IsRequired()
-                    .HasMaxLength(10);
+                    entity.Property(e => e.TipoDocElectronico)
+                        .IsRequired()
+                        .HasMaxLength(10);
 
-                entity.Property(e => e.TipoNota)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('')");
-            });
+                    entity.Property(e => e.TipoNota)
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasDefaultValueSql("('')");
+                });
 
             modelBuilder.Entity<TbCeConsecutivoProvisionalHa>(entity =>
             {
@@ -3807,7 +3807,7 @@ namespace AltivaWebApp.Context
                 entity.ToTable("tb_PR_Inventario");
 
                 entity.Property(e => e.AbreviacionFacturas)
-                   // .IsRequired()
+                    // .IsRequired()
                     .HasMaxLength(150)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('''')");
@@ -3891,7 +3891,7 @@ namespace AltivaWebApp.Context
             {
                 entity.HasKey(e => e.IdCaracteristicas);
 
-                entity.ToTable("tb_PR_InventarioCaracteristica");              
+                entity.ToTable("tb_PR_InventarioCaracteristica");
 
                 entity.Property(e => e.Caracteristicas)
                     .IsRequired()

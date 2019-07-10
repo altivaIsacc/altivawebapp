@@ -20,7 +20,7 @@
 {
     <div class="row">
         <div class="col-md-3">
-            <h2>@Lb["CrearCotizacion"]</h2>
+            <h2>@Lb["EditarCotizacion"]</h2>
         </div>
         <div class="col-md-7"></div>
         <div class="col-md-2">
@@ -161,8 +161,8 @@ else
                             <div class="col-md-1"><label id="lbExistencia"></label></div>
                         </td>
                         <td><input id="lbCantidad" class="form-control cantidad" type="text" min="1" value="1" /></td>
-                        <td><input id="lbDescuento" class="form-control numerico" type="text" min="0" value="0" /></td>
-                        <td><input id="lbCostoPromedio" class="form-control moneda numerico " type="text" /></td>
+                        <td><input id="lbDescuento" class="form-control numerico cantidad" type="text" min="0" value="0" /></td>
+                        <td><input id="lbCostoPromedio" class="form-control moneda numerico" min="1" type="text" /></td>
                         <td><input type="text" class="form-control moneda numerico " readonly id="lbTotal" /></td>
                         <td>
                             <button class="btn btn-link btnAccion" onclick="guardarCambios()"><i class="fas fa-save"></i></button>
@@ -480,7 +480,7 @@ else
     }
 
     function fechasEditar() {
-        var date = new Date();
+  
         if (@Model.IdCotizacion!= 0) {
             $FechaCotizacion.val(formatearFechaCotizacion());
             $FechaVencimiento.val(formatearFechaVencimiento());
@@ -594,20 +594,18 @@ else
         setTotalLinea();
     });
 
-
-
     $("#lbDescuentoGlobal").on('focusout', function () {
 
-        if ($(this).val() !=0) {
+        if ($(this).val() != 0) {
 
             if ($(this).val() > 100) {
                 $(this).val(100);
             }
 
             $porcDescuento.val($(this).val());
-            $porcDescuento.prop('disabled', true);    
+            $porcDescuento.prop('disabled', true);
             $("#lbExistencia").text(0);
-            ActualizarLineasDescuento($(this).val(),$Moneda.val());
+            ActualizarLineasDescuento($(this).val(), $Moneda.val());
 
         } else {
 
@@ -619,6 +617,24 @@ else
         }
 
         setTotalLinea();
+    });
+
+
+
+    $("#lbDescuento").on('focusout', function () {
+
+        if ($(this).val() != 0) {
+
+            if ($(this).val() < 0) {
+                $(this).val(0);
+            }
+
+            if ($(this).val() > 100) {
+                $(this).val(100);
+            }
+
+            setTotalLinea();
+        }
     });
 
 
@@ -925,8 +941,14 @@ else
     function guardarCambios() {
              if ($('#ddClientes option:selected').val() != 0 && $('#ddMoneda option:selected').val() != 0 && $('#ddVendedor option:selected').val() != 0) {
 
-            guardarLinea();
-            guardarCotizacion();
+                 if ($('#ddInventario option:selected').val() != 0 && $('#lbCostoPromedio').val() != "" && $('#lbCostoPromedio').val() != 0) {
+                     guardarLinea();
+                     guardarCotizacion();
+                 } else {
+                                 var msj = "@Lb["dataVaciaDetalleCotizacion"]";
+            bootbox.alert(msj);
+                 }
+
         } else {
        
             var msj = "@Lb["dataVacia"]";
@@ -1406,7 +1428,7 @@ else
                     cargarAlert("@Lb["numCompraRepitida"]");
                },
               error: function (err, scnd) {
-                  cargarAlert('@Lb["errorGeneral"]');
+                  cargarAlert('@Lb["DebeGuardarLinea"]');
                   console.log(err.statusText);
               }
         });
@@ -1583,9 +1605,9 @@ else
     function guardarSalir() {
 
         if ($('#ddClientes option:selected').val() != 0 && $('#ddMoneda option:selected').val() != 0 && $('#ddVendedor option:selected').val() != 0) {
-
-            lineasAgregadas = 0;
-            guardarCotizacion();
+                    lineasAgregadas = 0;
+                    guardarCotizacion();
+     
         } else {
        
             var msj = "@Lb["dataVacia"]";

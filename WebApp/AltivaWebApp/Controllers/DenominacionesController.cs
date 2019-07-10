@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -79,13 +80,62 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-
+                var Moneda = 0;
+                var Valor = new double();
+                var Tipo = 0;
+                var diferente = 0;
+                var Denominacion=new Domains.TbFaDenominacion(); 
                 viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
-                    var Denominacion = _Map.Create(viewModel);
-                
+                var Denominaciones = _Service.GetAllDenominaciones();
+                Moneda = viewModel.IdMoneda;
+                Valor = viewModel.Valor;
+                Tipo = viewModel.Tipo;
 
-                    return Json(new { success = true, idCD = Denominacion.IdDenominaciones,fechacreacion = Denominacion.FechaCreacion });
-           
+                for (int p = 0; p < Denominaciones.Count; p++)
+                {
+                   
+                    if (Moneda==Denominaciones[p].IdMoneda)
+                    {
+                         for (int m = 0; m <Denominaciones.Count; m++)
+                            {
+
+                            if (Valor != Denominaciones[m].Valor)
+                            {
+                                diferente = 0;
+                            }
+                            else
+                            {
+                                if (Tipo != Denominaciones[m].Tipo)
+                                {
+                                    diferente = 0;
+                                }
+                                else
+                                {
+                         
+                                    diferente = 1;
+                                    break;
+                                }
+                               
+                            }
+                        }      
+                        
+                    }
+                }
+
+                if (diferente == 1)
+                {
+                    return Json(new { success = false });
+                }
+                else
+                {
+                    Denominacion = _Map.Create(viewModel);
+
+                    return Json(new { success = true, idCD = Denominacion.IdDenominaciones, fechacreacion = Denominacion.FechaCreacion });
+
+                }
+
+
+
             }
             catch
             {

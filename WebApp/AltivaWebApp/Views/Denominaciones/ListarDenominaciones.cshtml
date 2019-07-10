@@ -55,11 +55,11 @@
                     <td class="col-md-3 letratbDenominaciones">
                         <select id="ddTipo" class="form-control search-key">
                             <option selected value="0">@Lb["Seleccione"]</option>
-                            <option value="1" data-thumbnail="/../uploads/MonedasIcon.png" >@Lb["Monedas"]</option>
-                            <option value="2" >@Lb["Billetes"]</option>
+                            <option value="1">@Lb["Billetes"]</option>
+                            <option value="2">@Lb["Monedas"]</option>
                         </select>
                     </td>
-                    <td class="col-md-3 letratbDenominaciones"><input id="inpValor" class="form-control numerico" type="text" min="0" value="0" /></td>
+                    <td class="col-md-3 letratbDenominaciones"><input id="inpValor" class="form-control numerico cantidad" type="text" min="0" value="0" /></td>
                     <td class="col-md-3 letratbDenominaciones">
                         <button class="btn btn-link btnAccion letratbDenominaciones" onclick="guardarDenominacion()"><i class="fas fa-save"></i></button>
                     </td>
@@ -84,6 +84,7 @@
     var LineasyNuevas = [];
     var IdUsuarioLogueado = 0;
     var LineasAgregadas = [];
+    var _Denominaciones = [];
 
     $(document).ready(function () {
 
@@ -95,6 +96,14 @@
 
             'alias': 'decimal',
             rightAlign: true,
+
+        });
+
+        $(".cantidad").inputmask({
+
+            'alias': 'decimal',
+
+            rightAlign: false,
 
         });
 
@@ -112,7 +121,7 @@
               dataType: "json",
             url: '@Url.Action("GetDenominaciones")',
             success: function (data) {
-                compraDetalleBD = JSON.parse(JSON.stringify(data));
+                _Denominaciones = JSON.parse(JSON.stringify(data));
                 cargarLineas(data);
 
                },
@@ -182,7 +191,8 @@
     }
 
 //////////////////////////////////////////////////////CARGAR DOM///////////////////////////////////////////////////////////////////////////////////////
-          function cargarddMoneda(moneda) {
+
+    function cargarddMoneda(moneda) {
 
             for (var i = 0; i < moneda.length; i++) {
                 var o = "<option value=" + moneda[i].codigo + ">" + moneda[i].nombre + "</option>";
@@ -278,15 +288,18 @@
     }
 /////////////////////////////////////////////////////////////FUNCIONES GUARDADO DB/////////////////////////////////////////////////////////////////////////
     function guardarDenominacion() {
-        AgregarLinea();
-        guardarCotizacion();
+
+        if ($('#ddMoneda option:selected').val() != 0 && $('#ddTipo').val() != "" && $('#inpValor').val() != 0 && $('#inpValor').val() > 0 && $('#inpValor').val() !== "") {
+                AgregarLinea();
+                guardarDenominacionBd();
+                 } else {
+                                 var msj = "@Lb["dataVaciaDetalleCotizacion"]";
+            bootbox.alert(msj);
+                 }
+
     }
 
-    function guardarSalir() {
-        
-        guardarCotizacion();
 
-    }
 
     function AgregarLinea() {
 
@@ -303,7 +316,7 @@
         LineasAgregadas.push(ordenModel);
     }
 
-    function guardarCotizacion() {
+    function guardarDenominacionBd() {
 
         $.ajax({
               type: "POST",
@@ -315,13 +328,15 @@
             data: crearModelo(0),
             success: function (data) {
                 if (data.success) {
-                  //  lineas[lineas.length - 1].idDenominaciones = data.idCD;
+                    //  lineas[lineas.length - 1].idDenominaciones = data.idCD;
                     LineasyNuevas[LineasyNuevas.length - 1].idDenominaciones = data.idCD;
                     LineasyNuevas[LineasyNuevas.length - 1].fechaCreacion = data.fechacreacion;
                     cargarTabla(LineasyNuevas);
                 }
-                else
-                    cargarAlert("@Lb["numCompraRepitida"]");
+                else {
+                    LineasyNuevas.splice(-1, 1);
+                    cargarAlert("@Lb["YaExisteDenominacion"]");
+                }
                },
               error: function (err, scnd) {
                   cargarAlert('@Lb["errorGeneral"]');
@@ -424,7 +439,8 @@
                 idMoneda:parseInt( _idMoneda),
                 valor: _valor,
                 tipo:parseInt( _tipo),
-            };
+        };
+
         if (LineasAgregadas.length >= 1) {
             LineasyNuevas.push(ordenModel);
         }
@@ -443,7 +459,6 @@
     }
 
 
-
     function darFormatoMoneda(idMoneda) {
 
         if (idMoneda === 1)
@@ -457,9 +472,9 @@
     function darFormatoTipo(idTipo, id) {
 
         if (idTipo === 1)
-            $('#' + id).prop('src', "/../uploads/MonedasIcon.png");
-        else if (idTipo === 2)
             $('#' + id).prop('src', "/../uploads/BilleteIcon.png");
+        else if (idTipo === 2)
+            $('#' + id).prop('src', "/../uploads/MonedasIcon.png");
     }
 
     function darFormatoEstado(idEstado) {

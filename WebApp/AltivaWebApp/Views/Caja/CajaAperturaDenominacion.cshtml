@@ -445,6 +445,8 @@
     var CambioEuro = 0;
     var PerfilUsuario = [];
     var PerfilModulo = [];
+    var _GetDenominaciones = [];
+
 
 ////////////////////////////////////////////////////////////DOCUMENT READY///////////////////////////////////////////////////////////////////
     $(document).ready(function () {
@@ -652,11 +654,15 @@
             url: '@Url.Action("GetDenominaciones","Denominaciones")',
             success: function (data) {
                 _Denominaciones = JSON.parse(JSON.stringify(data));
+                _GetDenominaciones = JSON.parse(JSON.stringify(data));
+              
+                for (var n = 0; n < _GetDenominaciones.length; n++) {
 
-                _DenominacionesTotales= JSON.parse(JSON.stringify(data));
-                for (var k = 0; k <_DenominacionesTotales.length; k++) {
-                    _DenominacionesTotales[k].valor = 0;
-                }
+                    if (_GetDenominaciones[n].estado != 2) {
+                        _DenominacionesTotales.push(_GetDenominaciones[n]);
+                    }
+                }    
+               
                 for (var i = 0; i < _Denominaciones.length; i++) {
 
                     switch (parseInt(_Denominaciones[i].idMoneda)) {
@@ -712,9 +718,11 @@
 
                      getCajaApertura();
                      getCajaArqueoDenominacion();
+
                      if (@Model.Estado=== 2) {
                          getCajaArqueo();
                      }
+
                      if (@Model.Estado=== 4) {
                          getCajaCierre();
                          getCajaArqueo();
@@ -723,7 +731,17 @@
 
 
                  } else {
+
+                     for (var n = 0; n < _DenominacionesTotales.length; n++) {
+
+              
+                         _DenominacionesTotales[n].valor = 0;
+                         
+                     }
+
+
                      cargarTabla(_Denominaciones);
+
                  }
               },
               error: function (err, scnd) {
@@ -1191,7 +1209,7 @@
     }
 
     function cargarTabla(data) {
-
+       
         $('.filasCargadas').remove();
      var   contadorFila = 0;
         var tipomoneda = 0;
@@ -1278,7 +1296,7 @@
 
             var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
                 + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><img id="' + _idDenominacion + '" width="45px" height="45px"/>&nbsp;<label class="'+coin+'" id="lb' + _idDenominacion + '"> ' + _Denominaciones[i].valor + '</label></td> '
-                + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input onkeyup="calcularLinea(' + contadorFila + ',value,'+idMoneda+');" value="'+_cantidad+'" id="inpCantidad' + _idDenominacion + '" class="form-control cantidad" type="text" min="0" '+estado+' /></td>'
+                + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input onkeyup="calcularLinea(' + _idDenominacion + ',value,'+idMoneda+');" value="'+_cantidad+'" id="inpCantidad' + _idDenominacion + '" class="form-control cantidad" type="text" min="0" '+estado+' /></td>'
                 + '<td style="padding-top:2rem;text-align: right;" class="letratbDenominaciones"><input id="inpMonto' + _idDenominacion + '" value="'+_monto+'" class="form-control moneda numerico" type="text" min="0" value="0" disabled /></td></tr>';
             $('.lineaForm').before(body);
 
@@ -2037,7 +2055,6 @@
 
     $("#lbEstado").change(function () {
 
-        console.log($('#lbEstado option:selected').val());
         switch (parseFloat( $('#lbEstado option:selected').val())) {
 
             case 1:
@@ -2054,8 +2071,6 @@
                         $('#lbEstado').val(@Model.Estado);
                     }
                 });
-
-
                 break;
             case 3:
 
@@ -2288,7 +2303,7 @@
     }
 
     function crearModeloCierre(model) {
-        console.log(model);
+      
         for (var i = 0; i < model.length; i++) {
             model[i].idCajaCierre = model[i].idCajaCierre;
             model[i].idCaja = model[i].idCaja;
@@ -2309,6 +2324,7 @@
 
 
     function GuardarApertura() {
+
         var _cantidad = 0;
         for (var i = 0; i < _Denominaciones.length; i++) {
             if ($("#inpCantidad" + _Denominaciones[i].idDenominaciones + "").val() === "") {
@@ -2597,18 +2613,29 @@
 
     function calcularLinea(fila, cant,moneda) {
 
-        var _valor =parseFloat( _Denominaciones[fila].valor);
+        var _valor = 0;
         var total = 0;
 
-        total = parseFloat(_valor * cant);
-        $('#inpMonto' + _Denominaciones[fila].idDenominaciones).val(total);
+        for (var s = 0; s <_Denominaciones.length; s++) {
+            if (_Denominaciones[s].idDenominaciones === fila) {
+                _valor = parseFloat(_Denominaciones[s].valor);
+                total = 0;
+
+                total = parseFloat(_valor * cant);
+                $('#inpMonto' + _Denominaciones[s].idDenominaciones).val(total);
+                break;
+            }
+        }
+   
+
+
 
         if (@Model.IdCaja!= 0) {
             switch (parseInt(moneda)) {
                 case 1:
 
                     for (var i = 0; i < CajaApertura.length; i++) {
-                        if (CajaApertura[fila].idDenominacion === CajaApertura[i].idDenominacion) {
+                        if (fila=== CajaApertura[i].idDenominacion) {
                             CajaApertura[i].monto = total;
                         }
                     }
@@ -2616,7 +2643,7 @@
                 case 2:
 
                     for (var i = 0; i < CajaApertura.length; i++) {
-                        if (CajaApertura[fila].idDenominacion === CajaApertura[i].idDenominacion) {
+                        if (fila=== CajaApertura[i].idDenominacion) {
                             CajaApertura[i].monto = total;
                         }
                     }
@@ -2624,7 +2651,7 @@
                 case 3:
 
                     for (var i = 0; i < CajaApertura.length; i++) {
-                        if (CajaApertura[fila].idDenominacion === CajaApertura[i].idDenominacion) {
+                        if (fila === CajaApertura[i].idDenominacion) {
                             CajaApertura[i].monto = total;
                         }
                     }
@@ -2632,76 +2659,63 @@
             }
 
             setTotalGlobal();
+
         } else {
 
-            _DenominacionesTotales[fila].valor = total;
+            for (var p = 0; p < _DenominacionesTotales.length; p++) {
 
-            var _totalBase = 0;
-            var _totalDolar = 0;
-            var _totalEuro = 0;
-            var _idDenominaciones = 0;
-            var _montoBase = 0;
-            var _montoDolar = 0;
-            var _montoEuro = 0;
-
-
-            for (var k = 0; k < _Denominaciones.length; k++) {
-
-                switch (parseInt(_Denominaciones[k].idMoneda)) {
-
-                    case 1:
-                            _idDenominaciones = _Denominaciones[k].idDenominaciones;
-
-                        for (var a = 0; a < _DenominacionesTotales.length; a++) {
-
-                                if (_idDenominaciones === _DenominacionesTotales[a].idDenominaciones) {
-                                    _montoBase = _DenominacionesTotales[a].valor;
-                                }
-                            }
-
-                            _totalBase = parseFloat(_totalBase + parseFloat(_montoBase));
-
-                            _montoBase = 0;
-                        break;
-                    case 2:
-
-
-                            _idDenominaciones = _Denominaciones[k].idDenominaciones;
-
-                            for (var a = 0; a < _DenominacionesTotales.length; a++) {
-                                if (_idDenominaciones === _DenominacionesTotales[a].idDenominaciones) {
-                                    _montoDolar = _DenominacionesTotales[a].valor;
-                                }
-                            }
-                            _totalDolar = parseFloat(_totalDolar + parseFloat(_montoDolar));
-
-                            _montoDolar = 0;
-
-                        break;
-                    case 3:
-
-
-                            _idDenominaciones = _Denominaciones[k].idDenominaciones;
-
-                            for (var a = 0; a < _DenominacionesTotales.length; a++) {
-                                if (_idDenominaciones === _DenominacionesTotales[a].idDenominaciones) {
-                                    _montoEuro = _DenominacionesTotales[a].valor;
-                                }
-                            }
-                            _totalEuro = parseFloat(_totalEuro + parseFloat(_montoEuro));
-                            _montoEuro = 0;
-
-                        break;
+                if (_DenominacionesTotales[p].idDenominaciones === fila) {
+                    _DenominacionesTotales[p].valor = total;
+                   
                 }
             }
+     
+            setTotalGlobalCrear();
+ 
+        }
+    }
+
+    function setTotalGlobalCrear() {
+
+        var _totalBase = 0;
+        var _totalDolar = 0;
+        var _totalEuro = 0;
+        var _montoBase = 0;
+        var _montoDolar = 0;
+        var _montoEuro = 0;
 
 
-            $TotalBase.val(_totalBase);
-            $TotalDolar.val(_totalDolar);
-            $TotalEuro.val(_totalEuro);
+        for (var k = 0; k < _DenominacionesTotales.length; k++) {
+
+            switch (parseInt(_DenominacionesTotales[k].idMoneda)) {
+
+                case 1:
+                        _montoBase = _DenominacionesTotales[k].valor;
+                        _totalBase = parseFloat(_totalBase + parseFloat(_montoBase));
+                        _montoBase = 0;
+                    
+                    break;
+                case 2:
+
+                        _montoDolar = _DenominacionesTotales[k].valor;               
+                        _totalDolar = parseFloat(_totalDolar + parseFloat(_montoDolar));
+                        _montoDolar = 0;
+                    
+                    break;
+                case 3:
+          
+                        _montoEuro = _DenominacionesTotales[k].valor;
+                        _totalEuro = parseFloat(_totalEuro + parseFloat(_montoEuro));
+                        _montoEuro = 0;
+                    
+                    break;
+            }
         }
 
 
+        $TotalBase.val(_totalBase);
+        $TotalDolar.val(_totalDolar);
+        $TotalEuro.val(_totalEuro);
     }
 
     function setTotalGlobal() {
@@ -2721,7 +2735,6 @@
 
                 case 1:
                     if (TotalBase.length > 0) {
-
                         _idDenominaciones = _Denominaciones[k].idDenominaciones;
 
                         for (var a = 0; a < CajaApertura.length; a++) {
@@ -2731,13 +2744,11 @@
                         }
 
                         _totalBase = parseFloat(_totalBase + parseFloat(_montoBase));
-
                         _montoBase = 0;
                     }
                     break;
                 case 2:
                     if (TotalDolar.length > 0) {
-
                         _idDenominaciones = _Denominaciones[k].idDenominaciones;
 
                         for (var a = 0; a < CajaApertura.length; a++) {
@@ -2884,13 +2895,13 @@
             return {
                 desc: "Descripción:",
                 cedJuridica: "Cédula Jurídica:",
-                nombreDoc:"Cotización"
+                nombreDoc:"@Lb["CajaApertura"]"
             };
         else
             return {
                 desc: "Description:",
                 cedJuridica: "Legal Number:",
-                nombreDoc:"Quotation"
+                nombreDoc:"@Lb["CajaApertura"]"
             };
     }
 
@@ -2909,9 +2920,9 @@
         for (var i = 0; i < _Denominaciones.length; i++) {
 
             var model = {
-                denominaciones: ,
-                cantidad:lineas[i].cantidad ,
-                monto: lineas[i].porcDescuento,
+                denominaciones:darFormatoMoneda(_Denominaciones[i].idMoneda)+" " + _Denominaciones[i].valor ,
+                cantidad:CajaApertura[i].cantidad ,
+                monto: CajaApertura[i].monto,
             };
 
             row.push(model);
