@@ -21,6 +21,31 @@ namespace AltivaWebApp.Mappers
             this.hostingEnvironment = hostingEnvironment;
         }
 
+        //////////
+        public TbPrInventarioBodega UpdateIBodega(InventarioBodegaViewModel viewModel)
+        {
+            return service.UpdateIBodega(ViewModelToDomainEditarIBodega(viewModel));
+        }
+
+        public TbPrInventarioBodega ViewModelToDomainEditarIBodega(InventarioBodegaViewModel viewModel)
+        {
+            var ib = new TbPrInventarioBodega
+            {
+                Id = viewModel.Id,
+                IdInventario = viewModel.IdInventario,
+                IdBodega = viewModel.IdBodega,
+                ExistenciaMinima = viewModel.ExistenciaMinima,
+                ExistenciaMaxima = viewModel.ExistenciaMaxima,
+                ExistenciaBodega = viewModel.ExistenciaBodega,
+                CostoPromedioBodega = viewModel.CostoPromedioBodega,
+                SaldoBodega = viewModel.SaldoBodega,
+                UltimoCostoBodega = viewModel.UltimoCostoBodega,
+                ExistenciaMedia = viewModel.ExistenciaMedia
+            };
+                 return ib;
+        }
+        /////////
+
         public TbPrInventario Create(InventarioViewModel viewModel)
         {
             var inventario = service.Save(ViewModelToDomainNuevo(viewModel));

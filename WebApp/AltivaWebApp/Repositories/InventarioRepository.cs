@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Repositories
 {
-    public class InventarioRepository: BaseRepository<TbPrInventario>, IInventarioRepository
+    public class InventarioRepository : BaseRepository<TbPrInventario>, IInventarioRepository
     {
+        
         public InventarioRepository(EmpresasContext context) : base(context)
         {
 
@@ -19,7 +20,21 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbPrInventario.FirstOrDefault(i => i.IdInventario == id);
         }
+        
+        public TbPrInventarioBodega UpdateIBodega(TbPrInventarioBodega domain)
+        {
+            try
+            {
+                context.TbPrInventarioBodega.Update(domain);
+                context.SaveChanges();
+                return domain;
+            }
+            catch (Exception)
+            {
 
+                throw;
+            }
+        }
         public TbPrInventarioBodega GetInventarioBodegaById(int id)
         {
             return context.TbPrInventarioBodega.FirstOrDefault(i => i.Id == id);

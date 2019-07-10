@@ -10,28 +10,35 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form id="frmUnidad">
+        <form id="frmIBodega">
+            @Html.HiddenFor(x => x.Id)
+            @Html.HiddenFor(x => x.IdInventario)
+            @Html.HiddenFor(x => x.IdBodega)
+            @Html.HiddenFor(x => x.ExistenciaBodega)
+            @Html.HiddenFor(x => x.CostoPromedioBodega)
+            @Html.HiddenFor(x => x.SaldoBodega)
+            @Html.HiddenFor(x => x.UltimoCostoBodega)
 
             <div class="form-group">
-                <label asp-for="Id" class="control-label"></label>
-                <input asp-for="Id" class="form-control" />
-                <span asp-validation-for="Id" class="text-danger"></span>
+                <label asp-for="ExistenciaMinima" class="control-label">@SharedLocalizer["Mínima"]</label>
+                <input asp-for="ExistenciaMinima" class="form-control numerico" />
+                <span hidden id="validatedTextMinima" class="text-danger" data-translate="ExMinimaRequerido">@SharedLocalizer["ExMinimaRequerido"]</span>
             </div>
             <div class="form-group">
-                <label asp-for="ExistenciaMinima" class="control-label"></label>
-                <input asp-for="ExistenciaMinima" class="form-control" />
-                <span asp-validation-for="ExistenciaMinima" class="text-danger"></span>
+                <label asp-for="ExistenciaMedia" class="control-label ">@SharedLocalizer["Media"]</label>
+                <input asp-for="ExistenciaMedia" class="form-control numerico" />
+                <span hidden id="validatedTextMedia" class="text-danger" data-translate="ExMediaRequerido">@SharedLocalizer["ExMediaRequerido"]</span>
             </div>
             <div class="form-group">
-                <label asp-for="ExistenciaMaxima" class="control-label"></label>
-                <input asp-for="ExistenciaMaxima" class="form-control" />
-                <span asp-validation-for="ExistenciaMaxima" class="text-danger"></span>
+                <label asp-for="ExistenciaMaxima" class="control-label ">@SharedLocalizer["Máxima"]</label>
+                <input asp-for="ExistenciaMaxima" class="form-control numerico" />
+                <span hidden id="validatedTextMaxima" class="text-danger" data-translate="ExMaximaRequerido">@SharedLocalizer["ExMaximaRequerido"]</span>
             </div>
         </form>
 
         <div class="form-group row">
             <div class="col-md-6">
-                <button id="submitFrmUnidad" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
+                <button id="submitFrmEditIBodega" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
             </div>
             <div class="col-md-6">
                 <button class="btn btn-default" data-dismiss="modal"><span>@SharedLocalizer["Cancelar"]</span></button>
@@ -40,7 +47,107 @@
         </div>
     </div>
 </div>
+<script>
+      $(document).keypress(function (e) {
+        if (e.which == 13) {
+            validarFormIB();
+        }
+    });
+    $(document).ready(function () {
+        $(".numerico").inputmask({
+            'alias': 'decimal',
+            rightAlign: false,
+        });
+            
+        $("#submitFrmEditIBodega").click(function (e) {
 
+            
+
+            if (validarFormIB()) {
+                 
+               var url = '@Url.Action("EditarIventarioBodega", "Inventario")';
+
+                $.ajax({
+                   type: "post",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: url,
+                    data: $('#frmIBodega').serialize(),
+                    success: function (data) {
+                       
+                        getBodegas();
+                        $('#modalEditarBodega').modal('hide');
+                },
+                    error: function (err, scnd) {
+                       
+                    console.log(err.statusText);
+                }
+            });
+            }
+
+        });
+
+        function validarFormIB() {
+            /*$('ExistenciaMinima').val().toString().replace(".", ",");
+            $('ExistenciaMedia').val().toString().replace(".", ",");
+            $('ExistenciaMaxima').val().toString().replace(".", ",");*/
+            $('#validatedTextMinima').attr('hidden', true);
+            $('#validatedTextMaxima').attr('hidden', true);
+            $('#validatedTextMedia').attr('hidden', true);
+
+
+
+            
+            var minima = parseFloat($('#ExistenciaMinima').val());
+            var maxima = parseFloat($('#ExistenciaMaxima').val());
+            var media = parseFloat($('#ExistenciaMedia').val());
+            
+
+            if (minima > 0 && maxima > 0 && media > 0)
+            {
+                if ($('#ExistenciaMinima').val() != '' && $('#ExistenciaMaxima').val() != '' && $('#ExistenciaMedia').val() != '') {
+                    if (minima >= maxima || media >= maxima) {
+                        cargarAlert('@SharedLocalizer["minimaValid"]');
+                        return false;
+                    }
+                    if (minima >= media)
+                    {
+                        cargarAlert('@SharedLocalizer["minimaValid"]');
+                        return false;
+                    }
+                    else
+                    {
+                         return true;
+
+                    }
+                }
+                   
+                      
+            } 
+         
+                     
+            else
+            {
+                if($('#ExistenciaMinima').val() == '' || minima <= 0)
+                     $('#validatedTextMinima').attr('hidden', false);
+                if ($('#ExistenciaMaxima').val() == '' ||  maxima <= 0 )
+                     $('#validatedTextMaxima').attr('hidden', false);
+                if ($('#ExistenciaMedia').val() == '' || media <= 0 )
+                     $('#validatedTextMedia').attr('hidden', false);
+
+
+                return false;
+            }
+
+
+
+        }
+
+
+    });
+
+</script>
 
 
   

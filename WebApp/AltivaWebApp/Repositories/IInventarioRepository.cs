@@ -8,6 +8,7 @@ namespace AltivaWebApp.Repositories
 {
     public interface IInventarioRepository
     {
+        TbPrInventarioBodega UpdateIBodega(TbPrInventarioBodega domain);//
         TbPrInventario GetInventarioById(int id);
         TbPrInventarioBodega GetInventarioBodegaById(int id);
         TbPrInventario GetInventarioByCodigo(string codigo);

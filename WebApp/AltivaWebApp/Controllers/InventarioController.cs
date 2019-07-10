@@ -223,11 +223,19 @@ namespace AltivaWebApp.Controllers
                 return PartialView("_EditarBodega", inventario);
          }
         [HttpPost("Editar-BodegaInventario/{id?}")]
-        public ActionResult EditarIventarioBodega(int id)
+        public ActionResult EditarIventarioBodega(InventarioBodegaViewModel inventarioBodega)
         {
-            ViewBag.id = id;
-            var inventario = map.DomainToViewModel(service.GetInventarioById(id));
-            return PartialView("_EditarBodega", inventario);
+            try
+            {
+                map.UpdateIBodega(inventarioBodega);
+                return Json(new { success = true });
+
+            }
+            catch
+            {
+                return BadRequest();
+
+            }
         }
 
         [HttpPost("CrearEditar-InventarioBodega/{id}")]
@@ -237,7 +245,7 @@ namespace AltivaWebApp.Controllers
             {
                 
                 map.CreateInventarioBodega(id, inventarioBodega);
-
+                
                 return Json(new { success = true });
             }
             catch

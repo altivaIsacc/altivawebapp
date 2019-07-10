@@ -51,6 +51,10 @@ namespace AltivaWebApp.Services
         {
             return repository.Update(domain);
         }
+        public TbPrInventarioBodega UpdateIBodega(TbPrInventarioBodega domain)
+        {
+            return repository.UpdateIBodega(domain);
+        }
         public bool Delete(TbPrInventario domain)
         {
             return repository.Delete(domain);
