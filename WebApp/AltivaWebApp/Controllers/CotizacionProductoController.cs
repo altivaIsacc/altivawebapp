@@ -121,19 +121,52 @@ namespace AltivaWebApp.Controllers
                 {
                   
                         long? idCD = 0;
-                   
-                        var orden = _Map.Update(viewModel);
-                        if (viewModel.IdCotizacion != 0 && viewModel.CotizacionDetalle.Count()>0)
-                    {
-                        var count = viewModel.CotizacionDetalle.Count();                    
-                            var cd = _Map.CreateCD(viewModel);
-                            idCD = cd.IdCotizacionDetalle;
+                 
+                        var detalles = _Service.GetAllCotizacionDetalleByIdCotizacion(Convert.ToInt32(viewModel.IdCotizacion));
+                        if (detalles.Count == 0)
+                        {
+                        if (viewModel.CotizacionDetalle.Count() > 0)
+                        {
+                            var orden = _Map.Update(viewModel);
 
-                     
+                            if (viewModel.IdCotizacion != 0 && viewModel.CotizacionDetalle.Count() > 0)
+                            {
+                                var count = viewModel.CotizacionDetalle.Count();
+                                var cd = _Map.CreateCD(viewModel);
+                                idCD = cd.IdCotizacionDetalle;
+
+                            }
+                        }
+                        else
+                        {
+                            return BadRequest();
+                        }
+                   
+                        }
+                        else
+                        {
+                        if (viewModel.CotizacionDetalle.Count() > 0)
+                        {
+                            var orden = _Map.Update(viewModel);
+
+                            if (viewModel.IdCotizacion != 0 && viewModel.CotizacionDetalle.Count() > 0)
+                            {
+                                var count = viewModel.CotizacionDetalle.Count();
+                                var cd = _Map.CreateCD(viewModel);
+                                idCD = cd.IdCotizacionDetalle;
+
+                            }
+                        }
+                        else
+                        {
+                            var orden = _Map.Update(viewModel);
+                        }
                     }
-               
+
                         return Json(new { success = true, idCD = idCD });
-                    
+          
+                         
+                                      
 
                 }
                 else
@@ -155,6 +188,7 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
+     
                 throw;
                 //return BadRequest();
             }

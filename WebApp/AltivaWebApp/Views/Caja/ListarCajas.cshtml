@@ -47,7 +47,8 @@
     <div class="col-md-2">
         <label>@Lb["BuscarPorEstado"]:</label>
         <select id="Estados" class="form-control search-key">
-            <option selected value="0">@Lb["Todos"]</option>
+            <option selected value="-1">@Lb["Seleccione"]</option>
+            <option value="0">@Lb["Todos"]</option>
             <option value="1">@Lb["Abierta"]</option>
             <option value="2">@Lb["Arqueo"]</option>
             <option value="3">@Lb["ArqueoReabierto"]</option>
@@ -111,6 +112,8 @@
     var tblCajas;
     var hasta;
     var desde;
+    var _CajasAbiertas = [];
+    var _CajasFiltro = [];
 
     $(document).ready(function () {
 
@@ -167,7 +170,18 @@
        
     });
 ////////////////////////////////////////////////////////////////GETS////////////////////////////////////////////////////////////////////////////
+    function getAbiertas(data) {
+                        for (var p = 0; p <data.length; p++) {
 
+                    if (parseInt(data[p].estado) === 1) {
+                        _CajasAbiertas.push(data[p]);
+
+                    } else {
+                        _CajasFiltro.push(data[p]);
+                    }
+                }
+
+    }
         function getCajas() {
             ///get ajustes
         $.ajax({
@@ -179,19 +193,15 @@
             url: '@Url.Action("GetCajas", "Caja")',
             success: function (data) {
                 Cajas = JSON.parse(JSON.stringify(data));
-
+                getAbiertas(data);
                 Cajas.sort(function (a, b) {
 
                     return b.idCaja - a.idCaja ;
                 });
 
-                for (var i = 0; i <data.length; i++) {
-                    if (parseInt(data[i].estado) === 4) {
-                        _CajasCerradas.push(data[i]);
-                    }
-                }
+
  
-                cargarDatos(Cajas);  
+                cargarDatos(_CajasAbiertas);  
          
 
             },
@@ -226,7 +236,6 @@
 
 /////////////////////////////////////////////////////////////////////CARGAR EL DOM/////////////////////////////////////////////////////////////////
     function cargarDatos(data) {
-        console.log(data);
         var colorLinea = "";
         var contadorFila = 0;
         $("#tblCajas > tbody").remove();
@@ -324,7 +333,7 @@
 
         tblCajas = $('#tblCajas').DataTable({
             "info": false,
-            "order": "desc",
+    
 
             language: {
                 "decimal": "",
@@ -454,69 +463,74 @@
 
         switch (parseInt( this.value)) {
             case 1:
+                cargarDatos(_CajasAbiertas);
                 tblCajas
                     .columns(3)
                     .search("@Lb["Abierta"]")
                     .draw();
 
                 $('#filtroId').val("");
-                $('#filtroUsuario').val("");
+                $('#ddUsuarios').val(0);
                 break;
             case 2:
+                cargarDatos(_CajasFiltro);
                 tblCajas
                     .columns(3)
                     .search("@Lb["Arqueo"]")
                     .draw();
 
                 $('#filtroId').val("");
-                $('#filtroUsuario').val("");
+                $('#ddUsuarios').val(0);
                 break;
             case 3:
+                cargarDatos(_CajasFiltro);
                 tblCajas
                     .columns(3)
                     .search("@Lb["ArqueoReabierto"]")
                     .draw();
 
                 $('#filtroId').val("");
-                $('#filtroUsuario').val("");
+                $('#ddUsuarios').val(0);
                 break;
             case 4:
-                cargarDatos(_CajasCerradas);
+                cargarDatos(_CajasFiltro);
 
                 $('#filtroId').val("");
-                $('#filtroUsuario').val("");
+                $('#ddUsuarios').val(0);
                 break;
             case 5:
+                cargarDatos(_CajasFiltro);
                 tblCajas
                     .columns(3)
                     .search("@Lb["CierreReabierto"]")
                     .draw();
 
                 $('#filtroId').val("");
-                $('#filtroUsuario').val("");
+                $('#ddUsuarios').val(0);
                 break;
             case 0:
                 cargarDatos(Cajas);
                 $('#filtroId').val("");
-                $('#filtroCliente').val("");
-                $('#filtroVendedor').val("");
+                $('#ddUsuarios').val(0);
                 break;
-             case 6:
+            case 6:
+                cargarDatos(_CajasFiltro);
                 tblCajas
                     .columns(3)
                     .search("@Lb["Anulada"]")
                     .draw();
 
                 $('#filtroId').val("");
-                $('#filtroUsuario').val("");
+                $('#ddUsuarios').val(0);
                 break;
         }
     });
 
 
     $("#filtroId").on("keyup", function () {
+        console.log(this.value);
         tblCajas
-            .columns(0)
+            .columns(2)
             .search(this.value)
             .draw();
     });

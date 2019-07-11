@@ -161,7 +161,7 @@ else
                             <div class="col-md-1"><label id="lbExistencia"></label></div>
                         </td>
                         <td><input id="lbCantidad" class="form-control cantidad" type="text" min="1" value="1" /></td>
-                        <td><input id="lbDescuento" class="form-control numerico cantidad" type="text" min="0" value="0" /></td>
+                        <td><input id="lbDescuento" class="form-control numerico cantidad" type="text"  /></td>
                         <td><input id="lbCostoPromedio" class="form-control moneda numerico" min="1" type="text" /></td>
                         <td><input type="text" class="form-control moneda numerico " readonly id="lbTotal" /></td>
                         <td>
@@ -578,7 +578,6 @@ else
             setTotalLinea();
         }
         cargarTabla(LineasAgregadasyNuevas, parseInt($(this).val()));
-        console.log("Moneda");
         CalcularTotalesCotizacion(lineas, parseInt($(this).val()))
     });
 
@@ -589,9 +588,22 @@ else
             setTotalLinea();
     });
 
+
+
     $("#lbDescuento").on('focusout', function () {
 
-        setTotalLinea();
+        if ($(this).val() != 0) {
+
+            if ($(this).val() < 0) {
+                $(this).val(0);
+            }
+
+            if ($(this).val() > 100) {
+                $(this).val(100);
+            }
+
+            setTotalLinea();
+        }
     });
 
     $("#lbDescuentoGlobal").on('focusout', function () {
@@ -600,6 +612,10 @@ else
 
             if ($(this).val() > 100) {
                 $(this).val(100);
+            }
+
+            if ($(this).val() < 0) {
+                $(this).val(0);
             }
 
             $porcDescuento.val($(this).val());
@@ -620,22 +636,6 @@ else
     });
 
 
-
-    $("#lbDescuento").on('focusout', function () {
-
-        if ($(this).val() != 0) {
-
-            if ($(this).val() < 0) {
-                $(this).val(0);
-            }
-
-            if ($(this).val() > 100) {
-                $(this).val(100);
-            }
-
-            setTotalLinea();
-        }
-    });
 
 
         $("#lbCostoPromedio").on('focusout', function () {
@@ -660,13 +660,13 @@ else
         var _lineaDetalle = [];
 
         if (LineasDescuento.length < 1) {
-
+            console.log("1");
             _lineaDetalle = _LineaAgregadaEditar;
         } else {
-
+            console.log("2");
             _lineaDetalle = LineasDescuento;
         }
-
+        console.log(_lineaDetalle);
         for (var i = 0; i < _lineaDetalle.length; i++) {
 
             switch (parseInt(moneda)){
@@ -688,14 +688,11 @@ else
             }
 
 
-
-        }
+       }
 
 
             //cargarTabla(lineas, $('#ddMoneda').val());
-
         cargarTabla(_lineaDetalle, $('#ddMoneda').val());
-        console.log("ActualizarLineade");
         CalcularTotalesCotizacion(_lineaDetalle, $('#ddMoneda').val());
     }
 
@@ -945,7 +942,7 @@ else
                      guardarLinea();
                      guardarCotizacion();
                  } else {
-                                 var msj = "@Lb["dataVaciaDetalleCotizacion"]";
+                                 var msj = "@Lb["dataVaciaCotizacion"]";
             bootbox.alert(msj);
                  }
 
@@ -962,6 +959,7 @@ else
         $("#lbExistencia").val(1);
         $("#lbCostoPromedio").val(0);
         $("#lbTotal").val(0);
+      //  $("#lbDescuento").val(0);
         //Descuento();
         setTotalLinea();
     }
@@ -1041,16 +1039,18 @@ else
         Who = Who.toString();
 
         if (Who === "ULD") {
-
+      
             _Lineas = _LineasEditadas;
 
         } else if (Who === "GC") {
 
             if (lineasAgregadas.length < 1) {
+              
                 _Lineas = 0;
             } else {
-
+      
                 _Lineas = lineasAgregadas;
+             
             }
         } else {
             _Lineas = lineasAgregadas;
@@ -1173,39 +1173,40 @@ else
 
     function crearModeloDetalle(model) {
 
-        for (var i = 0; i < model.length; i++) {
-            model[i].precioBase = model[i].precioBase.toString().replace(".", ",");
-            model[i].precioDolar = model[i].precioDolar.toString().replace(".", ",");
-            model[i].precioEuro = model[i].precioEuro.toString().replace(".", ",");
-            model[i].subTotalBase = model[i].subTotalBase.toString().replace(".", ",");
-            model[i].subTotalDolar = model[i].subTotalDolar.toString().replace(".", ",");
-            model[i].subTotalEuro = model[i].subTotalEuro.toString().replace(".", ",");
-            model[i].subTotalGravadoBase = model[i].subTotalGravadoBase.toString().replace(".", ",");
-            model[i].subTotalGravadoDolar = model[i].subTotalGravadoDolar.toString().replace(".", ",");
-            model[i].subTotalGravadoEuro = model[i].subTotalGravadoEuro.toString().replace(".", ",");
-            model[i].subTotalExcentoBase = model[i].subTotalExcentoBase.toString().replace(".", ",");
-            model[i].subTotalExcentoDolar = model[i].subTotalExcentoDolar.toString().replace(".", ",");
-            model[i].subTotalExcentoEuro = model[i].subTotalExcentoEuro.toString().replace(".", ",");
-            model[i].porcDescuento = model[i].porcDescuento.toString().replace(".", ",");
-            model[i].totalDescuentoBase = model[i].totalDescuentoBase.toString().replace(".", ",");
-            model[i].totalDescuentoDolar = model[i].totalDescuentoDolar.toString().replace(".", ",");
-            model[i].totalDescuentoEuro = model[i].totalDescuentoEuro.toString().replace(".", ",");
-            model[i].subTotalGravadoBase = model[i].subTotalGravadoBase.toString().replace(".", ",");
-            model[i].subTotalGravadoDolar = model[i].subTotalGravadoDolar.toString().replace(".", ",");
-            model[i].subTotalGravadoEuro = model[i].subTotalGravadoEuro.toString().replace(".", ",");
-            model[i].subTotalExcentoBase = model[i].subTotalExcentoBase.toString().replace(".", ",");
-            model[i].subTotalExcentoDolar = model[i].subTotalExcentoDolar.toString().replace(".", ",");
-            model[i].subTotalExcentoEuro = model[i].subTotalExcentoEuro.toString().replace(".", ",");
-            model[i].montoIvaBase = model[i].montoIvaBase.toString().replace(".", ",");
-            model[i].montoIvaDolar = model[i].montoIvaDolar.toString().replace(".", ",");
-            model[i].montoIvaEuro = model[i].montoIvaEuro.toString().replace(".", ",");
-            model[i].totalBase = model[i].totalBase.toString().replace(".", ",");
-            model[i].totalDolar = model[i].totalDolar.toString().replace(".", ",");
-            model[i].totalEuro = model[i].totalEuro.toString().replace(".", ",");
-            model[i].cantidad = model[i].cantidad.toString().replace(".", ",");
-            model[i].idCotizacion = model[i].idCotizacion.toString().replace(".", ",");
-        }
 
+            for (var i = 0; i < model.length; i++) {
+                model[i].precioBase = model[i].precioBase.toString().replace(".", ",");
+                model[i].precioDolar = model[i].precioDolar.toString().replace(".", ",");
+                model[i].precioEuro = model[i].precioEuro.toString().replace(".", ",");
+                model[i].subTotalBase = model[i].subTotalBase.toString().replace(".", ",");
+                model[i].subTotalDolar = model[i].subTotalDolar.toString().replace(".", ",");
+                model[i].subTotalEuro = model[i].subTotalEuro.toString().replace(".", ",");
+                model[i].subTotalGravadoBase = model[i].subTotalGravadoBase.toString().replace(".", ",");
+                model[i].subTotalGravadoDolar = model[i].subTotalGravadoDolar.toString().replace(".", ",");
+                model[i].subTotalGravadoEuro = model[i].subTotalGravadoEuro.toString().replace(".", ",");
+                model[i].subTotalExcentoBase = model[i].subTotalExcentoBase.toString().replace(".", ",");
+                model[i].subTotalExcentoDolar = model[i].subTotalExcentoDolar.toString().replace(".", ",");
+                model[i].subTotalExcentoEuro = model[i].subTotalExcentoEuro.toString().replace(".", ",");
+                model[i].porcDescuento = model[i].porcDescuento.toString().replace(".", ",");
+                model[i].totalDescuentoBase = model[i].totalDescuentoBase.toString().replace(".", ",");
+                model[i].totalDescuentoDolar = model[i].totalDescuentoDolar.toString().replace(".", ",");
+                model[i].totalDescuentoEuro = model[i].totalDescuentoEuro.toString().replace(".", ",");
+                model[i].subTotalGravadoBase = model[i].subTotalGravadoBase.toString().replace(".", ",");
+                model[i].subTotalGravadoDolar = model[i].subTotalGravadoDolar.toString().replace(".", ",");
+                model[i].subTotalGravadoEuro = model[i].subTotalGravadoEuro.toString().replace(".", ",");
+                model[i].subTotalExcentoBase = model[i].subTotalExcentoBase.toString().replace(".", ",");
+                model[i].subTotalExcentoDolar = model[i].subTotalExcentoDolar.toString().replace(".", ",");
+                model[i].subTotalExcentoEuro = model[i].subTotalExcentoEuro.toString().replace(".", ",");
+                model[i].montoIvaBase = model[i].montoIvaBase.toString().replace(".", ",");
+                model[i].montoIvaDolar = model[i].montoIvaDolar.toString().replace(".", ",");
+                model[i].montoIvaEuro = model[i].montoIvaEuro.toString().replace(".", ",");
+                model[i].totalBase = model[i].totalBase.toString().replace(".", ",");
+                model[i].totalDolar = model[i].totalDolar.toString().replace(".", ",");
+                model[i].totalEuro = model[i].totalEuro.toString().replace(".", ",");
+                model[i].cantidad = model[i].cantidad.toString().replace(".", ",");
+                model[i].idCotizacion = model[i].idCotizacion.toString().replace(".", ",");
+            }
+        
         return model;
     }
 
@@ -1301,10 +1302,15 @@ else
     function UpdateLineasDetalle(LineasDetalle) {
 
         var miDescuento = 0;
+        var descuento = 0;
         for (var i = 0; i < LineasDetalle.length; i++) {
 
-            LineasDetalle[i].porcDescuento = $porcDescuentoGlobal.val();
-
+            if ($porcDescuentoGlobal.val() != 0) {
+                descuento = $porcDescuentoGlobal.val();
+            } else {
+                descuento = $porcDescuento.val();
+            }
+            LineasDetalle[i].porcDescuento = descuento;
             LineasDetalle[i].subTotalBase = parseFloat((LineasDetalle[i].cantidad) * (LineasDetalle[i].precioBase));
 
             LineasDetalle[i].subTotalDolar = parseFloat(((LineasDetalle[i].cantidad) * (LineasDetalle[i].precioBase))/CambioDolar);
@@ -1414,7 +1420,10 @@ else
                         lineas[lineas.length - 1].idCotizacionDetalle = data.idCD;
                         lineasAgregadas[lineasAgregadas.length - 1].idCotizacionDetalle = data.idCD;
                     }
-                    UpdateLineasDetalle(LineasDescuento);
+                    if ($porcDescuentoGlobal != 0) {
+                        UpdateLineasDetalle(LineasDescuento);
+                    }
+               
                     if (parseInt(data.idCD) === 0) {
                         window.location.href = "@Url.Action("ListarCotizacionProducto")";
                     }
@@ -1451,7 +1460,7 @@ else
         switch (parseInt($Moneda.val())) {
 
             case 1:
-                   console.log("colones");
+          
                     model = {
                             idCotizacionDetalle: 0,
                             idInventario: $("#ddInventario").val(),
@@ -1491,7 +1500,7 @@ else
         };
                 break;
             case 2:
-                console.log("dolares");
+   
                 precioBase = parseFloat($precio.val() * CambioDolar);
                 subTotalBase = parseFloat((fnSubTotalBase($("#ddInventario").val())) * CambioDolar);
                 subTotalGravadoBase =parseFloat( (fnSubTotalGravadoBase($("#ddInventario").val()))*CambioDolar );
@@ -1541,7 +1550,7 @@ else
                 break
             case 3:
 
-                console.log("euros");
+       
                 precioBase = parseFloat($precio.val() * CambioEuro);
                 subTotalBase = parseFloat((fnSubTotalBase($("#ddInventario").val())) * CambioEuro);
                 subTotalGravadoBase = parseFloat((fnSubTotalGravadoBase($("#ddInventario").val())) * CambioEuro);
@@ -1591,14 +1600,15 @@ else
                 break;
         }
 
+   
         lineasAgregadas = [];
         lineasAgregadas.push(model);
-        LineasDescuento.push(model);
         LineasAgregadasyNuevas.push(model);
         _LineaAgregadaEditar.push(model);
+        LineasDescuento.push(model);
         lineas.push(model);
+ 
 
-        console.log("guardarlinea");
         CalcularTotalesCotizacion(lineas,$('#ddMoneda').val());
     }
 
@@ -1874,7 +1884,6 @@ else
                     descuento = parseFloat(parseFloat(descuento) + parseFloat(_Lineas[i].totalDescuentoEuro.toString().replace(",", ".")));
                     impuesto = parseFloat(parseFloat(impuesto) + parseFloat(_Lineas[i].montoIvaEuro.toString().replace(",", ".")));
                     total =parseFloat( total + parseFloat( _Lineas[i].totalEuro.toString().replace(",",".")));
-                    console.log( _Lineas[i].totalEuro);
                     _subTotalGravadoBase = parseFloat(parseFloat(_subTotalGravadoBase) + parseFloat(_Lineas[i].subTotalGravadoEuro.toString().replace(",", ".")));
                     _subTotalExcentoBase = parseFloat(parseFloat(_subTotalExcentoBase) + parseFloat(_Lineas[i].subTotalExcentoEuro.toString().replace(",", ".")));
                     _totalDescuento = parseFloat(parseFloat(_totalDescuento) + parseFloat(_Lineas[i].totalDescuentoEuro.toString().replace(",", ".")));

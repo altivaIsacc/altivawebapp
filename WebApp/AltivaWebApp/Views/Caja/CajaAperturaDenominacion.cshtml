@@ -550,12 +550,12 @@
               dataType: "json",
             url: '@Url.Action("GetCajaAperturaDenominacion")',
             success: function (data) {
-                CajaApertura = JSON.parse(JSON.stringify(data));
-       
+                CajaApertura = JSON.parse(JSON.stringify(data));      
                 cargarLineasApertura(CajaApertura);
-                setTotalGlobal(CajaApertura);
 
-                if (@Model.Estado=== 2) {
+                setTotalGlobal(_LineaCajaAperturaDenominaciones);
+
+                if (@Model.Estado=== 2 || @Model.Estado=== 5) {
                     getAllPerfilModulo();
                     getAllPerfilUsuario();
                 }
@@ -809,7 +809,7 @@
                 switch (parseInt( @Model.Estado)) {
                     case 1:
                         $Estado.val(1);
-                        var o = "<option value=" + 1+ ">@Lb["Abierta"]</option><option value=" + 2+ ">@Lb["Arqueo"]</option><option value=" + 6+ ">@Lb["Anulada"]</option>";
+                        var o = "<option value=" + 1+ ">@Lb["Abierta"]</option><option value=" + 2+ ">@Lb["Arqueo"]</option><option value=" + 6+ ">@Lb["Anular"]</option>";
                         $("#lbEstado").append(o);
                         break;
                     case 2:
@@ -851,42 +851,11 @@
     function cargarLineasApertura(data) {
         var model = {};
   
-        if (data.length > _GetDenominaciones.length) {
+        if (data.length >= _GetDenominaciones.length) {
+            console.log("1");
             for (var k = 0; k < data.length; k++) {
              
-                try {
 
-                    model = {
-                        idCajaApertura: data[k].idCajaApertura,
-                        idCaja: data[k].idCaja,
-                        fechaCreacion: data[k].fechaCreacion,
-                        idUsuario: data[k].idUsuario,
-                        idDenominacion: data[k].idDenominacion,
-                        cantidad: data[k].cantidad,
-                        monto: data[k].monto,
-
-                    };
-                } catch{
-
-                    model = {
-                        idCajaApertura: 0,
-                        idCaja: 0,
-                        fechaCreacion: "",
-                        idUsuario: 0,
-                        idDenominaciones: _Denominaciones[k].idDenominaciones,
-                        cantidad: 0,
-                        monto: 0,
-
-                    };
-                }
-
-                _LineaCajaAperturaDenominaciones.push(model);
-
-            }
-        } else {
-            for (var k = 0; k < _GetDenominaciones.length; k++) {
-        
-                try {
 
                     model = {
                         idCajaApertura: data[k].idCajaApertura,
@@ -898,19 +867,27 @@
                         monto: data[k].monto,
 
                     };
-                } catch{
+                
+                _LineaCajaAperturaDenominaciones.push(model);
 
-                    model = {
-                        idCajaApertura: 0,
-                        idCaja: 0,
-                        fechaCreacion: "",
-                        idUsuario: 0,
-                        idDenominaciones: _GetDenominaciones[k].idDenominaciones,
-                        cantidad: 0,
-                        monto: 0,
+            }
+        } else {
+            console.log("2");
+            for (var k = 0; k < data.length; k++) {
+ 
+                        model = {
+                            idCajaApertura: data[k].idCajaApertura,
+                            idCaja: data[k].idCaja,
+                            fechaCreacion: data[k].fechaCreacion,
+                            idUsuario: data[k].idUsuario,
+                            idDenominaciones: data[k].idDenominacion,
+                            cantidad: data[k].cantidad,
+                            monto: data[k].monto,
 
-                    };
-                }
+                        };
+
+                    
+      
 
                 _LineaCajaAperturaDenominaciones.push(model);
 
@@ -1309,11 +1286,15 @@
                     break;
             }
         }
- 
+     
         for (var i = 0; i < data.length; i++) {
-            
-            tipomonedayValor = fnidMoneda(data[i].idDenominaciones);
-            moneda_valor = tipomonedayValor.toString().split('*');
+            try {
+                tipomonedayValor = fnidMoneda(data[i].idDenominaciones);
+                moneda_valor = tipomonedayValor.toString().split('*');
+            } catch{
+                tipomonedayValor = fnidMoneda(data[i].idDenominacion);
+                moneda_valor = tipomonedayValor.toString().split('*');
+            }
             tipomoneda = moneda_valor[0];
             _valor = moneda_valor[1];
 
@@ -1353,6 +1334,10 @@
                     _cantidad = data[i].cantidad;
                     _monto = data[i].monto;
                     _idDenominacion = data[i].idDenominaciones;
+              
+                    if (_idDenominacion === undefined) {
+                        _idDenominacion = data[i].idDenominacion;
+                    }
                 } catch{
                     _idDenominacion = _Denominaciones[i].idDenominaciones;
                     _cantidad = 0;
@@ -1372,7 +1357,10 @@
                 + '<td style="padding-top:2rem;text-align: right;" class="letratbDenominaciones"><input id="inpMonto' + _idDenominacion + '" value="'+_monto+'" class="form-control moneda numerico" type="text" min="0" value="0" disabled /></td></tr>';
             $('.lineaForm').before(body);
 
-            darFormatoTipo(_Denominaciones[i].tipo, _idDenominacion);
+          
+                darFormatoTipo(_idDenominacion);
+      
+        
             contadorFila++;
         }
 
@@ -2099,8 +2087,14 @@
         $cantidad.val(1);
     }
 
-    function darFormatoTipo(idTipo, id) {
-
+    function darFormatoTipo(id) {
+        var idTipo = 0;
+        for (var g = 0; g <_Denominaciones.length; g++) {
+            if (id === _Denominaciones[g].idDenominaciones) {
+                idTipo = _Denominaciones[g].tipo;
+                break;
+            }
+        }
         if (idTipo === 1)
             $('#' + id).prop('src', "/../uploads/BilleteIcon.png");
         else if (idTipo === 2)
@@ -2151,11 +2145,12 @@
                 });
                 break;
             case 4:
-
+          
                 var _perfilusuario = [];
                 var modelperfil = {};
                 var Permiso = 0;
-
+                console.log(PerfilUsuario);
+                console.log(IdUsuarioLogueado);
                 for (var g = 0; g <PerfilUsuario.length; g++) {
                     if (parseInt(IdUsuarioLogueado) == parseInt(PerfilUsuario[g].idUsuario)) {
 
@@ -2183,6 +2178,7 @@
 
                     }
                 }
+   
                 if (Permiso === 1) {
                     var msj = "@Lb["confirmEstado"]";
                     bootbox.confirm(msj, function (result) {
@@ -2396,20 +2392,20 @@
 
         var _cantidad = 0;
 
-        for (var i = 0; i < CajaApertura.length; i++) {
-            if ($("#inpCantidad" + CajaApertura[i].idDenominacion + "").val() === "") {
+        for (var i = 0; i < _LineaCajaAperturaDenominaciones.length; i++) {
+            if ($("#inpCantidad" + _LineaCajaAperturaDenominaciones[i].idDenominaciones + "").val() === "") {
                 _cantidad = 0;
             } else {
-                _cantidad = $("#inpCantidad" + CajaApertura[i].idDenominacion + "").val().toString().replace(".", ",");
+                _cantidad = $("#inpCantidad" + _LineaCajaAperturaDenominaciones[i].idDenominaciones + "").val().toString().replace(".", ",");
             }
             var model = {
                 idCajaApertura:0,
                 idCaja:@Model.IdCaja,
                 fechaCreacion: $('#lbFechaCreacion').val(),
                 idUsuario: IdUsuarioLogueado,
-                idDenominacion:CajaApertura[i].idDenominacion,
+                idDenominacion: _LineaCajaAperturaDenominaciones[i].idDenominaciones,
                 cantidad: _cantidad,
-                monto: $("#inpMonto" + CajaApertura[i].idDenominacion + "").val().toString().replace(".", ","),
+                monto: $("#inpMonto" + _LineaCajaAperturaDenominaciones[i].idDenominaciones + "").val().toString().replace(".", ","),
             }
 
             Apertura.push(model);
@@ -2422,20 +2418,20 @@
 
         function GuardarArqueoDenominaciones() {
         var _cantidad = 0;
-        for (var i = 0; i < CajaApertura.length; i++) {
-            if ($("#inpCantidad" + CajaApertura[i].idDenominacion + "").val() === "") {
+            for (var i = 0; i < _LineaCajaAperturaDenominaciones.length; i++) {
+                if ($("#inpCantidad" + _LineaCajaAperturaDenominaciones[i].idDenominaciones + "").val() === "") {
                 _cantidad = 0;
             } else {
-                _cantidad = $("#inpCantidad" + CajaApertura[i].idDenominacion + "").val().toString().replace(".", ",");
+                    _cantidad = $("#inpCantidad" + _LineaCajaAperturaDenominaciones[i].idDenominaciones + "").val().toString().replace(".", ",");
             }
             var model = {
                 idCajaArqueoDenominacion:0,
                 idCaja:@Model.IdCaja,
                 fechaCreacion: $('#lbFechaCreacion').val(),
                 idUsuario: IdUsuarioLogueado,
-                idDenominacion:CajaApertura[i].idDenominacion,
+                idDenominacion: _LineaCajaAperturaDenominaciones[i].idDenominaciones,
                 cantidad: _cantidad,
-                monto: $("#inpMonto" + CajaApertura[i].idDenominacion + "").val().toString().replace(".", ","),
+                monto: $("#inpMonto" + _LineaCajaAperturaDenominaciones[i].idDenominaciones + "").val().toString().replace(".", ","),
             }
 
             Arqueo.push(model);
@@ -2689,10 +2685,8 @@
         if (@Model.IdCaja!= 0) {
 
             for (var s = 0; s < _Denominaciones.length; s++) {
-                if (_Denominaciones[s].idDenominaciones === fila) {
-                
-                    _valor = parseFloat(_Denominaciones[s].valor);
-                 
+                if (_Denominaciones[s].idDenominaciones === fila) {              
+                    _valor = parseFloat(_Denominaciones[s].valor);               
                     total = parseFloat(_valor * cant);
                     $('#inpMonto' + _Denominaciones[s].idDenominaciones).val(total);
                     break;
@@ -2713,11 +2707,12 @@
 
         if (@Model.IdCaja!= 0) {
 
-            console.log(_LineaCajaAperturaDenominaciones);
+  
             switch (parseInt(moneda)) {
                 case 1:
-          
+                 
                     for (var i = 0; i < _LineaCajaAperturaDenominaciones.length; i++) {
+               
                         if (fila === _LineaCajaAperturaDenominaciones[i].idDenominaciones) {
                             _LineaCajaAperturaDenominaciones[i].monto = total;
                         }
@@ -2813,13 +2808,18 @@
         var _idmoneda = [];
         var moneda = 0;
 
-        console.log(_LineaCajaAperturaDenominaciones);
+
         for (var k = 0; k < data.length; k++) {
 
-            moneda = fnidMoneda(data[k].idDenominaciones);
-
-            _idmoneda = moneda.split('*');
+            try {
+                moneda = fnidMoneda(data[k].idDenominaciones);
+                _idmoneda = moneda.split('*');
+            } catch{
+                moneda = fnidMoneda(data[k].idDenominacion);
+                _idmoneda = moneda.split('*');
+            }
             idmoneda = _idmoneda[0];
+
             switch (parseInt(idmoneda)) {
 
                 case 1:
