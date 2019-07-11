@@ -99,12 +99,22 @@ namespace AltivaWebApp.Mappers
         public TbFaCaja ViewModelToDomain(CajaViewModel viewModel)
         {
             var domain = new TbFaCaja { };
+            var fecha = new DateTime();
+
+            if (viewModel.IdCaja != 0)
+            {
+                fecha = DateTime.Now;
+            }
+            else
+            {
+                fecha = viewModel.FechaCreacion;
+            }
             try
             {
                 domain = new TbFaCaja
                 {
                     IdCaja = viewModel.IdCaja,
-                    FechaCreacion = Convert.ToDateTime(viewModel.FechaCreacion),
+                    FechaCreacion = fecha,
                     IdUsuario = viewModel.IdUsuario,
                     Estado = viewModel.Estado,
                     TbFaCajaAperturaDenominacion = ViewModelToDomainCD(viewModel),
