@@ -19,10 +19,11 @@ public interface IContactoRepository
         TbCrContacto GetByIdContacto(long id);
         TbCrContacto GetByEmailContacto(string correo);
         TbCrContacto GetByCedulaContacto(string cedula);
-        TbCrContacto GetTareas(int idContacto);
+        IList<TbFdTarea> GetTareas(int idContacto);
         IList<TbCrContactoRelacion> GetContactosRelacion(int id);
         IList<TbCrContacto> GetAllProveedores();
         IList<TbCeDistrito> GetDistrito(int idCanton,int idProvincia);
         bool EliminarRelacion(int idRelacion);
+       
     }
 }

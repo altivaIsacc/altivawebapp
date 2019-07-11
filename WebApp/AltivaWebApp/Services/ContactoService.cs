@@ -136,7 +136,7 @@ namespace AltivaWebApp.Services
            return this.ContactoRepository.GetProvincias();
         }
 
-        public TbCrContacto GetTareas(int idContacto)
+        public IList<TbFdTarea> GetTareas(int idContacto)
         {
             return this.ContactoRepository.GetTareas(idContacto);
         }
@@ -151,10 +151,19 @@ namespace AltivaWebApp.Services
             return this.IContactoRelacionRepository.Update(domain);
         }
 
+        public TbCrContactoRelacion GetRelacionById(int id)
+        {
+            return IContactoRelacionRepository.GetById(id);
+        }
+
         public TbCrContacto Save(TbCrContacto domain)
         {
             return this.ContactoRepository.Save(domain) ;
         }
-       
+
+        public TbCrContactoRelacion GetByIdPadreAndIdHijo(int idPadre, int idHijo)
+        {
+            return IContactoRelacionRepository.GetByIdPadreAndIdHijo(idPadre, idHijo);
+        }
     }
 }

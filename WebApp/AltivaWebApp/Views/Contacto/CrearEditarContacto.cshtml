@@ -127,7 +127,7 @@
 
         <div class="form-group col-md-4 col-sm-4 col-xs-12">
             <label class="input-group-text" id="inputGroup-sizing-sm">@Lb["CargarImagen"] (6MB)</label>
-            <input type="file" accept="image/*" id="fileUpload" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+            <input type="file" accept="image/*" id="fileUploadC" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
             <span hidden id="tamanoArchivo" class="text-danger">@Lb["tamanoArchivo"]</span>
             <span hidden id="tipoArchivo" class="text-danger">@Lb["tipoArchivo"]</span>
         </div>
@@ -240,30 +240,70 @@
 
 <div class="row">
     <div class="form-group col-md-3">
-        <button class="btn btn-success btnAccion" onclick="guardarCambios()" >@Lb["Guardar"] <i class="fas fa-save"></i></button>
+        <button class="btn btn-success btnAccion" onclick="guardarCambios()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
         <a onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
     </div>
 </div>
 
+<hr />
+<!---------------------------------------------------------------------tabs----------------------------------------------------------------------------->
 <div class="row">
-    <div class="col-md-12">
-        <div id="comentarios">
-        </div>
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <ul class="nav nav-tabs">
+            <li class="" id="relacionesTab"><a data-toggle="tab" href="#relaciones">@Lb["Relaciones"]</a></li>
+            <li><a data-toggle="tab" href="#tareas">@Lb["TareasAsignadas"]</a></li>
+            <li><a data-toggle="tab" href="#comentario">@Lb["Comentarios"]</a></li>
+        </ul>
     </div>
 </div>
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade in active row" id="relaciones">
+        <br />
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div id="relacionesContainer">
+
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="comentario">
+        <div id="comentarios">
+
+        </div>
+    </div>
+    <div class="tab-pane fade row" id="tareas">
+        
+        <br />
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div id="tareasContainer">
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!------------------------------------------------------------------------fin tabs------------------------------------------------------------------------->
+
 
 
 <script src="~/js/comentario.js"></script>
 
 <script>
+
     var camposPersonalizados = [];
     var ccPersonalizados = [];
     var paises = [];
     var $cedula = $('#Cedula');
+    var tipoClientes = [];
+    var familiaClientes = [];
+    var subFamiliaClientes = [];
 
     $(document).ready(function () {
 
         if (@Model.IdContacto != 0) {
+            getRelaciones();
+            getTareasContacto();
             GetComentarios("Contactos", @Model.IdContacto);
         }
 
@@ -389,7 +429,7 @@
                 url: '@Url.Action("CrearEditarContacto", "Contacto")',
                 data: { cpViewModel: ccPersonalizados, cViewModel: contacto },
                 success: function (data) {
-                    if ($('#fileUpload').val() !== "")
+                    if ($('#fileUploadC').val() !== "")
                         guardarImagen(data.id);
 
                     if (!data.accion) {
@@ -412,7 +452,7 @@
     function guardarImagen(idContacto) {
 
          var formData = new FormData();
-         var file = $('#fileUpload')[0].files[0];
+         var file = $('#fileUploadC')[0].files[0];
 
          formData.append("Foto", file);
 
@@ -483,12 +523,13 @@
                 "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
             },
             dataType: "json",
-            url: '@Url.Action("GetCamposPersonalizados", "Contacto")',
-            data: {id: @Model.IdContacto},
+            url: '@Url.Action("GetTiposClientes", "TipoCliente")',
             success: function (data) {
 
-                 camposPersonalizados = data;
-                 cargarCamposPersonalizados(camposPersonalizados);
+                setTipoClientes(data);
+
+                //cargarTipoCLientes(data);
+                 
             },
             error: function (err, scnd) {
                 cargarAlert('@Lb["errorGeneral"]');
@@ -498,10 +539,82 @@
     }
 
 
+    function getRelaciones() {
+        $.ajax({
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: '@Url.Action("_RelacionContacto", "Contacto")',
+            data: { idContacto: @Model.IdContacto },
+            success: function (data) {
+                $('#relacionesContainer').html(data);
+                $('#relacionesTab').addClass('active');
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+    }
+
+    function getTareasContacto() {
+        $.ajax({
+            type: "GET",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: '@Url.Action("_ListarTareasContacto", "Contacto", new { idContacto = Model.IdContacto })',
+            success: function (data) {
+                $('#tareasContainer').html(data);
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+    }
 
 
     /////////////////////////////////////////////////////////////////manejo del dom//////////////////////////////////////////////
 
+    /////////Tipos de Clientes
+
+    function setTipoClientes(data) {
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].idPadre === 0) {
+                tipoClientes.push(data[i]);
+            }
+            else if (esFamilia(data, data[i].idPadre)) {
+                familiaClientes.push(data[i]);
+            }
+            else {
+                subFamiliaClientes.push(data[i]);
+            }
+        }
+
+        //////////////////////////////////cargar combos///////////////////////
+
+    }
+
+    function esFamilia(data, idPadre) {
+        for (var i = 0; i < data.length; i++) {
+            if (idPadre === data[i].id) {
+                if (data[i].idPadre === 0)
+                    return true;
+                else {
+                    return false;
+                }
+            }
+            else
+                return false;
+        }
+    }
+
+
+
+
+    /////////Fin de Tipos de Clientes
 
     function getProvincias() {
         if ($("#Pais option:selected").text() === "Costa Rica") {

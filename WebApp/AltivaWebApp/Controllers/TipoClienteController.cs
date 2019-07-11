@@ -143,14 +143,15 @@ namespace AltivaWebApp.Controllers
         [HttpGet("GetTiposDeClientes")]
         public IActionResult GetTiposClientes()
         {
-            IList<TbFdTipoCliente> TipoClientes = new List<TbFdTipoCliente>();
-            TipoClientes = this.ITipoClientes.GetTipoCliente();
-            if (TipoClientes.Count() > 0) {
-                return new JsonResult(TipoClientes);
-            }
-            else
+            
+            try
             {
-                return new JsonResult(false);
+               return Ok(ITipoClientes.GetAll());
+            }
+            catch (Exception)
+            {
+                return BadRequest()
+                //throw;
             }
         }
         [HttpGet("GetFamiliasTipoCliente/{idCliente?}")]

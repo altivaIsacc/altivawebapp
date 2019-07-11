@@ -162,5 +162,18 @@ namespace AltivaWebApp.Mappers
             };
 
         }
+
+        public ContactoRelacionViewModel  DomainToViewModelCR(TbCrContactoRelacion domain)
+        {
+            return new ContactoRelacionViewModel
+            {
+                Id = domain.Id,
+                IdContactoPadre = domain.IdContactoPadre,
+                IdContactoHijo = domain.IdContactoHijo,
+                NotaRelacion = domain.NotaRelacion
+
+            };
+
+        }
     }
 }

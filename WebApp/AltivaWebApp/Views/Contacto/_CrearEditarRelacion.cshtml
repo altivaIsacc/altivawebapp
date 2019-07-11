@@ -1,0 +1,95 @@
+﻿@model AltivaWebApp.ViewModels.ContactoRelacionViewModel
+@inject IStringLocalizer<SharedResources> Lb
+
+
+@{
+    var contacto = ViewBag.contacto as TbCrContacto;
+}
+
+<div class="row">
+    <form id="frmRelacion">
+        @Html.HiddenFor(x => x.Id)
+
+        <div class="form-group col-md-3 col-sm-3 col-xs-6">
+            <label asp-for="IdContactoPadre" class="control-label">@Lb["Contacto"]:</label>
+            <select asp-for="IdContactoPadre" class="form-control contactosSelect">
+
+                @if ((bool)contacto.Empresa)
+                {
+                    <option data-subtext="@contacto.Cedula" value="@contacto.IdContacto">@contacto.NombreComercial</option>
+                }
+                else
+                {
+                    <option data-subtext="@contacto.Cedula" value="@contacto.IdContacto">@contacto.Nombre @contacto.Apellidos</option>
+                }
+
+            </select>
+        </div>
+        <div class="form-group col-md-3 col-sm-3 col-xs-6">
+            <label asp-for="IdContactoHijo" class="control-label">@Lb["RelacionadoCon"]:</label>
+            <select data-show-subtext="true" data-live-search="true" asp-for="IdContactoHijo" class="form-control contactosSelect">
+                @foreach (var item in ViewBag.contactos as IList<TbCrContacto>)
+                {
+                    if (item.IdContacto != contacto.IdContacto)
+                    {
+                        @if (!(bool)item.Persona)
+                        {
+                            <option data-subtext="@item.Cedula" value="@item.IdContacto">@item.NombreComercial</option>
+                        }
+                        else
+                        {
+                            <option data-subtext="@item.Cedula" value="@item.IdContacto">@item.Nombre @item.Apellidos</option>
+                        }
+                    }
+
+                }
+            </select>
+
+        </div>
+        <div class="form-group col-md-5 col-sm-5 col-xs-11">
+            <label asp-for="NotaRelacion" class="control-label">@Lb["Nota"]:</label>
+            <input asp-for="NotaRelacion" maxlength="100" class="form-control" />
+        </div>
+
+        <div class="form-group col-md-1 col-sm-1 col-xs-1" style="padding-top: 2.5rem;">
+            <a onclick="guardarRelacion()" id="submitFrmRelacion" class="btn btn-sm btn-success"><span><i class="fas fa-save"></i></span></a>
+        </div>
+
+    </form>
+
+</div>
+<script>
+
+
+
+    $(document).ready(function () {
+        $('.contactosSelect').selectpicker();
+    });
+
+
+    $('#NotaRelacion').keypress(function (e) {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            guardarRelacion();
+        }
+    });
+
+    function guardarRelacion() {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("CrearEditarRelacion", "Contacto")',
+            data: $('#frmRelacion').serialize(),
+            success: function (data) {
+                getRelaciones();
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+    }
+
+
+</script>
+
+

@@ -48,9 +48,9 @@ namespace AltivaWebApp.Controllers
 
         }
 
-       
+
         /// /////////////////////////////////////////////////listar contactos
-        
+
         [HttpGet("Todo/{nombreContacto?}")]
         public IActionResult ListarContactos(string nombreContacto)
         {
@@ -130,12 +130,12 @@ namespace AltivaWebApp.Controllers
                     }
 
                     if (listaCCPCrear.Count() != 0)
-                        ccMap.Create(listaCCPCrear, (int) cViewModel.IdContacto);
+                        ccMap.Create(listaCCPCrear, (int)cViewModel.IdContacto);
                     else
-                        ccMap.Update(listaCCPAct, (int) cViewModel.IdContacto);
+                        ccMap.Update(listaCCPAct, (int)cViewModel.IdContacto);
 
 
-                    return Json(new { success = true, accion = true, id= contacto.IdContacto, nombre = contacto.Cedula });
+                    return Json(new { success = true, accion = true, id = contacto.IdContacto, nombre = contacto.Cedula });
 
                 }
                 else
@@ -146,7 +146,7 @@ namespace AltivaWebApp.Controllers
                     }
 
                     contacto = contactoMap.CreateContacto(cViewModel);
-                    ccMap.Create(cpViewModel,(int) contacto.IdContacto);
+                    ccMap.Create(cpViewModel, (int)contacto.IdContacto);
 
                     return Json(new { success = true, accion = false, id = contacto.IdContacto });
 
@@ -231,11 +231,18 @@ namespace AltivaWebApp.Controllers
 
         }
 
-        [HttpGet("RelacionContacto/{idContacto}")]
+
+
+        /// ///////////////////////////////////////////////relaciones entre contactos////////////////////////////////////////////////////
+
+        [HttpPost("RelacionContacto")]
         public IActionResult _RelacionContacto(int idContacto)
         {
-            var contactos = contactoService.GetContactoRelacion(idContacto);
-            return PartialView("_RelacionContacto", contactos);
+
+            var relacion = contactoService.GetContactoRelacion(idContacto);
+            ViewBag.idContacto = idContacto;
+            return PartialView(relacion);
+
         }
 
         [HttpPost("EliminarRelacionContacto")]
@@ -252,6 +259,76 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
         }
+
+        [HttpPost("_CrearEditarRelacion")]
+        public IActionResult _CrearEditarRelacion(ContactoRelacionViewModel viewModel)
+        {
+            var contactos = contactoService.GetAll();
+            ViewBag.contactos = contactos;
+            ViewBag.contacto = contactos.FirstOrDefault(c => c.IdContacto == viewModel.IdContactoPadre);
+
+            if (viewModel.Id != 0)
+            {
+                viewModel.Id = 0;
+                viewModel.IdContactoPadre = 0;
+                
+                return PartialView(viewModel);
+            }
+            else
+            {
+                return PartialView(new ContactoRelacionViewModel());
+            }
+
+        }
+
+
+
+        //metodo que va permitir guardar las relaciones 
+        [HttpPost("CrearEditarRelacion")]
+        public IActionResult CrearEditarRelacion(ContactoRelacionViewModel viewModel)
+        {
+            try
+            {
+                var contactoRel = contactoService.GetByIdPadreAndIdHijo((int)viewModel.IdContactoPadre, (int) viewModel.IdContactoHijo);
+                if (contactoRel != null)
+                {
+                    contactoRel.NotaRelacion = viewModel.NotaRelacion;
+                    var cr = contactoService.UpdateRelacion(contactoRel);
+                }
+                else
+                {
+                    var cr = this.contactoMap.CreateRelacion(viewModel);
+                }
+
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
+
+        /// /////////////////////////////////////////////// fin relaciones entre contactos////////////////////////////////////////////////////
+
+        
+            
+            
+            
+        /// /////////////////////////////////////////////// tareas contactos////////////////////////////////////////////////////
+        [HttpGet("_ListarTareasContacto/{idContacto}")]
+        public IActionResult _ListarTareasContacto(int idContacto)
+        {
+            ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+            return PartialView(contactoService.GetTareas(idContacto));
+        }
+
+        /// /////////////////////////////////////////////// fin tareas contactos////////////////////////////////////////////////////
+
+
+
+
 
         //metodo para agregar condiciones de pago
         [HttpPost("AddCondicionesPago")]
@@ -312,89 +389,8 @@ namespace AltivaWebApp.Controllers
             return PartialView("_AgregarEditarCuentasBancarias", tc);
 
         }
-        
-
-        
-        [HttpGet("camposEdit/{id?}")]
-        public IActionResult CamposEdit(int id)
-        {
-
-            IList<ContactoViewModel> con = new List<ContactoViewModel>();
-            con = this.ccService.GetCamposEdit(id);
-            return Ok(con);
-        }
-        [HttpGet("GetContactosRelacion/{id?}")]
-        public IActionResult GetContactosRelacion(int id)
-        {
-            try
-            {
-                return Ok(contactoService.GetContactoRelacion(id));
-            }
-            catch (Exception)
-            {
-
-                return BadRequest();
-            }
-            
-        }
-        
 
 
-        //metodo que va permitir guardar las relaciones 
-        [HttpPost("CrearEditarRelacionC")]
-        public IActionResult CrearEditarRelacion(ContactoRelacionViewModel viewModel)
-        {
-            try
-            {
-                if(viewModel.Id != 0)
-                {
-                    var cr = contactoMap.UpdateRelacion(viewModel);
-                }
-                else
-                {
-                    var cr = this.contactoMap.CreateRelacion(viewModel);
-                }
-                
-            }
-            catch
-            {
-                return BadRequest();
-                throw;
-            }
-            return new JsonResult(1);
-        }
-
-
-        [HttpGet("_SubContacto")]
-        public IActionResult Partial()
-        {
-            ContactoViewModel con = new ContactoViewModel();
-
-            return PartialView("_SubContacto.cshtml", new ContactoViewModel());
-        }
-
-        [HttpGet("GetTareas/{idContacto?}")]
-        public IActionResult GetTareas(int idContacto)
-        {
-
-            var ccT = this.contactoService.GetTareas(idContacto);
-            IList<TbFdTarea> tarea = new List<TbFdTarea>();
-            if (ccT.TbFdTarea.Count() > 0)
-            {
-                foreach (var item in ccT.TbFdTarea)
-                {
-                    item.IdContactoNavigation = null;
-                    item.IdEstadoNavigation.TbFdTarea = null;
-                    item.IdTipoNavigation.TbFdTarea = null;
-                    tarea.Add(item);
-                }
-                return Ok(tarea);
-            }
-            else
-            {
-                return Ok(false);
-            }
-        }
 
         [HttpGet("GetProveedores")]
         public IActionResult GetProveedores(int idContacto)

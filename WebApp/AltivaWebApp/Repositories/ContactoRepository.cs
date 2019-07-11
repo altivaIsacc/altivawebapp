@@ -16,12 +16,14 @@ namespace AltivaWebApp.Repositories
         }
 
 
-        public TbCrContacto GetTareas(int idContacto)
+        public IList<TbFdTarea> GetTareas(int idContacto)
         {
-            return context.TbCrContacto
-              .Include(c => c.TbFdTarea).ThenInclude(c => c.IdTipoNavigation).Include(c => c.TbFdTarea).
-              ThenInclude(c => c.IdEstadoNavigation)
-              .FirstOrDefault(c => c.IdContacto == idContacto);
+            //return context.TbCrContacto
+            //  .Include(c => c.TbFdTarea).ThenInclude(c => c.IdTipoNavigation).Include(c => c.TbFdTarea).
+            //  ThenInclude(c => c.IdEstadoNavigation)
+            //  .FirstOrDefault(c => c.IdContacto == idContacto);
+
+            return context.TbFdTarea.Include(t => t.IdTipoNavigation).Include(t => t.IdEstadoNavigation).Where(t => t.IdContacto == idContacto).ToList();
         }
         public IList<TbCrContacto> GetAllEmpresas()
         {
@@ -86,40 +88,46 @@ namespace AltivaWebApp.Repositories
 
         public IList<TbCrContactoRelacion> GetContactosRelacion(int id)
         {
-            return (from con in context.TbCrContacto
-                    join cr in context.TbCrContactoRelacion on con.IdContacto equals cr.IdContactoHijo
-                    where cr.IdContactoPadre == id
 
-                    select new TbCrContactoRelacion
-                    {
-                        Id = cr.Id,
-                        Estado = cr.Estado,
-                        IdContactoHijo = cr.IdContactoHijo,
-                        IdContactoPadre = cr.IdContactoPadre,
-                        IdContactoHijoNavigation = new TbCrContacto
-                        {
-                            IdContacto = con.IdContacto,
-                            Apellidos = con.Apellidos,
-                            Cedula = con.Cedula,
-                            Empresa = con.Empresa,
-                            Nombre = con.Nombre,
-                            NombreComercial = con.NombreComercial,
-                            NombreJuridico = con.NombreJuridico,
-                            Persona = con.Persona
-                        },
-                        IdContactoPadreNavigation = new TbCrContacto
-                        {
-                            IdContacto = con.IdContacto,
-                            Apellidos = con.Apellidos,
-                            Cedula = con.Cedula,
-                            Empresa = con.Empresa,
-                            Nombre = con.Nombre,
-                            NombreComercial = con.NombreComercial,
-                            NombreJuridico = con.NombreJuridico,
-                            Persona = con.Persona
-                        },
-                        NotaRelacion = cr.NotaRelacion
-                    }).ToList();
+            return context.TbCrContactoRelacion
+                    .Include(c => c.IdContactoHijoNavigation)
+                    .Include(c => c.IdContactoPadreNavigation)
+                    .Where(c => c.IdContactoHijo == id || c.IdContactoPadre == id).ToList();
+
+            //return (from con in context.TbCrContacto
+            //        join cr in context.TbCrContactoRelacion on con.IdContacto equals cr.IdContactoHijo
+            //        where cr.IdContactoPadre == id || cr.IdContactoHijo == id
+
+            //        select new TbCrContactoRelacion
+            //        {
+            //            Id = cr.Id,
+            //            Estado = cr.Estado,
+            //            IdContactoHijo = cr.IdContactoHijo,
+            //            IdContactoPadre = cr.IdContactoPadre,
+            //            IdContactoHijoNavigation = new TbCrContacto
+            //            {
+            //                IdContacto = (long)con.TbCrContactoRelacionIdContactoHijoNavigation.FirstOrDefault(c => c.IdContactoPadre == con.IdContacto).IdContactoHijo,
+            //                Apellidos = con.Apellidos,
+            //                Cedula = con.Cedula,
+            //                Empresa = con.Empresa,
+            //                Nombre = con.Nombre,
+            //                NombreComercial = con.NombreComercial,
+            //                NombreJuridico = con.NombreJuridico,
+            //                Persona = con.Persona
+            //            },
+            //            IdContactoPadreNavigation = new TbCrContacto
+            //            {
+            //                IdContacto = con.IdContacto,
+            //                Apellidos = con.Apellidos,
+            //                Cedula = con.Cedula,
+            //                Empresa = con.Empresa,
+            //                Nombre = con.Nombre,
+            //                NombreComercial = con.NombreComercial,
+            //                NombreJuridico = con.NombreJuridico,
+            //                Persona = con.Persona
+            //            },
+            //            NotaRelacion = cr.NotaRelacion
+            //        }).ToList();
         }
 
 

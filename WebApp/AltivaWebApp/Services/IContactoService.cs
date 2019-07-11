@@ -22,7 +22,7 @@ namespace AltivaWebApp.Services
         TbCrContacto GetByCedulaContacto(string cedula);
         IList<TbCeCanton> GetCantones(int idProvincia);
         IList<TbCeDistrito> GetDistrito(int idCanton, int idProvincia);
-        TbCrContacto GetTareas(int idContacto);
+        IList<TbFdTarea> GetTareas(int idContacto);
         TbFdCondicionesDePago AgregarCondicion(TbFdCondicionesDePago domain);
         TbFdCondicionesDePago EditarCondicion(TbFdCondicionesDePago domain);
         TbFdCuentasBancarias AgregarCuentasBancarias(TbFdCuentasBancarias domain);
@@ -34,6 +34,8 @@ namespace AltivaWebApp.Services
         bool DeleteCuentasBancarias(TbFdCuentasBancarias domain);
         IList<TbCrContacto> GetAllProveedores();
         bool EliminarRelacion(int idRelacion);
+        TbCrContactoRelacion GetRelacionById(int id);
+        TbCrContactoRelacion GetByIdPadreAndIdHijo(int idPadre, int idHijo);
 
     }
 }
