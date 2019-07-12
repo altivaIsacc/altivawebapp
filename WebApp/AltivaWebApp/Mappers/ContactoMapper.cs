@@ -12,26 +12,26 @@ namespace AltivaWebApp.Mappers
     {
 
         //variable service de contacto
-        public IContactoService contactoService;
-        public ICamposPersonalizadosService ICamposPersonalizados;
+        private readonly IContactoService contactoService;
+        private readonly ICamposPersonalizadosService cpService;
         public ContactoMap(IContactoService pContactoService, ICamposPersonalizadosService ICamposPersonalizados)
         {
             this.contactoService = pContactoService;
-            this.ICamposPersonalizados = ICamposPersonalizados;
+            this.cpService = ICamposPersonalizados;
         }
 
         public TbCrCamposPersonalizados EliminarCP(int id)
         {
             TbCrCamposPersonalizados cp = new TbCrCamposPersonalizados();
-            cp = this.ICamposPersonalizados.getById(id);
+            cp = this.cpService.getById(id);
             cp.Estado = "Eliminado";
 
-            return this.ICamposPersonalizados.Edit(cp);
+            return this.cpService.Edit(cp);
         }
 
         public TbCrCamposPersonalizados UpdateCP(CamposPersonalizadosViewModel domain)
         {
-            return this.ICamposPersonalizados.Edit(ViewModelToDomainCP(domain));
+            return this.cpService.Edit(ViewModelToDomainCP(domain));
         }
 
         public TbCrContacto UpdateContacto(ContactoViewModel domain)
@@ -174,6 +174,41 @@ namespace AltivaWebApp.Mappers
 
             };
 
+        }
+
+        public TbFdCuentasBancarias CreateCuentaBancaria(CuentaBancariaViewModel viewModel)
+        {
+            return contactoService.AgregarCuentasBancarias(ViewModelToDomainCB(viewModel));
+        }
+        public TbFdCuentasBancarias UpdateCuentaBancaria(CuentaBancariaViewModel viewModel)
+        {
+            return contactoService.EditarCuentasBancarias(ViewModelToDomainCB(viewModel));
+        }
+
+        public CuentaBancariaViewModel DomainToViewModelCB(TbFdCuentasBancarias domain)
+        {
+            return new CuentaBancariaViewModel
+            {
+                Banco = domain.Banco,
+                CuentaBancaria = domain.CuentaBancaria,
+                Id = domain.Id,
+                IdContacto =(long) domain.IdContacto,
+                Moneda = domain.Moneda,
+                TipoCuenta = domain.TipoCuenta
+            };
+        }
+
+        public TbFdCuentasBancarias ViewModelToDomainCB (CuentaBancariaViewModel viewModel)
+        {
+            return new TbFdCuentasBancarias
+            {
+                Banco = viewModel.Banco,
+                CuentaBancaria = viewModel.CuentaBancaria,
+                Id = viewModel.Id,
+                IdContacto = (long)viewModel.IdContacto,
+                Moneda = viewModel.Moneda,
+                TipoCuenta = viewModel.TipoCuenta
+            };
         }
     }
 }

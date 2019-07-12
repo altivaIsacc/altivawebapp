@@ -25,26 +25,22 @@ namespace AltivaWebApp.Controllers
         private readonly IContactoService contactoService;
         private readonly IContactoMap contactoMap;
         private readonly IContactoCamposMap ccMap;
-        private readonly IEstadoTareaService estadoTareaService;
-        private readonly ITipoTareaService tipoTareaService;
         private readonly IUserService userService;
-        private readonly IHostingEnvironment hostingEnvironment;
         private readonly IContactoCamposService ccService;
         private readonly IPaisService paisService;
         private readonly ICamposPersonalizadosService cpService;
+        private readonly IMonedaService monedaService;
 
-        public ContactoController(ICamposPersonalizadosService cpService, IPaisService paisService, IUserService IUserService, IHostingEnvironment hostingEnvironment, ITipoTareaService ITipoService, IEstadoTareaService IEstadoService, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IContactoCamposMap pContactoCamposMap)
+        public ContactoController(IMonedaService monedaService, ICamposPersonalizadosService cpService, IPaisService paisService, IUserService IUserService, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IContactoCamposMap pContactoCamposMap)
         {
             this.contactoService = contactoService;
             this.contactoMap = contactoMap;
             ccMap = pContactoCamposMap;
             this.ccService = ICCService;
             this.userService = IUserService;
-            this.hostingEnvironment = hostingEnvironment;
-            this.tipoTareaService = ITipoService;
-            this.estadoTareaService = IEstadoService;
             this.paisService = paisService;
             this.cpService = cpService;
+            this.monedaService = monedaService;
 
         }
 
@@ -104,7 +100,7 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("CrearEditarContacto")]
-        public IActionResult CrearEditarContacto(IList<CCPersonalizadosViewModel> cpViewModel, ContactoViewModel cViewModel)
+        public IActionResult CrearEditarContacto(IList<CCPersonalizadosViewModel> cpViewModel, ContactoViewModel cViewModel, IList<TbFdCondicionesDePago> cPagoViewModel)
         {
             try
             {
@@ -118,6 +114,9 @@ namespace AltivaWebApp.Controllers
                     }
 
                     contacto = contactoMap.UpdateContacto(cViewModel);
+
+                    contactoService.CreateOrUpdateCondicionPago(cPagoViewModel);
+
                     var listaCCPCrear = new List<CCPersonalizadosViewModel>();
                     var listaCCPAct = new List<CCPersonalizadosViewModel>();
 
@@ -146,6 +145,9 @@ namespace AltivaWebApp.Controllers
                     }
 
                     contacto = contactoMap.CreateContacto(cViewModel);
+
+                    contactoService.CreateOrUpdateCondicionPago(cPagoViewModel);
+
                     ccMap.Create(cpViewModel, (int)contacto.IdContacto);
 
                     return Json(new { success = true, accion = false, id = contacto.IdContacto });
@@ -198,40 +200,95 @@ namespace AltivaWebApp.Controllers
         }
 
 
-        //metodo que devuele en el edit las condiciones de pago.
-        [HttpGet("GetCondicionesPago/{idContacto?}")]
+        
+        ///////////////////////////////////////////////////////////////////////condiciones de pago
+       
+        [HttpGet("GetCondicionesPago/{idContacto}")]
         public IActionResult GetCondicionesPago(int idContacto)
         {
-            IList<TbFdCondicionesDePago> condiciones = new List<TbFdCondicionesDePago>();
-            condiciones = this.contactoService.GetCondiciones(idContacto);
-            if (condiciones.Count() > 0)
+            try
             {
-                return Ok(condiciones);
+                return Ok(contactoService.GetCondicionesByIdContacto(idContacto));
             }
-            else
+            catch (Exception)
             {
-                return new JsonResult(false);
+                return BadRequest();
             }
 
         }
-        //metodo que devuelve los cuentas de un contacto
 
-        [HttpGet("GetCuentasByContacto/{idContacto?}")]
-        public IActionResult GetCuentasByContacto(int idContacto)
+        ///////////////////////////////////////////////////////////////////fin condiciones de pago//////////////////////////////////////////////
+        
+
+
+        /////////////////////////////////////////////////////////////////cuentas bancarias//////////////////////////////////////////////////
+
+        [HttpGet("_ListarCuentasBancarias/{idContacto}")]
+        public IActionResult _ListarCuentasBancarias(int idContacto)
         {
-            var cb = contactoService.GetByContacto(idContacto);
-            if (cb.Count() > 0)
+            ViewBag.idContacto = idContacto;
+            return View(contactoService.GetCuentasByContacto(idContacto));
+        }
+
+        [HttpPost("_CrearEditarCuentasBancarias")]
+        public IActionResult _CrearEditarCuentasBancarias(int idCuenta, int idContacto)
+        {
+            ViewBag.monedas = monedaService.GetAll();
+            if(idCuenta != 0)
             {
-                return Ok(cb);
+                return PartialView(contactoMap.DomainToViewModelCB(contactoService.GetCuentaById(idCuenta)));
             }
             else
             {
-                return Ok(false);
+                var modelo = new CuentaBancariaViewModel
+                {
+                    IdContacto = idContacto
+                };
+                return PartialView(modelo);
             }
+        }
 
+        [HttpPost("CrearEditarCuentasBancarias")]
+        public IActionResult CrearEditarCuentasBancarias(CuentaBancariaViewModel viewModel)
+        {
+            try
+            {
+                var cuenta = new TbFdCuentasBancarias();
+                if(viewModel.Id != 0)
+                {
+                    contactoMap.UpdateCuentaBancaria(viewModel);
+                }
+                else
+                {
+                    contactoMap.CreateCuentaBancaria(viewModel);
+                }
+
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
+        [HttpPost("EliminarCuentaBancaria")]
+        public IActionResult EliminarCuentaBancaria(int idCuenta)
+        {
+            try
+            {
+                contactoService.DeleteCuentasBancarias(contactoService.GetCuentaById(idCuenta));
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
         }
 
 
+        /////////////////////////////////////////////////////////////////////////////fin cuentas bancarias/////////////////////////////////////////////
 
         /// ///////////////////////////////////////////////relaciones entre contactos////////////////////////////////////////////////////
 
@@ -327,70 +384,7 @@ namespace AltivaWebApp.Controllers
         /// /////////////////////////////////////////////// fin tareas contactos////////////////////////////////////////////////////
 
 
-
-
-
-        //metodo para agregar condiciones de pago
-        [HttpPost("AddCondicionesPago")]
-        public IActionResult AddCondicionesPago(TbFdCondicionesDePago domain)
-        {
-            TbFdCondicionesDePago condicionesPago = new TbFdCondicionesDePago();
-            condicionesPago = this.contactoService.AgregarCondicion(domain);
-
-
-            return new JsonResult(true);
-        }
-        [HttpPost("EditCondicionesPago")]
-        public IActionResult EditCondicionesPago(TbFdCondicionesDePago domain)
-        {
-            TbFdCondicionesDePago condicionesPago = new TbFdCondicionesDePago();
-            condicionesPago = this.contactoService.EditarCondicion(domain);
-
-            return new JsonResult(true);
-        }
-        [HttpPost("AgregarCuentasBancarias")]
-        public IActionResult AgregarCuentasBancarias(TbFdCuentasBancarias domain)
-        {
-
-            TbFdCuentasBancarias cb = new TbFdCuentasBancarias();
-            cb = this.contactoService.AgregarCuentasBancarias(domain);
-
-            return new JsonResult(true);
-        }
-        [HttpPost("EditarCuentasBancarias")]
-        public IActionResult EditarCuentasBancarias(TbFdCuentasBancarias domain)
-        {
-            TbFdCuentasBancarias cb = new TbFdCuentasBancarias();
-            cb = this.contactoService.EditarCuentas(domain);
-            return new JsonResult(true);
-        }
-        [HttpDelete("DeleteCuentasBancarias/{idCuenta?}")]
-        public IActionResult DeleteCuentasBancarias(int idCuenta)
-        {
-            TbFdCuentasBancarias tc = new TbFdCuentasBancarias();
-            tc = this.contactoService.GetCuentasById(idCuenta);
-            this.contactoService.DeleteCuentasBancarias(tc);
-            return new JsonResult(true);
-
-        }
-        [HttpGet]
-        public IActionResult PartialCrearTipoCuentaBancaria()
-        {
-            TbFdCuentasBancarias tc = new TbFdCuentasBancarias();
-
-            return PartialView("_AgregarEditarCuentasBancarias", tc);
-
-        }
-        [HttpGet("PartialEditarTipoCuentaBancaria/{idCuenta?}")]
-        public IActionResult PartialEditarTipoCuentaBancaria(int idCuenta)
-        {
-            TbFdCuentasBancarias tc = new TbFdCuentasBancarias();
-            tc = this.contactoService.GetCuentasById(idCuenta);
-            return PartialView("_AgregarEditarCuentasBancarias", tc);
-
-        }
-
-
+        
 
         [HttpGet("GetProveedores")]
         public IActionResult GetProveedores(int idContacto)

@@ -9,8 +9,8 @@ namespace AltivaWebApp.Repositories
     {
         TbFdCondicionesDePago Save(TbFdCondicionesDePago domain);
         TbFdCondicionesDePago Update(TbFdCondicionesDePago domain);
-        IList<TbFdCondicionesDePago> GetById(int id);
-      
+        IList<TbFdCondicionesDePago> GetByIdContacto(int id);
+        IList<TbFdCondicionesDePago> CreateOrUpdate(IList<TbFdCondicionesDePago> domain);
         bool Delete(TbFdCondicionesDePago domain);
     }
 }

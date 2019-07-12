@@ -21,5 +21,8 @@ namespace AltivaWebApp.Mappers
         TbCrCamposPersonalizados ViewModelToDomainCP(CamposPersonalizadosViewModel domain);
         ContactoViewModel DomainToViewModelC(TbCrContacto domain);
         ContactoRelacionViewModel DomainToViewModelCR(TbCrContactoRelacion domain);
+        CuentaBancariaViewModel DomainToViewModelCB(TbFdCuentasBancarias domain);
+        TbFdCuentasBancarias CreateCuentaBancaria(CuentaBancariaViewModel viewModel);
+        TbFdCuentasBancarias UpdateCuentaBancaria(CuentaBancariaViewModel viewModel);
     }
 }

@@ -52,7 +52,7 @@
 </div>
 
 
-<div class="row well">
+<div class="well row">
 
     <form id="frmContacto">
         @Html.HiddenFor(x => x.IdContacto)
@@ -129,8 +129,8 @@
         <div class="form-group col-md-4 col-sm-4 col-xs-12">
             <label class="input-group-text" id="inputGroup-sizing-sm">@Lb["CargarImagen"] (6MB)</label>
             <input type="file" accept="image/*" id="fileUploadC" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
-            <span hidden id="tamanoArchivo" class="text-danger">@Lb["tamanoArchivo"]</span>
-            <span hidden id="tipoArchivo" class="text-danger">@Lb["tipoArchivo"]</span>
+            <span hidden id="tamanoArchivoC" class="text-danger">@Lb["tamanoArchivo"]</span>
+            <span hidden id="tipoArchivoC" class="text-danger">@Lb["tipoArchivo"]</span>
         </div>
 
         <div class="form-group col-md-4 col-sm-4 col-xs-12">
@@ -174,6 +174,10 @@
             <span hidden id="otrasSenasValid" class="text-danger">@Lb["otrasSenasValid"]</span>
         </div>
 
+
+
+
+
         <div class="form-group col-md-12 col-sm-12 col-xs-6">
             <label asp-for="Cliente" class="control-label">@Lb["Cliente"]</label>
             <input asp-for="Cliente" type="checkbox" onchange="mostrarTipoCliente()" />
@@ -193,8 +197,21 @@
                 <label asp-for="IdSubFamiliaCliente" class="control-label">@Lb["Sub-Familia"]:</label>
                 <select asp-for="IdSubFamiliaCliente" class="form-control"><option value=""></option></select>
             </div>
-        </div>
 
+            <div class="col-md-12 col-sm-12 col-xs-12"><h5>@Lb["CondicionesPago"]</h5></div>
+
+            <input readonly hidden id="idCPCliente" value="0" />
+
+            <div class="form-group col-md-4 col-sm-3 col-xs-12 ">
+                <label for="plazoC" class="control-label">@Lb["PlazoCredito"] (@Lb["Días"]) :</label>
+                <input id="plazoC" type="text" class="form-control numerico" value="0" />
+            </div>
+            <div class="form-group col-md-4 col-sm-3 col-xs-12 ">
+                <label for="montoMaxC" class="control-label">@Lb["MontoMaximo"]:</label>
+                <input id="montoMaxC" type="text" class="form-control moneda" value="0"/>
+            </div>
+
+        </div>
 
 
 
@@ -215,6 +232,20 @@
             <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
                 <label asp-for="IdSubFamiliaProveedor" class="control-label">@Lb["Sub-Familia"]:</label>
                 <select asp-for="IdSubFamiliaProveedor" class="form-control"><option value=""></option></select>
+            </div>
+
+            <div class="col-md-12 col-sm-12 col-xs-12"><h5>@Lb["CondicionesPago"]</h5></div>
+
+            <input readonly hidden id="idCPProveedor" value="0" />
+            
+            <div class="form-group col-md-4 col-sm-3 col-xs-12 ">
+                <label for="plazoP" class="control-label">@Lb["PlazoCredito"] (@Lb["Días"]):</label>
+                <input id="plazoP" type="text" class="form-control numerico" value="0" />
+            </div>
+
+            <div class="form-group col-md-4 col-sm-3 col-xs-12 ">
+                <label for="montoMaxP" class="control-label">@Lb["MontoMaximo"]:</label>
+                <input id="montoMaxP" type="text" class="form-control moneda" value="0" />
             </div>
         </div>
 
@@ -253,6 +284,7 @@
         <ul class="nav nav-tabs">
             <li class="" id="relacionesTab"><a data-toggle="tab" href="#relaciones">@Lb["Relaciones"]</a></li>
             <li><a data-toggle="tab" href="#tareas">@Lb["TareasAsignadas"]</a></li>
+            <li><a data-toggle="tab" href="#cuentasBancarias">@Lb["CuentasBancarias"]</a></li>
             <li><a data-toggle="tab" href="#comentario">@Lb["Comentarios"]</a></li>
         </ul>
     </div>
@@ -266,13 +298,8 @@
             </div>
         </div>
     </div>
-    <div class="tab-pane fade" id="comentario">
-        <div id="comentarios">
-
-        </div>
-    </div>
     <div class="tab-pane fade row" id="tareas">
-        
+
         <br />
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div id="tareasContainer">
@@ -280,8 +307,23 @@
             </div>
         </div>
     </div>
+    <div class="tab-pane fade " id="cuentasBancarias">
 
-</div>
+        <br />
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="row" id="cuentasBancariasContainer">
+
+            </div>
+        </div>
+        </div>
+        <div class="tab-pane fade" id="comentario">
+            <div id="comentarios">
+
+            </div>
+        </div>
+
+
+    </div>
 
 
 <!------------------------------------------------------------------------fin tabs------------------------------------------------------------------------->
@@ -301,14 +343,30 @@
     var subFamiliaClientes = [];
     var tipoClientesList = [];
     var tipoProveedoresList = [];
-    
+
     $(document).ready(function () {
 
         if (@Model.IdContacto != 0) {
+            getCondicionesPago();
             getRelaciones();
+            getCuentasBancarias();
             getTareasContacto();
             GetComentarios("Contactos", @Model.IdContacto);
         }
+
+        $(".numerico").inputmask({
+            'alias': 'integer',
+            rightAlign: false,
+            min: 0
+        });
+
+        $(".moneda").inputmask({
+            'alias': 'decimal',
+            rightAlign: true,
+            'groupSeparator': '.',
+            'autoGroup': true,
+            min: 0
+        });
 
         $('.cedFisica').mask('0-0000-0000');
         $('.cedJuridica').mask('0-000-000000');
@@ -319,7 +377,7 @@
 
         getTipoClientes();
         getTipoProveedores();
-        
+
 
         getCamposPersonalizados();
 
@@ -434,11 +492,12 @@
             contacto.Cliente = $('#Cliente').prop('checked');
             contacto.Proveedor = $('#Proveedor').prop('checked');
 
+
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("CrearEditarContacto", "Contacto")',
-                data: { cpViewModel: ccPersonalizados, cViewModel: contacto },
-                success: function (data) {  
+                data: { cpViewModel: ccPersonalizados, cViewModel: contacto, cPagoViewModel: crearModeloCondiciones() },
+                success: function (data) {
 
                     if (data.success) {
                         if ($('#fileUploadC').val() !== "")
@@ -455,7 +514,7 @@
                         $('#repetidoValid').prop('hidden', false);
                         $('#Cedula').focus();
                     }
-                    
+
                 },
                 error: function (err, scnd) {
                     cargarAlert('@Lb["errorGeneral"]');
@@ -465,6 +524,36 @@
         }
 
 
+    }
+
+    function crearModeloCondiciones() {
+
+        var cp = [];
+
+        var modelC = {
+            id: $('#idCPCliente').val(),
+            plazoCredito: $('#plazoC').val(),
+            montoMaximo: $('#montoMaxC').inputmask('unmaskedvalue').replace(".", ","),
+            esCliente: true,
+            esProveedor: false,
+            idContacto: @Model.IdContacto
+        };
+
+        cp.push(modelC);
+
+        var modelP = {
+            id: $('#idCPProveedor').val(),
+            plazoCredito: $('#plazoP').val(),
+            montoMaximo: $('#montoMaxP').inputmask('unmaskedvalue').replace(".", ","),
+            esCliente: true,
+            esProveedor: false,
+            idContacto: @Model.IdContacto
+        };
+
+        cp.push(modelP);
+
+
+        return cp;
     }
 
     function guardarImagen(idContacto) {
@@ -549,7 +638,7 @@
                 setTipoClientes(data);
 
                 //cargarTipoCLientes(data);
-                 
+
             },
             error: function (err, scnd) {
                 cargarAlert('@Lb["errorGeneral"]');
@@ -574,13 +663,40 @@
                 setTipoProveedores(data);
 
                 //cargarTipoCLientes(data);
-                 
+
             },
             error: function (err, scnd) {
                 cargarAlert('@Lb["errorGeneral"]');
                 console.log(err.statusText);
             }
          });
+    }
+
+    function getCondicionesPago() {
+        $.ajax({
+            type: "GET",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetCondicionesPago", "Contacto", new { idContacto = Model.IdContacto })',
+            success: function (data) {
+                if (data.length != 0) {
+                    $('#idCPCliente').val(data[0].id);
+                    $('#plazoC').val(data[0].plazoCredito);
+                    $('#montoMaxC').val(data[0].montoMaximo);
+
+                    $('#idCPProveedor').val(data[1].id);
+                    $('#plazoP').val(data[1].plazoCredito);
+                    $('#montoMaxP').val(data[1].montoMaximo);
+                }
+                
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
     }
 
 
@@ -595,6 +711,23 @@
             success: function (data) {
                 $('#relacionesContainer').html(data);
                 $('#relacionesTab').addClass('active');
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+    }
+
+    function getCuentasBancarias() {
+        $.ajax({
+            type: "GET",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: '@Url.Action("_ListarCuentasBancarias", "Contacto", new { idContacto = Model.IdContacto })',
+            success: function (data) {
+                $('#cuentasBancariasContainer').html(data);
             },
             error: function (err, scnd) {
                 console.log(err.statusText);
@@ -659,7 +792,7 @@
                 }
                 $("#IdFamiliaCliente").append(o);
             }
-        } 
+        }
 
         cargarSubFamiliaClientes(parseInt($('#IdFamiliaCliente').val()));
 
@@ -722,7 +855,7 @@
                 }
                 $("#IdFamiliaProveedor").append(o);
             }
-        } 
+        }
 
         cargarSubFamiliaProveedores(parseInt($('#IdFamiliaProveedor').val()));
 
@@ -934,6 +1067,39 @@
         else
             $('.tipoCliente').prop('hidden', true);
     }
+
+    $('#fileUploadC').bind('change', function () {
+
+        var file = $(this)[0].files[0];
+
+
+
+        if ($(this).val() != '') {
+
+
+            var e = 0;
+            e = + file.size;
+
+            if (e > 60000) {
+                $('#tamanoArchivoC').attr('hidden', false);
+                $(this).val('');
+            }
+            else
+                $('#tamanoArchivoC').attr('hidden', true);
+
+            if (!(/\.(jpg|png)$/i).test(file.name)) {
+                $('#tipoArchivoC').attr('hidden', false);
+                $(this).val('');
+            }
+            else
+                $('#tipoArchivoC').attr('hidden', true);
+
+        }
+
+
+
+
+    });
 
     function cancelar() {
         bootbox.confirm("@Lb["confirmCancelar"]", function (result) {
