@@ -399,6 +399,8 @@
     }
 </style>
 
+<script src="~/js/base64ImageCreator.js"></script>
+
 <script>
 
     var Usuarios = [];
@@ -851,12 +853,9 @@
     function cargarLineasApertura(data) {
         var model = {};
   
-        if (data.length >= _GetDenominaciones.length) {
-            console.log("1");
+        if (data.length >= _GetDenominaciones.length) {       
             for (var k = 0; k < data.length; k++) {
              
-
-
                     model = {
                         idCajaApertura: data[k].idCajaApertura,
                         idCaja: data[k].idCaja,
@@ -872,7 +871,6 @@
 
             }
         } else {
-            console.log("2");
             for (var k = 0; k < data.length; k++) {
  
                         model = {
@@ -885,12 +883,7 @@
                             monto: data[k].monto,
 
                         };
-
-                    
-      
-
                 _LineaCajaAperturaDenominaciones.push(model);
-
             }
         }
 
@@ -1402,7 +1395,7 @@
             var montoTarjeta = 0;
             var montoBanco = 0;
             var body;
-
+            var simbolo = 0;
 
             for (var i = 0; i < data.length; i++) {
 
@@ -1477,9 +1470,8 @@
                 var montoTarjeta = 0;
                 var montoBanco = 0;
             var idFila = 0;
-
             var body;
-
+                var simbolo = 0;
 
 
             for (var i = 0; i < data.length; i++) {
@@ -1552,11 +1544,12 @@
                 var txtEfectivo = "";
                 var txtTarjeta = "";
                 var txtBanco = "";
-            var idFila = 0;
+                var idFila = 0;
                 var montoEfectivo = 0;
                 var montoTarjeta = 0;
                 var montoBanco = 0;
-            var body;
+                var body;
+                var simbolo = 0;
 
             for (var i = 0; i < data.length; i++) {
 
@@ -1632,7 +1625,8 @@
                 var montoEfectivo = 0;
                 var montoTarjeta = 0;
                 var montoBanco = 0;
-            var body;
+           var body;
+           var simbolo = 0;
 
             for (var i = 0; i < data.length; i++) {
 
@@ -1698,7 +1692,7 @@
                 var montoTarjeta = 0;
                 var montoBanco = 0;
             var idFila = 0;
-
+           var simbolo = 0;
             var body;
 
 
@@ -1773,7 +1767,7 @@
                 var montoTarjeta = 0;
                 var montoBanco = 0;
             var body;
-
+         var simbolo = 0;
             for (var i = 0; i < data.length; i++) {
 
 
@@ -1844,6 +1838,7 @@
                 var montoTarjeta = 0;
                 var montoBanco = 0;
             var body;
+            var simbolo = 0;
 
             for (var i = 0; i < data.length; i++) {
 
@@ -1908,14 +1903,14 @@
         $('.filasCargadasCierreDolarSistema').remove();
             var contadorFila = 0;
             var coin = 0;
-                var txtEfectivo = "";
-                var txtTarjeta = "";
-                var txtBanco = "";
-                var montoEfectivo = 0;
-                var montoTarjeta = 0;
-                var montoBanco = 0;
+            var txtEfectivo = "";
+            var txtTarjeta = "";
+            var txtBanco = "";
+            var montoEfectivo = 0;
+            var montoTarjeta = 0;
+            var montoBanco = 0;
             var idFila = 0;
-
+            var simbolo = 0;
             var body;
 
 
@@ -1993,6 +1988,7 @@
                 var montoTarjeta = 0;
                 var montoBanco = 0;
             var body;
+         var simbolo = 0;
 
             for (var i = 0; i < data.length; i++) {
 
@@ -2066,7 +2062,29 @@
             }
         }
     }
-        function formatearFechaCreacion() {
+
+    function fnTipoMonedaPdf(idDenominacion) {
+        var tipo = 0;
+        for (var h = 0; h < _PureDenominaciones.length; h++) {
+            if (parseInt(_PureDenominaciones[h].idDenominaciones) === parseInt(idDenominacion)) {
+
+                tipo = parseInt(_PureDenominaciones[h].tipo);
+
+                switch (tipo) {
+                    case 1:
+                        return "@Lb["Billete"]";
+                        break;
+                    case 2:
+                        return "@Lb["Moneda"]";
+                        break;
+                }
+                break;
+
+            }
+        }
+    }
+
+    function formatearFechaCreacion() {
 
         return '@Model.FechaCreacion.Day' + "-" + '@Model.FechaCreacion.Month' + "-" + '@Model.FechaCreacion.Year';
 
@@ -2305,7 +2323,9 @@
         var usuario = 0;
         if (@Model.IdCaja!= 0) {
             usuario =@Model.IdUsuario;
-        } else {
+        }
+
+        else {
             usuario = IdUsuarioLogueado;
         }
 
@@ -2857,11 +2877,10 @@
 ////////////////////////////////////////////////////CREAR PDFSSSS///////////////////////////////////////////////////////////////////////////////////
     function crearPdf() {
 
-        generate_cutomPDF(crearModeloPDF());
-
+                generate_cutomPDF(crearModeloPDFApertura());
     }
 
-    function crearModeloPDF() {
+    function crearModeloPDFApertura() {
 
         var empresaModel = JSON.parse(localStorage.getItem("empresaInfo"));
         var modelo = {
@@ -2870,7 +2889,7 @@
                 telefono: empresaModel.tel,
                 correo: empresaModel.correo,
                 cedJuridica: empresaModel.ced,
-                logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
+           //   logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
                 nombreTitulo: "@Lb["Nombre"]:",
                 telTitulo: "@Lb["Tel"]:",
                 correoTitulo: "@Lb["Correo"]:",
@@ -2879,82 +2898,94 @@
                totalCr: formatTotales().totalBase,
                totalUSD: formatTotales().totalDolar,
                totalE: formatTotales().totalEuro,
-               nombreDoc: getTitulos().nombreDoc + ' #@Model.IdCaja',
+               nombreDoc: getTitulos().nombreDoc + '#@Model.IdCaja',
                nombreDescarga: getTitulos().nombreDoc+"_" + @Model.IdCaja + '.pdf',
                columnas: {
-                denominacion: "@Lb["Denomiacion"]",
-                cantidad: "@Lb["Cantidad"]",
-                monto: "@Lb["monto"]",
-            },
-            filas: crearFilasPdf(),
-            resumen: {
-                totalBase: "@Lb["Total"]:"+monedas[0].simbolo,
-                totalDolar: "@Lb["Total"]:"+monedas[1].simbolo,
-                totalEuro: "@Lb["Total"]:"+monedas[2].simbolo,
-                autorizado: "@Lb["Autorizado por"]:______________________"
+                    denominacion: getTitulos().denominacion,
+                    cantidad: "@Lb["Cantidad"]",
+                    monto: "@Lb["Monto"]",
             },
 
-            proveedor: $('#ddProveedor option:selected').text(),
-            tipoCambio: '@Lb["Tipo de cambio"]',
-            dolarTitulo: '@Lb["Dolar"]:',
-            euroTitulo: '@Lb["Euro"]:',
-            dolar: CambioDolar.toString(),
-            euro: CambioEuro.toString(),
-            fechaTitulo:'@Lb["Fecha"]:',
-            fecha: $('#fecha').val(),
-            fechaVencimientoTitulo:'@Lb["ValidaHasta"]:',
-            fechaVencimiento:$('#fechaVencimiento').val(),
-            descripcionTitulo: getTitulos().desc,
-            estadoTitulo:'@Lb["Estado"]:',
-            estado: getEstado(),
-            monedaTitulo: '@Lb["Moneda"]:',
-            moneda: $('#ddMoneda option:selected').text(),
-            clienteTitulo: '@Lb["Cliente"]',
-            cliente: $('#ddClientes option:selected').text(),
-            usuarioTitulo: '@Lb["Usuario"]',
+            columnasArqueoBase: {
+                moneda: "",
+                monto:"@Lb["Monto"]",
+            },
+               columnasArqueoDolar: {
+                moneda: "",
+                monto:"@Lb["Monto"]",
+            },
+                  columnasArqueoEuro: {
+                moneda: "",
+                monto:"@Lb["Monto"]",
+            },
+            filaArqueoBase: crearFilasPdfArqueoBase(),
+            filaArqueoDolar: crearFilasPdfArqueoDolar(),
+            filaArqueoEuro: crearFilasPdfArqueoEuro(),
+            filas: crearFilasPdf(),
+            resumen: {
+                totalBase: "@Lb["Total"] "+monedas[0].simbolo+":",
+                totalDolar: "@Lb["Total"] "+monedas[1].simbolo+":",
+                totalEuro: "@Lb["Total"] "+monedas[2].simbolo+":",
+                autorizado: "@Lb["Autorizado por"]:______________________"
+            },
+            
+            usuarioTitulo: '@Lb["Usuario"]:',
             usuario: $('#lbCreador').text(),
-            vendedorTitulo:'@Lb["Vendedor"]' ,
-            vendedor: $('#ddVendedor option:selected').text()
+            estadoTitulo: '@Lb["Estado"]:',
+            estado: getEstado(),
+            fechaTitulo: getTitulos().creacion,
+            fecha: $('#lbFechaCreacion').val(),
+            estadoPdf:1,
+
         };
         return modelo;
     }
 
-    function formatTotales() {
 
-        var totalBase = "";
-        var imp = "";
-        var desc = "";
+
+    function formatTotales() {
 
         return {
 
-            totalBase: $('#txtTotalBase').val().replace("₡", ""),
-            totalDolar: $('#txtTotalDolar').val().replace("₡", ""),
-            totalEuro: $('#txtTotalEuro').val().replace("₡", ""),
+            totalBase: $('#txtTotalBase').val().replace("CRC", ""),
+            totalDolar: $('#txtTotalDolar').val().replace("USD", ""),
+            totalEuro: $('#txtTotalEuro').val().replace("EUR", ""),
 
+        }
+    }
+
+    function formatTotalesArqueo() {
+
+        return {
+
+            totalBase: $('#txtTotalBase').val().replace("CRC", ""),
+            totalDolar: $('#txtTotalDolar').val().replace("USD", ""),
+            totalEuro: $('#txtTotalEuro').val().replace("EUR", ""),
         }
     }
 
     function getEstado() {
 
-        switch ($('#ddEstado option:selected').text()) {
+        switch (parseInt( $('#lbEstado option:selected').val())) {
 
-            case "Borrador":
-                  return Borrador;
+            case 1:
+                console.log("he");
+                  return "@Lb["Abierta"]";
                 break;
-            case "Enviada":
-                return "@Lb["Enviada"]";
+            case 2:
+                return "@Lb["Arqueo"]";
                 break;
-            case "Anulada":
+            case 3:
+                return "@Lb["ArqueoReabierto"]";
+                break;
+            case 4:
+                return "@Lb["Cerrada"]";
+                break;
+            case 5:
+                return "@Lb["CierreReabierto"]";
+                break;
+            case 6:
                 return "@Lb["Anulada"]";
-                break;
-            case "Aceptada":
-                return "@Lb["Aceptada"]";
-                break;
-            case "Rechazada":
-                return "@Lb["Rechazada"]";
-                break;
-            case "Facturada":
-                return "@Lb["Facturada"]";
                 break;
         }
     }
@@ -2965,13 +2996,17 @@
             return {
                 desc: "Descripción:",
                 cedJuridica: "Cédula Jurídica:",
-                nombreDoc:"@Lb["CajaApertura"]"
+                nombreDoc: "Apertura de caja ",
+                denominacion: "Denominación",
+                creacion:"Creación:"
             };
         else
             return {
                 desc: "Description:",
                 cedJuridica: "Legal Number:",
-                nombreDoc:"@Lb["CajaApertura"]"
+                nombreDoc: "Opening of cash",
+                denominacion: "denomination ",
+                creacion:"Creation:"
             };
     }
 
@@ -2987,17 +3022,146 @@
     function crearFilasPdf() {
 
         var row = [];
-        for (var i = 0; i < _GetDenominaciones.length; i++) {
+        var idMoneda_valor = 0;
+        var _idMoneda_valor = [];
+        var moneda = 0;
+        var valor = 0;
+        var tipo = 0;
+
+        for (var f = 0; f < _LineaCajaAperturaDenominaciones.length; f++) {
+
+            idMoneda_valor =  fnidMoneda(_LineaCajaAperturaDenominaciones[f].idDenominaciones);
+            _idMoneda_valor = idMoneda_valor.split('*');
+            moneda = _idMoneda_valor[0];
+            valor = _idMoneda_valor[1];
+            tipo = fnTipoMonedaPdf(_LineaCajaAperturaDenominaciones[f].idDenominaciones);
 
             var model = {
-                denominaciones:darFormatoMoneda(_GetDenominaciones[i].idMoneda)+" " + _GetDenominaciones[i].valor ,
-                cantidad:CajaApertura[i].cantidad ,
-                monto: CajaApertura[i].monto,
+                denominacion:tipo+" "+ simboloMoneda( moneda) + " " + valor ,
+                cantidad: _LineaCajaAperturaDenominaciones[f].cantidad ,
+                monto: _LineaCajaAperturaDenominaciones[f].monto,
             };
 
             row.push(model);
         }
         return row;
+    }
+
+    function crearFilasPdfArqueoBase() {
+
+        var row = [];
+        var txt = "";
+        var monto = 0;
+        console.log(Base);
+        for (var v = 0; v < 3; v++) {
+            switch (v) {
+                case 0:
+                    txt = "@Lb["Efectivo"]";
+                    monto = Base[0].efectivoReal;
+            break;
+                case 1:
+                          txt = "@Lb["Tarjetas"]";
+                    monto = Base[0].tarjetaReal;
+            break;
+                case 2:
+                          txt = "@Lb["Bancos"]";
+                    monto = Base[0].bancoReal;
+            break;
+            }
+
+            var model = {
+                moneda:txt,
+                monto:monto,
+            };
+
+            row.push(model);
+        }
+          
+        console.log(row);
+        return row;
+    }
+
+        function crearFilasPdfArqueoDolar() {
+
+        var row = [];
+        var txt = "";
+        var monto = 0;
+        for (var v = 0; v < 3; v++) {
+            switch (v) {
+                case 0:
+                    txt = "@Lb["Efectivo"]";
+                    monto = Base.efectivoReal;
+            break;
+                case 1:
+                          txt = "@Lb["Tarjetas"]";
+                    monto = Base.tarjetaReal;
+            break;
+                case 2:
+                          txt = "@Lb["Bancos"]";
+                    monto = Base.bancoReal;
+            break;
+            }
+
+            var model = {
+                moneda:txt,
+                monto:monto,
+            };
+
+            row.push(model);
+        }
+          
+        
+        return row;
+    }
+
+        function crearFilasPdfArqueoEuro() {
+
+        var row = [];
+        var txt = "";
+        var monto = 0;
+        for (var v = 0; v < 3; v++) {
+            switch (v) {
+                case 0:
+                    txt = "@Lb["Efectivo"]";
+                    monto = Base.efectivoReal;
+            break;
+                case 1:
+                          txt = "@Lb["Tarjetas"]";
+                    monto = Base.tarjetaReal;
+            break;
+                case 2:
+                          txt = "@Lb["Bancos"]";
+                    monto = Base.bancoReal;
+            break;
+            }
+
+            var model = {
+                moneda:txt,
+                monto:monto,
+            };
+
+            row.push(model);
+        }
+          
+        
+        return row;
+    }
+
+    function simboloMoneda(idMoneda) {
+
+        idMoneda = parseInt(idMoneda);
+        switch (idMoneda) {
+            case 1:
+                return monedas[0].simbolo;
+                break;
+            case 2:
+                return monedas[1].simbolo;
+                break;
+            case 3:
+                return monedas[2].simbolo;
+                break;
+
+        }
     }
 
     function formatearMoneda(val) {
@@ -3010,4 +3174,3 @@
 <script src="~/lib/vendors/jsPDF/CajaAbiertaPdf.js"></script>
 <script src="~/js/XMLtoJSON.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/x2js/1.2.0/xml2json.min.js"></script>
-<script src="~/js/base64ImageCreator.js"></script>

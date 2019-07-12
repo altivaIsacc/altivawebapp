@@ -134,6 +134,7 @@ namespace AltivaWebApp.Controllers
                                 var count = viewModel.CotizacionDetalle.Count();
                                 var cd = _Map.CreateCD(viewModel);
                                 idCD = cd.IdCotizacionDetalle;
+     
 
                             }
                         }
@@ -154,6 +155,7 @@ namespace AltivaWebApp.Controllers
                                 var count = viewModel.CotizacionDetalle.Count();
                                 var cd = _Map.CreateCD(viewModel);
                                 idCD = cd.IdCotizacionDetalle;
+                         
 
                             }
                         }
@@ -163,7 +165,7 @@ namespace AltivaWebApp.Controllers
                         }
                     }
 
-                        return Json(new { success = true, idCD = idCD });
+                        return Json(new { success = true, idCD = idCD});
           
                          
                                       

@@ -20,7 +20,7 @@
 {
     <div class="row">
         <div class="col-md-3">
-            <h2>@Lb["EditarCotizacion"]</h2>
+            <h2>@Lb["Cotizacion"]&nbsp;#@Model.IdCotizacion </h2>
         </div>
         <div class="col-md-7"></div>
         <div class="col-md-2">
@@ -116,6 +116,10 @@ else
                 <label>@Lb["DescuentoGeneral"]:</label>
                 <input id="lbDescuentoGlobal" class="form-control numerico" type="text" min="0" value="0" />
             </div>
+            <div class="col-md-2" style="margin-top:28px;">
+                <input type="checkbox" id="habilitarDescuentoGlobal" />
+                <label for="habilitarDescuentoGlobal">@Lb["AplicarDescuento"]</label>
+            </div>
         </div>
     </div>
 
@@ -161,7 +165,7 @@ else
                             <div class="col-md-1"><label id="lbExistencia"></label></div>
                         </td>
                         <td><input id="lbCantidad" class="form-control cantidad" type="text" min="1" value="1" /></td>
-                        <td><input id="lbDescuento" class="form-control numerico cantidad" type="text"  /></td>
+                        <td><input id="lbDescuento" class="form-control numerico cantidad" type="text" value="0"  /></td>
                         <td><input id="lbCostoPromedio" class="form-control moneda numerico" min="1" type="text" /></td>
                         <td><input type="text" class="form-control moneda numerico " readonly id="lbTotal" /></td>
                         <td>
@@ -285,7 +289,14 @@ else
         }).on('keypress paste', function (e) {
             e.preventDefault();
             return false;
-            });
+        });
+
+        if (@Model.PorcDescuentoBase!= 0) {
+            $('#habilitarDescuentoGlobal').prop('checked', true);
+        } else {
+            $('#lbDescuentoGlobal').prop('disabled', true);
+        }
+
 
 
         $(".numerico").inputmask({
@@ -660,13 +671,13 @@ else
         var _lineaDetalle = [];
 
         if (LineasDescuento.length < 1) {
-            console.log("1");
+
             _lineaDetalle = _LineaAgregadaEditar;
         } else {
-            console.log("2");
+
             _lineaDetalle = LineasDescuento;
         }
-        console.log(_lineaDetalle);
+
         for (var i = 0; i < _lineaDetalle.length; i++) {
 
             switch (parseInt(moneda)){
@@ -915,11 +926,11 @@ else
 
         //inicializa formato
         $(".colon").inputmask('currency', {
-            prefix: monedas[0].simbolo,
+            prefix: monedas[0].simbolo ,
             rightAlign: true
         });
         $(".dolar").inputmask('currency', {
-            prefix: monedas[1].simbolo,
+            prefix: monedas[1].simbolo ,
             rightAlign: true
         });
         $(".euro").inputmask('currency', {
@@ -932,8 +943,56 @@ else
 
     }
 
+    function darFormatoMonedaPdf(value) {
+
+        var clase = "";
+        var moneda = $('#ddMoneda').val();
+        if (moneda === "1")
+            clase = "colon";
+        else if (moneda === "2")
+            clase = "dolar"
+
+        else if (moneda === "3")
+            clase = "euro"
+
+        $('#monedaFormater').removeClass("colon dolar euro");
+        $('#monedaFormater').addClass(clase);
+
+        //inicializa formato
+        $(".colon").inputmask('currency', {
+            rightAlign: true
+        });
+        $(".dolar").inputmask('currency', {
+            rightAlign: true
+        });
+        $(".euro").inputmask('currency', {
+            rightAlign: true
+        });
+
+        $('#monedaFormater').val(value);
+        return $('#monedaFormater').val();
+
+    }
     ////////////////////////////////////////////////////////////FUNCIONES DE GUARDADO,EDITAR//////////////////////////////////////
 
+    $('#habilitarDescuentoGlobal').change(function () {
+
+        if (!$(this).prop('checked')) {
+            $('#lbDescuentoGlobal').attr('disabled', true);
+            $('#lbDescuentoGlobal').val(0);
+
+            $porcDescuento.val(0);
+            $porcDescuento.prop('disabled', false);
+            $("#lbExistencia").text(0);
+            ActualizarLineasDescuento(0, $Moneda.val());
+        }
+
+        else {
+            $('#lbDescuentoGlobal').attr('disabled', false);
+          
+        }
+
+    });
 
     function guardarCambios() {
              if ($('#ddClientes option:selected').val() != 0 && $('#ddMoneda option:selected').val() != 0 && $('#ddVendedor option:selected').val() != 0) {
@@ -1305,11 +1364,9 @@ else
         var descuento = 0;
         for (var i = 0; i < LineasDetalle.length; i++) {
 
-            if ($porcDescuentoGlobal.val() != 0) {
-                descuento = $porcDescuentoGlobal.val();
-            } else {
-                descuento = $porcDescuento.val();
-            }
+                    descuento = $porcDescuentoGlobal.val();
+            
+          
             LineasDetalle[i].porcDescuento = descuento;
             LineasDetalle[i].subTotalBase = parseFloat((LineasDetalle[i].cantidad) * (LineasDetalle[i].precioBase));
 
@@ -1420,10 +1477,13 @@ else
                         lineas[lineas.length - 1].idCotizacionDetalle = data.idCD;
                         lineasAgregadas[lineasAgregadas.length - 1].idCotizacionDetalle = data.idCD;
                     }
-                    if ($porcDescuentoGlobal != 0) {
+                    console.log($('#habilitarDescuentoGlobal').prop('checked'));
+
+                    if ($('#habilitarDescuentoGlobal').prop('checked')) {
+
                         UpdateLineasDetalle(LineasDescuento);
                     }
-               
+
                     if (parseInt(data.idCD) === 0) {
                         window.location.href = "@Url.Action("ListarCotizacionProducto")";
                     }
@@ -1702,7 +1762,7 @@ else
         CalcularTotalesCotizacion(lineas, $('#ddMoneda').val());
     }
 
-///////////////////////////////////calculos de linea/////////////////////////////////////////////////////////////////////
+///////////////////////////////////calculos de linea//////////////////////////////////////////////////////////////////////////////////////
 
     function fnSubTotalBase() {
 
@@ -2057,8 +2117,8 @@ else
                 item: NombreItem(lineas[i].idInventario),
                 cantidad:lineas[i].cantidad ,
                 descuento: lineas[i].porcDescuento,
-                precioUnitario: darFormatoMoneda(lineas[i].precioBase.toString().replace(",",".")),
-                total: darFormatoMoneda(lineas[i].totalBase.toString().replace(",",".")),
+                precioUnitario: darFormatoMonedaPdf(lineas[i].precioBase.toString().replace(",",".")),
+                total: darFormatoMonedaPdf(lineas[i].totalBase.toString().replace(",",".")),
             };
 
             row.push(model);

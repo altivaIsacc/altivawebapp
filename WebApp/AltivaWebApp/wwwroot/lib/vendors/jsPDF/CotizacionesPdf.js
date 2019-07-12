@@ -23,7 +23,7 @@ function generate_cutomPDF(modelo) {
 
 
     var company_logo = {
-        src: modelo.empresa.logo,
+        // src: modelo.empresa.logo,
         w: 80,
         h: 50
     };
@@ -65,8 +65,8 @@ function generate_cutomPDF(modelo) {
     doc.setFontType('bold');
 
     //pdf.addImage(agency_logo.src, 'PNG', logo_sizes.centered_x, _y, logo_sizes.w, logo_sizes.h);
-  //  doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
-    doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
+    //  doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
+    // doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
 
     doc.textAlign(comapnyJSON.nombre, { align: "left" }, startX, startY += 15 + company_logo.h);
     doc.setFontSize(fontSizes.NormalFontSize);
@@ -106,7 +106,7 @@ function generate_cutomPDF(modelo) {
     doc.textAlign(modelo.fechaVencimiento, { align: "left" }, rightStartCol2, tempY);
 
     //doc.setFontType('bold');
-   // doc.textAlign(modelo.proveedorTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
+    // doc.textAlign(modelo.proveedorTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
     doc.setFontType('normal');
     doc.textAlign(modelo.proveedor, { align: "left" }, rightStartCol2, tempY);
 
@@ -131,7 +131,7 @@ function generate_cutomPDF(modelo) {
 
 
     doc.setFontType('bold');
-    doc.textAlign(modelo.tipoCambio, { align: "left" }, startX, startY +=  lineSpacing.NormalSpacing);
+    doc.textAlign(modelo.tipoCambio, { align: "left" }, startX, startY += lineSpacing.NormalSpacing);
 
     doc.setFontType('bold');
     doc.textAlign(modelo.dolarTitulo, { align: "left" }, startX, startY += lineSpacing.NormalSpacing);
@@ -150,15 +150,15 @@ function generate_cutomPDF(modelo) {
     doc.setFontType('normal');
     doc.textAlign(modelo.cliente, { align: "left" }, 150, 139);
 
-    doc.setFontType('bold'); 
-    doc.textAlign(modelo.usuarioTitulo, { align: "left" }, rightStartCol1-10, 129);
+    doc.setFontType('bold');
+    doc.textAlign(modelo.usuarioTitulo, { align: "left" }, rightStartCol1 - 10, 129);
     doc.setFontType('normal');
-    doc.textAlign(modelo.usuario, { align: "left" }, rightStartCol1-10,139);
+    doc.textAlign(modelo.usuario, { align: "left" }, rightStartCol1 - 10, 139);
 
     doc.setFontType('bold');
     doc.textAlign(modelo.vendedorTitulo, { align: "left" }, rightStartCol2, 129);
     doc.setFontType('normal');
-    doc.textAlign(modelo.vendedor, { align: "left" }, rightStartCol2,139);
+    doc.textAlign(modelo.vendedor, { align: "left" }, rightStartCol2, 139);
 
 
     var header = function (data) {
@@ -184,10 +184,10 @@ function generate_cutomPDF(modelo) {
             fontSize: 10,
             rowHeight: 'auto',
             columnWidth: '100%',
-          
-         
-          
-            
+
+
+
+
         },
         columnStyles: {
             1: { columnWidth: 'auto' },
