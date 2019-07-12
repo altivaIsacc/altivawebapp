@@ -25,7 +25,7 @@ namespace AltivaWebApp.Services
 
         public IList<TbFdTipoCliente> GetAll()
         {
-            throw new NotImplementedException();
+            return ITipoCliente.GetAll();
         }
 
         public TbFdTipoCliente GetById(int IdTipoCliente)

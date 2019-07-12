@@ -3,7 +3,7 @@
 @inject IStringLocalizer<SharedResources> Lb
 
 
-@{ 
+@{
     var edita = "";
 
     if (Model.Id != 0)
@@ -16,16 +16,16 @@
     <div class="col-md-6">
         @if (Model.Id != 0)
         {
-            <h4 class="modal-title" id="familiaModallabel">@Lb["Editar"] @Lb["TipoCliente"]</h4>
+            <h4 class="modal-title" id="familiaModallabel">@Lb["Editar"] @Lb["TipoProveedor"]</h4>
         }
         else
         {
-            <h4 class="modal-title" id="familiaModallabel">@Lb["Nuevo"] @Lb["TipoCliente"]</h4>
+            <h4 class="modal-title" id="familiaModallabel">@Lb["Nuevo"] @Lb["TipoProveedor"]</h4>
         }
 
     </div>
     <div class="col-md-6">
-        <button type="button" class="close"  data-dismiss="modal" aria-label="Close">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
@@ -44,7 +44,7 @@
     }
 
     <div class="col-md-12 col-sm-12 col-xs-12">
-        <form id="frmTipoCliente">
+        <form id="frmTipoProveedor">
             @Html.HiddenFor(x => x.Id, new { @id = "tcId" })
             @Html.HiddenFor(x => x.IdUsuario, new { @id = "tcIdUsuario" })
             @Html.HiddenFor(x => x.FechaCreacion, new { @id = "tcFechaCreacion" })
@@ -79,7 +79,7 @@
 
 <div class="form-group row">
     <div class="col-md-2 col-sm-2 col-xs-4">
-        <button onclick="guardarTipoCliente()" class="btn btn-success"><span>@Lb["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
+        <button onclick="guardarTipoProveedor()" class="btn btn-success"><span>@Lb["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
     </div>
     <div class="col-md-2 col-sm-2 col-xs-4">
         <button class="btn btn-default" data-dismiss="modal">@Lb["Cancelar"]</button>
@@ -88,11 +88,11 @@
 
 <script>
 
-    var tipoClientesCrear = [];
+    var tipoProveedoresCrear = [];
 
     $(document).ready(function () {
 
-        getTipoClientesCrear();
+        getTipoProveedoresCrear();
 
     });
 
@@ -102,8 +102,8 @@
         $('#IdPadre')
             .find('option')
             .remove();
-        
-        
+
+
         if (key === 1) {
             $("#tipoC").prop("checked", true);
             $('#tipoCContainer').prop('hidden', true);
@@ -115,7 +115,7 @@
             $('#tipoCContainer').prop('hidden', true);
             $('#idPadreLabel').text('@Lb["Tipo"]:');
 
-            
+
             cargarPadreItems(0, @ViewBag.idTipo);
 
         } else {
@@ -135,7 +135,7 @@
 
     /////////Tipos de Clientes
 
-    function guardarTipoCliente() {
+    function guardarTipoProveedor() {
 
         var flag = true;
         if ($('#tcNombre').val().replace(/ /g, "") === "") {
@@ -147,13 +147,14 @@
         if (flag) {
             $.ajax({
                 type: "POST",
-                url: '@Url.Action("CrearEditarTipoCliente", "TipoCliente")',
-                data: $('#frmTipoCliente').serialize(),
+                url: '@Url.Action("CrearEditarTipoProveedor", "TipoProveedor")',
+                data: $('#frmTipoProveedor').serialize(),
                 success: function (data) {
-                   var tipo = $("input[name='radioTipoC']:checked").val();
-                    getTipoClientes(parseInt(tipo), data.tipoP.id);
-                    $('#modalTipoCliente').modal('hide');
-                    
+
+                    var tipo = $("input[name='radioTipoC']:checked").val();
+                    getTipoProveedores(parseInt(tipo), data.tipoP.id);
+                    $('#modalTipoProveedor').modal('hide');
+
                 },
                 error: function (err, scnd) {
                     cargarAlert('@Lb["errorGeneral"]');
@@ -165,18 +166,18 @@
     }
 
 
-    function getTipoClientesCrear() {
+    function getTipoProveedoresCrear() {
 
          $.ajax({
             type: "get",
             dataType: "json",
-            url: '@Url.Action("GetTiposClientes", "TipoCliente")',
+            url: '@Url.Action("GetTiposProveedor", "TipoProveedor")',
             success: function (data) {
 
 
-                tipoClientesCrear = data;
-                setTipoClientesSelect(@ViewBag.idTipo);
-                ocultarCamposTipoC(@ViewBag.tipoC);
+                tipoProveedoresCrear = data;
+                setTipoProveedoresSelect(@ViewBag.idTipo);
+                ocultarCamposTipoC(@ViewBag.tipoP);
                 //cargarTipoCLientes(data);
 
             },
@@ -187,16 +188,16 @@
          });
     }
 
-    function setTipoClientesSelect(id) {
+    function setTipoProveedoresSelect(id) {
 
         $('#tipoCSelect')
             .find('option')
             .remove();
 
-        for (var i = 0; i < tipoClientesCrear.length; i++) {
-            if (tipoClientesCrear[i].idPadre === 0) {
-                var o = new Option(tipoClientesCrear[i].nombre, tipoClientesCrear[i].id);
-                if (tipoClientesCrear[i].id === id) {
+        for (var i = 0; i < tipoProveedoresCrear.length; i++) {
+            if (tipoProveedoresCrear[i].idPadre === 0) {
+                var o = new Option(tipoProveedoresCrear[i].nombre, tipoProveedoresCrear[i].id);
+                if (tipoProveedoresCrear[i].id === id) {
                     $(o).attr('selected', true);
                 }
                 $("#tipoCSelect").append(o);
@@ -215,12 +216,12 @@
 
     function cargarPadreItems(idTipo, id) {
 
-        
-        for (var i = 0; i < tipoClientesCrear.length; i++) {
-            if (tipoClientesCrear[i].idPadre === idTipo) {
-                var o = new Option(tipoClientesCrear[i].nombre, tipoClientesCrear[i].id);
 
-                if (tipoClientesCrear[i].id === id) {
+        for (var i = 0; i < tipoProveedoresCrear.length; i++) {
+            if (tipoProveedoresCrear[i].idPadre === idTipo) {
+                var o = new Option(tipoProveedoresCrear[i].nombre, tipoProveedoresCrear[i].id);
+
+                if (tipoProveedoresCrear[i].id === id) {
                     $(o).attr('selected', true);
                 }
 
@@ -231,4 +232,5 @@
     }
 
 </script>
+
 

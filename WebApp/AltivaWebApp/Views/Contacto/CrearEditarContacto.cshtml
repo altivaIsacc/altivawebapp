@@ -98,6 +98,7 @@
             <label asp-for="Cedula" class="control-label"><span class="text-danger">*</span>@Lb["Cédula"]:</label>
             <input asp-for="Cedula" class="form-control" />
             <span hidden id="cedulaValid" class="text-danger">@Lb["cedulaValid"]</span>
+            <span hidden id="repetidoValid" class="text-danger">@Lb["repetidoValid"]</span>
         </div>
 
         <div class="form-group col-md-4 col-sm-4 col-xs-12">
@@ -181,15 +182,15 @@
         <div @tipoCliente class="tipoCliente">
             <div class="form-group col-md-4 col-sm-3 col-xs-12 ">
                 <label asp-for="IdTipoCliente" class="control-label">@Lb["TipoCliente"]:</label>
-                <select asp-for="IdTipoCliente" class="form-control"><option value=""></option></select>
+                <select onchange="cargarFamiliaClientes(value)" asp-for="IdTipoCliente" class="form-control"><option value=""></option></select>
             </div>
 
             <div class="form-group col-md-4 col-sm-3 col-xs-12">
-                <label asp-for="IdFamiliaCliente" class="control-label">@Lb["FamiliaCliente"]:</label>
-                <select asp-for="IdFamiliaCliente" class="form-control"><option value=""></option></select>
+                <label asp-for="IdFamiliaCliente" class="control-label">@Lb["Familia"]:</label>
+                <select onchange="cargarSubFamiliaClientes(value)" asp-for="IdFamiliaCliente" class="form-control"><option value=""></option></select>
             </div>
             <div class="form-group col-md-4 col-sm-3 col-xs-12 ">
-                <label asp-for="IdSubFamiliaCliente" class="control-label">@Lb["SubFamiliaCliente"]:</label>
+                <label asp-for="IdSubFamiliaCliente" class="control-label">@Lb["Sub-Familia"]:</label>
                 <select asp-for="IdSubFamiliaCliente" class="form-control"><option value=""></option></select>
             </div>
         </div>
@@ -203,16 +204,16 @@
         </div>
         <div @tipoProveedor class="tipoProveedor">
             <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
-                <label asp-for="IdTipoProveedor" class="control-label">@Lb["TipoProveedor"]:</label>
-                <select asp-for="IdTipoProveedor" class="form-control"><option value=""></option></select>
+                <label asp-for="IdTipoProveedor" class="control-label">@Lb["Tipo"]:</label>
+                <select onchange="cargarFamiliaProveedores(value)" asp-for="IdTipoProveedor" class="form-control"><option value=""></option></select>
             </div>
 
             <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
-                <label asp-for="IdFamiliaProveedor" class="control-label">@Lb["FamiliaProveedor"]:</label>
-                <select asp-for="IdFamiliaProveedor" class="form-control"><option value=""></option></select>
+                <label asp-for="IdFamiliaProveedor" class="control-label">@Lb["Familia"]:</label>
+                <select onchange="cargarSubFamiliaProveedores(value)" asp-for="IdFamiliaProveedor" class="form-control"><option value=""></option></select>
             </div>
             <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
-                <label asp-for="IdSubFamiliaProveedor" class="control-label">@Lb["SubFamiliaProveedor"]:</label>
+                <label asp-for="IdSubFamiliaProveedor" class="control-label">@Lb["Sub-Familia"]:</label>
                 <select asp-for="IdSubFamiliaProveedor" class="form-control"><option value=""></option></select>
             </div>
         </div>
@@ -226,7 +227,7 @@
             <h4>&ensp;@Lb["CamposPersonalizados"]</h4>
         </div>
         <div class="col-md-3 col-sm-3 col-xs-4">
-            <a class="btn btn-link" data-toggle="collapse" data-target="#collapseFrmCP" aria-expanded="false" aria-controls="collapseFrmCP"><span id="optFrmCP">@Lb["VerMenos"]...</span></a>
+            <a class="btn btn-link" data-toggle="collapse" data-target="#collapseFrmCP" aria-expanded="false" aria-controls="collapseFrmCP"><span id="optFrmCP">@*@Lb["VerMenos"]..*@</span></a>
         </div>
     </div>
 
@@ -298,7 +299,9 @@
     var tipoClientes = [];
     var familiaClientes = [];
     var subFamiliaClientes = [];
-
+    var tipoClientesList = [];
+    var tipoProveedoresList = [];
+    
     $(document).ready(function () {
 
         if (@Model.IdContacto != 0) {
@@ -313,6 +316,10 @@
         $('.cedNite').mask('000000000000');
 
         tipoCedula("@Model.TipoCedula");
+
+        getTipoClientes();
+        getTipoProveedores();
+        
 
         getCamposPersonalizados();
 
@@ -381,6 +388,7 @@
         if ($('#Cedula').val().replace(/ /g, '') === "") {
             flag = false;
             $('#cedulaValid').prop('hidden', false);
+            $('#repetidoValid').prop('hidden', true);
         }
         else
             $('#telefonoValid').prop('hidden', true);
@@ -423,21 +431,31 @@
                 contacto['Empresa'] = true;
             }
 
+            contacto.Cliente = $('#Cliente').prop('checked');
+            contacto.Proveedor = $('#Proveedor').prop('checked');
 
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("CrearEditarContacto", "Contacto")',
                 data: { cpViewModel: ccPersonalizados, cViewModel: contacto },
-                success: function (data) {
-                    if ($('#fileUploadC').val() !== "")
-                        guardarImagen(data.id);
+                success: function (data) {  
 
-                    if (!data.accion) {
-                        window.location.href = "@Url.Action("EditarContacto", new { id = "__id__" })".replace("__id__", data.id);
+                    if (data.success) {
+                        if ($('#fileUploadC').val() !== "")
+                            guardarImagen(data.id);
+
+                        if (!data.accion) {
+                            window.location.href = "@Url.Action("EditarContacto", new { id = "__id__" })".replace("__id__", data.id);
+                        }
+                        else {
+                            window.location.href = "@Url.Action("ListarContactos", new { nombreContacto = "__nombre__" })".replace("__nombre__", data.nombre);
+                        }
                     }
                     else {
-                        window.location.href = "@Url.Action("ListarContactos", new { nombreContacto = "__nombre__" })".replace("__nombre__", data.nombre);
+                        $('#repetidoValid').prop('hidden', false);
+                        $('#Cedula').focus();
                     }
+                    
                 },
                 error: function (err, scnd) {
                     cargarAlert('@Lb["errorGeneral"]');
@@ -526,7 +544,34 @@
             url: '@Url.Action("GetTiposClientes", "TipoCliente")',
             success: function (data) {
 
+
+                tipoClientesList = data;
                 setTipoClientes(data);
+
+                //cargarTipoCLientes(data);
+                 
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+         });
+    }
+
+    function getTipoProveedores() {
+
+         $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetTiposProveedor", "TipoProveedor")',
+            success: function (data) {
+
+
+                tipoProveedoresList = data;
+                setTipoProveedores(data);
 
                 //cargarTipoCLientes(data);
                  
@@ -581,40 +626,127 @@
     /////////Tipos de Clientes
 
     function setTipoClientes(data) {
+
+        $('#IdTipoCliente')
+            .find('option')
+            .remove();
+
         for (var i = 0; i < data.length; i++) {
             if (data[i].idPadre === 0) {
-                tipoClientes.push(data[i]);
-            }
-            else if (esFamilia(data, data[i].idPadre)) {
-                familiaClientes.push(data[i]);
-            }
-            else {
-                subFamiliaClientes.push(data[i]);
-            }
-        }
-
-        //////////////////////////////////cargar combos///////////////////////
-
-    }
-
-    function esFamilia(data, idPadre) {
-        for (var i = 0; i < data.length; i++) {
-            if (idPadre === data[i].id) {
-                if (data[i].idPadre === 0)
-                    return true;
-                else {
-                    return false;
+                var o = new Option(data[i].nombre, data[i].id);
+                if (@Model.IdTipoCliente === data[i].id) {
+                    $(o).prop('selected', true);
                 }
+                $("#IdTipoCliente").append(o);
             }
-            else
-                return false;
         }
+
+        cargarFamiliaClientes(parseInt($('#IdTipoCliente').val()));
+
     }
 
+    function cargarFamiliaClientes(idTipo) {
 
+        $('#IdFamiliaCliente')
+            .find('option')
+            .remove();
 
+        for (var i = 0; i < tipoClientesList.length; i++) {
+            if (tipoClientesList[i].idPadre == idTipo) {
+                var o = new Option(tipoClientesList[i].nombre, tipoClientesList[i].id);
+                if (@Model.IdFamiliaCliente === tipoClientesList[i].id) {
+                    $(o).prop('selected', true);
+                }
+                $("#IdFamiliaCliente").append(o);
+            }
+        } 
+
+        cargarSubFamiliaClientes(parseInt($('#IdFamiliaCliente').val()));
+
+    }
+
+    function cargarSubFamiliaClientes(idFamilia) {
+
+        $('#IdSubFamiliaCliente')
+            .find('option')
+            .remove();
+
+        for (var i = 0; i < tipoClientesList.length; i++) {
+            if (tipoClientesList[i].idPadre == idFamilia) {
+                var o = new Option(tipoClientesList[i].nombre, tipoClientesList[i].id);
+                if (@Model.IdSubFamiliaCliente === tipoClientesList[i].id) {
+                    $(o).prop('selected', true);
+                }
+                $("#IdSubFamiliaCliente").append(o);
+            }
+        }
+
+    }
 
     /////////Fin de Tipos de Clientes
+
+
+    /////////Tipos de Proveedores
+
+    function setTipoProveedores(data) {
+
+        $('#IdTipoProveedor')
+            .find('option')
+            .remove();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].idPadre === 0) {
+                var o = new Option(data[i].nombre, data[i].id);
+                if (@Model.IdTipoProveedor === data[i].id) {
+                    $(o).prop('selected', true);
+                }
+                $("#IdTipoProveedor").append(o);
+            }
+        }
+
+        cargarFamiliaProveedores(parseInt($('#IdTipoProveedor').val()));
+
+    }
+
+    function cargarFamiliaProveedores(idTipo) {
+
+        $('#IdFamiliaProveedor')
+            .find('option')
+            .remove();
+
+        for (var i = 0; i < tipoProveedoresList.length; i++) {
+            if (tipoProveedoresList[i].idPadre == idTipo) {
+                var o = new Option(tipoProveedoresList[i].nombre, tipoProveedoresList[i].id);
+                if (@Model.IdFamiliaProveedor === tipoProveedoresList[i].id) {
+                    $(o).prop('selected', true);
+                }
+                $("#IdFamiliaProveedor").append(o);
+            }
+        } 
+
+        cargarSubFamiliaProveedores(parseInt($('#IdFamiliaProveedor').val()));
+
+    }
+
+    function cargarSubFamiliaProveedores(idFamilia) {
+
+        $('#IdSubFamiliaProveedor')
+            .find('option')
+            .remove();
+
+        for (var i = 0; i < tipoProveedoresList.length; i++) {
+            if (tipoProveedoresList[i].idPadre == idFamilia) {
+                var o = new Option(tipoProveedoresList[i].nombre, tipoProveedoresList[i].id);
+                if (@Model.IdSubFamiliaCliente === tipoProveedoresList[i].id) {
+                    $(o).prop('selected', true);
+                }
+                $("#IdSubFamiliaProveedor").append(o);
+            }
+        }
+
+    }
+
+    /////////Fin de Tipos de proveedores
 
     function getProvincias() {
         if ($("#Pais option:selected").text() === "Costa Rica") {

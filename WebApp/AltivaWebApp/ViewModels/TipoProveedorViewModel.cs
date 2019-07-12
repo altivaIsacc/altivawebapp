@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.ViewModels
 {
-    public class TipoClienteViewModel
+    public class TipoProveedorViewModel
     {
         public long Id { get; set; }
         public long? IdPadre { get; set; }

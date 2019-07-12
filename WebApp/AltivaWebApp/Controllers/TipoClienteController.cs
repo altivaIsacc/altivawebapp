@@ -8,182 +8,91 @@ using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.Domains;
 using AltivaWebApp.ViewModels;
+using System.Security.Claims;
+
 namespace AltivaWebApp.Controllers
 {
-    [Route("{culture}/TipoCliente")]
+    [Route("{culture}/Tipo")]
     public class TipoClienteController : Controller
     {
 
         //variable que instacia a al servicio del tipo cliente:
-        public ITipoClienteService ITipoClientes;
+        public ITipoClienteService service;
         //variable para mappear datos de la vista por seguridad de la aplicacion.
-        public ITipoClienteMapper ITipoMapper;
+        public ITipoClienteMapper map;
         //controlador
         public TipoClienteController(ITipoClienteService ITipoClientes, ITipoClienteMapper ITipoMapper)
         {
-            this.ITipoClientes = ITipoClientes;
-            this.ITipoMapper = ITipoMapper;
-        }
-        [HttpGet("EliminarSubFamiliaCliente/{idCliente?}")]
-        public IActionResult EliminarSubFamiliaCliente(int idCliente)
-        {
-            TbFdTipoCliente tipoC = new TbFdTipoCliente();
-            tipoC = this.ITipoClientes.GetById(idCliente);
-            bool bandera = this.ITipoClientes.Delete(tipoC);
-            return Ok(true);
-           
-        }
-     [HttpGet("EliminarFamiliaCliente/{idCliente?}")]
-     public IActionResult EliminarFamiliaCliente(int idCliente)
-        {
-
-            IList<TbFdTipoCliente> tipoCliente = new List<TbFdTipoCliente>();
-            tipoCliente = this.ITipoClientes.GetSubFamilia(idCliente);
-            if (tipoCliente.Count() > 0)
-            {
-                return Ok(false);
-            }
-            else
-            {
-                TbFdTipoCliente tipoC = new TbFdTipoCliente();
-                tipoC = this.ITipoClientes.GetById(idCliente);
-                bool bandera = this.ITipoClientes.Delete(tipoC);
-                return Ok(true);
-            }
-         
-        }
-        [HttpGet("EliminarTipoCliente/{idCliente?}")]
-        public IActionResult EliminarTipoCliente(int idCliente)
-        {
-            IList<TbFdTipoCliente> tipoCliente = new List<TbFdTipoCliente>();
-            tipoCliente = this.ITipoClientes.GetFamiliaTipoCliente(idCliente);
-            if (tipoCliente.Count() > 0)
-            {
-                return Ok(false);
-            }
-            else
-            {
-                TbFdTipoCliente tipoC = new TbFdTipoCliente();
-                tipoC = this.ITipoClientes.GetById(idCliente);
-                bool bandera = this.ITipoClientes.Delete(tipoC);
-                return Ok(true);
-            }
-            
+            this.service = ITipoClientes;
+            this.map = ITipoMapper;
         }
 
-     [HttpGet("CrearTipoClientes")]
-        public ActionResult CrearTipoClientes()
+        [Route("Cliente")]
+        public IActionResult ListarTipoClientes()
         {
-
             return View();
         }
-        [HttpGet("PartialCrearTipoCliente/{idCliente?}")]
-        public IActionResult PartialCrearTipoCliente(int idCliente)
-        {
-            TbFdTipoCliente tc = new TbFdTipoCliente();
-            if (idCliente != 0) {
-                tc = this.ITipoClientes.GetById(idCliente);
-            }
-            return PartialView("_CrearEditarTipoCliente",tc);
-        }
 
-
-        [HttpGet("PartialEditarTipoCliente/{idCliente?}")]
-        public IActionResult PartialEditarTipoCliente(int idCliente)
+        [HttpPost("_CrearTipoCliente/{id?}")]
+        public IActionResult _CrearEditarTipoCliente(int id, TipoClienteCrearViewModel viewModel)
         {
-            TbFdTipoCliente tc = new TbFdTipoCliente();
-            if (idCliente != 0)
+            ViewBag.tipoC = viewModel.Tipo;
+            ViewBag.idFamilia = viewModel.idFamilia;
+            ViewBag.idTipo = viewModel.idTipo;
+            
+            if (id != 0)
             {
-                tc = this.ITipoClientes.GetById(idCliente);
+                return PartialView("_CrearEditarTipoCliente", map.DomainToViewModel(service.GetById(id)));
             }
             else
             {
-
-                tc = this.ITipoClientes.GetById(idCliente);
+                return PartialView("_CrearEditarTipoCliente", new TipoClienteViewModel());
             }
-            return PartialView("_EditarTipoCliente",tc);
-        }
-        //metodo para guardar los tipos de clientes
-        [HttpPost("CrearTipoCliente")]
-        public IActionResult CrearTipoCliente(TipoClienteViewModel domain)
-        {
-            try
-            {
-                TbFdTipoCliente tc = new TbFdTipoCliente();
-                tc = this.ITipoMapper.Save(domain);
-                if (tc != null)
-                {
-                    return Ok(true);
-                }
-            }
-            catch
-            {
-                throw;
-            }
-            return Ok();
-        }
-        [HttpPost("EditarTipoCliente")]
-        public IActionResult EditarTipoCliente(TipoClienteViewModel domain)
-        {
-            try
-            {
-                TbFdTipoCliente tc = new TbFdTipoCliente();
-                tc = this.ITipoMapper.Update(domain);
-                if (tc != null)
-                {
-                    return Ok(tc.IdPadre);
-                }
-            }
-            catch
-            {
-                throw;
-            }
-            return Ok();
-        }
-        [HttpGet("GetTiposDeClientes")]
-        public IActionResult GetTiposClientes()
-        {
             
+        }
+
+        [HttpPost("CrearEditarTipoCliente")]
+        public IActionResult CrearEditarTipoCliente(TipoClienteViewModel viewModel)
+        {
             try
             {
-               return Ok(ITipoClientes.GetAll());
+                if (viewModel.IdPadre == null)
+                    viewModel.IdPadre = 0;
+                var tipoC = new TbFdTipoCliente();
+                if(viewModel.Id != 0)
+                {
+                    tipoC = map.Update(viewModel);
+                }
+                else
+                {
+                    viewModel.FechaCreacion = DateTime.Now;
+                    viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+                    
+                    tipoC = map.Save(viewModel);
+                }
+
+                return Json(new { success = true, tipoC });
             }
             catch (Exception)
             {
-                return BadRequest()
-                //throw;
-            }
-        }
-        [HttpGet("GetFamiliasTipoCliente/{idCliente?}")]
-        public IActionResult GetFamiliasTipoCliente(int idCliente)
-        {
-            IList<TbFdTipoCliente> TipoClientes = new List<TbFdTipoCliente>();
-            TipoClientes = this.ITipoClientes.GetFamiliaTipoCliente(idCliente);
 
-            if (TipoClientes.Count() > 0)
-            {
-                return new JsonResult(TipoClientes);
-            }
-            else
-            {
-                return new JsonResult(false);
-            }
-        }
-        [HttpGet("GetSubFamilias/{idCliente?}")]
-        public IActionResult GetSubFamilias(int idCliente)
-        {
-            IList<TbFdTipoCliente> TipoClientes = new List<TbFdTipoCliente>();
-            TipoClientes = this.ITipoClientes.GetSubFamilia(idCliente);
-           
-            if (TipoClientes.Count() > 0)
-            {
-                return new JsonResult(TipoClientes);
-            }
-            else
-            {
-                return new JsonResult(false);
+                throw;
             }
         }
 
+
+        [HttpGet("GetTiposDeClientes")]
+        public IActionResult GetTiposClientes()
+        {
+            try
+            {
+               return Ok(service.GetAll());
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+        
     }
 }
