@@ -2884,6 +2884,9 @@
                totalCr: formatTotales().totalBase,
                totalUSD: formatTotales().totalDolar,
                totalE: formatTotales().totalEuro,
+               totalCrArqueo: formatTotales().totalBaseArqueo,
+               totalUSDArqueo: formatTotales().totalDolarArqueo,
+               totalEArqueo: formatTotales().totalEuroArqueo,
                nombreDoc: getTitulos().nombreDoc + '#@Model.IdCaja',
                nombreDescarga: getTitulos().nombreDoc + "_" + @Model.IdCaja + '.pdf',
                nombreDocArqueo: getTitulos().nombreDocArqueo + '#@Model.IdCaja',
@@ -2898,11 +2901,11 @@
                 monto:"@Lb["Monto"]",
             },
                columnasArqueoDolar: {
-                moneda: "",
+                moneda: monedas[1].simbolo,
                 monto:"@Lb["Monto"]",
             },
                   columnasArqueoEuro: {
-                moneda: "",
+                moneda: monedas[2].simbolo,
                 monto:"@Lb["Monto"]",
             },
             filaArqueoBase: crearFilasPdfArqueoBase(),
@@ -2910,9 +2913,13 @@
             filaArqueoEuro: crearFilasPdfArqueoEuro(),
             filas: crearFilasPdf(),
             resumen: {
-                totalBase: "@Lb["Total"] "+monedas[0].simbolo+":",
-                totalDolar: "@Lb["Total"] "+monedas[1].simbolo+":",
-                totalEuro: "@Lb["Total"] "+monedas[2].simbolo+":",
+                totalBase: "@Lb["Total"] "+monedas[0].simbolo+": ",
+                totalDolar: "@Lb["Total"] "+monedas[1].simbolo+": ",
+                totalEuro: "@Lb["Total"] " + monedas[2].simbolo + ": ",
+                totalBaseArqueo: "@Lb["Total"] "+monedas[0].simbolo+": ",
+                totalDolarArqueo: "@Lb["Total"] "+monedas[1].simbolo+": ",
+                totalEuroArqueo: "@Lb["Total"] " + monedas[2].simbolo + ": ",
+
                 autorizado: "@Lb["Autorizado por"]:______________________"
             },
             
@@ -2937,19 +2944,13 @@
             totalBase: $('#txtTotalBase').val().replace("CRC", ""),
             totalDolar: $('#txtTotalDolar').val().replace("USD", ""),
             totalEuro: $('#txtTotalEuro').val().replace("EUR", ""),
+            totalBaseArqueo: $('#txtTotalBaseArqueo').val().replace("CRC", ""),
+            totalDolarArqueo: $('#txtTotalDolarArqueo').val().replace("USD", ""),
+            totalEuroArqueo:$("#txtTotalEuroArqueo").val().replace("EUR",""),
 
         }
     }
 
-    function formatTotalesArqueo() {
-
-        return {
-
-            totalBase: $('#txtTotalBase').val().replace("CRC", ""),
-            totalDolar: $('#txtTotalDolar').val().replace("USD", ""),
-            totalEuro: $('#txtTotalEuro').val().replace("EUR", ""),
-        }
-    }
 
     function getEstado() {
 
@@ -2985,7 +2986,7 @@
                 nombreDoc: "Apertura de caja ",
                 denominacion: "Denominación",
                 creacion: "Creación:",
-                nombreDocArqueo:"Arqueo de caja"
+                nombreDocArqueo:"Arqueo de caja "
             };
         else
             return {
@@ -2994,7 +2995,7 @@
                 nombreDoc: "Opening of cash",
                 denominacion: "denomination ",
                 creacion: "Creation:",
-                nombreDocArqueo: "Cash´s arching"
+                nombreDocArqueo: "Cash´s arching "
             };
     }
 
@@ -3047,11 +3048,11 @@
                     monto = Base[0].efectivoReal;
             break;
                 case 1:
-                          txt = "@Lb["Tarjetas"]";
+                    txt = "@Lb["Tarjetas"]";
                     monto = Base[0].tarjetaReal;
             break;
                 case 2:
-                          txt = "@Lb["Bancos"]";
+                    txt = "@Lb["Bancos"]";
                     monto = Base[0].bancoReal;
             break;
             }
@@ -3077,21 +3078,21 @@
             switch (v) {
                 case 0:
                     txt = "@Lb["Efectivo"]";
-                    monto = Base.efectivoReal;
+                    monto = Dolar[0].efectivoReal;
             break;
                 case 1:
                           txt = "@Lb["Tarjetas"]";
-                    monto = Base.tarjetaReal;
+                    monto = Dolar[0].tarjetaReal;
             break;
                 case 2:
                           txt = "@Lb["Bancos"]";
-                    monto = Base.bancoReal;
+                    monto = Dolar[0].bancoReal;
             break;
             }
 
             var model = {
-                moneda:txt,
-                monto:monto,
+                monedaDolar:txt,
+                montoDolar:monto,
             };
 
             row.push(model);
@@ -3110,21 +3111,21 @@
             switch (v) {
                 case 0:
                     txt = "@Lb["Efectivo"]";
-                    monto = Base.efectivoReal;
+                    monto = Euro[0].efectivoReal;
             break;
                 case 1:
-                          txt = "@Lb["Tarjetas"]";
-                    monto = Base.tarjetaReal;
+                    txt = "@Lb["Tarjetas"]";
+                    monto = Euro[0].tarjetaReal;
             break;
                 case 2:
-                          txt = "@Lb["Bancos"]";
-                    monto = Base.bancoReal;
+                    txt = "@Lb["Bancos"]";
+                    monto = Euro[0].bancoReal;
             break;
             }
 
             var model = {
-                moneda:txt,
-                monto:monto,
+                monedaEuro:txt,
+                montoEuro:monto,
             };
 
             row.push(model);

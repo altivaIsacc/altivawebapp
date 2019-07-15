@@ -57,7 +57,6 @@ namespace AltivaWebApp.Controllers
         [HttpGet ("ListarCotizacionProducto")]
         public IActionResult GetCotizacion()
         {
-
             try
             {
                 //var CotizacionProducto = new List<TbFaCotizacion>();
@@ -87,21 +86,7 @@ namespace AltivaWebApp.Controllers
             return Ok(idUsuario);
         }
 
-        [Route("Nueva-Cotizacion")]
-        public ActionResult InsertarCotizacion()
-        {
 
-            ViewData["usuario"] = _UserService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
-            var tipoCambio = _MonedaService.GetAll();
-            var model = new CotizacionViewModel
-            {
-                TipoCambioDolar = tipoCambio.FirstOrDefault(m => m.Codigo == 2).ValorCompra,
-                TipoCambioEuro = tipoCambio.FirstOrDefault(m => m.Codigo == 3).ValorCompra,
-                Estado = "Borrador"
-            };
-            ViewData["monedas"] = tipoCambio;
-            return View("CrearEditarCotizacion", model);
-        }
 
         [Route("Editar-Cotizacion/{id}")]
         public ActionResult EditarCotizacion(int id)
@@ -164,12 +149,7 @@ namespace AltivaWebApp.Controllers
                             var orden = _Map.Update(viewModel);
                         }
                     }
-
                         return Json(new { success = true, idCD = idCD});
-          
-                         
-                                      
-
                 }
                 else
                 {
@@ -193,21 +173,6 @@ namespace AltivaWebApp.Controllers
      
                 throw;
                 //return BadRequest();
-            }
-        }
-
-        [HttpPost("Crear-CotizacionDetalle")]
-        public ActionResult CrearCotizacionDetalle(CotizacionViewModel viewModel)
-        {
-            try
-            {
-                var res = _Map.CreateCD(viewModel);
-
-                return Json(new { success = true });
-            }
-            catch
-            {
-                return BadRequest();
             }
         }
 
