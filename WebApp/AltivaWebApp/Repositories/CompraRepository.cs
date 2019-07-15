@@ -34,6 +34,8 @@ namespace AltivaWebApp.Repositories
             return context.TbPrCompra.Any(u => u.NumeroDocumento == numDoc && u.TipoDocumento == tipo && u.IdContacto == idProveedor );
         }
 
+       
+
         public long IdUltimoDocumento()
         {
             return context.TbPrCompra.Select(c => c.Id).LastOrDefault();

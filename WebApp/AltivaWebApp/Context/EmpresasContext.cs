@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using AltivaWebApp.Domains;
+using AltivaWebApp.ViewModels;
 using AltivaWebApp.Helpers;
 
 namespace AltivaWebApp.Context
@@ -18,6 +19,7 @@ namespace AltivaWebApp.Context
         {
         }
 
+        public virtual DbSet<CompraAutomaticoViewModel> CompraAutomatico { get; set; }
         public virtual DbSet<TbBaConciliacion> TbBaConciliacion { get; set; }
         public virtual DbSet<TbBaConciliacionDetalle> TbBaConciliacionDetalle { get; set; }
         public virtual DbSet<TbBaCuentasBancarias> TbBaCuentasBancarias { get; set; }
@@ -211,9 +213,28 @@ namespace AltivaWebApp.Context
             }
         }
 
+       
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.3-servicing-35854");
+
+            modelBuilder.Entity<CompraAutomaticoViewModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.IdInventario).HasColumnType("bigint");
+                entity.Property(e => e.Codigo).HasColumnType("varchar(60)");
+                entity.Property(e => e.Descripcion).HasColumnType("varchar(150)");
+                entity.Property(e => e.etotal).HasColumnType("float");
+                entity.Property(e => e.ExistenciaGeneral).HasColumnType("float");
+                entity.Property(e => e.emed).HasColumnType("float");
+                entity.Property(e => e.emin).HasColumnType("float");
+                entity.Property(e => e.emax).HasColumnType("float");
+
+
+
+
+
+            });
 
             modelBuilder.Entity<TbBaConciliacion>(entity =>
             {
@@ -1292,6 +1313,10 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.Nombre)
                     .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Telefono)
+                    .HasMaxLength(25)
                     .IsUnicode(false);
 
                 entity.Property(e => e.NombreComercial)

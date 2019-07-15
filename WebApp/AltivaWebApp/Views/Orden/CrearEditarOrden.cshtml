@@ -73,7 +73,7 @@ else
                     </div>
                 </fieldset>
             </div>
-            
+
             <div class="form-group col-md-3 col-sm-6 col-xs-12">
                 <label asp-for="IdProveedor" class="control-label">@SharedLocalizer["Proveedor"]</label>
                 <select class="form-control selectItems" id="proveedores"></select>
@@ -107,6 +107,17 @@ else
     </div>
 
     <br />
+    
+    <div class="row">
+        <div class="form-group col-md-3">
+            <button @estado class="btn btn-success btnAccion" onclick="validarCompraAutomatica()">Orden Automatico</button>
+
+
+        </div>
+
+    </div>
+                
+    
 
     <div class="col-md-12 table-responsive">
 
@@ -187,6 +198,8 @@ else
 
 <div hidden><input hidden id="formater" class="currency" type="text" /></div>
 
+
+
 <script src="~/js/comentario.js"></script>
 <script src="~/js/base64ImageCreator.js"></script>
 
@@ -227,9 +240,11 @@ else
     var items = [];
     var lineasAgregadas = [];
     var lineasEliminadas = [];
+    //contador
+    var cont = 0;
 
     $(document).ready(function () {
-
+        
         getProveedores();
 
         var date = new Date();
@@ -334,7 +349,10 @@ else
         return '@Model.Fecha.Month' + "-" + '@Model.Fecha.Day' + "-" + '@Model.Fecha.Year' + " " + '@Model.Fecha.TimeOfDay';
 
     }
-
+    function evento() {
+        var eje = $("#Id").val();
+        alert(eje);
+    }
 
     ///calculos de línea
     function setSubTotalLinea() {
@@ -441,7 +459,19 @@ else
         cargarTabla(lineas);
 
     }
+    function guardarLineaAutomatico(data) {
 
+        for (var i = 0; i < data.length; i++) {
+            $('#item').val(data[i].idInventario);
+            $('#item').trigger('change.select2');
+            $cantidad.val(data[i].etotal);
+            guardarLinea();
+           $cantidad.val(0);
+
+        }
+        
+            
+    }
     function guardarLinea() {
 
 
@@ -470,7 +500,84 @@ else
         lineas.push(model);
 
         cargarTabla(lineas);
+        $cantidad.val(1);
 
+    }
+    function validarCompraAutomatica() {
+          var duplicado = 0;
+
+        if (lineas.length != 0) {
+            bootbox.confirm("@SharedLocalizer["confirmCompraAutomatica"]", function (resultado) {
+                if (resultado) {
+
+                    lineas = [];
+                    cargarTabla(lineas);
+                    duplicado = 1;
+                    generarCompraAutomatica();
+
+
+                }
+
+            });
+        }
+        else {
+            generarCompraAutomatica();
+        }
+    }
+    function generarCompraAutomatica() {
+        
+         var idProveedor = $("#proveedores").val();
+          var url = "@Url.Action("GenerarCompraAutomatica", "Orden", new { idProveedor = "__id__" })".replace("__id__", idProveedor);
+       
+       
+            $.ajax({
+            type: "get",
+        headers: {
+        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+        },
+            url: url,
+            dataType:'json',
+            success: function (data) {
+
+            guardarLineaAutomatico(data);
+               
+              
+
+                
+            }
+        
+        });
+        
+        
+
+          
+
+    }
+    
+
+    function modificarLinea(_id, idLinea) {
+       
+
+        $('#item').val(lineasAgregadas[_id - 1].idInventario);
+        $('#item').trigger('change.select2');
+        $cantidad.val(lineasAgregadas[_id - 1].cantidad);
+        $precio.val(lineasAgregadas[_id - 1].precio);
+       
+        
+
+        var id = _id - 1;
+
+
+                if (idLinea != 0)
+                    lineasEliminadas.push(lineas[id].id);
+                else
+                    lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
+
+                lineas.splice(id, 1);
+
+
+                cargarTabla(lineas);
+           
     }
 
     function eliminarLinea(_id, idLinea) {
@@ -552,7 +659,9 @@ else
                 + '<td style="padding-top:2rem; width:12rem;"><input style="border:0; background-color : #F7F7F7"  value="' + data[i].porcDesc + '"/></td>'
                 + '<td style="padding-top:2rem; "><input style="width:6rem; border:0; background-color : #F7F7F7"  value="' + data[i].porcIva + '%"/></td>'
                 + '<td style="padding-top:2rem; width:12rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + subtotal + '"/></td>'
-                + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                + '<td ><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="modificarLinea(value, '+ data[i].id + ')" ><i class="fas fa-edit"></i></button>'
+                + '<button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+
 
             $('.lineaForm').before(body);
 
@@ -612,6 +721,7 @@ else
         for (var i = 0; i < data.length; i++) {
             var o = new Option(data[i].codigo, data[i].idInventario);
             $("#item").append(o);
+            
 
         }
 
@@ -626,7 +736,7 @@ else
         });
     }
 
-    function getProveedores() {
+    function getProveedores() {                                                                                                 
 
          $.ajax({
               type: "get",

@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using AltivaWebApp.ViewModels;
 
 namespace AltivaWebApp.Models
 {
@@ -5091,5 +5092,7 @@ namespace AltivaWebApp.Models
                     .HasDefaultValueSql("('')");
             });
         }
+
+        public DbSet<AltivaWebApp.ViewModels.OrdenDetalleViewModel> OrdenDetalleViewModel { get; set; }
     }
 }

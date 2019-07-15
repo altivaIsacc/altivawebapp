@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
@@ -14,7 +15,7 @@ namespace AltivaWebApp.Controllers
     [Route("{culture}/Orden")]
     public class OrdenController : Controller
     {
-
+       
         private readonly IOrdenService service;
         private readonly IOrdenMap map;
         private readonly IContactoService contactoService;
@@ -37,6 +38,26 @@ namespace AltivaWebApp.Controllers
         {
             return View();
         }
+
+        [HttpGet("GenerarCompraAutomatica/{idProveedor}")]
+        public IActionResult GenerarCompraAutomatica(int idProveedor)
+        {
+            try
+            {
+                var ca = service.compraProveedor(idProveedor);
+                return Ok(ca);
+                
+            }
+            catch (Exception)
+            {
+                //return BadRequest();
+                throw;
+            }
+            
+        }
+
+
+
 
         [Route("Nueva-Orden")]
         public ActionResult CrearOrden()
@@ -165,7 +186,8 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
-                return BadRequest();
+                throw;
+                //return BadRequest();
             }
         }
 

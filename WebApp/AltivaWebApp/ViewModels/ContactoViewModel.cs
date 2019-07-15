@@ -28,7 +28,7 @@ namespace AltivaWebApp.ViewModels
         public string NombreJuridico { get; set; }
         public string Cedula { get; set; }
         public string TipoCedula { get; set; }
-        public int Telefono { get; set; }
+        public string Telefono { get; set; }
         public string Correo { get; set; }
         public string Pais { get; set; }
         public int? Provincia { get; set; }
