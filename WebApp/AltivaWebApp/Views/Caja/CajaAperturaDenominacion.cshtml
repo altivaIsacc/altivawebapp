@@ -76,16 +76,11 @@
                 </tr>
             </thead>
             <tbody>
-
                 <tr class="lineaForm"></tr>
             </tbody>
-
         </table>
-
     </div>
-
 </div>
-
 
 <div class="row">
     <div class="col-md-6"></div>
@@ -105,17 +100,12 @@
             </div>
         </div>
     </div>
-
 </div>
-
-
 
 @if (Model.Estado == 2)
 {
     <div class="row" style="margin-top:30px;">
         <h4 style="margin-left:10px;">@Lb["ArqueoCaja"]</h4>
-
-
         <div class="col-md-4  table-responsive">
             <table class="table table-bordered" style="width:100%" id="tblCajaArqueoBase">
                 <thead>
@@ -137,7 +127,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-md-4  table-responsive">
             <table class="table table-bordered" style="width:100%" id="tblCajaArqueoDolar">
                 <thead>
@@ -147,7 +136,6 @@
                     </tr>
                 </thead>
                 <tbody>
-
                     <tr class="lineaFormArqueoDolar"></tr>
                 </tbody>
             </table>
@@ -159,7 +147,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-md-4  table-responsive">
             <table class="table table-bordered" style="width:100%" id="tblCajaArqueoEuro">
                 <thead>
@@ -181,7 +168,6 @@
             </div>
         </div>
     </div>
-
 }
 
 @if (Model.Estado == 4)
@@ -723,12 +709,12 @@
                  $('#DiferenciaBase').text(monedas[0].simbolo + " " + "@Lb["Diferencia"]");
                  $('#DiferenciaDolar').text(monedas[1].simbolo + " " + "@Lb["Diferencia"]");
                  $('#DiferenciaEuro').text(monedas[2].simbolo + " " + "@Lb["Diferencia"]");
-                 $('#lbTotalBase').text("@Lb["Total"]" + " " + monedas[0].simbolo);
-                 $('#lbTotalDolar').text("@Lb["Total"]" + " " + monedas[1].simbolo );
-                 $('#lbTotalEuro').text("@Lb["Total"]" + " " + monedas[2].simbolo);
-                 $('#lbTotalBaseArqueo').text("@Lb["Total"]" + " " + monedas[0].simbolo);
-                 $('#lbTotalDolarArqueo').text("@Lb["Total"]" + " " + monedas[1].simbolo );
-                 $('#lbTotalEuroArqueo').text("@Lb["Total"]"+ " " + monedas[2].simbolo);
+                 $('#lbTotalBase').text("@Lb["Total"]" + " " + monedas[0].simbolo+":");
+                 $('#lbTotalDolar').text("@Lb["Total"]" + " " + monedas[1].simbolo+":" );
+                 $('#lbTotalEuro').text("@Lb["Total"]" + " " + monedas[2].simbolo+":");
+                 $('#lbTotalBaseArqueo').text("@Lb["Total"]" + " " + monedas[0].simbolo+":");
+                 $('#lbTotalDolarArqueo').text("@Lb["Total"]" + " " + monedas[1].simbolo+":" );
+                 $('#lbTotalEuroArqueo').text("@Lb["Total"]"+ " " + monedas[2].simbolo+":");
 
                  if (@Model.IdCaja!= 0) {
 
@@ -2072,10 +2058,10 @@
 
                 switch (tipo) {
                     case 1:
-                        return "@Lb["Billete"]";
+                        return "@Lb["Billetes"]";
                         break;
                     case 2:
-                        return "@Lb["Moneda"]";
+                        return "@Lb["Monedas"]";
                         break;
                 }
                 break;
@@ -2899,15 +2885,16 @@
                totalUSD: formatTotales().totalDolar,
                totalE: formatTotales().totalEuro,
                nombreDoc: getTitulos().nombreDoc + '#@Model.IdCaja',
-               nombreDescarga: getTitulos().nombreDoc+"_" + @Model.IdCaja + '.pdf',
+               nombreDescarga: getTitulos().nombreDoc + "_" + @Model.IdCaja + '.pdf',
+               nombreDocArqueo: getTitulos().nombreDocArqueo + '#@Model.IdCaja',
+               nombreDescargaArqueo: getTitulos().nombreDocArqueo+"_" + @Model.IdCaja + '.pdf',
                columnas: {
                     denominacion: getTitulos().denominacion,
                     cantidad: "@Lb["Cantidad"]",
                     monto: "@Lb["Monto"]",
             },
-
             columnasArqueoBase: {
-                moneda: "",
+                moneda: monedas[0].simbolo,
                 monto:"@Lb["Monto"]",
             },
                columnasArqueoDolar: {
@@ -2935,7 +2922,7 @@
             estado: getEstado(),
             fechaTitulo: getTitulos().creacion,
             fecha: $('#lbFechaCreacion').val(),
-            estadoPdf:1,
+            estadoPdf:$('#lbEstado option:selected').val(),
 
         };
         return modelo;
@@ -2967,7 +2954,6 @@
     function getEstado() {
 
         switch (parseInt( $('#lbEstado option:selected').val())) {
-
             case 1:
                 console.log("he");
                   return "@Lb["Abierta"]";
@@ -2998,7 +2984,8 @@
                 cedJuridica: "Cédula Jurídica:",
                 nombreDoc: "Apertura de caja ",
                 denominacion: "Denominación",
-                creacion:"Creación:"
+                creacion: "Creación:",
+                nombreDocArqueo:"Arqueo de caja"
             };
         else
             return {
@@ -3006,7 +2993,8 @@
                 cedJuridica: "Legal Number:",
                 nombreDoc: "Opening of cash",
                 denominacion: "denomination ",
-                creacion:"Creation:"
+                creacion: "Creation:",
+                nombreDocArqueo: "Cash´s arching"
             };
     }
 
@@ -3037,11 +3025,10 @@
             tipo = fnTipoMonedaPdf(_LineaCajaAperturaDenominaciones[f].idDenominaciones);
 
             var model = {
-                denominacion:tipo+" "+ simboloMoneda( moneda) + " " + valor ,
+                denominacion: tipo + " "+ $('#lb' + _LineaCajaAperturaDenominaciones[f].idDenominaciones+'').val() ,
                 cantidad: _LineaCajaAperturaDenominaciones[f].cantidad ,
                 monto: _LineaCajaAperturaDenominaciones[f].monto,
             };
-
             row.push(model);
         }
         return row;

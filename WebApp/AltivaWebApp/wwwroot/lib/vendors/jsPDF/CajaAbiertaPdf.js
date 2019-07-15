@@ -27,8 +27,6 @@ function generate_cutomPDF(modelo) {
         h: 50
     };
 
-
-
     var fontSizes = {
         HeadTitleFontSize: 18,
         Head2TitleFontSize: 16,
@@ -43,17 +41,13 @@ function generate_cutomPDF(modelo) {
     };
 
     var doc = new jsPDF('p', 'pt');
-
     var rightStartCol1 = 400;
     var rightStartCol2 = 490;
-
-
     var InitialstartX = 40;
     var startX = 40;
     var InitialstartY = 50;
     var startY = 0;
     var midY = 5;
-
     var lineHeights = 12;
 
     var res = doc.autoTableHtmlToJson(document.getElementById("tblCajaApertura"));
@@ -62,13 +56,12 @@ function generate_cutomPDF(modelo) {
     var ArqueoEuro = doc.autoTableHtmlToJson(document.getElementById("tblCajaArqueoEuro"));
 
     //res = doc.autoTableHtmlToJson(document.getElementById("tblInvoiceItemsList"));
-
     doc.setFontSize(fontSizes.SubTitleFontSize);
     doc.setFont('times');
     doc.setFontType('bold');
 
     //pdf.addImage(agency_logo.src, 'PNG', logo_sizes.centered_x, _y, logo_sizes.w, logo_sizes.h);
-    //  doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
+    //doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
    // doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
 
     doc.textAlign(comapnyJSON.nombre, { align: "left" }, startX, startY += 15 + company_logo.h);
@@ -131,7 +124,15 @@ function generate_cutomPDF(modelo) {
 
     doc.setFontSize(fontSizes.Head2TitleFontSize);
     doc.setFontType('bold');
-    doc.textAlign(modelo.nombreDoc, { align: "center" }, startX, startY += lineSpacing.NormalSpacing + 2);
+    switch (parseInt(modelo.estadoPdf)) {
+        case 1:
+            doc.textAlign(modelo.nombreDoc, { align: "center" }, startX, startY += lineSpacing.NormalSpacing + 2);
+            break;
+        case 2:
+            doc.textAlign(modelo.nombreDocArqueo, { align: "center" }, startX, startY += lineSpacing.NormalSpacing + 2);
+            break
+    }
+
 
     doc.setFontSize(fontSizes.NormalFontSize);
     doc.setFontType('bold');
@@ -201,25 +202,6 @@ function generate_cutomPDF(modelo) {
         startY: startY += 50
     };
 
-    var optionsArqueo = {
-        beforePageContent: header,
-        margin: {
-            top: 50
-        },
-        styles: {
-            overflow: 'linebreak',
-            fontSize: 10,
-            rowHeight: 'auto',
-            columnWidth: 'auto',
-        },
-        columnStyles: {
-            1: { columnWidth: 'auto' },
-            2: { columnWidth: 'auto' },
-  
-
-        },
-        startY: startY += 950
-    };
 
 
     var columns = [
@@ -230,25 +212,19 @@ function generate_cutomPDF(modelo) {
     ];
 
 
-    var columnsArqueo = [
-        { title: modelo.columnasArqueoBase.moneda, dataKey: "moneda", width: 90 },
-        { title: modelo.columnasArqueoBase.monto, dataKey: "monto", width: 40 },
-
-    ];
-
     //var rows = [
     //  {"item": 4, "movimiento": "Shaw", "cantidad": "10","costo" : "12","total":"10","cuentaContable":"120","cuentaCosto":20},
 
     //];
 
     var rows = modelo.filas;
-    var rowsArqueo = modelo.filaArqueoBase;
+
     // columnStyles: {
     //   id: {fillColor: 255}
     // },
 
     doc.autoTable(columns, rows, options);   //From dynamic data.
-    doc.autoTable(columnsArqueo, rowsArqueo, optionsArqueo);   //From dynamic data.
+
     // doc.autoTable(res.columns, res.data, options); //From htmlTable
 
 
@@ -257,7 +233,7 @@ function generate_cutomPDF(modelo) {
     var rightcol1 = 400;
     var rightcol2 = 490;
 
-    startY = doc.autoTableEndPosY() + 30;
+    startY = doc.autoTableEndPosY()+ 30;
     doc.setFontSize(fontSizes.NormalFontSize);
 
     doc.setFontType('bold');
@@ -282,10 +258,60 @@ function generate_cutomPDF(modelo) {
     //doc.textAlign(invoiceJSON.total.toString(), { align: "rigth" }, rightcol2, startY);
 
 
+    var optionsArqueo = {
+        beforePageContent: header,
+        margin: {
+            top: 50
+        },
+        styles: {
+            overflow: 'linebreak',
+            fontSize: 10,
+            rowHeight: 'auto',
+            columnWidth: '30%',
+        },
+        columnStyles: {
+            1: { columnWidth: 'auto' },
+            2: { columnWidth: 'auto' },
+
+
+        },
+        startY: startY += 55
+    };
+
+
+    var columnsArqueo = [
+        { title: modelo.columnasArqueoBase.moneda, dataKey: "moneda", width: 90 },
+        { title: modelo.columnasArqueoBase.monto, dataKey: "monto", width: 40 },
+
+    ];
+
+    var rowsArqueo = modelo.filaArqueoBase;
+
+    doc.autoTable(columnsArqueo, rowsArqueo, optionsArqueo);   //From dynamic data.
+
     doc.setFontType('bold');
-    doc.textAlign(modelo.resumen.autorizado, { align: "left" }, 40, startY += lineSpacing.NormalSpacing + 50);
+    doc.textAlign(modelo.resumen.autorizado, { align: "left" }, 40, startY += lineSpacing.NormalSpacing + 100);
 
 
-
-    doc.save(modelo.nombreDescarga);
+    switch (parseInt(modelo.estadoPdf)) {
+        case 1:
+            doc.save(modelo.nombreDescarga);
+            break;
+        case 2:
+            doc.save(modelo.nombreDescargaArqueo);
+            break;
+        case 3:
+            doc.save(modelo.nombreDescarga);
+            break;
+        case 4:
+            doc.save(modelo.nombreDescarga);
+            break;
+        case 5:
+            doc.save(modelo.nombreDescarga);
+            break
+        case 6:
+            doc.save(modelo.nombreDescarga);
+            break;
+    }
+   
 }
