@@ -630,21 +630,24 @@ else
 
 
                 if (idLinea != 0) {
-                     $.ajax({
-                    type: "POST",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                    },
-                    dataType: "json",
-                    url: '@Url.Action("EliminarCompraDetalle")',
-                    data: { idCD: idLinea },
-                    success: function (data) {
-                        eliminarLinea(_id);
-                    },
-                    error: function (err, scnd) {
-                        cargarAlert('@SharedLocalizer["errorGeneral"]');
-                        console.log(err.statusText);
-                    }
+                    $.ajax({
+                        type: "POST",
+                        headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        dataType: "json",
+                        url: '@Url.Action("EliminarCompraDetalle")',
+                        data: { idCD: idLinea },
+                        success: function (data) {
+                            if (data.success)
+                                eliminarLinea(_id);
+                            else
+                                cargarAlert("@SharedLocalizer["anulacionInvalida"]");
+                        },
+                        error: function (err, scnd) {
+                            cargarAlert('@SharedLocalizer["errorGeneral"]');
+                            console.log(err.statusText);
+                        }
                     });
                 }
                 else
@@ -672,10 +675,14 @@ else
                         url: '@Url.Action("CambiarEstadoCompra")',
                         data: {id: @Model.Id},
                         success: function (data) {
-                            setMensajeFromOut(result);
-                            cargarAlert('@SharedLocalizer["CompraAnuladaMSJ"]');
-                            window.location.href = "@Url.Action("ListarCompras")";
-
+                            if (data.success) {
+                                setMensajeFromOut(result);
+                                cargarAlert('@SharedLocalizer["CompraAnuladaMSJ"]');
+                                window.location.href = "@Url.Action("ListarCompras")";
+                            }
+                            else{
+                                cargarAlert("@SharedLocalizer["anulacionInvalida"]");
+                        }
                         },
                         error: function (err, scnd) {
                             cargarAlert('@SharedLocalizer["errorGeneral"]');

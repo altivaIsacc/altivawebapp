@@ -49,6 +49,7 @@ namespace AltivaWebApp.Repositories
                 SqlParameter param3 = new SqlParameter("@plantillaBD", conf["nombrePlantillaBD"]);
 
                 context.Database.ExecuteSqlCommand("pr_GE_CrearEmpresaBD @NombreBd, @rutaRoot, @plantillaBD", param, param2, param3);
+
                 return true;
             }
             catch (Exception)

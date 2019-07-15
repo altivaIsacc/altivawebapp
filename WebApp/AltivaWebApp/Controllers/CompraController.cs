@@ -70,7 +70,7 @@ namespace AltivaWebApp.Controllers
         [Route("Editar-Compra/{id}")]
         public ActionResult EditarCompra(int id)
         {
-            var compra = map.DomainToViewModel(service.GetCompraById(id));
+            var compra = map.DomainToViewModel(service.GetCompraByIdWithoutD(id));
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             ViewData["bodegas"] = bodegaService.GetAllActivas();
             ViewData["monedas"] = monedaService.GetAll();
@@ -147,17 +147,15 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                TbPrCompra compra = service.GetCompraByIdWithoutD(id);
+                var res = true;
+                TbPrCompra compra = service.GetCompraById(id);
                 compra.Anulado = true;
                 if(!compra.Borrador)
-                    kardexMap.CreateKardexEliminarCD(compra);
-                compra = service.Update(compra);
+                   res = kardexMap.CreateKardexEliminarCD(compra);
+                if(res)
+                    compra = service.Update(compra);
 
-                //var hacienda = haciendaService.GetCAById(compra.Id);
-                //hacienda.Anulado = true;
-                //haciendaService.UpdateCA(hacienda);
-               
-                return Json(new { success = true });
+                return Json(new { success = res });
             }
             catch (Exception)
             {
@@ -229,10 +227,12 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
+                var res = true;
                 var cd = service.GetCompraDetalleById(idCD);
                 if(!cd.IdCompraNavigation.Borrador)
-                    kardexMap.CreateKardexEliminarCDSingle(idCD);
-                var res = service.DeleteCompraDetalle(cd);            
+                    res = kardexMap.CreateKardexEliminarCDSingle(idCD);
+                if(res)
+                    service.DeleteCompraDetalle(cd);            
 
                 return Json(new { success = res });
             }

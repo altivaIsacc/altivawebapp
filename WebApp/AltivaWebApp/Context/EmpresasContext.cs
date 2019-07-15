@@ -1294,6 +1294,12 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
+                entity.Property(e => e.Telefono)
+                    .IsRequired()
+                    .HasMaxLength(25)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("(' ')");
+
                 entity.Property(e => e.NombreComercial)
                     .HasMaxLength(150)
                     .IsUnicode(false);
@@ -3671,7 +3677,7 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.Telefono)
                     .IsRequired()
-                    .HasMaxLength(200)
+                    .HasMaxLength(25)
                     .IsUnicode(false)
                     .HasDefaultValueSql("(' ')");
             });

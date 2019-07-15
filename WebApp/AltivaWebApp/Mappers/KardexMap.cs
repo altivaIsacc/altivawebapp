@@ -290,6 +290,13 @@ namespace AltivaWebApp.Mappers
             foreach (var item in domain.TbPrCompraDetalle)
             {
 
+                var existAntBod = item.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdBodega == item.IdBodega).ExistenciaBodega;
+                var existActBod = existAntBod - item.Cantidad;
+                if(existActBod < 0)
+                {
+                    return false;
+                }
+
                 var k = new TbPrKardex
                 {
                     CantidadMov = item.Cantidad * -1,
@@ -339,6 +346,13 @@ namespace AltivaWebApp.Mappers
         {
             var item = compraService.GetCompraDetalleById(idCD);
             var kardex = new List<TbPrKardex>();
+
+            var existAntBod = item.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdBodega == item.IdBodega).ExistenciaBodega;
+            var existActBod = existAntBod - item.Cantidad;
+            if (existActBod < 0)
+            {
+                return false;
+            }
 
 
             var k = new TbPrKardex

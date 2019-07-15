@@ -99,8 +99,14 @@ namespace AltivaWebApp.Repositories
                     historial.ValorCompra = domain.ValorCompra;
                     historial.ValorVenta = domain.ValorVenta;
 
-                    historial.CodigoMonedaNavigation.ValorCompra = domain.ValorCompra;
-                    historial.CodigoMonedaNavigation.ValorVenta = domain.ValorVenta;
+                    var date = DateTime.Now;
+                    
+                    if (historial.Fecha == date.Date)
+                    {
+                        historial.CodigoMonedaNavigation.ValorCompra = domain.ValorCompra;
+                        historial.CodigoMonedaNavigation.ValorVenta = domain.ValorVenta;
+                    }
+                        
 
                 }
                 context.SaveChanges();
