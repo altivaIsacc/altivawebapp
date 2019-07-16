@@ -293,7 +293,7 @@ else
 
             $descripcion.val(itemInfo.descripcion);
             $precio.val(getPrecioAlCambio(itemInfo));
-            $cantidad.val(1);
+            $cantidad.val(0);
             $iva.val(itemInfo.impuestoVenta);
             setSubTotalLinea();
         });
@@ -476,8 +476,16 @@ else
     }
     function guardarLinea() {
 
+        if ($cantidad.val() == 0) {
+            
+                bootbox.alert("@SharedLocalizer["AlertCompraCantidad"]", function () {
+                    console.log("Alert Callback");
+                });
 
-        var model = {
+        }
+        else
+        {
+             var model = {
             id: 0,
             idOrden: @Model.Id,
             idInventario: $item.val(),
@@ -500,9 +508,11 @@ else
 
         lineasAgregadas.push(model);
         lineas.push(model);
-
+             $cantidad.val(0);
         cargarTabla(lineas);
-        $cantidad.val(1);
+       
+        }
+       
 
     }
     function validarCompraAutomatica() {
@@ -511,7 +521,7 @@ else
         if (lineas.length != 0) {
             bootbox.confirm("@SharedLocalizer["confirmCompraAutomatica"]", function (resultado) {
                 if (resultado) {
-
+                    
                     lineas = [];
                     cargarTabla(lineas);
                     duplicado = 1;
@@ -558,8 +568,12 @@ else
     
 
     function modificarLinea(_id, idLinea) {
-       
 
+        
+        if ($cantidad.val() != 0) {
+            guardarLinea();
+            $cantidad.val(0);
+        }
         $('#item').val(lineasAgregadas[_id - 1].idInventario);
         $('#item').trigger('change.select2');
         $cantidad.val(lineasAgregadas[_id - 1].cantidad);

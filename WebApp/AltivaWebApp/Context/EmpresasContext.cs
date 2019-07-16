@@ -220,8 +220,7 @@ namespace AltivaWebApp.Context
 
             modelBuilder.Entity<CompraAutomaticoViewModel>(entity =>
             {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.IdInventario).HasColumnType("bigint");
+                entity.HasKey(e => e.IdInventario);
                 entity.Property(e => e.Codigo).HasColumnType("varchar(60)");
                 entity.Property(e => e.Descripcion).HasColumnType("varchar(150)");
                 entity.Property(e => e.etotal).HasColumnType("float");
