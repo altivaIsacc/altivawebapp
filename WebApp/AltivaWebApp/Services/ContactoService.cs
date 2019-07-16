@@ -57,6 +57,9 @@ namespace AltivaWebApp.Services
         {
             return this.ICuentasBancariasRepository.Update(domain);
         }
+
+       
+
         public IList<TbCrContacto> GetAllProveedores()
         {
             return ContactoRepository.GetAllProveedores();

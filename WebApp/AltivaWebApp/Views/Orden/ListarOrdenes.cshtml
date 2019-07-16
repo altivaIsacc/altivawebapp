@@ -11,6 +11,7 @@
 
 @{
     var date = DateTime.Now;
+  
 }
 
 
@@ -192,6 +193,7 @@
             success: function (data) {
                 console.log(data);
                 ordenes = JSON.parse(JSON.stringify(data));
+             
                 cargarDatos(data);
             },
             error: function (err, scnd) {
@@ -199,6 +201,15 @@
                 console.log(err.statusText);
             }
         });
+    }
+    
+    function getProveedorByPos(pos, model)
+    {
+        if (model[pos].idProveedorNavigation.nombre == null)
+            return model[pos].idProveedorNavigation.nombreJuridico;
+        
+        if (model[pos].idProveedorNavigation.nombre != null)
+            return   model[pos].idProveedorNavigation.nombre + model[pos].idProveedorNavigation.apellidos;
     }
 
     function cargarDatos(data) {
@@ -214,7 +225,7 @@
             var body = '<tr class="fila' + contadorFila + ' filas">'
                 + '<td><p style="padding-top:1rem">' + data[i].id + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fecha) + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].idProveedorNavigation.nombre + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + getProveedorByPos(i, data) + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + recuperarMoneda(data[i].idMoneda) + '</p></td>'
                 + '<td class="col-md-2"><input style="padding-top:1rem; border:0; background-color : #F7F7F7" class="' + darFormato(data[i].idMoneda) + '" value="' + recuperarTotal(data[i]) + '"/></td>'
                 + '<td><p style="padding-top:1rem">' + recuperarEstado(data[i].anulado) + '</p></td>'

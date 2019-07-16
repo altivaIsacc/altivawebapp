@@ -134,7 +134,7 @@ else
                     <th><span>@SharedLocalizer["IVA"]</span></th>
                     <th><span>@SharedLocalizer["SubTotal"]</span></th>
                     <th hidden><span>@SharedLocalizer["Total"]</span></th>
-                    <th class="col-md-2" ><span>@SharedLocalizer["Acción"]</span></thclass="col-md-1">
+                    <th class="col-md-2" ><span>@SharedLocalizer["Acción"]</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -145,6 +145,7 @@ else
                     <td>
                         <input readonly class="form-control" id="descripcion" />
                     </td>
+                    <td hidden><input @estado class="form-control numerico" type="text" min="0" id="estado"   /></td>
                     <td><input @estado class="form-control numerico" type="text" min="0" id="cantidad" /></td>
                     <td><input @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
                     <td><input @estado class="form-control numerico" type="text" id="descuento" /></td>
@@ -216,7 +217,7 @@ else
     var $totalLinea = $('#totalLinea');
     var $cantidad = $('#cantidad');
     var $descuento = $('#descuento');
-
+    var $estado = $('#estado');
     ///general
     var $moneda = $('#moneda');
     var $dolar = $('#dolar');
@@ -246,6 +247,7 @@ else
     var cont = 0;
 
     $(document).ready(function () {
+        $estado.val(1);
         
         getProveedores();
 
@@ -293,7 +295,7 @@ else
 
             $descripcion.val(itemInfo.descripcion);
             $precio.val(getPrecioAlCambio(itemInfo));
-            $cantidad.val(0);
+            $cantidad.val(1);
             $iva.val(itemInfo.impuestoVenta);
             setSubTotalLinea();
         });
@@ -424,6 +426,7 @@ else
                 ordenDetalleBD = JSON.parse(JSON.stringify(data));
                 cargarLineas(data);
                 console.log(data);
+                 
                },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -468,51 +471,52 @@ else
             $('#item').trigger('change.select2');
             $cantidad.val(data[i].etotal);
             guardarLinea();
-           $cantidad.val(0);
+           $cantidad.val(1);
 
         }
         
             
     }
-    function guardarLinea() {
+ function guardarLinea() {
+     if ($cantidad.val() == 0)
+     {
 
-        if ($cantidad.val() == 0) {
-            
-                bootbox.alert("@SharedLocalizer["AlertCompraCantidad"]", function () {
-                    console.log("Alert Callback");
-                });
+         bootbox.alert("@SharedLocalizer["AlertCompraCantidad"]", function () {
+             console.log("Alert Callback");
+         });
 
-        }
-        else
-        {
-             var model = {
-            id: 0,
-            idOrden: @Model.Id,
-            idInventario: $item.val(),
-            nombreInventario: $descripcion.val(),
-            idMonedaOD: parseInt($('.tipoMoneda').val()),
-            cantidad: parseFloat($cantidad.val()),
-            precio: parseFloat($precio.val()),
-            subTotalGrabado: calcularSubtotalGrabadoLinea(),
-            subTotalExcento: calcularSubtotalExcentoLinea(),
-            subTotalNeto: calcularSubtotalNetoLinea(),
-            porcIva: parseFloat($iva.val()),
-            porcIs: 0,
-            totalIs: 0,
-            porcDesc: parseFloat($descuento.val()),
-            totalDescuento: calcularTotalDescuentoLinea(),
-            totalIva: calcularTotalIvaLinea(),
-            total: calcularTotalLinea()
-        };
+     }
+     else
+     {
+
+         var model = {
+             id: 0,
+             idOrden: @Model.Id,
+             idInventario: $item.val(),
+             nombreInventario: $descripcion.val(),
+             idMonedaOD: parseInt($('.tipoMoneda').val()),
+             cantidad: parseFloat($cantidad.val()),
+             precio: parseFloat($precio.val()),
+             subTotalGrabado: calcularSubtotalGrabadoLinea(),
+             subTotalExcento: calcularSubtotalExcentoLinea(),
+             subTotalNeto: calcularSubtotalNetoLinea(),
+             porcIva: parseFloat($iva.val()),
+             porcIs: 0,
+             totalIs: 0,
+             porcDesc: parseFloat($descuento.val()),
+             totalDescuento: calcularTotalDescuentoLinea(),
+             totalIva: calcularTotalIvaLinea(),
+             total: calcularTotalLinea()
+         };
+         $estado.val(1);
+
+         lineasAgregadas.push(model);
+         lineas.push(model);
+         $cantidad.val(1);
+         cargarTabla(lineas);
 
 
-        lineasAgregadas.push(model);
-        lineas.push(model);
-             $cantidad.val(0);
-        cargarTabla(lineas);
-       
-        }
-       
+     } 
 
     }
     function validarCompraAutomatica() {
@@ -568,21 +572,25 @@ else
     
 
     function modificarLinea(_id, idLinea) {
+        if ($cantidad.val() == 0) {
 
-        
-        if ($cantidad.val() != 0) {
-            guardarLinea();
-            $cantidad.val(0);
+            bootbox.alert("@SharedLocalizer["AlertCompraCantidad"]", function () {
+                console.log("Alert Callback");
+            });
+
         }
-        $('#item').val(lineasAgregadas[_id - 1].idInventario);
-        $('#item').trigger('change.select2');
-        $cantidad.val(lineasAgregadas[_id - 1].cantidad);
-        $precio.val(lineasAgregadas[_id - 1].precio);
-       
-        
+        else {
 
-        var id = _id - 1;
 
+            if ($estado.val() == 0) {
+                guardarLinea();
+                $('#item').val(lineasAgregadas[_id - 1].idInventario);
+                $('#item').trigger('change.select2');
+                $cantidad.val(lineasAgregadas[_id - 1].cantidad);
+                $precio.val(lineasAgregadas[_id - 1].precio);
+                $estado.val(lineasAgregadas[_id - 1].id);
+
+                var id = _id - 1;
 
                 if (idLinea != 0)
                     lineasEliminadas.push(lineas[id].id);
@@ -592,8 +600,30 @@ else
                 lineas.splice(id, 1);
 
 
-                cargarTabla(lineas);
-           
+
+            }
+            else {
+
+                $('#item').val(lineasAgregadas[_id - 1].idInventario);
+                $('#item').trigger('change.select2');
+                $cantidad.val(lineasAgregadas[_id - 1].cantidad);
+                $precio.val(lineasAgregadas[_id - 1].precio);
+                $estado.val(lineasAgregadas[_id - 1].id);
+                var id = _id - 1;
+
+                if (idLinea != 0)
+                    lineasEliminadas.push(lineas[id].id);
+                else
+                    lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
+
+                lineas.splice(id, 1);
+            }
+
+            cargarTabla(lineas);
+        } 
+        
+
+         
     }
 
     function eliminarLinea(_id, idLinea) {
