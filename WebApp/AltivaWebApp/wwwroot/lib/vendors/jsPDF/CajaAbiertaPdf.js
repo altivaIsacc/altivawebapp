@@ -19,7 +19,10 @@ function generate_cutomPDF(modelo) {
         totalE: modelo.totalE,
         totalCrArqueo: modelo.totalCrArqueo,
         totalUSDArqueo: modelo.totalUSDArqueo,
-        totalEArqueo:modelo.totalEArqueo,
+        totalEArqueo: modelo.totalEArqueo,
+        totalUsuarioCierre: modelo.totalUsuarioCierre,
+        totalSistemaCierre: modelo.totalSistemaCierre,
+        totalDiferenciaCierre: modelo.totalDiferenciaCierre,
     }
 
 
@@ -45,7 +48,7 @@ function generate_cutomPDF(modelo) {
 
     var doc = new jsPDF('p', 'pt');
     var rightStartCol1 = 400;
-    var rightStartCol2 = 490;
+    var rightStartCol2 = 460;
     var InitialstartX = 40;
     var startX = 40;
     var InitialstartY = 50;
@@ -118,8 +121,6 @@ function generate_cutomPDF(modelo) {
     //doc.setFontType('normal');
     //doc.textAlign(modelo.moneda, { align: "left" }, rightStartCol2, tempY);
 
-
-
     doc.setLineWidth(1);
     // doc.line(20, startY+lineSpacing.NormalSpacing, 580, startY+=lineSpacing.NormalSpacing);
     doc.line(20, startY + lineSpacing.NormalSpacing, 220, startY + lineSpacing.NormalSpacing);
@@ -127,6 +128,7 @@ function generate_cutomPDF(modelo) {
 
     doc.setFontSize(fontSizes.Head2TitleFontSize);
     doc.setFontType('bold');
+
     switch (parseInt(modelo.estadoPdf)) {
         case 1:
             doc.textAlign(modelo.nombreDoc, { align: "center" }, startX, startY += lineSpacing.NormalSpacing + 2);
@@ -134,6 +136,17 @@ function generate_cutomPDF(modelo) {
         case 2:
             doc.textAlign(modelo.nombreDocArqueo, { align: "center" }, startX, startY += lineSpacing.NormalSpacing + 2);
             break
+        case 3:
+            doc.textAlign(modelo.nombreDoc, { align: "center" }, startX, startY += lineSpacing.NormalSpacing + 2);
+            break;
+        case 4:
+            doc.textAlign(modelo.nombreDoc, { align: "center" }, startX, startY += lineSpacing.NormalSpacing + 2);
+            break;
+        case 5:
+            doc.textAlign(modelo.nombreDoc, { align: "center" }, startX, startY += lineSpacing.NormalSpacing + 2);
+            break;
+        case 6:
+            break;
     }
 
 
@@ -259,109 +272,398 @@ function generate_cutomPDF(modelo) {
     //doc.setFontType('normal');
     //doc.textAlign(invoiceJSON.total.toString(), { align: "rigth" }, rightcol2, startY);
 
-    var optionsArqueoBase = {
-        beforePageContent: header,
-        margin: {
-            top: 50
-        },
-        styles: {
-            overflow: 'linebreak',
-            fontSize: 10,
-            rowHeight: 'auto',
-            columnWidth: 80,
-        },
-        columnStyles: {
-            1: { columnWidth: 100},
-            2: { columnWidth: 100 },
-        },
-        startY: startY += 55
-    };
+    if (parseInt(modelo.estadoPdf) === 2) {
+        var optionsArqueoBase = {
+            beforePageContent: header,
+            margin: {
+                top: 50
+            },
+            styles: {
+                overflow: 'linebreak',
+                fontSize: 10,
+                rowHeight: 'auto',
+                columnWidth: 80,
+            },
+            columnStyles: {
+                1: { columnWidth: 100 },
+                2: { columnWidth: 100 },
+            },
+            startY: startY += 55
+        };
 
 
-    var columnsArqueoBase = [
-        { title: modelo.columnasArqueoBase.moneda, dataKey: "moneda", width: 90 },
-        { title: modelo.columnasArqueoBase.monto, dataKey: "monto", width: 40 },
+        var columnsArqueoBase = [
+            { title: modelo.columnasArqueoBase.moneda, dataKey: "moneda", width: 90 },
+            { title: modelo.columnasArqueoBase.monto, dataKey: "monto", width: 40 },
 
-    ];
+        ];
 
-    var rowsArqueoBase = modelo.filaArqueoBase;
+        var rowsArqueoBase = modelo.filaArqueoBase;
 
-    doc.setFontType('bold');
-    doc.textAlign(modelo.resumen.totalBaseArqueo, { align: "left" }, 45, startY += lineSpacing.NormalSpacing+90);
-    doc.setFontType('normal');
-    doc.textAlign(invoiceJSON.totalCrArqueo.toString(), { align: "rigth" }, 117, startY);
+        doc.setFontType('bold');
+        doc.textAlign(modelo.resumen.totalBaseArqueo, { align: "left" }, 45, startY += lineSpacing.NormalSpacing + 90);
+        doc.setFontType('normal');
+        doc.textAlign(invoiceJSON.totalCrArqueo.toString(), { align: "rigth" }, 117, startY);
 
-    doc.autoTable(columnsArqueoBase, rowsArqueoBase, optionsArqueoBase);   //From dynamic data.
+        doc.autoTable(columnsArqueoBase, rowsArqueoBase, optionsArqueoBase);   //From dynamic data.
 
-    var optionsArqueoDolar = {
-        beforePageContent: header,
-        margin: {
-            top: 50,
-            left:220,
-        },
-        styles: {
-            overflow: 'linebreak',
-            fontSize: 10,
-            rowHeight: 'auto',
-            columnWidth: 80,
-        },
-        columnStyles: {
-            1: { columnWidth: 100 },
-            2: { columnWidth: 100 },
-        },
-        startY: startY += -103,
-    };
-
-
-    var columnsArqueoDolar = [
-        { title: modelo.columnasArqueoDolar.moneda, dataKey: "monedaDolar", width: 90 },
-        { title: modelo.columnasArqueoDolar.monto, dataKey: "montoDolar", width: 40 },
-
-    ];
-
-    var rowsArqueoDolar = modelo.filaArqueoDolar;
-
-    doc.setFontType('bold');
-    doc.textAlign(modelo.resumen.totalDolarArqueo, { align: "left" }, 225, startY += lineSpacing.NormalSpacing + 90);
-    doc.setFontType('normal');
-    doc.textAlign(invoiceJSON.totalUSDArqueo.toString(), { align: "rigth" }, 300, startY);
-
-    doc.autoTable(columnsArqueoDolar, rowsArqueoDolar, optionsArqueoDolar);   //From dynamic data.
-
-    var optionsArqueoEuro = {
-        beforePageContent: header,
-        margin: {
-            top: 50,
-            left: 400,
-        },
-        styles: {
-            overflow: 'linebreak',
-            fontSize: 10,
-            rowHeight: 'auto',
-            columnWidth: 80,
-        },
-        columnStyles: {
-            1: { columnWidth: 100 },
-            2: { columnWidth: 100 },
-        },
-        startY: startY += -103,
-    };
+        var optionsArqueoDolar = {
+            beforePageContent: header,
+            margin: {
+                top: 50,
+                left: 220,
+            },
+            styles: {
+                overflow: 'linebreak',
+                fontSize: 10,
+                rowHeight: 'auto',
+                columnWidth: 80,
+            },
+            columnStyles: {
+                1: { columnWidth: 100 },
+                2: { columnWidth: 100 },
+            },
+            startY: startY += -103,
+        };
 
 
-    var columnsArqueoEuro = [
-        { title: modelo.columnasArqueoEuro.moneda, dataKey: "monedaEuro", width: 90 },
-        { title: modelo.columnasArqueoEuro.monto, dataKey: "montoEuro", width: 40 },
+        var columnsArqueoDolar = [
+            { title: modelo.columnasArqueoDolar.moneda, dataKey: "monedaDolar", width: 90 },
+            { title: modelo.columnasArqueoDolar.monto, dataKey: "montoDolar", width: 40 },
 
-    ];
+        ];
 
-    var rowsArqueoEuro = modelo.filaArqueoEuro;
+        var rowsArqueoDolar = modelo.filaArqueoDolar;
 
-    doc.setFontType('bold');
-    doc.textAlign(modelo.resumen.totalEuroArqueo, { align: "left" }, 405, startY += lineSpacing.NormalSpacing + 90);
-    doc.setFontType('normal');
-    doc.textAlign(invoiceJSON.totalEArqueo.toString(), { align: "rigth" }, 483, startY);
+        doc.setFontType('bold');
+        doc.textAlign(modelo.resumen.totalDolarArqueo, { align: "left" }, 225, startY += lineSpacing.NormalSpacing + 90);
+        doc.setFontType('normal');
+        doc.textAlign(invoiceJSON.totalUSDArqueo.toString(), { align: "rigth" }, 300, startY);
 
-    doc.autoTable(columnsArqueoEuro, rowsArqueoEuro, optionsArqueoEuro);   //From dynamic data.
+        doc.autoTable(columnsArqueoDolar, rowsArqueoDolar, optionsArqueoDolar);   //From dynamic data.
+
+        var optionsArqueoEuro = {
+            beforePageContent: header,
+            margin: {
+                top: 50,
+                left: 400,
+            },
+            styles: {
+                overflow: 'linebreak',
+                fontSize: 10,
+                rowHeight: 'auto',
+                columnWidth: 80,
+            },
+            columnStyles: {
+                1: { columnWidth: 100 },
+                2: { columnWidth: 100 },
+            },
+            startY: startY += -103,
+        };
+
+
+        var columnsArqueoEuro = [
+            { title: modelo.columnasArqueoEuro.moneda, dataKey: "monedaEuro", width: 90 },
+            { title: modelo.columnasArqueoEuro.monto, dataKey: "montoEuro", width: 40 },
+
+        ];
+
+        var rowsArqueoEuro = modelo.filaArqueoEuro;
+
+        doc.setFontType('bold');
+        doc.textAlign(modelo.resumen.totalEuroArqueo, { align: "left" }, 405, startY += lineSpacing.NormalSpacing + 90);
+        doc.setFontType('normal');
+        doc.textAlign(invoiceJSON.totalEArqueo.toString(), { align: "rigth" }, 483, startY);
+
+        doc.autoTable(columnsArqueoEuro, rowsArqueoEuro, optionsArqueoEuro);   //From dynamic data.
+    }
+
+    if (parseInt(modelo.estadoPdf) === 4) {
+
+        doc.setFontType('bold');
+        doc.textAlign(modelo.tituloUsuario, { align: "left" },47, startY += 20);
+
+        var optionsCierreBase = {
+            beforePageContent: header,
+            margin: {
+                top: 50
+            },
+            styles: {
+                overflow: 'linebreak',
+                fontSize: 10,
+                rowHeight: 'auto',
+                columnWidth: 80,
+            },
+            columnStyles: {
+                1: { columnWidth: 100 },
+                2: { columnWidth: 100 },
+            },
+            startY: startY += 20,
+        };
+
+
+        var columnsCierreBase = [
+            { title: modelo.columnasCierreBase.moneda, dataKey: "moneda", width: 90 },
+            { title: modelo.columnasCierreBase.monto, dataKey: "monto", width: 40 },
+
+        ];
+
+        var rowsCierreBase = modelo.filaCierreBase;
+
+        doc.autoTable(columnsCierreBase, rowsCierreBase, optionsCierreBase);   //From dynamic data.
+
+        doc.setFontType('bold');
+        doc.textAlign(modelo.resumen.totalUsuarioCierre, { align: "left" }, 45, startY += 310);
+        doc.setFontType('normal');
+        doc.textAlign(invoiceJSON.totalUsuarioCierre.toString(), { align: "rigth" }, 117, startY);
+
+
+
+        var optionsCierreDolar = {
+            beforePageContent: header,
+            margin: {
+                top: 50,
+            },
+            styles: {
+                overflow: 'linebreak',
+                fontSize: 10,
+                rowHeight: 'auto',
+                columnWidth: 80,
+            },
+            columnStyles: {
+                1: { columnWidth: 100 },
+                2: { columnWidth: 100 },
+            },
+            startY: startY += -215,
+        };
+
+
+        var columnsCierreDolar = [
+            { title: modelo.columnasCierreDolar.moneda, dataKey: "monedaDolar", width: 90 },
+            { title: modelo.columnasCierreDolar.monto, dataKey: "montoDolar", width: 40 },
+
+        ];
+
+        var rowsCierreDolar = modelo.filaCierreDolar;
+
+        doc.setFontType('bold');
+        doc.textAlign(modelo.resumen.totalSistemaCierre, { align: "left" }, 225, startY += 215);
+        doc.setFontType('normal');
+        doc.textAlign(invoiceJSON.totalSistemaCierre.toString(), { align: "rigth" }, 300, startY);
+
+        doc.autoTable(columnsCierreDolar, rowsCierreDolar, optionsCierreDolar);   //From dynamic data.
+
+        var optionsCierreEuro = {
+            beforePageContent: header,
+            margin: {
+                top: 50,
+            },
+            styles: {
+                overflow: 'linebreak',
+                fontSize: 10,
+                rowHeight: 'auto',
+                columnWidth: 80,
+            },
+            columnStyles: {
+                1: { columnWidth: 100 },
+                2: { columnWidth: 100 },
+            },
+            startY: startY += -121,
+        };
+
+
+        var columnsCierreEuro = [
+            { title: modelo.columnasCierreEuro.moneda, dataKey: "monedaEuro", width: 90 },
+            { title: modelo.columnasCierreEuro.monto, dataKey: "montoEuro", width: 40 },
+
+        ];
+
+        var rowsCierreEuro = modelo.filaCierreEuro;
+
+        doc.setFontType('bold');
+        doc.textAlign(modelo.resumen.totalDiferenciaCierre, { align: "left" }, 400, startY += 120);
+        doc.setFontType('normal');
+        doc.textAlign(invoiceJSON.totalDiferenciaCierre.toString(), { align: "rigth" }, 478, startY);
+
+        doc.autoTable(columnsCierreEuro, rowsCierreEuro, optionsCierreEuro);   //From dynamic data.
+
+        doc.setFontType('bold');
+        doc.textAlign(modelo.tituloSistema, { align: "left" }, 220, startY += -330);
+
+        var optionsCierreBaseSistema = {
+            beforePageContent: header,
+            margin: {
+                top: 50,
+                left:220
+            },
+            styles: {
+                overflow: 'linebreak',
+                fontSize: 10,
+                rowHeight: 'auto',
+                columnWidth: 80,
+            },
+            columnStyles: {
+                1: { columnWidth: 100 },
+                2: { columnWidth: 100 },
+            },
+            startY: startY += 20,
+        };
+
+
+        var columnsCierreBaseSistema = [
+            { title: modelo.columnasCierreBaseSistema.moneda, dataKey: "moneda", width: 90 },
+            { title: modelo.columnasCierreBaseSistema.monto, dataKey: "monto", width: 40 },
+
+        ];
+
+        var rowsCierreBaseSistema = modelo.filaCierreBaseSistema;
+
+        doc.autoTable(columnsCierreBaseSistema, rowsCierreBaseSistema, optionsCierreBaseSistema);   //From dynamic data.
+
+        var optionsCierreDolarSistema = {
+            beforePageContent: header,
+            margin: {
+                top: 50,
+                left:220
+            },
+            styles: {
+                overflow: 'linebreak',
+                fontSize: 10,
+                rowHeight: 'auto',
+                columnWidth: 80,
+            },
+            columnStyles: {
+                1: { columnWidth: 100 },
+                2: { columnWidth: 100 },
+            },
+            startY: startY += 95,
+        };
+
+
+        var columnsCierreDolarSistema = [
+            { title: modelo.columnasCierreDolarSistema.moneda, dataKey: "monedaDolar", width: 90 },
+            { title: modelo.columnasCierreDolarSistema.monto, dataKey: "montoDolar", width: 40 },
+
+        ];
+
+        var rowsCierreDolarSistema = modelo.filaCierreDolarSistema;
+
+        doc.autoTable(columnsCierreDolarSistema, rowsCierreDolarSistema, optionsCierreDolarSistema);   //From dynamic data.
+
+        var optionsCierreEuroSistema = {
+            beforePageContent: header,
+            margin: {
+                top: 50,
+                left:220
+            },
+            styles: {
+                overflow: 'linebreak',
+                fontSize: 10,
+                rowHeight: 'auto',
+                columnWidth: 80,
+            },
+            columnStyles: {
+                1: { columnWidth: 100 },
+                2: { columnWidth: 100 },
+            },
+            startY: startY += 95,
+        };
+
+
+        var columnsCierreEuroSistema = [
+            { title: modelo.columnasCierreEuroSistema.moneda, dataKey: "monedaEuro", width: 90 },
+            { title: modelo.columnasCierreEuroSistema.monto, dataKey: "montoEuro", width: 40 },
+
+        ];
+
+        var rowsCierreEuroSistema = modelo.filaCierreEuroSistema;
+
+        doc.autoTable(columnsCierreEuroSistema, rowsCierreEuroSistema, optionsCierreEuroSistema);   //From dynamic data.
+
+        var optionsCierreBaseDiferencia= {
+            beforePageContent: header,
+            margin: {
+                top: 50,
+                left: 470
+            },
+            styles: {
+                overflow: 'linebreak',
+                fontSize: 10,
+                rowHeight: 'auto',
+                columnWidth: 80,
+            },
+            columnStyles: {
+                1: { columnWidth: 100 },
+            },
+            startY: startY += -190,
+        };
+
+
+        var columnsCierreBaseDiferencia = [
+            { title: modelo.columnasCierreBaseDiferencia.diferencia, dataKey: "monto", width: 90 },
+
+        ];
+
+        var rowsCierreBaseDiferencia = modelo.filaCierreBaseDiferencia;
+
+        doc.autoTable(columnsCierreBaseDiferencia, rowsCierreBaseDiferencia, optionsCierreBaseDiferencia);   //From dynamic data.
+
+        var optionsCierreDolarDiferencia = {
+            beforePageContent: header,
+            margin: {
+                top: 50,
+                left: 470
+            },
+            styles: {
+                overflow: 'linebreak',
+                fontSize: 10,
+                rowHeight: 'auto',
+                columnWidth: 80,
+            },
+            columnStyles: {
+                1: { columnWidth: 100 },
+            },
+            startY: startY += 95,
+        };
+
+
+        var columnsCierreDolarDiferencia = [
+            { title: modelo.columnasCierreDolarDiferencia.diferencia, dataKey: "monto", width: 40 },
+
+        ];
+
+        var rowsCierreDolarDiferencia = modelo.filaCierreDolarDiferencia;
+
+        doc.autoTable(columnsCierreDolarDiferencia, rowsCierreDolarDiferencia, optionsCierreDolarDiferencia);   //From dynamic data.
+
+        var optionsCierreEuroDiferencia = {
+            beforePageContent: header,
+            margin: {
+                top: 50,
+                left: 470
+            },
+            styles: {
+                overflow: 'linebreak',
+                fontSize: 10,
+                rowHeight: 'auto',
+                columnWidth: 80,
+            },
+            columnStyles: {
+                1: { columnWidth: 100 },
+            },
+            startY: startY += 95,
+        };
+
+
+        var columnsCierreEuroDiferencia = [
+            { title: modelo.columnasCierreEuroDiferencia.diferencia, dataKey: "monto", width: 40 },
+
+        ];
+
+        var rowsCierreEuroDiferencia = modelo.filaCierreEuroDiferencia;
+
+        doc.autoTable(columnsCierreEuroDiferencia, rowsCierreEuroDiferencia, optionsCierreEuroDiferencia);   //From dynamic data.
+    }
 
     doc.setFontType('bold');
     doc.textAlign(modelo.resumen.autorizado, { align: "left" }, 40, startY += lineSpacing.NormalSpacing + 200);
