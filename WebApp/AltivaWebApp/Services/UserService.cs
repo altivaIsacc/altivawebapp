@@ -119,5 +119,9 @@ namespace AltivaWebApp.Services
         {
             return repository.GetAllByIdEmpresa(idEmpresa);
         }
+        public IList<TbSeUsuario> GetAllConEmpresas()
+        {
+            return repository.GetAllConEmpresas();
+        }
     }
 }

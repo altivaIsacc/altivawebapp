@@ -65,22 +65,22 @@
 
         <div @tipoPersona class="form-group col-md-4 col-sm-4 col-xs-12 nombrePersona">
             <label asp-for="Nombre" class="control-label"><span class="text-danger">*</span>@Lb["Nombre"]:</label>
-            <input asp-for="Nombre" autofocus maxlength="50" class="form-control" />
+            <input asp-for="Nombre" autofocus maxlength="50" type="text" class="form-control" />
             <span hidden id="nombreValid" class="text-danger">@Lb["nombreValid"]</span>
         </div>
         <div @tipoPersona class="form-group col-md-4 col-sm-4 col-xs-12 nombrePersona">
             <label asp-for="Apellidos" class="control-label"><span class="text-danger">*</span>@Lb["Apellidos"]:</label>
-            <input asp-for="Apellidos" maxlength="75" class="form-control" />
+            <input asp-for="Apellidos" maxlength="75" type="text" class="form-control" />
             <span hidden id="apellidosValid" class="text-danger">@Lb["apellidosValid"]</span>
         </div>
         <div @tipoEmpresa class="form-group col-md-4 col-sm-4 col-xs-12 nombreEmpresa">
             <label asp-for="NombreComercial" class="control-label"><span class="text-danger">*</span>@Lb["NombreComercial"]:</label>
-            <input asp-for="NombreComercial" maxlength="90" class="form-control" />
+            <input asp-for="NombreComercial" maxlength="90" type="text" class="form-control" />
             <span hidden id="nombreComercialValid" class="text-danger">@Lb["nombreValid"]</span>
         </div>
         <div @tipoEmpresa class="form-group col-md-4 col-sm-4 col-xs-12 nombreEmpresa">
             <label asp-for="NombreJuridico" class="control-label"><span class="text-danger">*</span>@Lb["NombreJuridico"]:</label>
-            <input asp-for="NombreJuridico" class="form-control" />
+            <input asp-for="NombreJuridico" class="form-control" type="text" />
             <span hidden id="nombreJuridicaValid" class="text-danger">@Lb["nombreValid"]</span>
         </div>
 
@@ -136,13 +136,13 @@
 
         <div class="form-group col-md-4 col-sm-4 col-xs-12">
             <label asp-for="WebLink" class="control-label">@Lb["PaginaWeb"]:</label>
-            <input asp-for="WebLink" maxlength="150" class="form-control" />
+            <input asp-for="WebLink" maxlength="150" type="text" class="form-control" />
         </div>
 
 
         <div class="form-group col-md-4 col-sm-4 col-xs-12">
             <label asp-for="MapLink" class="control-label">@Lb["LinkUbicacion"]:</label>
-            <input asp-for="MapLink" maxlength="500" class="form-control" />
+            <input asp-for="MapLink" maxlength="500" type="text" class="form-control" />
         </div>
 
 
@@ -402,9 +402,11 @@
         var indexed_array = {};
 
         $.map(unindexed_array, function (n, i) {
+
             indexed_array[n['name']] = n['value'];
         });
 
+        console.log(indexed_array);
         return indexed_array;
     }
 
@@ -1135,7 +1137,7 @@
             var e = 0;
             e = + file.size;
 
-            if (e > 60000) {
+            if (e > 6000000) {
                 $('#tamanoArchivoC').attr('hidden', false);
                 $(this).val('');
             }
@@ -1160,6 +1162,14 @@
         bootbox.confirm("@Lb["confirmCancelar"]", function (result) {
             if (result)
                 window.location.href = "@Url.Action("ListarContactos")";
+            else {
+                if ($('#persona').prop('checked')) {
+                    setTimeout(function () { $('#Nombre').focus(); }, 1);
+                }
+                else {
+                    setTimeout(function () { $('#NombreComercial').focus(); }, 1);
+                }
+            }
 
         });
     }

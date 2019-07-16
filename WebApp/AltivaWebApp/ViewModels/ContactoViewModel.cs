@@ -20,7 +20,19 @@ namespace AltivaWebApp.ViewModels
             IdTipoProveedor = 0;
             Persona = true;
             Empresa = false;
+            Nombre = "";
+            Apellidos = "";
+            NombreComercial = "";
+            NombreJuridico = "";
+            Canton = 0;
+            Distrito = 0;
+            Provincia = 0;
+            Ruta = "";
+            MapLink = "";
+            WebLink = "";
+            OtrasSenas = "";
         }
+
         public long IdContacto { get; set; }
         public string Nombre { get; set; }
         public string Apellidos { get; set; }

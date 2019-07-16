@@ -61,7 +61,7 @@ namespace AltivaWebApp.Controllers
         public ActionResult CrearBodega(string err)
         {
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
-            return View("../Bodega/CrearEditarBodega");
+            return View("../Bodega/CrearEditarBodega", new BodegaViewModel());
         }
 
 

@@ -1271,65 +1271,85 @@ namespace AltivaWebApp.Context
                 entity.ToTable("tb_CR_Contacto");
 
                 entity.Property(e => e.Apellidos)
+                    .IsRequired()
                     .HasMaxLength(100)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Cedula)
                     .IsRequired()
                     .HasMaxLength(20)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Correo)
                     .IsRequired()
                     .HasMaxLength(100)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
 
                 entity.Property(e => e.MapLink)
+                    .IsRequired()
                     .HasMaxLength(500)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Nombre)
+                    .IsRequired()
                     .HasMaxLength(100)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.NombreComercial)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.NombreJuridico)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.OtrasSenas)
+                    .IsRequired()
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Pais)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Ruta)
+                    .IsRequired()
+                    .HasColumnName("ruta")
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Telefono)
                     .IsRequired()
                     .HasMaxLength(25)
                     .IsUnicode(false)
-                    .HasDefaultValueSql("(' ')");
-
-                entity.Property(e => e.NombreComercial)
-                    .HasMaxLength(150)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.NombreJuridico)
-                    .HasMaxLength(150)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.OtrasSenas)
-                    .HasMaxLength(500)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Pais)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Ruta)
-                    .HasColumnName("ruta")
-                    .HasMaxLength(500)
-                    .IsUnicode(false);
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.TipoCedula)
                     .IsRequired()
                     .HasMaxLength(120)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.WebLink)
+                    .IsRequired()
                     .HasMaxLength(200)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
             });
 
             modelBuilder.Entity<TbCrContactoRelacion>(entity =>
@@ -1356,9 +1376,11 @@ namespace AltivaWebApp.Context
                 entity.ToTable("tb_CR_ContactosCamposPersonalizados");
 
                 entity.Property(e => e.Valor)
+                    .IsRequired()
                     .HasColumnName("valor")
                     .HasMaxLength(100)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.HasOne(d => d.IdCampoPersonalizadosNavigation)
                     .WithMany(p => p.TbCrContactosCamposPersonalizados)

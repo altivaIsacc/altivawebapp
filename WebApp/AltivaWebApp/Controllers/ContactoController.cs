@@ -146,6 +146,11 @@ namespace AltivaWebApp.Controllers
 
                     contacto = contactoMap.CreateContacto(cViewModel);
 
+                    foreach (var item in cPagoViewModel)
+                    {
+                        item.IdContacto = contacto.IdContacto;
+                    }
+
                     contactoService.CreateOrUpdateCondicionPago(cPagoViewModel);
 
                     ccMap.Create(cpViewModel, (int)contacto.IdContacto);

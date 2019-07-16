@@ -140,6 +140,7 @@ else
     </form>
 
     <div class="table-responsive">
+        <span hidden id="sinDetalleValid" class="text-danger">@SharedLocalizer["docSinDetalle"].</span>
         <table class="table table-bordered table-striped" id="tblCompra" style="min-width:1250px">
             <thead>
                 <tr>
@@ -542,7 +543,7 @@ else
         });
     }
 
-    function guardarCompra() {
+    function guardarCompra(salir) {
         @*if (lineas.length <= 0) {
             cargarAlert('@SharedLocalizer["compraSinDetalle"]');
         } else*@
@@ -563,15 +564,19 @@ else
             success: function (data) {
 
                 if (data.success) {
-                    lineas[lineas.length - 1].id = data.idCD;
-                    lineasAgregadas[lineasAgregadas.length - 1].id = data.idCD;
-                    cargarTabla(lineas);
-                    if (@Model.Id === 0) {
 
-                        var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
-                        window.location.href = url.replace("__id__", data.idCompra);
-
+                    if (salir)
+                        window.location.href = "@Url.Action("ListarCompras")";
+                    else {
+                        lineas[lineas.length - 1].id = data.idCD;
+                        lineasAgregadas = [];
+                        cargarTabla(lineas);
+                        if (@Model.Id === 0) {
+                            var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
+                            window.location.href = url.replace("__id__", data.idCompra);
+                        }
                     }
+                        
                 }
                 else {
                     cargarAlert("@SharedLocalizer["numCompraRepitida"]");
@@ -590,9 +595,7 @@ else
     }
 
      function guardarCompraBorrador() {
-        if (lineas.length <= 0) {
-            cargarAlert('@SharedLocalizer["compraSinDetalle"]');
-        } else
+       
         $.ajax({
               type: "POST",
               headers: {
@@ -605,7 +608,9 @@ else
                 @*window.location.href = "@Url.Action("ListarCompras")";*@
 
                 if (!data.success)
-                   cargarAlert("@SharedLocalizer["numCompraRepitida"]");
+                    cargarAlert("@SharedLocalizer["numCompraRepitida"]");
+                else
+                    window.location.href = "@Url.Action("ListarCompras")";
 
                },
               error: function (err, scnd) {
@@ -710,7 +715,7 @@ else
 
         if (validarForm()) {
             guardarLinea();
-            guardarCompra();
+            guardarCompra(false);
         }
     }
 
@@ -720,36 +725,39 @@ else
         if (validarForm()) {
 
             //guardarLinea();
+            if (lineas.length <= 0) {
+                $('#sinDetalleValid').prop('hidden', false);
+                flag = false;
+            } else {
+                if ($('#enCola').prop('checked')) {
+                    bootbox.confirm("@SharedLocalizer["confirmEnivarCola"]", function (result) {
 
-            if ($('#enCola').prop('checked')) {
-                bootbox.confirm("@SharedLocalizer["confirmEnivarCola"]", function (result) {
+                        if (!result) {
+                            $('#enCola').attr('checked', false);
 
-                    if (!result) {
-                        $('#enCola').attr('checked', false);
+                        }
 
-                    }
+                        if ('@Model.Borrador' === 'True')
+                            guardarCompraBorrador();
+                        else
+                            guardarCompra(true);
+
+                        
+
+                    });
+                }
+
+                else {
 
                     if ('@Model.Borrador' === 'True')
                         guardarCompraBorrador();
                     else
-                        guardarCompra();
+                        guardarCompra(true);
 
-                     window.location.href = "@Url.Action("ListarCompras")";
+                    
+                }
 
-                });
             }
-
-            else {
-
-                 if ('@Model.Borrador' === 'True')
-                        guardarCompraBorrador();
-                 else
-                    guardarCompra();
-
-                 window.location.href = "@Url.Action("ListarCompras")";
-            }
-
-
 
 
         }
@@ -757,13 +765,17 @@ else
     }
 
     function validarForm() {
+        var flag = true;
 
         if ($('#numDocumento').val().replace(/ /g, "") === "") {
             $('#numDocumentoValid').attr("hidden", false);
-            return false;
-        }
+            flag = false;
+        } else
+            $('#numDocumentoValid').attr("hidden", true);
 
-        return true;
+        
+
+        return flag;
     }
 
     function crearModelo() {
@@ -1619,7 +1631,7 @@ else
             $numDocumento.val('AutogeneradoXML');
             //console.log(crearModelo());
 
-            guardarCompra();
+            guardarCompra(false);
         }
 
 

@@ -24,25 +24,25 @@ namespace AltivaWebApp.Models
         public string NombreJuridico { get; set; }
         public string Cedula { get; set; }
         public string TipoCedula { get; set; }
-        public int Telefono { get; set; }
+        public string Telefono { get; set; }
         public string Correo { get; set; }
         public string Pais { get; set; }
-        public int? Provincia { get; set; }
-        public int? Canton { get; set; }
-        public int? Distrito { get; set; }
-        public bool? Persona { get; set; }
-        public bool? Empresa { get; set; }
-        public bool? Cliente { get; set; }
-        public bool? Proveedor { get; set; }
+        public int Provincia { get; set; }
+        public int Canton { get; set; }
+        public int Distrito { get; set; }
+        public bool Persona { get; set; }
+        public bool Empresa { get; set; }
+        public bool Cliente { get; set; }
+        public bool Proveedor { get; set; }
         public string OtrasSenas { get; set; }
         public string Ruta { get; set; }
-        public long? IdUsuario { get; set; }
-        public long? IdFamiliaCliente { get; set; }
-        public long? IdFamiliaProveedor { get; set; }
-        public long? IdSubFamiliaCliente { get; set; }
-        public long? IdSubFamiliaProveedor { get; set; }
-        public long? IdTipoCliente { get; set; }
-        public long? IdTipoProveedor { get; set; }
+        public long IdUsuario { get; set; }
+        public long IdFamiliaCliente { get; set; }
+        public long IdFamiliaProveedor { get; set; }
+        public long IdSubFamiliaCliente { get; set; }
+        public long IdSubFamiliaProveedor { get; set; }
+        public long IdTipoCliente { get; set; }
+        public long IdTipoProveedor { get; set; }
         public string MapLink { get; set; }
         public string WebLink { get; set; }
 

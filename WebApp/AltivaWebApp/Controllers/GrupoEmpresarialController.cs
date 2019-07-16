@@ -112,6 +112,14 @@ namespace AltivaWebApp.Controllers
 
         }
 
+        [Route("Autorizacion-Usuarios")]
+        public IActionResult AutorizacionUsuarios()
+        {
+            var usuarios = userService.GetAllConEmpresas();
+            return View(usuarios);
+        }
+
+
         [HttpGet("Nueva-Empresa")]
         public IActionResult CrearEmpresa()
         {

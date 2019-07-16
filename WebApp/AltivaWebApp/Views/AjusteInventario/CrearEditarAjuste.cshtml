@@ -111,6 +111,7 @@ else
 
     <div class="row">
         <div class="table-responsive col-md-12 col-sm-12 col-xs-12">
+            <span hidden id="sinDetalleValid" class="text-danger">@SharedLocalizer["docSinDetalle"].</span>
             <table class="table table-striped table-bordered" id="tblAjusteInventario" style="min-width:1200px">
                 <thead>
                     <tr>
@@ -142,7 +143,7 @@ else
                 </thead>
                 <tbody>
                     <tr class="lineaForm">
-                        <td ><div style="display:inline-block; width:80%"><select @estado2 class="form-control" id="items"></select></div><div style="display:inline-block; width: 20%; padding-left: 0.1rem"><label id="lblItemInfo"></label></div></td>
+                        <td><div style="display:inline-block; width:80%"><select @estado2 class="form-control" id="items"></select></div><div style="display:inline-block; width: 20%; padding-left: 0.1rem"><label id="lblItemInfo"></label></div></td>
                         <td>
                             <select @estado2 class="form-control" id="movimiento">
                                 <option value="true">@SharedLocalizer["Entrada"]</option>
@@ -259,9 +260,13 @@ else
 
 
     $(document).ready(function () {
+
+        var date = new Date();
+
         if (@Model.Id != 0) {
             GetComentarios("Ajuste", @Model.Id);
             $('#bodegas').attr('disabled', true);
+            date = new Date(formatearFecha());
         }
 
         if ('@ViewBag.tieneToma' === "True") {
@@ -275,6 +280,7 @@ else
 
 
         $('.selectItem').select2();
+        $('#items').select2({ width: null, language: localStorage.getItem("idioma") });
         getBodegasInventario();
 
         inicializaTabla();
@@ -282,7 +288,7 @@ else
         validaAnulacion();
 
         $('#fechaPicker').datetimepicker({
-            defaultDate: new Date(),
+            defaultDate: date,
             locale: localStorage.getItem("idioma")
         });
 
@@ -298,7 +304,6 @@ else
 
 
         $('#items').on('change.select2', function () {
-
             cargarCostoPromedio(arrayItems);
         });
 
@@ -316,7 +321,11 @@ else
 
 
     });
+    function formatearFecha() {
 
+        return '@Model.FechaDocumento.Month' + "/" + '@Model.FechaDocumento.Day' + "/" + '@Model.FechaDocumento.Year' + " " + '@Model.FechaDocumento.TimeOfDay';
+
+    }
 
     function getAjusteInventario() {
         if(@Model.Id != 0)
@@ -342,17 +351,11 @@ else
 
     function guardarCambios() {
 
-
         if (validarCampos()) {
-            if (lineas.length > 0) {
-                if (@Model.Id != 0)
-                    editarAjuste();
-                else
-                    guardarAjuste();
-            }
+            if (@Model.Id != 0)
+                editarAjuste();
             else
-                cargarAlert('@SharedLocalizer["sinLineas"]');
-
+                guardarAjuste();
         }
 
     }
@@ -466,6 +469,11 @@ else
                 cargarAlert('@SharedLocalizer["cantidaMayorQueExistencias"]');
         }
 
+        if (parseFloat(costoPromedio.val()) <= 0) {
+            flag = false;
+            cargarAlert('@SharedLocalizer["costoPromedioValidacion"]');
+        }
+
         return flag;
 
     }
@@ -493,7 +501,7 @@ else
                     return true;
                 else {
 
-                    cargarAlert("@SharedLocalizer["noPuedeEliminarlinea"]");
+                    cargarAlert("@SharedLocalizer["anulacionInvalida"]");
                     return false;
                 }
             }
@@ -698,7 +706,8 @@ else
 
         }
 
-        $('#items').select2({ width: null, language: localStorage.getItem("idioma") });
+        //$("#items").select2('destroy'); 
+        
         cargarCostoPromedio(arrayItems);
 
 
@@ -1091,13 +1100,21 @@ else
     }
 
     function validarCampos() {
-
-        var frm = frmAjuste.serializeArray();
-        if (frm[4].value.replace(/ /g, "") === "") {
+        var flag = true;
+        
+        if ($('#descripcionAjuste').val().replace(/ /g, "") === "") {
             $('#descripcionAjusteValid').attr('hidden', false);
-            return false;
-        }
-        return true;
+            flag = false;
+        } else
+            $('#descripcionAjusteValid').attr('hidden', true);
+
+        if (lineas.length <= 0) {
+            $('#sinDetalleValid').prop('hidden', false);
+            flag = false;
+        } else
+            $('#sinDetalleValid').prop('hidden', true);
+
+        return flag;
     }
 
     function inicializaCampos(linea) {

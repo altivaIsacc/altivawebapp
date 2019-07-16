@@ -228,7 +228,11 @@ namespace AltivaWebApp.Repositories
         public IList<TbSeUsuario> GetAllByIdUsuario(int id)
         {
             return context.TbSeUsuario.Where(u => u.IdUsuario == id).ToList();
-           
+        }
+
+        public IList<TbSeUsuario> GetAllConEmpresas()
+        {
+            return context.TbSeUsuario.Include(u => u.TbSeEmpresaUsuario).ToList();
         }
 
         /*public User Save(User domain)
