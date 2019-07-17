@@ -134,7 +134,7 @@ else
                     <th><span>@SharedLocalizer["IVA"]</span></th>
                     <th><span>@SharedLocalizer["SubTotal"]</span></th>
                     <th hidden><span>@SharedLocalizer["Total"]</span></th>
-                    <th class="col-md-2" ><span>@SharedLocalizer["Acción"]</span></th>
+                    <th style="width:10%"><span>@SharedLocalizer["Acción"]</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -243,8 +243,7 @@ else
     var items = [];
     var lineasAgregadas = [];
     var lineasEliminadas = [];
-    //contador
-    var cont = 0;
+ 
 
     $(document).ready(function () {
         $estado.val(1);
@@ -353,10 +352,7 @@ else
         return '@Model.Fecha.Month' + "-" + '@Model.Fecha.Day' + "-" + '@Model.Fecha.Year' + " " + '@Model.Fecha.TimeOfDay';
 
     }
-    function evento() {
-        var eje = $("#Id").val();
-        alert(eje);
-    }
+  
 
     ///calculos de línea
     function setSubTotalLinea() {
@@ -465,7 +461,7 @@ else
 
     }
     function guardarLineaAutomatico(data) {
-
+       
         for (var i = 0; i < data.length; i++) {
             $('#item').val(data[i].idInventario);
             $('#item').trigger('change.select2');
@@ -474,22 +470,38 @@ else
            $cantidad.val(1);
 
         }
-        
+     
             
     }
- function guardarLinea() {
-     if ($cantidad.val() == 0)
-     {
+    function guardarLinea() {
+        var duplicado = 0;
+        for (var i = 0; i < lineas.length; i++)
+        {
+            if (lineas[i].idInventario == $item.val())
+                duplicado = 1;
+        }
+  
+        if ($cantidad.val() == 0) {
 
-         bootbox.alert("@SharedLocalizer["AlertCompraCantidad"]", function () {
-             console.log("Alert Callback");
-         });
+            bootbox.alert("@SharedLocalizer["AlertCompraCantidad"]", function () {
 
-     }
-     else
-     {
+            });
 
-         var model = {
+        }
+        else
+         if (duplicado==1)
+         {
+             bootbox.alert("@SharedLocalizer["AlertItemDuplicado"]", function () {
+
+            });
+         }
+
+         
+    
+            else
+           {
+
+           var model = {
              id: 0,
              idOrden: @Model.Id,
              idInventario: $item.val(),
@@ -516,7 +528,7 @@ else
          cargarTabla(lineas);
 
 
-     } 
+         } 
 
     }
     function validarCompraAutomatica() {
@@ -525,11 +537,15 @@ else
         if (lineas.length != 0) {
             bootbox.confirm("@SharedLocalizer["confirmCompraAutomatica"]", function (resultado) {
                 if (resultado) {
-                    
-                    lineas = [];
-                    cargarTabla(lineas);
-                    duplicado = 1;
+                     lineas = [];
+                     cargarTabla(lineas);
+                     duplicado = 1;
                     generarCompraAutomatica();
+                     
+                    
+                   
+                   
+                    
 
 
                 }
@@ -553,8 +569,8 @@ else
         },
             url: url,
             dataType:'json',
-            success: function (data) {
-
+                success: function (data) {
+                   
             guardarLineaAutomatico(data);
                
               
@@ -562,7 +578,7 @@ else
                 
             }
         
-        });
+            });
         
         
 
@@ -572,25 +588,30 @@ else
     
 
     function modificarLinea(_id, idLinea) {
+       
         if ($cantidad.val() == 0) {
 
             bootbox.alert("@SharedLocalizer["AlertCompraCantidad"]", function () {
-                console.log("Alert Callback");
+                
             });
 
         }
         else {
 
+          var id = _id - 1;
 
-            if ($estado.val() == 0) {
+            if ($estado.val() == 0)
+            {
                 guardarLinea();
-                $('#item').val(lineasAgregadas[_id - 1].idInventario);
+            }
+          
+             $('#item').val(lineas[id].idInventario);
                 $('#item').trigger('change.select2');
-                $cantidad.val(lineasAgregadas[_id - 1].cantidad);
-                $precio.val(lineasAgregadas[_id - 1].precio);
-                $estado.val(lineasAgregadas[_id - 1].id);
+                $cantidad.val(lineas[id].cantidad);
+                $precio.val(lineas[id].precio);
+                $estado.val(lineas[id].id);
 
-                var id = _id - 1;
+                
 
                 if (idLinea != 0)
                     lineasEliminadas.push(lineas[id].id);
@@ -598,27 +619,6 @@ else
                     lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
 
                 lineas.splice(id, 1);
-
-
-
-            }
-            else {
-
-                $('#item').val(lineasAgregadas[_id - 1].idInventario);
-                $('#item').trigger('change.select2');
-                $cantidad.val(lineasAgregadas[_id - 1].cantidad);
-                $precio.val(lineasAgregadas[_id - 1].precio);
-                $estado.val(lineasAgregadas[_id - 1].id);
-                var id = _id - 1;
-
-                if (idLinea != 0)
-                    lineasEliminadas.push(lineas[id].id);
-                else
-                    lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
-
-                lineas.splice(id, 1);
-            }
-
             cargarTabla(lineas);
         } 
         
@@ -705,8 +705,9 @@ else
                 + '<td style="padding-top:2rem; width:12rem;"><input style="border:0; background-color : #F7F7F7"  value="' + data[i].porcDesc + '"/></td>'
                 + '<td style="padding-top:2rem; "><input style="width:6rem; border:0; background-color : #F7F7F7"  value="' + data[i].porcIva + '%"/></td>'
                 + '<td style="padding-top:2rem; width:12rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + subtotal + '"/></td>'
-                + '<td style="padding-top:2rem; padding-right: 2rem"; ><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="modificarLinea(value, '+ data[i].id + ')" ><i class="fas fa-edit"></i></button>'
-                + '<button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="modificarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                
+
 
 
             $('.lineaForm').before(body);
