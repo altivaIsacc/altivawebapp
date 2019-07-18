@@ -35,7 +35,7 @@ namespace AltivaWebApp.Mappers
                 CCPersonalizadosViewModel campos = new CCPersonalizadosViewModel
                 {
                     IdCampoPersonalizados = item.IdCampoPersonalizados,
-                    Valor = item.Valor,
+                    Valor = item.Valor ?? "",
                     Id = item.Id,
                     IdContacto = item.IdContacto
                 };

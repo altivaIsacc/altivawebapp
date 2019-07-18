@@ -119,12 +119,12 @@ namespace AltivaWebApp.Mappers
 
             return new TbCrContacto
             {
-                Nombre = viewModel.Nombre,
-                Apellidos = viewModel.Apellidos,
-                TipoCedula = viewModel.TipoCedula,
+                Nombre = viewModel.Nombre ?? "",
+                Apellidos = viewModel.Apellidos ?? "",
+                TipoCedula = viewModel.TipoCedula ?? "",
                 Cedula = viewModel.Cedula,
-                NombreComercial = viewModel.NombreComercial,
-                NombreJuridico = viewModel.NombreJuridico,
+                NombreComercial = viewModel.NombreComercial ?? "",
+                NombreJuridico = viewModel.NombreJuridico ?? "",
                 Telefono = viewModel.Telefono,
                 Correo = viewModel.Correo,
                 Pais = viewModel.Pais,
@@ -133,19 +133,19 @@ namespace AltivaWebApp.Mappers
                 Proveedor = viewModel.Proveedor,
                 Canton = viewModel.Canton,
                 Distrito = viewModel.Distrito,
-                OtrasSenas = viewModel.OtrasSenas,
+                OtrasSenas = viewModel.OtrasSenas ?? "",
                 Persona = viewModel.Persona,
                 Empresa = viewModel.Empresa,
                 IdUsuario = viewModel.IdUsuario,
-                WebLink = viewModel.WebLink,
-                MapLink = viewModel.MapLink,
+                WebLink = viewModel.WebLink ?? "",
+                MapLink = viewModel.MapLink ?? "",
                 IdTipoCliente = viewModel.IdTipoCliente,
                 IdFamiliaCliente = viewModel.IdFamiliaCliente,
                 IdSubFamiliaCliente = viewModel.IdSubFamiliaCliente,
                 IdTipoProveedor = viewModel.IdTipoProveedor,
                 IdFamiliaProveedor = viewModel.IdFamiliaProveedor,
                 IdSubFamiliaProveedor = viewModel.IdSubFamiliaProveedor,
-                Ruta = viewModel.Ruta,
+                Ruta = viewModel.Ruta ?? "",
                 IdContacto = viewModel.IdContacto
             };
 
@@ -158,7 +158,7 @@ namespace AltivaWebApp.Mappers
                 Id = domain.Id,
                 IdContactoPadre = domain.IdContactoPadre,
                 IdContactoHijo = domain.IdContactoHijo,
-                NotaRelacion = domain.NotaRelacion
+                NotaRelacion = domain.NotaRelacion ?? ""
             };
 
         }
@@ -170,7 +170,7 @@ namespace AltivaWebApp.Mappers
                 Id = domain.Id,
                 IdContactoPadre = domain.IdContactoPadre,
                 IdContactoHijo = domain.IdContactoHijo,
-                NotaRelacion = domain.NotaRelacion
+                NotaRelacion = domain.NotaRelacion ?? ""
 
             };
 

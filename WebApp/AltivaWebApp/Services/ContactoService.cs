@@ -158,7 +158,20 @@ namespace AltivaWebApp.Services
 
         public TbCrContacto Save(TbCrContacto domain)
         {
-            return this.repository.Save(domain) ;
+            if (!domain.Cliente)
+            {
+                domain.IdTipoCliente = 0;
+                domain.IdFamiliaCliente = 0;
+                domain.IdSubFamiliaCliente = 0;
+            }
+            if (!domain.Proveedor)
+            {
+                domain.IdTipoProveedor = 0;
+                domain.IdFamiliaProveedor = 0;
+                domain.IdSubFamiliaProveedor = 0;
+            }
+
+            return this.repository.Save(domain);
         }
 
         public TbCrContactoRelacion GetByIdPadreAndIdHijo(int idPadre, int idHijo)

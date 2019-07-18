@@ -18,7 +18,14 @@
             <a asp-action="CrearContacto" class="btn btn-primary"><span>@Lb["Agregar"] </span>&nbsp;<i class="fa fa-plus-circle"></i></a>
         </p>
     </div>
+
     
+</div>
+
+<hr />
+
+
+<div class="row">
     <div class="col-md-4 col-sm-4 col-xs-12 form-group pull-right top_search">
         <div class="input-group" style="padding-top:1.2rem">
             <input id="keyword" type="text" class="form-control" placeholder="@Lb["nombre"], @Lb["Cédula"]...">
@@ -27,15 +34,9 @@
             </span>
         </div>
     </div>
-</div>
-
-<hr />
-
-
-<div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12 text-center">
         <ul class="pagination pagination-split">
-            <li><button id="All" class="btn btn-sm abecedario " value="All">@Lb["Todos"]</button></li>
+            <li><button style="background-color: #337AB7; color: #fff; font-weight: bold" id="All" class="btn btn-sm abecedario " value="All">@Lb["Todos"]</button></li>
             <li><button id="A" class="btn btn-sm abecedario activo" value="A">A</button></li>
             <li><button id="B" class="btn btn-sm abecedario" value="B">B</button></li>
             <li><button id="C" class="btn btn-sm abecedario" value="C">C</button></li>
@@ -68,9 +69,11 @@
 </div>
 
 <div class="row">
-    <div id="contactosContainer" >
+
+    <div style="padding:0.5rem;" id="contactosContainer">
 
     </div>
+
 </div>
 
 
@@ -85,6 +88,8 @@
 
         getContactos();
 
+        
+
         if ("@ViewBag.nombre" != "") {
             var url = "@Url.Action("ListarContactos", "Contacto")";
             var regex = new RegExp('/[^/]*$');
@@ -94,7 +99,7 @@
     });
 
     function getContactos() {
-        
+
             $.ajax({
                 type: "get",
                 headers: {
@@ -110,7 +115,8 @@
                     $('#keyword').val("@ViewBag.nombre");
                     cargarFiltros('All', "@ViewBag.nombre");
 
-                    
+                    $('.abecedario').trigger('change');
+
                 },
                 error: function (err, scnd) {
                     cargarAlert('@Lb["errorGeneral"]');
@@ -123,7 +129,7 @@
     $('.abecedario').on('click', function () {
 
         letra = this.value;
-        
+
        // cargarContactos(filtroLetra(this.value));
 
         cargarFiltros(letra, $('#keyword').val());
@@ -160,7 +166,6 @@
 
             return filtrado;
         }
-           
 
     }
 
@@ -228,9 +233,9 @@
 
         var rutaEditar = '@Url.Action("EditarContacto", new { id = "__id__" })'.replace("__id__", data.id);
 
-        return "<div  class=\"col-md-4 col-sm-4 col-xs-12 profile_details\">" +
+        @*return "<div  class=\"col-md-4 col-sm-4 col-xs-12 profile_details\">" +
             "                        <div  class=\"well profile_view\">" +
-            "                          <div class=\"col-sm-12\">" +
+            "                          <div class=\"col-md-12 col-sm-12 \">" +
             "                            <h4>" + data.nombre + "</h4>" +
             "                            <div class=\"left col-xs-7\">" +
             "                              <ul class=\"list-unstyled\">" +
@@ -251,10 +256,18 @@
             "                            </div>" +
             "                          </div>" +
             "                        </div>" +
-            "                      </div>";
+            "                      </div>";*@
 
+        return '<a href="' + rutaEditar +'"> <div class="col-md-4 col-sm-6 col-xs-12"> <div class="well" style="padding:1rem"> ' +
+            '                           <div class="col-md-3 col-sm-3 col-xs-3" ><span class="image"><img style="height:6rem; width: 6rem;" src="' + data.ruta + '" class="img-circle " alt="Profile Image" /></span> </div>' +
+            '                           <div>' +
+            '                             <p>&nbsp;<strong>' + data.nombre + '<strong></p> ' +
+            '                             <p>&nbsp;<i class=\"fas fa-id-card\"></i>: ' + data.cedula + '&nbsp;/&nbsp;<i class=\"fa fa-phone\"></i>: ' + data.telefono + '</p>' +
+            '                           </div>' +
+            '                         </div >' +
+            '                       </div > </a>';
     }
-
+   //             '                             <p>&nbsp;<i class=\"fa fa-at\"></i> ' + data.correo + '</p>  ' +
 
     function getNombre(data) {
 
