@@ -18,7 +18,8 @@ namespace AltivaWebApp.Context
             : base(options)
         {
         }
-
+        public virtual DbSet<TbCpCompras> TbCpCompras { get; set; }
+        public virtual DbSet<TbCpComprasDetalleServicio> TbCpComprasDetalleServicio { get; set; }
         public virtual DbSet<CompraAutomaticoViewModel> CompraAutomatico { get; set; }
         public virtual DbSet<TbBaConciliacion> TbBaConciliacion { get; set; }
         public virtual DbSet<TbBaConciliacionDetalle> TbBaConciliacionDetalle { get; set; }
@@ -325,6 +326,76 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.TipoDocumento)
                     .IsRequired()
                     .HasMaxLength(50);
+            });
+            modelBuilder.Entity<TbCpCompras>(entity =>
+            {
+                entity.HasKey(e => e.IdCompra);
+
+                entity.ToTable("tb_CP_Compras");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaDocumento).HasColumnType("datetime");
+
+                entity.Property(e => e.NumeroDocumento)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TipoDocumento)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TotalFabase).HasColumnName("TotalFABase");
+
+                entity.Property(e => e.TotalFadolar).HasColumnName("TotalFADolar");
+
+                entity.Property(e => e.TotalFaeuro).HasColumnName("TotalFAEuro");
+
+                entity.Property(e => e.TotalIvabase).HasColumnName("TotalIVABase");
+
+                entity.Property(e => e.TotalIvadolar).HasColumnName("TotalIVADolar");
+
+                entity.Property(e => e.TotalIvaeuro).HasColumnName("TotalIVAEuro");
+            });
+
+            modelBuilder.Entity<TbCpComprasDetalleServicio>(entity =>
+            {
+                entity.HasKey(e => e.IdCompraDetalle);
+
+                entity.ToTable("tb_CP_ComprasDetalleServicio");
+
+                entity.Property(e => e.Articulo)
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.SubTotalGravadoEuro).HasColumnName("subTotalGravadoEuro");
+
+                entity.Property(e => e.TotalIsbase).HasColumnName("TotalISBase");
+
+                entity.Property(e => e.TotalIsdolar).HasColumnName("TotalISDolar");
+
+                entity.Property(e => e.TotalIseuro).HasColumnName("TotalISEuro");
+
+                entity.Property(e => e.TotalIvabase).HasColumnName("TotalIVABase");
+
+                entity.Property(e => e.TotalIvadolar).HasColumnName("TotalIVADolar");
+
+                entity.Property(e => e.TotalIvaeuro).HasColumnName("TotalIVAEuro");
+
+                entity.HasOne(d => d.IdCategoriaGastoNavigation)
+                    .WithMany(p => p.TbCpComprasDetalleServicio)
+                    .HasForeignKey(d => d.IdCategoriaGasto)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_CP_ComprasDetalleServicio_tb_CP_CategoriaGasto");
+
+                entity.HasOne(d => d.IdCompraNavigation)
+                    .WithMany(p => p.TbCpComprasDetalleServicio)
+                    .HasForeignKey(d => d.IdCompra)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_CP_ComprasDetalleServicio_tb_CP_Compras");
             });
 
             modelBuilder.Entity<TbBaMovimientoBancariosDetalle>(entity =>
