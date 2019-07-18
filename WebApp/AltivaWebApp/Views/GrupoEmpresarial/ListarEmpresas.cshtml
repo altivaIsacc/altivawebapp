@@ -1,4 +1,4 @@
-﻿@model IEnumerable<AltivaWebApp.GEDomain.TbGeEmpresa>
+﻿@model TbSeUsuario
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
@@ -73,28 +73,32 @@
 
     <div class="row" style="padding-top:1rem">
         
-        @foreach (var item in Model)
+        @foreach (var item in Model.TbSeEmpresaUsuario.OrderByDescending(e => e.Estado && e.IdEmpresaNavigation.Estado ? 1 : 0))
         {
             var estado = "";
+            var estadoUser = "";
             var activa = true;
             var btn = SharedLocalizer["Desactivar"];
-            if (!item.Estado)
+            if (!item.IdEmpresaNavigation.Estado)
             {
                 estado = "disabled";
                 activa = false;
                 btn = SharedLocalizer["Activar"];
             }
-
+            if (!item.Estado)
+            {
+                estadoUser = "disabled";
+            }
 
             <div class="col-md-3 col-sm-6 col-xs-12 card " style="margin-left: 2rem; min-width: 15rem;">
-                <img class="card-img-top" style="width:100%; height:10rem" src="@item.Foto" alt="Card image cap">
+                <img class="card-img-top" style="width:100%; height:10rem" src="@item.IdEmpresaNavigation.Foto" alt="Card image cap">
                 <div style="padding:0.5rem">
-                    <h5>@item.Nombre</h5>
-                    <p class="card-text"><strong><span>@SharedLocalizer["cedulaJuridica"]: </span></strong>@item.CedJuridica</p>
-                    <p class="card-text"><strong><span>@SharedLocalizer["Teléfono"]: </span></strong> @item.Telefono1 - @item.Telefono2</p>
-                    <p class="card-text"><strong><span>@SharedLocalizer["Dirección"]: </span></strong> @item.Direccion</p>
-                    <button @estado onclick="setEmpresa('@item.Nombre', '@item.Foto', '@item.Correo', '@item.Telefono1', '@item.Telefono1', '@item.CedJuridica')" class="btn btn-primary">@SharedLocalizer["Ingresar"]</button>
-                    <button onclick="cambiarEstadoEmpresa(@item.Id, '@item.Estado')" class="btn btn-link">@btn</button>
+                    <h5>@item.IdEmpresaNavigation.Nombre</h5>
+                    <p class="card-text"><strong><span>@SharedLocalizer["cedulaJuridica"]: </span></strong>@item.IdEmpresaNavigation.CedJuridica</p>
+                    <p class="card-text"><strong><span>@SharedLocalizer["Teléfono"]: </span></strong> @item.IdEmpresaNavigation.Telefono1 - @item.IdEmpresaNavigation.Telefono2</p>
+                    <p class="card-text"><strong><span>@SharedLocalizer["Dirección"]: </span></strong> @item.IdEmpresaNavigation.Direccion</p>
+                    <button @estadoUser @estado onclick="setEmpresa('@item.IdEmpresaNavigation.Nombre', '@item.IdEmpresaNavigation.Foto', '@item.IdEmpresaNavigation.Correo', '@item.IdEmpresaNavigation.Telefono1', '@item.IdEmpresaNavigation.Telefono1', '@item.IdEmpresaNavigation.CedJuridica')" class="btn btn-primary">@SharedLocalizer["Ingresar"]</button>
+                    <button @estadoUser onclick="cambiarEstadoEmpresa(@item.IdEmpresaNavigation.Id, '@item.IdEmpresaNavigation.Estado')" class="btn btn-link">@btn</button>
                 </div>
             </div>
 

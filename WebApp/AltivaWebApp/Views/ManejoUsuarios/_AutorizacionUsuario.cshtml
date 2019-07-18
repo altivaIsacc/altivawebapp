@@ -1,0 +1,92 @@
+﻿@inject IStringLocalizer<SharedResources> Lb
+
+<div class="table-responsive">
+    <table id="tblEmpresas" class="table table-bordered">
+        <thead>
+            <tr>
+                <th>
+                    @Lb["Asignado"] <input id="asignarTodos" type="checkbox" name="todos" />
+                </th>
+                <th>
+                    @Lb["Nombre"]
+                </th>
+                <th>
+                    @Lb["Estado"]
+                </th>
+                <th>
+                    @Lb["CedulaJuridica"]
+                </th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script>
+    var empresas = [];
+    var idUsuario = @ViewBag.idUsuario;
+    $(document).ready(function () {
+
+        getEmpresas();
+
+    });
+
+
+    function getEmpresas() {
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetEmpresasPorUsuario", "ManejoUsuarios")',
+            success: function (data) {
+
+                empresas = JSON.parse(JSON.stringify(data));
+                console.log(empresas);
+                cargarDatos(empresas);
+
+                
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+    function cargarDatos(data) {
+
+        $("#tblEmpresas > tbody").remove();
+        $('#tblEmpresas').append('<tbody></tbody>');
+
+        var contadorFila = 0;
+        for (var i = 0; i < data.length; i++) {
+
+            var body = '<tr class="fila' + contadorFila + ' filas" >'
+                + '<td class="text-center"><p><p/><input onchange="checkEmpresa(' + data[i].id + ')" class="empresas"  name="chkEmpresas" type="checkbox" value="' + data[i].id + '" ' + existeEnEmpresa(data[i].id) + '/></td>'
+                + '<td><p style="padding-top:1.2rem;">' + data[i].nombre + '</p></td>'
+                + '<td><p style="padding-top:1.2rem;">' + data[i].estado + '</p></td>'
+                + '<td><p style="padding-top:1.2rem;">' + data[i].cedJuridica + '</p></td>';
+            $('#tblEmpresas > tbody').append(body);
+            contadorFila++;
+
+        }
+
+    }
+
+    function existeEnEmpresa(idEmpresa) {
+
+        var flag = "";
+        for (var i = 0; i < empresas.length; i++) {
+            if (empresas[i].id === idEmpresa) {
+                if (empresas[i].tbSeEmpresaUsuario.length != 0 && empresas[i].tbSeEmpresaUsuario[0].estado) {
+                    flag = "checked";
+                    break;
+                }
+                    
+            }
+                
+        }
+
+        return flag;
+    }
+
+</script>

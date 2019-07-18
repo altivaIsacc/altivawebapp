@@ -1,5 +1,6 @@
 ﻿@model UsuarioViewModel
 @inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject IStringLocalizer<SharedResources> Lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -8,11 +9,11 @@
     }
 }
 
-@{ 
+@{
 
     var inactivo = "";
 
-    if(Model.estado == "INACTIVO")
+    if (Model.estado == "INACTIVO")
     {
         inactivo = "disabled";
     }
@@ -50,7 +51,7 @@
     </div>
 </div>
 <div class="row">
-   
+
     <div class="col-md-2 col-sm-2">
         <h4>Avatar</h4>
         <div class="col-md-12">
@@ -76,7 +77,7 @@
                 </div>
 
                 <div class="col-md-12">
-                    <p >@SharedLocalizer["Fuente"]: @SharedLocalizer["Grande"] </p>
+                    <p>@SharedLocalizer["Fuente"]: @SharedLocalizer["Grande"] </p>
                     <button type="button" name="4" value="TemaClaroG" class="btn btntema btn-default btn-circle"></button>
                     <button type="button" name="6" value="TemaCombinadoG" class="btn btntema btn-combined btn-circle"></button>
                 </div>
@@ -121,7 +122,7 @@
 
 
                 <div class="form-group">
-                    <label  asp-for="correo" class="control-label">@SharedLocalizer["Correo"]:</label>
+                    <label asp-for="correo" class="control-label">@SharedLocalizer["Correo"]:</label>
                     <input type="email" asp-for="correo" id="correo" maxlength="50" class="form-control" />
                     <div id="correoValidation"></div>
                     <span hidden id="correoInvalido">@SharedLocalizer["correoInvalido"]</span>
@@ -142,10 +143,10 @@
             <thead>
                 <tr>
                     <th>
-                        <p >@SharedLocalizer["Perfil"]</p>
+                        <p>@SharedLocalizer["Perfil"]</p>
                     </th>
                     <th>
-                        <p >@SharedLocalizer["Acción"]</p>
+                        <p>@SharedLocalizer["Acción"]</p>
                     </th>
                 </tr>
             </thead>
@@ -157,7 +158,7 @@
                             @Html.DisplayFor(modelItem => item.Nombre)
                         </td>
                         <td>
-                             <button @inactivo class="btn btn-link" onclick="eliminarPerfilUsuario(value)" value="@item.Id"><i class="fas fa-trash"></i></button> 
+                            <button @inactivo class="btn btn-link" onclick="eliminarPerfilUsuario(value)" value="@item.Id"><i class="fas fa-trash"></i></button>
                         </td>
 
                     </tr>
@@ -279,16 +280,35 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-12">
-        <div id="comentarios">
+<br />
 
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <ul class="nav nav-tabs">
+            <li class="active"><a class="optTab" data-toggle="tab" href="#comentario">@Lb["Comentarios"]</a></li>
+            <li><a class="optTab" data-toggle="tab" href="#empresas">@Lb["Empresas"]</a></li>
+        </ul>
+    </div>
+</div>
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade in active row" id="comentario">
+        <div class="col-md-12">
+            <div id="comentarios">
+
+            </div>
+        </div>
+    </div>
+    <div class=" tab-pane fade row" id="empresas">
+        <div class="col-md-12">
+            <div id="empresasUsuario">
+                
+            </div>
         </div>
     </div>
 </div>
 
-<script type="text/javascript" src="~/js/comentario.js"></script>
-<script type="text/javascript">
+    <script type="text/javascript" src="~/js/comentario.js"></script>
+    <script type="text/javascript">
         //validaciones de campos editar usuario
 
         function validarPassword(email) {
@@ -303,6 +323,7 @@
         $(document).ready(function () {
 
             GetComentarios('Usuario', @Model.id);
+            getEmpresas();
 
             $('.btntema').on('click', function () {
                 $("#tema").attr('href', '/../css/' + $(this).val() + '.css');
@@ -395,6 +416,24 @@
         });
 
 
+
+
+        function getEmpresas() {
+            
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("_AutorizacionUsuario", "ManejoUsuarios", new { idUsuario = Model.id })',
+                success: function (data) {
+                    $('#empresasUsuario').html(data);
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+            }
+
+        });
+    }
+
     function guardarUsuario() {
 
         console.log($('#frmUsuario').serializeArray());
@@ -436,9 +475,9 @@
 
             model[2].value = $('#nuevaContrasena').val();
             //console.log(model);
-        
+
             var url = '@Url.Action("CambiarContrasena", "ManejoUsuarios")';
-            
+
                 $.ajax({
                     type: "POST",
                     headers: {
@@ -449,7 +488,7 @@
                     success: function (data) {
                         if (data.success) {
                             cargarAlert('@SharedLocalizer["datosActualizados"]');
-                            
+
                         }
                         else
                             cargarAlert('@SharedLocalizer["usuarioExistente"]');
@@ -464,7 +503,7 @@
     }
 
 
-   
+
 
     function validarContrasena() {
 
@@ -535,7 +574,7 @@
 
             flag = false;
         }
-        
+
          if ($('#correo').val().replace(/ /g, "") === "") {
              $('#correoValidation').empty();
              $('#correoValidation').append('<span class="text-danger">@SharedLocalizer["correoValid"]</span>');
@@ -550,7 +589,7 @@
                  $('#correoInvalido').prop("hidden", true);
 
          }
-        
+
 
         if (flag)
             guardarUsuario();
@@ -589,8 +628,8 @@
         return flag;
     }
 
-</script>
-<script src="~/js/guardarConfigUsuario.js"></script>
+    </script>
+    <script src="~/js/guardarConfigUsuario.js"></script>
 
 
 

@@ -51,6 +51,7 @@ namespace AltivaWebApp.Mappers
 
         }
 
+
         public void Delete(TbSeUsuario domain)
 
         {

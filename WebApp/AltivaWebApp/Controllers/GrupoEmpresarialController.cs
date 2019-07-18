@@ -61,21 +61,11 @@ namespace AltivaWebApp.Controllers
 
             }
 
-            var empresas = new List<TbGeEmpresa>();
-
-            if (user.TbSeEmpresaUsuario.Count() > 0)
-            {
-                foreach (var item in user.TbSeEmpresaUsuario)
-                {
-                    empresas.Add(item.IdEmpresaNavigation);
-                }
-            }
-
             
            ViewData["grupoEmpresas"] = service.GetGE();
 
 
-            return View(empresas);
+            return View(user);
         }
 
         [HttpGet("Empresa/{nombre}")]
@@ -115,8 +105,8 @@ namespace AltivaWebApp.Controllers
         [Route("Autorizacion-Usuarios")]
         public IActionResult AutorizacionUsuarios()
         {
-            var usuarios = userService.GetAllConEmpresas();
-            return View(usuarios);
+            //var usuarios = userService.GetAllConEmpresas();
+            return View();
         }
 
 

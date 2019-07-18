@@ -219,7 +219,6 @@ namespace AltivaWebApp.Repositories
                         IdUsuario = u.IdUsuario,
                         Iniciales = u.Iniciales,
                         Nombre = u.Nombre
-
                     }
                     ).ToList();
 
@@ -230,10 +229,81 @@ namespace AltivaWebApp.Repositories
             return context.TbSeUsuario.Where(u => u.IdUsuario == id).ToList();
         }
 
+        public IList<TbGeEmpresa> GetEmpresasPorUsuario(int idUsuario)
+        {
+            return context.TbGeEmpresa.Include(r => r.TbSeEmpresaUsuario)
+                    .Select(e => new TbGeEmpresa
+                    {
+                        Id = e.Id,
+                        CedJuridica = e.CedJuridica,
+                        Estado = e.Estado,
+                        Nombre = e.Nombre,
+                        TbSeEmpresaUsuario = e.TbSeEmpresaUsuario.Where(us => us.IdUsuario == idUsuario).Select(u => new TbSeEmpresaUsuario
+                        {
+                            IdEmpresa = u.IdEmpresa,
+                            Estado = u.Estado,
+                            Id = u.Id,
+                            IdUsuario = u.IdUsuario
+                        }).ToList()
+
+                    }).ToList();
+        }
+
         public IList<TbSeUsuario> GetAllConEmpresas()
         {
-            return context.TbSeUsuario.Include(u => u.TbSeEmpresaUsuario).ToList();
+            return context.TbSeUsuario.Include(u => u.TbSeEmpresaUsuario).Select(u => 
+                new TbSeUsuario {
+                    Avatar = u.Avatar,
+                    Codigo = u.Codigo,
+                    Contrasena = u.Contrasena,
+                    Correo = u.Correo,
+                    Estado = u.Estado,
+                    FechaMod = u.FechaMod,
+                    Id = u.Id,
+                    IdUsuario = u.IdUsuario,
+                    Iniciales = u.Iniciales,
+                    Nombre = u.Nombre,
+                    TbSeEmpresaUsuario = u.TbSeEmpresaUsuario.Select(e => new TbSeEmpresaUsuario {
+                        IdEmpresa = e.IdEmpresa,
+                        Estado = e.Estado,
+                        Id = e.Id,
+                        IdUsuario = e.IdUsuario
+                    }).ToList()
+
+                }).ToList();
         }
+
+
+        public bool CrearRelEmpresaUsuario(IList<TbSeEmpresaUsuario> domain)
+        {
+            try
+            {
+                context.TbSeEmpresaUsuario.AddRange(domain);
+                context.SaveChanges();
+                return true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public bool DesactivarRelEmpresaUsuario(IList<TbSeEmpresaUsuario> domain)
+        {
+            try
+            {
+                context.TbSeEmpresaUsuario.UpdateRange(domain);
+                context.SaveChanges();
+                return true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
 
         /*public User Save(User domain)
 

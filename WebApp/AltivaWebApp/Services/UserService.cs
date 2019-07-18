@@ -123,5 +123,18 @@ namespace AltivaWebApp.Services
         {
             return repository.GetAllConEmpresas();
         }
+        public IList<TbGeEmpresa> GetEmpresasPorUsuario(int idUsuario)
+        {
+            return repository.GetEmpresasPorUsuario(idUsuario);
+        }
+        public bool CrearRelEmpresaUsuario(IList<TbSeEmpresaUsuario> domain)
+        {
+            return repository.CrearRelEmpresaUsuario(domain);
+        }
+
+        public bool DesactivarRelEmpresaUsuario(IList<TbSeEmpresaUsuario> domain)
+        {
+            return repository.DesactivarRelEmpresaUsuario(domain);
+        }
     }
 }
