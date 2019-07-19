@@ -14,7 +14,10 @@ namespace AltivaWebApp.Services
         {
             this.repository = repository;
         }
-
+        public IList<TbPrCompra> GetAllGastos()
+        {
+            return repository.GetAllGastos();
+        }
         public bool ExisteDocumento(string numDoc, string tipo, int idProveedor)
         {
             return repository.ExisteDocumento(numDoc, tipo, idProveedor);
@@ -29,9 +32,17 @@ namespace AltivaWebApp.Services
             return repository.DeleteCompraDetalle(domain);
         }
 
+        public bool DeleteComprasDetalleServicio(TbCpComprasDetalleServicio domain)
+        {
+            return repository.DeleteComprasDetalleServicio(domain);
+        }
         public IList<TbPrCompraDetalle> GetAllCompraDetalleByCompraId(int id)
         {
             return repository.GetAllCompraDetalleByCompraId(id);
+        }
+        public IList<TbCpComprasDetalleServicio> GetAllComprasDetalleServicioByCompraId(int id)
+        {
+            return repository.GetAllComprasDetalleServicioByCompraId(id);
         }
 
         public IList<TbPrCompra> GetAllCompras()
@@ -53,6 +64,10 @@ namespace AltivaWebApp.Services
         {
             return repository.SaveCompraDetalle(domain);
         }
+        public TbCpComprasDetalleServicio SaveComprasDetalleServicio(TbCpComprasDetalleServicio domain)
+        {
+            return repository.SaveComprasDetalleServicio(domain);
+        }
 
         public bool ExisteRelacionInventarioBodega(long idInventario, long idBodega)
         {
@@ -61,6 +76,10 @@ namespace AltivaWebApp.Services
         public TbPrCompraDetalle GetCompraDetalleById(long id)
         {
             return repository.GetCompraDetalleById(id);
+        }
+        public TbCpComprasDetalleServicio GetComprasDetalleServicioById(long id)
+        {
+            return repository.GetComprasDetalleServicioById(id);
         }
 
         public TbPrCompra Update(TbPrCompra domain)
@@ -71,6 +90,10 @@ namespace AltivaWebApp.Services
         public bool UpdateCompraDetalle(IList<TbPrCompraDetalle> domain)
         {
             return repository.UpdateCompraDetalle(domain);
+        }
+        public bool UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain)
+        {
+            return repository.UpdateComprasDetalleServicio(domain);
         }
 
         public long IdUltimoDocumento()

@@ -48,7 +48,6 @@ namespace AltivaWebApp.Controllers
             return View();
         }
 
-
         [Route("Nueva-Compra")]
         public ActionResult CrearCompra()
         {

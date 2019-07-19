@@ -37,6 +37,7 @@ namespace AltivaWebApp.Domains
         public int IdCategoriaGasto { get; set; }
 
         public virtual TbCpCategoriaGasto IdCategoriaGastoNavigation { get; set; }
-        public virtual TbCpCompras IdCompraNavigation { get; set; }
+        public virtual TbPrCompra IdCompraNavigation { get; set; }
+        
     }
 }

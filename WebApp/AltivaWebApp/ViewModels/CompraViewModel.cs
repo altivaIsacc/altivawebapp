@@ -30,5 +30,6 @@ namespace AltivaWebApp.ViewModels
         public bool EnCola { get; set; }
 
         public IList<CompraDetalleViewModel> CompraDetalle { get; set; }
+        public IList<ComprasDetalleServicioViewModel> ComprasDetalleServicio { get; set; }
     }
 }

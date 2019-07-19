@@ -22,5 +22,12 @@ namespace AltivaWebApp.Services
         bool ExisteRelacionInventarioBodega(long idInventario, long idBodega);
         long IdUltimoDocumento();
         TbPrCompra GetCompraByIdWithoutD(int id);
+        TbCpComprasDetalleServicio GetComprasDetalleServicioById(long id);
+        bool UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain);
+        TbCpComprasDetalleServicio SaveComprasDetalleServicio(TbCpComprasDetalleServicio domain);
+        IList<TbCpComprasDetalleServicio> GetAllComprasDetalleServicioByCompraId(int id);
+        bool DeleteComprasDetalleServicio(TbCpComprasDetalleServicio domain);
+        IList<TbPrCompra> GetAllGastos();
+
     }
 }
