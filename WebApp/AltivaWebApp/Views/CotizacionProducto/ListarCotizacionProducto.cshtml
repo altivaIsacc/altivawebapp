@@ -14,11 +14,11 @@
 
 <div class="row">
     <div class="col-md-2 col-sm-6 col-xs-12">
-    <h3>@Lb["Cotizaciones"]</h3>
+    <h3>@Lb["Cotizacion"]</h3>
     </div>
     <div class="col-md-4 col-sm-6 col-xs-12" style="margin-left:1rem; padding-top:0.7rem">
         <p>
-          <a asp-action="CrearCotizacion" class="btn btn-primary"><span>@Lb["Crear"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+          <a asp-action="CrearCotizacion" class="btn btn-primary"><span>@Lb["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
         </p>
     </div>
 </div>
@@ -275,9 +275,10 @@
         $("#tblCotizacion > tbody").remove();
         $('#tblCotizacion').append('<tbody></tbody>');
 
-
+ 
         for (var i = 0; i < data.length; i++) {
             var body;
+
             switch (parseInt(data[i].idMoneda)) {
 
                 case 1:
@@ -292,8 +293,13 @@
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
                         + '<td style="display:none;"><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaVencimiento) + '</p></td>'
-                        + '<td><p style="padding-top:1rem;text-align: right;" class="colon" >' +formatoMoneda(1, data[i].totalBase) + '</p></td>'
+                        + '<td><p style="padding-top:1rem;text-align: right;" class="colon" >' + formatoMoneda(1, data[i].totalBase) + '</p></td>'
                         + '<td>  <button value="' + data[i].idCotizacion + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+
+                    $(".currency").inputmask('currency', {
+                        prefix: monedas[0].simbolo + ' ',
+                        rightAlign: true
+                    });
                     break;
                 case 2:
 
@@ -307,8 +313,10 @@
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
                         + '<td style="display:none;"><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaVencimiento) + '</p></td>'
-                        + '<td><p style="padding-top:1rem;text-align: right;" class="dolar" >' +formatoMoneda(2, data[i].totalDolar) + '</p></td>'
+                        + '<td><p style="padding-top:1rem;text-align: right;" class="dolar" >' + formatoMoneda(2, data[i].totalDolar) + '</p></td>'
                         + '<td>  <button value="' + data[i].idCotizacion + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+
+9
                     break;
                 case 3:
 
@@ -322,10 +330,13 @@
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
                         + '<td style="display:none;"><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
                         + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaVencimiento) + '</p></td>'
-                        + '<td><p style="padding-top:1rem;text-align: right;" class="euro" >' +formatoMoneda(3,data[i].totalEuro) + '</p></td>'
+                        + '<td><p style="padding-top:1rem;text-align: right;" class="euro"  >' +formatoMoneda(3, data[i].totalEuro) + '</p></td>'
                         + '<td>  <button value="' + data[i].idCotizacion + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+
                     break;
             }
+
+
 
             $('#tblCotizacion > tbody').append(body);
             contadorFila++;
@@ -365,15 +376,15 @@
 
         //inicializa formato
         $(".colon").inputmask('currency', {
-            prefix: monedas[0].simbolo+" ",
+            prefix: monedas[0].simbolo + " ",
             rightAlign: true
         });
         $(".dolar").inputmask('currency', {
-            prefix: monedas[1].simbolo+" ",
+            prefix: monedas[1].simbolo + " ",
             rightAlign: true
         });
         $(".euro").inputmask('currency', {
-            prefix: monedas[2].simbolo+" ",
+            prefix: monedas[2].simbolo + " ",
             rightAlign: true
         });
 
@@ -391,15 +402,14 @@
             return "euro"
     }
 
-    function darFormato1(idMoneda) {
 
+    function darFormato1(idMoneda) {
         if (idMoneda === 1)
             return monedas[0].simbolo;
         else if (idMoneda === 2)
             return monedas[1].simbolo;
         else if (idMoneda === 3)
             return monedas[2].simbolo;
-
     }
 
     function inicializarTabla() {
