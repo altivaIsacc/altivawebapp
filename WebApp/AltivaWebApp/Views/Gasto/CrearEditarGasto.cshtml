@@ -65,7 +65,7 @@ else
     {
         estado2 = "disabled";
         <div class="col-md-12 text-left"><h5 class="text-danger">@SharedLocalizer["DocumentoConToma"]</h5></div>
-        
+
     }
 </div>
 
@@ -78,7 +78,7 @@ else
         @Html.HiddenFor(x => x.IdUsuario)
         @Html.HiddenFor(x => x.Borrador)
         <div class="form-group col-md-2 col-sm-6 col-xs-12">
-            <fieldset >
+            <fieldset>
                 <div class="form-group">
                     <label for="fecha">@SharedLocalizer["Fecha"]:</label>
                     <div class='input-group date' id='fechaPicker'>
@@ -143,33 +143,27 @@ else
         <table class="table table-bordered table-striped" id="tblCompra" style="min-width:1250px">
             <thead>
                 <tr>
-                    <th style="width:14%"><span>@SharedLocalizer["Item"]</span></th>
-                    <th style="width:18%"><span>@SharedLocalizer["Descripción"]</span></th>
-                    <th style="width:11%"><span>@SharedLocalizer["Cantidad"]</span></th>
-                    <th style="width:12%"><span>@SharedLocalizer["PrecioUnitario"]</span></th>
-                    <th style="width:7%"><span class="col-md-1">@SharedLocalizer["Descuento"]</span></th>
-                    <th style="width:7%"><span>@SharedLocalizer["IVA"]</span></th>
-                    <th style="width:12%"><span>@SharedLocalizer["SubTotal"]</span></th>
-                    <th style="width:10%"><span>@SharedLocalizer["Bodega"]</span></th>
-                    <th style="width:9%"><span>@SharedLocalizer["Acción"]</span></th>
+                    <th style="width:9%"><span>@SharedLocalizer["Categoria"]</span></th>
+                    <th style="width:10%"><span>@SharedLocalizer["Articulo"]</span></th>
+                    <th style="width:5%"><span>@SharedLocalizer["PrecioUnitario"]</span></th>
+                    <th style="width:5%"><span class="col-md-1">@SharedLocalizer["Descuento"]</span></th>
+                    <th style="width:5%"><span>@SharedLocalizer["IVA"]</span></th>
+                    <th style="width:5%"><span>@SharedLocalizer["SubTotal"]</span></th>
+                    <th style="width:7%"><span>@SharedLocalizer["Acción"]</span></th>
                 </tr>
             </thead>
             <tbody>
                 <tr class="lineaForm">
                     <td>
-                        <select @estado2 @estado class="form-control selectItems" id="item"></select>
+                        <select @estado2 @estado class="form-control selectItems" id="categorias"></select>
                     </td>
                     <td>
-                        <input readonly class="form-control" id="descripcion" />
+                        <input  class="form-control" id="articulo" />
                     </td>
-                    <td><div class="col-md-9"><input @estado2 @estado class="form-control numerico" type="text" min="0" id="cantidad" /></div><div class="col-md-3" style="padding-top:1rem"><span id="unidad"></span></div></td>
                     <td><input @estado2 @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
                     <td><input @estado2 @estado class="form-control numerico" type="text" id="descuento" /></td>
                     <td><input class="form-control" readonly type="number" id="iva" /></td>
                     <td><input class="form-control moneda" readonly type="text" id="subtotalLinea" /></td>
-                    <td>
-                        <select class="form-control bodegas" id="bodega"></select>
-                    </td>
                     <td><button @estado2 @estado class="btn btn-link btnAccion" onclick="guardarCambios()"><i class="fas fa-save"></i></button></td>
                 </tr>
             </tbody>
@@ -260,6 +254,8 @@ else
 
      var $anulado = $('#Anulado');
     ///linea
+    var $categorias = $('#categorias');
+    var $articulo = $('#articulo');
     var $item = $('#item');
     var $descripcion = $('#descripcion');
     var $subTotalLinea = $('#subtotalLinea');
@@ -349,8 +345,7 @@ else
          getMonedas();
          getInventario();
         getProveedores();
-        
-
+        getCategoriaGasto();
 
 
          $('.selectItems').select2({ width: null, language: localStorage.getItem("idioma") });
@@ -400,38 +395,38 @@ else
 
 
     //////ajax////////////////////////////////////////////////////////////////////////
+    function getCategoriaGasto() {
 
-    function getBodegas() {
          $.ajax({
               type: "get",
               headers: {
                   "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
               },
               dataType: "json",
-              url: '@Url.Action("GetBodegas")',
-              success: function (data) {
-
-                 bodegas = data;
-
+              url: '@Url.Action("GetCategoriaGasto", "Gasto")',
+             success: function (data) {
+                 proveedores = data;
                  for (var i = 0; i < data.length; i++) {
-                     if (data[i].almacenamiento) {
-                         var o = new Option(data[i].nombre, data[i].id);
-                         $(".bodegas").append(o);
-                     }
 
+                    var nombre = data[i].nombre;
+                    var o = new Option(nombre, data[i].Id);
+                     $("#categorias").append(o);
+                 }
+                 if (@Model.Id != 0) {
+                    
+                     
                  }
 
-                 $(".bodegas").trigger('change');
 
-                 getCompraDetalle();
 
               },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
                   console.log(err.statusText);
               }
-          });
+         });
     }
+   
 
     function getMonedas() {
          $.ajax({
@@ -544,10 +539,7 @@ else
     }
 
     function guardarCompra() {
-        @*if (lineas.length <= 0) {
-            cargarAlert('@SharedLocalizer["compraSinDetalle"]');
-        } else*@
-
+      
         var model = crearModelo();
 
         if (lineasAgregadas.length === 0)
@@ -849,14 +841,12 @@ else
 
     function guardarLinea() {
 
-
         var model = {
             id: 0,
             idCompra: @Model.Id,
-            idInventario: $item.val(),
-            nombreInventario: $descripcion.val(),
+            idInventario: $categorias.val(),
+            articulo: $articulo.val(),
             idMonedaCD: parseInt($('.tipoMoneda').val()),
-            cantidad: parseFloat($cantidad.val()),
             precioUnitario: parseFloat($precio.val()),
             subTotalGravado: calcularSubtotalGrabadoLinea(),
             subTotalExcento: calcularSubtotalExcentoLinea(),
@@ -866,19 +856,16 @@ else
             totalIs: 0,
             porcFa: 0,
             totalFa: 0,
-            idBodega: $('#bodega').val(),
             porcDescuento: parseFloat($descuento.val()),
             totalDescuento: calcularTotalDescuentoLinea(),
             totalIva: calcularTotalIvaLinea(),
-            total: calcularTotalLinea(),
-            bodega: getBodegaItem($bodega.val()).nombre
+            total: calcularTotalLinea()
         };
 
         lineasAgregadas = [];
 
         lineasAgregadas.push(model);
         lineas.push(model);
-
         calcularTotales();
 
 
@@ -1648,7 +1635,6 @@ else
             idInventario: getItemPorCodigo(array.Codigo.Codigo["#text"]).idInventario,
             //nombreInventario: $descripcion.val(),
             idMonedaCD: parseInt($('.tipoMoneda').val()),
-            cantidad: parseFloat(array.Cantidad["#text"]),
             precioUnitario: parseFloat(array.PrecioUnitario["#text"]),
             subTotalGravado: calcularSubtotalGravadoXML(array),
             subTotalExcento: calcularSubtotalExcentoXML(array),

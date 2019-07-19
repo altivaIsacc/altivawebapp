@@ -14,6 +14,10 @@ namespace AltivaWebApp.Services
         {
             this.repository = repository;
         }
+        public IList<TbCpCategoriaGasto> GetAllCategoriaGasto()
+        {
+            return repository.GetAllCategoriaGasto();
+        }
         public IList<TbPrCompra> GetAllGastos()
         {
             return repository.GetAllGastos();

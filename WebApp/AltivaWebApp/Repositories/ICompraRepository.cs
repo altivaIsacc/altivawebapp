@@ -8,6 +8,7 @@ namespace AltivaWebApp.Repositories
 {
     public interface ICompraRepository
     {
+        IList<TbCpCategoriaGasto> GetAllCategoriaGasto();
         TbPrCompra Save(TbPrCompra domain);
         TbPrCompra Update(TbPrCompra domain);
         bool Delete(TbPrCompra domain);

@@ -152,7 +152,7 @@ else
                     <td><input class="form-control" readonly type="number" id="iva" /></td>
                     <td><input class="form-control moneda" readonly type="text" id="subtotal" /></td>
                     <td hidden><input class="form-control moneda" readonly type="text" id="totalLinea" /></td>
-                    <td><button @estado class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button></td>
+                    <td><button @estado class="btn btn-link btnAccion"  onclick="guardarLinea()"><i class="fas fa-save"></i></button></td>
                 </tr>
             </tbody>
         </table>
@@ -246,7 +246,6 @@ else
  
 
     $(document).ready(function () {
-        $estado.val(1);
        getProveedores();
         
 
@@ -461,7 +460,7 @@ else
 
     }
     function guardarLineaAutomatico(data) {
-       
+        
         for (var i = 0; i < data.length; i++) {
             $('#item').val(data[i].idInventario);
             $('#item').trigger('change.select2');
@@ -474,31 +473,42 @@ else
             
     }
     function guardarLinea() {
-        var duplicado = 0;
-        for (var i = 0; i < lineas.length; i++)
+        var repetido = 0;
+        var posicion = 0;
+        for (var i = 0; i < lineas.length; i++) {
+            if ($item.val() == lineas[i].idInventario) {
+                posicion = i;
+                repetido = 1;
+
+            }
+
+        }
+
+        if (repetido == 1)
         {
-            if (lineas[i].idInventario == $item.val())
-                duplicado = 1;
-        }
-  
-        if ($cantidad.val() == 0) {
-
-            bootbox.alert("@SharedLocalizer["AlertCompraCantidad"]", function () {
-
+   
+            bootbox.confirm("@SharedLocalizer["confirmCompraAutomatica"]", function (resultado) {
+                if (resultado)
+                {
+             modificarLinea(posicion, 1);
+            
+                }
             });
 
+            
+
+                    
+               
         }
-        else
-         if (duplicado==1)
-         {
-             bootbox.alert("@SharedLocalizer["AlertItemDuplicado"]", function () {
+        else if ($cantidad.val() == 0)
+        {
 
-            });
-         }
+                    bootbox.alert("@SharedLocalizer["AlertCompraCantidad"]", function () {
 
-         
-    
-            else
+                   });
+
+        }
+        else if(repetido ==0)
            {
 
            var model = {
@@ -520,11 +530,11 @@ else
              totalIva: calcularTotalIvaLinea(),
              total: calcularTotalLinea()
          };
-         $estado.val(1);
+         
 
          lineasAgregadas.push(model);
-         lineas.push(model);
-         $cantidad.val(1);
+            lineas.push(model);
+            $cantidad.val(1);
          cargarTabla(lineas);
 
 
@@ -539,7 +549,6 @@ else
                 if (resultado) {
                      lineas = [];
                      cargarTabla(lineas);
-                     duplicado = 1;
                     generarCompraAutomatica();
                      
                     
@@ -560,7 +569,7 @@ else
         
          var idProveedor = $("#proveedores").val();
           var url = "@Url.Action("GenerarCompraAutomatica", "Orden", new { idProveedor = "__id__" })".replace("__id__", idProveedor);
-       
+        lineas[""];
        
             $.ajax({
             type: "get",
@@ -587,8 +596,8 @@ else
     }
     
 
-    function modificarLinea(_id, idLinea) {
-       
+    function modificarLinea(id, tipo) {
+        
         if ($cantidad.val() == 0) {
 
             bootbox.alert("@SharedLocalizer["AlertCompraCantidad"]", function () {
@@ -597,29 +606,56 @@ else
 
         }
         else {
+            
 
-          var id = _id - 1;
-
-            if ($estado.val() == 0)
+            for (var i = 0; i < lineas.length; i++)
             {
-                guardarLinea();
+                if ($item.val() == lineas[i].idInventario && tipo!=1)
+                { 
+                   
+                    lineas[i].cantidad = parseFloat($cantidad.val());
+                    lineas[i].precio = parseFloat($precio.val());
+                    lineas[i].subTotal0Grabado = calcularSubtotalGrabadoLinea();
+                    lineas[i].subTotalExcento = calcularSubtotalExcentoLinea();
+                    lineas[i].subTotalNeto = calcularSubtotalNetoLinea();
+                    lineas[i].porcIva = parseFloat($iva.val());
+                    lineas[i].porcIs = 0;
+                    lineas[i].totalIs = 0;
+                    lineas[i].porcDesc = parseFloat($descuento.val());
+                    lineas[i].totalDescuento = calcularTotalDescuentoLinea();
+                    lineas[i].totalIva = calcularTotalIvaLinea();
+                    lineas[i].total = calcularTotalLinea();
+                    cargarTabla(lineas);
+
+                }
+                if (tipo == 1)
+                {
+                    lineas[id].cantidad = parseFloat($cantidad.val());
+                    lineas[id].precio = parseFloat($precio.val());
+                    lineas[id].subTotal0Grabado = calcularSubtotalGrabadoLinea();
+                    lineas[id].subTotalExcento = calcularSubtotalExcentoLinea();
+                    lineas[id].subTotalNeto = calcularSubtotalNetoLinea();
+                    lineas[id].porcIva = parseFloat($iva.val());
+                    lineas[id].porcIs = 0;
+                    lineas[id].totalIs = 0;
+                    lineas[id].porcDesc = parseFloat($descuento.val());
+                    lineas[id].totalDescuento = calcularTotalDescuentoLinea();
+                    lineas[id].totalIva = calcularTotalIvaLinea();
+                    lineas[id].total = calcularTotalLinea();
+                    cargarTabla(lineas);
+                   
+                }
+                    
             }
-          
-             $('#item').val(lineas[id].idInventario);
+
+            if (tipo != 1) {
+                $('#item').val(lineas[id - 1].idInventario);
                 $('#item').trigger('change.select2');
-                $cantidad.val(lineas[id].cantidad);
-                $precio.val(lineas[id].precio);
-                $estado.val(lineas[id].id);
-
-                
-
-                if (idLinea != 0)
-                    lineasEliminadas.push(lineas[id].id);
-                else
-                    lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
-
-                lineas.splice(id, 1);
-            cargarTabla(lineas);
+                $cantidad.val(lineas[id - 1].cantidad);
+                $precio.val(lineas[id - 1].precio);
+                $estado.val(lineas[id - 1].id);
+            }
+               
         } 
         
 
@@ -663,7 +699,7 @@ else
         totalImpuesto = 0;
         totalOrden = 0;
 
-        console.log(lineas);
+       
 
         for (var i = 0; i < lineas.length; i++) {
             subTotalExcento += parseFloat(lineas[i].subTotalExcento);
@@ -705,7 +741,7 @@ else
                 + '<td style="padding-top:2rem; width:12rem;"><input style="border:0; background-color : #F7F7F7"  value="' + data[i].porcDesc + '"/></td>'
                 + '<td style="padding-top:2rem; "><input style="width:6rem; border:0; background-color : #F7F7F7"  value="' + data[i].porcIva + '%"/></td>'
                 + '<td style="padding-top:2rem; width:12rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + subtotal + '"/></td>'
-                + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="modificarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="modificarLinea(value, ' + 0 + ')" ><i class="fas fa-edit"></i></button><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
                 
 
 

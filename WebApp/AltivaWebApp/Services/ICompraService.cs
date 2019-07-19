@@ -8,6 +8,7 @@ namespace AltivaWebApp.Services
 {
     public interface ICompraService
     {
+        IList<TbCpCategoriaGasto> GetAllCategoriaGasto();
         TbPrCompra Save(TbPrCompra domain);
         TbPrCompra Update(TbPrCompra domain);
         IList<TbPrCompra> GetAllCompras();

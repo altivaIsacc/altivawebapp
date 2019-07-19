@@ -78,5 +78,98 @@ namespace AltivaWebApp.Controllers
                 //return BadRequest();
             }
         }
+
+        [Route("Nuevo-Gasto")]
+        public ActionResult CrearGasto()
+        {
+            
+            ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
+            var tipoCambio = monedaService.GetAll();
+            var model = new CompraViewModel
+            {
+                TipoCambioDolar = tipoCambio.FirstOrDefault(m => m.Codigo == 2).ValorCompra,
+                TipoCambioEuro = tipoCambio.FirstOrDefault(m => m.Codigo == 3).ValorCompra,
+                Borrador = true
+            };
+            ViewData["monedas"] = tipoCambio;
+            ViewBag.tieneToma = false;
+            return View("CrearEditarGasto", model);
+        }
+        [HttpPost("CrearEditar-Gasto")]
+        public ActionResult CrearEditarGasto(CompraViewModel viewModel)
+        {
+            try
+            {
+                if (viewModel.NumeroDocumento == null || viewModel.NumeroDocumento == "AutogeneradoXML")
+                    viewModel.NumeroDocumento = "AutogeneradoXML" + (service.IdUltimoDocumento() + 1).ToString();
+                if (viewModel.Id != 0)
+                {
+                    var compra = service.GetCompraByDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento, viewModel.IdProveedor);
+                    if (compra == null || compra.Id == viewModel.Id)
+                    {
+                        long idCD = 0;
+                        var c = map.Update(viewModel);
+                        /*if (viewModel.ComprasDetalleServicio != null && viewModel.ComprasDetalleServicio.Count() > 0)
+                        {
+                            var cd = map.CreateCDS(viewModel);
+                            idCD = cd.IdCompra;
+                            if (!viewModel.Borrador)
+                            {
+                                kardexMap.CreateKardexCDSingle((int)cd.IdCompra);
+
+                                ///////////////////actualiza cola aprovacion
+                                //var cola = haciendaService.GetCAById(c.Id);
+                                //cola.MontoDoc = c.TotalBase;
+                                //haciendaService.UpdateCA(cola);
+                            }
+                        }
+                        else*/
+                            if (c.EnCola)
+                            haciendaMap.CreateCACompra(compra);
+
+                        return Json(new { success = true, idCD = idCD });
+                    }
+                    else
+                        return Json(new { success = false });
+
+                }
+                else
+                {
+                    if (!service.ExisteDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento, (int)viewModel.IdProveedor))
+                    {
+                        viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+                        var compra = map.Create(viewModel);
+
+                        if (!compra.Borrador)
+                            kardexMap.CreateKardexCD((int)compra.TbPrCompraDetalle.FirstOrDefault().Id);
+
+                        return Json(new { success = true, idCompra = compra.Id });
+                    }
+                    else
+                        return Json(new { success = false });
+                }
+
+            }
+            catch
+            {
+                throw;
+                //return BadRequest();
+            }
+        }
+
+        [HttpGet("GetCategoriaGasto")]
+        public IActionResult GetCategoriaGasto()
+        {
+            try
+            {
+                var prov = service.GetAllCategoriaGasto();
+                return Ok(prov);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+
+        }
     }
 }

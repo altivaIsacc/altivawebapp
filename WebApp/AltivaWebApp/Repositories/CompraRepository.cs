@@ -15,22 +15,21 @@ namespace AltivaWebApp.Repositories
         {
 
         }
+        public IList<TbCpCategoriaGasto> GetAllCategoriaGasto()
+        {
+            try
+            {
+                return context.TbCpCategoriaGasto.ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         public IList<TbPrCompra> GetAllGastos()
         {
 
-            /* var Gastos = new List<TbPrCompra>();
-              foreach (var i in context.TbPrCompra)
-              {
-                  foreach (var item in context.TbCpComprasDetalleServicio)
-                  {
-                      if(i.Id == item.IdCompra)
-                      {
-                        var  gasto = context.TbPrCompra.FirstOrDefault(c => c.Id == item.IdCompra);
-                          Gastos.Add(gasto);
-                      }
-                  }
-
-              }*/
 
             var Gastos = context.TbPrCompra.Where(c => c.TbCpComprasDetalleServicio.Any(d => d.IdCompra == c.Id))
                 .Include(c => c.IdContactoNavigation)
@@ -46,9 +45,6 @@ namespace AltivaWebApp.Repositories
                     IdContactoNavigation = c.IdContactoNavigation
 
                 }).ToList();
-
-
-            //var Gastos = context.TbPrCompra.Include(c => c.IdContactoNavigation).Where(c => c.TbCpComprasDetalleServicio.Any(d => d.IdCompra == c.Id)).ToList();
 
             //var Gastos = context.TbPrCompra.FromSql(" select * from tb_PR_Compra as c " +
             // " where c.Id = Any(select cds.IdCompra from tb_CP_ComprasDetalleServicio as cds)"
