@@ -243,6 +243,8 @@ else
     var items = [];
     var lineasAgregadas = [];
     var lineasEliminadas = [];
+    var lineasActualizadas = [];
+    var tipo = 0;
  
 
     $(document).ready(function () {
@@ -473,81 +475,107 @@ else
             
     }
     function guardarLinea() {
-        var repetido = 0;
-        var posicion = 0;
-        for (var i = 0; i < lineas.length; i++) {
-            if ($item.val() == lineas[i].idInventario) {
-                posicion = i;
-                repetido = 1;
-
-            }
-
-        }
-
-        if (repetido == 1)
+        var pos = existeLinea($item.val()); 
+    
+        if ($cantidad.val() == 0)
         {
-   
-            bootbox.confirm("@SharedLocalizer["confirmCompraAutomatica"]", function (resultado) {
-                if (resultado)
-                {
-             modificarLinea(posicion, 1);
+            bootbox.alert("@SharedLocalizer["AlertCompraCantidad"]", function () { });
+        }
+        else if (pos != null)
+        {
+            if (tipo != 2) {
+                bootbox.confirm("@SharedLocalizer["confirmModOrden"]", function (resultado) {
+                    if (resultado) {
+                        
+                lineas[pos].cantidad = parseFloat($cantidad.val());
+                lineas[pos].precio = parseFloat($precio.val());
+                lineas[pos].subTotal0Grabado = calcularSubtotalGrabadoLinea();
+                lineas[pos].subTotalExcento = calcularSubtotalExcentoLinea();
+                lineas[pos].subTotalNeto = calcularSubtotalNetoLinea();
+                lineas[pos].porcIva = parseFloat($iva.val());
+                lineas[pos].porcIs = 0;
+                lineas[pos].totalIs = 0;
+                lineas[pos].porcDesc = parseFloat($descuento.val());
+                lineas[pos].totalDescuento = calcularTotalDescuentoLinea();
+                lineas[pos].totalIva = calcularTotalIvaLinea();
+                lineas[pos].total = calcularTotalLinea();
+                cargarTabla(lineas);
+                if (lineas[pos].id != 0)
+                    lineasActualizadas.push(lineas[pos]);
+                    }
+                });
+            }
+            if (tipo == 2) {
+                lineas[pos].cantidad = parseFloat($cantidad.val());
+                lineas[pos].precio = parseFloat($precio.val());
+                lineas[pos].subTotal0Grabado = calcularSubtotalGrabadoLinea();
+                lineas[pos].subTotalExcento = calcularSubtotalExcentoLinea();
+                lineas[pos].subTotalNeto = calcularSubtotalNetoLinea();
+                lineas[pos].porcIva = parseFloat($iva.val());
+                lineas[pos].porcIs = 0;
+                lineas[pos].totalIs = 0;
+                lineas[pos].porcDesc = parseFloat($descuento.val());
+                lineas[pos].totalDescuento = calcularTotalDescuentoLinea();
+                lineas[pos].totalIva = calcularTotalIvaLinea();
+                lineas[pos].total = calcularTotalLinea();
+                cargarTabla(lineas);
+                if (lineas[pos].id != 0)
+                    lineasActualizadas.push(lineas[pos]);
+            }
+        }
+         else {
             
-                }
-            });
+               var model = {
+                id: 0,
+                idOrden: @Model.Id,
+                idInventario: $item.val(),
+                nombreInventario: $descripcion.val(),
+                idMonedaOD: parseInt($('.tipoMoneda').val()),
+                cantidad: parseFloat($cantidad.val()),
+                precio: parseFloat($precio.val()),
+                subTotalGrabado: calcularSubtotalGrabadoLinea(),
+                subTotalExcento: calcularSubtotalExcentoLinea(),
+                subTotalNeto: calcularSubtotalNetoLinea(),
+                porcIva: parseFloat($iva.val()),
+                porcIs: 0,
+                totalIs: 0,
+                porcDesc: parseFloat($descuento.val()),
+                totalDescuento: calcularTotalDescuentoLinea(),
+                totalIva: calcularTotalIvaLinea(),
+                total: calcularTotalLinea()
+               };
 
-            
 
-                    
+                lineasAgregadas.push(model);
+                lineas.push(model);
+                $cantidad.val(1);
+                cargarTabla(lineas);
+             }
+        tipo = 1;
+    }
+    function existeLinea(idInventario) {
+        var pos = 0;
+        var existe = 0;
+        for (var i = 0; i < lineas.length; i++) {
+            if (idInventario == lineas[i].idInventario)
+            {
+                 pos = i;
+              existe = 1;
+            }
                
         }
-        else if ($cantidad.val() == 0)
-        {
-
-                    bootbox.alert("@SharedLocalizer["AlertCompraCantidad"]", function () {
-
-                   });
-
-        }
-        else if(repetido ==0)
-           {
-
-           var model = {
-             id: 0,
-             idOrden: @Model.Id,
-             idInventario: $item.val(),
-             nombreInventario: $descripcion.val(),
-             idMonedaOD: parseInt($('.tipoMoneda').val()),
-             cantidad: parseFloat($cantidad.val()),
-             precio: parseFloat($precio.val()),
-             subTotalGrabado: calcularSubtotalGrabadoLinea(),
-             subTotalExcento: calcularSubtotalExcentoLinea(),
-             subTotalNeto: calcularSubtotalNetoLinea(),
-             porcIva: parseFloat($iva.val()),
-             porcIs: 0,
-             totalIs: 0,
-             porcDesc: parseFloat($descuento.val()),
-             totalDescuento: calcularTotalDescuentoLinea(),
-             totalIva: calcularTotalIvaLinea(),
-             total: calcularTotalLinea()
-         };
-         
-
-         lineasAgregadas.push(model);
-            lineas.push(model);
-            $cantidad.val(1);
-         cargarTabla(lineas);
-
-
-         } 
-
+        if (existe == 1)
+            return pos;
+        else
+            return null;
     }
     function validarCompraAutomatica() {
-          var duplicado = 0;
-
+        console.log(lineasAgregadas);
         if (lineas.length != 0) {
             bootbox.confirm("@SharedLocalizer["confirmCompraAutomatica"]", function (resultado) {
                 if (resultado) {
-                     lineas = [];
+                    lineas = [];
+                    lineasAgregadas = [];
                      cargarTabla(lineas);
                     generarCompraAutomatica();
                      
@@ -564,6 +592,7 @@ else
         else {
             generarCompraAutomatica();
         }
+        console.log(lineasAgregadas);
     }
     function generarCompraAutomatica() {
         
@@ -594,72 +623,19 @@ else
           
 
     }
+
     
 
-    function modificarLinea(id, tipo) {
-        
-        if ($cantidad.val() == 0) {
-
-            bootbox.alert("@SharedLocalizer["AlertCompraCantidad"]", function () {
-                
-            });
-
-        }
-        else {
-            
-
-            for (var i = 0; i < lineas.length; i++)
-            {
-                if ($item.val() == lineas[i].idInventario && tipo!=1)
-                { 
-                   
-                    lineas[i].cantidad = parseFloat($cantidad.val());
-                    lineas[i].precio = parseFloat($precio.val());
-                    lineas[i].subTotal0Grabado = calcularSubtotalGrabadoLinea();
-                    lineas[i].subTotalExcento = calcularSubtotalExcentoLinea();
-                    lineas[i].subTotalNeto = calcularSubtotalNetoLinea();
-                    lineas[i].porcIva = parseFloat($iva.val());
-                    lineas[i].porcIs = 0;
-                    lineas[i].totalIs = 0;
-                    lineas[i].porcDesc = parseFloat($descuento.val());
-                    lineas[i].totalDescuento = calcularTotalDescuentoLinea();
-                    lineas[i].totalIva = calcularTotalIvaLinea();
-                    lineas[i].total = calcularTotalLinea();
-                    cargarTabla(lineas);
-
-                }
-                if (tipo == 1)
-                {
-                    lineas[id].cantidad = parseFloat($cantidad.val());
-                    lineas[id].precio = parseFloat($precio.val());
-                    lineas[id].subTotal0Grabado = calcularSubtotalGrabadoLinea();
-                    lineas[id].subTotalExcento = calcularSubtotalExcentoLinea();
-                    lineas[id].subTotalNeto = calcularSubtotalNetoLinea();
-                    lineas[id].porcIva = parseFloat($iva.val());
-                    lineas[id].porcIs = 0;
-                    lineas[id].totalIs = 0;
-                    lineas[id].porcDesc = parseFloat($descuento.val());
-                    lineas[id].totalDescuento = calcularTotalDescuentoLinea();
-                    lineas[id].totalIva = calcularTotalIvaLinea();
-                    lineas[id].total = calcularTotalLinea();
-                    cargarTabla(lineas);
-                   
-                }
-                    
-            }
-
-            if (tipo != 1) {
-                $('#item').val(lineas[id - 1].idInventario);
-                $('#item').trigger('change.select2');
-                $cantidad.val(lineas[id - 1].cantidad);
-                $precio.val(lineas[id - 1].precio);
-                $estado.val(lineas[id - 1].id);
-            }
-               
-        } 
-        
-
-         
+    function modificarLinea(id) {
+       var pos = id - 1;
+      $('#item').val(lineas[pos].idInventario);
+      $('#item').trigger('change.select2');
+      $cantidad.val(lineas[pos].cantidad);
+      lineas[id].porcIva = parseFloat($iva.val());
+      $precio.val(lineas[pos].precio);
+        $estado.val(lineas[pos].id);
+        tipo = 2;
+       
     }
 
     function eliminarLinea(_id, idLinea) {
@@ -741,7 +717,7 @@ else
                 + '<td style="padding-top:2rem; width:12rem;"><input style="border:0; background-color : #F7F7F7"  value="' + data[i].porcDesc + '"/></td>'
                 + '<td style="padding-top:2rem; "><input style="width:6rem; border:0; background-color : #F7F7F7"  value="' + data[i].porcIva + '%"/></td>'
                 + '<td style="padding-top:2rem; width:12rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + subtotal + '"/></td>'
-                + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="modificarLinea(value, ' + 0 + ')" ><i class="fas fa-edit"></i></button><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="modificarLinea(value)" ><i class="fas fa-edit"></i></button><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
                 
 
 
@@ -864,13 +840,13 @@ else
         //crearModelo();
 
         $.ajax({
-              type: "POST",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
             url: '@Url.Action("CrearEditarOrden")',
-            data: crearModelo(),
+            data: { viewModel:crearModelo(), model2: lineasActualizadas },
             success: function (data) {
                 if (lineasEliminadas.length > 0)
                     eliminarOrdenDetalle();
@@ -969,6 +945,7 @@ else
         console.log(ordenModel);
         return ordenModel;
     }
+    
 
     function crearModeloDetalle(model) {
 
@@ -988,6 +965,7 @@ else
 
         return model;
     }
+    
 
     function validarForm() {
         //var frmOrden = $('#frmOrden').serializeArray();

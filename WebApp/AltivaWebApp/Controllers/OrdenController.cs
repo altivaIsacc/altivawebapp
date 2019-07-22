@@ -82,7 +82,7 @@ namespace AltivaWebApp.Controllers
 
         // POST: Orden/Create
         [HttpPost("CrearEditar-Orden")]
-        public ActionResult CrearEditarOrden(OrdenViewModel viewModel)
+        public ActionResult CrearEditarOrden(OrdenViewModel viewModel, IList<OrdenDetalleViewModel> model2)
         {
             try
             {
@@ -90,7 +90,15 @@ namespace AltivaWebApp.Controllers
                 {
                     var orden = map.Update(viewModel);
                     if (viewModel.OrdenDetalle != null && viewModel.OrdenDetalle.Count() > 0)
+                    {
                         map.CreateOD(viewModel);
+                        viewModel.OrdenDetalle = model2;
+                        map.UpdateOD(viewModel);
+
+                    }
+                    
+
+                   
                 }
                 else
                 {
@@ -103,7 +111,8 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
-                return BadRequest();
+                //return BadRequest();
+                throw;
             }
         }
 
