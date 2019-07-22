@@ -43,14 +43,17 @@ namespace AltivaWebApp.Mappers
         }
         public TbCpComprasDetalleServicio CreateCDS(CompraViewModel viewModel)
         {
-            return service.SaveComprasDetalleServicio(ViewModelToDomainCDS(viewModel)[0]);
+            if (viewModel.ComprasDetalleServicio[0].IdCompraDetalle == 0)
+                return service.SaveComprasDetalleServicio(ViewModelToDomainCDS(viewModel)[0]);
+            else
+                return service.UpdateComprasDetalleServicio(ViewModelToDomainCDS(viewModel))[0];
 
         }
         public bool UpdateCD(CompraViewModel viewModel)
         {
             return service.UpdateCompraDetalle(ViewModelToDomainCD(viewModel));
         }
-        public bool UpdateCDS(CompraViewModel viewModel)
+        public IList<TbCpComprasDetalleServicio> UpdateCDS(CompraViewModel viewModel)
         {
             return service.UpdateComprasDetalleServicio(ViewModelToDomainCDS(viewModel));
         }
@@ -132,7 +135,8 @@ namespace AltivaWebApp.Mappers
                 TipoCambioDolar = viewModel.TipoCambioDolar,
                 TipoCambioEuro = viewModel.TipoCambioEuro,
 
-                TbPrCompraDetalle = ViewModelToDomainCD(viewModel)
+                TbPrCompraDetalle = viewModel.CompraDetalle.Count() > 0 ? ViewModelToDomainCD(viewModel) : null,
+                TbCpComprasDetalleServicio = viewModel.ComprasDetalleServicio.Count() > 0 ? ViewModelToDomainCDS(viewModel) : null 
             };
 
             if (viewModel.IdMoneda == 1)

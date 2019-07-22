@@ -343,7 +343,6 @@ else
         });
 
          getMonedas();
-         getInventario();
         getProveedores();
         getCategoriaGasto();
 
@@ -413,7 +412,7 @@ else
                      $("#categorias").append(o);
                  }
                  if (@Model.Id != 0) {
-                    
+                    ///////////////////////////
                      
                  }
 
@@ -462,26 +461,7 @@ else
           });
     }
 
-    function getInventario() {
-
-         $.ajax({
-              type: "get",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
-              url: '@Url.Action("GetAllInventario", "Inventario")',
-              success: function (data) {
-                 items = data;
-                 cargarItems(data);
-                 getBodegas();
-              },
-              error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-         });
-    }
+  
 
 
     function getProveedores() {
@@ -539,8 +519,8 @@ else
     }
 
     function guardarCompra() {
-      
         var model = crearModelo();
+                console.log(model);
 
         if (lineasAgregadas.length === 0)
             model.enCola = $('#enCola').prop('checked');
@@ -551,7 +531,7 @@ else
                   "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
               },
               dataType: "json",
-            url: '@Url.Action("CrearEditarCompra")',
+            url: '@Url.Action("CrearEditarGasto")',
             data: model,
             success: function (data) {
 
@@ -561,7 +541,7 @@ else
                     cargarTabla(lineas);
                     if (@Model.Id === 0) {
 
-                        var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
+                        var url = "@Url.Action("EditarGasto", new { id = "__id__" })";
                         window.location.href = url.replace("__id__", data.idCompra);
 
                     }
@@ -769,13 +749,14 @@ else
             subTotalExcento: subTotalExcento.toString().replace(".", ","),
             subTotalGravadoNeto: subTotalGravadoNeto.toString().replace(".", ","),
             subTotalExcentoNeto: subTotalExcentoNeto.toString().replace(".", ","),
-            totalIva: totalImpuesto.toString().replace(".", ","),
-            totalDescuento: totalDescuento.toString().replace(".", ","),
-            total: totalCompra.toString().replace(".", ","),
+            totalIva:0,
+            totalDescuento: 0,
+            total:0,
             tipoCambioDolar: $dolar.val(),
             tipoCambioEuro: $euro.val(),
             enCola: false,
-            compraDetalle: crearModeloDetalle(lineasAgregadas)
+            compraDetalleServicio: crearModeloDetalle(lineasAgregadas)
+
 
         };
 
@@ -784,19 +765,19 @@ else
     function crearModeloDetalle(model) {
 
         for (var i = 0; i < model.length; i++) {
-            model[i].cantidad = model[i].cantidad.toString().replace(".", ",");
             model[i].precioUnitario = model[i].precioUnitario.toString().replace(".", ",");
             model[i].subTotalGravado = model[i].subTotalGravado.toString().replace(".", ",");
             model[i].subTotalExcento = model[i].subTotalExcento.toString().replace(".", ",");
             model[i].subTotalGravadoNeto = model[i].subTotalGravadoNeto.toString().replace(".", ",");
             model[i].subTotalExcentoNeto = model[i].subTotalExcentoNeto.toString().replace(".", ",");
-            model[i].porcIva = model[i].porcIva.toString().replace(".", ",");
-            model[i].totalIva = model[i].totalIva.toString().replace(".", ",");
+            model[i].porcIva = 0;
+            model[i].totalIva =0;
             model[i].porcFa = model[i].porcFa.toString().replace(".", ",");
             model[i].totalFa = model[i].totalFa.toString().replace(".", ",");
             model[i].porcDescuento = model[i].porcDescuento.toString().replace(".", ",");
-            model[i].totalDescuento = model[i].totalDescuento.toString().replace(".", ",");
-            model[i].total = model[i].total.toString().replace(".", ",");
+            model[i].totalDescuento = 0;
+            model[i].total = 0;
+            
         }
 
         return model;
@@ -860,6 +841,7 @@ else
             totalDescuento: calcularTotalDescuentoLinea(),
             totalIva: calcularTotalIvaLinea(),
             total: calcularTotalLinea()
+           
         };
 
         lineasAgregadas = [];
@@ -1011,12 +993,7 @@ else
         }
     }
 
-    function getBodegaItem(id) {
-        for (var i = 0; i < bodegas.length; i++) {
-            if (parseInt(bodegas[i].id) == parseInt(id))
-                return bodegas[i];
-        }
-    }
+    
 
     function cargarItems(data) {
 

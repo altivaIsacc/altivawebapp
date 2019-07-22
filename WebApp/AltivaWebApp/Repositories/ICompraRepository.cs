@@ -28,7 +28,7 @@ namespace AltivaWebApp.Repositories
         IList<TbCpComprasDetalleServicio> GetAllComprasDetalleServicioByCompraId(int id);
         TbCpComprasDetalleServicio GetComprasDetalleServicioById(long id);
         TbCpComprasDetalleServicio SaveComprasDetalleServicio(TbCpComprasDetalleServicio domain);
-        bool UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain);
+        IList<TbCpComprasDetalleServicio> UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain);
         bool DeleteComprasDetalleServicio(TbCpComprasDetalleServicio domain);
         IList<TbPrCompra> GetAllGastos();
 

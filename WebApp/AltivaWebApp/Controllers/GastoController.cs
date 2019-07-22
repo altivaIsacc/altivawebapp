@@ -109,23 +109,14 @@ namespace AltivaWebApp.Controllers
                     {
                         long idCD = 0;
                         var c = map.Update(viewModel);
-                        /*if (viewModel.ComprasDetalleServicio != null && viewModel.ComprasDetalleServicio.Count() > 0)
+                        if (viewModel.ComprasDetalleServicio != null && viewModel.ComprasDetalleServicio.Count() > 0)
                         {
                             var cd = map.CreateCDS(viewModel);
                             idCD = cd.IdCompra;
-                            if (!viewModel.Borrador)
-                            {
-                                kardexMap.CreateKardexCDSingle((int)cd.IdCompra);
-
-                                ///////////////////actualiza cola aprovacion
-                                //var cola = haciendaService.GetCAById(c.Id);
-                                //cola.MontoDoc = c.TotalBase;
-                                //haciendaService.UpdateCA(cola);
-                            }
+                           
                         }
-                        else*/
-                            if (c.EnCola)
-                            haciendaMap.CreateCACompra(compra);
+                       
+                            
 
                         return Json(new { success = true, idCD = idCD });
                     }
@@ -140,8 +131,6 @@ namespace AltivaWebApp.Controllers
                         viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                         var compra = map.Create(viewModel);
 
-                        if (!compra.Borrador)
-                            kardexMap.CreateKardexCD((int)compra.TbPrCompraDetalle.FirstOrDefault().Id);
 
                         return Json(new { success = true, idCompra = compra.Id });
                     }
@@ -170,6 +159,16 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
 
+        }
+
+        [Route("Editar-Gasto/{id}")]
+        public ActionResult EditarGasto(int id)
+        {
+            var compra = map.DomainToViewModel(service.GetCompraById(id));
+            ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
+            ViewData["monedas"] = monedaService.GetAll();
+
+            return View("CrearEditar", compra);
         }
     }
 }

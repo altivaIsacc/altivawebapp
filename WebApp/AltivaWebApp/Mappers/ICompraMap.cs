@@ -16,7 +16,6 @@ namespace AltivaWebApp.Mappers
         TbCpComprasDetalleServicio CreateCDS(CompraViewModel viewModel);
         CompraViewModel DomainToViewModel(TbPrCompra domain);
         bool UpdateCD(CompraViewModel viewModel);
-        bool UpdateCDS(CompraViewModel viewModel);
-
+        IList<TbCpComprasDetalleServicio> UpdateCDS(CompraViewModel viewModel);
     }
 }

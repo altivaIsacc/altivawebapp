@@ -95,7 +95,7 @@ namespace AltivaWebApp.Services
         {
             return repository.UpdateCompraDetalle(domain);
         }
-        public bool UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain)
+        public IList<TbCpComprasDetalleServicio> UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain)
         {
             return repository.UpdateComprasDetalleServicio(domain);
         }

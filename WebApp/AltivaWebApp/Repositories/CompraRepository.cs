@@ -239,14 +239,14 @@ namespace AltivaWebApp.Repositories
                 throw;
             }
         }
-        public bool UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain)
+        public IList<TbCpComprasDetalleServicio> UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain)
         {
             try
             {
                 context.TbCpComprasDetalleServicio.UpdateRange(domain);
                 context.SaveChanges();
 
-                return true;
+                return domain;
             }
             catch (Exception)
             {

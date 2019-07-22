@@ -24,7 +24,7 @@ namespace AltivaWebApp.Services
         long IdUltimoDocumento();
         TbPrCompra GetCompraByIdWithoutD(int id);
         TbCpComprasDetalleServicio GetComprasDetalleServicioById(long id);
-        bool UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain);
+        IList<TbCpComprasDetalleServicio> UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain);
         TbCpComprasDetalleServicio SaveComprasDetalleServicio(TbCpComprasDetalleServicio domain);
         IList<TbCpComprasDetalleServicio> GetAllComprasDetalleServicioByCompraId(int id);
         bool DeleteComprasDetalleServicio(TbCpComprasDetalleServicio domain);
