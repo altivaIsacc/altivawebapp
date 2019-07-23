@@ -10,6 +10,8 @@ namespace AltivaWebApp.ViewModels
         public long IdCompraDetalle { get; set; }
         public long IdCompra { get; set; }
         public string Articulo { get; set; }
+        public double Cantidad { get; set; }
+
         public long PrecioUnidad { get; set; }
         public double PorcDescuento { get; set; }
         public double SubTotalGravado { get; set; }

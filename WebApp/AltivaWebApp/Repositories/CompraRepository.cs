@@ -72,10 +72,10 @@ namespace AltivaWebApp.Repositories
 
         public bool ExisteDocumento(string numDoc, string tipo, int idProveedor)
         {
-            return context.TbPrCompra.Any(u => u.NumeroDocumento == numDoc && u.TipoDocumento == tipo && u.IdContacto == idProveedor );
+            return context.TbPrCompra.Any(u => u.NumeroDocumento == numDoc && u.TipoDocumento == tipo && u.IdContacto == idProveedor);
         }
 
-       
+
 
         public long IdUltimoDocumento()
         {
@@ -170,16 +170,30 @@ namespace AltivaWebApp.Repositories
                 throw;
             }
         }
+        public TbPrCompra SaveServicio(TbPrCompra domain)
+        {
+            try
+            {
+                context.TbPrCompra.Add(domain);
+                context.SaveChanges();
+                return domain;
 
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         public TbPrCompraDetalle SaveCompraDetalle(TbPrCompraDetalle domain)
         {
             try
             {
-                
 
-                if(!ExisteRelacionInventarioBodega(domain.IdInventario, domain.IdBodega))
+
+                if (!ExisteRelacionInventarioBodega(domain.IdInventario, domain.IdBodega))
                 {
-                    var ib = new TbPrInventarioBodega {
+                    var ib = new TbPrInventarioBodega
+                    {
                         ExistenciaBodega = 0,
                         CostoPromedioBodega = 0,
                         IdBodega = domain.IdBodega,
@@ -189,7 +203,7 @@ namespace AltivaWebApp.Repositories
                         ExistenciaMinima = 1,
                         SaldoBodega = 0,
                         UltimoCostoBodega = 0
-                        
+
                     };
                     context.TbPrInventarioBodega.Add(ib);
                 }
@@ -239,14 +253,14 @@ namespace AltivaWebApp.Repositories
                 throw;
             }
         }
-        public IList<TbCpComprasDetalleServicio> UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain)
+        public bool UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain)
         {
             try
             {
                 context.TbCpComprasDetalleServicio.UpdateRange(domain);
                 context.SaveChanges();
 
-                return domain;
+                return true;
             }
             catch (Exception)
             {

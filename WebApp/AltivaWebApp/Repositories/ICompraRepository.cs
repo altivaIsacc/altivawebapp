@@ -8,6 +8,7 @@ namespace AltivaWebApp.Repositories
 {
     public interface ICompraRepository
     {
+        TbPrCompra SaveServicio(TbPrCompra domain);
         IList<TbCpCategoriaGasto> GetAllCategoriaGasto();
         TbPrCompra Save(TbPrCompra domain);
         TbPrCompra Update(TbPrCompra domain);
@@ -28,7 +29,7 @@ namespace AltivaWebApp.Repositories
         IList<TbCpComprasDetalleServicio> GetAllComprasDetalleServicioByCompraId(int id);
         TbCpComprasDetalleServicio GetComprasDetalleServicioById(long id);
         TbCpComprasDetalleServicio SaveComprasDetalleServicio(TbCpComprasDetalleServicio domain);
-        IList<TbCpComprasDetalleServicio> UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain);
+        bool UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain);
         bool DeleteComprasDetalleServicio(TbCpComprasDetalleServicio domain);
         IList<TbPrCompra> GetAllGastos();
 

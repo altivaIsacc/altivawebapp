@@ -96,19 +96,18 @@ namespace AltivaWebApp.Controllers
             return View("CrearEditarGasto", model);
         }
         [HttpPost("CrearEditar-Gasto")]
-        public ActionResult CrearEditarGasto(CompraViewModel viewModel)
+        public ActionResult CrearEditarGasto(CompraServicioViewModel viewModel)
         {
             try
             {
-                if (viewModel.NumeroDocumento == null || viewModel.NumeroDocumento == "AutogeneradoXML")
-                    viewModel.NumeroDocumento = "AutogeneradoXML" + (service.IdUltimoDocumento() + 1).ToString();
+                
                 if (viewModel.Id != 0)
                 {
                     var compra = service.GetCompraByDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento, viewModel.IdProveedor);
                     if (compra == null || compra.Id == viewModel.Id)
                     {
                         long idCD = 0;
-                        var c = map.Update(viewModel);
+                        var c = map.UpdateGasto(viewModel);
                         if (viewModel.ComprasDetalleServicio != null && viewModel.ComprasDetalleServicio.Count() > 0)
                         {
                             var cd = map.CreateCDS(viewModel);
@@ -129,7 +128,7 @@ namespace AltivaWebApp.Controllers
                     if (!service.ExisteDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento, (int)viewModel.IdProveedor))
                     {
                         viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
-                        var compra = map.Create(viewModel);
+                        var compra = map.CreateGasto(viewModel);
 
 
                         return Json(new { success = true, idCompra = compra.Id });
@@ -169,6 +168,20 @@ namespace AltivaWebApp.Controllers
             ViewData["monedas"] = monedaService.GetAll();
 
             return View("CrearEditar", compra);
+        }
+
+        [HttpGet("Get-CompraDetalle/{id}")]
+        public ActionResult GetCompraDetalle(int id)
+        {
+            try
+            {
+                return Ok(service.GetAllComprasDetalleServicioByCompraId(id));
+                
+            }
+            catch
+            {
+                return BadRequest();
+            }
         }
     }
 }

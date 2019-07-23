@@ -63,6 +63,10 @@ namespace AltivaWebApp.Services
         {
             return repository.Save(domain);
         }
+        public TbPrCompra SaveServicio(TbPrCompra domain)
+        {
+            return repository.SaveServicio(domain);
+        }
 
         public TbPrCompraDetalle SaveCompraDetalle(TbPrCompraDetalle domain)
         {
@@ -90,12 +94,16 @@ namespace AltivaWebApp.Services
         {
             return repository.Update(domain);
         }
+        public TbPrCompra UpdateGasto(TbPrCompra domain)
+        {
+            return repository.Update(domain);
+        }
 
         public bool UpdateCompraDetalle(IList<TbPrCompraDetalle> domain)
         {
             return repository.UpdateCompraDetalle(domain);
         }
-        public IList<TbCpComprasDetalleServicio> UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain)
+        public bool UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain)
         {
             return repository.UpdateComprasDetalleServicio(domain);
         }

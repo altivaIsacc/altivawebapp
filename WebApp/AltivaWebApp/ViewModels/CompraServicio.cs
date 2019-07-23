@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.ViewModels
 {
-    public class CompraViewModel
+    public class CompraServicioViewModel
     {
         public long Id { get; set; }
         public DateTime FechaDocumento { get; set; }
@@ -15,7 +15,7 @@ namespace AltivaWebApp.ViewModels
         public DateTime FechaCreacion { get; set; }
         public int IdUsuario { get; set; }
         public int IdMoneda { get; set; }
-        public double SubTotalGravado { get; set; }       
+        public double SubTotalGravado { get; set; }
         public double SubTotalExcento { get; set; }
         public double SubTotalGravadoNeto { get; set; }
         public double SubTotalExcentoNeto { get; set; }
@@ -29,6 +29,6 @@ namespace AltivaWebApp.ViewModels
         public double TipoCambioEuro { get; set; }
         public bool EnCola { get; set; }
 
-        public IList<CompraDetalleViewModel> CompraDetalle { get; set; }
+        public IList<ComprasDetalleServicioViewModel> ComprasDetalleServicio { get; set; }
     }
 }
