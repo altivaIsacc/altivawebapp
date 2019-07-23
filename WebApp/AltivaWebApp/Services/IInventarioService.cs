@@ -29,5 +29,6 @@ namespace AltivaWebApp.Services
         bool DeleteCaracteristica(int id);
         bool DeleteImagen(int id);
         void CrearRelacionInventarioBodega(int idInventario, int idBodega);
+        IList<TbPrInventario> GetInventarioFacturable();
     }
 }

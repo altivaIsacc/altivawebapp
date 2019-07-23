@@ -11,6 +11,7 @@ namespace AltivaWebApp.Domains
         public double Cantidad { get; set; }
         public double PorcDescuento { get; set; }
         public double PorcIva { get; set; }
+        public double PorcExoneracion { get; set; }
         public double PrecioBase { get; set; }
         public double PrecioDolar { get; set; }
         public double PrecioEuro { get; set; }
@@ -37,6 +38,9 @@ namespace AltivaWebApp.Domains
         public double MontoIvabase { get; set; }
         public double MontoIvadolar { get; set; }
         public double MontoIvaeuro { get; set; }
+        public double MontoExoneracionBase { get; set; }
+        public double MontoExoneracionDolar { get; set; }
+        public double MontoExoneracionEuro { get; set; }
         public double TotalBase { get; set; }
         public double TotalDolar { get; set; }
         public double TotalEuro { get; set; }

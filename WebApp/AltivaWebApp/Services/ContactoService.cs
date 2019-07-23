@@ -78,6 +78,11 @@ namespace AltivaWebApp.Services
             return this.repository.GetAllPersonas();
         }
 
+        public IList<TbCrContacto> GetAllClientes()
+        {
+            return repository.GetAllClientes();
+        }
+
         public TbCrContacto GetByCedulaContacto(string cedula)
         {
             return this.repository.GetByCedulaContacto(cedula);

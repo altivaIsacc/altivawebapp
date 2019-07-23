@@ -69,7 +69,18 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-
+        [HttpGet("GetAllClientes")]
+        public IActionResult GetAllClientes()
+        {
+            try
+            {
+                return Ok(contactoService.GetAllClientes());
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
 
         /// //////////////////////////////////////////////////////////////////////////crear o editar contacto
         /// 

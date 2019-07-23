@@ -15,6 +15,7 @@ namespace AltivaWebApp.ViewModels
         public double Precio { get; set; }
         public double PorcIva { get; set; }
         public double PorcDescuento { get; set; }
+        public double PorcExoneracion { get; set; }
         public DateTime FechaCreacion { get; set; }
         public long IdUsuarioCreador { get; set; }
         public double SubTotal { get; set; }
@@ -24,6 +25,7 @@ namespace AltivaWebApp.ViewModels
         public double SubTotalExcentoNeto { get; set; }
         public double MontoDescuento { get; set; }
         public double MontoIva { get; set; }
+        public double MontoExoneracion { get; set; }
         public double Total { get; set; }
         public DateTime FechaVencimiento { get; set; }
     }

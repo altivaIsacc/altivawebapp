@@ -15,5 +15,6 @@ namespace AltivaWebApp.Mappers
         IList<TbFdFacturaDetalle> UpdateFD(FacturaViewModel viewModel);
         IList<TbFdFacturaDetalle> CreateOrUpdateFD(FacturaViewModel viewModel);
         TbFdFactura ViewModelToDomain(FacturaViewModel viewModel);
+        FacturaViewModel DomainToViewModel(TbFdFactura domain);
     }
 }

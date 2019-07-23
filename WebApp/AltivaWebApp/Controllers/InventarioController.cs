@@ -59,7 +59,7 @@ namespace AltivaWebApp.Controllers
             foreach (var item in catalogo)
             {
                 item.IdSubFamiliaNavigation.TbPrInventario = null;
-                item.IdSubFamiliaNavigation.IdFamiliaNavigation.InverseIdFamiliaNavigation = null;
+                //item.IdSubFamiliaNavigation.IdFamiliaNavigation.InverseIdFamiliaNavigation = null;
                 item.IdUnidadMedidaNavigation.TbPrInventario = null;
                 foreach (var i in item.TbPrInventarioBodega)
                 {
@@ -340,6 +340,21 @@ namespace AltivaWebApp.Controllers
         }
 
         //get auxiliares
+
+
+        [HttpGet("GetInventarioFacturable")]
+        public IActionResult GetInventarioFacturable()
+        {
+            try
+            {
+                return Ok(service.GetInventarioFacturable());
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            
+        }
 
         [HttpGet("get-bodegas/{id}")]
         public IActionResult GetBodegas(int id)

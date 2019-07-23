@@ -15,6 +15,11 @@ namespace AltivaWebApp.Services
             this.repository = repository;
         }
 
+        public IList<TbPrInventario> GetInventarioFacturable()
+        {
+            return repository.GetInventarioFacturable();
+        }
+
         public TbPrInventario GetInventarioById(int id)
         {
             return repository.GetInventarioById(id);

@@ -178,7 +178,63 @@ namespace AltivaWebApp.Mappers
 
         }
 
+        public FacturaViewModel DomainToViewModel(TbFdFactura domain)
+        {
+            var viewModel = new FacturaViewModel
+            {
+                Estado = domain.Estado,
+                FechaFactura = domain.FechaFactura,
+                Id = domain.Id,
+                IdMoneda = domain.IdMoneda,
+                IdCliente = domain.IdCliente,
+                IdUsuarioCreador = domain.IdUsuarioCreador,
+                TipoCambioDolar = domain.TipoCambioDolar,
+                TipoCambioEuro = domain.TipoCambioEuro,
+                FechaCreacion = domain.FechaCreacion,
+                FechaVencimiento = domain.FechaVencimiento,
+                IdVendedor = domain.IdVendedor,
+                PorcDescuento = domain.PorcDescuento,
+                Tipo = domain.Tipo,
 
+            };
+
+            if (domain.IdMoneda == 1)
+            {
+                viewModel.SubTotalExcento = domain.SubTotalExcentoBase;
+                viewModel.SubTotalGravado = domain.SubTotalGravadoBase;
+                viewModel.Total = domain.TotalBase;
+                viewModel.MontoIva = domain.MontoIvabase;
+                viewModel.TotalDescuento = domain.TotalDescuentoBase;
+                viewModel.SubTotalExcentoNeto = domain.SubTotalExcentoNetoBase;
+                viewModel.SubTotalGravadoNeto = domain.SubTotalGravadoNetoBase;
+                viewModel.SubTotal = domain.SubTotalBase;
+            }
+            else if (domain.IdMoneda == 2)
+            {
+                viewModel.SubTotalExcento = domain.SubTotalExcentoDolar;
+                viewModel.SubTotalGravado = domain.SubTotalGravadoDolar;
+                viewModel.Total = domain.TotalDolar;
+                viewModel.MontoIva = domain.MontoIvadolar;
+                viewModel.TotalDescuento = domain.TotalDescuentoDolar;
+                viewModel.SubTotalExcentoNeto = domain.SubTotalExcentoNetoDolar;
+                viewModel.SubTotalGravadoNeto = domain.SubTotalGravadoNetoDolar;
+                viewModel.SubTotal = domain.SubTotalDolar;
+            }
+            else if (domain.IdMoneda == 3)
+            {
+                viewModel.SubTotalExcento = domain.SubTotalExcentoEuro;
+                viewModel.SubTotalGravado = domain.SubTotalGravadoEuro;
+                viewModel.Total = domain.TotalEuro;
+                viewModel.MontoIva = domain.MontoIvaeuro;
+                viewModel.TotalDescuento = domain.TotalDescuentoEuro;
+                viewModel.SubTotalExcentoNeto = domain.SubTotalExcentoNetoEuro;
+                viewModel.SubTotalGravadoNeto = domain.SubTotalGravadoNetoEuro;
+                viewModel.SubTotal = domain.SubTotalEuro;
+            }
+
+
+            return viewModel;
+        }
 
 
 
@@ -205,7 +261,8 @@ namespace AltivaWebApp.Mappers
                 IdUsuarioCreador = viewModel.IdUsuarioCreador,
                 Cantidad = viewModel.Cantidad,
                 PorcDescuento = viewModel.PorcDescuento,
-                PorcIva = viewModel.PorcIva
+                PorcIva = viewModel.PorcIva,
+                PorcExoneracion = viewModel.PorcExoneracion
             };
 
 
@@ -253,6 +310,10 @@ namespace AltivaWebApp.Mappers
                 domain.MontoDescuentoDolar = viewModel.MontoDescuento / dolar;
                 domain.MontoDescuentoEuro = viewModel.MontoDescuento / euro;
 
+                domain.MontoExoneracionBase = viewModel.MontoExoneracion;
+                domain.MontoExoneracionDolar = viewModel.MontoExoneracion / dolar;
+                domain.MontoExoneracionEuro = viewModel.MontoExoneracion / euro;
+
             }
             else if (viewModel.IdMonedaFD == 2)
             {
@@ -294,7 +355,11 @@ namespace AltivaWebApp.Mappers
                 domain.MontoDescuentoDolar = viewModel.MontoDescuento;
                 domain.MontoDescuentoEuro = domain.MontoDescuentoBase / euro;
 
+                domain.MontoExoneracionBase = viewModel.MontoExoneracion * dolar;
+                domain.MontoExoneracionDolar = viewModel.MontoExoneracion;
+                domain.MontoExoneracionEuro = domain.MontoExoneracionBase / euro;
 
+                
             }
             else if (viewModel.IdMonedaFD == 3)
             {
@@ -336,6 +401,12 @@ namespace AltivaWebApp.Mappers
                 domain.MontoDescuentoBase = viewModel.MontoDescuento * euro;
                 domain.MontoDescuentoDolar = domain.MontoDescuentoBase / dolar;
                 domain.MontoDescuentoEuro = viewModel.MontoDescuento;
+
+                domain.MontoExoneracionBase = viewModel.MontoExoneracion * euro;
+                domain.MontoExoneracionDolar = domain.MontoExoneracionBase / dolar;
+                domain.MontoExoneracionEuro = viewModel.MontoExoneracion;
+
+                
             }
 
             return domain;
@@ -343,6 +414,7 @@ namespace AltivaWebApp.Mappers
 
 
         }
+
 
     }
 }

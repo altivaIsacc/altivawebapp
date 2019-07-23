@@ -222,6 +222,10 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<ICategoriaGastoService, CategoriaGastoService>();
             services.AddScoped<ICategoriaGastoMap, CategoriaGastoMap>();
 
+            /// CategoriaGasto
+            services.AddScoped<IFacturaRepository, FacturaRepository>();
+            services.AddScoped<IFacturaService, FacturaService>();
+            services.AddScoped<IFacturaMap, FacturaMap>();
 
 
         }
