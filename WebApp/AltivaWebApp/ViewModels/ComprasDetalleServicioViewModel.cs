@@ -13,6 +13,7 @@ namespace AltivaWebApp.ViewModels
         public double Cantidad { get; set; }
 
         public long PrecioUnidad { get; set; }
+        public double PorcIva { get; set; }
         public double PorcDescuento { get; set; }
         public double SubTotalGravado { get; set; }
         public double SubTotalExcento { get; set; }

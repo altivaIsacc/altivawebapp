@@ -42,7 +42,10 @@ namespace AltivaWebApp.Repositories
                     FechaDocumento = c.FechaDocumento,
                     FechaCreacion = c.FechaCreacion,
                     IdMoneda = c.IdMoneda,
-                    IdContactoNavigation = c.IdContactoNavigation
+                    IdContactoNavigation = c.IdContactoNavigation,
+                    TotalBase = c.TotalBase,
+                    TotalDolar = c.TotalDolar,
+                    TotalEuro = c.TotalEuro
 
                 }).ToList();
 

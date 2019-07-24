@@ -938,7 +938,8 @@ namespace AltivaWebApp.Mappers
                 PrecioUnidad = viewModel.PrecioUnidad,
                 PorcDescuento = viewModel.PorcDescuento,
                 IdCategoriaGasto = viewModel.IdCategoriaGasto,
-                Cantidad = viewModel.Cantidad
+                Cantidad = viewModel.Cantidad,
+                PorcIva = viewModel.PorcIva
             };
             float dolar = (float)compra.TipoCambioDolar;
             float euro = (float)compra.TipoCambioEuro;

@@ -111,7 +111,7 @@ namespace AltivaWebApp.Controllers
                         if (viewModel.ComprasDetalleServicio != null && viewModel.ComprasDetalleServicio.Count() > 0)
                         {
                             var cd = map.CreateCDS(viewModel);
-                            idCD = cd.IdCompra;
+                            idCD = cd.IdCompraDetalle;
                            
                         }
                        
@@ -132,6 +132,8 @@ namespace AltivaWebApp.Controllers
 
 
                         return Json(new { success = true, idCompra = compra.Id });
+
+
                     }
                     else
                         return Json(new { success = false });
@@ -167,7 +169,7 @@ namespace AltivaWebApp.Controllers
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             ViewData["monedas"] = monedaService.GetAll();
 
-            return View("CrearEditar", compra);
+            return View("CrearEditarGasto", compra);
         }
 
         [HttpGet("Get-CompraDetalle/{id}")]
@@ -183,5 +185,31 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpPost("CambiarEstadoBorrador-Gasto")]
+        public ActionResult CambiarEstadoBorradorGasto(CompraServicioViewModel viewModel)
+        {
+            try
+            {
+                var compraBD = service.GetCompraByDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento, viewModel.IdProveedor);
+                if (compraBD == null || compraBD.Id == viewModel.Id)
+                {
+                    viewModel.Borrador = false;
+                    var compra = map.UpdateGasto(viewModel);
+                   
+                    return Json(new { success = true });
+                }
+                else
+                    return Json(new { succes = false });
+
+            }
+            catch (Exception)
+            {
+                //throw;
+                return BadRequest();
+            }
+        }
+
+
     }
 }

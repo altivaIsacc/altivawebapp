@@ -297,6 +297,7 @@ else
     var totalDescuento = 0;
     var totalImpuesto = 0;
     var totalCompra = 0;
+    var idCDS = 0;
 
     var compraDetalleBD = [];
     var lineas = [];
@@ -310,7 +311,6 @@ else
 
 
     $(document).ready(function () {
-
         var date = new Date();
         if (@Model.Id != 0) {
 
@@ -566,6 +566,7 @@ else
                 if (data.success) {
                     lineas[lineas.length - 1].id = data.idCD;
                     lineasAgregadas[lineasAgregadas.length - 1].id = data.idCD;
+                    idCDS = data;
                     cargarTabla(lineas);
                     if (@Model.Id === 0) {
 
@@ -587,6 +588,7 @@ else
                   console.log(err.statusText);
               }
         });
+
 
     }
 
@@ -706,6 +708,8 @@ else
             guardarLinea();
             guardarCompra();
         }
+   console.log(idCDS);
+
     }
 
     function guardarSalir() {
@@ -849,8 +853,7 @@ else
 
     function guardarLinea() {
 
-
-        var model = {
+       var model = {
             id: 0,
             idCompra: @Model.Id,
             idInventario: $item.val(),
@@ -878,7 +881,6 @@ else
 
         lineasAgregadas.push(model);
         lineas.push(model);
-        console.log(lineasAgregadas);
         calcularTotales();
 
 
@@ -956,7 +958,7 @@ else
                 + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(data[i].precioUnitario) + '</td>'
                 + '<td style="padding-top:2rem;">' + data[i].porcDescuento + '%</td>'
                 + '<td style="padding-top:2rem;">' + data[i].porcIva + '%</td>'
-                + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(subtotal) + '</td>'
+                + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(subtotal) +'</td>'
                 + '<td style="padding-top:2rem;">' + data[i].bodega + ' </td>'
                 + '<td><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="elimarCompraDetalle(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
 

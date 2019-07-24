@@ -24,10 +24,7 @@
     {
         numDocumento = Model.Id.ToString();
     }
-    if (ViewBag.tieneToma)
-    {
-        estado2 = "disabled";
-    }
+    
 
 }
 
@@ -61,12 +58,7 @@ else
     {
         <div class="col-md-12 text-left"><h4 class="text-danger">@SharedLocalizer["gastoAnulado"]</h4></div>
     }
-    @if (ViewBag.tieneToma)
-    {
-        estado2 = "disabled";
-        <div class="col-md-12 text-left"><h5 class="text-danger">@SharedLocalizer["DocumentoConToma"]</h5></div>
-
-    }
+   
 </div>
 
 <div class="row well">
@@ -145,7 +137,7 @@ else
                 <tr>
                     <th style="width:18%"><span>@SharedLocalizer["Articulo"]</span></th>
                     <th style="width:11%"><span>@SharedLocalizer["Cantidad"]</span></th>
-                    <th style="width:12%"><span>@SharedLocalizer["PrecioUnitario"]</span></th>
+                    <th style="width:12%"><span>@SharedLocalizer["PrecioUnidad"]</span></th>
                     <th style="width:7%"><span class="col-md-1">@SharedLocalizer["Descuento"]</span></th>
                     <th style="width:7%"><span>@SharedLocalizer["IVA"]</span></th>
                     <th style="width:12%"><span>@SharedLocalizer["SubTotal"]</span></th>
@@ -293,6 +285,7 @@ else
     var totalDescuento = 0;
     var totalImpuesto = 0;
     var totalCompra = 0;
+    var idCDS = 0;
 
     var compraDetalleBD = [];
     var lineas = [];
@@ -306,7 +299,11 @@ else
 
 
     $(document).ready(function () {
-
+        $('#cantidad').val(1);
+        $('#precio').val(0);
+        $('#iva').val(0);
+         $('#descuento').val(0);
+        $('#articulo').focus();
         var date = new Date();
         if (@Model.Id != 0) {
 
@@ -408,7 +405,7 @@ else
               url: '@Url.Action("GetCategoriaGasto", "Gasto")',
              success: function (data) {
                  categorias = data;
-                 console.log(data);
+                
                  for (var i = 0; i < data.length; i++) {
 
                     var o = new Option(data[i].nombre, data[i].id);
@@ -417,7 +414,7 @@ else
                  }
                  $(".categorias").trigger('change');
 
-                 //getCompraDetalle();
+                 getCompraDetalle();
 
 
 
@@ -512,6 +509,7 @@ else
 
             success: function (data) {
                 compraDetalleBD = JSON.parse(JSON.stringify(data));
+                console.log(data);
                 cargarLineas(data);
                },
             error: function (err, scnd) {
@@ -520,12 +518,11 @@ else
         });
     }
 
-   function guardarCompra() {
+   function guardarCompra(salir) {
         var model = crearModelo();
 
         if (lineasAgregadas.length === 0)
             model.enCola = $('#enCola').prop('checked');
-
         $.ajax({
               type: "POST",
               headers: {
@@ -537,9 +534,16 @@ else
             success: function (data) {
 
                 if (data.success) {
-                    lineas[lineas.length - 1].id = data.idCD;
-                    lineasAgregadas[lineasAgregadas.length - 1].id = data.idCD;
+                    if (salir)
+                   window.location.href = "@Url.Action("ListarGastos")";
+
+                    lineas[lineas.length - 1].IdCompra = data.idCD;
+                    lineasAgregadas=[];
                     cargarTabla(lineas);
+                    if (@Model.Id === 0) {
+                         var url = "@Url.Action("EditarGasto", new { id = "__id__" })";
+                        window.location.href = url.replace("__id__", data.idCompra);
+                    }
                     
                 }
                 else {
@@ -559,7 +563,7 @@ else
     }
 
 
-     function guardarCompraBorrador() {
+     function guardarGastoBorrador() {
         if (lineas.length <= 0) {
             cargarAlert('@SharedLocalizer["compraSinDetalle"]');
         } else
@@ -569,7 +573,7 @@ else
                   "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
               },
               dataType: "json",
-            url: '@Url.Action("CambiarEstadoBorradorCompra")',
+            url: '@Url.Action("CambiarEstadoBorradorGasto")',
             data: crearModelo(),
             success: function (data) {
                 @*window.location.href = "@Url.Action("ListarCompras")";*@
@@ -644,7 +648,7 @@ else
                         success: function (data) {
                             setMensajeFromOut(result);
                             cargarAlert('@SharedLocalizer["CompraAnuladaMSJ"]');
-                            window.location.href = "@Url.Action("ListarCompras")";
+                            window.location.href = "@Url.Action("ListarGastos")";
 
                         },
                         error: function (err, scnd) {
@@ -673,60 +677,47 @@ else
 
         if (validarForm()) {
             guardarLinea();
-            guardarCompra();
+            guardarCompra(false);
         }
     }
-
-    function guardarSalir() {
-
-
+   function guardarSalir() {
         if (validarForm()) {
-
             //guardarLinea();
-
-            if ($('#enCola').prop('checked')) {
-                bootbox.confirm("@SharedLocalizer["confirmEnivarCola"]", function (result) {
-
-                    if (!result) {
-                        $('#enCola').attr('checked', false);
-
-                    }
-
+            if (lineas.length <= 0) {
+                $('#sinDetalleValid').prop('hidden', false);
+                flag = false;
+            } else {
+                if ($('#enCola').prop('checked')) {
+                    bootbox.confirm("@SharedLocalizer["confirmEnivarCola"]", function (result) {
+                        if (!result) {
+                            $('#enCola').attr('checked', false);
+                        }
+                        if ('@Model.Borrador' === 'True')
+                            guardarGastoBorrador();
+                        else
+                            guardarCompra(true);
+                        
+                    });
+                }
+                else {
                     if ('@Model.Borrador' === 'True')
-                        guardarCompraBorrador();
+                        guardarGastoBorrador();
                     else
-                        guardarCompra();
-
-                     window.location.href = "@Url.Action("ListarCompras")";
-
-                });
+                        guardarCompra(true);
+                    
+                }
             }
-
-            else {
-
-                 if ('@Model.Borrador' === 'True')
-                        guardarCompraBorrador();
-                 else
-                    guardarCompra();
-
-                 window.location.href = "@Url.Action("ListarCompras")";
-            }
-
-
-
-
         }
-
     }
-
     function validarForm() {
-
+        var flag = true;
         if ($('#numDocumento').val().replace(/ /g, "") === "") {
             $('#numDocumentoValid').attr("hidden", false);
-            return false;
-        }
-
-        return true;
+            flag = false;
+        } else
+            $('#numDocumentoValid').attr("hidden", true);
+        
+        return flag;
     }
 
    function crearModelo() {
@@ -768,7 +759,7 @@ else
             model[i].subTotalExcento = model[i].subTotalExcento.toString().replace(".", ",");
             model[i].subTotalGravadoNeto = model[i].subTotalGravadoNeto.toString().replace(".", ",");
             model[i].subTotalExcentoNeto = model[i].subTotalExcentoNeto.toString().replace(".", ",");
-            model[i].porcIva = model[i].porcIva.toString().replace(".", ",");
+            model[i].PorcIVA = model[i].PorcIVA.toString().replace(".", ",");
             model[i].totalIva = model[i].totalIva.toString().replace(".", ",");
             model[i].porcFa = model[i].porcFa.toString().replace(".", ",");
             model[i].totalFa = model[i].totalFa.toString().replace(".", ",");
@@ -786,19 +777,19 @@ else
 
         for (var i = 0; i < data.length; i++) {
             var model = {
-                IdCompraDetalle: data[i].id,
+                IdCompraDetalle: data[i].IdCompraDetalle,
                 IdCompra: @Model.Id,
-                IdCategoriaGasto: data[i].IdCategoriaGasto,
+                IdCategoriaGasto: data[i].idCategoriaGasto,
                 articulo: data[i].articulo,
                 cantidad: data[i].cantidad,
                 idMonedaCDS: @Model.IdMoneda,
                 cantidad: data[i].cantidad,
-                precioUnidad: recuperarPrecio(data[i]),
+                PrecioUnidad: data[i].precioUnidad,
                 subTotalGravado: recuperarSubTotalGravado(data[i]),
                 subTotalExcento: recuperarSubTotalExcento(data[i]),
                 subTotalGravadoNeto: recuperarSubTotalGravadoNeto(data[i]),
                 subTotalExcentoNeto: recuperarSubTotalExcentoNeto(data[i]),
-                porcIva: parseFloat(data[i].porcIva),
+                PorcIVA: data[i].porcIva,
                 totalIs: 0,
                 porcFa: 0,
                 totalFa: 0,
@@ -833,7 +824,7 @@ else
             subTotalExcento: calcularSubtotalExcentoLinea(),
             subTotalGravadoNeto: calcularSubtotalGrabadoNetoLinea(),
             subTotalExcentoNeto: calcularSubtotalExcentoNetoLinea(),
-            porcIva: parseFloat($iva.val()),
+            PorcIVA: parseFloat($('#iva').val()),
             totalIs: 0,
             porcFa: 0,
             totalFa: 0,
@@ -847,9 +838,14 @@ else
         lineasAgregadas = [];
 
         lineasAgregadas.push(model);
-        console.log(lineasAgregadas);
         lineas.push(model);
         calcularTotales();
+        $('#cantidad').val(1);
+        $('#precio').val(0);
+        $('#iva').val(0);
+        $('#descuento').val(0);
+        $('#articulo').val("").focus();
+        
 
 
     }
@@ -878,9 +874,9 @@ else
         $('.selectItems').trigger('change.select2');
         $bodega.val(detalle.idBodega);
         $cantidad.val(detalle.cantidad);
-        $precio.val(detalle.precioUnitario);
+        $precio.val(detalle.PrecioUnidad);
         $descuento.val(detalle.porcDescuento);
-        $iva.val(detalle.porcIva);
+        $iva.val(detalle.PorcIVA);
 
         $precio.trigger("focusout");
 
@@ -897,7 +893,7 @@ else
 
         $('#editarLineaModal').modal('hide');
         lineas[key].cantidad = parseFloat($cantidadEditar.val());
-        lineas[key].precioUnitario = parseFloat($precioEditar.val());
+        lineas[key].PrecioUnidad = parseFloat($precioEditar.val());
         lineas[key].idBodega = $bodegaEditar.val();
 
         console.log(lineas[key]);
@@ -906,27 +902,26 @@ else
     }
 
     function cargarTabla(data) {
-
+        console.log(categorias);
         $('.filasCargadas').remove();
-
         contadorFila = 0;
         var subtotal = 0;
 
         for (var i = 0; i < data.length; i++) {
 
 
-            if (data[i].porcIva > 0)
+            if (data[i].PorcIVA > 0)
                 subtotal = data[i].subTotalGravado;
             else
                 subtotal = data[i].subTotalExcento;
 
             var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + data[i].articulo + '</td>'
                 + '<td style="padding-top:2rem;">' + data[i].cantidad + '</td>'
-                + '<td style="padding-top:2rem;">' + data[i].precioUnidad + ' </td>'
+                + '<td style="padding-top:2rem;">' +  darFomatoMoneda(data[i].PrecioUnidad) + ' </td>'
                 + '<td style="padding-top:2rem;">' + data[i].porcDescuento + '%</td>'
-                + '<td style="padding-top:2rem;">' + data[i].porcIva + '%</td>'
+                + '<td style="padding-top:2rem;">' + data[i].PorcIVA + '%</td>'
                 + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(subtotal) + '</td>'
-                + '<td style="padding-top:2rem;">' + getCategoriaItem(data[i].IdCategoriaGasto).nombre + ' </td>'
+                + '<td style="padding-top:2rem;">' + getCategoriaItem( data[i].IdCategoriaGasto).nombre + ' </td>'
                 + '<td><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="elimarCompraDetalle(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
 
             $('.lineaForm').before(body);
@@ -934,7 +929,7 @@ else
             contadorFila++;
 
         }
-        //data[i].precioUnitario)
+        //data[i].PrecioUnidad)
         //calcularTotales();
         var simbolo = monedas[0].simbolo + " ";
 
@@ -1159,14 +1154,14 @@ else
 
         for (var i = 0; i < lineas.length; i++) {
 
-            lineas[i].precioUnitario = getPrecioAlCambioLocal(lineas[i]);
+            lineas[i].PrecioUnidad = getPrecioAlCambioLocal(lineas[i]);
             lineas[i].idMonedaCD = parseInt($('.tipoMoneda').val());
 
-            subtotal = lineas[i].precioUnitario * lineas[i].cantidad;
+            subtotal = lineas[i].PrecioUnidad * lineas[i].cantidad;
             lineas[i].totalDescuento = (lineas[i].porcDescuento / 100) * subtotal;
 
 
-            if (lineas[i].porcIva > 0) {
+            if (lineas[i].PorcIVA > 0) {
                 lineas[i].subTotalExcento = 0;
                 lineas[i].subTotalGravado = subtotal;
                 lineas[i].subTotalExcentoNeto = 0;
@@ -1179,19 +1174,19 @@ else
                 lineas[i].subTotalGravadoNeto = 0;
             }
 
-            lineas[i].totalIva = (lineas[i].porcIva / 100) * (lineas[i].subTotalExcentoNeto + lineas[i].subTotalGravadoNeto);
+            lineas[i].totalIva = (lineas[i].PorcIVA / 100) * (lineas[i].subTotalExcentoNeto + lineas[i].subTotalGravadoNeto);
             lineas[i].total = (lineas[i].subTotalExcentoNeto + lineas[i].subTotalGravadoNeto) + lineas[i].totalIva;
         }
 
         //if (lineasAgregadas.length > 0)
         //    for (var i = 0; i < lineasAgregadas.length; i++) {
 
-        //        lineasAgregadas[i].precioUnitario = getPrecioAlCambioLocal(lineasAgregadas[i]);
+        //        lineasAgregadas[i].PrecioUnidad = getPrecioAlCambioLocal(lineasAgregadas[i]);
         //        lineasAgregadas[i].idMonedaCD = parseInt($('.tipoMoneda').val());
-        //        subtotal = lineasAgregadas[i].precioUnitario * lineasAgregadas[i].cantidad;
+        //        subtotal = lineasAgregadas[i].PrecioUnidad * lineasAgregadas[i].cantidad;
         //        lineasAgregadas[i].totalDescuento = (lineasAgregadas[i].porcDescuento / 100) * subtotal;
 
-        //        if (lineasAgregadas[i].porcIva > 0) {
+        //        if (lineasAgregadas[i].PorcIVA > 0) {
         //            lineasAgregadas[i].subTotalExcento = 0;
         //            lineasAgregadas[i].subTotalGravado = subtotal;
         //            lineasAgregadas[i].subTotalExcentoNeto = 0;
@@ -1204,11 +1199,10 @@ else
         //            lineasAgregadas[i].subTotalGravadoNeto = 0;
         //        }
 
-        //        lineasAgregadas[i].totalIva = (lineasAgregadas[i].porcIva / 100) * (lineasAgregadas[i].subTotalExcentoNeto + lineasAgregadas[i].subTotalGravadoNeto);
+        //        lineasAgregadas[i].totalIva = (lineasAgregadas[i].PorcIVA / 100) * (lineasAgregadas[i].subTotalExcentoNeto + lineasAgregadas[i].subTotalGravadoNeto);
         //        lineas[i].total = (lineasAgregadas[i].subTotalExcentoNeto + lineasAgregadas[i].subTotalGravadoNeto) + lineasAgregadas[i].totalIva;
         //    }
 
-        $('#item').trigger('change.select2');
         cargarTabla(lineas);
         calcularTotales();
 
@@ -1227,23 +1221,23 @@ else
 
 
         if (moneda === 1 && item.idMonedaCD === 1)
-            return item.precioUnitario;
+            return item.PrecioUnidad;
         else if (moneda === 1 && item.idMonedaCD === 2)
-            return item.precioUnitario * dolar;
+            return item.PrecioUnidad * dolar;
         else if (moneda === 1 && item.idMonedaCD === 3)
-            return item.precioUnitario * euro;
+            return item.PrecioUnidad * euro;
         else if (moneda === 2 && item.idMonedaCD === 1)
-            return item.precioUnitario / dolar;
+            return item.PrecioUnidad / dolar;
         else if (moneda === 2 && item.idMonedaCD === 2)
-            return item.precioUnitario;
+            return item.PrecioUnidad;
         else if (moneda === 2 && item.idMonedaCD === 3)
-            return (item.precioUnitario * euro) / dolar;
+            return (item.PrecioUnidad * euro) / dolar;
         else if (moneda === 3 && item.idMonedaCD === 1)
-            return item.precioUnitario / euro;
+            return item.PrecioUnidad / euro;
         else if (moneda === 3 && item.idMonedaCD === 2)
-            return (item.precioUnitario * dolar) / euro;
+            return (item.PrecioUnidad * dolar) / euro;
         else if (moneda === 3 && item.idMonedaCD === 3)
-            return item.precioUnitario;
+            return item.PrecioUnidad;
 
     }
 
@@ -1253,11 +1247,11 @@ else
         var moneda = parseInt($('.tipoMoneda').val());
 
         if (moneda === 1)
-            return data.precioUnitarioBase;
+            return data.PrecioUnidadBase;
         else if (moneda === 2)
-            return data.precioUnitarioDolar;
+            return data.PrecioUnidadDolar;
         else if (moneda === 3)
-            return data.precioUnitarioEuro;
+            return data.PrecioUnidadEuro;
     }
 
 
@@ -1358,7 +1352,7 @@ else
     function cancelar() {
         bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) {
             if (result)
-                window.location.href = "@Url.Action("ListarCompras")";
+                window.location.href = "@Url.Action("ListarGastos")";
 
         });
     }
@@ -1439,7 +1433,7 @@ else
 
             var subtotal = 0;
 
-            if (lineas[i].porcIva > 0)
+            if (lineas[i].PorcIVA > 0)
                 subtotal = lineas[i].subTotalGravado;
             else
                 subtotal = lineas[i].subTotalExcento;
@@ -1448,9 +1442,9 @@ else
                 item: getItem(lineas[i].idInventario).codigo,
                 descripcion: getItem(lineas[i].idInventario).descripcion,
                 cantidad: lineas[i].cantidad.toString(),
-                precioUnid: formatearMoneda(lineas[i].precioUnitario),
+                precioUnid: formatearMoneda(lineas[i].PrecioUnidad),
                 descuento: lineas[i].porcDescuento.toString(),
-                iva: lineas[i].porcIva.toString(),
+                iva: lineas[i].PorcIVA.toString(),
                 subtotal: formatearMoneda(subtotal),
                 bodega: getBodegaItem(lineas[i].idBodega).nombre
             };
@@ -1618,12 +1612,12 @@ else
             //nombreInventario: $descripcion.val(),
             idMonedaCD: parseInt($('.tipoMoneda').val()),
             cantidad: parseFloat(array.Cantidad["#text"]),
-            precioUnitario: parseFloat(array.PrecioUnitario["#text"]),
+            PrecioUnidad: parseFloat(array.PrecioUnidad["#text"]),
             subTotalGravado: calcularSubtotalGravadoXML(array),
             subTotalExcento: calcularSubtotalExcentoXML(array),
             subTotalGravadoNeto: calcularSubtotalGravadoNetoXML(array),
             subTotalExcentoNeto: calcularSubtotalExcentoNetoXML(array),
-            porcIva: getImpuestoXML(array).Tarifa,
+            PorcIVA: getImpuestoXML(array).Tarifa,
             totalIs: 0,
             porcFa: 0,
             totalFa: 0,

@@ -11,6 +11,7 @@ namespace AltivaWebApp.Domains
         public double Cantidad { get; set; }
 
         public long PrecioUnidad { get; set; }
+        public double PorcIva { get; set; }
         public double PorcDescuento { get; set; }
         public double SubTotalGravadoBase { get; set; }
         public double SubTotalGravadoDolar { get; set; }
