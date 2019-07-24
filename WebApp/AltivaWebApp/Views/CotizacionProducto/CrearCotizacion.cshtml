@@ -1470,9 +1470,9 @@ else
                       
             LineasDetalle[i].porcDescuento = descuento;
 
-            LineasDetalle[i].subTotalBase = parseFloat((LineasDetalle[i].cantidad) * (LineasDetalle[i].precioBase));
-            LineasDetalle[i].subTotalDolar = parseFloat(((LineasDetalle[i].cantidad) * (LineasDetalle[i].precioBase))/CambioDolar);
-            LineasDetalle[i].subTotalEuro = parseFloat(((LineasDetalle[i].cantidad) * (LineasDetalle[i].precioBase)) / CambioEuro);
+            LineasDetalle[i].subTotalBase = parseFloat((LineasDetalle[i].cantidad) * (precioSinImpuesto));
+            LineasDetalle[i].subTotalDolar = parseFloat(((LineasDetalle[i].cantidad) * (precioSinImpuesto))/CambioDolar);
+            LineasDetalle[i].subTotalEuro = parseFloat(((LineasDetalle[i].cantidad) * (precioSinImpuesto)) / CambioEuro);
 
 
 
@@ -1524,9 +1524,9 @@ else
             LineasDetalle[i].montoIvaEuro = parseFloat(montoIva / CambioEuro);
 
             if (parseInt(LineasDetalle[i].subTotalExcentoNetoBase) != 0) {
-                LineasDetalle[i].subTotalExcentoNetoBase = parseFloat((LineasDetalle[i].subTotalBase) - (LineasDetalle[i].totalDescuentoBase));
-                LineasDetalle[i].subTotalExcentoNetoDolar = parseFloat(((LineasDetalle[i].subTotalBase) - (LineasDetalle[i].totalDescuentoBase))/CambioDolar);
-                LineasDetalle[i].subTotalExcentoNetoEuro = parseFloat(((LineasDetalle[i].subTotalBase) - (LineasDetalle[i].totalDescuentoBase))/CambioEuro);
+                LineasDetalle[i].subTotalExcentoNetoBase = parseFloat((precioSinImpuesto) - (LineasDetalle[i].totalDescuentoBase));
+                LineasDetalle[i].subTotalExcentoNetoDolar = parseFloat(((precioSinImpuesto) - (LineasDetalle[i].totalDescuentoBase))/CambioDolar);
+                LineasDetalle[i].subTotalExcentoNetoEuro = parseFloat(((precioSinImpuesto) - (LineasDetalle[i].totalDescuentoBase))/CambioEuro);
 
             } else {
                 LineasDetalle[i].subTotalExcentoNetoBase = 0;
@@ -1873,9 +1873,20 @@ else
     }
 
 /////////////////////////////////////////////////////////CALCULO DE LINEAS//////////////////////////////////////////////////////////////////////////////////////
-    function fnSubTotalBase() {
+    function fnSubTotalBase(IdInventario) {
 
-        return parseFloat($cantidad.val() * $precio.val());
+        for (var i = 0; i < _Inventario.length; i++) {
+            if (_Inventario[i].idInventario == parseInt(IdInventario)) {
+                var imp = parseFloat(_Inventario[i].impuestoVenta);
+                var imp1 = parseFloat(1 + (imp / 100));
+                var precioSinImpuesto = parseFloat(parseFloat($precio.val()) / imp1);
+                if (imp != 0) {
+                    return precioSinImpuesto * $cantidad.val();
+                } else {
+                    return $precio.val() * $cantidad.val();
+                }
+            }
+        }
     }
 
     function fnPrecioSinImpuesto(IdInventario) {
@@ -1901,7 +1912,7 @@ else
             if (_Inventario[i].idInventario == parseInt(IdInventario)) {
                 var imp = parseFloat(_Inventario[i].impuestoVenta);
                 if (imp != 0) {
-                    return fnSubTotalBase();
+                    return fnSubTotalBase(IdInventario);
                 } else {
                     return 0;
                 }
@@ -1916,7 +1927,7 @@ else
                 var imp = parseFloat(_Inventario[i].impuestoVenta);
                 if (imp === 0) {
 
-                    return fnSubTotalBase();
+                    return fnSubTotalBase(IdInventario);
                 } else {
                     return 0;
                 }
@@ -1965,7 +1976,7 @@ else
             if (_Inventario[i].idInventario == parseInt(IdInventario)) {
                 var imp = parseFloat(_Inventario[i].impuestoVenta);
                 if (imp === 0) {
-                    return parseFloat((fnSubTotalBase()) - fnTotalDescuentoBase(IdInventario));
+                    return parseFloat((fnSubTotalBase(IdInventario)) - fnTotalDescuentoBase(IdInventario));
                 } else {
                     return 0;
                 }
