@@ -15,6 +15,11 @@ namespace AltivaWebApp.Services
             this.repository = repository;
         }
 
+        public IList<TbPrInventario> GetAllByCoincidence(string word)
+        {
+            return this.repository.GetAllByCoincidence(word);
+        }
+
         public IList<TbPrInventario> GetInventarioFacturable()
         {
             return repository.GetInventarioFacturable();

@@ -53,21 +53,8 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Lista-Inventario/todo")]
         public IActionResult GetAllInventario()
         {
-            //ViewData["bodegas"] = bodegaService.GetAllActivas();
             var catalogo = service.GetAllInventario();
 
-            foreach (var item in catalogo)
-            {
-                item.IdSubFamiliaNavigation.TbPrInventario = null;
-                //item.IdSubFamiliaNavigation.IdFamiliaNavigation.InverseIdFamiliaNavigation = null;
-                item.IdUnidadMedidaNavigation.TbPrInventario = null;
-                foreach (var i in item.TbPrInventarioBodega)
-                {
-                    i.IdBodegaNavigation = null;
-                    i.IdInventarioNavigation = null;
-
-                }
-            }
             return Ok(catalogo);
         }
 
@@ -354,6 +341,21 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
             
+        }
+
+        [HttpGet("GetInventarioPorCoincidencia/{word}")]
+        public IActionResult GetInventarioPorCoincidencia(string word)
+        {
+            try
+            {
+                var inventario = service.GetAllByCoincidence(word);
+                return Ok(inventario);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
         }
 
         [HttpGet("get-bodegas/{id}")]

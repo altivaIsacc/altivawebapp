@@ -18,7 +18,7 @@
 
         <div class="form-group col-md-3 col-sm-3 col-xs-6">
             <label asp-for="IdVendedor" class="control-label">@Lb["Vendedor"]:</label>
-            <select onkeyup="pasarSigCampo(event,'IdCliente')" asp-for="IdVendedor" class="form-control autocomplete" autofocus>
+            <select onkeyup="pasarSigCampo(event,'IdCliente')" asp-for="IdVendedor" class="form-control autocomplete">
                 @foreach (var item in ViewData["usuarios"] as IList<TbSeUsuario>)
                 {
                     <option value="@item.Id">@item.Nombre</option>
@@ -28,7 +28,7 @@
         <div class="form-group col-md-3 col-sm-3 col-xs-6">
             <label asp-for="IdCliente" class="control-label">@Lb["Cliente"]:</label>
             <select onkeyup="pasarSigCampo(event,'Tipo')" asp-for="IdCliente" class="form-control autocomplete">
-                <option value="0">@Lb["Seleccione"]</option>
+                <option value="0">@Lb["ClienteContado"]</option>
                 @foreach (var item in ViewData["clientes"] as IList<TbCrContacto>)
                 {
                     if (item.Persona)
@@ -47,21 +47,22 @@
             <label asp-for="Tipo" class="control-label">@Lb["Tipo"]:</label>
             <select asp-for="Tipo" class="form-control autocomplete">
                 <option value="1">@Lb["Contado"]</option>
-                <option value="1">@Lb["Crédito"]</option>
+                <option value="2">@Lb["Crédito"]</option>
             </select>
         </div>
+
+        <div class="col-md-3" style="padding-top:2.4rem"><a class="btn btn-info">@Lb["AplicarExoneracion"]</a></div>
+
         <div hidden class="form-group">
             <label asp-for="FechaFactura" class="control-label"></label>
             <input asp-for="FechaFactura" class="form-control" />
             <span asp-validation-for="FechaFactura" class="text-danger"></span>
         </div>
-
         <div hidden class="form-group">
             <label asp-for="IdMoneda" class="control-label"></label>
             <input asp-for="IdMoneda" class="form-control" />
             <span asp-validation-for="IdMoneda" class="text-danger"></span>
         </div>
-
 
         <div hidden class="form-group">
             <label asp-for="SubTotal" class="control-label"></label>
@@ -125,25 +126,48 @@
         </div>
 
     </form>
-    <div class="col-md-12"><h5>@Lb["Detalle"]</h5></div>
+
+    
+
+
+</div>
+
+<div class="row"><div class="col-md-12"><h5>@Lb["Detalle"]</h5></div></div>
+
+<div class="row">
+
     <form id="frmFD">
-        <div class="form-group col-md-3 col-sm-3 col-xs-6">
-            <label class="control-label">@Lb["Producto"]:</label>
-            <input id="producto" onkeyup="pasarSigCampo(event,'cantidad')" class="form-control autocompleteTH" type="text" />
+        <div class="form-group col-md-3 col-sm-3 col-xs-12">
+            <label class="control-label">@Lb["Producto"]: <span style="font-size:1.1rem" class="text-info"><a id="descProducto"></a></span></label>
+            <input id="producto" onkeyup="pasarSigCampo(event,'cantidad')" class="form-control autocompleteTH" autocomplete="off" autofocus type="text" />
+
         </div>
 
-        <div class="form-group col-md-3 col-sm-3 col-xs-6">
+        <div class="form-group col-md-2 col-sm-2 col-xs-4">
             <label class="control-label">@Lb["Cantidad"]:</label>
-            <input id="cantidad" onkeyup="pasarSigCampo(event,'precio')" class="form-control numerico" type="text" />
+            <input id="cantidad" onkeyup="pasarSigCampo(event,'precio')" class="form-control numerico" value="1" type="text" />
         </div>
 
-        <div class="form-group col-md-3 col-sm-3 col-xs-6">
+        <div class="form-group col-md-2 col-sm-2 col-xs-6">
             <label class="control-label">@Lb["Precio"]:</label>
             <input id="precio" onkeyup="pasarSigCampo(event,'submitFrmFD')" class="form-control moneda" type="text" />
         </div>
 
+        <div hidden class="form-group col-md-3 col-sm-3 col-xs-6">
+            <label class="control-label">@Lb["Descuento"]:</label>
+            <input id="descuento" class="form-control porcentaje" value="0" type="text" />
+        </div>
+
+        <div hidden class="form-group col-md-3 col-sm-3 col-xs-6">
+            <label class="control-label">@Lb["IVA"]:</label>
+            <input id="iva" class="form-control porcentaje" type="text" />
+        </div>
+
         <div class="form-group col-md-1 col-sm-1 col-xs-1" style="padding-top: 2.3rem;">
             <a onkeyup="pasarSigCampo(event,'producto')" onclick="" id="submitFrmFD" class="btn btn-success"><span><i class="fas fa-save"></i></span></a>
+        </div>
+        <div class="form-group col-md-3 col-sm-3 col-xs-12" style="padding-top: 2.3rem; ">
+            <label style="font-size:2rem" class="control-label">@Lb["Total"]: <span id="totalFactura"></span></label>
         </div>
     </form>
 
@@ -151,14 +175,14 @@
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="table-responsive">
-            <table id="tblFD" class="table table-bordered">
+            <table id="tblFD" class="table table-bordered" style="width:100%">
                 <thead>
                     <tr>
-                        <th>@Lb["Cantidad"]</th>
-                        <th>@Lb["Producto"]</th>
-                        <th>@Lb["PrecioUnit"]</th>
-                        <th>@Lb["Total"]</th>
-                        <th>@Lb["Acción"]</th>
+                        <th style="width:10%">@Lb["Cantidad"]</th>
+                        <th style="width:48%">@Lb["Producto"]</th>
+                        <th style="width:16%">@Lb["PrecioUnit"]</th>
+                        <th style="width:18%">@Lb["Total"]</th>
+                        <th style="width:8%">@Lb["Acción"]</th>
                     </tr>
 
                 </thead>
@@ -170,10 +194,13 @@
 </div>
 
 
-<input hidden id="monedaFormatter"class="moneda" type="text" />
+<input hidden id="monedaFormatter" class="moneda" type="text" />
+
 
 <script>
 
+    ///////factura
+    var $totalFactura = $('#totalFactura');
 
     ///////linea
     var $item = $('#producto');
@@ -184,6 +211,7 @@
     var items = [];
     var lineas = [];
     var lineasAgregadas = [];
+    var totalFactura = 0;
 
 
     $(document).ready(function () {
@@ -198,27 +226,33 @@
             min: 0
         });
 
-        $(".moneda").inputmask({
-            'alias': 'decimal',
-            rightAlign: true,
-            'groupSeparator': '.',
-            'autoGroup': true,
-            min: 0
-        });
 
+
+        //$(".moneda").inputmask({
+        //    'alias': 'decimal',
+        //    rightAlign: true,
+        //    'groupSeparator': '.',
+        //    'autoGroup': true,
+        //    min: 0
+        //});
+
+        getMonedas();
         getInventario();
 
     });
 
-    $('#producto').on('focusout', function () {
+    $('#submitFrmFD').on('click', function () {
+        $('#cantidad').focus();
+        prepararLinea();
+    });
 
-        if (this.value.replace(/ /g, "") !== "")
+    $('#cantidad').on('focus', function () {
 
-            
-            setTimeout(function () { alert(this.value); cargarInfoItem(this.value); } , 1000);
-            
+        if ($('#producto').val().replace(/ /g, "") !== "")
+            cargarInfoItem($('#producto').val());
         else
             $precio.val("");
+
     });
 
     function pasarSigCampo(e, id) {
@@ -228,12 +262,9 @@
         if (k == 13) {
             if (id == "submitFrmFD") {
 
-                guardarLinea();
-                cargarTabla(lineas);
-                $item.focus();
-                $item.select();
-                
-                
+
+                prepararLinea();
+
             }
             else {
                 document.getElementById(id).focus();
@@ -242,6 +273,14 @@
 
             $('#' + id).select();
         }
+    }
+
+    function prepararLinea() {
+        guardarLinea();
+        cargarTabla(lineas);
+        $item.focus();
+        $item.select();
+        $cantidad.val(1);
     }
 
     function guardarLinea() {
@@ -262,36 +301,115 @@
                 id: 0,
                 idFactura: @Model.Id,
                 idInventario: producto.idInventario,
-                cantidad: parseFloat($('#cantidad').inputmask('unmaskedvalue').replace(".", ",")),
-                precio: parseFloat($('#precio').inputmask('unmaskedvalue').replace(".", ",")),
-                porcIva: producto.impuestoVenta,
-                porcDescuento: 0,
+                cantidad: parseFloat($('#cantidad').val()),
+                precio: parseFloat($('#precio').inputmask('unmaskedvalue')),
+                porcIva: parseFloat($('#iva').val()),
+                porcDescuento: parseFloat($('#descuento').val()),
+                porcExoneracion: 0,
                 fechaCreacion: "",
                 idUsuarioCreador: 0,
-                subTotal: parseFloat($('#cantidad').inputmask('unmaskedvalue').replace(".", ",")) * parseFloat($('#precio').inputmask('unmaskedvalue').replace(".", ",")),
-                subTotalGrabado: 0,
-                subTotalExcento: 0,
-                subTotalGravadoNeto: 0,
-                subTotalExcentoNeto: 0,
-                montoDescuento: 0,
-                montoIva: 0,
-                total: 0,
-                FechaVencimiento: ""
+                subTotal: calcularSubtotalLinea(),
+                subTotalGravado: calcularSubTotalGravadoLinea(),
+                subTotalExcento: calcularSubTotalExcentoLinea(),
+                subTotalGravadoNeto: calcularSubTotalGravadoNetoLinea(),
+                subTotalExcentoNeto: calcularSubTotalExcentoNetoLinea(),
+                montoDescuento: calcularDescuentoLinea(),
+                montoIva: calcularMontoIvaLinea(producto.impuestoVenta),
+                total: calcularTotalLinea(),
+                FechaVencimiento: "",
+                montoExoneracion: calcularExoneracion()
             };
 
             lineas.push(model);
             lineasAgregadas.push(model);
+            calcularTotales();
+
+            console.log(lineas);
         }
-        
-       
+
+
 
     }
+    ////////////////////////////////calcular totales linea///////////////////////////////////
 
+    function calcularSubtotalLinea() {
+        return parseFloat($('#cantidad').val()) * parseFloat($('#precio').inputmask('unmaskedvalue'));
+    }
+
+    function calcularSubTotalGravadoLinea() {
+        var imp = parseFloat($('#iva').val());
+
+        if (imp != 0) {
+            return calcularSubtotalLinea();
+        }
+        else
+            return 0;
+    }
+
+    function calcularSubTotalExcentoLinea() {
+        var imp = parseFloat($('#iva').val());
+        if (imp != 0) {
+            return 0;
+        }
+        else
+            return calcularSubtotalLinea();
+    }
+
+    function calcularSubTotalGravadoNetoLinea() {
+        var imp = parseFloat($('#iva').val());
+        if (imp != 0) {
+            return calcularSubTotalGravadoLinea() - calcularDescuentoLinea();
+        }
+        else
+            return 0;
+    }
+
+    function calcularSubTotalExcentoNetoLinea() {
+
+        var imp = parseFloat($('#iva').val());
+        if (imp != 0) {
+            return 0;
+        }
+        else
+            return calcularSubTotalGravadoLinea() - calcularDescuentoLinea();
+    }
+
+    function calcularDescuentoLinea() {
+        var desc = parseFloat($('#descuento').val());
+        if (desc != 0)
+            return calcularSubtotalLinea() * (desc / 100);
+        else return 0;
+    }
+
+
+
+    function calcularMontoIvaLinea() {
+        var imp = parseFloat($('#iva').val());
+
+        if (imp != 0)
+            return calcularSubtotalLinea() * (imp / 100);
+        else
+            return 0;
+    }
+
+    function calcularExoneracion() {
+        var porc = parseFloat('#exoneracion');
+        if (porc != 0)
+            return calcularMontoIvaLinea * (porc / 100);
+        else
+            return 0;
+    }
+
+    function calcularTotalLinea() {
+
+        return (calcularSubTotalExcentoNetoLinea() + calcularSubTotalGravadoNetoLinea()) + calcularMontoIvaLinea();
+
+    }
 
     function existeLinea(idInventario) {
         var linea = null;
         for (var i = 0; i < lineas.length; i++) {
-            if (lineas[i].idInventario === idInventario) {
+            if (lineas[i].idInventario === idInventario && lineas[i].precio == parseFloat($('#precio').inputmask('unmaskedvalue'))) {
                 linea = i;
                 break;
             }
@@ -299,6 +417,34 @@
 
         return linea;
     }
+
+
+    /////////////////////////////////////////////fin de calc linea///////////////////////////////////
+
+    ///////////////////////////////////////////////calculos de factura/////////////////////////////////////
+
+    function calcularTotales(){
+
+        calcularTotalFactura();
+
+    }
+
+    function calcularTotalFactura() {
+
+        for (var i = 0; i < lineas.length; i++) {
+            totalFactura += lineas[i].total;
+        }
+
+        $('#monedaFormatter').val(totalFactura);
+        $totalFactura.text($('#monedaFormatter').val());
+
+    }
+
+
+
+    /////////////////////////////////////////////////fin calc factura//////////////////////////////////////////
+
+
 
     function cargarTabla(data) {
 
@@ -313,11 +459,11 @@
 
 
             var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
-                + '<td style="padding-top:2rem;">' + data[i].cantidad + ' </td>'
-                + '<td style="padding-top:2rem;">' + getItemPorId(data[i].idInventario).descripcion + '</td>'
-                + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(data[i].precio) + '</td>'
-                + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(data[i].subTotal) + '</td>'
-                + '<td><button class="btn btn-link" value="' + contadorFila + '" onclick="elimarCompraDetalle(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button><button class="btn btn-link" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
+                + '<td >' + data[i].cantidad.toFixed(2) + ' </td>'
+                + '<td >' + getItemPorId(data[i].idInventario).descripcion + '</td>'
+                + '<td style="text-align: right">' + darFomatoMoneda(data[i].precio) + '</td>'
+                + '<td style="text-align: right">' + darFomatoMoneda(data[i].total) + '</td>'
+                + '<td><a style="font-size:1.8rem;" value="' + contadorFila + '" onclick="elimarCompraDetalle(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></a> &nbsp;&nbsp; <a style="font-size:1.8rem;" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></a></td></tr>';
 
             $('#tblFD > tbody').append(body);
 
@@ -325,7 +471,7 @@
 
         }
     }
-    
+
     function cargarInfoItem(codigo) {
 
         $('#precio').val("");
@@ -335,7 +481,9 @@
             if (codigo === items[i].codigo) {
                 flag = true;
                 $('#precio').val(items[i].precioVenta);
-
+                $('#descuento').val(0);
+                $('#iva').val(items[i].impuestoVenta);
+                $('#descProducto').text(items[i].descripcion.substr(0, 32) + (items[i].descripcion.length > 25 ? '...' : '')).prop('href', '@Url.Action("EditarInventario", "Inventario", new { id = "__id__" })'.replace("__id__", items[i].idInventario));
                 break;
             }
             else {
@@ -346,7 +494,7 @@
         if (!flag) {
             cargarAlert("@Lb["itemInvalido"]");
         }
-            
+
 
     }
 
@@ -359,6 +507,11 @@
              success: function (data) {
 
                  monedas = data;
+                 $(".moneda").inputmask('currency', {
+                     prefix: data[0].simbolo + ' ',
+                     rightAlign: true,
+                     min: 0
+                 });
 
               },
               error: function (err, scnd) {
@@ -390,7 +543,9 @@
 
                   $(".autocompleteV").typeahead({
                       source: auto,
-                      minLength: 3
+                      minLength: 3,
+                      afterSelect: alert(),
+
                   });
 
 
@@ -451,14 +606,53 @@
         var itemsAuto = [];
 
         for (var i = 0; i < data.length; i++) {
-            //itemsAuto.push({ id: data[i].id, name: data[i].descripcion + ' - ' + data[i].codigo });
-            itemsAuto.push({ id: data[i].id, name: data[i].codigo });
+            itemsAuto.push({ value: data[i].id, text: data[i].codigo });
         }
 
-        $(".autocompleteTH").typeahead({
-            source: itemsAuto,
+        $('.autocompleteTH').autoComplete({
+            resolver: 'custom',
+            formatResult: function (item) {
+                return {
+                    value: item.idInventario,
+                    text:  item.codigo,
+                    html: [
+                        item.codigo + ' - ',
+                        item.descripcion
+                    ]
+                };
+            },
+            events: {
+                search: function (_keyword, callback) {
+                    var keyword = _keyword.toUpperCase();
+                    var filtrado = [];
+                    //var array = contactos;
+                    if (keyword.replace(/ /g, "") === "") {
+                        filtrado = [];
+                    }
+                    else {
+                        for (var i = 0; i < items.length; i++) {
+
+                            var keyArray = items[i].codigo.toUpperCase();
+                            var keyArray2 = items[i].descripcion.toUpperCase();
+
+                            if (keyArray.indexOf(keyword) > -1  )
+                                filtrado.push(items[i]);
+                            else
+                                if (keyArray2.indexOf(keyword) > -1)
+                                    filtrado.push(items[i]);
+                        }
+
+                    }
+
+                    callback(filtrado);
+                }
+            },
+            noResultsText: '@Lb["sinResultados"]',
+            autoSelect: false,
             minLength: 3,
+
         });
+
     }
 
     function getItemPorCodigo(codigo) {
