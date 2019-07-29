@@ -148,15 +148,15 @@ else
             <tbody>
                 <tr class="lineaForm">
                     <td>
-                        <input class="form-control" id="articulo" />
+                        <input @estado class="form-control" id="articulo" />
                     </td>
                     <td><div class="col-md-9"><input @estado2 @estado class="form-control numerico" type="text" min="0" id="cantidad" /></div><div class="col-md-3" style="padding-top:1rem"><span id="unidad"></span></div></td>
                     <td><input @estado2 @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
                     <td><input @estado2 @estado class="form-control numerico" type="text" id="descuento" /></td>
-                    <td><input class="form-control"  type="number" id="iva" /></td>
-                    <td><input class="form-control moneda" readonly type="text" id="subtotalLinea" /></td>
+                    <td><input @estado class="form-control"  type="number" id="iva" /></td>
+                    <td><input @estado class="form-control moneda" readonly type="text" id="subtotalLinea" /></td>
                     <td>
-                        <select class="form-control categorias" id="categoria"></select>
+                        <select @estado class="form-control categorias" id="categoria"></select>
                     </td>
                     <td><button @estado2 @estado class="btn btn-link btnAccion" onclick="guardarCambios()"><i class="fas fa-save"></i></button></td>
                 </tr>
@@ -236,7 +236,25 @@ else
         </div>
     </div>
 </div>
+<div>
+    <!-- Modal Editar -->
+    <div class="modal fade" id="modalEditarBodega" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-md-6"> <h5 data-translate="EditIBodega" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["EditIBodega"]</h5></div>
 
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="editarBodega">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <input readonly hidden id="monedaFormater" />
 <div hidden><input hidden id="formater" class="currency" type="text" /></div>
 
@@ -438,7 +456,7 @@ else
               success: function (data) {
 
                  monedas = data;
-
+                  console.log(monedas);
                  for (var i = 0; i < data.length; i++) {
                      var o = new Option(data[i].nombre, data[i].codigo);
                     $(".tipoMoneda").append(o);
@@ -563,10 +581,8 @@ else
     }
 
 
-     function guardarGastoBorrador() {
-        if (lineas.length <= 0) {
-            cargarAlert('@SharedLocalizer["compraSinDetalle"]');
-        } else
+    function guardarGastoBorrador() {
+       
         $.ajax({
               type: "POST",
               headers: {
@@ -577,17 +593,16 @@ else
             data: crearModelo(),
             success: function (data) {
                 @*window.location.href = "@Url.Action("ListarCompras")";*@
-
                 if (!data.success)
-                   cargarAlert("@SharedLocalizer["numCompraRepitida"]");
-
+                    cargarAlert("@SharedLocalizer["numCompraRepitida"]");
+                else
+                    window.location.href = "@Url.Action("ListarGastos")";
                },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
                   console.log(err.statusText);
               }
         });
-
     }
 
     function elimarCompraDetalle(_id, idLinea) {
@@ -613,7 +628,10 @@ else
                     url: '@Url.Action("EliminarCompraDetalle")',
                     data: { idCD: idLinea },
                     success: function (data) {
-                        eliminarLinea(_id);
+                        if (data.success)
+                                eliminarLinea(_id);
+                            else
+                                cargarAlert("@SharedLocalizer["anulacionInvalida"]");
                     },
                     error: function (err, scnd) {
                         cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -643,7 +661,7 @@ else
                             "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                         },
                         dataType: "json",
-                        url: '@Url.Action("CambiarEstadoCompra")',
+                        url: '@Url.Action("CambiarEstadoOrden")',
                         data: {id: @Model.Id},
                         success: function (data) {
                             setMensajeFromOut(result);
@@ -672,7 +690,7 @@ else
 
 
     ////helpers////////////////////////////////////////////////////////////////////////////////////
-
+    
     function guardarCambios() {
 
         if (validarForm()) {
@@ -902,7 +920,6 @@ else
     }
 
     function cargarTabla(data) {
-        console.log(categorias);
         $('.filasCargadas').remove();
         contadorFila = 0;
         var subtotal = 0;
@@ -1149,13 +1166,13 @@ else
 
     function recalcularPrecio() {
 
-
+        console.log(lineas);
         var subtotal = 0;
 
         for (var i = 0; i < lineas.length; i++) {
 
             lineas[i].PrecioUnidad = getPrecioAlCambioLocal(lineas[i]);
-            lineas[i].idMonedaCD = parseInt($('.tipoMoneda').val());
+            lineas[i].idMonedaCDS = parseInt($('.tipoMoneda').val());
 
             subtotal = lineas[i].PrecioUnidad * lineas[i].cantidad;
             lineas[i].totalDescuento = (lineas[i].porcDescuento / 100) * subtotal;
@@ -1182,7 +1199,7 @@ else
         //    for (var i = 0; i < lineasAgregadas.length; i++) {
 
         //        lineasAgregadas[i].PrecioUnidad = getPrecioAlCambioLocal(lineasAgregadas[i]);
-        //        lineasAgregadas[i].idMonedaCD = parseInt($('.tipoMoneda').val());
+        //        lineasAgregadas[i].idMonedaCDS = parseInt($('.tipoMoneda').val());
         //        subtotal = lineasAgregadas[i].PrecioUnidad * lineasAgregadas[i].cantidad;
         //        lineasAgregadas[i].totalDescuento = (lineasAgregadas[i].porcDescuento / 100) * subtotal;
 
@@ -1220,23 +1237,23 @@ else
 
 
 
-        if (moneda === 1 && item.idMonedaCD === 1)
+        if (moneda === 1 && item.idMonedaCDS === 1)
             return item.PrecioUnidad;
-        else if (moneda === 1 && item.idMonedaCD === 2)
+        else if (moneda === 1 && item.idMonedaCDS === 2)
             return item.PrecioUnidad * dolar;
-        else if (moneda === 1 && item.idMonedaCD === 3)
+        else if (moneda === 1 && item.idMonedaCDS === 3)
             return item.PrecioUnidad * euro;
-        else if (moneda === 2 && item.idMonedaCD === 1)
+        else if (moneda === 2 && item.idMonedaCDS === 1)
             return item.PrecioUnidad / dolar;
-        else if (moneda === 2 && item.idMonedaCD === 2)
+        else if (moneda === 2 && item.idMonedaCDS === 2)
             return item.PrecioUnidad;
-        else if (moneda === 2 && item.idMonedaCD === 3)
+        else if (moneda === 2 && item.idMonedaCDS === 3)
             return (item.PrecioUnidad * euro) / dolar;
-        else if (moneda === 3 && item.idMonedaCD === 1)
+        else if (moneda === 3 && item.idMonedaCDS === 1)
             return item.PrecioUnidad / euro;
-        else if (moneda === 3 && item.idMonedaCD === 2)
+        else if (moneda === 3 && item.idMonedaCDS === 2)
             return (item.PrecioUnidad * dolar) / euro;
-        else if (moneda === 3 && item.idMonedaCD === 3)
+        else if (moneda === 3 && item.idMonedaCDS === 3)
             return item.PrecioUnidad;
 
     }
@@ -1376,7 +1393,7 @@ else
                 telefono: empresaModel.tel,
                 correo: empresaModel.correo,
                 cedJuridica: empresaModel.ced,
-                logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
+               // logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
                 nombreTitulo: "@SharedLocalizer["Nombre"]:",
                 telTitulo: "@SharedLocalizer["Telefonos"]:",
                 correoTitulo: "@SharedLocalizer["Correo"]:",
@@ -1439,14 +1456,12 @@ else
                 subtotal = lineas[i].subTotalExcento;
 
             var model = {
-                item: getItem(lineas[i].idInventario).codigo,
-                descripcion: getItem(lineas[i].idInventario).descripcion,
+                item: lineas[i].articulo,
                 cantidad: lineas[i].cantidad.toString(),
                 precioUnid: formatearMoneda(lineas[i].PrecioUnidad),
                 descuento: lineas[i].porcDescuento.toString(),
                 iva: lineas[i].PorcIVA.toString(),
                 subtotal: formatearMoneda(subtotal),
-                bodega: getBodegaItem(lineas[i].idBodega).nombre
             };
 
             row.push(model);
@@ -1606,11 +1621,11 @@ else
     function crearModeloDetalleXML(array) {
         console.log(array);
         var model = {
-            id: 0,
+            IdCompraDetalle: 0,
             idCompra: 0,
-            idInventario: getItemPorCodigo(array.Codigo.Codigo["#text"]).idInventario,
-            //nombreInventario: $descripcion.val(),
-            idMonedaCD: parseInt($('.tipoMoneda').val()),
+            IdCategoriaGasto: getCategoriaItem($categoria.val()).id,
+            articulo: $articulo.val(),
+            idMonedaCDS: parseInt($('.tipoMoneda').val()),
             cantidad: parseFloat(array.Cantidad["#text"]),
             PrecioUnidad: parseFloat(array.PrecioUnidad["#text"]),
             subTotalGravado: calcularSubtotalGravadoXML(array),
@@ -1625,8 +1640,8 @@ else
             porcDescuento: getDescuentoXML(array),
             totalDescuento: getDescuentoXML(array),
             totalIva: getImpuestoXML(array).Monto,
-            total: parseFloat(array.MontoTotalLinea["#text"]),
-            bodega: $('#bodega option:selected').text()
+            total: parseFloat(array.MontoTotalLinea["#text"])
+           
         };
 
         //lineasAgregadas = [];

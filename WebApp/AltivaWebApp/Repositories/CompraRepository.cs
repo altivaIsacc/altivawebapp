@@ -45,7 +45,11 @@ namespace AltivaWebApp.Repositories
                     IdContactoNavigation = c.IdContactoNavigation,
                     TotalBase = c.TotalBase,
                     TotalDolar = c.TotalDolar,
-                    TotalEuro = c.TotalEuro
+                    TotalEuro = c.TotalEuro,
+                    Borrador = c.Borrador,
+                    Anulado = c.Anulado,
+                    EnCola = c.EnCola
+                    
 
                 }).ToList();
 

@@ -89,13 +89,24 @@ namespace AltivaWebApp.Controllers
                 if(viewModel.Id != 0)
                 {
                     var orden = map.Update(viewModel);
-                    if (viewModel.OrdenDetalle != null && viewModel.OrdenDetalle.Count() > 0)
+
+                    if (viewModel.OrdenDetalle != null)
                     {
                         map.CreateOD(viewModel);
-                        viewModel.OrdenDetalle = model2;
-                        map.UpdateOD(viewModel);
 
                     }
+                    if (model2.Count() > 0)
+                        {
+                            viewModel.OrdenDetalle = model2;
+                            map.UpdateOD(viewModel);
+                        }
+                        
+                       
+
+
+
+
+                    
                     
 
                    

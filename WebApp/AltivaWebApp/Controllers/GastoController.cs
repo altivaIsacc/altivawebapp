@@ -51,31 +51,12 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var gastos = service.GetAllGastos();
-                /*if (compras != null)
-                {
-                    foreach (var item in compras)
-                    {
-                        item.IdContactoNavigation.TbPrCompra = null;
-
-                        foreach (var i in item.TbPrCompraDetalle)
-                        {
-                            i.IdInventarioNavigation.TbPrOrdenDetalle = null;
-                            i.IdInventarioNavigation.TbPrCompraDetalle = null;
-                            i.IdCompraNavigation = null;
-                        }
-                    }
-
-                    return Ok(compras);
-                }
-
-                else
-                    return Ok();*/
+               
                 return Ok(gastos);
             }
             catch
             {
                 throw;
-                //return BadRequest();
             }
         }
 
@@ -207,6 +188,24 @@ namespace AltivaWebApp.Controllers
             {
                 //throw;
                 return BadRequest();
+            }
+        }
+
+        [HttpPost("CambiarEstado-Orden")]
+        public ActionResult CambiarEstadoOrden(int id)
+        {
+            try
+            {
+                TbPrCompra compra = service.GetCompraByIdWithoutD(id);
+                compra.Anulado = true;
+                if (!compra.Borrador)
+                compra = service.Update(compra);
+
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
