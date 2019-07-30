@@ -242,6 +242,37 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<ICajaService, CajaService>();
             services.AddScoped<ICajaRepository, CajaRepository>();
             services.AddScoped<ICajaMap, CajaMap>();
+            //RebajaConfig
+            services.AddScoped<IDescuentoPromocionRepository, DescuentoPromocionRepository>();
+            services.AddScoped<IDescuentoPromocionService, DescuentoPromocionService>();
+            services.AddScoped<IDescuentoPromocionMap, DescuentoPromocionMap>();
+
+            //DescuentoUSuario
+            services.AddScoped<IDescuentoUsuarioRepository, DescuentoUsuarioRepository>();
+            services.AddScoped<IDescuentoUsuarioService, DescuentoUsuarioService>();
+            services.AddScoped<IDescuentoUsuarioMap, DescuentoUsuarioMap>();
+
+
+            //DescuentoUSuarioRango
+            services.AddScoped<IDescuentoUsuarioRangoRepository, DescuentoUsuarioRangoRepository>();
+            services.AddScoped<IDescuentoUsuarioRangoService, DescuentoUsuarioRangoService>();
+            services.AddScoped<IDescuentoUsuarioRangoMap, DescuentoUsuarioRangoMap>();
+
+            //DescuentoUSuarioClave
+            services.AddScoped<IDescuentoUsuarioClaveRepository, DescuentoUsuarioClaveRepository>();
+            services.AddScoped<IDescuentoUsuarioClaveService, DescuentoUsuarioClaveService>();
+            services.AddScoped<IDescuentoUsuarioClaveMap, DescuentoUsuarioClaveMap>();
+
+            //PromocionProducto
+            services.AddScoped<IPromocionProductoRepository, PromocionProductoRepositoy>();
+            services.AddScoped<IPromocionProductoService, PromocionProductoService>();
+            services.AddScoped<IPromocionProductoMap, PromocionProductoMap>();
+
+            //Flujo Categoria
+
+            services.AddScoped<IFlujoCategoriaRepository, FlujoCategoriaRepository>();
+            services.AddScoped<IFlujoCategoriaService, FlujoCategoriaService>();
+            services.AddScoped<IFlujoCategoriaMap, FlujoCategoriaMap>();
 
         }
     }

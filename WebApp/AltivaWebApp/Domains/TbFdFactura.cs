@@ -47,6 +47,7 @@ namespace AltivaWebApp.Domains
         public DateTime FechaVencimiento { get; set; }
         public double TipoCambioDolar { get; set; }
         public double TipoCambioEuro { get; set; }
+        public bool EnCola { get; set; }
 
         public virtual TbCrContacto IdVendedorNavigation { get; set; }
         public virtual ICollection<TbFdFacturaDetalle> TbFdFacturaDetalle { get; set; }

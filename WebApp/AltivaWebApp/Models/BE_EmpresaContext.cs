@@ -9,7 +9,7 @@ namespace AltivaWebApp.Models
         public BE_EmpresaContext()
         {
         }
-
+		//constructor
         public BE_EmpresaContext(DbContextOptions<BE_EmpresaContext> options)
             : base(options)
         {
@@ -18,6 +18,7 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbBaConciliacion> TbBaConciliacion { get; set; }
         public virtual DbSet<TbBaConciliacionDetalle> TbBaConciliacionDetalle { get; set; }
         public virtual DbSet<TbBaCuentasBancarias> TbBaCuentasBancarias { get; set; }
+        public virtual DbSet<TbBaFlujoCategoria> TbBaFlujoCategoria { get; set; }
         public virtual DbSet<TbBaMovimientoBancarios> TbBaMovimientoBancarios { get; set; }
         public virtual DbSet<TbBaMovimientoBancariosDetalle> TbBaMovimientoBancariosDetalle { get; set; }
         public virtual DbSet<TbCeCanton> TbCeCanton { get; set; }
@@ -205,9 +206,16 @@ namespace AltivaWebApp.Models
         // Unable to generate entity type for table 'dbo.Tmp_tb_PR_Requisicion'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomaticaDetalle'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_AmadeLlave'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_NotaCreditoAjusteSaldoMenor'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_CuentaEnCasaNotaCredito'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_NotaDebitoAjusteSaldoMenor'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.Tmp_tb_PR_Requisicion'. Please see the warning messages.
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -275,6 +283,32 @@ namespace AltivaWebApp.Models
                 entity.Property(e => e.FechaUltimaModificacion).HasColumnType("datetime");
 
                 entity.Property(e => e.SaldoInicial).HasColumnType("numeric(18, 6)");
+            });
+
+            modelBuilder.Entity<TbBaFlujoCategoria>(entity =>
+            {
+                entity.HasKey(e => e.IdCategoriaFlujo)
+                    .HasName("PK_dbo.tb_BA_FlujoCategoria");
+
+                entity.ToTable("tb_BA_FlujoCategoria");
+
+                entity.Property(e => e.Codigo)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Estado).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdTipoFlujo).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(250)
+                    .HasDefaultValueSql("('')");
             });
 
             modelBuilder.Entity<TbBaMovimientoBancarios>(entity =>
