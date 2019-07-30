@@ -53,19 +53,6 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public IList<TbCrContacto> GetAllClientes()
-        {
-            try
-            {
-                return context.TbCrContacto.Where(c => c.Cliente == true).ToList();
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
         public TbCrContacto GetByCedulaContacto(string cedula)
         {
             TbCrContacto con = new TbCrContacto();
@@ -176,6 +163,11 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbCeProvincias.ToList();
 
+        }
+
+        public ContactoViewModel GetByEdit(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

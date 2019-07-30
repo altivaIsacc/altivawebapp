@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AltivaWebApp.Domains;
+using System;
 using System.Collections.Generic;
 
 namespace AltivaWebApp.Models

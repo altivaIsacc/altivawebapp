@@ -149,6 +149,7 @@ namespace AltivaWebApp.Services
         public bool DesactivarRelEmpresaUsuario(IList<TbSeEmpresaUsuario> domain)
         {
             return repository.DesactivarRelEmpresaUsuario(domain);
+        }
         public IList<TbSeUsuario> GetAllByIdEmpresaConPerfiles(int idEmpresa)
         {
             return repository.GetAllByIdEmpresaConPerfiles(idEmpresa);

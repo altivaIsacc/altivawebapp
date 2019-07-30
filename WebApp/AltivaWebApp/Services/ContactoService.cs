@@ -81,20 +81,13 @@ namespace AltivaWebApp.Services
             return this.repository.GetAllPersonas();
         }
 
-        public IList<TbCrContacto> GetAllClientes()
-        {
-            return this.ContactoRepository.GetAllClientes();
-        }
-
+   
         public TbCrContacto GetByCedulaContacto(string cedula)
         {
             return repository.GetAllClientes();
         }
 
-        public TbCrContacto GetByCedulaContacto(string cedula)
-        {
-            return this.repository.GetByCedulaContacto(cedula);
-        }
+      
 
         public IList<TbFdCuentasBancarias> GetByContacto(int idContacto)
         {
@@ -155,9 +148,12 @@ namespace AltivaWebApp.Services
         }
 
         public TbCrContactoRelacion SaveRelacion(TbCrContactoRelacion domain)
-        public IList< TbCrContacto> GetAllClientes()
         {
-            return this.ContactoRepository.GetAllClientes();
+            return this.crRepository.Save(domain);
+        }
+        public IList<TbCrContacto> GetAllClientes()
+        {
+            return repository.GetAllClientes();
         }
 
         public TbCrContactoRelacion InsertarRelacion(TbCrContactoRelacion domain)

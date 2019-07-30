@@ -25,8 +25,7 @@ public interface IContactoRepository
         IList<TbCrContactoRelacion> GetContactosRelacion(int id);
         IList<TbCrContacto> GetAllProveedores();
         IList<TbCeDistrito> GetDistrito(int idCanton,int idProvincia);
-        bool EliminarRelacion(int idRelacion);
-        IList<TbCrContacto> GetAllClientes();
+        bool EliminarRelacion(int idRelacion);  
 
 
     }

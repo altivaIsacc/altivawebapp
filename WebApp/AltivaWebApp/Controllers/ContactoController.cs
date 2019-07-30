@@ -199,6 +199,18 @@ namespace AltivaWebApp.Controllers
         }
         [HttpGet("CamposPersonalizados/{idContacto?}")]
         public IActionResult GetCamposPersonalizados(int idContacto)
+        {
+            try
+            {
+                var campos = cpService.GetAll(idContacto);
+                return Json(campos);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
 
         [HttpGet("GetUsuarioCliente")]
         public ActionResult GetUsuariosCliente()
