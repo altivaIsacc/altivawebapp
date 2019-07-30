@@ -44,6 +44,7 @@ namespace AltivaWebApp.ViewModels
         public DateTime FechaVencimiento { get; set; }
         public double? TipoCambioDolar { get; set; }
         public double? TipoCambioEuro { get; set; }
+        public DateTime FechaModificacion { get; set; }
 
         public IList<CotizacionDetalleViewModels> CotizacionDetalle { get; set; }
     }

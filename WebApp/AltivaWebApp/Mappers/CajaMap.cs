@@ -60,6 +60,7 @@ namespace AltivaWebApp.Mappers
             domain.FechaCreacion = viewModel.FechaCreacion;
             domain.IdUsuario = viewModel.IdUsuario;
             domain.Estado = viewModel.Estado;
+            domain.FechaModificacion = DateTime.Now;
 
             return domain;
 
@@ -71,9 +72,10 @@ namespace AltivaWebApp.Mappers
             var viewModel = new CajaViewModel
             {
                 IdCaja = domain.IdCaja,
-                FechaCreacion = Convert.ToDateTime( domain.FechaCreacion),
-                IdUsuario =Convert.ToInt32( domain.IdUsuario),
-                Estado =Convert.ToInt32( domain.Estado),
+                FechaCreacion = Convert.ToDateTime(domain.FechaCreacion),
+                IdUsuario = Convert.ToInt32(domain.IdUsuario),
+                Estado = Convert.ToInt32(domain.Estado),
+                FechaModificacion = domain.FechaModificacion,
             };
 
             return viewModel;
@@ -103,11 +105,12 @@ namespace AltivaWebApp.Mappers
 
             if (viewModel.IdCaja != 0)
             {
-                fecha = DateTime.Now;
+                fecha = viewModel.FechaCreacion;
+        
             }
             else
             {
-                fecha = viewModel.FechaCreacion;
+                fecha = DateTime.Now;
             }
             try
             {
@@ -117,6 +120,7 @@ namespace AltivaWebApp.Mappers
                     FechaCreacion = fecha,
                     IdUsuario = viewModel.IdUsuario,
                     Estado = viewModel.Estado,
+                    FechaModificacion=DateTime.Now,
                     TbFaCajaAperturaDenominacion = ViewModelToDomainCD(viewModel),
                     TbFaCajaArqueoDenominacion= ViewModelToDomainAr(viewModel)
 
@@ -184,11 +188,22 @@ namespace AltivaWebApp.Mappers
 
         public TbFaCajaAperturaDenominacion ViewModelToDomainSingleCD(CajaAperturaDenominacionViewModel viewModel, CajaViewModel compra)
         {
+            DateTime fecha = new DateTime();
+            if (compra.IdCaja != 0)
+            {
+        
+                fecha = viewModel.FechaCreacion;
+            }
+            else
+            {
+                fecha = DateTime.Now;
+            }
+
             var domain = new TbFaCajaAperturaDenominacion
             {
                 IdCajaApertura = viewModel.IdCajaApertura,
                 IdCaja=viewModel.IdCaja,
-                FechaCreacion = Convert.ToDateTime(viewModel.FechaCreacion),
+                FechaCreacion =fecha,
                 IdUsuario = viewModel.IdUsuario,
                 IdDenominacion = viewModel.IdDenominacion,
                 Cantidad=viewModel.Cantidad,
@@ -200,11 +215,22 @@ namespace AltivaWebApp.Mappers
 
         public TbFaCajaArqueoDenominacion ViewModelToDomainSingleAr(CajaArqueoDenominacionViewModel viewModel, CajaViewModel compra)
         {
+            DateTime fecha = new DateTime();
+            if (compra.IdCaja != 0)
+            {
+            
+                fecha = viewModel.FechaCreacion;
+            }
+            else
+            {
+                fecha = DateTime.Now;
+            }
+
             var domain = new TbFaCajaArqueoDenominacion
             {
                 IdCajaArqueoDenominacion = viewModel.IdCajaArqueoDenominacion,
                 IdCaja = viewModel.IdCaja,
-                FechaCreacion = Convert.ToDateTime(viewModel.FechaCreacion),
+                FechaCreacion =fecha,
                 IdUsuario = viewModel.IdUsuario,
                 IdDenominacion = viewModel.IdDenominacion,
                 Cantidad = viewModel.Cantidad,
@@ -217,14 +243,16 @@ namespace AltivaWebApp.Mappers
         public TbFaCajaArqueo ViewModelToDomainSingleArqueo(CajaArqueoViewModel viewModel, CajaViewModel compra)
         {
             DateTime fechaCreacion = new DateTime();
-            if (viewModel.FechaCreacion != null)
+
+            if (viewModel.FechaCreacion!=null)
             {
                 fechaCreacion = Convert.ToDateTime(viewModel.FechaCreacion);
-
+        
             }
             else
             {
                 fechaCreacion = DateTime.Now;
+
             }
             var domain = new TbFaCajaArqueo
             {

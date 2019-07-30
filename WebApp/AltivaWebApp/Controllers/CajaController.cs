@@ -105,8 +105,7 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-
-        public IActionResult ListarCajas()
+        public IActionResult ListarCajas(int id)
         {
             return View();
         }

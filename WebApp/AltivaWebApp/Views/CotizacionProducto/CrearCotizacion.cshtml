@@ -272,16 +272,22 @@ else
     var $txtTotal = $('#txtTotal');
     var monedas = [];
     var lineasEliminadas = [];
+    var _cancelar = 0;
+    var dateCreacion = new Date();
+    var dateVencimiento = new Date();
 
 
     $(document).ready(function () {
 
         getMonedas();
 
+        dateCreacion = new Date(formatearFechaCotizacion());
+        dateVencimiento = new Date(formatearFechaVencimiento());
+
         $('#fechaPicker').datetimepicker({
-            defaultDate: new Date(),
+            defaultDate: dateCreacion,
             locale: localStorage.getItem("idioma"),
-            format: "@Lb["DD/MM/YYYY"]",
+
 
         }).on('keypress paste', function (e) {
             e.preventDefault();
@@ -289,9 +295,9 @@ else
         });
 
         $('#fechaPickerVencimiento').datetimepicker({
-            defaultDate: new Date(),
+            defaultDate: dateVencimiento,
             locale: localStorage.getItem("idioma"),
-            format: "@Lb["DD/MM/YYYY"]",
+ 
 
 
         }).on('keypress paste', function (e) {
@@ -389,7 +395,7 @@ else
                  getInventario();
                  getClientes();
                  getUsuarios();
-                 fechasEditar();
+        
 
               },
               error: function (err, scnd) {
@@ -498,23 +504,17 @@ else
 
     }
 
-    function fechasEditar() {
-  
-        if (@Model.IdCotizacion!= 0) {
-            $FechaCotizacion.val(formatearFechaCotizacion());
-            $FechaVencimiento.val(formatearFechaVencimiento());
-        }
-    }
+   
 
         function formatearFechaCotizacion() {
 
-        return '@Model.FechaCotizacion.Day' + "-" + '@Model.FechaCotizacion.Month' + "-" + '@Model.FechaCotizacion.Year';
+        return '@Model.FechaCotizacion.Month' + "-" + '@Model.FechaCotizacion.Day' + "-" + '@Model.FechaCotizacion.Year';
 
     }
 
         function formatearFechaVencimiento() {
 
-        return '@Model.FechaVencimiento.Day' + "-" + '@Model.FechaVencimiento.Month' + "-" + '@Model.FechaVencimiento.Year';
+        return '@Model.FechaVencimiento.Month' + "-" + '@Model.FechaVencimiento.Day' + "-" + '@Model.FechaVencimiento.Year';
 
     }
 ///////////////////////////////////AJUSTES/////////////////////////////////////////////////////////////////////
@@ -1346,9 +1346,10 @@ else
     function cancelar() {
 
           if ($('#ddClientes option:selected').val() != 0 && $('#ddMoneda option:selected').val() != 0 && $('#ddVendedor option:selected').val() != 0) {
-                    lineasAgregadas = 0;
-                    guardarCotizacion();
-     
+              lineasAgregadas = 0;
+              _cancelar = 1;
+              guardarCotizacion();
+
         } else {
        
             var msj = "@Lb["dataVacia"]";
@@ -1595,7 +1596,17 @@ else
                     }
 
                     if (parseInt(data.idCD) === 0) {
-                        window.location.href = "@Url.Action("ListarCotizacionProducto")";
+                        if (_cancelar != 0) {
+                              var msj = "@Lb["confirmCancelar"]";
+                                    bootbox.confirm(msj, function (result) {
+
+            if (result)
+                window.location.href = "@Url.Action("ListarCotizacionProducto","CotizacionProducto")";
+
+        });
+                        } else {
+                            window.location.href = "@Url.Action("ListarCotizacionProducto")";
+                        }
                     }
                     cargarTabla(lineas,$('#ddMoneda').val());
                     if (@Model.IdCotizacion === 0) {
@@ -2180,17 +2191,38 @@ else
     }
 
     function formatTotales() {
+        var subtotal = 0;
+        var imp = 0;
+        var desc = 0;
+        var total = 0;
+        switch (parseInt($('#ddMoneda option:selected').val())) {
+            case 1:
+                subtotal = $txtSubTotal.val().replace("" + monedas[0].simbolo + "", "");
+                imp = $txtImpuesto.val().replace("" + monedas[0].simbolo + "", "");
+                desc = $txtDescuento.val().replace(""+monedas[0].simbolo+"", "");
+                total = $txtTotal.val().replace(""+monedas[0].simbolo+"", "");
+                break;
+            case 2:
+                subtotal = $txtSubTotal.val().replace("" + monedas[1].simbolo + "", "");
+                imp = $txtImpuesto.val().replace("" + monedas[1].simbolo + "", "");
+                desc = $txtDescuento.val().replace("" + monedas[1].simbolo + "", "");
+                total = $txtTotal.val().replace("" + monedas[1].simbolo + "", "");
+                break;
+            case 3:
+                subtotal = $txtSubTotal.val().replace("" + monedas[2].simbolo + "", "");
+                imp = $txtImpuesto.val().replace("" + monedas[2].simbolo + "", "");
+                desc = $txtDescuento.val().replace("" + monedas[2].simbolo + "", "");
+                total = $txtTotal.val().replace("" + monedas[2].simbolo + "", "");
+                break;
 
-        var subtotal = "";
-        var imp = "";
-        var desc = "";
+    }
 
         return {
-
-            subtotal: subtotal + $txtSubTotal.val().replace("₡", ""),
-            imp: imp + $txtImpuesto.val().replace("₡", ""),
-            desc: desc + $txtDescuento.val().replace("₡", ""),
-            total: $txtTotal.val().replace("₡", "")
+         
+            subtotal: subtotal,
+            imp: imp ,
+            desc: desc ,
+            total: total       
         }
     }
 

@@ -439,7 +439,7 @@
     var PerfilUsuario = [];
     var PerfilModulo = [];
     var _GetDenominaciones = [];
-
+    var date = new Date();
 
 ////////////////////////////////////////////////////////////DOCUMENT READY///////////////////////////////////////////////////////////////////
     $(document).ready(function () {
@@ -449,8 +449,8 @@
         cargarlbEstado();
 
         if (@Model.IdCaja!= 0) {
-            $FechaCreacion.val(formatearFechaCreacion());
-
+          //  $FechaCreacion.val(formatearFechaCreacion());
+            date = new Date(formatearFecha());
             switch (@Model.Estado) {
 
                 case 1:
@@ -473,9 +473,8 @@
         }
 
                 $('#fechaPicker').datetimepicker({
-            defaultDate: new Date(),
+            defaultDate: date,
             locale: localStorage.getItem("idioma"),
-            format: "@Lb["DD/MM/YYYY"]",
 
         }).on('keypress paste', function (e) {
             e.preventDefault();
@@ -578,22 +577,7 @@
                if (@Model.IdCaja != 0)
                    cargarLineasCierreSistema(_CajaCierreSistema);
                CalcularTotalCierreDiferencia();
-    @*    $.ajax({
-              type: "get",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
-            url: '@Url.Action("GetCajaArqueoDenominacion")',
-            success: function (data) {
-                _CajaCierreSistema = JSON.parse(JSON.stringify(data));
-                cargarLineasArqueoDenominaciones(_CajaCierreSistema);
-                //setTotalGlobal();
-               },
-            error: function (err, scnd) {
-               cargarAlert('@Lb["errorGeneral"]');
-            }
-        });*@
+
     }
 
        function getCajaArqueo() {
@@ -2069,9 +2053,9 @@
         }
     }
 
-    function formatearFechaCreacion() {
+    function formatearFecha() {
 
-        return '@Model.FechaCreacion.Day' + "-" + '@Model.FechaCreacion.Month' + "-" + '@Model.FechaCreacion.Year';
+        return '@Model.FechaCreacion.Month' + "-" + '@Model.FechaCreacion.Day' + "-" + '@Model.FechaCreacion.Year';
 
     }
 
@@ -2152,8 +2136,7 @@
                 var _perfilusuario = [];
                 var modelperfil = {};
                 var Permiso = 0;
-                console.log(PerfilUsuario);
-                console.log(IdUsuarioLogueado);
+         
                 for (var g = 0; g <PerfilUsuario.length; g++) {
                     if (parseInt(IdUsuarioLogueado) == parseInt(PerfilUsuario[g].idUsuario)) {
 
@@ -2291,15 +2274,11 @@
             data: crearModelo(),
             success: function (data) {
                 if (data.success) {
-                    if (@Model.IdCaja!= 0) {
-                                            var id=@Model.IdCaja;
-        var url = '@Url.Action("EditarCaja", "Caja", new { id = "__id__" })';
-        window.location.href = url.replace("__id__", id);
-                    } else {
-                          window.location.href = "@Url.Action("ListarCajas")";
-                    }
           
+
+                          window.location.href = "@Url.Action("ListarCajas")";
                     
+                            
                 }
                 else
                     cargarAlert("@Lb["numCompraRepitida"]");
@@ -2952,7 +2931,7 @@
                 telefono: empresaModel.tel,
                 correo: empresaModel.correo,
                 cedJuridica: empresaModel.ced,
-           //   logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
+                logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
                 nombreTitulo: "@Lb["Nombre"]:",
                 telTitulo: "@Lb["Tel"]:",
                 correoTitulo: "@Lb["Correo"]:",
@@ -2998,7 +2977,7 @@
                 telefono: empresaModel.tel,
                 correo: empresaModel.correo,
                 cedJuridica: empresaModel.ced,
-           //   logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
+                logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
                 nombreTitulo: "@Lb["Nombre"]:",
                 telTitulo: "@Lb["Tel"]:",
                 correoTitulo: "@Lb["Correo"]:",
@@ -3067,7 +3046,7 @@
                 telefono: empresaModel.tel,
                 correo: empresaModel.correo,
                 cedJuridica: empresaModel.ced,
-           //   logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
+                logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
                 nombreTitulo: "@Lb["Nombre"]:",
                 telTitulo: "@Lb["Tel"]:",
                 correoTitulo: "@Lb["Correo"]:",
@@ -3182,9 +3161,8 @@
 
 
     function formatTotalesCierre() {
-        console.log($('#txtTotalDiferenciaCierre').val());
-        console.log($('#txtTotalUsuarioCierre').val());
-        console.log("papu");
+
+
         return {
 
             totalBase: $('#txtTotalBase').val().replace("" + monedas[0].simbolo +"", ""),
@@ -3202,7 +3180,7 @@
 
         switch (parseInt( $('#lbEstado option:selected').val())) {
             case 1:
-                console.log("he");
+            
                   return "@Lb["Abierta"]";
                 break;
             case 2:
@@ -3292,7 +3270,7 @@
         var row = [];
         var txt = "";
         var monto = 0;
-        console.log(Base);
+    
         for (var v = 0; v < 3; v++) {
             switch (v) {
                 case 0:
@@ -3317,7 +3295,7 @@
             row.push(model);
         }
           
-        console.log(row);
+
         return row;
     }
 

@@ -11,6 +11,7 @@ namespace AltivaWebApp.ViewModels
         public DateTime FechaCreacion { get; set; }
         public long IdUsuario { get; set; }
         public int Estado { get; set; }
+        public DateTime FechaModificacion { get; set; }
 
         public IList<CajaAperturaDenominacionViewModel> TbFaCajaAperturaDenominacion { get; set; }
         public IList<CajaArqueoDenominacionViewModel> TbFaCajaArqueoDenominacion { get; set; }

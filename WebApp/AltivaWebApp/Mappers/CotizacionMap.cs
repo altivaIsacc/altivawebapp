@@ -22,7 +22,7 @@ namespace AltivaWebApp.Mappers
         {
             var viewModel = new CotizacionViewModel
             {
-                IdCotizacion=domain.IdCotizacion,
+                IdCotizacion = domain.IdCotizacion,
                 FechaCotizacion = domain.FechaCotizacion,
                 IdCliente = domain.IdCliente,
                 Estado = domain.Estado,
@@ -32,7 +32,8 @@ namespace AltivaWebApp.Mappers
                 FechaVencimiento = domain.FechaVencimiento,
                 TipoCambioDolar = domain.TipoCambioDolar,
                 TipoCambioEuro = domain.TipoCambioEuro,
-                FechaCreacion=domain.FechaCreacion
+                FechaCreacion = domain.FechaCreacion,
+                FechaModificacion = domain.FechaModificacion
 
             };
 
@@ -175,6 +176,7 @@ namespace AltivaWebApp.Mappers
                 FechaCreacion=domain.FechaCreacion,
                 TipoCambioDolar = domain.TipoCambioDolar,
                 TipoCambioEuro = domain.TipoCambioEuro,
+                FechaModificacion=domain.FechaModificacion,
 
             };
 
@@ -285,6 +287,7 @@ namespace AltivaWebApp.Mappers
                     TipoCambioDolar = viewModel.TipoCambioDolar,
                     TipoCambioEuro = viewModel.TipoCambioEuro,
                     FechaCreacion=viewModel.FechaCreacion,
+                    FechaModificacion=DateTime.Now,
                     
                     TbFaCotizacionDetalle = ViewModelToDomainCD(viewModel)
                 };
@@ -432,6 +435,7 @@ namespace AltivaWebApp.Mappers
             domain.TipoCambioDolar = viewModel.TipoCambioDolar;
             domain.TipoCambioEuro = viewModel.TipoCambioEuro;
             domain.FechaCreacion = viewModel.FechaCreacion;
+            domain.FechaModificacion = DateTime.Now;
 
             if (domain.TipoCambioDolar != viewModel.TipoCambioDolar || domain.TipoCambioEuro != viewModel.TipoCambioEuro)
             {

@@ -17,6 +17,7 @@ namespace AltivaWebApp.Domains
         public DateTime FechaCreacion { get; set; }
         public long? IdUsuario { get; set; }
         public int? Estado { get; set; }
+        public DateTime FechaModificacion { get; set; }
 
         public virtual ICollection<TbFaCajaAperturaDenominacion> TbFaCajaAperturaDenominacion { get; set; }
         public virtual ICollection<TbFaCajaArqueo> TbFaCajaArqueo { get; set; }

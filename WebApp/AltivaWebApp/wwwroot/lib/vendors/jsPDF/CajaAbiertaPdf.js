@@ -1,17 +1,12 @@
 ﻿
 function generate_cutomPDF(modelo) {
 
-
-
     var comapnyJSON = {
         nombre: modelo.empresa.nombre,
         telefono: modelo.empresa.telefono,
         correo: modelo.empresa.correo,
         cedJuridica: modelo.empresa.cedJuridica
     };
-
-
-
 
     var invoiceJSON = {
         totalCr: modelo.totalCr,
@@ -25,10 +20,8 @@ function generate_cutomPDF(modelo) {
         totalDiferenciaCierre: modelo.totalDiferenciaCierre,
     }
 
-
-
     var company_logo = {
-      //  src: modelo.empresa.logo,
+        src: modelo.empresa.logo,
         w: 80,
         h: 50
     };
@@ -68,7 +61,7 @@ function generate_cutomPDF(modelo) {
 
     //pdf.addImage(agency_logo.src, 'PNG', logo_sizes.centered_x, _y, logo_sizes.w, logo_sizes.h);
     //doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
-   // doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
+    doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
 
     doc.textAlign(comapnyJSON.nombre, { align: "left" }, startX, startY += 15 + company_logo.h);
     doc.setFontSize(fontSizes.NormalFontSize);
@@ -97,7 +90,7 @@ function generate_cutomPDF(modelo) {
     doc.textAlign("", { align: "left" }, rightStartCol2, tempY);
 
     doc.setFontType('bold');
-    doc.textAlign(modelo.usuarioTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
+    doc.textAlign(modelo.usuarioTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing+50);
     doc.setFontType('normal');
     doc.textAlign(modelo.usuario, { align: "left" }, rightStartCol2, tempY);
 
@@ -201,7 +194,7 @@ function generate_cutomPDF(modelo) {
     var options = {
         beforePageContent: header,
         margin: {
-            top: 50
+            top: 20
         },
         styles: {
             overflow: 'linebreak',
@@ -217,8 +210,6 @@ function generate_cutomPDF(modelo) {
         },
         startY: startY += 50
     };
-
-
 
     var columns = [
         { title: modelo.columnas.denominacion, dataKey: "denominacion", width: 90 },
@@ -247,7 +238,7 @@ function generate_cutomPDF(modelo) {
 
     //-------Invoice Footer---------------------
     var rightcol1 = 400;
-    var rightcol2 = 490;
+    var rightcol2 = 520;
 
     startY = doc.autoTableEndPosY()+ 30;
     doc.setFontSize(fontSizes.NormalFontSize);
@@ -255,17 +246,17 @@ function generate_cutomPDF(modelo) {
     doc.setFontType('bold');
     doc.textAlign(modelo.resumen.totalBase, { align: "left" }, rightcol1, startY += lineSpacing.NormalSpacing);
     doc.setFontType('normal');
-    doc.textAlign(invoiceJSON.totalCr.toString(), { align: "rigth" }, rightcol2, startY);
+    doc.textAlign(invoiceJSON.totalCr.toString(), { align: "right" }, rightcol2, startY);
     doc.setFontSize(fontSizes.NormalFontSize);
     doc.setFontType('bold');
     doc.textAlign(modelo.resumen.totalDolar, { align: "left" }, rightcol1, startY += lineSpacing.NormalSpacing);
     doc.setFontType('normal');
-    doc.textAlign(invoiceJSON.totalUSD.toString(), { align: "rigth" }, rightcol2, startY);
+    doc.textAlign(invoiceJSON.totalUSD.toString(), { align: "right" }, rightcol2, startY);
 
     doc.setFontType('bold');
     doc.textAlign(modelo.resumen.totalEuro, { align: "left" }, rightcol1, startY += lineSpacing.NormalSpacing);
     doc.setFontType('normal');
-    doc.textAlign(invoiceJSON.totalE.toString(), { align: "rigth" }, rightcol2, startY);
+    doc.textAlign(invoiceJSON.totalE.toString(), { align: "right" }, rightcol2, startY);
 
     //doc.setFontType('bold');
     //doc.textAlign(modelo.resumen.total, { align: "left" }, rightcol1, startY += lineSpacing.NormalSpacing);
@@ -666,7 +657,7 @@ function generate_cutomPDF(modelo) {
     }
 
     doc.setFontType('bold');
-    doc.textAlign(modelo.resumen.autorizado, { align: "left" }, 40, startY += lineSpacing.NormalSpacing + 200);
+    doc.textAlign(modelo.resumen.autorizado, { align: "left" }, 40, startY += lineSpacing.NormalSpacing + 150);
 
 
     switch (parseInt(modelo.estadoPdf)) {
