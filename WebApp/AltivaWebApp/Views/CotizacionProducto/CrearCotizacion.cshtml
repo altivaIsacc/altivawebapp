@@ -280,11 +280,11 @@ else
     $(document).ready(function () {
 
         getMonedas();
-
         dateCreacion = new Date(formatearFechaCotizacion());
         dateVencimiento = new Date(formatearFechaVencimiento());
 
         $('#fechaPicker').datetimepicker({
+             format: "@Lb["formatoFecha"]",
             defaultDate: dateCreacion,
             locale: localStorage.getItem("idioma"),
 
@@ -295,6 +295,7 @@ else
         });
 
         $('#fechaPickerVencimiento').datetimepicker({
+             format: "@Lb["formatoFecha"]",
             defaultDate: dateVencimiento,
             locale: localStorage.getItem("idioma"),
  
@@ -350,6 +351,7 @@ else
             success: function (data) {
                 compraDetalleBD = JSON.parse(JSON.stringify(data));
                 _LineaDetalle = data;
+
                 cargarLineas(data);
                },
             error: function (err, scnd) {
@@ -508,14 +510,21 @@ else
 
         function formatearFechaCotizacion() {
 
-        return '@Model.FechaCotizacion.Month' + "-" + '@Model.FechaCotizacion.Day' + "-" + '@Model.FechaCotizacion.Year';
+            if (@Model.IdCotizacion!= 0) {
+                 return '@Model.FechaCotizacion.Month' + "-" + '@Model.FechaCotizacion.Day' + "-" + '@Model.FechaCotizacion.Year';
+            } else {
+                return new Date;
+            }
+       
 
     }
 
         function formatearFechaVencimiento() {
-
-        return '@Model.FechaVencimiento.Month' + "-" + '@Model.FechaVencimiento.Day' + "-" + '@Model.FechaVencimiento.Year';
-
+            if (@Model.IdCotizacion!= 0) {
+                       return '@Model.FechaVencimiento.Month' + "-" + '@Model.FechaVencimiento.Day' + "-" + '@Model.FechaVencimiento.Year';
+            } else {
+                return new Date;
+            }
     }
 ///////////////////////////////////AJUSTES/////////////////////////////////////////////////////////////////////
         $("#ddInventario").change(function () {
@@ -580,11 +589,11 @@ else
 
         if (@Model.IdCotizacion!= 0) {
             $porcDescuentoGlobal.val(@Model.PorcDescuentoBase)
-             if ( @Model.PorcDescuentoBase) {
+             if ( @Model.PorcDescuentoBase!=0) {
 
                 $porcDescuento.val(@Model.PorcDescuentoBase);
                 $porcDescuento.prop('disabled', true);
-                    ActualizarLineasDescuento(@Model.PorcDescuentoBase, $Moneda.val());
+                ActualizarLineasDescuento(@Model.PorcDescuentoBase, $Moneda.val());
 
                 } else {
 
@@ -691,7 +700,7 @@ else
             _lineaDetalle = LineasDescuento;
         }
 
-  
+     
 
         for (var i = 0; i < _lineaDetalle.length; i++) {
 
@@ -716,10 +725,24 @@ else
                         }
                     }
 
-                    _lineaDetalle[i].porcDescuento = parseFloat( (porcdescuento).toString().replace(",","."));
-                    _lineaDetalle[i].totalDescuentoBase = parseFloat(parseFloat((precioSinImpuesto).toString().replace(",",".")) * parseFloat(( porcdescuento).toString().replace(",",".")) / 100);
-                    _lineaDetalle[i].montoIvaBase = parseFloat(precioSinImpuesto - _lineaDetalle[i].totalDescuentoBase) * (imp / 100);
-                    _lineaDetalle[i].totalBase = parseFloat(parseFloat((_lineaDetalle[i].montoIvaBase).toString().replace(",", ".")) + (parseFloat(precioSinImpuesto.toString().replace(",", ".")) - parseFloat(_lineaDetalle[i].totalDescuentoBase.toString().replace(",", "."))));
+                    if ($('#habilitarDescuentoGlobal').prop('checked')) {
+
+
+
+                        _lineaDetalle[i].porcDescuento = parseFloat((porcdescuento).toString().replace(",", "."));
+                        _lineaDetalle[i].totalDescuentoBase = parseFloat(parseFloat((precioSinImpuesto).toString().replace(",", ".")) * parseFloat((porcdescuento).toString().replace(",", ".")) / 100);
+                        _lineaDetalle[i].montoIvaBase = parseFloat(precioSinImpuesto - _lineaDetalle[i].totalDescuentoBase) * (imp / 100);
+                        _lineaDetalle[i].totalBase = parseFloat(parseFloat((_lineaDetalle[i].montoIvaBase).toString().replace(",", ".")) + (parseFloat(precioSinImpuesto.toString().replace(",", ".")) - parseFloat(_lineaDetalle[i].totalDescuentoBase.toString().replace(",", "."))));
+
+                    } else {
+
+           
+                        _lineaDetalle[i].totalDescuentoBase = parseFloat(parseFloat((precioSinImpuesto).toString().replace(",", ".")) * parseFloat((_lineaDetalle[i].porcDescuento).toString().replace(",", ".")) / 100);
+                        _lineaDetalle[i].montoIvaBase = parseFloat(precioSinImpuesto - _lineaDetalle[i].totalDescuentoBase) * (imp / 100);
+                        _lineaDetalle[i].totalBase = parseFloat(parseFloat((_lineaDetalle[i].montoIvaBase).toString().replace(",", ".")) + (parseFloat(precioSinImpuesto.toString().replace(",", ".")) - parseFloat(_lineaDetalle[i].totalDescuentoBase.toString().replace(",", "."))));
+
+                    }
+
                     break;
                 case 2:
 
@@ -740,11 +763,20 @@ else
                         }
                     }
                     
-                    _lineaDetalle[i].porcDescuento = parseFloat((porcdescuento).toString().replace(",", "."));
-                    _lineaDetalle[i].totalDescuentoDolar = parseFloat(parseFloat((precioSinImpuesto).toString().replace(",", ".")) * parseFloat((porcdescuento).toString().replace(",", ".")) / 100);
-                    _lineaDetalle[i].montoIvaDolar = parseFloat(precioSinImpuesto - _lineaDetalle[i].totalDescuentoDolar) * (imp / 100);
-                    _lineaDetalle[i].totalDolar = parseFloat(parseFloat((_lineaDetalle[i].montoIvaDolar).toString().replace(",", ".")) + (parseFloat(precioSinImpuesto.toString().replace(",", ".")) - parseFloat(_lineaDetalle[i].totalDescuentoDolar.toString().replace(",", "."))));
-                   break;
+                    if ($('#habilitarDescuentoGlobal').prop('checked')) {
+
+
+                        _lineaDetalle[i].porcDescuento = parseFloat((porcdescuento).toString().replace(",", "."));
+                        _lineaDetalle[i].totalDescuentoDolar = parseFloat(parseFloat((precioSinImpuesto).toString().replace(",", ".")) * parseFloat((porcdescuento).toString().replace(",", ".")) / 100);
+                        _lineaDetalle[i].montoIvaDolar = parseFloat(precioSinImpuesto - _lineaDetalle[i].totalDescuentoDolar) * (imp / 100);
+                        _lineaDetalle[i].totalDolar = parseFloat(parseFloat((_lineaDetalle[i].montoIvaDolar).toString().replace(",", ".")) + (parseFloat(precioSinImpuesto.toString().replace(",", ".")) - parseFloat(_lineaDetalle[i].totalDescuentoDolar.toString().replace(",", "."))));
+
+                    } else {
+                        _lineaDetalle[i].totalDescuentoDolar = parseFloat(parseFloat((precioSinImpuesto).toString().replace(",", ".")) * parseFloat((_lineaDetalle[i].porcDescuento).toString().replace(",", ".")) / 100);
+                        _lineaDetalle[i].montoIvaDolar = parseFloat(precioSinImpuesto - _lineaDetalle[i].totalDescuentoDolar) * (imp / 100);
+                        _lineaDetalle[i].totalDolar = parseFloat(parseFloat((_lineaDetalle[i].montoIvaDolar).toString().replace(",", ".")) + (parseFloat(precioSinImpuesto.toString().replace(",", ".")) - parseFloat(_lineaDetalle[i].totalDescuentoDolar.toString().replace(",", "."))));
+                    }
+                    break;
                 case 3:
                     for (var p = 0; p < _Inventario.length; p++) {
                         if (_Inventario[p].idInventario == parseInt(IdInventario)) {
@@ -763,11 +795,22 @@ else
                         }
                     }
 
-                    _lineaDetalle[i].porcDescuento = parseFloat((porcdescuento).toString().replace(",", "."));
-                    _lineaDetalle[i].totalDescuentoEuro = parseFloat(parseFloat((precioSinImpuesto).toString().replace(",", ".")) * parseFloat((porcdescuento).toString().replace(",", ".")) / 100);
-                    _lineaDetalle[i].montoIvaEuro = parseFloat(precioSinImpuesto - _lineaDetalle[i].totalDescuentoEuro) * (imp / 100);
-                    _lineaDetalle[i].totalEuro = parseFloat(parseFloat((_lineaDetalle[i].montoIvaEuro).toString().replace(",", ".")) + (parseFloat(precioSinImpuesto.toString().replace(",", ".")) - parseFloat(_lineaDetalle[i].totalDescuentoEuro.toString().replace(",", "."))));
+                    if ($('#habilitarDescuentoGlobal').prop('checked')) {
 
+
+                        _lineaDetalle[i].porcDescuento = parseFloat((porcdescuento).toString().replace(",", "."));
+                        _lineaDetalle[i].totalDescuentoEuro = parseFloat(parseFloat((precioSinImpuesto).toString().replace(",", ".")) * parseFloat((porcdescuento).toString().replace(",", ".")) / 100);
+                        _lineaDetalle[i].montoIvaEuro = parseFloat(precioSinImpuesto - _lineaDetalle[i].totalDescuentoEuro) * (imp / 100);
+                        _lineaDetalle[i].totalEuro = parseFloat(parseFloat((_lineaDetalle[i].montoIvaEuro).toString().replace(",", ".")) + (parseFloat(precioSinImpuesto.toString().replace(",", ".")) - parseFloat(_lineaDetalle[i].totalDescuentoEuro.toString().replace(",", "."))));
+
+                    } else {
+                        _lineaDetalle[i].totalDescuentoEuro = parseFloat(parseFloat((precioSinImpuesto).toString().replace(",", ".")) * parseFloat((_lineaDetalle[i].porcDescuento).toString().replace(",", ".")) / 100);
+                        _lineaDetalle[i].montoIvaEuro = parseFloat(precioSinImpuesto - _lineaDetalle[i].totalDescuentoEuro) * (imp / 100);
+                        _lineaDetalle[i].totalEuro = parseFloat(parseFloat((_lineaDetalle[i].montoIvaEuro).toString().replace(",", ".")) + (parseFloat(precioSinImpuesto.toString().replace(",", ".")) - parseFloat(_lineaDetalle[i].totalDescuentoEuro.toString().replace(",", "."))));
+
+
+                    }
+            
 
                    break;
             }
@@ -1161,7 +1204,6 @@ else
 
     function crearModelo(Who) {
 
-
         var _fechaCotizacion;
         var _fechaVencimiento;
         var _fechaCreacion;
@@ -1306,7 +1348,7 @@ else
 
     function crearModeloDetalle(model) {
 
-        console.log(model);
+
             for (var i = 0; i < model.length; i++) {
                 model[i].precioBase = model[i].precioBase.toString().replace(".", ",");
                 model[i].precioDolar = model[i].precioDolar.toString().replace(".", ",");
@@ -1471,10 +1513,9 @@ else
                       
             LineasDetalle[i].porcDescuento = descuento;
 
-            LineasDetalle[i].subTotalBase = parseFloat((LineasDetalle[i].cantidad) * (precioSinImpuesto));
-            LineasDetalle[i].subTotalDolar = parseFloat(((LineasDetalle[i].cantidad) * (precioSinImpuesto))/CambioDolar);
-            LineasDetalle[i].subTotalEuro = parseFloat(((LineasDetalle[i].cantidad) * (precioSinImpuesto)) / CambioEuro);
-
+            LineasDetalle[i].subTotalBase = parseFloat (precioSinImpuesto);
+            LineasDetalle[i].subTotalDolar = parseFloat(precioSinImpuesto/CambioDolar);
+            LineasDetalle[i].subTotalEuro = parseFloat(precioSinImpuesto / CambioEuro);
 
 
             if (parseInt(LineasDetalle[i].subTotalGravadoBase) != 0) {
@@ -1543,11 +1584,11 @@ else
 
         _LineasEditadas = LineasDetalle;
 
+
         if (LineasDetalle.length < 1) {
 
         }
         else {
-
            // CalcularTotalesCotizacion(lineas, $Moneda.val());
             UpdateDescuento();
         }
@@ -2019,7 +2060,7 @@ else
 
     function CalcularTotalesCotizacion(_Lineas, _Moneda) {
 
-        console.log(_Lineas);
+
         var subTotal = 0;
         var descuento = 0;
         var impuesto = 0;
@@ -2053,7 +2094,7 @@ else
             case "1":
                 for (var i = 0; i < _Lineas.length; i++) {
 
-                    subTotal = parseFloat(parseFloat(subTotal) + parseFloat(_Lineas[i].subTotalBase.toString().replace(",", ".")));
+                    subTotal = parseFloat(parseFloat(subTotal) + parseFloat(_Lineas[i].subTotalBase.toString().replace(",", ".")));    
                     descuento = parseFloat(parseFloat(descuento) + parseFloat(_Lineas[i].totalDescuentoBase.toString().replace(",", ".")));
                     impuesto = parseFloat(parseFloat(impuesto) + parseFloat(_Lineas[i].montoIvaBase.toString().replace(",", ".")));
                     total = parseFloat(parseFloat(total) + parseFloat(_Lineas[i].totalBase.toString().replace(",", ".")));
