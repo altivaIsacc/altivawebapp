@@ -77,7 +77,7 @@ namespace AltivaWebApp.Controllers
             return View("CrearEditarGasto", model);
         }
         [HttpPost("CrearEditar-Gasto")]
-        public ActionResult CrearEditarGasto(CompraServicioViewModel viewModel)
+        public ActionResult CrearEditarGasto(CompraServicioViewModel viewModel, IList<ComprasDetalleServicioViewModel> model2)
         {
             try
             {
@@ -89,14 +89,24 @@ namespace AltivaWebApp.Controllers
                     {
                         long idCD = 0;
                         var c = map.UpdateGasto(viewModel);
+                        
                         if (viewModel.ComprasDetalleServicio != null && viewModel.ComprasDetalleServicio.Count() > 0)
                         {
                             var cd = map.CreateCDS(viewModel);
                             idCD = cd.IdCompraDetalle;
-                           
+
                         }
-                       
-                            
+                        else
+                        {
+                            viewModel.ComprasDetalleServicio = model2;
+                             map.UpdateCDS(viewModel);
+                           // var cds = model2.IdCompraDetalle;
+
+
+                        }
+
+
+
 
                         return Json(new { success = true, idCD = idCD });
                     }

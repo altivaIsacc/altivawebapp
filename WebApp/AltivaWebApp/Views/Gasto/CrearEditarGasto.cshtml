@@ -238,18 +238,44 @@ else
 </div>
 <div>
     <!-- Modal Editar -->
-    <div class="modal fade" id="modalEditarBodega" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog">
+    <div class="modal fade" id="modalEditar" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <div class="col-md-6"> <h5 data-translate="EditIBodega" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["EditIBodega"]</h5></div>
-
+                    <div class="col-md-6"> <h5 data-translate="editarGasto" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["editarGasto"]</h5></div>
+                </div>
+                <div class="modal-body" id="editar">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                </div>
-                <div class="modal-body" id="editarBodega">
+                    <div class="row">
+                        <input id="editId" type="hidden" class="form-control" />
+                        <input id="nSubTotal" type="hidden" class="form-control" />
 
+                        <div class="form-group col-sm-7">
+                            <label class="control-label">@SharedLocalizer["Cantidad"]</label>
+                            <input id="editCantidad" class="form-control numerico" />
+                        </div>
+                        <div class="form-group col-sm-7">
+                            <label class="control-label ">@SharedLocalizer["PrecioUnitario"]</label>
+                            <input id="editPrecio" class="form-control numerico" />
+                        </div>
+                        <div class="form-group col-sm-7">
+                            <label class="control-label ">@SharedLocalizer["Descuento"]</label>
+                            <input id="editDescuento" class="form-control numerico" />
+                        </div>
+                        <div class="form-group col-sm-7">
+                            <label class="control-label ">@SharedLocalizer["IVA"]</label>
+                            <input id="editIva" class="form-control numerico" />
+                        </div>
+                        <div class="form-group col-sm-7">
+
+                            <button id="btnEditOrden" onclick="editOrden()" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
+
+                            <button class="btn btn-default" data-dismiss="modal"><span>@SharedLocalizer["Cancelar"]</span></button>
+
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -313,7 +339,7 @@ else
     var categorias = [];
     var proveedores = [];
     var monedas = [];
-
+    var lineasActualizadas = [];
 
 
     $(document).ready(function () {
@@ -548,7 +574,7 @@ else
               },
               dataType: "json",
             url: '@Url.Action("CrearEditarGasto")',
-            data: model,
+            data: { viewModel: crearModelo(), model2: lineasActualizadas },
             success: function (data) {
 
                 if (data.success) {
@@ -690,7 +716,65 @@ else
 
 
     ////helpers////////////////////////////////////////////////////////////////////////////////////
-    
+   function cargarModalEditar(j)
+   {
+       var arreglo = [];
+       if (@Model.Id  === 0)
+           arreglo = lineasAgregadas;
+       else
+           arreglo = lineas;
+       $('#modalEditar').modal('show');
+       for (var i = 0; i < arreglo.length; i++) {
+           if (arreglo[i].articulo == arreglo[j].articulo && arreglo[i].PrecioUnidad == arreglo[j].PrecioUnidad && arreglo[i].porcDescuento == arreglo[j].porcDescuento
+               && arreglo[i].PorcIVA == arreglo[j].PorcIVA && arreglo[i].IdCategoriaGasto == arreglo[j].IdCategoriaGasto) {
+
+               $('#editId').val(arreglo[i].articulo);
+               $('#editCantidad').val(arreglo[i].cantidad);
+               $('#editPrecio').val(parseFloat((arreglo[i].PrecioUnidad).toFixed(2)));
+               $('#editDescuento').val(arreglo[i].porcDescuento);
+               $('#editIva').val(arreglo[i].PorcIVA);
+               editDescuento = $('#editDescuento').val();
+               editPrecio = $('#editPrecio').val();
+               
+               
+
+           }
+       }
+
+    }
+
+     function editOrden()
+   {
+           for (var i = 0; i < lineas.length; i++) {
+               if (lineas[i].idInventario == $('#editId').val() &&
+                   lineas[i].precio == editPrecio && lineas[i].porcDesc == editDescuento) {
+                   setSubTotalLinea();
+
+                   lineas[i].cantidad = parseFloat($("#editCantidad").val());
+                   lineas[i].PrecioUnidad = parseFloat($('#editPrecio').val());
+                   lineas[i].subTotalGrabado = calcularSubtotalGrabadoLinea();
+                   lineas[i].subTotalExcento = calcularSubtotalExcentoLinea();
+                   lineas[i].subTotalNeto = calcularSubtotalNetoLinea();
+                   lineas[i].subTotalGravadoNeto= calcularSubtotalGrabadoNetoLinea();
+                   lineas[i].subTotalExcentoNeto= calcularSubtotalExcentoNetoLinea();
+                   PorcIVA = parseFloat($("#editIva").val()); 
+                   lineas[i].porcIs = 0;
+                   lineas[i].totalIs = 0;
+                   lineas[i].porcDescuento = parseFloat($('#editDescuento').val());
+                   lineas[i].totalDescuento = calcularTotalDescuentoLinea();
+                   lineas[i].totalIva = calcularTotalIvaLinea();
+                   lineas[i].total = calcularTotalLinea();
+                   if (@Model.Id!= 0)
+                       lineasActualizadas.push(lineas[i]);
+
+               }
+           
+
+           }
+           cargarTabla(lineas);
+           $('#modalEditar').modal('hide');
+       
+   }
     function guardarCambios() {
 
         if (validarForm()) {
@@ -939,7 +1023,7 @@ else
                 + '<td style="padding-top:2rem;">' + data[i].PorcIVA + '%</td>'
                 + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(subtotal) + '</td>'
                 + '<td style="padding-top:2rem;">' + getCategoriaItem( data[i].IdCategoriaGasto).nombre + ' </td>'
-                + '<td><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="elimarCompraDetalle(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
+                + '<td><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="cargarModalEditar( ' + i + ')" ><i class="fas fa-edit"></i></button><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="elimarCompraDetalle(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
 
             $('.lineaForm').before(body);
 
@@ -947,7 +1031,7 @@ else
 
         }
         //data[i].PrecioUnidad)
-        //calcularTotales();
+        calcularTotales();
         var simbolo = monedas[0].simbolo + " ";
 
         if (parseInt($('.tipoMoneda').val()) === 2)
