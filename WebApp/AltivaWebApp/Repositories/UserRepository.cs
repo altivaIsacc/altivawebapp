@@ -14,11 +14,11 @@ namespace AltivaWebApp.Repositories
 
     {
        
-
         public UserRepository(GrupoEmpresarialContext context)
              : base(context)
         {
         }
+
         public IList<TbSeUsuario> GetAllById(int id)
         {
 
@@ -232,7 +232,31 @@ namespace AltivaWebApp.Repositories
 
             return context.TbSeUsuario.Include(p => p.TbSePerfilUsuario).ThenInclude(pu => pu.IdPerfilNavigation)
                 .Where(u => u.TbSeEmpresaUsuario.Any(e => e.IdEmpresa == idEmpresa) == true).ToList();
+        }
+        public IList<TbSePerfilModulo> GetAllPerfilModulo()
+        {
+            try
+            {
+                return context.TbSePerfilModulo.Where(u=>u.Opcion1==true).ToList();
 
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public IList<TbSePerfilUsuario> GetAllPerfilUsuario()
+        {
+            try
+            {
+                return context.TbSePerfilUsuario.ToList();
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         public IList<TbSeUsuario> GetAllByIdUsuario(int id)

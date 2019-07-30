@@ -47,6 +47,7 @@ namespace AltivaWebApp.Controllers
         {
             ViewBag.cod = cod;
             ViewData["bodegas"] = bodegaService.GetAllActivas();
+            var algo= bodegaService.GetAllActivas(); 
             return View();
         }
 

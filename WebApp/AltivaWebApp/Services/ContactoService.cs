@@ -150,6 +150,12 @@ namespace AltivaWebApp.Services
         }
 
         public TbCrContactoRelacion SaveRelacion(TbCrContactoRelacion domain)
+        public IList< TbCrContacto> GetAllClientes()
+        {
+            return this.ContactoRepository.GetAllClientes();
+        }
+
+        public TbCrContactoRelacion InsertarRelacion(TbCrContactoRelacion domain)
         {
             return this.crRepository.Save(domain);
         }

@@ -197,11 +197,35 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
         }
-
-
-
         [HttpGet("CamposPersonalizados/{idContacto?}")]
         public IActionResult GetCamposPersonalizados(int idContacto)
+
+        [HttpGet("GetUsuarioCliente")]
+        public ActionResult GetUsuariosCliente()
+        {
+            return Ok(contactoService.GetAllClientes());
+        }
+
+        [HttpGet("camposEdit/{id?}")]
+        public IActionResult camposEdit(int id)
+        {
+
+            IList<ContactoViewModel> con = new List<ContactoViewModel>();
+            con = this.ICCService.GetCamposEdit(id);
+            return new JsonResult(con);
+        }
+
+        [HttpGet("GetContactosRelacion/{id?}")]
+        public IActionResult GetContactosRelacion(int id)
+        {
+            IList<ContactoRelacionGETViewModel> cr = new List<ContactoRelacionGETViewModel>();
+            cr = this.contactoService.GetContactosRelacion(id);
+
+            return new JsonResult(cr);
+        }
+
+        [HttpGet("Edit/{id?}")]
+        public IActionResult Edit(int id)
         {
             try
             {
@@ -414,7 +438,6 @@ namespace AltivaWebApp.Controllers
             {
                 return BadRequest();
             }
-
         }
 
 
@@ -444,5 +467,17 @@ namespace AltivaWebApp.Controllers
         }
 
 
+        [HttpGet("GetCliente")]
+        public IActionResult GetAllClientes(int idContacto)
+        {
+            try
+            {
+                return Ok(contactoService.GetAllClientes());
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
     }
 }

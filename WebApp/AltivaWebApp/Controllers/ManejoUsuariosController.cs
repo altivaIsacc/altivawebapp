@@ -11,6 +11,7 @@ using AltivaWebApp.ViewModels;
 using System.Security.Claims;
 using AltivaWebApp.GEDomain;
 using Microsoft.Extensions.Localization;
+using System.Net.Http;
 
 namespace AltivaWebApp.Controllers
 {
@@ -355,8 +356,6 @@ namespace AltivaWebApp.Controllers
             try
             {
                 // TODO: Add delete logic here
-
-
                 var model = userService.GetSingleUser(id);
 
                 var estado = model.Estado;
@@ -428,5 +427,20 @@ namespace AltivaWebApp.Controllers
         {
             return Ok(userService.GetAllConEmpresas());
         }
+
+              [HttpGet("GetAllPerfilModulo")]
+        public ActionResult GetAllPerfilModulo()
+        {
+           
+            return Ok(userService.GetAllPerfilModulo());
+        }
+
+        [HttpGet("GetAllPerfilUsuario")]
+        public ActionResult GetAllPerfilUsuario()
+        {
+            
+            return Ok(userService.GetAllPerfilUsuario());
+        }
+
     }
 }

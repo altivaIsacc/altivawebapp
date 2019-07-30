@@ -37,5 +37,7 @@ namespace AltivaWebApp.Services
         TbCrContactoRelacion GetRelacionById(int id);
         TbCrContactoRelacion GetByIdPadreAndIdHijo(int idPadre, int idHijo);
         IList<TbCrContacto> GetAllClientes();
+        IList<TbCrContacto> GetAllClientes();
+
     }
 }

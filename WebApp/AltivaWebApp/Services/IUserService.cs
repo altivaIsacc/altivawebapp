@@ -32,5 +32,7 @@ namespace AltivaWebApp.Services
         bool CrearRelEmpresaUsuario(IList<TbSeEmpresaUsuario> domain);
         bool DesactivarRelEmpresaUsuario(IList<TbSeEmpresaUsuario> domain);
         IList<TbGeEmpresa> GetEmpresasPorUsuario(int idUsuario);
+        IList<TbSePerfilUsuario> GetAllPerfilUsuario();
+        IList<TbSePerfilModulo> GetAllPerfilModulo();
     }
 }

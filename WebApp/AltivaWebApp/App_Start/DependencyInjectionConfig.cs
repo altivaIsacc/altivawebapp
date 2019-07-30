@@ -228,6 +228,20 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IFacturaService, FacturaService>();
             services.AddScoped<IFacturaMap, FacturaMap>();
 
+            //Cotizaciones
+            services.AddScoped<ICotizacionRepository,CotizacionRepository>();
+            services.AddScoped<ICotizacionService, CotizacionService>();
+            services.AddScoped<ICotizacionMap, CotizacionMap>();
+
+            //Denominaciones
+            services.AddScoped<IDenominacionRepository,DenominacionRepository>();
+            services.AddScoped<IDenominacionesService, DenominacionesService>();
+            services.AddScoped<IDenominacionMap, DenominacionMap>();
+
+            //Caja
+            services.AddScoped<ICajaService, CajaService>();
+            services.AddScoped<ICajaRepository, CajaRepository>();
+            services.AddScoped<ICajaMap, CajaMap>();
 
         }
     }
