@@ -207,7 +207,7 @@ else
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <div class="col-md-6"> <h5 data-translate="EditarOrden" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["EditIBodega"]</h5></div>
+                    <div class="col-md-6"> <h5 data-translate="EditarOrden" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["editarOrden"]</h5></div>
                  </div>
                 <div class="modal-body" id="editarBodega">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -216,35 +216,31 @@ else
                     <div class="row">
                         <input id="editId" type="hidden" class="form-control" />
                         <input id="editIva" type="hidden" class="form-control" />
+                        <input id="nSubTotal" type="hidden" class="form-control" />
+
 
 
                         <div class="form-group col-sm-7">
                             <label class="control-label">@SharedLocalizer["Cantidad"]</label>
-                            <input id="editCantidad" class="form-control"  />
-                            <span hidden id="validatedCantidad" class="text-danger" data-translate="ExMinimaRequerido">@SharedLocalizer["ExMinimaRequerido"]</span>
+                            <input id="editCantidad" class="form-control numerico" />
                         </div>
                         <div class="form-group col-sm-7">
                             <label class="control-label ">@SharedLocalizer["PrecioUnitario"]</label>
-                            <input id="editPrecio" class="form-control" />
-                            <span hidden id="validatedPrecio" class="text-danger" data-translate="ExMediaRequerido">@SharedLocalizer["ExMediaRequerido"]</span>
+                            <input id="editPrecio" class="form-control numerico" />
                         </div>
                         <div class="form-group col-sm-7">
                             <label class="control-label ">@SharedLocalizer["Descuento"]</label>
-                            <input id="editDescuento" class="form-control" />
-                            <span hidden id="validatedDescuento" class="text-danger" data-translate="ExMaximaRequerido">@SharedLocalizer["ExMaximaRequerido"]</span>
+                            <input id="editDescuento" class="form-control numerico" />
                         </div>
+                        <div class="form-group col-sm-7">
 
-                        <div class="form-group row">
-                            <div class="col-md-6">
-                                <button id="btnEditOrden" onclick="editOrden()" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
-                            </div>
-                            <div class="col-md-6">
-                                <button class="btn btn-default" data-dismiss="modal"><span>@SharedLocalizer["Cancelar"]</span></button>
-                            </div>
+                            <button id="btnEditOrden" onclick="editOrden()" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
 
+                            <button class="btn btn-default" data-dismiss="modal"><span>@SharedLocalizer["Cancelar"]</span></button>
+
+                            </div>
                         </div>
                     </div>
-                </div>
             </div>
         </div>
     </div>
@@ -275,7 +271,7 @@ else
     var $totalImpuesto = $('#totalImpuesto');
     var $totalDescuento = $('#totalDescuento');
     var $total = $('#total');
-
+    var $nSubTotal =$('#nSubTotal');
     //resumen
     var subTotalExcento = 0;
     var subTotalGravado = 0;
@@ -284,6 +280,8 @@ else
     var totalDescuento = 0;
     var totalImpuesto = 0;
     var totalOrden = 0;
+    var editDescuento = 0;
+    var editPrecio = 0;
 
     var ordenDetalleBD = [];
     var lineas = [];
@@ -346,7 +344,11 @@ else
             $iva.val(itemInfo.impuestoVenta);
             setSubTotalLinea();
         });
+         $('#cantidad').on('change.select2', function () {
 
+            var itemInfo = getItem($(this).val());
+            nuevoSubTotalLinea();
+        });
         $('textarea[data-limit-rows=true]')
             .on('keypress', function (event) {
                 var textarea = $(this),
@@ -415,53 +417,132 @@ else
                $('#editCantidad').val(arreglo[i].cantidad);
                $('#editPrecio').val(arreglo[i].precio);
                $('#editDescuento').val(arreglo[i].porcDesc);
-               $('#editIva').val(arreglo.porcIva);
+               $('#editIva').val(arreglo[i].porcIva);
+               editDescuento = $('#editDescuento').val();
+               editPrecio = $('#editPrecio').val();
+               
                
 
            }
        }
 
     }
+    function validarmodalEditar() {
+       
+        var cantidad = parseFloat($('#editCantidad').val());
+        var precio = parseFloat($('#editPrecio').val());
+        if (cantidad <= 0) {
+            cargarAlert('@SharedLocalizer["AlertCompraCantidad"]');
+            return false;
+        }
+        if (precio <= 0) {
+           cargarAlert('@SharedLocalizer["AlertCompraPrecio"]');
+            return false;
+        }
+        else
+        {
+                        return true;
+
+        }
+        
+        
+    }
    function editOrden()
    {
-         for (var i = 0; i < lineas.length; i++) {
-             if (lineas[i].idInventario == $('#editId').val() &&
-                lineas[i].precio == parseFloat($('#editPrecio').val()) && lineas[i].porcDesc == parseFloat($('#editDescuento').val()) )
-             {
-                 lineas[i].cantidad = parseFloat($("#editCantidad").val());
-                 lineas[i].precio = parseFloat($('#editPrecio').val());
-                 lineas[i].subTotal0Grabado = calcularSubtotalGrabadoLinea();
-                 lineas[i].subTotalExcento = calcularSubtotalExcentoLinea();
-                 lineas[i].subTotalNeto = calcularSubtotalNetoLinea();
-                 lineas[i].porcIs = 0;
-                 lineas[i].totalIs = 0;
-                 lineas[i].porcDesc = parseFloat($('#editDescuento').val());
-                 lineas[i].totalDescuento = calcularTotalDescuentoLinea();
-                 lineas[i].totalIva = calcularTotalIvaLinea();
-                 lineas[i].total = calcularTotalLinea();
-                 if(@Model.Id!=0)
-                 lineasActualizadas.push(lineas[i]);
-             }
-         }
-        
-               cargarTabla(lineas);
- $('#modalEditarOrden').modal('hide');
+       if (validarmodalEditar()) {
+           for (var i = 0; i < lineas.length; i++) {
+               if (lineas[i].idInventario == $('#editId').val() &&
+                   lineas[i].precio == editPrecio && lineas[i].porcDesc == editDescuento) {
+                   setSubTotalLinea();
 
+                   lineas[i].cantidad = parseFloat($("#editCantidad").val());
+                   lineas[i].precio = parseFloat($('#editPrecio').val());
+                   lineas[i].subTotalGrabado = calcularSubtotalGrabadoLinea();
+                   lineas[i].subTotalExcento = calcularSubtotalExcentoLinea();
+                   lineas[i].subTotalNeto = calcularSubtotalNetoLinea();
+                   lineas[i].porcIs = 0;
+                   lineas[i].totalIs = 0;
+                   lineas[i].porcDesc = parseFloat($('#editDescuento').val());
+                   lineas[i].totalDescuento = calcularTotalDescuentoLinea();
+                   lineas[i].totalIva = calcularTotalIvaLinea();
+                   lineas[i].total = calcularTotalLinea();
+                   if (@Model.Id!= 0)
+                       lineasActualizadas.push(lineas[i]);
+
+               }
+
+           }
+           cargarTabla(lineas);
+           $('#modalEditarOrden').modal('hide');
+       }
    }
+    //recalcular linea
+    function nuevoSubTotalLinea() {
+        var precio = parseFloat($('#editPrecio').val());
+        var cantidad = parseFloat($('#editCantidad').val());
+        $nSubTotal.val(cantidad * precio);
 
+    }
+      function recalcularSubtotalGrabadoLinea() {
+          var iva = parseFloat($('#editIva').val());
+          if (iva > 0)
+          {
+            return parseFloat($nSubTotal.val()) ;
+          }
+        else
+            return 0;
+    }
+    function recalcularSubtotalExcentoLinea() {
+      
+        var iva = parseFloat( $('#editIva').val());
+  if (iva === 0)
+      return parseFloat($nSubTotal.val()) ;
+        else
+            return 0;
+    }
+     function recalcularSubtotalNetoLinea() {
+         return parseFloat($nSubTotal.val()) - recalcularTotalDescuentoLinea();
+
+    }
+    function recalcularTotalIvaLinea() {
+        var iva = parseFloat($('#editIva').val());
+
+        var subTotal = parseFloat($nSubTotal.val()) - recalcularTotalDescuentoLinea();
+        return (iva / 100) * subTotal;
+    }
+
+    function recalcularTotalDescuentoLinea() {
+        var desc = parseFloat($('#editDescuento').val());
+        var subTotal = parseFloat($nSubTotal.val());
+        return (desc / 100) * subTotal;
+
+    }
+    function recalcularTotalLinea() {
+
+        return recalcularSubtotalNetoLinea() + recalcularTotalIvaLinea();
+
+    }
+    
     ///calculos de línea
     function setSubTotalLinea() {
-
-        var precio = parseFloat($precio.val());
-        var cantidad = parseFloat($cantidad.val());
-
+        if ($('#modalEditarOrden').hasClass('in')) {
+            var precio = parseFloat($('#editPrecio').val());
+            var cantidad = parseFloat($('#editCantidad').val());
+        } else {
+            var precio = parseFloat($precio.val());
+            var cantidad = parseFloat($cantidad.val());
+        }
         $subTotalLinea.val(cantidad * precio);
+
 
     }
 
     function calcularSubtotalGrabadoLinea() {
+        if ($('#modalEditarOrden').hasClass('in')) {
+            var iva = parseFloat($('#editIva').val());
+        } else 
+           var iva = parseFloat($iva.val());
 
-        var iva = parseFloat($iva.val());
         if (iva > 0)
             return parseFloat($subTotalLinea.val());
         else
@@ -469,7 +550,11 @@ else
     }
 
     function calcularSubtotalExcentoLinea() {
-        var iva = parseFloat($iva.val());
+        if ($('#modalEditarOrden').hasClass('in')) {
+            var iva = parseFloat($('#editIva').val());
+        } else 
+            var iva = parseFloat($iva.val());
+
         if (iva === 0)
             return parseFloat($subTotalLinea.val());
         else
@@ -484,14 +569,22 @@ else
 
 
     function calcularTotalIvaLinea() {
-        var iva = parseFloat($iva.val());
+         
+        if ($('#modalEditarOrden').hasClass('in')) {
+            var iva = parseFloat($('#editIva').val());
+        } else 
+            var iva = parseFloat($iva.val());
+
         var subTotal = parseFloat($subTotalLinea.val()) - calcularTotalDescuentoLinea();
         return (iva / 100) * subTotal;
     }
 
     function calcularTotalDescuentoLinea() {
+          if ($('#modalEditarOrden').hasClass('in')) {
+            var desc = parseFloat($('#editDescuento').val());
+        } else 
+            var desc = parseFloat($descuento.val());
 
-        var desc = parseFloat($descuento.val());
         var subTotal = parseFloat($subTotalLinea.val());
         return (desc / 100) * subTotal;
 
@@ -560,6 +653,7 @@ else
             $('#item').val(data[i].idInventario);
             $('#item').trigger('change.select2');
             $cantidad.val(data[i].etotal);
+            setSubTotalLinea();
             guardarLinea();
            $cantidad.val(1);
 
@@ -580,9 +674,20 @@ else
                 
                 if (lineas[i].precio == parseFloat($precio.val()) && lineas[i].porcDesc == parseFloat($descuento.val()) && lineas[i].porcIva == parseFloat($iva.val()))
                 {
-                    lineas[i].cantidad = parseFloat(lineas[i].cantidad) + parseFloat($cantidad.val());
+
+                    $cantidad.val(parseFloat(lineas[i].cantidad) + parseFloat($cantidad.val()));
+                    lineas[i].cantidad = $cantidad.val();
+                         setSubTotalLinea();
+                         lineas[i].subTotalGrabado= calcularSubtotalGrabadoLinea();
+                         lineas[i].subTotalExcento= calcularSubtotalExcentoLinea();
+                         lineas[i].subTotalNeto = calcularSubtotalNetoLinea();
+                         lineas[i].totalDescuento= calcularTotalDescuentoLinea();
+                         lineas[i].totalIva= calcularTotalIvaLinea();
+                         lineas[i].total= calcularTotalLinea();
                     existe = false;
-                     cargarTabla(lineas);
+                    cargarTabla(lineas);
+                     $cantidad.val(1);
+
                     
                 }       
             }
@@ -631,13 +736,6 @@ else
                     lineasAgregadas = [];
                      cargarTabla(lineas);
                     generarCompraAutomatica();
-                     
-                    
-                   
-                   
-                    
-
-
                 }
 
             });
