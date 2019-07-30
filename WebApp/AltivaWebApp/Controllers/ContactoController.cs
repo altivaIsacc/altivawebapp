@@ -197,6 +197,9 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
         }
+
+
+
         [HttpGet("CamposPersonalizados/{idContacto?}")]
         public IActionResult GetCamposPersonalizados(int idContacto)
         {
@@ -212,49 +215,10 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        [HttpGet("GetUsuarioCliente")]
-        public ActionResult GetUsuariosCliente()
-        {
-            return Ok(contactoService.GetAllClientes());
-        }
-
-        [HttpGet("camposEdit/{id?}")]
-        public IActionResult camposEdit(int id)
-        {
-
-            IList<ContactoViewModel> con = new List<ContactoViewModel>();
-            con = this.ICCService.GetCamposEdit(id);
-            return new JsonResult(con);
-        }
-
-        [HttpGet("GetContactosRelacion/{id?}")]
-        public IActionResult GetContactosRelacion(int id)
-        {
-            IList<ContactoRelacionGETViewModel> cr = new List<ContactoRelacionGETViewModel>();
-            cr = this.contactoService.GetContactosRelacion(id);
-
-            return new JsonResult(cr);
-        }
-
-        [HttpGet("Edit/{id?}")]
-        public IActionResult Edit(int id)
-        {
-            try
-            {
-                var campos = cpService.GetAll(idContacto);
-                return Json(campos);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-                throw;
-            }
-        }
 
 
-        
         ///////////////////////////////////////////////////////////////////////condiciones de pago
-       
+
         [HttpGet("GetCondicionesPago/{idContacto}")]
         public IActionResult GetCondicionesPago(int idContacto)
         {
@@ -270,7 +234,7 @@ namespace AltivaWebApp.Controllers
         }
 
         ///////////////////////////////////////////////////////////////////fin condiciones de pago//////////////////////////////////////////////
-        
+
 
 
         /////////////////////////////////////////////////////////////////cuentas bancarias//////////////////////////////////////////////////
@@ -286,7 +250,7 @@ namespace AltivaWebApp.Controllers
         public IActionResult _CrearEditarCuentasBancarias(int idCuenta, int idContacto)
         {
             ViewBag.monedas = monedaService.GetAll();
-            if(idCuenta != 0)
+            if (idCuenta != 0)
             {
                 return PartialView(contactoMap.DomainToViewModelCB(contactoService.GetCuentaById(idCuenta)));
             }
@@ -306,7 +270,7 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var cuenta = new TbFdCuentasBancarias();
-                if(viewModel.Id != 0)
+                if (viewModel.Id != 0)
                 {
                     contactoMap.UpdateCuentaBancaria(viewModel);
                 }
@@ -380,7 +344,7 @@ namespace AltivaWebApp.Controllers
             {
                 viewModel.Id = 0;
                 viewModel.IdContactoPadre = 0;
-                
+
                 return PartialView(viewModel);
             }
             else
@@ -398,7 +362,7 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var contactoRel = contactoService.GetByIdPadreAndIdHijo((int)viewModel.IdContactoPadre, (int) viewModel.IdContactoHijo);
+                var contactoRel = contactoService.GetByIdPadreAndIdHijo((int)viewModel.IdContactoPadre, (int)viewModel.IdContactoHijo);
                 if (contactoRel != null)
                 {
                     contactoRel.NotaRelacion = viewModel.NotaRelacion;
@@ -421,10 +385,10 @@ namespace AltivaWebApp.Controllers
 
         /// /////////////////////////////////////////////// fin relaciones entre contactos////////////////////////////////////////////////////
 
-        
-            
-            
-            
+
+
+
+
         /// /////////////////////////////////////////////// tareas contactos////////////////////////////////////////////////////
         [HttpGet("_ListarTareasContacto/{idContacto}")]
         public IActionResult _ListarTareasContacto(int idContacto)
@@ -436,7 +400,7 @@ namespace AltivaWebApp.Controllers
         /// /////////////////////////////////////////////// fin tareas contactos////////////////////////////////////////////////////
 
 
-        
+
 
         [HttpGet("GetProveedores")]
         public IActionResult GetProveedores(int idContacto)
@@ -450,6 +414,7 @@ namespace AltivaWebApp.Controllers
             {
                 return BadRequest();
             }
+
         }
 
 
@@ -479,17 +444,5 @@ namespace AltivaWebApp.Controllers
         }
 
 
-        [HttpGet("GetCliente")]
-        public IActionResult GetAllClientes(int idContacto)
-        {
-            try
-            {
-                return Ok(contactoService.GetAllClientes());
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
     }
 }
