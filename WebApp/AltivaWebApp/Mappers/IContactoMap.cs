@@ -8,16 +8,21 @@ namespace AltivaWebApp.Mappers
 {
    public interface IContactoMap
     {
-        
-        TbCrContacto NuevoContacto(ContactoViewModel domain);
-        TbCrContacto viewToModelContacto(ContactoViewModel domain);
-        TbCrContacto EditarContacto(ContactoViewModel domain);
-        TbCrContacto viewToModelContactoEditar(ContactoViewModel domain);
-        TbCrContacto ingresarImagen(int id , string ruta);
-        TbCrContactoRelacion InsertarRelacion(ContactoRelacionViewModel domain);
-        TbCrContactoRelacion viewToModelContactoRelacion(ContactoRelacionViewModel domain);
-        TbCrCamposPersonalizados Delete(int id);
-        TbCrCamposPersonalizados Edit(CamposPersonalizadosViewModelSingle domain);
-        TbCrCamposPersonalizados viewModelCamposEdit(CamposPersonalizadosViewModelSingle domain);
+       
+        TbCrContacto CreateContacto(ContactoViewModel domain);
+        TbCrContacto ViewModelToDomainC(ContactoViewModel domain);
+        TbCrContacto UpdateContacto(ContactoViewModel domain);
+        TbCrContacto UpdateImagen(int id , string ruta);
+        TbCrContactoRelacion CreateRelacion(ContactoRelacionViewModel domain);
+        TbCrContactoRelacion UpdateRelacion(ContactoRelacionViewModel domain);
+        TbCrContactoRelacion ViewModelToDomainCR(ContactoRelacionViewModel domain);
+        TbCrCamposPersonalizados EliminarCP(int id);
+        TbCrCamposPersonalizados UpdateCP(CamposPersonalizadosViewModel domain);
+        TbCrCamposPersonalizados ViewModelToDomainCP(CamposPersonalizadosViewModel domain);
+        ContactoViewModel DomainToViewModelC(TbCrContacto domain);
+        ContactoRelacionViewModel DomainToViewModelCR(TbCrContactoRelacion domain);
+        CuentaBancariaViewModel DomainToViewModelCB(TbFdCuentasBancarias domain);
+        TbFdCuentasBancarias CreateCuentaBancaria(CuentaBancariaViewModel viewModel);
+        TbFdCuentasBancarias UpdateCuentaBancaria(CuentaBancariaViewModel viewModel);
     }
 }

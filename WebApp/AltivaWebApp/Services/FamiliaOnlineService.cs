@@ -51,5 +51,9 @@ namespace AltivaWebApp.Services
             repository.UpdateSubFamilia(subFamilias);
         }
 
+        public TbPrFamiliaVentaOnline GetFamiliaByDescripcion(string descripcion)
+        {
+            return repository.GetFamiliaByDescripcion(descripcion);
+        }
     }
 }

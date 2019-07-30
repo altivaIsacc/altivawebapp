@@ -30,10 +30,52 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbFdTarea.OrderBy(afg => afg.Posicion)
                .Include(c => c.IdContactoNavigation)
-
                .Include(e => e.IdEstadoNavigation)
-                   .Include(t => t.IdTipoNavigation)
-                   .ToList();
+               .Include(t => t.IdTipoNavigation)
+               .Select(t => new TbFdTarea {
+                   Cobrado = t.Cobrado,
+                   CostoEstimado = t.CostoEstimado,
+                   CostoReal = t.CostoReal,
+                   Descripcion = t.Descripcion,
+                   DiasEstimados = t.DiasEstimados,
+                   DiasReales = t.DiasReales,
+                   Eliminada = t.Eliminada,
+                   FechaCreacion = t.FechaCreacion,
+                   FechaFinal = t.FechaFinal,
+                   FechaInicio = t.FechaInicio,
+                   FechaLimite = t.FechaLimite,
+                   Id = t.Id,
+                   IdContacto = t.IdContacto,
+                   IdContactoNavigation = new TbCrContacto
+                   {
+                       Nombre = t.IdContactoNavigation.Nombre,
+                       Apellidos = t.IdContactoNavigation.Apellidos,
+                       NombreComercial = t.IdContactoNavigation.NombreComercial,
+                       Persona = t.IdContactoNavigation.Persona,
+                       Empresa = t.IdContactoNavigation.Empresa,
+                       Proveedor = t.IdContactoNavigation.Proveedor,
+                       Cliente = t.IdContactoNavigation.Cliente,
+                       NombreJuridico = t.IdContactoNavigation.NombreJuridico
+                   },
+                   IdEstado = t.IdEstado,
+                   IdTipo = t.IdTipo,
+                   IdEstadoNavigation = new TbFdTareaEstado {
+                       Color = t.IdEstadoNavigation.Color,
+                       Titulo = t.IdEstadoNavigation.Titulo
+                   }, 
+                   IdTipoNavigation = new TbFdTareaTipo {
+                       Color = t.IdTipoNavigation.Color,
+                       Titulo = t.IdTipoNavigation.Titulo
+                   },
+                   IdUsuario = t.IdUsuario,
+                   MontoCobrad = t.MontoCobrad,
+                   Posicion = t.Posicion,
+                   TbFdSubtareas = t.TbFdSubtareas,
+                   Titulo = t.Titulo
+
+               })
+               .Where(t => t.Eliminada == false)
+               .ToList();
         }
 
         public void SaveRange(IList<TbFdSubtareas> domain)
@@ -63,5 +105,16 @@ namespace AltivaWebApp.Repositories
             context.SaveChanges();
             return query;
         }
+
+        public bool ExisteTipo()
+        {
+            return context.TbFdTareaTipo.Any();
+        }
+
+        public bool ExisteEstado()
+        {
+            return context.TbFdTareaEstado.Any();
+        }
+
     }
 }

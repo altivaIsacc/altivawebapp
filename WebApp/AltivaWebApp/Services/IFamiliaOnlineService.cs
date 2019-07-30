@@ -16,5 +16,6 @@ namespace AltivaWebApp.Services
         IList<TbPrFamiliaVentaOnline> GetAllFamilias();
         IList<TbPrFamiliaVentaOnline> GetAllSubFamilias();
         void UpdateSubFamilia(IList<TbPrFamiliaVentaOnline> subFamilias);
+        TbPrFamiliaVentaOnline GetFamiliaByDescripcion(string descripcion);
     }
 }

@@ -1,195 +1,234 @@
-﻿@model AltivaWebApp.Domains.TbFdTipoCliente
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
-@functions{
-    public string GetAntiXsrfRequestToken()
+﻿@model TipoClienteViewModel
+
+@inject IStringLocalizer<SharedResources> Lb
+
+
+@{ 
+    var edita = "";
+
+    if (Model.Id != 0)
     {
-        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+        edita = "hidden";
     }
 }
-<div class="container">
-    <div class="col-md-12">
-        <div class="row">
-            @{
-                        
-                        if (Model.Nombre == null)
-                        {
 
-                         
-                    <h2>Tipo de cliente:</h2>
+<div class="row">
+    <div class="col-md-6">
+        @if (Model.Id != 0)
+        {
+            <h4 class="modal-title" id="familiaModallabel">@Lb["Editar"] @Lb["TipoCliente"]</h4>
+        }
+        else
+        {
+            <h4 class="modal-title" id="familiaModallabel">@Lb["Nuevo"] @Lb["TipoCliente"]</h4>
+        }
 
-
-
-                        }
-                        else if (Model.IdPadre == 0)
-                        {
-                          
-                    <h2>Familia:</h2>
-                    <div class="form-group">
-                        <label>Tipo:</label>
-                        <div hidden><input type="text" asp-for="Id" id="idFamilia"/>
-                        <input type="text" asp-for="IdPadre" id="idPadre" />
-                        </div>
-                        <input type="text" disabled="disabled" value="@Model.Nombre" class="form-control" />
-                     
-                    </div>
-                }
-                else
-                {
-                    
-                    <h2>Sub-Familia:</h2>
-                    <div class="form-group">
-                        <div hidden>
-                            <input type="text" asp-for="Id" id="idSubFamilia" />
-                            <input type="text" asp-for="IdPadre" id="idIdPadreFamiliaPadre" />
-                        </div>
-                        <label>Familia:</label>
-                        <input type="text" disabled="disabled" value="@Model.Nombre" class="form-control" />
-                    </div>
-                }
-            }
-
-                    <div class="form-group">
-                        <label> Nombre:</label>
-                        <input type="text" class="form-control" id="nombreCliente" />
-                        <div id="AlertNombre"></div>
-                    </div>
-            
-        </div>
-        <div class="row">
-            @if (Model.Nombre == null)
-            {
-                <button class="btn btn-success" onclick="btnGuardarTipoCliente()" type="submit">Guardar</button>
-            }
-            else if (Model.IdPadre == 0)
-            {
-                <button class="btn btn-success" onclick="btnGuardarFamilia()" type="submit">Guardar</button>
-
-            }
-            else
-            {
-                <button class="btn btn-success" onclick="btnGuardarSubFamilias()" type="button">Guardar</button>
-
-            }
-            <button  class=" btn btn-default" data-dismiss="modal">Cerrar</button>
-        </div>
+    </div>
+    <div class="col-md-6">
+        <button type="button" class="close"  data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
 </div>
+
+<hr />
+
+<div class="row">
+    @if (Model.Id == 0)
+    {
+        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+            <label class="radio-inline" for="tipoC"><input type="radio" name="radioTipoC" onchange="ocultarCamposTipoC(1)" checked="checked" value="1" id="tipoC" />@Lb["Tipo"]</label>
+            <label class="radio-inline" for="familiaC"><input type="radio" name="radioTipoC" onchange="ocultarCamposTipoC(2)" value="2" id="familiaC" />@Lb["Familia"]</label>
+            <label class="radio-inline" for="subFamiliaC"><input type="radio" name="radioTipoC" onchange="ocultarCamposTipoC(3)" value="3" id="subFamiliaC" />@Lb["Sub-Familia"]</label>
+        </div>
+    }
+
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <form id="frmTipoCliente">
+            @Html.HiddenFor(x => x.Id, new { @id = "tcId" })
+            @Html.HiddenFor(x => x.IdUsuario, new { @id = "tcIdUsuario" })
+            @Html.HiddenFor(x => x.FechaCreacion, new { @id = "tcFechaCreacion" })
+
+            <div @edita>
+                <div hidden id="tipoCContainer" class="form-group">
+                    <label class="control-label">@Lb["Tipo"]:</label>
+                    <select id="tipoCSelect" class="form-control"></select>
+                </div>
+
+                <div hidden id="familiaCContainer" class="form-group">
+                    <label id="idPadreLabel" for="IdPadre" class="control-label"></label>
+                    <select asp-for="IdPadre" class="form-control"><option value=""></option></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Nombre" class="control-label">@Lb["Nombre"]:</label>
+                <input asp-for="Nombre" id="tcNombre" class="form-control" />
+                <span hidden id="tcNombreValid" class="text-danger">@Lb["nombreValid"]</span>
+            </div>
+            <div class="form-group">
+
+                <label asp-for="Inactivo" id="tcInactivo" class="form-check-label">
+                    @Lb["Inactivo"] <input type="checkbox" class="form-check-input" asp-for="Inactivo" />
+                </label>
+
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-md-2 col-sm-2 col-xs-4">
+        <button onclick="guardarTipoCliente()" class="btn btn-success"><span>@Lb["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
+    </div>
+    <div class="col-md-2 col-sm-2 col-xs-4">
+        <button class="btn btn-default" data-dismiss="modal">@Lb["Cancelar"]</button>
+    </div>
+</div>
+
 <script>
-    //guardar subfamilia en base alas familias de los tipos
-    function btnGuardarSubFamilias() {
-        var nombre = "";
-        var nombre = "";
-        nombre = $("#nombreCliente").val();
-        if (ValidarDatos() == true) {
-            var TipoClienteViewModels = {
-                id: null,
-                idPadre: $('#idSubFamilia').val(),
-                nombre: nombre,
-                inactivo: false
-            };
-            var urls = '@Url.Action("CrearTipoCliente", "TipoCliente")';
+
+    var tipoClientesCrear = [];
+
+    $(document).ready(function () {
+
+        getTipoClientesCrear();
+
+    });
+
+
+    function ocultarCamposTipoC(key) {
+
+        $('#IdPadre')
+            .find('option')
+            .remove();
+        
+        
+        if (key === 1) {
+            $("#tipoC").prop("checked", true);
+            $('#tipoCContainer').prop('hidden', true);
+            $('#familiaCContainer').prop('hidden', true);
+        }
+        else if (key === 2) {
+            $("#familiaC").prop("checked", true);
+            $('#familiaCContainer').prop('hidden', false);
+            $('#tipoCContainer').prop('hidden', true);
+            $('#idPadreLabel').text('@Lb["Tipo"]:');
+
+            
+            cargarPadreItems(0, @ViewBag.idTipo);
+
+        } else {
+
+            $("#subFamiliaC").prop("checked", true);
+            $('#tipoCContainer').prop('hidden', false);
+            $('#familiaCContainer').prop('hidden', false);
+            $('#idPadreLabel').text('@Lb["Familia"]:');
+
+            cargarPadreItems(@ViewBag.idTipo, @ViewBag.idFamilia);
+        }
+    }
+
+
+
+
+
+    /////////Tipos de Clientes
+
+    function guardarTipoCliente() {
+
+        var flag = true;
+        if ($('#tcNombre').val().replace(/ /g, "") === "") {
+            flag = false;
+            $('#tcNombreValid').prop('hidden', false);
+        }
+
+
+        if (flag) {
             $.ajax({
                 type: "POST",
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                url: urls,
-                data: { domain: TipoClienteViewModels },
+                url: '@Url.Action("CrearEditarTipoCliente", "TipoCliente")',
+                data: $('#frmTipoCliente').serialize(),
                 success: function (data) {
-                    getSubFamilias($('#familia').val());
+                   var tipo = $("input[name='radioTipoC']:checked").val();
+                    getTipoClientes(parseInt(tipo), data.tipoP.id);
                     $('#modalTipoCliente').modal('hide');
+                    
                 },
                 error: function (err, scnd) {
-                    console.log(err.statusText);
+                    cargarAlert('@Lb["errorGeneral"]');
                 }
+
             });
         }
-    }
-    //guardar familia del tipo del cliente
-    function btnGuardarFamilia() {
 
-        var nombre = "";
-        nombre = $("#nombreCliente").val();
-        if (ValidarDatos() == true) {
-            var TipoClienteViewModels = {
-                id: null,
-                idPadre: $('#idFamilia').val(),
-                nombre: nombre,
-                inactivo: false
-            };
-            var urls = '@Url.Action("CrearTipoCliente", "TipoCliente")';
-            $.ajax({
-                type: "POST",
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                url: urls,
-                data: { domain: TipoClienteViewModels },
-                success: function (data) {
-                    getFamilias($('#tipoClientes').val());
-                    $('#modalTipoCliente').modal('hide');
-                },
-                error: function (err, scnd) {
-                    console.log(err.statusText);
+    }
+
+
+    function getTipoClientesCrear() {
+
+         $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetTiposClientes", "TipoCliente")',
+            success: function (data) {
+
+
+                tipoClientesCrear = data;
+                setTipoClientesSelect(@ViewBag.idTipo);
+                ocultarCamposTipoC(@ViewBag.tipoC);
+                //cargarTipoCLientes(data);
+
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+         });
+    }
+
+    function setTipoClientesSelect(id) {
+
+        $('#tipoCSelect')
+            .find('option')
+            .remove();
+
+        for (var i = 0; i < tipoClientesCrear.length; i++) {
+            if (tipoClientesCrear[i].idPadre === 0) {
+                var o = new Option(tipoClientesCrear[i].nombre, tipoClientesCrear[i].id);
+                if (tipoClientesCrear[i].id === id) {
+                    $(o).attr('selected', true);
                 }
-            });
+                $("#tipoCSelect").append(o);
+            }
         }
+
+        //cargarPadreItems(parseInt($('#tipoCSelect').val()));
+
     }
-    
-    //guardar tipo cliente
 
-    function btnGuardarTipoCliente() {
-        //agregar familia
-      
-        var nombre = "";
-        nombre = $("#nombreCliente").val();
-        /*
-        if ($('#idPadre').val() == 0 && nombre != true) {
+    $('#tipoCSelect').change(function () {
 
-            var TipoClienteViewModel = {
-                id: null,
-                idPadre: $('#idFamilia').val(),
-                nombre: nombre,
-                inactivo: false
-            };
-        } else if ($('#IdPadreFamilia').val() != 0 && nombre != true) {
-          
+        cargarPadreItems(parseInt(this.value), 0);
 
-        }*/
-        if (ValidarDatos() == true) {
+    });
 
+    function cargarPadreItems(idTipo, id) {
 
-            var TipoClienteViewModel = {
-                id: null,
-                idPadre: 0,
-                nombre: nombre,
-                inactivo: false
-            };
-            var url = '@Url.Action("CrearTipoCliente", "TipoCliente")';
-            $.ajax({
-                type: "POST",
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                url: url,
-                data: { domain: TipoClienteViewModel },
-                success: function (data) {
-                    getTiposClientes();
-                    $('#modalTipoCliente').modal('hide');
-                },
-                error: function (err, scnd) {
-                    console.log(err.statusText);
+        
+        for (var i = 0; i < tipoClientesCrear.length; i++) {
+            if (tipoClientesCrear[i].idPadre === idTipo) {
+                var o = new Option(tipoClientesCrear[i].nombre, tipoClientesCrear[i].id);
+
+                if (tipoClientesCrear[i].id === id) {
+                    $(o).attr('selected', true);
                 }
-            });
-        }
-    }
-    function ValidarDatos() {
-        if ($('#nombreCliente').val() == "") {
-            $('#AlertNombre').empty();
-            $('#AlertNombre').append('<span class="danger-text">El Nombre es requerido.</span>');
-            return false;
+
+                $("#IdPadre").append(o);
+            }
         }
 
-        return true;
     }
+
 </script>
+

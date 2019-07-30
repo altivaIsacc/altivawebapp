@@ -4,77 +4,61 @@
 
     <h3>@Model.Nombre</h3>
 
-    <a class="btn btn-link btnAtras" data-translate="atras">Atrás</a>
-
     <hr />
 
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-4 col-sm-4 col-xs-12">
             <img src="@Model.Foto" style="width: 90%" />
-            <form asp-controller="GrupoEmpresarial" asp-action="EditarEmpresa" method="post" enctype="multipart/form-data">
-                @Html.HiddenFor(x => x.Nombre)
-                @Html.HiddenFor(x => x.Id)
-                @Html.HiddenFor(x => x.Telefono1)
-                @Html.HiddenFor(x => x.Telefono2)
-                @Html.HiddenFor(x => x.Bd)
-                @Html.HiddenFor(x => x.CedJuridica)
-                @Html.HiddenFor(x => x.Correo)
-                @Html.HiddenFor(x => x.Direccion)
-                @Html.HiddenFor(x => x.Estado)
-                @Html.HiddenFor(x => x.FechaCreacion)
-                @Html.HiddenFor(x => x.FechaMod)
-                @Html.HiddenFor(x => x.IdGrupoEmpresarial)
-                <div class="form-group">
-                    <div class="input-group input-group-sm mb-3">
-                        <div class="input-group-prepend custom-file">
-                            <span  class="input-group-text" id="inputGroup-sizing-sm">@SharedLocalizer["cargarFoto"]</span>
-                        </div>
-                        <input id="fileUpload" type="file" accept="image/*" asp-for="Foto" class="form-control custom-file-input">
-                        <span hidden id="tamanoArchivo" class="text-danger">@SharedLocalizer["tamanoArchivo"]</span>
-                        <span hidden id="tipoArchivo" class="text-danger">@SharedLocalizer["tipoArchivo"]</span>
+
+            <div class="form-group">
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend custom-file">
+                        <span class="input-group-text" id="inputGroup-sizing-sm">@SharedLocalizer["cargarFoto"] (6MB)</span>
                     </div>
+                    <input id="fileUpload" type="file" accept="image/*" asp-for="Foto" class="form-control custom-file-input">
+                    <span hidden id="tamanoArchivo" class="text-danger">@SharedLocalizer["tamanoArchivo"]</span>
+                    <span hidden id="tipoArchivo" class="text-danger">@SharedLocalizer["tipoArchivo"]</span>
                 </div>
-
-
-                <button id="guardarFoto" class="btn btn-success btn-sm" type="submit">
-                    <span  data-translate="geBtnCambiarLogo">@SharedLocalizer["Guardar"]:</span><span> <i class="fas fa-save"></i></span>
-                </button>
-            </form>
+            </div>
+            <button id="guardarFoto" onclick="guardarFoto()" class="btn btn-success btn-sm" type="submit">
+                <span >@SharedLocalizer["Guardar"]</span><span> <i class="fas fa-save"></i></span>
+            </button>
+           
         </div>
-        <div class="col-md-8">
+        <div class="col-md-8 col-sm-8 col-xs-12">
             <table class="table table-bordered">
 
                 <tbody>
                     <tr>
-                        <th data-translate="geThNombreE" scope="Row">Nombre</th>
+                        <th  scope="Row">Nombre:</th>
                         <td> @Html.DisplayFor(model => model.Nombre)</td>
                     </tr>
                     <tr>
-                        <th data-translate="geThCorreoE" scope="row">Correo</th>
+                        <th scope="row">Correo:</th>
                         <td> @Html.DisplayFor(model => model.Correo)</td>
                     </tr>
                     <tr>
-                        <th data-translate="geThCedulaE" scope="row">Cédula Jurídica</th>
+                        <th scope="row">Cédula Jurídica:</th>
                         <td> @Html.DisplayFor(model => model.CedJuridica)</td>
                     </tr>
                     <tr>
-                        <th scope="row">Tel</th>
+                        <th scope="row">Teléfono:</th>
                         <td>@Html.DisplayFor(model => model.Telefono1) - @Html.DisplayFor(model => model.Telefono2)</td>
                     </tr>
                     <tr>
-                        <th data-translate="geThEstadoE" scope="row">Estado</th>
+                        <th scope="row">Estado:</th>
                         <td>@Html.DisplayFor(model => model.Estado)</td>
                     </tr>
                     <tr>
-                        <th data-translate="geThFechaCreacionE" scope="row">Fecha Creación</th>
+                        <th scope="row">Fecha Creación:</th>
                         <td>@Html.DisplayFor(model => model.FechaCreacion)</td>
                     </tr>
                     <tr>
-                        <th data-translate="geThFechaModE" scope="row">Fecha Modificación</th>
+                        <th scope="row">Fecha Modificación:</th>
                         <td>@Html.DisplayFor(model => model.FechaMod)</td>
                     </tr>
                     <tr>
-                        <th data-translate="geThDireccioneE" scope="row">Dirección</th>
+                        <th scope="row">Dirección:</th>
                         <td>@Html.DisplayFor(model => model.Direccion)</td>
                     </tr>
                     <tr>
@@ -83,6 +67,10 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <div class="col-md-8 col-sm-8 col-xs-12">
+            <a asp-action="AutorizacionUsuarios" class="btn btn-link">@SharedLocalizer["AutorizacionUsuarios"]</a>
         </div>
     </div>
 
@@ -98,7 +86,36 @@
 
             $('#fotoEmpresa').attr('src', localStorage.getItem('fotoEmpresa'));
 
-    });
+        });
+
+
+        function guardarFoto() {
+
+            var formData = new FormData();
+            var file = $('#fileUpload')[0].files[0];
+            formData.append("file", file);
+
+           
+             $.ajax({
+                type: "post",
+                @*headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },*@
+                 url: '@Url.Action("CambiarFotoEmpresa", "GrupoEmpresarial", new{ id = Model.Id })',
+                 dataType: 'json',
+                 contentType: false,
+                 processData: false,
+                 data: formData,
+                 success: function (data) {
+                    
+                    window.location.href =  window.location.href;
+
+                    },
+                 error: function (err) {
+                    console.log(err.success);
+                }
+            });
+        }
 
 
     $('#fileUpload').bind('change', function () {
@@ -113,15 +130,19 @@
             var e = 0;
             e = + file.size;
 
-            if (e > 60000) {
+            if (e > 6000000) {
                 $('#tamanoArchivo').attr('hidden', false);
                 $(this).val('');
             }
+            else
+                $('#tamanoArchivo').attr('hidden', true);
 
             if (!(/\.(jpg|png|gif)$/i).test(file.name)) {
                 $('#tipoArchivo').attr('hidden', false);
                 $(this).val('');
             }
+            else
+                $('#tipoArchivo').attr('hidden', true);
 
         }
         else

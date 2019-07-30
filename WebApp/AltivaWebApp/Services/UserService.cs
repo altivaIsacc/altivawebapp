@@ -87,9 +87,9 @@ namespace AltivaWebApp.Services
        
         public TbSeUsuario GetSingleUser(int id)
         {
-           // var user = context.TbSeUsuario.Where(u => u.Nombre == model.usuario && u.Contraseña == model.contrasena).ToList();
             return repository.GetUsuarioById(id);
         }
+
         public TbSeUsuario GetUsuarioConPerfiles(string usuario)
         {
             return repository.GetUsuarioConPerfiles(usuario);
@@ -118,6 +118,23 @@ namespace AltivaWebApp.Services
         public IList<TbSeUsuario> GetAllByIdEmpresa(int idEmpresa)
         {
             return repository.GetAllByIdEmpresa(idEmpresa);
+        }
+        public IList<TbSeUsuario> GetAllConEmpresas()
+        {
+            return repository.GetAllConEmpresas();
+        }
+        public IList<TbGeEmpresa> GetEmpresasPorUsuario(int idUsuario)
+        {
+            return repository.GetEmpresasPorUsuario(idUsuario);
+        }
+        public bool CrearRelEmpresaUsuario(IList<TbSeEmpresaUsuario> domain)
+        {
+            return repository.CrearRelEmpresaUsuario(domain);
+        }
+
+        public bool DesactivarRelEmpresaUsuario(IList<TbSeEmpresaUsuario> domain)
+        {
+            return repository.DesactivarRelEmpresaUsuario(domain);
         }
     }
 }

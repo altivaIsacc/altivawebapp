@@ -7,6 +7,7 @@ namespace AltivaWebApp.Models
     {
         public TbPrInventario()
         {
+            TbFdFacturaDetalle = new HashSet<TbFdFacturaDetalle>();
             TbPrAjusteInventario = new HashSet<TbPrAjusteInventario>();
             TbPrCompraDetalle = new HashSet<TbPrCompraDetalle>();
             TbPrEquivalenciaIdEquivalenciaNavigation = new HashSet<TbPrEquivalencia>();
@@ -16,6 +17,7 @@ namespace AltivaWebApp.Models
             TbPrInventarioCaracteristica = new HashSet<TbPrInventarioCaracteristica>();
             TbPrOrdenDetalle = new HashSet<TbPrOrdenDetalle>();
             TbPrRequisicionDetalle = new HashSet<TbPrRequisicionDetalle>();
+            TbPrTomaDetalle = new HashSet<TbPrTomaDetalle>();
         }
 
         public long IdInventario { get; set; }
@@ -56,6 +58,7 @@ namespace AltivaWebApp.Models
 
         public virtual TbPrFamilia IdSubFamiliaNavigation { get; set; }
         public virtual TbPrUnidadMedida IdUnidadMedidaNavigation { get; set; }
+        public virtual ICollection<TbFdFacturaDetalle> TbFdFacturaDetalle { get; set; }
         public virtual ICollection<TbPrAjusteInventario> TbPrAjusteInventario { get; set; }
         public virtual ICollection<TbPrCompraDetalle> TbPrCompraDetalle { get; set; }
         public virtual ICollection<TbPrEquivalencia> TbPrEquivalenciaIdEquivalenciaNavigation { get; set; }
@@ -65,5 +68,6 @@ namespace AltivaWebApp.Models
         public virtual ICollection<TbPrInventarioCaracteristica> TbPrInventarioCaracteristica { get; set; }
         public virtual ICollection<TbPrOrdenDetalle> TbPrOrdenDetalle { get; set; }
         public virtual ICollection<TbPrRequisicionDetalle> TbPrRequisicionDetalle { get; set; }
+        public virtual ICollection<TbPrTomaDetalle> TbPrTomaDetalle { get; set; }
     }
 }

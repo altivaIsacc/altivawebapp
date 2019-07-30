@@ -77,5 +77,10 @@ namespace AltivaWebApp.Services
         {
             return repository.IdUltimoDocumento();
         }
+
+        public TbPrCompra GetCompraByIdWithoutD(int id)
+        {
+            return repository.GetCompraByIdWithoutD(id);
+        }
     }
 }

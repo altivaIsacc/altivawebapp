@@ -1,0 +1,844 @@
+﻿@model AltivaWebApp.ViewModels.TomaViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    ViewData["Title"] = "CrearEditarToma";
+
+
+    var editable = "false";
+
+    var editar = "";
+    var esInicialeEditable = "";
+
+
+    if (Model.Id != 0 && Model.Anulado || !Model.Borrador)
+    {
+        editable = "true";
+        esInicialeEditable = "disabled";
+    }
+
+}
+
+@if (Model.Id != 0)
+{
+    editar = "disabled";
+    <div class="row">
+        @if (!Model.Anulado)
+        {
+            <div class="col-md-3"><h3>@SharedLocalizer["Editar"] @SharedLocalizer["TomaFisica"]</h3></div>
+        }
+        else
+        {
+            <div class="col-md-3 text-danger"><h3>@SharedLocalizer["TomaFisica"] @SharedLocalizer["Anulada"]</h3></div>
+        }
+        <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
+
+    </div>
+
+}
+else
+{
+    <h3>@SharedLocalizer["Nueva"] @SharedLocalizer["TomaFisica"]</h3>
+}
+
+
+<hr />
+<div class="row">
+
+    <form id="frmToma">
+        @Html.HiddenFor(x => x.Id)
+        @Html.HiddenFor(x => x.Anulado)
+        @Html.HiddenFor(x => x.Borrador)
+
+        <div class="form-group col-md-2 col-sm-4 col-xs-12">
+            <label asp-for="IdBodega" class="control-label">@SharedLocalizer["Bodega"]:</label>
+            <select class="form-control selectBodegas inactiveControl" id="bodegas" onchange="cambioBodega()"><option value="0">@SharedLocalizer["Seleccione"]</option></select>
+        </div>
+
+        <div class="form-group col-md-3 col-sm-6 col-xs-12">
+            <fieldset @editar>
+                <div class="form-group">
+                    <label for="fecha">@SharedLocalizer["Fecha"]:</label>
+                    <div class='input-group date' id='fechaPicker'>
+                        <input @editar type='text' class="form-control fechas" id="fecha" />
+                        <span class="input-group-addon">
+                            <span class="fas fa-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        @if (!ViewBag.existeTomaInicial)
+        {
+            <div class="form-group col-md-2 col-sm-4 col-xs-12 " id="divEsInicial" style="padding-top:2rem">
+                <div class="checkbox">
+                    <label>
+                        <input checked="@Model.EsInicial" @esInicialeEditable type="checkbox" id="esInicial" /> @SharedLocalizer["EsInventarioInicial"]
+                    </label>
+                </div>
+            </div>
+        }
+
+
+        <div class="form-group col-md-2 col-sm-12 col-xs-12 ">
+            <label>@SharedLocalizer["Ordenado"] @SharedLocalizer["Por"]:</label>
+            <select @editar class="form-control inactiveControl" id="ordenadoBy">
+                <option value="producto">@SharedLocalizer["Producto"]</option>
+                <option value="familia">@SharedLocalizer["Familia"]</option>
+            </select>
+        </div>
+
+
+    </form>
+
+    <div class="form-group col-md-12 col-sm-12 col-xs-12 ">
+        <button @editar class="btn btn-primary inactiveControl" id="btnGenerar" onclick="generarToma()">@SharedLocalizer["Generar"] </button>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12 table-responsive">
+        <table class="table table-bordered table-striped" id="tblTomaD" style="min-width:900px">
+            <thead>
+                <tr>
+                    <th style="width:12%">@SharedLocalizer["Código"]</th>
+                    <th style="width:18%">@SharedLocalizer["Producto"]</th>
+                    <th style="width:20%">@SharedLocalizer["Familia"]</th>
+                    <th style="width:12%">@SharedLocalizer["Costo"] @SharedLocalizer["Promedio"]</th>
+                    <th style="width:12%">@SharedLocalizer["Saldo"] @SharedLocalizer["Inicial"]</th>
+                    <th style="width:6%">@SharedLocalizer["Entradas"]</th>
+                    <th style="width:6%">@SharedLocalizer["Salidas"]</th>
+                    <th style="width:6%">@SharedLocalizer["Existencia"]</th>
+                    <th style="width:8%">@SharedLocalizer["Toma"]</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<hr />
+
+<div class="row">
+    <div class="form-group col-md-2 col-sm-6 col-xs-6">
+        <button disabled id="btnBorrador" class="btn btn-info btnAccion" style="width:100%" onclick="guardarCambiosBorrador()">@SharedLocalizer["Guardar"] @SharedLocalizer["Borrador"] </button>
+    </div>
+    <div class="form-group col-md-2 col-sm-6 col-xs-6">
+        <button disabled id="btnCombinar" class="btn btn-dark btnAccion" style="width:100%" onclick="combinarToma()">@SharedLocalizer["Combinar"]</button>
+    </div>
+    <div class="form-group col-md-2 col-sm-6 col-xs-6">
+        <button disabled id="btnAnular" class="btn btn-danger btnAccion" style="width:100%" onclick="anularToma()">@SharedLocalizer["Anular"] </button>
+    </div>
+    <div class="form-group col-md-2 col-sm-6 col-xs-6">
+        <button disabled id="btnAjustar" class="btn btn-success btnAccion" style="width:100%" onclick="ajustarInventario()">@SharedLocalizer["Ajustar"] @SharedLocalizer["Inventario"]</button>
+    </div>
+    <div class="form-group col-md-2 col-sm-6 col-xs-6">
+        <a onclick="cancelar()" style="width:100%" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div id="comentarios">
+
+        </div>
+    </div>
+</div>
+
+<div>
+    <!-- Modal -->
+    <div class="modal fade" id="modalCombinables" tabindex="-1" role="dialog" aria-labelledby="combinablesModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="combinablesModallabel">@SharedLocalizer["Combinar"] @SharedLocalizer["Tomas"]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="combinables">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div hidden><input hidden id="formater" class="currency" type="text" /></div>
+
+<script src="~/js/comentario.js"></script>
+<script src="~/js/base64ImageCreator.js"></script>
+
+<script>
+
+    var bodegas = [];
+    var tdGenerada = [];
+    var $bodega = $('#bodegas');
+    var $fecha = $('#fecha');
+    var $ordenadoBy = $('#ordenadoBy');
+    var $esInicial = $('#esInicial');
+    var btnGenerar = $('#btnGenerar');
+    var btnAnular = $('#btnAnular');
+    var btnBorrador = $('#btnBorrador');
+    var btnAjustar = $('#btnAjustar');
+    var btnCombinar = $('#btnCombinar');
+
+
+    var familias = [];
+    $(document).ready(function () {
+
+        manejarBotones();
+        $('.fechas').mask('00/00/0000 00:00');
+        getBodegas();
+        getFamilias();
+
+        $esInicial.prop("checked");
+
+        var date = new Date();
+
+        if (@Model.Id != 0) {
+
+            GetComentarios("TF", @Model.Id);
+            $('#bodegas').attr('disabled', true);
+            date = new Date(formatearFecha());
+
+        }
+
+        $('#fechaPicker').datetimepicker({
+            defaultDate: date,
+            locale: localStorage.getItem("idioma")
+        });
+
+        $(".currency").inputmask('currency', {
+            prefix: ' ',
+            rightAlign: true
+        });
+
+    });
+
+
+    //////////////////////////////////////////////manejo del dom
+
+
+    function manejarBotones() {
+
+        if (@Model.Id !== 0 && '@Model.Borrador' === 'True' && '@Model.Anulado' === 'False') {
+            btnBorrador.prop('disabled', false);
+            btnCombinar.prop('disabled', false);
+            btnAjustar.prop('disabled', false);
+            btnAnular.prop('disabled', false);
+        }
+    }
+
+
+    function cambioBodega() {
+        $('.inactiveControl').attr('disabled', false);
+
+    }
+
+
+
+    //////////////////////////////////////////////////////helpers
+
+    function formatearFecha() {
+
+        return '@Model.FechaToma.Month' + "-" + '@Model.FechaToma.Day' + "-" + '@Model.FechaToma.Year' + " " + '@Model.FechaToma.TimeOfDay';
+
+    }
+
+    function modeloTabla(data) {
+
+        var arrayTabla = [];
+
+        for (var i = 0; i < data.length; i++) {
+            var model = {
+                id: i,
+                codigo: data[i].idInventarioNavigation.codigo,
+                descripcion: data[i].idInventarioNavigation.descripcion,
+                familia: getFamiliaByIdSub(data[i].idInventarioNavigation.idSubFamilia) + " / " + getSubFamiliaById(data[i].idInventarioNavigation.idSubFamilia),
+                costoPromedio: data[i].costoPromedio,
+                inicial: data[i].inicial,
+                entradas: data[i].entradas,
+                salidas: data[i].salidas,
+                existencia: data[i].existencia,
+                toma: data[i].toma
+            };
+
+            arrayTabla.push(model);
+        }
+
+        if ($ordenadoBy.val() === "producto") {
+            arrayTabla = arrayTabla.sort(function (a, b) {
+                if (a.descripcion < b.descripcion) { return -1; }
+                if (a.descripcion > b.descripcion) { return 1; }
+                return 0;
+            });
+        }
+        else {
+            arrayTabla = arrayTabla.sort(function (a, b) {
+                if (a.familia < b.familia) { return -1; }
+                if (a.familia > b.familia) { return 1; }
+                return 0;
+            });
+        }
+        return arrayTabla;
+
+    }
+
+    function cargarDatos(_data) {
+
+        $("#tblTomaD > tbody").remove();
+        $("#tblTomaD").append('<tbody></tbody>');
+
+        var contadorFila = 0;
+
+        var data = modeloTabla(_data);
+
+        var editable = @editable;
+
+        if (@Model.Id == 0)
+            editable = false;
+
+        for (var i = 0; i < data.length; i++) {
+
+
+
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td><p style="padding-top:1rem;">' + data[i].codigo + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].descripcion + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].familia + '</p></td>'
+                + '<td style="text-align: right"><p style="padding-top:1rem;">' + formatearMoneda(data[i].costoPromedio) + '</p></td>'
+                + '<td style="text-align: right"><p style="padding-top:1rem;">' + formatearMoneda(data[i].inicial) + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].entradas + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].salidas + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].existencia + '</p></td>'
+                + '<td><p style="padding-top:1rem;"> <input class="form-control numerico" onkeyup="editarLinea(value, ' + contadorFila + ')" value="' + data[i].toma + '" /></p></td>'
+            $('#tblTomaD > tbody').append(body);
+            contadorFila++;
+
+        }
+
+
+
+        $(".numerico").inputmask({
+            'alias': 'decimal',
+            rightAlign: false,
+        });
+
+        $(".numerico").prop('readonly', editable);
+    }
+
+
+    function editarLinea(value, key) {
+
+        tdGenerada[key].toma = value;
+
+        console.log(tdGenerada[key]);
+    }
+
+    function ordenarArray(data) {
+
+        var array = [];
+
+        if ($ordenadoBy.val() === "producto") {
+            array = data.sort(function (a, b) {
+                if (a.idInventarioNavigation.descripcion < b.idInventarioNavigation.descripcion) { return -1; }
+                if (a.idInventarioNavigation.descripcion > b.idInventarioNavigation.descripcion) { return 1; }
+                return 0;
+            });
+        }
+        else {
+            array = data.sort(function (a, b) {
+                if (getFamiliaByIdSub(a.idInventarioNavigation.idSubFamilia) < getFamiliaByIdSub(b.idInventarioNavigation.idSubFamilia)) { return -1; }
+                if (getFamiliaByIdSub(a.idInventarioNavigation.idSubFamilia) > getFamiliaByIdSub(b.idInventarioNavigation.idSubFamilia)) { return 1; }
+                return 0;
+            });
+        }
+
+        return array;
+    }
+
+
+    function getFamiliaByIdSub(id) {
+
+        for (var i = 0; i < familias.length; i++) {
+            for (var j = 0; j < familias[i].inverseIdFamiliaNavigation.length; j++) {
+                if (familias[i].inverseIdFamiliaNavigation[j].id == id)
+                    return familias[i].descripcion;
+            }
+
+        }
+
+    }
+    function getSubFamiliaById(id) {
+        for (var i = 0; i < familias.length; i++) {
+            for (var j = 0; j < familias[i].inverseIdFamiliaNavigation.length; j++) {
+                if (familias[i].inverseIdFamiliaNavigation[j].id == id)
+                    return familias[i].inverseIdFamiliaNavigation[j].descripcion;
+            }
+
+        }
+    }
+
+    function guardarCambiosBorrador(){
+
+        if (tdGenerada.length != 0)
+            guardarToma();
+        else {
+            cargarAlert("@SharedLocalizer["SinLineas"]");
+        }
+
+    }
+
+    function crearModelo() {
+
+        var model = {
+            id: @Model.Id,
+            fechaToma: $fecha.val(),
+            esInicial: $esInicial.prop('checked'),
+            idBodega: $bodega.val(),
+            ordenado: $ordenadoBy.val(),
+            idUsuarioCreacion: 1,
+            borrador: "@Model.Borrador",
+            anulado: "@Model.Anulado",
+            tomaDetalle: crearModeloDetalle(tdGenerada)
+        };
+
+        console.log(model);
+
+        return model;
+    }
+
+
+    function crearModeloDetalle(model) {
+
+        console.log(model);
+
+        for (var i = 0; i < model.length; i++) {
+            model[i].toma = model[i].toma.toString().replace(".", ",");
+        }
+
+        return model;
+    }
+
+    function cancelar() {
+        bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) {
+            if (result)
+                window.location.href = "@Url.Action("ListarTomas")";
+
+        });
+    }
+
+    //////////////////////////////////////////////ajax////////////////////////////////////////////
+
+    function combinarToma() {
+        $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+            url: '@Url.Action("GetCombinables")',
+            data: { id: @Model.Id, idBodega: $bodega.val() },
+                    success: function (data) {
+                        $('#combinables').html(data);
+                        $('#modalCombinables').modal('show');
+                        $('#' +@Model.Id).prop('checked', true);
+                    },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+                });
+    }
+
+    function guardarCombinar() {
+        bootbox.confirm("@SharedLocalizer["confirmCombinar"]", function (result) {
+            if (result){
+                $.ajax({
+                    type: "post",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: '@Url.Action("CombinarTomas", new { id = Model.Id })',
+                    data: { tomas:  tomasBorrador},
+                    success: function (data) {
+                        window.location.href = "@Url.Action("EditarToma", new { id = "__id__" })".replace("__id__", data.id);
+                    },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+                });
+
+                $('#modalCombinables').modal('hide');
+            }
+        });
+
+    }
+
+    function getBodegas() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetAllBodegas", "Bodega")',
+             success: function (data) {
+
+                 bodegas = data;
+
+                 for (var i = 0; i < data.length; i++) {
+
+                     var o = new Option(data[i].nombre, data[i].id);
+
+                     if (data[i].id === @Model.IdBodega)
+                        $(o).attr('selected', true);
+
+                     if (@Model.Id == 0) {
+                         if (data[i].estado)
+                             $("#bodegas").append(o);
+                     }
+                     else {
+                        $("#bodegas").append(o);
+                     }
+                 }
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function getFamilias() {
+        $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("GetFamilias", "Familia")',
+
+            success: function (data) {
+                familias = data;
+
+                if(@Model.Id != 0)
+                    getTomaDetalles();
+
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+
+    function getTomaDetalles() {
+
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+             url: '@Url.Action("GetTomaDetalles")',
+             data: { idToma: @Model.Id},
+             success: function (data) {
+                 tdGenerada = ordenarArray(data);
+                 console.log(data);
+                 cargarDatos(tdGenerada);
+             },
+             error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+             }
+         });
+
+    }
+
+
+    function guardarToma() {
+
+        //console.log(crearModelo());
+        $.ajax({
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("CrearEditarToma")',
+            data: crearModelo(),
+            success: function (data) {
+
+                window.location.href = "@Url.Action("ListarTomas")";
+
+            },
+            error: function (err, scnd) {
+                 cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+
+    }
+
+    function ajustarInventario() {
+        bootbox.confirm("@SharedLocalizer["confirmAjustar"]", function (result) {
+            if (result) {
+                $.ajax({
+                    type: "POST",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    dataType: "json",
+                    url: '@Url.Action("AjustarInventario")',
+                    data: crearModelo(),
+                    success: function (data) {
+                        window.location.href = "@Url.Action("EditarAjuste", "AjusteInventario", new { id = "__id__" })".replace("__id__", data.idAjuste);
+                    },
+                    error: function (err, scnd) {
+                        cargarAlert('@SharedLocalizer["errorGeneral"]');
+                        console.log(err.statusText);
+                    }
+                });
+
+            }
+
+        });
+
+    }
+
+
+    function anularToma() {
+
+         bootbox.prompt({
+            title: "@SharedLocalizer["confirmAnularToma"]",
+            message: '<p>@SharedLocalizer["Justificación"]</p>',
+            inputType: 'textarea',
+            callback: function (result) {
+
+                if (result != null) {
+                    if (result.replace(/ /g, "") != "") {
+                        $.ajax({
+                            type: "POST",
+                            headers: {
+                                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                            },
+                            dataType: "json",
+                            url: '@Url.Action("AnularToma")',
+                            data: {idToma : @Model.Id },
+                            success: function (data) {
+                                if (data.success) {
+                                    cargarJustificacion(result);
+                                    window.location.href = window.location.href;
+                                }
+                                else
+                                    cargarAlert('@SharedLocalizer["anulacionInvalida"]');
+
+                            },
+                            error: function (err, scnd) {
+                                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                                console.log(err.statusText);
+                            }
+                        });
+
+                }
+                else
+                    cargarAlert('@SharedLocalizer["JustificacionInvalida"]');
+                }
+
+
+            }
+        });
+
+
+
+    }
+
+
+    function generarToma() {
+
+        var model = {
+            idBodega: $bodega.val(),
+            id: 0,
+            fechaToma: $fecha.val(),
+            esInicial: false,
+            ordenado: $ordenadoBy.val(),
+            idusuarioCreacion: 1,
+            borrador: true,
+            anulado: false
+        };
+
+        $.ajax({
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GenerarToma")',
+            data: { model: model },
+            success: function (data) {
+
+                tdGenerada = ordenarArray(data.tomas);
+                cargarDatos(tdGenerada);
+
+                if (data.tomas.length === 0) {
+                    btnBorrador.prop('disabled', true);
+                    cargarAlert("@SharedLocalizer["BodegaSinMovimientosRecientes"]");
+                }
+                else {
+                    btnBorrador.prop('disabled', false);
+                    btnAjustar.prop('disabled', false);
+                    $('.inactiveControl').prop('disabled', 'disabled');
+                }
+
+                if (data.esInicial) {
+                    $('#divEsInicial').prop('hidden', true);
+                    $('#esInicial').prop('checked', false);
+                } else
+                    $('#divEsInicial').prop('hidden', false);
+
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+    }
+
+    function cargarJustificacion(mensaje) {
+        setMensajeFromOut(mensaje);
+    }
+
+
+
+
+    /////////////////////////////crear pdf///////////////////////
+
+
+    function crearPdf() {
+
+        generate_cutomPDF(crearModeloPDF());
+
+    }
+
+    function crearModeloPDF() {
+
+        var empresaModel = JSON.parse(localStorage.getItem("empresaInfo"));
+
+        var modelo = {
+            empresa: {
+                nombre: localStorage.getItem("empresa"),
+                telefono: empresaModel.tel,
+                correo: empresaModel.correo,
+                cedJuridica: empresaModel.ced,
+                logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
+                nombreTitulo: "@SharedLocalizer["Nombre"]:",
+                telTitulo: "@SharedLocalizer["Tel"]:",
+                correoTitulo: "@SharedLocalizer["Correo"]:",
+                cedTitulo: getTittulos().cedJuridica
+            },
+
+            nombreDoc: getTittulos().fisica + ' ' + '#@Model.Id',
+            nombreDescarga: '@SharedLocalizer["tf"]_' + @Model.Id + '.pdf',
+            columnas: {
+                codigo: getTittulos().codigo,
+                producto: "@SharedLocalizer["Producto"]",
+                familia: "@SharedLocalizer["Familia"]",
+                costo: "@SharedLocalizer["Costo"]",
+                saldo: "@SharedLocalizer["SaldoInicial"]",
+                entradas: "@SharedLocalizer["Entradas"]",
+                salidas: "@SharedLocalizer["Salidas"]",
+                existencia: "@SharedLocalizer["Existencia"]",
+                toma: "@SharedLocalizer["Toma"]"
+            },
+            filas: crearFilasPdf(),
+            resumen: {
+                autorizado: "@SharedLocalizer["Autorizado por"]:______________________"
+            },
+            bodega: $('#bodegas option:selected').text(),
+            fecha: $('#fecha').val(),
+            bodegaTitulo: "@SharedLocalizer["Bodega"]:",
+            fechaTitulo: "@SharedLocalizer["Fecha"]:",
+            estado: getEstado(),
+            esInicial: getEsInicial(),
+            esInicialTitulo: "@SharedLocalizer["EsInventarioInicial"]"
+
+        };
+
+        return modelo;
+
+    }
+
+    function crearFilasPdf() {
+
+        var row = [];
+        for (var i = 0; i < tdGenerada.length; i++) {
+            var model = {
+                codigo: tdGenerada[i].idInventarioNavigation.codigo,
+                producto: tdGenerada[i].idInventarioNavigation.descripcion,
+                familia: getFamiliaByIdSub(tdGenerada[i].idInventarioNavigation.idSubFamilia) + " / " + getSubFamiliaById(tdGenerada[i].idInventarioNavigation.idSubFamilia),
+                costo: formatearMoneda(tdGenerada[i].costoPromedio),
+                saldo: formatearMoneda(tdGenerada[i].inicial),
+                entradas: tdGenerada[i].entradas,
+                salidas: tdGenerada[i].salidas,
+                existencia: tdGenerada[i].existencia,
+                toma: tdGenerada[i].toma,
+            };
+
+            row.push(model);
+        }
+        return row;
+    }
+
+    function formatearMoneda(val) {
+        $('#formater').val(val);
+        return $('#formater').val();
+    }
+
+    function getEsInicial() {
+        if ($esInicial.prop('checked')) {
+            return '@SharedLocalizer["Si"]';
+        }
+        else
+            return '@SharedLocalizer["No"]';
+    }
+    function getEstado() {
+        if ('@Model.Anulado' === "True")
+            return getTittulos() +  " @SharedLocalizer["Anulada"]";
+        else
+            return "";
+    }
+
+    function getTittulos() {
+        var idioma = localStorage.getItem("idioma");
+        if (idioma === "es")
+            return {
+                desc: "Descripción:",
+                cedJuridica: "Cédula Jurídica:",
+                fisica: "Toma Física",
+                codigo: "Código"
+            };
+        else
+            return {
+                desc: "Description:",
+                cedJuridica: "Legal Number:",
+                fisica: "Physical Taking",
+                codigo: "Code"
+            };
+    }
+
+
+
+
+</script>
+<script src="~/lib/vendors/jsPDF/TF.js"></script>

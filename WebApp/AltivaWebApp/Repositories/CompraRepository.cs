@@ -43,7 +43,20 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbPrCompra.Include(c => c.TbPrCompraDetalle).ThenInclude(cd => cd.IdInventarioNavigation).FirstOrDefault(c => c.Id == id);
+                return context.TbPrCompra.AsNoTracking().Include(c => c.TbPrCompraDetalle).ThenInclude(cd => cd.IdInventarioNavigation).ThenInclude(i => i.TbPrInventarioBodega).FirstOrDefault(c => c.Id == id);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public TbPrCompra GetCompraByIdWithoutD(int id)
+        {
+            try
+            {
+                return context.TbPrCompra.AsNoTracking().FirstOrDefault(c => c.Id == id);
             }
             catch (Exception)
             {
@@ -56,7 +69,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbPrCompra.FirstOrDefault(c => c.NumeroDocumento == nDoc && c.TipoDocumento == tipoDoc && c.IdContacto == idProveedor);
+                return context.TbPrCompra.AsNoTracking().FirstOrDefault(c => c.NumeroDocumento == nDoc && c.TipoDocumento == tipoDoc && c.IdContacto == idProveedor);
             }
             catch (Exception)
             {
@@ -82,7 +95,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbPrCompraDetalle.Include(c => c.IdCompraNavigation).FirstOrDefault(c => c.Id == id);
+                return context.TbPrCompraDetalle.AsNoTracking().Include(c => c.IdCompraNavigation).Include(i => i.IdInventarioNavigation).ThenInclude(b => b.TbPrInventarioBodega).FirstOrDefault(c => c.Id == id);
             }
             catch (Exception)
             {

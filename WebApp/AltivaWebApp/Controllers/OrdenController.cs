@@ -41,7 +41,6 @@ namespace AltivaWebApp.Controllers
         [Route("Nueva-Orden")]
         public ActionResult CrearOrden()
         {
-            ViewData["proveedores"] = contactoService.GetAllProveedores();
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
 
             var tipoCambio = monedaService.GetAll(); 
@@ -56,7 +55,6 @@ namespace AltivaWebApp.Controllers
         public ActionResult EditarOrden(int id)
         {
             var orden = map.DomainToViewModel(service.GetOrdenById(id));
-            ViewData["proveedores"] = contactoService.GetAllProveedores();
             ViewData["usuario"] = userService.GetSingleUser((int)orden.IdUsuario);
             return View("CrearEditarOrden", orden);
         }

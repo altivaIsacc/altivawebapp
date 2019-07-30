@@ -1,0 +1,342 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@inject IStringLocalizer<SharedResources> Lb
+
+
+
+<div class="row">
+    <div class="col-md-2 col-sm-2 col-xs-5">
+        <h3>@Lb["Contactos"]</h3>
+    </div>
+    <div class="col-md-6 col-sm-4 col-xs-6" style="margin-left:1rem; padding-top:0.7rem">
+        <p>
+            <a asp-action="CrearContacto" class="btn btn-primary"><span>@Lb["Agregar"] </span>&nbsp;<i class="fa fa-plus-circle"></i></a>
+        </p>
+    </div>
+    <div class="col-md-3 col-sm-5 col-xs-12 form-group pull-right top_search">
+        <div class="input-group" style="padding-top:1.2rem">
+            <input id="keyword" type="text" class="form-control" placeholder="@Lb["nombre"], @Lb["Cédula"]...">
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+            </span>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="row">
+
+    <div class="col-md-12 col-sm-12 col-xs-12 text-center">
+        <ul class="pagination pagination-split" id="paginacion">
+            <li><button style="background-color: #337AB7; color: #fff; font-weight: bold" id="All" class="btn btn-sm abecedario " value="All">@Lb["Todos"]</button></li>
+            <li class="especial"><button id="especial" class="btn btn-sm abecedario" value="especial">#@@1</button></li>        
+    @*<li><button id="A" class="btn btn-sm abecedario activo" value="A">A</button></li>
+            <li><button id="B" class="btn btn-sm abecedario" value="B">B</button></li>
+            <li><button id="C" class="btn btn-sm abecedario" value="C">C</button></li>
+            <li><button id="D" class="btn btn-sm abecedario" value="D">D</button></li>
+            <li><button id="E" class="btn btn-sm abecedario" value="E">E</button></li>
+            <li><button id="F" class="btn btn-sm abecedario" value="F">F</button></li>
+            <li><button id="G" class="btn btn-sm abecedario" value="G">G</button></li>
+            <li><button id="H" class="btn btn-sm abecedario" value="H">H</button></li>
+            <li><button id="I" class="btn btn-sm abecedario" value="I">I</button></li>
+            <li><button id="J" class="btn btn-sm abecedario" value="J">J</button></li>
+            <li><button id="K" class="btn btn-sm abecedario" value="K">K</button></li>
+            <li><button id="L" class="btn btn-sm abecedario" value="L">L</button></li>
+            <li><button id="M" class="btn btn-sm abecedario" value="M">M</button></li>
+            <li><button id="N" class="btn btn-sm abecedario" value="N">N</button></li>
+            <li><button id="O" class="btn btn-sm abecedario" value="O">O</button></li>
+            <li><button id="P" class="btn btn-sm abecedario" value="P">P</button></li>
+            <li><button id="Q" class="btn btn-sm abecedario" value="Q">Q</button></li>
+            <li><button id="R" class="btn btn-sm abecedario" value="R">R</button></li>
+            <li><button id="S" class="btn btn-sm abecedario" value="S">S</button></li>
+            <li><button id="T" class="btn btn-sm abecedario" value="T">T</button></li>
+            <li><button id="U" class="btn btn-sm abecedario" value="U">U</button></li>
+            <li><button id="V" class="btn btn-sm abecedario" value="V">V</button></li>
+            <li><button id="W" class="btn btn-sm abecedario" value="W">W</button></li>
+            <li><button id="X" class="btn btn-sm abecedario" value="X">X</button></li>
+            <li><button id="Y" class="btn btn-sm abecedario" value="Y">Y</button></li>
+            <li><button id="Z" class="btn btn-sm abecedario" value="Z">Z</button></li>*@
+
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+
+    <div style="padding:0.5rem; overflow-y: auto; max-height:50rem" id="contactosContainer">
+
+    </div>
+
+</div>
+
+
+
+
+<script>
+
+    var contactos = [];
+    var letra = "All";
+    var arrayRender = [];
+
+    $(document).ready(function () {
+
+        getContactos();
+
+
+        if ("@ViewBag.nombre" != "") {
+            var url = "@Url.Action("ListarContactos", "Contacto")";
+            var regex = new RegExp('/[^/]*$');
+            history.pushState(null, "", url.replace(regex, '/'));
+        }
+
+    });
+
+    function getContactos() {
+
+            $.ajax({
+                type: "get",
+                headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                dataType: "json",
+                url: '@Url.Action("GetAllContactos", "Contacto")',
+                success: function (data) {
+
+                    contactos = modeloToRender(data);
+
+                    
+                    //cargarContactos(contactos);
+                    $('#keyword').val("@ViewBag.nombre");
+                    cargarFiltros('All', "@ViewBag.nombre");
+
+                    reenderizarPaginado();
+
+                    $('.abecedario').trigger('change');
+
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@Lb["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+    }
+
+    
+
+
+    $('.abecedario').on('click', function () {
+
+        buscarPaginado(this.value);
+
+    });
+
+    function buscarPaginado(key) {
+        letra = key;
+
+        // cargarContactos(filtroLetra(this.value));
+
+        cargarFiltros(letra, $('#keyword').val());
+
+        $('.abecedario').removeAttr('style');
+        $('#' + letra).css({
+            "background-color": "#337AB7",
+            "color": "#fff",
+            "font-weight": "bold"
+        });
+    }
+
+
+    $('#keyword').on('keyup', function(){
+
+        cargarFiltros(letra, this.value);
+
+    });
+
+
+
+    function filtroLetra(array, key) {
+
+        var filtrado = [];
+        //var array = contactos;
+        if (key === "All") {
+            return array;
+        }
+        else if(key === "especial") {
+            for (var i = 0; i < array.length; i++) {
+
+                if (!esLetra(array[i].nombre.charAt(0).toUpperCase()))
+                    filtrado.push(array[i]);
+            }
+
+            return filtrado;
+        }
+        else {
+            for (var i = 0; i < array.length; i++) {
+
+                if (array[i].nombre.charAt(0).toUpperCase() == key)
+                    filtrado.push(array[i]);
+            }
+
+            return filtrado;
+        }
+
+    }
+
+
+    function filtroPalabra(array, _keyword) {
+
+        var keyword = _keyword.toUpperCase();
+        var filtrado = [];
+        //var array = contactos;
+        if (keyword.replace(/ /g, "") === "") {
+            return array;
+        }
+        else {
+            for (var i = 0; i < array.length; i++) {
+
+                var keyArray = array[i].nombre.toUpperCase();
+
+                if (keyArray.indexOf(keyword) > -1)
+                    filtrado.push(array[i]);
+                else
+                    if (array[i].cedula.indexOf(keyword) > -1)
+                        filtrado.push(array[i]);
+            }
+
+            return filtrado;
+        }
+
+    }
+
+
+    function cargarFiltros(letra, keyword) {
+
+        $('#contactosContainer').empty();
+        var filtradoFinal = [];
+
+        filtradoFinal = filtroLetra(contactos, letra);
+        filtradoFinal = filtroPalabra(filtradoFinal, keyword);
+
+
+        cargarContactos(filtradoFinal);
+
+    }
+
+    function ordenarArray(data){
+
+        return data.sort(function (a, b) {
+            if (a.nombre < b.nombre) { return -1; }
+            if (a.nombre > b.nombre) { return 1; }
+            return 0;
+        });
+    }
+
+    function cargarContactos(data) {
+
+        var array = ordenarArray(data);
+        
+        for (var i = 0; i < array.length; i++) {
+            $('#contactosContainer').append(reenderizarCard(array[i]))            
+        }
+
+    }
+
+    function reenderizarPaginado() {
+
+        var abc = [];
+        var flag = true;
+
+        $('.letter').remove();
+
+        for (var i = 0; i < arrayRender.length; i++) {
+
+            var letra = arrayRender[i].nombre.charAt(0).toUpperCase();
+
+            if (esLetra(letra)) {
+                for (var k = 0; k < abc.length; k++) {
+                    if (abc[k].toUpperCase() === letra) {
+                        flag = false;
+                    }
+                    else
+                        flag = true;
+                }
+                if (flag) {
+                    abc.push(letra);
+                    $('.especial').before('<li class="letter" ><button onclick="buscarPaginado(value)" id="' + letra + '" class="btn btn-sm abecedario" value="' + letra + '">' + letra + '</button></li>');
+                    
+                }
+
+            }
+        }
+        
+    }
+
+    function reenderizarCard(data) {
+
+        var rutaEditar = '@Url.Action("EditarContacto", new { id = "__id__" })'.replace("__id__", data.id);
+        var img = '<img style="height:6rem; width: 6rem;" src="' + data.ruta + '" class="img-circle " alt="Profile Image" />';
+        
+        if (data.ruta === "") {
+            var string = data.nombre;
+            var names = string.split(' '),
+            initials = names[0].substring(0, 1).toUpperCase();
+
+            if (names.length > 1) {
+                initials += names[names.length - 1].substring(0, 1).toUpperCase();
+            }
+
+            img = '<h2>' + initials + '</h2>'
+        }
+
+        return '<a href="' + rutaEditar + '"> <div class="col-md-4 col-sm-6 col-xs-12"> <div class="well" style="padding:1rem"> ' +
+            '                           <div class="col-md-3 col-sm-3 col-xs-3" ><span class="image">' + img + '</span> </div>' +
+            '                           <div>' +
+            '                             <p>&nbsp;<strong>' + data.nombre + '<strong></p> ' +
+            '                             <p>&nbsp;<i class=\"fas fa-id-card\"></i>: ' + data.cedula + '&nbsp;/&nbsp;<i class=\"fa fa-phone\"></i>: ' + data.telefono + '</p>' +
+            '                           </div>' +
+            '                         </div >' +
+            '                       </div > </a>';
+    }
+
+    function getNombre(data) {
+
+        if (data.persona)
+            return data.nombre + " " + data.apellidos;
+        else
+            return data.nombreComercial;
+
+
+    }
+
+    function modeloToRender(data) {
+
+        arrayRender = [];
+        for (var i = 0; i < data.length; i++) {
+            var model = {
+                id: data[i].idContacto,
+                nombre: getNombre(data[i]),
+                cedula: data[i].cedula,
+                telefono: data[i].telefono,
+                correo: data[i].correo,
+                ruta: data[i].ruta
+
+            };
+
+            arrayRender.push(model);
+        }
+
+        return arrayRender;
+
+    }
+
+    function esLetra(c) {
+        return c.toLowerCase() != c.toUpperCase();
+    }
+
+</script>

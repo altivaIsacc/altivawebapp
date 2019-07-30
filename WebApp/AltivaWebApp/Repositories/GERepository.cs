@@ -1,6 +1,7 @@
 ﻿using AltivaWebApp.Context;
 using AltivaWebApp.GEDomain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -9,26 +10,51 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Repositories
 {
-    public class GERepository : BaseRepositoryGE<TbGeEmpresa>, IGERepository  
+    public class GERepository : BaseRepositoryGE<TbGeEmpresa>, IGERepository
     {
 
         public GERepository(GrupoEmpresarialContext context)
-            :base(context)
+            : base(context)
         {
 
+        }
+
+        public TbGeGrupoEmpresarial UpdateGE(TbGeGrupoEmpresarial domain)
+        {
+            try
+            {
+                context.TbGeGrupoEmpresarial.Update(domain);
+                context.SaveChanges();
+                return domain;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public bool CrearBD(string nombre)
         {
             try
             {
+                var conf = new ConfigurationBuilder()
+                .SetBasePath(Startup.entorno.ContentRootPath)
+                .AddJsonFile("appsettings.json").Build();
+
+                var p = conf["rutaPlantilla"];
+
                 SqlParameter param = new SqlParameter("@NombreBd", nombre);
-                context.Database.ExecuteSqlCommand("pr_GE_CrearEmpresaBD @NombreBd", param);
+                SqlParameter param2 = new SqlParameter("@rutaRoot", conf["rutaPlantilla"]);
+                SqlParameter param3 = new SqlParameter("@plantillaBD", conf["nombrePlantillaBD"]);
+
+                context.Database.ExecuteSqlCommand("pr_GE_CrearEmpresaBD @NombreBd, @rutaRoot, @plantillaBD", param, param2, param3);
+
                 return true;
             }
             catch (Exception)
             {
-                return false;
+                //return false;
                 throw;
             }
         }
@@ -43,8 +69,9 @@ namespace AltivaWebApp.Repositories
 
                 foreach (var item in usuarios)
                 {
-                    ue.Add(new TbSeEmpresaUsuario {
-                        Estado= true,
+                    ue.Add(new TbSeEmpresaUsuario
+                    {
+                        Estado = true,
                         IdEmpresa = idEmpresa,
                         IdUsuario = item.Id
                     });

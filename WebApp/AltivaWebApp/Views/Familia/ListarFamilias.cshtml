@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<TbPrFamilia>
-@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject IStringLocalizer<SharedResources> Lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -12,7 +12,6 @@
     <div class="col-md-12"><h3 >Familias Inventario</h3></div>
     <div class="col-md-3">
         <select id="familias" class="form-control search-key">
-            <option selected value="0" data-translate="selecciones">Seleccione</option>
             @{
                 foreach (var item in Model)
                 {
@@ -20,7 +19,6 @@
                 }
 
             }
-
         </select>
     </div>
     <div class="col-md-6">
@@ -38,7 +36,7 @@
 
 
 <div class="row">
-    <div class="col-md-8" id="subFamilias">
+    <div class="col-md-12" id="subFamilias">
         <partial name="_ListarSubFamilias" model="new TbPrFamilia()" />
     </div>
 </div>
@@ -48,12 +46,6 @@
     <div class="modal fade" id="modalFamilia" tabindex="-1" role="dialog" aria-labelledby="familiaModallabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="familiaModallabel">@SharedLocalizer["nuevaFamilia"]</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
                 <div class="modal-body" id="crearEditarPartial">
 
                 </div>
@@ -68,38 +60,18 @@
 
         //$("#guardarFamilia").attr("disabled", true);
         deshabilitarBtn();
+        if(@Model.Count() !== 0)
+            getFamilias();
+        
 
         $('#familias').on('change', function () {
 
-
-            if ($(this).val() != 0) {
-                habilitarBtn();
-            }
-            else {
-                deshabilitarBtn();
-            }
-
-                var url = '@Url.Action("ListarSubFamilias", "Familia")';
-
-                $.ajax({
-                    type: "get",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                    },
-                    url: url,
-                    data: { id: $(this).val()},
-                    success: function (data) {
-                        $('#subFamilias').html(data);
-                    },
-                    error: function (err, scnd) {
-                        console.log(err.statusText);
-                    }
-                });
-
-            });
+            getFamilias();
+            
+        });
 
 
-            $('.crearEditarFamilia').on('click', function () {
+        $('.crearEditarFamilia').on('click', function () {
 
 
                 var url = '';
@@ -124,7 +96,7 @@
                         $('#modalFamilia').modal('show');
                     },
                     error: function (err, scnd) {
-                        console.log(err.statusText);
+                        cargarAlert("@Lb["errorGeneral"]");
                     }
 
                 });
@@ -144,15 +116,16 @@
                     success: function (data) {
                         if (data.data) {
                             $("#familias option:selected").remove();
-                            $("#familias").val(0);
+                            var primeraPos = 
+                            $("#familiasoption:first-child").attr('selected', 'selected');
                             $("#familias").trigger('change');
                         }
 
                         else
-                            alert("Error al eliminar la familia, elimine primero las subfamilias asociadas.");
+                            cargarAlert("@Lb["familiaConSubFamilias"]");
                     },
                     error: function (err, scnd) {
-                        console.log(err.statusText);
+                       cargarAlert("@Lb["errorGeneral"]");
                     }
 
                 });
@@ -160,20 +133,80 @@
         });
 
 
-        function habilitarBtn() {
-            $("#editarFamilia").attr("disabled", false);
-            $("#eliminarFamilia").attr("disabled", false);
-            $(".crearEditarSubFamilia").attr("disabled", false);
-
-        }
-        function deshabilitarBtn() {
-            $("#editarFamilia").attr("disabled", true);
-            $("#eliminarFamilia").attr("disabled", true);
-            $(".crearEditarSubFamilia").attr("disabled", true);
-        }
+        
 
     });
 
+    function getFamilias() {
+        console.log($('#familias').val());
+        if ($('#familias').val() !== null) {
+                habilitarBtn();
+            }
+            else {
+                deshabilitarBtn();
+        }
+
+        var url = '@Url.Action("ListarSubFamilias", "Familia")';
+
+                $.ajax({
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: url,
+                    data: { id: $('#familias').val()},
+                    success: function (data) {
+                        $('#subFamilias').html(data);
+                    },
+                    error: function (err, scnd) {
+                        cargarAlert("@Lb["errorGeneral"]");
+                    }
+                });
+
+    }
+
+    function setFamilias(data) {
+
+        ///valida si es una familia
+        var model = $('#frmFamilia').serializeArray();
+        if (!$('#esSubfamilia').is(':checked')) {
+            //si edito remueve el option anterior
+            if (data.edita)
+                $("#familias option[value= " + data.familia.id + "]").remove();
+
+            var text = data.familia.descripcion;
+            var o = new Option(text, data.familia.id);
+            $(o).attr('selected', true);
+            $("#familias").append(o);
+        }
+
+        ///valida si es subfamilia
+        else if (model[4].value != null && data.edita) {
+
+            $("#familias").val(model[4].value);
+
+            if (data.edita && data.familia.idFamilia != null) {
+                $("#familias option[value= " + data.familia.id + "]").remove();
+            }
+        }
+
+
+        $("#familias").trigger('change');
+        $('#modalFamilia').modal('hide');
+
+    }
+
+    function habilitarBtn() {
+        $("#editarFamilia").attr("disabled", false);
+        $("#eliminarFamilia").attr("disabled", false);
+        $(".crearEditarSubFamilia").attr("disabled", false);
+
+    }
+    function deshabilitarBtn() {
+        $("#editarFamilia").attr("disabled", true);
+        $("#eliminarFamilia").attr("disabled", true);
+        $(".crearEditarSubFamilia").attr("disabled", true);
+    }
 
 
 

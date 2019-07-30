@@ -1,0 +1,209 @@
+﻿@model IEnumerable<AltivaWebApp.GEDomain.TbSeMoneda>
+
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    ViewData["Title"] = "ListarMonedas";
+}
+
+<h3>@Lb["Moneda"]</h3>
+<hr />
+<div class="table-responsive">
+
+        <table id="tblMoneda" class="table table-bordered" style="min-width: 400px; max-width: 800px">
+            <thead>
+                <tr>
+                    <th style="width:21%">
+                        @Lb["Nombre"]
+                    </th>
+                    <th style="width:21%">
+                        @Lb["Símbolo"]
+                    </th>
+                    <th style="width:21%">
+                        @Lb["Compra"]
+                    </th>
+                    <th style="width:21%">
+                        @Lb["Venta"]
+                    </th>
+                    <th style="width:16%">
+                        @Lb["Acción"]
+                    </th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+</div>
+
+<div class="row">
+    <div class="form-group col-md-3">
+        <button disabled class="btn btn-success btnAccion" onclick="guardarCambios()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+
+    var monedas = [];
+    $(document).ready(function () {
+
+        getMonedas();
+
+       
+
+    });
+
+
+    function guardarCambios() {
+
+        for (var i = 0; i < monedas.length; i++) {
+            monedas[i].valorCompra = monedas[i].valorCompra.toString().replace(".", ",");
+            monedas[i].valorVenta = monedas[i].valorVenta.toString().replace(".", ",");
+        }
+
+        if(validarCampos())
+        $.ajax({
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("EditarMoneda")',
+            data: { viewModel: monedas },
+            success: function (data) {
+                cargarAlert('@Lb["actualizadoCorrectamente"]');
+            },
+            error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+            }
+        });
+    }
+
+    function validarCampos() {
+
+        var flag = true;
+        for (var i = 0; i < monedas.length; i++) {
+            console.log(monedas[i]);
+            if (monedas[i].nombre.replace(/ /g, "") === "" || monedas[i].simbolo.replace(/ /g, "") === "" || monedas[i].valorCompra === "" || monedas[i].valorVenta === "") {
+                flag = false;
+                cargarAlert("@Lb["camposRequeridos"]");
+                break;
+            }
+                
+        }
+
+        return flag;
+    }
+
+    function getMonedas() {
+
+         $.ajax({
+            type: "get",
+            headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+                 monedas = data;
+                 cargarDatos(data);
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+
+    }
+
+    function cargarDatos(data) {
+
+        $("#tblMoneda > tbody").remove();
+        $('#tblMoneda').append('<tbody></tbody>');
+
+        var contadorFila = 0;
+        var readOnly = "";
+        var readOnlyE = "";
+        var readOnlyDE = "";
+        var desactivar = "";
+        var historial = "";
+        
+        
+        for (var i = 0; i < data.length; i++) {
+
+            if (i === 0)
+                readOnly = "readonly"
+            else {
+                historial = '<button value="' + data[i].codigo + '" onclick="historialMoneda(value)" class="btn btn-link btnEditar"><i class="fas fa-history"></i></button>';
+                readOnly = "";
+                readOnlyDE = "readonly";
+            }
+            if (i === 2) {
+                var icono = '<i style="font-size: 2rem" class="fas fa-toggle-on"></i>';
+                if (!data[i].activa) {
+                    var icono = '<i style="font-size: 2rem" class="fas fa-toggle-off"></i>';
+                    readOnlyE = "readonly";
+                }
+
+                desactivar = '<button value="' + data[i].codigo + '" onclick="editarLinea(' + !data[i].activa + ', 2, 5)" class="btn btn-link btnEditar">' + icono + '</i></button>';
+
+            }
+
+            var body = '<tr class="fila' + contadorFila + ' filas" >'
+                + '<td><input ' + readOnlyDE +'  onkeyup="editarLinea(value, ' + contadorFila + ',' + 1 + ')" ' + readOnlyE + ' class="form-control" value="' + data[i].nombre + '" /></td>'
+                + '<td><input ' + readOnlyDE +' onkeyup="editarLinea(value, ' + contadorFila + ',' + 2 + ')" ' + readOnlyE + ' class="form-control" value="' + data[i].simbolo + '" /></td>'
+                + '<td><input onkeyup="editarLinea(value, ' + contadorFila + ',' + 3 + ')" ' + readOnly + ' ' + readOnlyE + ' class="form-control numerico" value="' + data[i].valorCompra + '" /></td>'
+                + '<td><input onkeyup="editarLinea(value, ' + contadorFila + ',' + 4 + ')" ' + readOnly + ' ' + readOnlyE + ' class="form-control numerico" value="' + data[i].valorVenta + '" /></td>'
+                + '<td>' + historial + desactivar + '</td>';
+            $('#tblMoneda > tbody').append(body);
+            contadorFila++;
+
+        }
+
+        $(".numerico").inputmask({
+            'alias': 'decimal',
+            rightAlign: true,
+            min: 1
+        });
+        
+    }
+
+
+    function editarLinea(value, key, campo) {
+
+        $('.btnAccion').prop('disabled', false);
+
+        switch (campo) {
+            case 1:
+                monedas[key].nombre = value;
+                break;
+            case 2:
+                monedas[key].simbolo = value;
+                break;
+            case 3:
+                monedas[key].valorCompra = value;
+                break;
+            case 4:
+                monedas[key].valorVenta = value;
+                break;
+            case 5:
+                monedas[key].activa = value;
+                cargarDatos(monedas);
+                break;
+        }
+
+    }
+
+    function historialMoneda(codigoMoneda) {
+        window.location.href = '@Url.Action("HistorialMoneda", new { cod = "__cod__" })'.replace("__cod__", codigoMoneda);
+    }
+
+</script>
+

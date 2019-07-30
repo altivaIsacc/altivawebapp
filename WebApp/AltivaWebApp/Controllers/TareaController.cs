@@ -13,7 +13,7 @@ namespace AltivaWebApp.Controllers
     [Route("{culture}/Tarea")]
     public class TareaController : Controller
     {
-        
+
         //mensaje service
         public IMensajeService ImensajeSerive;
         //variable mapper
@@ -35,7 +35,7 @@ namespace AltivaWebApp.Controllers
         public IMensajeReceptorService IMensajeReceptorService;
         //service conf filtros
         public IConfiguracionFiltrosService IConfigService;
-        public TareaController(IMensajeReceptorService IMensajeReceptorService,IMensajeReceptor IMensajeReceptorMap,IMensajeService ImensajeSerive,IConfiguracionFiltrosService IConfigService,ITipoTareaService ITipoService,IEstadoTareaService IEstadoService,ITareaMapper ITareaMapper,ITareaService pTareaServiceInterface, IContactoService IContactosService, IUserService IUserService)
+        public TareaController(IMensajeReceptorService IMensajeReceptorService, IMensajeReceptor IMensajeReceptorMap, IMensajeService ImensajeSerive, IConfiguracionFiltrosService IConfigService, ITipoTareaService ITipoService, IEstadoTareaService IEstadoService, ITareaMapper ITareaMapper, ITareaService pTareaServiceInterface, IContactoService IContactosService, IUserService IUserService)
         {
             this.IMensajeReceptorMap = IMensajeReceptorMap;
             this.IMensajeReceptorService = IMensajeReceptorService;
@@ -49,26 +49,26 @@ namespace AltivaWebApp.Controllers
             this.ImensajeSerive = ImensajeSerive;
         }
         [HttpGet("GetTareas")]
-      
+
         public IActionResult GetTareas()
         {
 
             IList<TbFdTarea> listaTareas = new List<TbFdTarea>();
             listaTareas = this.TareaServiceInterface.GetTareas();
-            foreach (var item in listaTareas)
-            {
+            //foreach (var item in listaTareas)
+            //{
 
-                item.IdContactoNavigation.TbFdTarea = null;
-                item.IdEstadoNavigation.TbFdTarea = null;
-                item.IdTipoNavigation.TbFdTarea = null;
-            }
+            //    item.IdContactoNavigation.TbFdTarea = null;
+            //    item.IdEstadoNavigation.TbFdTarea = null;
+            //    item.IdTipoNavigation.TbFdTarea = null;
+            //}
             return Ok(listaTareas);
         }
         [HttpGet("ListarTareas")]
         public IActionResult ListarTareas()
         {
 
-         TbFdConfiguracionFiltros tareas = new TbFdConfiguracionFiltros();
+            TbFdConfiguracionFiltros tareas = new TbFdConfiguracionFiltros();
             tareas = this.IConfigService.GetFiltro();
             //llamar alos contactos
             ViewData["Contactos"] = this.IContactosService.GetAll();
@@ -115,14 +115,15 @@ namespace AltivaWebApp.Controllers
         [HttpPost("CrearTarea")]
         public JsonResult CrearTarea(TareaViewModel domain)
         {
-            
+
             TbFdTarea tbTarea = new TbFdTarea();
             tbTarea = this.ITareaMapper.Save(domain);
             if (tbTarea != null)
             {
-                if (tbTarea.IdUsuario != 0) {
-                   
-                    TbSeMensaje mensaje = new TbSeMensaje("Se le ha asignado una tarea. Titulo: " +tbTarea.Titulo+"", "ME", tbTarea.IdUsuario);
+                if (tbTarea.IdUsuario != 0)
+                {
+
+                    TbSeMensaje mensaje = new TbSeMensaje("Se le ha asignado una tarea. Titulo: " + tbTarea.Titulo + "", "ME", tbTarea.IdUsuario);
                     this.ImensajeSerive.create(mensaje);
                 }
                 return new JsonResult(true);
@@ -131,12 +132,12 @@ namespace AltivaWebApp.Controllers
             {
                 return new JsonResult(false);
             }
-           
+
         }
         [HttpPost("EditarTareaPost")]
         public IActionResult EditarTareaPost(TareaViewModel domain)
         {
-  
+
             TbFdTarea tbTarea = new TbFdTarea();
             tbTarea = this.ITareaMapper.Update(domain);
             if (tbTarea != null)
@@ -146,12 +147,12 @@ namespace AltivaWebApp.Controllers
                     List<TbSeMensajeReceptor> mr = new List<TbSeMensajeReceptor>();
                     TbSeMensaje mensaje = new TbSeMensaje("Se le ha asignado una tarea a realizar. Titulo: " + tbTarea.Titulo + "", "ME", tbTarea.IdUsuario);
                     this.ImensajeSerive.create(mensaje);
-                    
-                    mr.Add(this.IMensajeReceptorMap.Crear(mensaje.Id,Convert.ToInt32(tbTarea.IdUsuario)));
-                
-                this.IMensajeReceptorService.Crear(mr);
-            }
-                return  Ok(tbTarea.Id);
+
+                    mr.Add(this.IMensajeReceptorMap.Crear(mensaje.Id, Convert.ToInt32(tbTarea.IdUsuario)));
+
+                    this.IMensajeReceptorService.Crear(mr);
+                }
+                return Ok(tbTarea.Id);
             }
             else
             {
@@ -162,26 +163,26 @@ namespace AltivaWebApp.Controllers
         [HttpGet("DarPrioridad/{IdTarea?}")]
         public IActionResult DarPrioridad(int IdTarea)
         {
-            int Posicion ;
-           
+            int Posicion;
+
             TbFdTarea tarea = new TbFdTarea();
             TbFdTarea tarea2 = new TbFdTarea();
-           IList<TbFdTarea> tareaLista = new List<TbFdTarea>();
-        tarea =  this.TareaServiceInterface.GetById(IdTarea);
-        Posicion =Convert.ToInt32( tarea.Posicion );
-           
-                int p = (Posicion - 1);
-                tarea2 = this.TareaServiceInterface.GetByPosicion(p);
-                tarea.Posicion = tarea2.Posicion;
-                tarea2.Posicion = Posicion;
-                tareaLista.Add(tarea);
-                tareaLista.Add(tarea2);
-                this.TareaServiceInterface.UpdateRange(tareaLista);
-                return Ok(true);
-            
+            IList<TbFdTarea> tareaLista = new List<TbFdTarea>();
+            tarea = this.TareaServiceInterface.GetById(IdTarea);
+            Posicion = Convert.ToInt32(tarea.Posicion);
+
+            int p = (Posicion - 1);
+            tarea2 = this.TareaServiceInterface.GetByPosicion(p);
+            tarea.Posicion = tarea2.Posicion;
+            tarea2.Posicion = Posicion;
+            tareaLista.Add(tarea);
+            tareaLista.Add(tarea2);
+            this.TareaServiceInterface.UpdateRange(tareaLista);
+            return Ok(true);
+
         }
         [HttpGet("QuitarPrioridad/{IdTarea?}")]
-     public   IActionResult QuitarPrioridad(int IdTarea)
+        public IActionResult QuitarPrioridad(int IdTarea)
         {
             int Posicion;
 
@@ -199,7 +200,7 @@ namespace AltivaWebApp.Controllers
             tareaLista.Add(tarea2);
             this.TareaServiceInterface.UpdateRange(tareaLista);
             return Ok(true);
-            
+
         }
 
         [HttpGet("ReporteRendimiento")]
@@ -223,13 +224,13 @@ namespace AltivaWebApp.Controllers
             ViewData["Asignados"] = this.IUserService.GetAll();
             ViewBag.fecha = DateTime.Now;
             return View();
-            
+
         }
         [HttpPost("FijarFiltros")]
         public IActionResult FijarFiltros(TbFdConfiguracionFiltros domain)
         {
             TbFdConfiguracionFiltros saveFiltros = new TbFdConfiguracionFiltros();
-           saveFiltros = this.IConfigService.Save(domain);
+            saveFiltros = this.IConfigService.Save(domain);
             if (saveFiltros != null)
             {
                 return Ok(true);
@@ -238,22 +239,21 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(false);
             }
-           
+
         }
         [HttpGet("QuitarFiltro/{idConf}")]
         public IActionResult QuitarFiltro(int idConf)
         {
-            TbFdConfiguracionFiltros tareas = new TbFdConfiguracionFiltros();
-            tareas = this.IConfigService.GetFiltro();
-            this.IConfigService.Delete(tareas);
+            var tareas = this.IConfigService.GetFiltro();
+            IConfigService.Delete(tareas);
             return Ok(true);
         }
-        [HttpGet("EliminarTarea/{idContacto}")]
-        public IActionResult EliminarTarea(int idContacto)
+        [HttpPost("EliminarTarea")]
+        public IActionResult EliminarTarea(int idTarea)
         {
 
             TbFdTarea tbfdtarea = new TbFdTarea();
-            tbfdtarea = this.TareaServiceInterface.EliminarTarea(idContacto);
+            tbfdtarea = this.TareaServiceInterface.EliminarTarea(idTarea);
             if (tbfdtarea != null)
             {
                 return Ok(true);
@@ -262,7 +262,7 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(false);
             }
-            
+
         }
         [HttpPost("AgregarSubTarea")]
         public IActionResult AgregarSubtarea(IList<TbFdSubtareas> domain)
@@ -278,14 +278,14 @@ namespace AltivaWebApp.Controllers
 
             this.TareaServiceInterface.UpdateRange(domain);
 
-          
+
             return Ok();
         }
         [HttpGet("GetSubTareas/{idTarea?}")]
         public JsonResult GetSubTareas(int idTarea)
         {
             IList<TbFdSubtareas> subtareas = new List<TbFdSubtareas>();
-           
+
             foreach (var item in this.TareaServiceInterface.GetSubTareas(idTarea))
             {
                 item.IdTareaNavigation = null;
@@ -300,6 +300,16 @@ namespace AltivaWebApp.Controllers
 
             sub = this.TareaServiceInterface.RemoveSubtareas(idSubContacto);
             return Ok();
+        }
+
+        //Existen tipos y estados de tarea
+        [HttpGet("ExisteConfigurarion")]
+        public IActionResult ExisteConfigurarion()
+        {
+            ///crear consulta
+            var estados = TareaServiceInterface.ExisteEstado();
+            var tipos = TareaServiceInterface.ExisteTipo();
+            return Json(new { estados = estados, tipos = tipos });
         }
     }
 }

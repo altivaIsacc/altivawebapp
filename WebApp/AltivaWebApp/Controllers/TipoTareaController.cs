@@ -32,13 +32,14 @@ namespace AltivaWebApp.Controllers
             return new JsonResult(tp);
 
         }
-            public IActionResult ListarTipos()
+        public IActionResult ListarTipos()
         {
-         
+
             return View();
         }
         [HttpGet("ListarTiposTareas/{mensaje?}")]
-        public IActionResult ListarTiposTareas(string mensaje= null) {
+        public IActionResult ListarTiposTareas(string mensaje = null)
+        {
             IList<TbFdTareaTipo> tp = new List<TbFdTareaTipo>();
             IList<TbFdTareaTipo> tpL = new List<TbFdTareaTipo>();
             tp = this.ITipoTareaService.GetAll();
@@ -72,30 +73,37 @@ namespace AltivaWebApp.Controllers
             TbFdTareaTipo tp = new TbFdTareaTipo();
             return PartialView("_CrearEditarTipos", tp);
         }
+
         [HttpPost("CrearTipo")]
         public JsonResult CrearTipo(TipoTareaViewModel domain)
         {
             if (this.ITipoTareaService.GetByTitulo(domain.Titulo))
             {
-                return Json(new { titulo = true } );
-            }else if (this.ITipoTareaService.GetByColor(domain.Color))
+                return Json(new { titulo = true });
+            }
+            else if (this.ITipoTareaService.GetByColor(domain.Color))
             {
                 return Json(new { color = true });
             }
             else if (domain.EsTipoDefecto != false)
             {
-            
-                if (this.ITipoTareaService.GetByDefecto(domain.EsTipoDefecto) == true) {
+
+                if (this.ITipoTareaService.GetByDefecto(domain.EsTipoDefecto))
+                {
                     return Json(new { defecto = true });
+                }
+                else
+                {
+                    var tt = this.ITipoTareaMapper.Save(domain);
                 }
             }
             else
             {
-                TbFdTareaTipo tt = new TbFdTareaTipo();
-                tt = this.ITipoTareaMapper.Save(domain);
+                var tt = this.ITipoTareaMapper.Save(domain);
             }
-            return Json(new { titulo = false, color= false, defecto = false });
+            return Json(new { titulo = false, color = false, defecto = false });
         }
+
         [HttpGet("EditarTipo")]
         public IActionResult EditarTipo(int idTipoTarea)
         {
@@ -104,27 +112,21 @@ namespace AltivaWebApp.Controllers
             return PartialView("_CrearEditarTipos", tt);
         }
         [HttpGet("Delete/{idTipo?}")]
-        public JsonResult Delete(int idTipo)
+        public IActionResult Delete(int idTipo)
         {
-
             try
             {
-
-            bool flag =    this.ITipoTareaService.Delete(idTipo);
-                if (flag)
-                {
-                    return new JsonResult(true);
-                }
-              
-               
+                bool flag = this.ITipoTareaService.Delete(idTipo);
+                return Json(new { success = flag });
             }
             catch
             {
-                return new JsonResult(false);
+                return BadRequest();
             }
 
-            return new JsonResult(true);
         }
+
+
         [HttpPost("EditarTipoTarea")]
         public JsonResult EditarTipoTarea(TipoTareaViewModel domain)
         {
@@ -142,7 +144,7 @@ namespace AltivaWebApp.Controllers
                     return Json(new { titulo = true });
                 }
             }
-             if (this.ITipoTareaService.GetByColor(domain.Color))
+            if (this.ITipoTareaService.GetByColor(domain.Color))
             {
                 if (color.Id != domain.Id)
                 {
@@ -152,12 +154,13 @@ namespace AltivaWebApp.Controllers
             }
             if (this.ITipoTareaService.GetByDefecto(domain.EsTipoDefecto) == true)
             {
-                if (domain.EsTipoDefecto == true) {
+                if (domain.EsTipoDefecto == true)
+                {
                     if (porDefecto.Id != domain.Id)
                     {
                         return Json(new { defecto = true });
                     }
-            }
+                }
             }
 
             tt = this.ITipoTareaMapper.Update(domain);
@@ -166,8 +169,8 @@ namespace AltivaWebApp.Controllers
 
             return Json(new { titulo = false, color = false, defecto = false });
         }
-      
+
     }
 
-    
+
 }

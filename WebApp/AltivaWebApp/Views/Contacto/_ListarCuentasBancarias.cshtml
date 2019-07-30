@@ -1,0 +1,94 @@
+﻿@model IList<TbFdCuentasBancarias>
+@inject IStringLocalizer<SharedResources> Lb
+@{
+    Layout = null;
+}
+
+<div id="crearEditarPartialCuenta">
+
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>@Lb["TipoCuenta"]</th>
+                <th>@Lb["N. Cuenta"]</th>
+                <th>@Lb["Banco"]</th>
+                <th>@Lb["Moneda"]</th>
+                <th>@Lb["Acción"]</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var item in Model)
+            {
+            <tr>
+                @if (item.TipoCuenta == "1")
+                {
+                    <td>@Lb["Corriente"]</td>
+                }
+                else
+                {
+                    <td>@Lb["Ahorros"]</td>
+                }
+                <td>@item.CuentaBancaria</td>
+                <td>@item.Banco</td>
+                <td>@item.Moneda</td>
+                <td><button class="btn btn-link" id="nota" onclick="crearEditarCuenta(@item.Id)"><i class="fas fa-edit"></i></button><button class="btn btn-link" onclick="eliminarCuenta(@item.Id)"><i class="fas fa-trash"></i></button></td>
+            </tr>
+            }
+
+
+        </tbody>
+    </table>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+
+        crearEditarCuenta(0);
+    });
+
+    function crearEditarCuenta(idCuenta) {
+
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("_CrearEditarCuentasBancarias", "Contacto")',
+             data: { idCuenta: idCuenta, idContacto: @ViewBag.idContacto },
+             success: function (data) {
+                 $('#crearEditarPartialCuenta').html(data);
+             },
+             error: function (err, scnd) {
+                 console.log(err.statusText);
+             }
+
+        });
+
+    }
+
+    function eliminarCuenta(idCuenta) {
+
+        bootbox.confirm("@Lb["confirmEliminar"]", function (result) {
+
+            if (result) {
+
+                $.ajax({
+                    type: "post",
+                    url: '@Url.Action("EliminarCuentaBancaria", "Contacto")',
+                    data: { idCuenta: idCuenta },
+                    success: function (data) {
+                        getCuentasBancarias();
+                    },
+                    error: function (err, scnd) {
+                        cargarAlert("errorGeneral")
+                        console.log(err.statusText);
+                    }
+                });
+            }
+
+        });
+    }
+</script>

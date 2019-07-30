@@ -1,11 +1,12 @@
 ﻿@model AltivaWebApp.Domains.TbFdConfiguracionFiltros
+
+@inject IStringLocalizer<SharedResources> Lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
     {
         return Xsrf.GetAndStoreTokens(Context).RequestToken;
     }
-
 
 }
 
@@ -15,180 +16,172 @@
         background: red;
     }
 </style>
+
 <div class="row">
-    <div class="col-md-2">
-        <h3>Lista de tareas</h3>
+    <div class="col-md-2 col-sm-4 col-xs-4">
+        <h3>Tareas</h3>
     </div>
-    <div class="col-md-2" style="margin-left:1rem; padding-top:0.7rem">
-
-        <button class=" btn btn-primary " id="btnNuevaTarea"><span>Agregar <i class="fas fa-plus-circle "></i></span></button>
+    <div class="col-md-2 col-sm-6 col-xs-6" style="margin-left:1rem; padding-top:0.7rem">
+        <button class=" btn btn-primary " id="btnNuevaTarea"><span>@Lb["Agregar"] <i class="fas fa-plus-circle "></i></span></button>
     </div>
-    <div class="col-md-2" style="margin-left:1rem; padding-top:0.7rem">
-
+    <div class="col-md-2 col-sm-12 col-xs-12" style="float:right; ">
+        <label for="reportes">@Lb["Reportes"]:</label>
         <select class="form-control" id="reportes">
             <option selected="selected" value="0">Seleccione</option>
             <option value="1">Costos*</option>
             <option value="2">Rendimiento*</option>
-
         </select>
     </div>
-    <br />
-    <div class="row">
-        <div class="col-md-12">
-            <div class="form-group col-md-4">
-                <label>Buscar por Titulo:</label>
+</div>
+<hr />
+<div class="row">
 
-                <input type="text" id="filtroByTitulo" class="form-control" value="" />
-            </div>
-        </div>
-
-    </div>
-    <div class="row col-md-12">
-
-        <div class="col-md-2">
-            <label style="padding-top: 0.2rem">Asignados:</label>
-            <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroAsignado" asp-for="IdUsuario">
-                <option value="0" selected>Seleccione</option>
-                <option value="na">No Asignados</option>
-                @foreach (var asignados in ViewData["Asignados"] as IList<TbSeUsuario>)
-                {
-
-
-                    <option value="@asignados.Id">@asignados.Nombre</option>
-
-
-                }
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label style="padding-top: 0.2rem">Contactos:</label>
-            <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroContacto" asp-for="IdContacto">
-                <option value="0" selected>Seleccione</option>
-                @foreach (var contactos in ViewData["contactos"] as IList<TbCrContacto>)
-                {
-                    @if (contactos.Persona == true)
-                    {
-                        <option value="@contactos.IdContacto">@contactos.Nombre</option>
-                    }
-                    else
-                    {
-                        <option value="@contactos.IdContacto">@contactos.NombreComercial</option>
-                    }
-                }
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label style="padding-top: 0.2rem">Estados:</label>
-            <select class=" form-control selectFiltro" data-live-search="true" id="filtroEstados" asp-for="IdEstado">
-                <option value="0" selected>Seleccione</option>
-                @foreach (var estados in ViewData["estados"] as IList<TbFdTareaEstado>)
-                {
-                    @if (estados.Activo == true)
-                    {
-                        <option value="@estados.Id" style="background:@estados.Color;color:black;">@estados.Titulo</option>
-
-                    }
-                }
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label style="padding-top: 0.2rem">Tipos:</label>
-            <select class="  form-control selectFiltro" data-live-search="true" id="filtroTipos" asp-for="IdTipo">
-                <option value="0" selected>Seleccione</option>
-                @foreach (var tipos in ViewData["tipos"] as IList<TbFdTareaTipo>)
-                {
-                    @if (tipos.Activo == true)
-                    {
-                        <option value="@tipos.Id" style="background:@tipos.Color;color:black;">@tipos.Titulo</option>
-
-                    }
-                }
-            </select>
-        </div>
-        <div class="col-md-3">
-
-            <label>Filtrar por fecha:</label>
-            <form id="frmFecha">
-                <fieldset>
-                    <div class="control-group">
-                        <div class="controls">
-                            <div class="input-prepend input-group">
-                                <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
-                                <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" />
-                            </div>
-                        </div>
-                    </div>
-                </fieldset>
-            </form>
-        </div>
-        <div class="col-md-1">
-
-            <div id="fijarH">
-                <label style="padding-top: 0.2rem">Fijar Filtros:</label>
-                <input type="checkbox" id="fijar" asp-for="Estado" />
-            </div>
-
-
-        </div>
+    <div class="form-group col-md-4 col-sm-6 col-xs-12">
+        <label>Buscar por Titulo:</label>
+        <input type="text" id="filtroByTitulo" class="form-control" value="" />
     </div>
 
 </div>
+<div class="row">
+
+    <div class="col-md-2 col-sm-6 col-xs-12">
+        <label style="padding-top: 0.2rem">Asignados:</label>
+        <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroAsignado" asp-for="IdUsuario">
+            <option value="0" selected>Seleccione</option>
+            <option value="na">No Asignados</option>
+            @foreach (var asignados in ViewData["Asignados"] as IList<TbSeUsuario>)
+            {
+                <option value="@asignados.Id">@asignados.Nombre</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2 col-sm-6 col-xs-12">
+        <label style="padding-top: 0.2rem">Contactos:</label>
+        <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroContacto" asp-for="IdContacto">
+            <option value="0" selected>Seleccione</option>
+            @foreach (var contactos in ViewData["contactos"] as IList<TbCrContacto>)
+            {
+                @if (contactos.Persona == true)
+                {
+                    <option value="@contactos.IdContacto">@contactos.Nombre</option>
+                }
+                else
+                {
+                    <option value="@contactos.IdContacto">@contactos.NombreComercial</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-md-2 col-sm-4 col-xs-12">
+        <label style="padding-top: 0.2rem">Estados:</label>
+        <select class=" form-control selectFiltro" data-live-search="true" id="filtroEstados" asp-for="IdEstado">
+            <option value="0" selected>Seleccione</option>
+            @foreach (var estados in ViewData["estados"] as IList<TbFdTareaEstado>)
+            {
+                @if (estados.Activo == true)
+                {
+                    <option value="@estados.Id" style="background:@estados.Color;color:black;">@estados.Titulo</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-md-2 col-sm-4 col-xs-12">
+        <label style="padding-top: 0.2rem">Tipos:</label>
+        <select class="  form-control selectFiltro" data-live-search="true" id="filtroTipos" asp-for="IdTipo">
+            <option value="0" selected>Seleccione</option>
+            @foreach (var tipos in ViewData["tipos"] as IList<TbFdTareaTipo>)
+            {
+                @if (tipos.Activo == true)
+                {
+                    <option value="@tipos.Id" style="background:@tipos.Color;color:black;">@tipos.Titulo</option>
+
+                }
+            }
+        </select>
+    </div>
+    <div class="col-md-2 col-sm-4 col-xs-12">
+
+        <label>Filtrar por Fecha:</label>
+        <form id="frmFecha">
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="input-prepend input-group">
+                            <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div class="col-md-12">
+
+        <div id="fijarH">
+            <label style="padding-top: 0.2rem">Fijar Filtros:</label>
+            <input type="checkbox" id="fijar" asp-for="Estado" />
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="table-responsive">
+            <table class="table TablaTareas table-bordered" style="min-width: 1200px" id="TablaTareas">
+                <thead>
+                    <tr>
+                        <th>Prioridad</th>
+                        <th>
+                            Título
+                        </th>
+                        <th>
+                            Tipo Tarea
+                        </th>
+                        <th>
+                            Estado Tarea
+                        </th>
+                        <th>
+                            Contacto
+                        </th>
+                        <th>
+                            Fecha Límite
+                        </th>
+                        <th hidden>
+                            Asignado
+                        </th>
+                        <th hidden>
+                            Descripción
+                        </th>
+                        <th hidden>
+                            Dias Estimados
+                        </th>
+                        <th hidden>
+                            Dias Reales
+                        </th>
+                        <th hidden>
+                            Costo Estimado
+                        </th>
+                        <th hidden>
+                            Costo Real
+                        </th>
+
+                        <th>
+                            Fecha Inicio
+                        </th>
+                        <th>
+                            Fecha Final
+                        </th>
 
 
-<table class="table TablaTareas" style="width:100%;" id="TablaTareas">
-    <thead>
-        <tr>
-            <th>Prioridad</th>
-            <th>
-                Tipo tarea
-            </th>
-            <th>
-                Título
-            </th>
-            <th>
-                Estado tarea
-            </th>
-            <th>
-                Contacto
-            </th>
-            <th>
-                Fecha Limite
-            </th>
-            <th hidden>
-                Asignado
-            </th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-
-
-            <th hidden>
-                Descripción
-            </th>
-            <th hidden>
-                Dias estimados
-            </th>
-            <th hidden>
-                Dias reales
-            </th>
-            <th hidden>
-                Costo estimado
-            </th>
-            <th hidden>
-                Costo Real
-            </th>
-
-            <th>
-                Fecha inicio
-            </th>
-            <th>
-                Fecha final
-            </th>
-
-
-            <th>Acción</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
 <script src="~/js/comentario.js"></script>
 
 <div class="modal fade" role="dialog" id="nuevaTarea">
@@ -255,7 +248,7 @@
                 }
             });
         } else {
-                     var url1 = '@Url.Action("QuitarFiltro", "Tarea")';
+                     var url1 = '@Url.Action("QuitarFiltro", "Tarea", new { idConf = 0})';
             $.ajax({
                 type: "Get",
                 headers: {
@@ -263,18 +256,14 @@
                 },
 
                 url: url1,
-                data: { idConf: 0 },
-
-          success: function (data) {
-              $('#fijar').prop('checked', false);
-
-
-                  cargarTabla();
+                success: function (data) {
+                    $('#fijar').prop('checked', false);
+                    cargarTabla();
                 },
-                    error: function (err, scnd) {
-                        console.log(err.statusText);
+                error: function (err, scnd) {
+                    console.log(err.statusText);
                 }
-        });
+            });
         }
     });
 
@@ -301,6 +290,9 @@
     });
     //cargar datos de las tareas..
     function cargarDatos(data) {
+
+        console.log(data);
+
         var contadorFila = 0;
         var fecha1 = ""
         var fecha = "";
@@ -315,11 +307,17 @@
         var icono2 = "";
         var nombre = "";
         for (var i = 0; i < data.length; i++) {
-            if (data[i].idContactoNavigation.persona == true) {
-                nombre = data[i].idContactoNavigation.nombre;
-            } else {
-                nombre = data[i].idContactoNavigation.nombreComercial;
+
+            if (data[i].idContacto !== 0) {
+                if (data[i].idContactoNavigation.persona == true) {
+                    nombre = data[i].idContactoNavigation.nombre + " " + data[i].idContactoNavigation.apellidos;
+                } else {
+                    nombre = data[i].idContactoNavigation.nombreComercial;
+                }
             }
+            else
+                nombre = "";
+            
             if (data[i].posicion == 1) {
 
                 icono = "";
@@ -348,10 +346,9 @@
 
                 var body = '<tr class="fila' + contadorFila + ' filas">'
                     + '<td><button class="btn btn-link dark" onclick="darPrioridad(' + data[i].id + ')">' + icono + '</button><button class="btn btn-link dark" onclick="quitarPrioridad(' + data[i].id + ')">' + icono2 + '</i></button></td>'
-                    + '<td ><div  style="background: ' + data[i].idTipoNavigation.color + '; color:white;">' + data[i].idTipoNavigation.titulo + '</div></td>'
-
                     + '<td>' + data[i].titulo + '</td>'
-                    + '<td ><div style="background:' + data[i].idEstadoNavigation.color + ';color:white;">' + data[i].idEstadoNavigation.titulo + '</div></td>'
+                    + '<td ><img style="width:2rem; height: 2rem; border-radius: 1rem; background: ' + data[i].idTipoNavigation.color + ';"><span>  ' + data[i].idTipoNavigation.titulo + '</span></td>'
+                    + '<td ><img style="width:2rem; height: 2rem; border-radius: 1rem; background: ' + data[i].idEstadoNavigation.color + ';"><span>' + data[i].idEstadoNavigation.titulo + '</span></td>'
                     + '<td>' + nombre + '</td>'
                     + '<td bgColor=' + color + '>' + recuperarFecha(data[i].fechaLimite) + '</td>'
                     + '<td hidden>' + data[i].idUsuario + ' </td>'
@@ -360,8 +357,8 @@
                     + '<td hidden>' + data[i].diasReales + '</td>'
                     + '<td hidden>' + data[i].costoEstimado + '</td>'
                     + '<td hidden>' + data[i].costoReal + '</td>'
-                    + '<td >' + data[i].fechaInicio + '</td>'
-                    + '<td >' + data[i].fechaFinal + '</td>'
+                    + '<td >' + recuperarFecha(data[i].fechaInicio) + '</td>'
+                    + '<td >' + recuperarFecha(data[i].fechaFinal) + '</td>'
 
                     + '<td>  <button value="' + data[i].id + '" onclick="editarTarea(' + data[i].id + ')" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="Eliminar(' + data[i].id + ')" class="btn btn-link"> <i class="fas fa-trash"></i></button></td></tr>';
                 $('#TablaTareas > tbody').append(body);
@@ -371,45 +368,47 @@
         $('#TablaTareas').DataTable().destroy();
 
         TablaTareas = $('#TablaTareas').DataTable({
+            "info": false,
             dom: 'Bfrtip',
-
-            scrollY: '50rem',
-            "ordering": false,
-            scrollX: '50rem',
-
             language: {
                 "decimal": "",
-                "emptyTable": "No hay información",
-
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
                 "infoPostFix": "",
                 "thousands": ",",
-
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
                 "loadingRecords": "Cargando...",
                 "processing": "Procesando...",
-                "search": "<a ><i  class='fas fa-search ' ></i></a>",
-                "zeroRecords": "Sin resultados encontrados",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
                 "paginate": {
-                    "first": "Primero",
-                    "last": "Ultimo",
-                    "next": "Siguiente",
-                    "previous": "Anterior"
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
                 }
             },
             buttons: [
                 {
                     extend: 'copyHtml5',
-                    text: '<i class="fas fa-copy   " ></i>',
+                    text: '<i class="fas fa-copy   "></i>',
                     titleAttr: 'Copy',
-                    title: 'tareas',
-                    pageSize: 'LEGAL'
+                    title: '@Lb["Tareas"]',
+                    exportOptions: {
+                        columns: [0, 1,2, 3, 4, 5, 6]
+                    }
 
                 },
                 {
                     extend: 'excelHtml5',
                     text: '<i class="fas fa-file-excel  "></i>',
                     titleAttr: 'Excel',
-                    title: 'tareas',
-                    pageSize: 'LEGAL'
+                    title: '@Lb["Tareas"]',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    }
 
                 },
 
@@ -417,46 +416,48 @@
                     extend: 'pdfHtml5',
                     text: '<i class="fas fa-file-pdf   "></i>',
                     titleAttr: 'PDF',
-                    title: 'Tareas',
-                    pageSize: 'LEGAL',
-                    orientation: 'landscape',
+                    title: '@Lb["Tareas"]',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    }
                 }
             ]
         });
+
     }
     //eliminar tarea..
-    function Eliminar(idContacto) {
+    function Eliminar(idTarea) {
         bootbox.confirm({
 
-            message: "<h4 class='text-center'><span >Esta seguro que desea eliminar la tarea? Se advierte se no se podra recuperar.</span></h4>",
+            message: "<h4 class='text-center'><span >@Lb["confirmEliminar"]</span></h4>",
             buttons: {
 
                 confirm: {
-                    label: '<i class="fa fa-check"></i> Aceptar'
+                    label: '<i class="fa fa-check"></i> @Lb["Aceptar"]'
                 },
                 cancel: {
-                    label: '<i class="fa fa-times"></i> Cancelar'
+                    label: '<i class="fa fa-times"></i> @Lb["Cancelar"]'
                 }
             },
             callback: function (result) {
                 if (result) {
-                         var url = '@Url.Action("EliminarTarea", "Tarea")';
+
+                    var url = '@Url.Action("EliminarTarea", "Tarea")';
                     $.ajax({
-                        type: "get",
+                        type: "post",
                         headers: {
                             "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                         },
                         url: url,
-                        data: { idContacto: idContacto },
+                        data: { idTarea: idTarea },
 
-              success: function (data) {
-                  return false;
-                  cargarTabla();
-                },
-                    error: function (err, scnd) {
-                        console.log(err.statusText);
-                }
-            });
+                        success: function (data) {
+                            cargarTabla();
+                        },
+                        error: function (err, scnd) {
+                            console.log(err.statusText);
+                        }
+                    });
 
                 } else {
                     return;
@@ -550,7 +551,6 @@
     function cargarFiltros() {
 
         TareasMostrar = JSON.parse(JSON.stringify(tareas));
-        console.log(TareasMostrar);
         TareasMostrar = filtroContacto(TareasMostrar);
         TareasMostrar = filtroEstado(TareasMostrar);
         TareasMostrar = filtroTipos(TareasMostrar);
@@ -718,40 +718,42 @@
     }
     $(document).ready(function () {
 
+        
+
         $('#filtroFecha').daterangepicker({
             opens: 'left',
 
 
             "locale": {
-                format: "DD/MM/YYYY",
+                 format: "@Lb["formatoFecha"]",
                 "separator": " - ",
-                "applyLabel": "Aplicar",
-                "cancelLabel":"Cancelar",
-                "fromLabel": "DE",
-                "toLabel": "Hasta",
+                "applyLabel": "@Lb["Aplicar"]",
+                "cancelLabel": "@Lb["Cancelar"]",
+                "fromLabel": "@Lb["DE"]",
+                "toLabel": "@Lb["Hasta"]",
                 "customRangeLabel": "Custom",
                 "daysOfWeek": [
-                    "Dom",
-                  "Lun",
-                    "Mar",
-                   "Mie",
-                   "Jue",
-                   "Vie",
-                    "Sáb"
+                    "@Lb["Dom"]",
+                    "@Lb["Lun"]",
+                    "@Lb["Mar"]",
+                    "@Lb["Mie"]",
+                    "@Lb["Jue"]",
+                    "@Lb["Vie"]",
+                    "@Lb["Sáb"]"
                 ],
                 "monthNames": [
-                    "Enero",
-                    "Febrero",
-                    "Marzo",
-                    "Abril",
-                    "Mayo",
-                    "Junio",
-                    "Julio",
-                    "Agosto",
-                    "Septiembre",
-                    "Octubre",
-                    "Noviembre",
-                    "Diciembre"
+                    "@Lb["Enero"]",
+                    "@Lb["Febrero"]",
+                    "@Lb["Marzo"]",
+                    "@Lb["Abril"]",
+                    "@Lb["Mayo"]",
+                    "@Lb["Junio"]",
+                    "@Lb["Julio"]",
+                    "@Lb["Agosto"]",
+                    "@Lb["Septiembre"]",
+                    "@Lb["Octubre"]",
+                    "@Lb["Noviembre"]",
+                    "@Lb["Diciembre"]"
                 ],
                 "firstDay": 1
             }
@@ -765,6 +767,11 @@
 
             });
     });
+
+
+    
+
+
     //cargar tabla
     function cargarTabla() {
            var url = '@Url.Action("GetTareas", "Tarea")';
@@ -779,7 +786,7 @@
             success: function (data) {
                 tareas = JSON.parse(JSON.stringify(data));
 
-                cargarDatos(tareas);
+                //cargarDatos(tareas);
                 cargarFiltros();
 
                 },
@@ -797,38 +804,34 @@
     $('#btnNuevaTarea').on('click', function () {
         var url = '@Url.Action("NuevaTarea", "Tarea")';
           $.ajax({
-                    type: "get",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                    },
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
               url: url ,
-
               success: function (data) {
-
-                   $('#nuevaTarea').modal('show');
-                   $('#titleTarea').html('Nueva Tarea');
-                   $('#infoAgregarTarea').html(data);
-                },
-                    error: function (err, scnd) {
-                        console.log(err.statusText);
-                }
-            });
+                  $('#titleTarea').html('Nueva Tarea');
+                  $('#nuevaTarea').modal('show');
+                  $('#infoAgregarTarea').html(data);
+              },
+              error: function (err, scnd) {
+                  console.log(err.statusText);
+              }
+          });
 
 
     });
     function recuperarFecha(_fecha) {
 
-        var fecha = _fecha.substr(0, 10);
-        var y = fecha.substr(0, 4);
-        var m = fecha.substr(6, 1);
-        var d = fecha.substr(8, 3);
+        if (_fecha === null)
+            return "";
 
-        //var date = new Date();
-        //console.log(fecha);
+        var f = new Date(_fecha);
 
-        return d+"/"+m+"/"+y+" "+_fecha.substr(-8, 8);
+        return f.toLocaleString();
 
     }
+
     function recuperarFechaSinHora(_fecha) {
 
         var fecha = _fecha.substr(0, 10);
@@ -843,3 +846,11 @@
 
     }
 </script>
+
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

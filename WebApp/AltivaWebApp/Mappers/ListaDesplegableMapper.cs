@@ -16,7 +16,7 @@ namespace AltivaWebApp.Mappers
             this.camposService = camposService;
             this.IListaService = IListaService;
         }
-        public TbCrCamposPersonalizados Save(CamposPersonalizadosViewModelSingle domain)
+        public TbCrCamposPersonalizados Save(CamposPersonalizadosViewModel domain)
         {
             return this.camposService.Save(viewModelCampos(domain));
         }
@@ -31,7 +31,7 @@ namespace AltivaWebApp.Mappers
             this.IListaService.UpdateRange(ViewToModelUpdateRange(domain));
         }
 
-        public TbCrCamposPersonalizados viewModelCampos(CamposPersonalizadosViewModelSingle domain)
+        public TbCrCamposPersonalizados viewModelCampos(CamposPersonalizadosViewModel domain)
         {
             TbCrCamposPersonalizados tp = new TbCrCamposPersonalizados();
             tp.Nombre = domain.Nombre;

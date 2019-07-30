@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<AltivaWebApp.Domains.TbFdTareaTipo>
-
+@inject IStringLocalizer<SharedResources> Lb
 @{
     ViewData["Title"] = "Listar Tipos";
 }
@@ -38,7 +38,7 @@
 
         <div class="modal-content">
             <div class="modal-header" id="head">
-           
+
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -65,23 +65,28 @@
             $('#cargarTablaTipos').empty();
             cargarTablaTipoTareas();
 
+
+            $('#sideModalTR').on('hidden.bs.modal', function () {
+                console.log("entra");
+                $('#cargarTablaTipos').empty();
+                cargarTablaTipoTareas();
+            });
+
         });
         function VerInactivos() {
 
-   $.ajax({
+            $.ajax({
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
                 type: "GET",
-
-
                 url: '@Url.Action("ListarTiposTareas", "TipoTarea")',
-                  data: {mensaje:"asd"},
-       success: function (data) {
-           $('#cargarTablaTipos').empty();
-           $('#cargarTablaTipos').html(data);
-           $("#inactivos").css("display", "none");
-           $("#activos").css("display", "block");
+                data: {mensaje:"asd"},
+                success: function (data) {
+                    $('#cargarTablaTipos').empty();
+                    $('#cargarTablaTipos').html(data);
+                    $("#inactivos").css("display", "none");
+                    $("#activos").css("display", "block");
                 },
 
                 error: function (err, scnd) {
@@ -162,7 +167,7 @@
 
         bootbox.confirm({
 
-            message: "<h4 class='text-center'><span >Esta usted seguro que desea continuar?</span></h4>",
+            message: "<h4 class='text-center'><span >¿Está seguro que desea eliminar este estado?</span></h4>",
             buttons: {
 
                 confirm: {
@@ -176,42 +181,42 @@
                 if (result) {
 
                        $.ajax({
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                    },
-                    type: "GET",
+                           headers: {
+                                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                           },
+                           type: "GET",
+                           url: '@Url.Action("Delete", "TipoTarea")',
+                           data: { idTipo: idTipo },
+                           success: function (data) {
+                               if (data.success) {
+                                   $('#cargarTablaTipos').empty();
+                                   if ($("#activos").css("display") == "block") {
+                                       $("#inactivos").css("display", "none");
+                                       $("#activos").css("display", "block");
+                                       VerInactivos();
+                                   } else {
+                                       $("#inactivos").css("display", "block");
+                                       $("#activos").css("display", "none");
+                                       cargarTablaTipoTareas();
+                                   }
+                               } else {
+                                   cargarAlert("@Lb["noPuedeEliminarTipoTarea"]");
+                               }
 
 
-                    url: '@Url.Action("Delete", "TipoTarea")',
-       data: {idTipo:idTipo},
-                    success: function (data) {
-                        $('#cargarTablaTipos').empty();
-                        if ($("#activos").css("display") == "block") {
 
-                            $("#inactivos").css("display", "none");
-                            $("#activos").css("display", "block");
-                            VerInactivos();
-                        } else {
-                            $("#inactivos").css("display", "block");
-                            $("#activos").css("display", "none");
-                            cargarTablaTipoTareas();
+                           },
+                           error: function (err, scnd) {
+                                console.log(err.statusText);
+                           }
+
+                        });
 
 
-                        }
-                        return false;
-                    },
-
-                    error: function (err, scnd) {
-                        console.log(err.statusText);
-                    }
-
-        });
-
-                  
-                } else {
-                    return;
                 }
             }
         });
-        }
+    }
+
+
 </script>

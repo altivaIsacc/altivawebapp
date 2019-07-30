@@ -8,8 +8,8 @@ namespace AltivaWebApp.Services
 {
    public interface ICamposPersonalizadosService
     {
-        IList<TbCrCamposPersonalizados> GetAll();
-         IList<TbCrCamposPersonalizados> GetCampos();
+        IList<TbCrCamposPersonalizados> GetAll(int idContacto);
+        IList<TbCrCamposPersonalizados> GetCampos();
         TbCrCamposPersonalizados getById(int id);
         TbCrCamposPersonalizados Save(TbCrCamposPersonalizados domain);
         

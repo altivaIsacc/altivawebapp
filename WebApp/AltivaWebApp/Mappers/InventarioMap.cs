@@ -189,7 +189,6 @@ namespace AltivaWebApp.Mappers
             inventario.NombreCarrito = viewModel.NombreCarrito;
             inventario.PrecioVentaOnline = viewModel.PrecioVentaOnline;
             inventario.AbreviacionFacturas = viewModel.AbreviacionFactura;
-            inventario.IdFamiliaOnline = viewModel.CodigoMonedaOnline;
             inventario.HabilitarVentaOnline = viewModel.HabilitarVentaOnline;
             inventario.SkuOnline = viewModel.SkuOnline;
                      

@@ -7,186 +7,91 @@ using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.Domains;
 using AltivaWebApp.ViewModels;
+using System.Security.Claims;
+
 namespace AltivaWebApp.Controllers
 {
     [Route("{culture}/TipoProveedor")]
     public class TipoProveedorController : Controller
     {
         //variable service
-        public ITipoProveedorService ITipoProveedorService;
+        public ITipoProveedorService service;
 
         //variable mapper
-        public ITipoProveedorMapper ITipoProveedorMapper;
+        public ITipoProveedorMapper map;
         
         public TipoProveedorController(ITipoProveedorService ITipoProveedor, ITipoProveedorMapper ITipoProveedorMapper)
         {
-            this.ITipoProveedorService = ITipoProveedor;
-            this.ITipoProveedorMapper = ITipoProveedorMapper;
+            this.service = ITipoProveedor;
+            this.map = ITipoProveedorMapper;
                 
                 
                 }
-        [HttpGet("EliminarSubFamiliaProveedor/{idProveedor?}")]
-        public IActionResult EliminarSubFamiliaProveedor(int idProveedor)
-        {
-            TbFdTipoProveedor tipoC = new TbFdTipoProveedor();
-            tipoC = this.ITipoProveedorService.GetById(idProveedor);
-            bool bandera = this.ITipoProveedorService.Delete(tipoC);
-            return Ok(true);
-
-        }
-        [HttpGet("EliminarFamiliaProveedor/{idProveedor?}")]
-        public IActionResult EliminarFamiliaProveedor(int idProveedor)
-        {
-
-            IList<TbFdTipoProveedor> tipoCliente = new List<TbFdTipoProveedor>();
-            tipoCliente = this.ITipoProveedorService.GetSubFamiliaProveedor(idProveedor);
-            if (tipoCliente.Count() > 0)
-            {
-                return Ok(false);
-            }
-            else
-            {
-                TbFdTipoProveedor tipoC = new TbFdTipoProveedor();
-                tipoC = this.ITipoProveedorService.GetById(idProveedor);
-                bool bandera = this.ITipoProveedorService.Delete(tipoC);
-                return Ok(true);
-            }
-
-        }
-        [HttpGet("EliminarTipoProveedor/{idProveedor?}")]
-        public IActionResult EliminarTipoProveedor(int idProveedor)
-        {
-            IList<TbFdTipoProveedor> tipoCliente = new List<TbFdTipoProveedor>();
-            tipoCliente = this.ITipoProveedorService.GetFamiliaTipoProveedor(idProveedor);
-            if (tipoCliente.Count() > 0)
-            {
-                return Ok(false);
-            }
-            else
-            {
-                TbFdTipoProveedor tipoC = new TbFdTipoProveedor();
-                tipoC = this.ITipoProveedorService.GetById(idProveedor);
-                bool bandera = this.ITipoProveedorService.Delete(tipoC);
-                return Ok(true);
-            }
-
-        }
-        public IActionResult Index()
+        [Route("Proveedor")]
+        public IActionResult ListarTipoProveedores()
         {
             return View();
         }
-        [HttpGet("CrearTipoProveedor")]
-        public IActionResult CrearTipoProveedor()
-        {
-            return View();
-        }
-        [HttpGet("PartialCrearTipoProveedor/{idProveedor?}")]
-        public IActionResult PartialCrearTipoProveedor(int idProveedor)
-        {
-            TbFdTipoProveedor tc = new TbFdTipoProveedor();
-            if (idProveedor != 0)
-            {
-               tc = this.ITipoProveedorService.GetById(idProveedor);
-            }
-            return PartialView("_CrearTipoProveedor", tc);
-        }
 
-
-        [HttpGet("PartialEditarTipoProveedor/{idProveedor?}")]
-        public IActionResult PartialEditarTipoProveedor(int idProveedor)
+        [HttpPost("_CrearTipoProveedor/{id?}")]
+        public IActionResult _CrearEditarTipoProveedor(int id, TipoProveedorCrearViewModel viewModel)
         {
-            TbFdTipoProveedor tc = new TbFdTipoProveedor();
-            if (idProveedor != 0)
+            ViewBag.tipoP = viewModel.Tipo;
+            ViewBag.idFamilia = viewModel.idFamilia;
+            ViewBag.idTipo = viewModel.idTipo;
+
+            if (id != 0)
             {
-                tc = this.ITipoProveedorService.GetById(idProveedor);
+                return PartialView("_CrearEditarTipoProveedor", map.DomainToViewModel(service.GetById(id)));
             }
             else
             {
+                return PartialView("_CrearEditarTipoProveedor", new TipoClienteViewModel());
+            }
 
-              tc = this.ITipoProveedorService.GetById(idProveedor);
-            }
-            return PartialView("_EditarTipoProveedor", tc);
         }
-        //metodo para guardar los tipos de clientes
-        [HttpPost("CrearTipoProveedor")]
-        public IActionResult CrearTipoProveedor(TipoClienteViewModel domain)
+
+        [HttpPost("CrearEditarTipoCliente")]
+        public IActionResult CrearEditarTipoProveedor(TipoClienteViewModel viewModel)
         {
             try
             {
-                TbFdTipoProveedor tc = new TbFdTipoProveedor();
-               tc = this.ITipoProveedorMapper.Save(domain);
-                if (tc != null)
+                if (viewModel.IdPadre == null)
+                    viewModel.IdPadre = 0;
+                var tipoP = new TbFdTipoProveedor();
+                if (viewModel.Id != 0)
                 {
-                    return Ok(true);
+                    tipoP = map.Update(viewModel);
                 }
+                else
+                {
+                    viewModel.FechaCreacion = DateTime.Now;
+                    viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+
+                    tipoP = map.Save(viewModel);
+                }
+
+                return Json(new { success = true, tipoP });
             }
-            catch
+            catch (Exception)
             {
+
                 throw;
             }
-            return Ok();
         }
-        [HttpPost("EditarTipoProveedor")]
-        public IActionResult EditarTipoProveedor(TipoClienteViewModel domain)
-        {
-            try
-            {
-                TbFdTipoProveedor tc = new TbFdTipoProveedor();
-                tc = this.ITipoProveedorMapper.Update(domain);
-                if (tc != null)
-                {
-                    return Ok(tc.IdPadre);
-                }
-            }
-            catch
-            {
-                throw;
-            }
-            return Ok();
-        }
+
+
         [HttpGet("GetTiposDeProveedores")]
-        public IActionResult GetTiposDeProveedores()
+        public IActionResult GetTiposProveedor()
         {
-            IList<TbFdTipoProveedor> TipoClientes = new List<TbFdTipoProveedor>();
-            TipoClientes = this.ITipoProveedorService.GetTipoProveedor();
-          
-            if (TipoClientes.Count() > 0)
+            try
             {
-                return new JsonResult(TipoClientes);
+                return Ok(service.GetAll());
             }
-            else
+            catch (Exception)
             {
-                return new JsonResult(false);
-            }
-        }
-        [HttpGet("GetFamiliasTipoProveedor/{idProveedor?}")]
-        public IActionResult GetFamiliasTipoProveedor(int idProveedor)
-        {
-            IList<TbFdTipoProveedor> TipoClientes = new List<TbFdTipoProveedor>();
-           TipoClientes = this.ITipoProveedorService.GetFamiliaTipoProveedor(idProveedor);
 
-            if (TipoClientes.Count() > 0)
-            {
-                return new JsonResult(TipoClientes);
-            }
-            else
-            {
-                return new JsonResult(false);
-            }
-        }
-        [HttpGet("GetSubFamiliasProveedor/{idProveedor?}")]
-        public IActionResult GetSubFamiliasProveedor(int idProveedor)
-        {
-            IList<TbFdTipoProveedor> TipoClientes = new List<TbFdTipoProveedor>();
-           TipoClientes = this.ITipoProveedorService.GetSubFamiliaProveedor(idProveedor);
-
-            if (TipoClientes.Count() > 0)
-            {
-                return new JsonResult(TipoClientes);
-            }
-            else
-            {
-                return new JsonResult(false);
+                return BadRequest();
             }
         }
     }

@@ -1,0 +1,894 @@
+﻿@model AltivaWebApp.ViewModels.FacturaViewModel
+@inject IStringLocalizer<SharedResources> Lb
+
+@{
+    ViewData["Title"] = "CrearEditarFactura";
+}
+
+<h3>CrearEditarFactura</h3>
+
+<hr />
+<div class="row">
+    <form id="frmFactura">
+
+        @Html.HiddenFor(x => x.Id)
+        @Html.HiddenFor(x => x.FechaCreacion)
+        @Html.HiddenFor(x => x.IdUsuarioCreador)
+        @Html.HiddenFor(x => x.Estado)
+
+        <div class="form-group col-md-3 col-sm-3 col-xs-6">
+            <label asp-for="IdVendedor" class="control-label">@Lb["Vendedor"]:</label>
+            <select onkeyup="pasarSigCampo(event,'IdCliente')" asp-for="IdVendedor" class="form-control selectItems">
+                @foreach (var item in ViewData["usuarios"] as IList<TbSeUsuario>)
+                {
+                    if (item.Id == int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value))
+                    {
+                        <option selected value="@item.Id">@item.Nombre</option>
+                    }
+                    <option value="@item.Id">@item.Nombre</option>
+                }
+            </select>
+        </div>
+        <div class="form-group col-md-3 col-sm-3 col-xs-6">
+            <label asp-for="IdCliente" class="control-label">@Lb["Cliente"]:</label>
+            <select onkeyup="pasarSigCampo(event,'Tipo')" asp-for="IdCliente" class="form-control selectItems">
+                <option value="0">@Lb["ClienteContado"]</option>
+                @foreach (var item in ViewData["clientes"] as IList<TbCrContacto>)
+                {
+                    if (item.Persona && Model.Id != 0)
+                    {
+                        <option value="@item.IdContacto">@item.Nombre @item.Apellidos</option>
+                    }
+                    else
+                    {
+                        <option value="@item.IdContacto">@item.NombreComercial</option>
+                    }
+
+                }
+            </select>
+        </div>
+        <div class="form-group col-md-3 col-sm-3 col-xs-6">
+            <label asp-for="Tipo" class="control-label">@Lb["Tipo"]:</label>
+            <select asp-for="Tipo" class="form-control selectItems">
+                <option value="1">@Lb["Contado"]</option>
+                <option value="2">@Lb["Crédito"]</option>
+            </select>
+        </div>
+
+        <div class="col-md-3" style="padding-top:2.4rem"><a class="btn btn-info">@Lb["Aplicar Exoneracion"]</a></div>
+
+        <div hidden class="form-group">
+            <label asp-for="FechaFactura" class="control-label"></label>
+            <input asp-for="FechaFactura" class="form-control" />
+            <span asp-validation-for="FechaFactura" class="text-danger"></span>
+        </div>
+        <div hidden class="form-group">
+            <label asp-for="IdMoneda" class="control-label"></label>
+            <input asp-for="IdMoneda" class="form-control" />
+            <span asp-validation-for="IdMoneda" class="text-danger"></span>
+        </div>
+
+        <div hidden class="form-group">
+            <label asp-for="SubTotal" class="control-label"></label>
+            <input asp-for="SubTotal" class="form-control" />
+            <span asp-validation-for="SubTotal" class="text-danger"></span>
+        </div>
+        <div hidden class="form-group">
+            <label asp-for="SubTotalGravado" class="control-label"></label>
+            <input asp-for="SubTotalGravado" class="form-control" />
+            <span asp-validation-for="SubTotalGravado" class="text-danger"></span>
+        </div>
+        <div hidden class="form-group">
+            <label asp-for="SubTotalExcento" class="control-label"></label>
+            <input asp-for="SubTotalExcento" class="form-control" />
+            <span asp-validation-for="SubTotalExcento" class="text-danger"></span>
+        </div>
+        <div hidden class="form-group">
+            <label asp-for="PorcDescuento" class="control-label"></label>
+            <input asp-for="PorcDescuento" class="form-control" />
+            <span asp-validation-for="PorcDescuento" class="text-danger"></span>
+        </div>
+        <div hidden class="form-group">
+            <label asp-for="TotalDescuento" class="control-label"></label>
+            <input asp-for="TotalDescuento" class="form-control" />
+            <span asp-validation-for="TotalDescuento" class="text-danger"></span>
+        </div>
+        <div hidden class="form-group">
+            <label asp-for="SubTotalGravadoNeto" class="control-label"></label>
+            <input asp-for="SubTotalGravadoNeto" class="form-control" />
+            <span asp-validation-for="SubTotalGravadoNeto" class="text-danger"></span>
+        </div>
+        <div hidden class="form-group">
+            <label asp-for="SubTotalExcentoNeto" class="control-label"></label>
+            <input asp-for="SubTotalExcentoNeto" class="form-control" />
+            <span asp-validation-for="SubTotalExcentoNeto" class="text-danger"></span>
+        </div>
+        <div hidden class="form-group">
+            <label asp-for="MontoIva" class="control-label"></label>
+            <input asp-for="MontoIva" class="form-control" />
+            <span asp-validation-for="MontoIva" class="text-danger"></span>
+        </div>
+        <div hidden class="form-group">
+            <label asp-for="Total" class="control-label"></label>
+            <input asp-for="Total" class="form-control" />
+            <span asp-validation-for="Total" class="text-danger"></span>
+        </div>
+        <div hidden class="form-group">
+            <label asp-for="FechaVencimiento" class="control-label"></label>
+            <input asp-for="FechaVencimiento" class="form-control" />
+            <span asp-validation-for="FechaVencimiento" class="text-danger"></span>
+        </div>
+        <div hidden class="form-group">
+            <label asp-for="TipoCambioDolar" class="control-label"></label>
+            <input asp-for="TipoCambioDolar" class="form-control" />
+            <span asp-validation-for="TipoCambioDolar" class="text-danger"></span>
+        </div>
+        <div hidden class="form-group">
+            <label asp-for="TipoCambioEuro" class="control-label"></label>
+            <input asp-for="TipoCambioEuro" class="form-control" />
+            <span asp-validation-for="TipoCambioEuro" class="text-danger"></span>
+        </div>
+
+    </form>
+
+
+
+
+</div>
+
+<div class="row"><div class="col-md-12"><h5>@Lb["Detalle"]</h5></div></div>
+
+<div class="row">
+
+    <form id="frmFD">
+        <div class="form-group col-md-3 col-sm-3 col-xs-12">
+            <label class="control-label">@Lb["Producto"]: <span style="font-size:1.1rem" class="text-info"><a id="descProducto"></a></span></label>
+            <input id="producto" onkeyup="pasarSigCampo(event,'cantidad')" class="form-control autocompleteTH" autocomplete="off" autofocus type="text" />
+
+        </div>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-4">
+            <label class="control-label">@Lb["Cantidad"]:</label>
+            <input id="cantidad" onkeyup="pasarSigCampo(event,'precio')" class="form-control numerico" value="1" type="text" />
+        </div>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-6">
+            <label class="control-label">@Lb["Precio"]:</label>
+            <input id="precio" onkeyup="pasarSigCampo(event,'submitFrmFD')" class="form-control moneda" type="text" />
+        </div>
+
+        <div hidden class="form-group col-md-3 col-sm-3 col-xs-6">
+            <label class="control-label">@Lb["Descuento"]:</label>
+            <input id="descuento" class="form-control porcentaje" value="0" type="text" />
+        </div>
+
+        <div hidden class="form-group col-md-3 col-sm-3 col-xs-6">
+            <label class="control-label">@Lb["IVA"]:</label>
+            <input id="iva" class="form-control" type="text" />
+        </div>
+
+        <div class="form-group col-md-1 col-sm-1 col-xs-1" style="padding-top: 2.3rem;">
+            <a onkeyup="pasarSigCampo(event,'producto')" onclick="" id="submitFrmFD" class="btn btn-success"><span><i class="fas fa-save"></i></span></a>
+        </div>
+        <div class="form-group col-md-3 col-sm-3 col-xs-12" style="padding-top: 2.3rem;">
+            <label style="font-size:2rem" class="control-label pull-right">@Lb["Total"]: <span id="totalFactura"></span></label>
+        </div>
+    </form>
+
+</div>
+<div class="row">
+    <div class="form-group col-md-12 col-sm-12 col-xs-12" style="padding-top: 1rem;">
+        <a class="btn btn-success pull-right" onclick="guardarCambios()">@Lb["Facturar"]</a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="table-responsive">
+            <table id="tblFD" class="table table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th style="width:10%">@Lb["Cantidad"]</th>
+                        <th style="width:48%">@Lb["Producto"]</th>
+                        <th style="width:16%">@Lb["PrecioUnit"]</th>
+                        <th style="width:18%">@Lb["Total"]</th>
+                        <th style="width:8%">@Lb["Acción"]</th>
+                    </tr>
+
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="lineaModal" tabindex="-1" role="dialog" aria-labelledby="lineaModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header row">
+                <div class="col-md-6" style="text-align:left">
+                    <h4 class="modal-title" id="lineaModalLabel">@Lb["Editar"] @Lb["Línea"]</h4>
+                </div>
+                <div class="col-md-6" style="text-align:right">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body row">
+                <div hidden class="form-group col-md-2 col-sm-2 col-xs-12">
+                    <input readonly id="idLinea" class="form-control" type="number" />
+                </div>
+                <div class="form-group col-md-2 col-sm-2 col-xs-12">
+                    <label class="control-label">@Lb["Cantidad"]:</label>
+                    <input id="cantidadEditar" class="form-control numerico" value="1" type="text" />
+                </div>
+                <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                    <label class="control-label">@Lb["Precio"]:</label>
+                    <input id="precioEditar" class="form-control moneda" type="text" />
+                </div>
+
+                <div class="form-group col-md-3 col-sm-3 col-xs-12">
+                    <label class="control-label">@Lb["Descuento"]:</label>
+                    <input id="descuentoEditar" class="form-control porcentaje" value="0" type="text" />
+                </div>
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <button type="button" onclick="editarLinea()" class="btn btn-success">@Lb["Guardar"]</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<input hidden id="monedaFormatter" class="moneda" type="text" />
+
+
+<script>
+
+    ///////factura
+    var $totalFactura = $('#totalFactura');
+
+    ///////linea
+    var $item = $('#producto');
+    var $cantidad = $('#cantidad');
+    var $precio = $('#precio');
+
+    var monedas = [];
+    var items = [];
+    var lineas = [];
+    var lineasAgregadas = [];
+    var lineasActualizadas = [];
+    var lineasEliminadas = [];
+    var totalFactura = 0;
+
+    var facturaModel = "";
+
+
+    $(document).ready(function () {
+
+        //$('.autocomplete').selectize({
+        //    create: true,
+        //});
+        $('.selectItems').select2();
+        $(".numerico").inputmask({
+            'alias': 'decimal',
+            rightAlign: false,
+            min: 0
+        });
+        $(".porcentaje").inputmask({
+            'alias': 'percentage',
+            rightAlign: false,
+        });
+
+        facturaModel = getFormData();
+
+
+        //$(".moneda").inputmask({
+        //    'alias': 'decimal',
+        //    rightAlign: true,
+        //    'groupSeparator': '.',
+        //    'autoGroup': true,
+        //    min: 0
+        //});
+
+        getMonedas();
+        getInventario();
+
+        comprobarBorrador();
+
+    });
+
+    function getFormData() {
+        var unindexed_array = $('#frmFactura ').serializeArray();
+        var indexed_array = {};
+
+        $.map(unindexed_array, function (n, i) {
+
+            indexed_array[n['name']] = n['value'];
+        });
+
+        return indexed_array;
+    }
+
+    ///////////////////////////////////////////////////manejo detalle f///////////////////////////////////
+    $('#submitFrmFD').on('click', function () {
+        $('#cantidad').focus();
+        prepararLinea();
+    });
+
+    $('#cantidad').on('focus', function () {
+
+        if ($('#producto').val().replace(/ /g, "") !== "")
+            cargarInfoItem($('#producto').val());
+        else
+            $precio.val("");
+
+    });
+
+    function pasarSigCampo(e, id) {
+
+        (e.keyCode) ? k = e.keyCode : k = e.which;
+
+        if (k == 13) {
+            if (id == "submitFrmFD") {
+
+
+                prepararLinea();
+
+            }
+            else {
+                document.getElementById(id).focus();
+
+            }
+
+            $('#' + id).select();
+        }
+    }
+
+    function prepararLinea() {
+        guardarLinea();
+        cargarTabla(lineas);
+        $item.focus();
+        $item.select();
+        $cantidad.val(1);
+    }
+
+    function guardarLinea() {
+
+        var producto = getItemPorCodigo($item.val());
+
+        
+        var model = {
+            id: 0,
+            idFactura: @Model.Id,
+            idInventario: producto.idInventario,
+            cantidad: parseFloat($('#cantidad').val()),
+            precio: parseFloat($('#precio').inputmask('unmaskedvalue')),
+            porcIva: parseFloat($('#iva').val()),
+            porcDescuento: parseFloat($('#descuento').inputmask('unmaskedvalue')),
+            porcExoneracion: 0,
+            fechaCreacion: "@DateTime.Now",
+            idUsuarioCreador: "@User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value",
+            subTotal: calcularSubtotalLinea(),
+            subTotalGravado: calcularSubTotalGravadoLinea(),
+            subTotalExcento: calcularSubTotalExcentoLinea(),
+            subTotalGravadoNeto: calcularSubTotalGravadoNetoLinea(),
+            subTotalExcentoNeto: calcularSubTotalExcentoNetoLinea(),
+            montoDescuento: calcularDescuentoLinea(),
+            montoIva: calcularMontoIvaLinea(producto.impuestoVenta),
+            total: calcularTotalLinea(),
+            FechaVencimiento: "",
+            montoExoneracion: calcularExoneracion()                    
+        };
+
+        lineas.push(model);
+        lineasAgregadas.push(model);
+        calcularTotales();
+        setFacturaModel();
+
+    }
+    ///////////////////////////////////////eliminar editar linea//////////////////////////////
+
+    function eliminarLinea(key, idDetalle) {
+
+         bootbox.confirm("@Lb["confirmEliminarLinea"]", function (result) {
+
+             if (result) {
+
+                 lineasAgregadas.splice($.inArray(lineas[key], lineasAgregadas), 1);
+                 if (lineas[key].id !== 0)
+                    lineasEliminadas.push(lineas[key]);
+                 lineas.splice(key, 1);
+                 calcularTotales();
+
+                 setFacturaModel();
+                 cargarTabla(lineas);
+
+             }
+        });
+
+
+    }
+
+    function modalEditarLinea(key, idDetalle) {
+        var linea = lineas[key];
+
+        $('#idLinea').val(key);
+        $('#cantidadEditar').val(linea.cantidad);
+        $('#precioEditar').val(linea.precio);
+        $('#descuentoEditar').val(linea.porcDescuento);
+
+        $('#lineaModal').modal('show');
+
+    }
+
+    function editarLinea() {
+        var key = parseInt($('#idLinea').val());
+
+        console.log(key);
+
+        lineas[key].cantidad = parseFloat($('#cantidadEditar').val());
+        lineas[key].precio = parseFloat($('#precioEditar').inputmask('unmaskedvalue'));
+        lineas[key].porcDescuento = parseFloat($('#descuentoEditar').inputmask('unmaskedvalue'));
+
+        var subTotal = lineas[key].cantidad * lineas[key].precio;
+        var descuento = subTotal * (lineas[key].porcDescuento / 100);
+        var imp = lineas[key].porcIva;
+        lineas[key].subTotal = subTotal;
+        lineas[key].montoDescuento = descuento;
+        lineas[key].montoIva = (subTotal - descuento) * (lineas[key].porcDescuento / 100);
+        lineas[key].subTotalGravado = imp > 0 ? subTotal : 0;
+        lineas[key].subTotalGravadoNeto = imp > 0 ? subTotal - descuento : 0;
+        lineas[key].subTotalExcento = imp === 0 ? subTotal : 0;
+        lineas[key].subTotalExcentoNeto = imp === 0 ? subTotal - descuento : 0;
+        lineas[key].montoExoneracion = lineas[key].montoIva * (lineas[key].porcExoneracion / 100);
+        lineas[key].total = (subTotal - descuento) + lineas[key].montoIva;
+
+        if (lineas[key].id !== 0) {
+            lineasAgregadas.splice($.inArray(lineas[key], lineasAgregadas), 1);
+            lineasAgregadas.push(lineas[key]);
+        }
+        else {
+            lineasActualizadas.push(lineas[key]);
+        }
+
+        calcularTotales();
+        cargarTabla(lineas);
+        setFacturaModel();
+
+    }
+    ///////////////////////////////////////fin eliminar editar linea//////////////////////////////
+
+
+    ////////////////////////////////calcular totales linea///////////////////////////////////
+
+    function calcularSubtotalLinea() {
+        return parseFloat($('#cantidad').val()) * parseFloat($('#precio').inputmask('unmaskedvalue'));
+    }
+
+    function calcularSubTotalGravadoLinea() {
+        var imp = parseFloat($('#iva').val());
+
+        if (imp != 0) {
+            return calcularSubtotalLinea();
+        }
+        else
+            return 0;
+    }
+
+    function calcularSubTotalExcentoLinea() {
+        var imp = parseFloat($('#iva').val());
+        if (imp != 0) {
+            return 0;
+        }
+        else
+            return calcularSubtotalLinea();
+    }
+
+    function calcularSubTotalGravadoNetoLinea() {
+        var imp = parseFloat($('#iva').val());
+        if (imp != 0) {
+            return calcularSubTotalGravadoLinea() - calcularDescuentoLinea();
+        }
+        else
+            return 0;
+    }
+
+    function calcularSubTotalExcentoNetoLinea() {
+
+        var imp = parseFloat($('#iva').val());
+        if (imp != 0) {
+            return 0;
+        }
+        else
+            return calcularSubTotalExcentoLinea() - calcularDescuentoLinea();
+    }
+
+    function calcularDescuentoLinea() {
+        var desc = parseFloat($('#descuento').inputmask('unmaskedvalue'));
+        if (desc != 0)
+            return calcularSubtotalLinea() * (desc / 100);
+        else return 0;
+    }
+
+
+
+    function calcularMontoIvaLinea() {
+        var imp = parseFloat($('#iva').val());
+
+        if (imp != 0)
+            return (calcularSubtotalLinea() - calcularDescuentoLinea()) * (imp / 100);
+        else
+            return 0;
+    }
+
+    function calcularExoneracion() {
+        var porc = parseFloat('#exoneracion');
+        if (porc != 0)
+            return calcularMontoIvaLinea * (porc / 100);
+        else
+            return 0;
+    }
+
+    function calcularTotalLinea() {
+
+        return (calcularSubTotalExcentoNetoLinea() + calcularSubTotalGravadoNetoLinea()) + calcularMontoIvaLinea();
+
+    }
+
+    function existeLinea(idInventario) {
+        var linea = null;
+        for (var i = 0; i < lineas.length; i++) {
+            if (lineas[i].idInventario === idInventario && lineas[i].precio == parseFloat($('#precio').inputmask('unmaskedvalue'))) {
+                linea = i;
+                break;
+            }
+        }
+
+        return linea;
+    }
+
+
+    /////////////////////////////////////////////fin de calc linea///////////////////////////////////
+
+
+
+
+    ////////////////////////////////////////////////fin manejo de detalle f/////////////////////////////////////////
+
+    //////////////////////////////////////////////manejo factura//////////////////////////////////////////
+
+
+    ///////////////////////////////////////////////calculos de factura/////////////////////////////////////
+    function calcularTotales() {
+
+        facturaModel.Total = 0;
+        facturaModel.SubTotal = 0;
+        facturaModel.SubTotalExcento = 0;
+        facturaModel.SubTotalExcentoNeto = 0;
+        facturaModel.SubTotalGravado = 0;
+        facturaModel.SubTotalGravadoNeto = 0;
+        facturaModel.TotalDescuento = 0;
+        facturaModel.MontoIva = 0;
+
+        for (var i = 0; i < lineas.length; i++) {
+            facturaModel.Total += lineas[i].total;
+            facturaModel.SubTotal += lineas[i].subTotal;
+            facturaModel.SubTotalExcento += lineas[i].subTotalExcento;
+            facturaModel.SubTotalExcentoNeto += lineas[i].subTotalExcentoNeto;
+            facturaModel.SubTotalGravado += lineas[i].subTotalGravado;
+            facturaModel.SubTotalGravadoNeto += lineas[i].subTotalGravadoNeto;
+            facturaModel.TotalDescuento += lineas[i].montoDescuento;
+            facturaModel.MontoIva += lineas[i].montoIva;
+        }
+
+        $('#monedaFormatter').val(facturaModel.Total);
+        $totalFactura.text($('#monedaFormatter').val());
+
+
+    }
+
+    /////////////////////////////////////////////////fin calc factura//////////////////////////////////////////
+
+    function guardarCambios() {
+
+
+    }
+
+    function setFacturaModel() {
+
+        facturaModel["DetalleFactura"] = lineasAgregadas;
+        facturaModel["Lineas"] = lineas;
+        facturaModel.IdMoneda = $('#IdMoneda').val();
+        facturaModel.TipoCambioEuro = $('#TipoCambioEuro').val();
+        facturaModel.TipoCambioDolar = $('#TipoCambioDolar').val();
+        facturaModel.IdVendedor = $('#IdVendedor').val();
+        facturaModel.IdCliente = $('#IdCliente').val();
+        facturaModel.Tipo = $('#Tipo').val();
+
+        guardarLocalStorage();
+
+    }
+
+    function guardarLocalStorage() {
+
+        localStorage.removeItem("FacturaBorrador");
+        localStorage.setItem("FacturaBorrador", JSON.stringify(facturaModel));
+
+    }
+
+    function comprobarBorrador() {
+
+        var borrador = JSON.parse(localStorage.getItem("FacturaBorrador"));
+
+        if (borrador !== null) {
+            bootbox.confirm("@Lb["DeseaReanudar"]", function (result) {
+
+                if (result) {
+
+                    facturaModel = borrador;
+
+                    console.log(facturaModel);
+
+                    $('#Tipo').val(facturaModel.Tipo);
+                    $('#IdCliente').val(facturaModel.IdCliente);
+                    $('#IdVendedor').val(facturaModel.IdVendedor);
+
+                    $('.selectItems').trigger('change.select2');
+
+                    lineas = borrador.Lineas;
+                    lineasAgregadas = borrador.DetalleFactura;
+
+                    cargarTabla(lineas);
+                    calcularTotales();
+                    //lineasActualizadas =
+                }
+                else
+                    localStorage.removeItem("FacturaBorrador");
+            });
+        }
+    }
+
+
+
+    /////////////////////////////////////////////// fin manejo factura//////////////////////////////////////////
+
+    function cargarTabla(data) {
+
+
+        $("#tblFD > tbody").remove();
+        $('#tblFD').append('<tbody></tbody>');
+
+        contadorFila = 0;
+        var subtotal = 0;
+
+        for (var i = 0; i < data.length; i++) {
+
+
+            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
+                + '<td >' + data[i].cantidad.toFixed(2) + ' </td>'
+                + '<td >' + getItemPorId(data[i].idInventario).descripcion + '</td>'
+                + '<td style="text-align: right">' + darFomatoMoneda(data[i].precio) + '</td>'
+                + '<td style="text-align: right">' + darFomatoMoneda(data[i].total) + '</td>'
+                + '<td><a style="font-size:1.8rem;" value="' + contadorFila + '" onclick="eliminarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-trash"></i></a> &nbsp;&nbsp; <a style="font-size:1.8rem;" onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-edit"></i></a></td></tr>';
+
+            $('#tblFD > tbody').append(body);
+
+            contadorFila++;
+
+        }
+    }
+
+    function cargarInfoItem(codigo) {
+
+        $('#precio').val("");
+
+        var flag = true;
+        for (var i = 0; i < items.length; i++) {
+            if (codigo === items[i].codigo) {
+                flag = true;
+                $('#precio').val(items[i].precioVenta);
+                $('#descuento').val(0);
+                $('#iva').val(items[i].impuestoVenta);
+                $('#descProducto').text(items[i].descripcion.substr(0, 32) + (items[i].descripcion.length > 25 ? '...' : '')).prop('href', '@Url.Action("EditarInventario", "Inventario", new { id = "__id__" })'.replace("__id__", items[i].idInventario));
+                break;
+            }
+            else {
+                flag = false;
+            }
+        }
+
+        if (!flag) {
+            cargarAlert("@Lb["itemInvalido"]");
+        }
+
+
+    }
+
+
+    function getMonedas() {
+         $.ajax({
+              type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+
+                 monedas = data;
+                 $(".moneda").inputmask('currency', {
+                     prefix: data[0].simbolo + ' ',
+                     rightAlign: true,
+                     min: 0
+                 });
+
+                 $('#TipoCambioDolar').val(data[1].valorVenta);
+                 $('#TipoCambioEuro').val(data[1].valorEuro);
+
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function getClientes() {
+         $.ajax({
+              type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetAllClientes", "Contacto")',
+              success: function (data) {
+
+                  clientes = data;
+                  var auto = [];
+
+                  for (var i = 0; i < data.length; i++) {
+                      if (data[i].persona) {
+                          auto.push({ id: data[i].id, name: data[i].nombre + ' ' + data[i].nombre});
+                      }
+                      else {
+                          auto.push({ id: data[i].id, name: data[i].nombre });
+                      }
+
+                  }
+
+                  $(".autocompleteV").typeahead({
+                      source: auto,
+                      minLength: 3,
+                      afterSelect: alert(),
+
+                  });
+
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function getUsuarios() {
+         $.ajax({
+              type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetUsuariosPorEmpresa", "Contacto")',
+              success: function (data) {
+
+                    usuarios = data;
+                    var usuariosAuto = [];
+
+                    for (var i = 0; i < data.length; i++) {
+                        //itemsAuto.push({ id: data[i].id, name: data[i].descripcion + ' - ' + data[i].codigo });
+                        usuariosAuto.push({ id: data[i].id, name: data[i].nombre });
+                    }
+
+                    $(".autocompleteV").typeahead({
+                        source: usuariosAuto,
+                        minLength: 3
+                    });
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function getInventario() {
+
+         $.ajax({
+              type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetInventarioFacturable", "Inventario")',
+              success: function (data) {
+                 items = data;
+                 cargarItems(data);
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+         });
+    }
+
+    function cargarItems(data) {
+        var itemsAuto = [];
+
+        for (var i = 0; i < data.length; i++) {
+            itemsAuto.push({ value: data[i].id, text: data[i].codigo });
+        }
+
+        $('.autocompleteTH').autoComplete({
+            resolver: 'custom',
+            formatResult: function (item) {
+                return {
+                    value: item.idInventario,
+                    text:  item.codigo,
+                    html: [
+                        item.codigo + ' - ',
+                        item.descripcion
+                    ]
+                };
+            },
+            events: {
+                search: function (_keyword, callback) {
+                    var keyword = _keyword.toUpperCase();
+                    var filtrado = [];
+                    //var array = contactos;
+                    if (keyword.replace(/ /g, "") === "") {
+                        filtrado = [];
+                    }
+                    else {
+                        for (var i = 0; i < items.length; i++) {
+
+                            var keyArray = items[i].codigo.toUpperCase();
+                            var keyArray2 = items[i].descripcion.toUpperCase();
+
+                            if (keyArray.indexOf(keyword) > -1  )
+                                filtrado.push(items[i]);
+                            else
+                                if (keyArray2.indexOf(keyword) > -1)
+                                    filtrado.push(items[i]);
+                        }
+
+                    }
+
+                    callback(filtrado);
+                }
+            },
+            noResultsText: '@Lb["sinResultados"]',
+            autoSelect: false,
+            minLength: 3,
+
+        });
+
+    }
+
+    function getItemPorCodigo(codigo) {
+        for (var i = 0; i < items.length; i++) {
+            if (codigo === items[i].codigo) {
+                return items[i];
+            }
+        }
+    }
+
+    function getItemPorId(id) {
+        for (var i = 0; i < items.length; i++) {
+            if (id === items[i].idInventario) {
+                return items[i];
+            }
+        }
+    }
+
+    function darFomatoMoneda(value) {
+
+        $('#monedaFormatter').val(value);
+        return $('#monedaFormatter').val();
+
+    }
+
+</script>

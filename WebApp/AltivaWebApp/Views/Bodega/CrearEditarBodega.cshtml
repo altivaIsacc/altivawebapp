@@ -1,6 +1,13 @@
 ﻿@model AltivaWebApp.ViewModels.BodegaViewModel
-
-@{    
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
     var accion = ViewBag.accion as string;
     var nombreAccion = "";
     var ishidden = "hidden";
@@ -8,77 +15,73 @@
     var error = ViewBag.error as string;
 }
 
-@if (accion == "1")
+@if (Model.Id == 0)
 {
-    <h3 data-translate="nuevaBodega">Nueva Bodega</h3>
-    nombreAccion = "CrearBodega";   
+    <h3>@Lb["Nueva"] @Lb["Bodega"]</h3>
 }
 else
 {
-    <h3 data-translate="editarBodega">Editar Bodega</h3>
-    nombreAccion = "EditarBodega";
+    <h3>@Lb["Editar"] @Lb["Bodega"]</h3>
     ishidden = "";
     ischecked = "";
 }
 
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6 col-sm-6 col-xs-12">
 
-        <form asp-action="@nombreAccion">
-            @if (ViewBag.error != null)
-            {
-                <span class="text-danger" data-translate="errorCEBodega">Tuvimos un problema al procesar tu solicitud, revisa que no se haya creado una bodega con ese nombre anteriormente</span>
-            }
+        <form id="frmBodega">
+            @Html.HiddenFor(x => x.Id)
+            <div class="form-group">
+                <label asp-for="Nombre" class="control-label">@Lb["Nombre"]:</label>
+                <input id="nombreBodega" maxlength="50" asp-for="Nombre" autofocus class="form-control" />
+                <span hidden id="duplicacionValid" class="text-danger">@Lb["repetidoValid"]</span>
+                <span hidden id="nombreValid" class="text-danger">@Lb["nombreValid"]</span>
+            </div>
 
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label data-translate="nombre" asp-for="Nombre" class="control-label">Nombre</label>
-                <input id="nombreBodega" asp-for="Nombre" class="form-control" />
-                <span asp-validation-for="Nombre" class="text-danger"></span>
-            </div>
+            <span hidden id="tipoValid" class="text-danger">@Lb["tipoBodegaValid"].</span>
             <div class="form-group">
                 <div class="form-check">
-                    <input class="form-check-input" asp-for="Produccion" />
-                    <label  class="form-check-label">
-                        <span data-translate="produccion">Producción </span> <span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="Disponible para el descargo en puntos de ventas"></i></span>
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="form-check">
-                    <input class="form-check-input" asp-for="Almacenamiento" />
-                    <label  class="form-check-label">
-                        <span data-translate="almacenamiento"> Almacenamiento</span> <span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="Disponible para el ingreso compras"></i></span>
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="form-check">
-                    <input class="form-check-input" asp-for="SuministrosInternos" />
-                    <label data-translate="suministrosInternos" class="form-check-label">
-                        <span data-translate="suministrosInternos">Suministros Internos </span><span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="Disponible para requisiciones"></i></span> 
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="form-check">
-                    <input class="form-check-input" asp-for="Consignacion" />
+                    <input class="form-check-input tipoBodega" asp-for="Produccion" />
                     <label class="form-check-label">
-                        <span data-translate="consignacion">Consignación </span><span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="Descargo prioritario, los descargos genera una orden de pago de consignacion"></i></span>
+                        <span>@Lb["Producción"] </span> <span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="@Lb["tipoProduccion"]."></i></span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input tipoBodega" asp-for="Almacenamiento" />
+                    <label class="form-check-label">
+                        <span>@Lb["Almacenamiento"] </span> <span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="@Lb["tipoAlmacenamiento"]."></i></span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input tipoBodega" asp-for="SuministrosInternos" />
+                    <label  class="form-check-label">
+                        <span>@Lb["SuministrosInternos"] </span><span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="@Lb["tipoSuministros"]."></i></span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input tipoBodega" asp-for="Consignacion" />
+                    <label class="form-check-label">
+                        <span>@Lb["Consignación"] </span><span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="@Lb["tipoConsignacion"]."></i></span>
                     </label>
                 </div>
             </div>
             <div class="form-group" @ishidden>
                 <div class="form-check">
                     <input class="form-check-input" asp-for="Estado" @ischecked />
-                    <label data-translate="esActiva" class="form-check-label">
-                        Activa?
+                    <label class="form-check-label">
+                        @Lb["Activa"]?
                     </label>
                 </div>
             </div>
             <div class="form-group">
-                <label data-translate="usuarioEncargado" class="control-label">Usuario encargado</label>
+                <label class="control-label">@Lb["UsuarioEncargado"]:</label>
                 <select asp-for="UsuarioEncargado" id="perfiles" class="form-control search-key">
                     @{
                         foreach (var item in ViewData["usuarios"] as List<TbSeUsuario>)
@@ -89,15 +92,15 @@ else
                 </select>
             </div>
             <div class="form-group">
-                <label asp-for="Observaciones" data-translate="observaciones" class="control-label">Observaciones</label>
+                <label asp-for="Observaciones" class="control-label">@Lb["Observaciones"]:</label>
                 <textarea asp-for="Observaciones" class="form-control"></textarea>
-                <span asp-validation-for="Observaciones" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <button id="btnGuardar" type="submit" value="Guardar" class="btn btn-success" ><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
-                <a class="btn btn-default" asp-action="ListarBodegas" data-translate="cancelar">Cancelar</a>
-            </div>
+
         </form>
+        <div class="form-group">
+            <button id="btnGuardar" onclick="validarForm()" type="submit" value="Guardar" class="btn btn-success"><span >@Lb["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
+            <a class="btn btn-default" asp-action="ListarBodegas">@Lb["Cancelar"]</a>
+        </div>
     </div>
 </div>
 
@@ -105,21 +108,76 @@ else
 
     $(document).ready(function () {
 
-        if ($('#nombreBodega').val() === "") {
-            $('#btnGuardar').attr('disabled', true);
-        }
+        //if ($('#nombreBodega').val() === "") {
+        //    $('#btnGuardar').attr('disabled', true);
+        //}
 
-        $('#nombreBodega').keyup(function () {
+        //$('#nombreBodega').keyup(function () {
 
-            if ($(this).val() === "") {
-                $('#btnGuardar').attr('disabled', true);
-            }
-            else
-                $('#btnGuardar').attr('disabled', false);
-        });
+        //    if ($(this).val() === "") {
+        //        $('#btnGuardar').attr('disabled', true);
+        //    }
+        //    else
+        //        $('#btnGuardar').attr('disabled', false);
+        //});
 
 
     });
+
+    function guardarCambios() {
+
+        var frm = $('#frmBodega').serializeArray();
+
+        var url = '@Url.Action("CrearEditarBodega", "Bodega")';
+
+        $.ajax({
+
+            type: "post",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: frm,
+            success: function (data) {
+                if (!data.success)
+                    $('#duplicacionValid').attr('hidden', false);
+                else
+                    window.location.href = '@Url.Action("ListarBodegas")';
+                },
+             error: function (err) {
+                 cargarAlert('@Lb["errorGeneral"]');
+                 console.log(err.success);
+             }
+        });
+
+    }
+
+    function validarForm() {
+        var flag = true;
+
+        var contador = 0;
+
+        var nombre = $('#nombreBodega').val().replace(/ /g, "");
+        if (nombre.length < 1) {
+            $('#nombreValid').attr('hidden', false);
+            flag = false;
+        } else
+            $('#nombreValid').attr('hidden', true);
+
+        $(".tipoBodega").each(function () {
+            if ($(this).prop('checked'))
+                contador++;
+        });
+
+        if (contador === 0) {
+            $('#tipoValid').attr('hidden', false);
+            flag = false;
+        } else
+            $('#tipoValid').attr('hidden', true);
+
+        if (flag)
+            guardarCambios();
+    }
 
 </script>
 

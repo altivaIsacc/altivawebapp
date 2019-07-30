@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
@@ -24,8 +25,9 @@ namespace AltivaWebApp.Controllers
         private readonly IKardexMap kardexMap;
         private readonly IHaciendaMap haciendaMap;
         private readonly IHaciendaService haciendaService;
+        private readonly ITomaService tomaService;
 
-        public CompraController(IHaciendaService haciendaService, IHaciendaMap haciendaMap, IKardexMap kardexMap, IBodegaService bodegaService, IUserService userService, ICompraMap map, IInventarioService inventarioService, IMonedaService monedaService, ICompraService service, IContactoService contactoService)
+        public CompraController(ITomaService tomaService, IHaciendaService haciendaService, IHaciendaMap haciendaMap, IKardexMap kardexMap, IBodegaService bodegaService, IUserService userService, ICompraMap map, IInventarioService inventarioService, IMonedaService monedaService, ICompraService service, IContactoService contactoService)
         {
             this.service = service;
             this.contactoService = contactoService;
@@ -37,6 +39,7 @@ namespace AltivaWebApp.Controllers
             this.kardexMap = kardexMap;
             this.haciendaMap = haciendaMap;
             this.haciendaService = haciendaService;
+            this.tomaService = tomaService;
         }
 
         // GET: Compra
@@ -60,16 +63,19 @@ namespace AltivaWebApp.Controllers
                 Borrador = true
             };
             ViewData["monedas"] = tipoCambio;
+            ViewBag.tieneToma = false;
             return View("CrearEditarCompra", model);
         }
 
         [Route("Editar-Compra/{id}")]
         public ActionResult EditarCompra(int id)
         {
-            var compra = map.DomainToViewModel(service.GetCompraById(id));
+            var compra = map.DomainToViewModel(service.GetCompraByIdWithoutD(id));
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             ViewData["bodegas"] = bodegaService.GetAllActivas();
             ViewData["monedas"] = monedaService.GetAll();
+            ViewBag.tieneToma = tomaService.TieneToma(compra.FechaCreacion);
+
             return View("CrearEditarCompra", compra);
         }
 
@@ -87,15 +93,24 @@ namespace AltivaWebApp.Controllers
                     if (compra == null || compra.Id == viewModel.Id)
                     {
                         long idCD = 0;
-                        var orden = map.Update(viewModel);
+                        var c = map.Update(viewModel);
                         if (viewModel.CompraDetalle != null && viewModel.CompraDetalle.Count() > 0)
                         {
                             var cd = map.CreateCD(viewModel);
                             idCD = cd.Id;
-                            if(!viewModel.Borrador)
+                            if (!viewModel.Borrador)
+                            {
                                 kardexMap.CreateKardexCDSingle((int)cd.Id);
+
+                                ///////////////////actualiza cola aprovacion
+                                //var cola = haciendaService.GetCAById(c.Id);
+                                //cola.MontoDoc = c.TotalBase;
+                                //haciendaService.UpdateCA(cola);
+                            }
                         }
-                            
+                        else
+                            if (c.EnCola)
+                                haciendaMap.CreateCACompra(compra);
 
                         return Json(new { success = true, idCD = idCD});
                     }
@@ -132,21 +147,20 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var compra = service.GetCompraById(id);
+                var res = true;
+                TbPrCompra compra = service.GetCompraById(id);
                 compra.Anulado = true;
                 if(!compra.Borrador)
-                    kardexMap.CreateKardexEliminarCD(compra);
-                compra = service.Update(compra);
+                   res = kardexMap.CreateKardexEliminarCD(compra);
+                if(res)
+                    compra = service.Update(compra);
 
-                var hacienda = haciendaService.GetCAById(compra.Id);
-                hacienda.Anulado = true;
-                haciendaService.UpdateCA(hacienda);
-               
-                return Json(new { success = true });
+                return Json(new { success = res });
             }
             catch (Exception)
             {
-                return BadRequest();
+                throw;
+                //return BadRequest();
             }
         }
 
@@ -161,7 +175,8 @@ namespace AltivaWebApp.Controllers
                     viewModel.Borrador = false;
                     var compra = map.Update(viewModel);
                     kardexMap.CreateKardexCD((int)compra.Id);
-                    haciendaMap.CreateCACompra(compra);
+                    if (viewModel.EnCola)
+                        haciendaMap.CreateCACompra(compra);
                     return Json(new { success = true });
                 }
                 else
@@ -170,6 +185,7 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception)
             {
+                //throw;
                 return BadRequest();
             }
         }
@@ -211,10 +227,12 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
+                var res = true;
                 var cd = service.GetCompraDetalleById(idCD);
                 if(!cd.IdCompraNavigation.Borrador)
-                    kardexMap.CreateKardexEliminarCDSingle(idCD);
-                var res = service.DeleteCompraDetalle(cd);            
+                    res = kardexMap.CreateKardexEliminarCDSingle(idCD);
+                if(res)
+                    service.DeleteCompraDetalle(cd);            
 
                 return Json(new { success = res });
             }
@@ -225,10 +243,7 @@ namespace AltivaWebApp.Controllers
         }
 
 
-
         ///get auxiliares
-
-        
 
         [HttpGet("Get-Compras")]
         public ActionResult GetCompras()

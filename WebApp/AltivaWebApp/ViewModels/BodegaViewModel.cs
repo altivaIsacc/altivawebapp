@@ -8,8 +8,8 @@ namespace AltivaWebApp.ViewModels
 {
     public class BodegaViewModel
     {
-        [Required(ErrorMessage = "Nombre es requerido.")]
-        [StringLength(50, MinimumLength = 1)]
+
+        public int Id { get; set; }
         public string Nombre { get; set; }
         public bool Produccion { get; set; }
         public bool Almacenamiento { get; set; }

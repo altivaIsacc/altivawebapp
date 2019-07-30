@@ -10,7 +10,7 @@
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @{
-    ViewData["Title"] = "ListarOrdenes";
+    var date = DateTime.Now;
 }
 
 
@@ -48,7 +48,7 @@
                     <div class="controls">
                         <div class="input-prepend input-group">
                             <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
-                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="24/04/2019 - 24/04/2019" />
+                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="@date.Date - @date.Date" />
                         </div>
                     </div>
                 </div>
@@ -309,13 +309,9 @@
 
     function recuperarFecha(_fecha) {
 
-        var fecha = _fecha.substr(0, 10);
-        var y = fecha.substr(0, 4);
-        var m = fecha.substr(5, 2);
-        var d = fecha.substr(8, 3);
 
-
-        return d + "-" + m + "-" + y + " " + _fecha.substr(-8, 8);///new Date(fecha).toLocaleDateString(); //fecha.replace(/-/g, "/");
+        var f = new Date(_fecha);
+        return f.toLocaleString();
 
     }
 
@@ -403,7 +399,7 @@
 
             for (var i = 0; i < array.length; i++) {
 
-                var documento = new Date(array[i].fecha).getTime();
+                var documento = new Date(array[i].fecha.substring(0, 10)).getTime();
 
                 if (documento >= desdeLocal && documento <= hastaLocal)
                     arrayOrdenes.push(ordenes[i]);

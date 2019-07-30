@@ -83,17 +83,36 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var familia = new TbPrFamilia();
+                var edita = false;
+
+                var existeFamilia = service.GetFamiliaByDescripcion(viewModel.Descripcion);
+
                 if (id == 0)
                 {
+                    if (existeFamilia != null)
+                        return Json(new { success = false });
+
                     viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     familia = map.Create(viewModel);
                 }
                 else
                 {
+                    if (existeFamilia != null)
+                        if(existeFamilia.Id != id)
+                            return Json(new { success = false });
+
                     familia = map.Update(id, viewModel);
+                    edita = true;
                 }
 
-                return Json(new { descripcion = familia.Descripcion, id = familia.Id });
+                familia.IdFamiliaNavigation = null;
+                foreach (var item in familia.InverseIdFamiliaNavigation)
+                {
+                    item.IdFamiliaNavigation = null;
+                }
+
+
+                return Json(new {success = true, familia = familia, edita = edita });
             }
             catch
             {
@@ -127,6 +146,33 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
         }
+
+        [HttpGet("GetFamilias")]
+        public IActionResult GetFamilias()
+        {
+            try
+            {
+                var familia = service.GetAllFamilias();
+
+                foreach (var item in familia)
+                {
+                    foreach (var i in item.InverseIdFamiliaNavigation)
+                    {
+                        i.IdFamiliaNavigation = null;
+                    }
+         
+                }
+
+                return Ok(familia);
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+            
+        }
+        
 
 
     }

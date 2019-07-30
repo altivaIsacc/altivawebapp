@@ -19,35 +19,42 @@ namespace AltivaWebApp.Mappers
 
         public TbFdTipoProveedor Save(TipoClienteViewModel domain)
         {
-            return this.ITipoProveedor.Save(ViewModelToSave(domain));
+            return this.ITipoProveedor.Save(ViewModelToDomain(domain));
         }
 
         public TbFdTipoProveedor Update(TipoClienteViewModel domain)
         {
-            return this.ITipoProveedor.Updtae(ViewModelToUpdate(domain));
+            return this.ITipoProveedor.Updtae(ViewModelToDomain(domain));
         }
 
-        public TbFdTipoProveedor ViewModelToSave(TipoClienteViewModel domain)
+        public TbFdTipoProveedor ViewModelToDomain(TipoClienteViewModel viewModel)
         {
-            TbFdTipoProveedor tp = new TbFdTipoProveedor();
-            tp.Nombre = domain.Nombre;
-            tp.IdPadre = domain.IdPadre;
-            tp.Inactivo = domain.Inactivo;
-            tp.FechaCreacion = DateTime.Now;
+            TbFdTipoProveedor Tc = new TbFdTipoProveedor
+            {
+                Id = viewModel.Id,
+                IdUsuario = viewModel.IdUsuario,
+                IdPadre = viewModel.IdPadre,
+                Nombre = viewModel.Nombre,
+                Inactivo = viewModel.Inactivo,
+                FechaCreacion = viewModel.FechaCreacion
+            };
 
-            return tp;
+            return Tc;
         }
 
-        public TbFdTipoProveedor ViewModelToUpdate(TipoClienteViewModel domain)
+        public TipoClienteViewModel DomainToViewModel(TbFdTipoProveedor domain)
         {
-            TbFdTipoProveedor tp = new TbFdTipoProveedor();
+            TipoClienteViewModel Tc = new TipoClienteViewModel
+            {
+                Id = domain.Id,
+                IdUsuario = (int)domain.IdUsuario,
+                IdPadre = domain.IdPadre,
+                Nombre = domain.Nombre,
+                Inactivo = (bool)domain.Inactivo,
+                FechaCreacion =(DateTime) domain.FechaCreacion
+            };
 
-            tp = this.ITipoProveedor.GetById(Convert.ToInt32(domain.Id));
-            tp.Nombre = domain.Nombre;
-         
-          
-
-            return tp;
+            return Tc;
         }
     }
 }

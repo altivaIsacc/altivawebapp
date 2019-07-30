@@ -46,6 +46,7 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbCoTipoCuenta> TbCoTipoCuenta { get; set; }
         public virtual DbSet<TbCoTiposDocumentos> TbCoTiposDocumentos { get; set; }
         public virtual DbSet<TbCoUtilidadRenta> TbCoUtilidadRenta { get; set; }
+        public virtual DbSet<TbCpCategoriaGasto> TbCpCategoriaGasto { get; set; }
         public virtual DbSet<TbCpGastoDetallado> TbCpGastoDetallado { get; set; }
         public virtual DbSet<TbCpGastos> TbCpGastos { get; set; }
         public virtual DbSet<TbCpPago> TbCpPago { get; set; }
@@ -55,6 +56,11 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbCrContactoRelacion> TbCrContactoRelacion { get; set; }
         public virtual DbSet<TbCrContactosCamposPersonalizados> TbCrContactosCamposPersonalizados { get; set; }
         public virtual DbSet<TbCrListaDesplegables> TbCrListaDesplegables { get; set; }
+        public virtual DbSet<TbFaDescuentoProducto> TbFaDescuentoProducto { get; set; }
+        public virtual DbSet<TbFaDescuentoUsuario> TbFaDescuentoUsuario { get; set; }
+        public virtual DbSet<TbFaDescuentoUsuarioClave> TbFaDescuentoUsuarioClave { get; set; }
+        public virtual DbSet<TbFaDescuentoUsuarioRango> TbFaDescuentoUsuarioRango { get; set; }
+        public virtual DbSet<TbFaPromocionProducto> TbFaPromocionProducto { get; set; }
         public virtual DbSet<TbFaRebajaConfig> TbFaRebajaConfig { get; set; }
         public virtual DbSet<TbFdAjusteSaldoMenor> TbFdAjusteSaldoMenor { get; set; }
         public virtual DbSet<TbFdAperturaCaja> TbFdAperturaCaja { get; set; }
@@ -95,6 +101,8 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbFdDesgloceReservaNotas> TbFdDesgloceReservaNotas { get; set; }
         public virtual DbSet<TbFdDocumentoAjusteSaldoMenor> TbFdDocumentoAjusteSaldoMenor { get; set; }
         public virtual DbSet<TbFdDocumentos> TbFdDocumentos { get; set; }
+        public virtual DbSet<TbFdFactura> TbFdFactura { get; set; }
+        public virtual DbSet<TbFdFacturaDetalle> TbFdFacturaDetalle { get; set; }
         public virtual DbSet<TbFdFacturacion> TbFdFacturacion { get; set; }
         public virtual DbSet<TbFdFacturacionDetalle> TbFdFacturacionDetalle { get; set; }
         public virtual DbSet<TbFdFormaPago> TbFdFormaPago { get; set; }
@@ -162,8 +170,8 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbPrRequisicion> TbPrRequisicion { get; set; }
         public virtual DbSet<TbPrRequisicionDetalle> TbPrRequisicionDetalle { get; set; }
         public virtual DbSet<TbPrTipoProveedor> TbPrTipoProveedor { get; set; }
-        public virtual DbSet<TbPrTomaFisicas> TbPrTomaFisicas { get; set; }
-        public virtual DbSet<TbPrTomaFisicasDetalle> TbPrTomaFisicasDetalle { get; set; }
+        public virtual DbSet<TbPrToma> TbPrToma { get; set; }
+        public virtual DbSet<TbPrTomaDetalle> TbPrTomaDetalle { get; set; }
         public virtual DbSet<TbPrTraslado> TbPrTraslado { get; set; }
         public virtual DbSet<TbPrTrasladoInventario> TbPrTrasladoInventario { get; set; }
         public virtual DbSet<TbPrUnidadMedida> TbPrUnidadMedida { get; set; }
@@ -197,16 +205,16 @@ namespace AltivaWebApp.Models
         // Unable to generate entity type for table 'dbo.Tmp_tb_PR_Requisicion'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomaticaDetalle'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_NotaDebitoAjusteSaldoMenor'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=servidor-pc\\fdpruebas;Database=BE_Empresa;user=sa; password= 123;");
+                optionsBuilder.UseSqlServer("Server=SERVIDOR-PC\\FDPRUEBAS;Database=BE_Empresa;User id=sa;Password=123;");
             }
         }
 
@@ -1143,6 +1151,28 @@ namespace AltivaWebApp.Models
                 entity.Property(e => e.Tcve).HasColumnName("TCVE");
             });
 
+            modelBuilder.Entity<TbCpCategoriaGasto>(entity =>
+            {
+                entity.ToTable("tb_CP_CategoriaGasto");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Tipo)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+            });
+
             modelBuilder.Entity<TbCpGastoDetallado>(entity =>
             {
                 entity.HasKey(e => e.IdGastoDetalle)
@@ -1248,59 +1278,85 @@ namespace AltivaWebApp.Models
                 entity.ToTable("tb_CR_Contacto");
 
                 entity.Property(e => e.Apellidos)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Cedula)
                     .IsRequired()
                     .HasMaxLength(20)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Correo)
                     .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
 
                 entity.Property(e => e.MapLink)
-                    .HasMaxLength(8000)
-                    .IsUnicode(false);
+                    .IsRequired()
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Nombre)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.NombreComercial)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.NombreJuridico)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.OtrasSenas)
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                    .IsRequired()
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Pais)
                     .IsRequired()
                     .HasMaxLength(50)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Ruta)
+                    .IsRequired()
                     .HasColumnName("ruta")
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Telefono)
+                    .IsRequired()
+                    .HasMaxLength(25)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.TipoCedula)
                     .IsRequired()
                     .HasMaxLength(120)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.WebLink)
-                    .HasMaxLength(8000)
-                    .IsUnicode(false);
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
             });
 
             modelBuilder.Entity<TbCrContactoRelacion>(entity =>
@@ -1327,18 +1383,22 @@ namespace AltivaWebApp.Models
                 entity.ToTable("tb_CR_ContactosCamposPersonalizados");
 
                 entity.Property(e => e.Valor)
+                    .IsRequired()
                     .HasColumnName("valor")
                     .HasMaxLength(100)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.HasOne(d => d.IdCampoPersonalizadosNavigation)
                     .WithMany(p => p.TbCrContactosCamposPersonalizados)
                     .HasForeignKey(d => d.IdCampoPersonalizados)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_CR_ContactosCamposPersonalizados_tb_CR_CamposPersonalizados");
 
                 entity.HasOne(d => d.IdContactoNavigation)
                     .WithMany(p => p.TbCrContactosCamposPersonalizados)
                     .HasForeignKey(d => d.IdContacto)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_CR_ContactosCamposPersonalizados_tb_CR_Contacto");
             });
 
@@ -1354,6 +1414,130 @@ namespace AltivaWebApp.Models
                     .WithMany(p => p.TbCrListaDesplegables)
                     .HasForeignKey(d => d.IdCamposPersonalizados)
                     .HasConstraintName("FK_TB_CR_ListaDesplegables_tb_CR_CamposPersonalizados");
+            });
+
+            modelBuilder.Entity<TbFaDescuentoProducto>(entity =>
+            {
+                entity.HasKey(e => e.IdDescuentoProducto);
+
+                entity.ToTable("Tb_FA_DescuentoProducto");
+
+                entity.Property(e => e.Tipo1)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('(\"Tipo 1\")')");
+            });
+
+            modelBuilder.Entity<TbFaDescuentoUsuario>(entity =>
+            {
+                entity.HasKey(e => e.IdDescuentoUsuario);
+
+                entity.ToTable("Tb_FA_DescuentoUsuario");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.Nota)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdRebajaConfigNavigation)
+                    .WithMany(p => p.TbFaDescuentoUsuario)
+                    .HasForeignKey(d => d.IdRebajaConfig)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Tb_FA_DescuentoUsuario_Tb_FA_RebajaConfig");
+            });
+
+            modelBuilder.Entity<TbFaDescuentoUsuarioClave>(entity =>
+            {
+                entity.HasKey(e => e.IdDescuentoUsuario);
+
+                entity.ToTable("Tb_FA_DescuentoUsuarioClave");
+
+                entity.Property(e => e.Clave)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.Nota)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdRebajaConfigNavigation)
+                    .WithMany(p => p.TbFaDescuentoUsuarioClave)
+                    .HasForeignKey(d => d.IdRebajaConfig)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Tb_FA_DescuentoUsuarioClave_Tb_FA_RebajaConfig");
+            });
+
+            modelBuilder.Entity<TbFaDescuentoUsuarioRango>(entity =>
+            {
+                entity.HasKey(e => e.IdDescuentoUsuarioRango);
+
+                entity.ToTable("Tb_FA_DescuentoUsuarioRango");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaDesde)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.FechaHasta)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Nota)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('((\" \"))')");
+
+                entity.HasOne(d => d.IdRebajaConfigNavigation)
+                    .WithMany(p => p.TbFaDescuentoUsuarioRango)
+                    .HasForeignKey(d => d.IdRebajaConfig)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Tb_FA_DescuentoUsuarioRango_Tb_FA_RebajaConfig");
+            });
+
+            modelBuilder.Entity<TbFaPromocionProducto>(entity =>
+            {
+                entity.HasKey(e => e.IdPromocionProducto);
+
+                entity.ToTable("Tb_FA_PromocionProducto");
+
+                entity.Property(e => e.CantTipo1Promo).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.CantTipo1Ref).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Clave)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.EsTipo2)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.FechaDesde).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaHasta).HasColumnType("datetime");
+
+                entity.Property(e => e.Nota)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.HasOne(d => d.IdRebajaConfigNavigation)
+                    .WithMany(p => p.TbFaPromocionProducto)
+                    .HasForeignKey(d => d.IdRebajaConfig)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Tb_FA_PromocionProducto_Tb_FA_RebajaConfig");
             });
 
             modelBuilder.Entity<TbFaRebajaConfig>(entity =>
@@ -2466,6 +2650,69 @@ namespace AltivaWebApp.Models
                     .HasConstraintName("FK_tb_FD_Documentos_tb_FD_Reservacion");
             });
 
+            modelBuilder.Entity<TbFdFactura>(entity =>
+            {
+                entity.ToTable("tb_FD_Factura");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.FechaVencimiento)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate()+(30))");
+
+                entity.Property(e => e.MontoIvabase).HasColumnName("MontoIVABase");
+
+                entity.Property(e => e.MontoIvadolar).HasColumnName("MontoIVADolar");
+
+                entity.Property(e => e.MontoIvaeuro).HasColumnName("MontoIVAEuro");
+
+                entity.Property(e => e.Tipo).HasDefaultValueSql("((1))");
+
+                entity.HasOne(d => d.IdVendedorNavigation)
+                    .WithMany(p => p.TbFdFactura)
+                    .HasForeignKey(d => d.IdVendedor)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FD_Factura_tb_CR_Contacto");
+            });
+
+            modelBuilder.Entity<TbFdFacturaDetalle>(entity =>
+            {
+                entity.ToTable("tb_FD_FacturaDetalle");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.FechaVencimiento)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate()+(30))");
+
+                entity.Property(e => e.MontoIvabase).HasColumnName("MontoIVABase");
+
+                entity.Property(e => e.MontoIvadolar).HasColumnName("MontoIVADolar");
+
+                entity.Property(e => e.MontoIvaeuro).HasColumnName("MontoIVAEuro");
+
+                entity.HasOne(d => d.IdFacturaNavigation)
+                    .WithMany(p => p.TbFdFacturaDetalle)
+                    .HasForeignKey(d => d.IdFactura)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FD_FacturaDetalle_tb_FD_Factura");
+
+                entity.HasOne(d => d.IdInventarioNavigation)
+                    .WithMany(p => p.TbFdFacturaDetalle)
+                    .HasForeignKey(d => d.IdInventario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FD_FacturaDetalle_tb_PR_Inventario");
+            });
+
             modelBuilder.Entity<TbFdFacturacion>(entity =>
             {
                 entity.ToTable("tb_FD_Facturacion");
@@ -3212,6 +3459,10 @@ namespace AltivaWebApp.Models
 
                 entity.Property(e => e.FechaLimite).HasColumnType("datetime");
 
+                entity.Property(e => e.IdContacto).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdUsuario).HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.Titulo)
                     .IsRequired()
                     .HasMaxLength(100)
@@ -3220,7 +3471,6 @@ namespace AltivaWebApp.Models
                 entity.HasOne(d => d.IdContactoNavigation)
                     .WithMany(p => p.TbFdTarea)
                     .HasForeignKey(d => d.IdContacto)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_FD_Tarea_tb_CR_Contacto");
 
                 entity.HasOne(d => d.IdEstadoNavigation)
@@ -4155,31 +4405,41 @@ namespace AltivaWebApp.Models
                     .HasDefaultValueSql("(getdate())");
             });
 
-            modelBuilder.Entity<TbPrTomaFisicas>(entity =>
+            modelBuilder.Entity<TbPrToma>(entity =>
             {
-                entity.ToTable("tb_PR_TomaFisicas");
+                entity.ToTable("tb_PR_Toma");
 
-                entity.Property(e => e.Fecha)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(((2)-(2))-(2000))");
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
 
-                entity.Property(e => e.FechaCreacion)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(((2)-(2))-(2000))");
+                entity.Property(e => e.FechaToma).HasColumnType("datetime");
 
-                entity.Property(e => e.FechaModificacion)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(((2)-(2))-(2000))");
-
-                entity.Property(e => e.Observacion)
+                entity.Property(e => e.Ordenado)
                     .IsRequired()
-                    .HasMaxLength(300)
-                    .HasDefaultValueSql("('')");
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdBodegaNavigation)
+                    .WithMany(p => p.TbPrToma)
+                    .HasForeignKey(d => d.IdBodega)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_Toma_tb_PR_Bodega");
             });
 
-            modelBuilder.Entity<TbPrTomaFisicasDetalle>(entity =>
+            modelBuilder.Entity<TbPrTomaDetalle>(entity =>
             {
-                entity.ToTable("tb_PR_TomaFisicasDetalle");
+                entity.ToTable("tb_PR_TomaDetalle");
+
+                entity.HasOne(d => d.IdInventarioNavigation)
+                    .WithMany(p => p.TbPrTomaDetalle)
+                    .HasForeignKey(d => d.IdInventario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_TomaDetalle_tb_PR_Inventario");
+
+                entity.HasOne(d => d.IdTomaNavigation)
+                    .WithMany(p => p.TbPrTomaDetalle)
+                    .HasForeignKey(d => d.IdToma)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_TomaDetalle_tb_PR_Toma");
             });
 
             modelBuilder.Entity<TbPrTraslado>(entity =>

@@ -1,0 +1,68 @@
+﻿
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+
+
+<script>
+    
+    $(document).ready(function () {
+
+
+
+
+    });
+
+    function cargarDatos(data) {
+
+        $("#tblTomaD > tbody").remove();
+        $("#tblTomaD").append('<tbody></tbody>');
+
+        var contadorFila = 0;
+ 
+        for (var i = 0; i < data.length; i++) {
+
+
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td><p style="padding-top:1rem;">' + data[i].idInventarioNavigation.codigo + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].idInventarioNavigation.descripcion + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + data[i].descripcion + '</p></td>'
+                + '<td>  <button value="' + data[i].id + '" onclick="editarRequisicion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+            $('#tblReq > tbody').append(body);
+            contadorFila++;
+
+        }
+
+
+
+        inicializarTabla();
+
+    }
+
+
+    function getFamilias() {
+        $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("GetFamilias", "Familia")',
+
+            success: function (data) {
+                familias = data;
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+</script>

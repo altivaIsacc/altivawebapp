@@ -9,7 +9,9 @@ namespace AltivaWebApp.Domains
         public long IdCompra { get; set; }
         public long IdInventario { get; set; }
         public double Cantidad { get; set; }
-        public double PrecioUnitario { get; set; }
+        public double PrecioUnitarioBase { get; set; }
+        public double PrecioUnitarioDolar { get; set; }
+        public double PrecioUnitarioEuro { get; set; }
         public double PorcIva { get; set; }
         public double PorcDescuento { get; set; }
         public double PorcFa { get; set; }

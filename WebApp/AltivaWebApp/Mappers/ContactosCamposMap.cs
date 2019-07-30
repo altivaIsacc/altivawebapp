@@ -7,70 +7,60 @@ using AltivaWebApp.ViewModels;
 using AltivaWebApp.Services;
 namespace AltivaWebApp.Mappers
 {
-    public class ContactosCamposMap : IcontactoCamposMap
+    public class ContactosCamposMap : IContactoCamposMap
     {
 
-        public IContactoCamposService pContactoCamposService;
+        public IContactoCamposService service;
 
         public ContactosCamposMap(IContactoCamposService pContactoCamposService)
         {
-            this.pContactoCamposService = pContactoCamposService;
+            this.service = pContactoCamposService;
         }
-        public void Agregar(IList<CamposViewModel> domain,long? id)
-        {
-            CamposViewModel campos = new CamposViewModel();
-            List<TbCrContactosCamposPersonalizados> ContactosCampos = new List<TbCrContactosCamposPersonalizados>();
 
+        public void Create(IList<CCPersonalizadosViewModel> domain,int id)
+        {
+            this.service.Crear(ViewModelToDomainList(domain, id));
+        }
+
+        public void Update(IList<CCPersonalizadosViewModel> domain, int id)
+        {
+            this.service.Update(ViewModelToDomainList(domain, id));
+        }
+
+        public IList<TbCrContactosCamposPersonalizados> ViewModelToDomainList(IList<CCPersonalizadosViewModel> domain , int id)
+        {
+            var ContactosCampos = new List<TbCrContactosCamposPersonalizados>();
             foreach (var item in domain)
             {
-                campos.IdCampoPersonalizados = item.IdCampoPersonalizados;
-                campos.Valor = item.Valor;
-                ContactosCampos.Add(viewToModelContacto(campos,id));
+                CCPersonalizadosViewModel campos = new CCPersonalizadosViewModel
+                {
+                    IdCampoPersonalizados = item.IdCampoPersonalizados,
+                    Valor = item.Valor ?? "",
+                    Id = item.Id,
+                    IdContacto = item.IdContacto
+                };
+
+                ContactosCampos.Add(ViewModelToDomaiCP(campos, id));
             }
-            this.pContactoCamposService.Crear(ContactosCampos);
-          
+
+            return ContactosCampos;
         }
 
-   
-
-
-        public TbCrContactosCamposPersonalizados viewToModelContacto(CamposViewModel domain,long? id)
+        public TbCrContactosCamposPersonalizados ViewModelToDomaiCP(CCPersonalizadosViewModel viewModel, int id)
         {
-            IList<TbCrContactosCamposPersonalizados> ContactosCampos = new List<TbCrContactosCamposPersonalizados>();
 
-            TbCrContactosCamposPersonalizados campos = new TbCrContactosCamposPersonalizados();
-            campos.IdCampoPersonalizados = domain.IdCampoPersonalizados;
-            campos.Valor = domain.Valor;
-            campos.IdContacto = id;
-      
-            return campos;
+            return new TbCrContactosCamposPersonalizados
+            {
+                IdCampoPersonalizados = viewModel.IdCampoPersonalizados,
+                Valor = viewModel.Valor,
+                IdContacto = id,
+                Id = viewModel.Id
+            };
         }
 
-        public TbCrContactosCamposPersonalizados viewToModelContactoEdit(CamposViewModel domain, long? id)
-        {
-            IList<TbCrContactosCamposPersonalizados> ContactosCampos = new List<TbCrContactosCamposPersonalizados>();
-            TbCrContactosCamposPersonalizados getById = new TbCrContactosCamposPersonalizados();
-            TbCrContactosCamposPersonalizados campos = new TbCrContactosCamposPersonalizados();
-            getById = this.pContactoCamposService.GetById(domain.IdCampoPersonalizados);
+       
 
-            getById.Valor = domain.Valor;
+
         
-            return getById;
-        }
-
-
-        public void Update(IList<CamposViewModel> domain, long? id)
-        {
-            CamposViewModel campos = new CamposViewModel();
-            List<TbCrContactosCamposPersonalizados> ContactosCampos = new List<TbCrContactosCamposPersonalizados>();
-            foreach (var item in domain)
-            {
-                campos.IdCampoPersonalizados = item.IdCampoPersonalizados;
-                campos.Valor = item.Valor;
-                ContactosCampos.Add(viewToModelContactoEdit(campos, id));
-            }
-            this.pContactoCamposService.Update(ContactosCampos);
-
-        }
     }
 }
