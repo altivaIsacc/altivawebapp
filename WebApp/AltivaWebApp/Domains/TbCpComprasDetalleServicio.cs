@@ -3,23 +3,16 @@ using System.Collections.Generic;
 
 namespace AltivaWebApp.Domains
 {
-    public partial class TbPrCompra
+    public partial class TbCpComprasDetalleServicio
     {
-        public TbPrCompra()
-        {
-            TbCpComprasDetalleServicio = new HashSet<TbCpComprasDetalleServicio>();
+        public long IdCompraDetalle { get; set; }
+        public long IdCompra { get; set; }
+        public string Articulo { get; set; }
+        public double Cantidad { get; set; }
 
-            TbPrCompraDetalle = new HashSet<TbPrCompraDetalle>();
-        }
-
-        public long Id { get; set; }
-        public DateTime FechaDocumento { get; set; }
-        public string TipoDocumento { get; set; }
-        public string NumeroDocumento { get; set; }
-        public long IdContacto { get; set; }
-        public DateTime FechaCreacion { get; set; }
-        public int IdUsuario { get; set; }
-        public int IdMoneda { get; set; }
+        public long PrecioUnidad { get; set; }
+        public double PorcIva { get; set; }
+        public double PorcDescuento { get; set; }
         public double SubTotalGravadoBase { get; set; }
         public double SubTotalGravadoDolar { get; set; }
         public double SubTotalGravadoEuro { get; set; }
@@ -38,21 +31,16 @@ namespace AltivaWebApp.Domains
         public double TotalIvabase { get; set; }
         public double TotalIvadolar { get; set; }
         public double TotalIvaeuro { get; set; }
-        public double TotalFabase { get; set; }
-        public double TotalFadolar { get; set; }
-        public double TotalFaeuro { get; set; }
+        public double TotalIsbase { get; set; }
+        public double TotalIsdolar { get; set; }
+        public double TotalIseuro { get; set; }
         public double TotalBase { get; set; }
         public double TotalDolar { get; set; }
         public double TotalEuro { get; set; }
-        public bool Anulado { get; set; }
-        public bool Borrador { get; set; }
-        public bool EnCola { get; set; }
-        public double TipoCambioDolar { get; set; }
-        public double TipoCambioEuro { get; set; }
+        public int IdCategoriaGasto { get; set; }
 
-        public virtual TbCrContacto IdContactoNavigation { get; set; }
-        public virtual ICollection<TbPrCompraDetalle> TbPrCompraDetalle { get; set; }
-        public virtual ICollection<TbCpComprasDetalleServicio> TbCpComprasDetalleServicio { get; set; }
-
+        public virtual TbCpCategoriaGasto IdCategoriaGastoNavigation { get; set; }
+        public virtual TbPrCompra IdCompraNavigation { get; set; }
+        
     }
 }

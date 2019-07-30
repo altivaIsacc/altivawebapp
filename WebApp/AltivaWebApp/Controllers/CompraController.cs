@@ -48,7 +48,6 @@ namespace AltivaWebApp.Controllers
             return View();
         }
 
-
         [Route("Nueva-Compra")]
         public ActionResult CrearCompra()
         {
@@ -85,6 +84,8 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
+               
+
                 if (viewModel.NumeroDocumento == null || viewModel.NumeroDocumento == "AutogeneradoXML")
                     viewModel.NumeroDocumento = "AutogeneradoXML" + (service.IdUltimoDocumento() + 1).ToString();
                 if (viewModel.Id != 0)

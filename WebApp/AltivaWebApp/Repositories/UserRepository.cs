@@ -25,6 +25,9 @@ namespace AltivaWebApp.Repositories
             return context.TbSeUsuario.Where(u => u.IdUsuario == id).ToList();
 
         }
+
+        
+
         public bool ExisteUsuarioPorCodigo(string codigo)
         {
             return context.TbSeUsuario.Any(u => u.Codigo == codigo);
@@ -221,6 +224,14 @@ namespace AltivaWebApp.Repositories
                         Nombre = u.Nombre
                     }
                     ).ToList();
+
+        }
+
+        public IList<TbSeUsuario> GetAllByIdEmpresaConPerfiles(int idEmpresa)
+        {
+
+            return context.TbSeUsuario.Include(p => p.TbSePerfilUsuario).ThenInclude(pu => pu.IdPerfilNavigation)
+                .Where(u => u.TbSeEmpresaUsuario.Any(e => e.IdEmpresa == idEmpresa) == true).ToList();
 
         }
 

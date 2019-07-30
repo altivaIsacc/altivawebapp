@@ -202,6 +202,28 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+        [HttpGet("Editar-BodegaInventario/{id?}")]
+        public ActionResult EditarBodegaIventario(int id)
+        {
+                ViewBag.id = id;
+                var inventario = map.DomainToViewModelIBodega(service.GetInventarioBodegaById(id));
+                return PartialView("_EditarBodega", inventario);
+         }
+        [HttpPost("Editar-BodegaInventario/{id?}")]
+        public ActionResult EditarIventarioBodega(InventarioBodegaViewModel inventarioBodega)
+        {
+            try
+            {
+                map.UpdateIBodega(inventarioBodega);
+                return Json(new { success = true });
+
+            }
+            catch
+            {
+                return BadRequest();
+
+            }
+        }
 
         [HttpPost("CrearEditar-InventarioBodega/{id}")]
         public ActionResult CrearInventarioBodega(int id, IList<InventarioBodegaViewModel> inventarioBodega)
@@ -210,7 +232,7 @@ namespace AltivaWebApp.Controllers
             {
                 
                 map.CreateInventarioBodega(id, inventarioBodega);
-
+                
                 return Json(new { success = true });
             }
             catch

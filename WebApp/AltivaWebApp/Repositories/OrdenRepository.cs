@@ -1,5 +1,6 @@
 ﻿using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
+using AltivaWebApp.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,40 @@ namespace AltivaWebApp.Repositories
             }
             
         }
+        public IList<CompraAutomaticoViewModel> compraProveedor(int idProveedor)
+        {
+            try {
+
+                var model = context.CompraAutomatico
+          .FromSql($"EXECUTE dbo.pr_PR_GeneraCompraAutomatica {idProveedor}")
+          .ToList();
+                return model;
+
+            }
+            catch(Exception)
+            {
+                throw;
+
+            }
+
+
+
+
+        }
+
+        public TbPrOrden GetComprasById(int id)
+        {
+            try
+            {
+                return context.TbPrOrden.Include(o => o.IdProveedorNavigation).FirstOrDefault(o => o.Id == id);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
 
         //public TbPrOrden GetAllOrdenDetalleByOrdenId(int id)
         //{

@@ -7,7 +7,7 @@ namespace AltivaWebApp.ViewModels
 {
     public class InventarioBodegaViewModel
     {
-        
+        public long Id { get; set; }
         public long IdInventario { get; set; }
         public long IdBodega { get; set; }
         public double ExistenciaMinima { get; set; }

@@ -193,6 +193,7 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<ICompraRepository, CompraRepository>();
             services.AddScoped<ICompraService, CompraService>();
             services.AddScoped<ICompraMap, CompraMap>();
+           
 
             //Departamento
 

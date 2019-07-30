@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using AltivaWebApp.Domains;
+using AltivaWebApp.ViewModels;
 using AltivaWebApp.Helpers;
 
 namespace AltivaWebApp.Context
@@ -18,6 +19,8 @@ namespace AltivaWebApp.Context
         {
         }
 
+        public virtual DbSet<TbCpComprasDetalleServicio> TbCpComprasDetalleServicio { get; set; }
+        public virtual DbSet<CompraAutomaticoViewModel> CompraAutomatico { get; set; }
         public virtual DbSet<TbBaConciliacion> TbBaConciliacion { get; set; }
         public virtual DbSet<TbBaConciliacionDetalle> TbBaConciliacionDetalle { get; set; }
         public virtual DbSet<TbBaCuentasBancarias> TbBaCuentasBancarias { get; set; }
@@ -213,6 +216,7 @@ namespace AltivaWebApp.Context
             }
         }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.3-servicing-35854");
@@ -221,6 +225,61 @@ namespace AltivaWebApp.Context
                 entity.HasKey(e => e.IdRebajaConfig);
 
                 entity.ToTable("Tb_FA_RebajaConfig");
+            });
+
+            modelBuilder.Entity<CompraAutomaticoViewModel>(entity =>
+            {
+                entity.HasKey(e => e.IdInventario);
+                entity.Property(e => e.Codigo).HasColumnType("varchar(60)");
+                entity.Property(e => e.Descripcion).HasColumnType("varchar(150)");
+                entity.Property(e => e.etotal).HasColumnType("float");
+                entity.Property(e => e.ExistenciaGeneral).HasColumnType("float");
+                entity.Property(e => e.emed).HasColumnType("float");
+                entity.Property(e => e.emin).HasColumnType("float");
+                entity.Property(e => e.emax).HasColumnType("float");
+
+
+
+
+
+            });
+
+            modelBuilder.Entity<TbCpComprasDetalleServicio>(entity =>
+            {
+                entity.HasKey(e => e.IdCompraDetalle);
+
+                entity.ToTable("tb_CP_ComprasDetalleServicio");
+
+                entity.Property(e => e.Articulo)
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.SubTotalGravadoEuro).HasColumnName("subTotalGravadoEuro");
+
+                entity.Property(e => e.TotalIsbase).HasColumnName("TotalISBase");
+
+                entity.Property(e => e.TotalIsdolar).HasColumnName("TotalISDolar");
+
+                entity.Property(e => e.TotalIseuro).HasColumnName("TotalISEuro");
+
+                entity.Property(e => e.TotalIvabase).HasColumnName("TotalIVABase");
+
+                entity.Property(e => e.TotalIvadolar).HasColumnName("TotalIVADolar");
+
+                entity.Property(e => e.TotalIvaeuro).HasColumnName("TotalIVAEuro");
+
+                entity.HasOne(d => d.IdCategoriaGastoNavigation)
+                    .WithMany(p => p.TbCpComprasDetalleServicio)
+                    .HasForeignKey(d => d.IdCategoriaGasto)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_CP_ComprasDetalleServicio_tb_CP_CategoriaGasto");
+
+                entity.HasOne(d => d.IdCompraNavigation)
+                    .WithMany(p => p.TbCpComprasDetalleServicio)
+                    .HasForeignKey(d => d.IdCompra)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_CP_ComprasDetalleServicio_tb_PR_Compra");
             });
 
             modelBuilder.Entity<TbBaConciliacion>(entity =>
@@ -1309,6 +1368,10 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Telefono)
+                    .HasMaxLength(25)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.NombreComercial)
                     .IsRequired()

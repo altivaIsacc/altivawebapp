@@ -24,17 +24,14 @@
     {
         numDocumento = Model.Id.ToString();
     }
-    if (ViewBag.tieneToma)
-    {
-        estado2 = "disabled";
-    }
+    
 
 }
 
 @if (Model.Id != 0)
 {
     <div class="row">
-        <div class="col-md-3"><h3>@SharedLocalizer["editarCompra"]</h3></div>
+        <div class="col-md-3"><h3>@SharedLocalizer["editarGasto"]</h3></div>
         <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
     </div>
 
@@ -42,7 +39,7 @@
 else
 {
     <div class="row">
-        <h3 class="col-md-3">@SharedLocalizer["nuevaCompra"]</h3>
+        <h3 class="col-md-3">@SharedLocalizer["nuevoGasto"]</h3>
         <div class="col-md-1" style="padding-top:1rem"><button class="btn btn-link" data-toggle="modal" data-target="#cargarXmlModal">@SharedLocalizer["ImportarXML"]</button></div>
     </div>
 }
@@ -59,14 +56,9 @@ else
     }
     else if (Model.Id != 0)
     {
-        <div class="col-md-12 text-left"><h4 class="text-danger">@SharedLocalizer["CompraAnulada"]</h4></div>
+        <div class="col-md-12 text-left"><h4 class="text-danger">@SharedLocalizer["gastoAnulado"]</h4></div>
     }
-    @if (ViewBag.tieneToma)
-    {
-        estado2 = "disabled";
-        <div class="col-md-12 text-left"><h5 class="text-danger">@SharedLocalizer["DocumentoConToma"]</h5></div>
-        
-    }
+   
 </div>
 
 <div class="row well">
@@ -78,7 +70,7 @@ else
         @Html.HiddenFor(x => x.IdUsuario)
         @Html.HiddenFor(x => x.Borrador)
         <div class="form-group col-md-2 col-sm-6 col-xs-12">
-            <fieldset >
+            <fieldset>
                 <div class="form-group">
                     <label for="fecha">@SharedLocalizer["Fecha"]:</label>
                     <div class='input-group date' id='fechaPicker'>
@@ -140,36 +132,31 @@ else
     </form>
 
     <div class="table-responsive">
-        <span hidden id="sinDetalleValid" class="text-danger">@SharedLocalizer["docSinDetalle"].</span>
         <table class="table table-bordered table-striped" id="tblCompra" style="min-width:1250px">
             <thead>
                 <tr>
-                    <th style="width:14%"><span>@SharedLocalizer["Item"]</span></th>
-                    <th style="width:18%"><span>@SharedLocalizer["Descripción"]</span></th>
+                    <th style="width:18%"><span>@SharedLocalizer["Articulo"]</span></th>
                     <th style="width:11%"><span>@SharedLocalizer["Cantidad"]</span></th>
-                    <th style="width:12%"><span>@SharedLocalizer["PrecioUnitario"]</span></th>
+                    <th style="width:12%"><span>@SharedLocalizer["PrecioUnidad"]</span></th>
                     <th style="width:7%"><span class="col-md-1">@SharedLocalizer["Descuento"]</span></th>
                     <th style="width:7%"><span>@SharedLocalizer["IVA"]</span></th>
                     <th style="width:12%"><span>@SharedLocalizer["SubTotal"]</span></th>
-                    <th style="width:10%"><span>@SharedLocalizer["Bodega"]</span></th>
+                    <th style="width:10%"><span>@SharedLocalizer["Categoria"]</span></th>
                     <th style="width:9%"><span>@SharedLocalizer["Acción"]</span></th>
                 </tr>
             </thead>
             <tbody>
                 <tr class="lineaForm">
                     <td>
-                        <select @estado2 @estado class="form-control selectItems" id="item"></select>
-                    </td>
-                    <td>
-                        <input readonly class="form-control" id="descripcion" />
+                        <input @estado class="form-control" id="articulo" />
                     </td>
                     <td><div class="col-md-9"><input @estado2 @estado class="form-control numerico" type="text" min="0" id="cantidad" /></div><div class="col-md-3" style="padding-top:1rem"><span id="unidad"></span></div></td>
                     <td><input @estado2 @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
                     <td><input @estado2 @estado class="form-control numerico" type="text" id="descuento" /></td>
-                    <td><input class="form-control" readonly type="number" id="iva" /></td>
-                    <td><input class="form-control moneda" readonly type="text" id="subtotalLinea" /></td>
+                    <td><input @estado class="form-control"  type="number" id="iva" /></td>
+                    <td><input @estado class="form-control moneda" readonly type="text" id="subtotalLinea" /></td>
                     <td>
-                        <select class="form-control bodegas" id="bodega"></select>
+                        <select @estado class="form-control categorias" id="categoria"></select>
                     </td>
                     <td><button @estado2 @estado class="btn btn-link btnAccion" onclick="guardarCambios()"><i class="fas fa-save"></i></button></td>
                 </tr>
@@ -249,7 +236,25 @@ else
         </div>
     </div>
 </div>
+<div>
+    <!-- Modal Editar -->
+    <div class="modal fade" id="modalEditarBodega" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-md-6"> <h5 data-translate="EditIBodega" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["EditIBodega"]</h5></div>
 
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="editarBodega">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <input readonly hidden id="monedaFormater" />
 <div hidden><input hidden id="formater" class="currency" type="text" /></div>
 
@@ -262,7 +267,7 @@ else
      var $anulado = $('#Anulado');
     ///linea
     var $item = $('#item');
-    var $descripcion = $('#descripcion');
+    var $articulo = $('#articulo');
     var $subTotalLinea = $('#subtotalLinea');
     var $precio = $('#precio');
     var $iva = $('#iva');
@@ -270,7 +275,7 @@ else
     var $cantidad = $('#cantidad');
     var $descuento = $('#descuento');
     var $unidad = $('#unidad');
-    var $bodega = $('#bodega');
+    var $categoria = $('#categoria');
     var $bodegaEditar = $('#bodegaEditar');
     var $cantidadEditar = $('#cantidadEditar');
     var $precioEditar = $('#precioEditar');
@@ -305,13 +310,18 @@ else
     var items = [];
     var lineasAgregadas = [];
     var lineasEliminadas = [];
-    var bodegas = [];
+    var categorias = [];
     var proveedores = [];
     var monedas = [];
 
 
 
     $(document).ready(function () {
+        $('#cantidad').val(1);
+        $('#precio').val(0);
+        $('#iva').val(0);
+         $('#descuento').val(0);
+        $('#articulo').focus();
         var date = new Date();
         if (@Model.Id != 0) {
 
@@ -348,9 +358,9 @@ else
         });
 
          getMonedas();
-         getInventario();
         getProveedores();
-        
+        getCategoriaGasto();
+
 
 
 
@@ -358,17 +368,17 @@ else
 
 
 
-        $('#item').on('change.select2', function () {
+        //$('#item').on('change.select2', function () {
 
-            var itemInfo = getItem($(this).val());
+        //    var itemInfo = getItem($(this).val());
 
-            $descripcion.val(itemInfo.descripcion);
-            $precio.val(getPrecioAlCambio(itemInfo));
-            $cantidad.val(itemInfo.cantidadUnidad);
-            $unidad.text(itemInfo.idUnidadMedidaNavigation.abreviatura);
-            $iva.val(itemInfo.impuestoVenta);
-            setSubTotalLinea();
-        });
+        //    $descripcion.val(itemInfo.descripcion);
+        //    $precio.val(getPrecioAlCambio(itemInfo));
+        //    $cantidad.val(itemInfo.cantidadUnidad);
+        //    $unidad.text(itemInfo.idUnidadMedidaNavigation.abreviatura);
+        //    $iva.val(itemInfo.impuestoVenta);
+        //    setSubTotalLinea();
+        //});
 
 
     });
@@ -402,37 +412,38 @@ else
 
     //////ajax////////////////////////////////////////////////////////////////////////
 
-    function getBodegas() {
+    function getCategoriaGasto() {
+
          $.ajax({
               type: "get",
               headers: {
                   "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
               },
               dataType: "json",
-              url: '@Url.Action("GetBodegas")',
-              success: function (data) {
-
-                 bodegas = data;
-
+              url: '@Url.Action("GetCategoriaGasto", "Gasto")',
+             success: function (data) {
+                 categorias = data;
+                
                  for (var i = 0; i < data.length; i++) {
-                     if (data[i].almacenamiento) {
-                         var o = new Option(data[i].nombre, data[i].id);
-                         $(".bodegas").append(o);
-                     }
 
+                    var o = new Option(data[i].nombre, data[i].id);
+                         $(".categorias").append(o);
+                     $(".categorias").append(o);
                  }
-
-                 $(".bodegas").trigger('change');
+                 $(".categorias").trigger('change');
 
                  getCompraDetalle();
+
+
 
               },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
                   console.log(err.statusText);
               }
-          });
+         });
     }
+
 
     function getMonedas() {
          $.ajax({
@@ -445,7 +456,7 @@ else
               success: function (data) {
 
                  monedas = data;
-
+                  console.log(monedas);
                  for (var i = 0; i < data.length; i++) {
                      var o = new Option(data[i].nombre, data[i].codigo);
                     $(".tipoMoneda").append(o);
@@ -468,27 +479,7 @@ else
           });
     }
 
-    function getInventario() {
-
-         $.ajax({
-              type: "get",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
-              url: '@Url.Action("GetAllInventario", "Inventario")',
-              success: function (data) {
-                 items = data;
-                 cargarItems(data);
-                 getBodegas();
-              },
-              error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-         });
-    }
-
+   
 
     function getProveedores() {
 
@@ -506,7 +497,7 @@ else
                      if (data[i].persona)
                          nombre = data[i].nombre + ' ' + data[i].apellidos;
                      else
-                         nombre = data[i].nombreComercial;
+                         nombre = data[i].nombreJuridico;
                     var o = new Option(nombre, data[i].idContacto);
                     $("#proveedores").append(o);
                  }
@@ -536,6 +527,7 @@ else
 
             success: function (data) {
                 compraDetalleBD = JSON.parse(JSON.stringify(data));
+                console.log(data);
                 cargarLineas(data);
                },
             error: function (err, scnd) {
@@ -544,48 +536,33 @@ else
         });
     }
 
-    function guardarCompra(salir) {
-        @*if (lineas.length <= 0) {
-            cargarAlert('@SharedLocalizer["compraSinDetalle"]');
-        } else*@
-
+   function guardarCompra(salir) {
         var model = crearModelo();
 
         if (lineasAgregadas.length === 0)
             model.enCola = $('#enCola').prop('checked');
-
         $.ajax({
               type: "POST",
               headers: {
                   "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
               },
               dataType: "json",
-            url: '@Url.Action("CrearEditarCompra")',
+            url: '@Url.Action("CrearEditarGasto")',
             data: model,
             success: function (data) {
 
                 if (data.success) {
-                    lineas[lineas.length - 1].id = data.idCD;
-                    lineasAgregadas[lineasAgregadas.length - 1].id = data.idCD;
-                    idCDS = data;
+                    if (salir)
+                   window.location.href = "@Url.Action("ListarGastos")";
+
+                    lineas[lineas.length - 1].IdCompra = data.idCD;
+                    lineasAgregadas=[];
                     cargarTabla(lineas);
                     if (@Model.Id === 0) {
-
-                        var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
+                         var url = "@Url.Action("EditarGasto", new { id = "__id__" })";
                         window.location.href = url.replace("__id__", data.idCompra);
-
-                    if (salir)
-                        window.location.href = "@Url.Action("ListarCompras")";
-                    else {
-                        lineas[lineas.length - 1].id = data.idCD;
-                        lineasAgregadas = [];
-                        cargarTabla(lineas);
-                        if (@Model.Id === 0) {
-                            var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
-                            window.location.href = url.replace("__id__", data.idCompra);
-                        }
                     }
-                        
+                    
                 }
                 else {
                     cargarAlert("@SharedLocalizer["numCompraRepitida"]");
@@ -601,10 +578,10 @@ else
               }
         });
 
-
     }
 
-     function guardarCompraBorrador() {
+
+    function guardarGastoBorrador() {
        
         $.ajax({
               type: "POST",
@@ -612,23 +589,20 @@ else
                   "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
               },
               dataType: "json",
-            url: '@Url.Action("CambiarEstadoBorradorCompra")',
+            url: '@Url.Action("CambiarEstadoBorradorGasto")',
             data: crearModelo(),
             success: function (data) {
                 @*window.location.href = "@Url.Action("ListarCompras")";*@
-
                 if (!data.success)
                     cargarAlert("@SharedLocalizer["numCompraRepitida"]");
                 else
-                    window.location.href = "@Url.Action("ListarCompras")";
-
+                    window.location.href = "@Url.Action("ListarGastos")";
                },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
                   console.log(err.statusText);
               }
         });
-
     }
 
     function elimarCompraDetalle(_id, idLinea) {
@@ -645,24 +619,24 @@ else
 
 
                 if (idLinea != 0) {
-                    $.ajax({
-                        type: "POST",
-                        headers: {
-                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                        },
-                        dataType: "json",
-                        url: '@Url.Action("EliminarCompraDetalle")',
-                        data: { idCD: idLinea },
-                        success: function (data) {
-                            if (data.success)
+                     $.ajax({
+                    type: "POST",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    dataType: "json",
+                    url: '@Url.Action("EliminarCompraDetalle")',
+                    data: { idCD: idLinea },
+                    success: function (data) {
+                        if (data.success)
                                 eliminarLinea(_id);
                             else
                                 cargarAlert("@SharedLocalizer["anulacionInvalida"]");
-                        },
-                        error: function (err, scnd) {
-                            cargarAlert('@SharedLocalizer["errorGeneral"]');
-                            console.log(err.statusText);
-                        }
+                    },
+                    error: function (err, scnd) {
+                        cargarAlert('@SharedLocalizer["errorGeneral"]');
+                        console.log(err.statusText);
+                    }
                     });
                 }
                 else
@@ -687,17 +661,13 @@ else
                             "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                         },
                         dataType: "json",
-                        url: '@Url.Action("CambiarEstadoCompra")',
+                        url: '@Url.Action("CambiarEstadoOrden")',
                         data: {id: @Model.Id},
                         success: function (data) {
-                            if (data.success) {
-                                setMensajeFromOut(result);
-                                cargarAlert('@SharedLocalizer["CompraAnuladaMSJ"]');
-                                window.location.href = "@Url.Action("ListarCompras")";
-                            }
-                            else{
-                                cargarAlert("@SharedLocalizer["anulacionInvalida"]");
-                        }
+                            setMensajeFromOut(result);
+                            cargarAlert('@SharedLocalizer["CompraAnuladaMSJ"]');
+                            window.location.href = "@Url.Action("ListarGastos")";
+
                         },
                         error: function (err, scnd) {
                             cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -720,22 +690,16 @@ else
 
 
     ////helpers////////////////////////////////////////////////////////////////////////////////////
-
+    
     function guardarCambios() {
 
         if (validarForm()) {
             guardarLinea();
             guardarCompra(false);
         }
-   console.log(idCDS);
-
     }
-
-    function guardarSalir() {
-
-
+   function guardarSalir() {
         if (validarForm()) {
-
             //guardarLinea();
             if (lineas.length <= 0) {
                 $('#sinDetalleValid').prop('hidden', false);
@@ -743,54 +707,38 @@ else
             } else {
                 if ($('#enCola').prop('checked')) {
                     bootbox.confirm("@SharedLocalizer["confirmEnivarCola"]", function (result) {
-
                         if (!result) {
                             $('#enCola').attr('checked', false);
-
                         }
-
                         if ('@Model.Borrador' === 'True')
-                            guardarCompraBorrador();
+                            guardarGastoBorrador();
                         else
                             guardarCompra(true);
-
                         
-
                     });
                 }
-
                 else {
-
                     if ('@Model.Borrador' === 'True')
-                        guardarCompraBorrador();
+                        guardarGastoBorrador();
                     else
                         guardarCompra(true);
-
                     
                 }
-
             }
-
-
         }
-
     }
-
     function validarForm() {
         var flag = true;
-
         if ($('#numDocumento').val().replace(/ /g, "") === "") {
             $('#numDocumentoValid').attr("hidden", false);
             flag = false;
         } else
             $('#numDocumentoValid').attr("hidden", true);
-
         
-
         return flag;
     }
 
-    function crearModelo() {
+   function crearModelo() {
 
 
         var ordenModel = {
@@ -802,7 +750,7 @@ else
             idUsuario: 1,
             Anulado: '@Model.Anulado',
             borrador: '@Model.Borrador',
-            idMoneda: parseInt($('.tipoMoneda').val()),
+             idMoneda: parseInt($('.tipoMoneda').val()),
             subTotalGravado: subTotalGravado.toString().replace(".", ","),
             subTotalExcento: subTotalExcento.toString().replace(".", ","),
             subTotalGravadoNeto: subTotalGravadoNeto.toString().replace(".", ","),
@@ -813,28 +761,30 @@ else
             tipoCambioDolar: $dolar.val(),
             tipoCambioEuro: $euro.val(),
             enCola: false,
-            compraDetalle: crearModeloDetalle(lineasAgregadas)
+            comprasDetalleServicio: crearModeloDetalle(lineasAgregadas)
+
 
         };
 
         return ordenModel;
     }
-    function crearModeloDetalle(model) {
+ function crearModeloDetalle(model) {
 
-        for (var i = 0; i < model.length; i++) {
+     for (var i = 0; i < model.length; i++) {
             model[i].cantidad = model[i].cantidad.toString().replace(".", ",");
-            model[i].precioUnitario = model[i].precioUnitario.toString().replace(".", ",");
+            model[i].PrecioUnidad = model[i].PrecioUnidad.toString().replace(".", ",");
             model[i].subTotalGravado = model[i].subTotalGravado.toString().replace(".", ",");
             model[i].subTotalExcento = model[i].subTotalExcento.toString().replace(".", ",");
             model[i].subTotalGravadoNeto = model[i].subTotalGravadoNeto.toString().replace(".", ",");
             model[i].subTotalExcentoNeto = model[i].subTotalExcentoNeto.toString().replace(".", ",");
-            model[i].porcIva = model[i].porcIva.toString().replace(".", ",");
+            model[i].PorcIVA = model[i].PorcIVA.toString().replace(".", ",");
             model[i].totalIva = model[i].totalIva.toString().replace(".", ",");
             model[i].porcFa = model[i].porcFa.toString().replace(".", ",");
             model[i].totalFa = model[i].totalFa.toString().replace(".", ",");
             model[i].porcDescuento = model[i].porcDescuento.toString().replace(".", ",");
             model[i].totalDescuento = model[i].totalDescuento.toString().replace(".", ",");
             model[i].total = model[i].total.toString().replace(".", ",");
+
         }
 
         return model;
@@ -845,18 +795,19 @@ else
 
         for (var i = 0; i < data.length; i++) {
             var model = {
-                id: data[i].id,
-                idCompra: @Model.Id,
-                idInventario: data[i].idInventario,
-                nombreInventario: data[i].nombreInventario,
-                idMonedaCD: @Model.IdMoneda,
+                IdCompraDetalle: data[i].IdCompraDetalle,
+                IdCompra: @Model.Id,
+                IdCategoriaGasto: data[i].idCategoriaGasto,
+                articulo: data[i].articulo,
                 cantidad: data[i].cantidad,
-                precioUnitario: recuperarPrecio(data[i]),
+                idMonedaCDS: @Model.IdMoneda,
+                cantidad: data[i].cantidad,
+                PrecioUnidad: data[i].precioUnidad,
                 subTotalGravado: recuperarSubTotalGravado(data[i]),
                 subTotalExcento: recuperarSubTotalExcento(data[i]),
                 subTotalGravadoNeto: recuperarSubTotalGravadoNeto(data[i]),
                 subTotalExcentoNeto: recuperarSubTotalExcentoNeto(data[i]),
-                porcIva: parseFloat(data[i].porcIva),
+                PorcIVA: data[i].porcIva,
                 totalIs: 0,
                 porcFa: 0,
                 totalFa: 0,
@@ -865,7 +816,6 @@ else
                 totalDescuento: recuperarTotalDesc(data[i]),
                 totalIva: recuperarIva(data[i]),
                 total: recuperarTotal(data[i]),
-                bodega: getBodegaItem(data[i].idBodega).nombre
 
             };
             lineas.push(model);
@@ -877,30 +827,30 @@ else
     }
 
 
+ 
     function guardarLinea() {
 
-       var model = {
-            id: 0,
-            idCompra: @Model.Id,
-            idInventario: $item.val(),
-            nombreInventario: $descripcion.val(),
-            idMonedaCD: parseInt($('.tipoMoneda').val()),
-            cantidad: parseFloat($cantidad.val()),
-            precioUnitario: parseFloat($precio.val()),
+        var model = {
+            IdCompraDetalle: 0,
+            IdCompra: @Model.Id,
+            IdCategoriaGasto: getCategoriaItem($categoria.val()).id,
+            articulo: $articulo.val(),
+            cantidad: parseInt($cantidad.val()),
+            idMonedaCDS: parseInt($('.tipoMoneda').val()),
+            PrecioUnidad: parseFloat($("#precio").val()),
             subTotalGravado: calcularSubtotalGrabadoLinea(),
             subTotalExcento: calcularSubtotalExcentoLinea(),
             subTotalGravadoNeto: calcularSubtotalGrabadoNetoLinea(),
             subTotalExcentoNeto: calcularSubtotalExcentoNetoLinea(),
-            porcIva: parseFloat($iva.val()),
+            PorcIVA: parseFloat($('#iva').val()),
             totalIs: 0,
             porcFa: 0,
             totalFa: 0,
-            idBodega: $('#bodega').val(),
             porcDescuento: parseFloat($descuento.val()),
-            totalDescuento: calcularTotalDescuentoLinea(),
+            totalDescuento:calcularTotalDescuentoLinea(),
             totalIva: calcularTotalIvaLinea(),
-            total: calcularTotalLinea(),
-            bodega: getBodegaItem($bodega.val()).nombre
+            total: calcularTotalLinea()
+
         };
 
         lineasAgregadas = [];
@@ -908,6 +858,12 @@ else
         lineasAgregadas.push(model);
         lineas.push(model);
         calcularTotales();
+        $('#cantidad').val(1);
+        $('#precio').val(0);
+        $('#iva').val(0);
+        $('#descuento').val(0);
+        $('#articulo').val("").focus();
+        
 
 
     }
@@ -936,9 +892,9 @@ else
         $('.selectItems').trigger('change.select2');
         $bodega.val(detalle.idBodega);
         $cantidad.val(detalle.cantidad);
-        $precio.val(detalle.precioUnitario);
+        $precio.val(detalle.PrecioUnidad);
         $descuento.val(detalle.porcDescuento);
-        $iva.val(detalle.porcIva);
+        $iva.val(detalle.PorcIVA);
 
         $precio.trigger("focusout");
 
@@ -955,7 +911,7 @@ else
 
         $('#editarLineaModal').modal('hide');
         lineas[key].cantidad = parseFloat($cantidadEditar.val());
-        lineas[key].precioUnitario = parseFloat($precioEditar.val());
+        lineas[key].PrecioUnidad = parseFloat($precioEditar.val());
         lineas[key].idBodega = $bodegaEditar.val();
 
         console.log(lineas[key]);
@@ -964,28 +920,25 @@ else
     }
 
     function cargarTabla(data) {
-
         $('.filasCargadas').remove();
-
         contadorFila = 0;
         var subtotal = 0;
 
         for (var i = 0; i < data.length; i++) {
 
 
-            if (data[i].porcIva > 0)
+            if (data[i].PorcIVA > 0)
                 subtotal = data[i].subTotalGravado;
             else
                 subtotal = data[i].subTotalExcento;
 
-            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + getItem(data[i].idInventario).codigo + '</td>'
-                + '<td style="padding-top:2rem;">' + getItem(data[i].idInventario).descripcion + '</td>'
-                + '<td style="padding-top:2rem;">' + data[i].cantidad + ' </td>'
-                + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(data[i].precioUnitario) + '</td>'
+            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + data[i].articulo + '</td>'
+                + '<td style="padding-top:2rem;">' + data[i].cantidad + '</td>'
+                + '<td style="padding-top:2rem;">' +  darFomatoMoneda(data[i].PrecioUnidad) + ' </td>'
                 + '<td style="padding-top:2rem;">' + data[i].porcDescuento + '%</td>'
-                + '<td style="padding-top:2rem;">' + data[i].porcIva + '%</td>'
-                + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(subtotal) +'</td>'
-                + '<td style="padding-top:2rem;">' + data[i].bodega + ' </td>'
+                + '<td style="padding-top:2rem;">' + data[i].PorcIVA + '%</td>'
+                + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(subtotal) + '</td>'
+                + '<td style="padding-top:2rem;">' + getCategoriaItem( data[i].IdCategoriaGasto).nombre + ' </td>'
                 + '<td><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="elimarCompraDetalle(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
 
             $('.lineaForm').before(body);
@@ -993,7 +946,7 @@ else
             contadorFila++;
 
         }
-        //data[i].precioUnitario)
+        //data[i].PrecioUnidad)
         //calcularTotales();
         var simbolo = monedas[0].simbolo + " ";
 
@@ -1052,10 +1005,10 @@ else
         }
     }
 
-    function getBodegaItem(id) {
-        for (var i = 0; i < bodegas.length; i++) {
-            if (parseInt(bodegas[i].id) == parseInt(id))
-                return bodegas[i];
+    function getCategoriaItem(id) {
+        for (var i = 0; i < categorias.length; i++) {
+            if (parseInt(categorias[i].id) == parseInt(id))
+                return categorias[i];
         }
     }
 
@@ -1213,19 +1166,19 @@ else
 
     function recalcularPrecio() {
 
-
+        console.log(lineas);
         var subtotal = 0;
 
         for (var i = 0; i < lineas.length; i++) {
 
-            lineas[i].precioUnitario = getPrecioAlCambioLocal(lineas[i]);
-            lineas[i].idMonedaCD = parseInt($('.tipoMoneda').val());
+            lineas[i].PrecioUnidad = getPrecioAlCambioLocal(lineas[i]);
+            lineas[i].idMonedaCDS = parseInt($('.tipoMoneda').val());
 
-            subtotal = lineas[i].precioUnitario * lineas[i].cantidad;
+            subtotal = lineas[i].PrecioUnidad * lineas[i].cantidad;
             lineas[i].totalDescuento = (lineas[i].porcDescuento / 100) * subtotal;
 
 
-            if (lineas[i].porcIva > 0) {
+            if (lineas[i].PorcIVA > 0) {
                 lineas[i].subTotalExcento = 0;
                 lineas[i].subTotalGravado = subtotal;
                 lineas[i].subTotalExcentoNeto = 0;
@@ -1238,19 +1191,19 @@ else
                 lineas[i].subTotalGravadoNeto = 0;
             }
 
-            lineas[i].totalIva = (lineas[i].porcIva / 100) * (lineas[i].subTotalExcentoNeto + lineas[i].subTotalGravadoNeto);
+            lineas[i].totalIva = (lineas[i].PorcIVA / 100) * (lineas[i].subTotalExcentoNeto + lineas[i].subTotalGravadoNeto);
             lineas[i].total = (lineas[i].subTotalExcentoNeto + lineas[i].subTotalGravadoNeto) + lineas[i].totalIva;
         }
 
         //if (lineasAgregadas.length > 0)
         //    for (var i = 0; i < lineasAgregadas.length; i++) {
 
-        //        lineasAgregadas[i].precioUnitario = getPrecioAlCambioLocal(lineasAgregadas[i]);
-        //        lineasAgregadas[i].idMonedaCD = parseInt($('.tipoMoneda').val());
-        //        subtotal = lineasAgregadas[i].precioUnitario * lineasAgregadas[i].cantidad;
+        //        lineasAgregadas[i].PrecioUnidad = getPrecioAlCambioLocal(lineasAgregadas[i]);
+        //        lineasAgregadas[i].idMonedaCDS = parseInt($('.tipoMoneda').val());
+        //        subtotal = lineasAgregadas[i].PrecioUnidad * lineasAgregadas[i].cantidad;
         //        lineasAgregadas[i].totalDescuento = (lineasAgregadas[i].porcDescuento / 100) * subtotal;
 
-        //        if (lineasAgregadas[i].porcIva > 0) {
+        //        if (lineasAgregadas[i].PorcIVA > 0) {
         //            lineasAgregadas[i].subTotalExcento = 0;
         //            lineasAgregadas[i].subTotalGravado = subtotal;
         //            lineasAgregadas[i].subTotalExcentoNeto = 0;
@@ -1263,11 +1216,10 @@ else
         //            lineasAgregadas[i].subTotalGravadoNeto = 0;
         //        }
 
-        //        lineasAgregadas[i].totalIva = (lineasAgregadas[i].porcIva / 100) * (lineasAgregadas[i].subTotalExcentoNeto + lineasAgregadas[i].subTotalGravadoNeto);
+        //        lineasAgregadas[i].totalIva = (lineasAgregadas[i].PorcIVA / 100) * (lineasAgregadas[i].subTotalExcentoNeto + lineasAgregadas[i].subTotalGravadoNeto);
         //        lineas[i].total = (lineasAgregadas[i].subTotalExcentoNeto + lineasAgregadas[i].subTotalGravadoNeto) + lineasAgregadas[i].totalIva;
         //    }
 
-        $('#item').trigger('change.select2');
         cargarTabla(lineas);
         calcularTotales();
 
@@ -1285,24 +1237,24 @@ else
 
 
 
-        if (moneda === 1 && item.idMonedaCD === 1)
-            return item.precioUnitario;
-        else if (moneda === 1 && item.idMonedaCD === 2)
-            return item.precioUnitario * dolar;
-        else if (moneda === 1 && item.idMonedaCD === 3)
-            return item.precioUnitario * euro;
-        else if (moneda === 2 && item.idMonedaCD === 1)
-            return item.precioUnitario / dolar;
-        else if (moneda === 2 && item.idMonedaCD === 2)
-            return item.precioUnitario;
-        else if (moneda === 2 && item.idMonedaCD === 3)
-            return (item.precioUnitario * euro) / dolar;
-        else if (moneda === 3 && item.idMonedaCD === 1)
-            return item.precioUnitario / euro;
-        else if (moneda === 3 && item.idMonedaCD === 2)
-            return (item.precioUnitario * dolar) / euro;
-        else if (moneda === 3 && item.idMonedaCD === 3)
-            return item.precioUnitario;
+        if (moneda === 1 && item.idMonedaCDS === 1)
+            return item.PrecioUnidad;
+        else if (moneda === 1 && item.idMonedaCDS === 2)
+            return item.PrecioUnidad * dolar;
+        else if (moneda === 1 && item.idMonedaCDS === 3)
+            return item.PrecioUnidad * euro;
+        else if (moneda === 2 && item.idMonedaCDS === 1)
+            return item.PrecioUnidad / dolar;
+        else if (moneda === 2 && item.idMonedaCDS === 2)
+            return item.PrecioUnidad;
+        else if (moneda === 2 && item.idMonedaCDS === 3)
+            return (item.PrecioUnidad * euro) / dolar;
+        else if (moneda === 3 && item.idMonedaCDS === 1)
+            return item.PrecioUnidad / euro;
+        else if (moneda === 3 && item.idMonedaCDS === 2)
+            return (item.PrecioUnidad * dolar) / euro;
+        else if (moneda === 3 && item.idMonedaCDS === 3)
+            return item.PrecioUnidad;
 
     }
 
@@ -1312,11 +1264,11 @@ else
         var moneda = parseInt($('.tipoMoneda').val());
 
         if (moneda === 1)
-            return data.precioUnitarioBase;
+            return data.PrecioUnidadBase;
         else if (moneda === 2)
-            return data.precioUnitarioDolar;
+            return data.PrecioUnidadDolar;
         else if (moneda === 3)
-            return data.precioUnitarioEuro;
+            return data.PrecioUnidadEuro;
     }
 
 
@@ -1417,7 +1369,7 @@ else
     function cancelar() {
         bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) {
             if (result)
-                window.location.href = "@Url.Action("ListarCompras")";
+                window.location.href = "@Url.Action("ListarGastos")";
 
         });
     }
@@ -1441,7 +1393,7 @@ else
                 telefono: empresaModel.tel,
                 correo: empresaModel.correo,
                 cedJuridica: empresaModel.ced,
-                logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
+               // logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
                 nombreTitulo: "@SharedLocalizer["Nombre"]:",
                 telTitulo: "@SharedLocalizer["Telefonos"]:",
                 correoTitulo: "@SharedLocalizer["Correo"]:",
@@ -1498,20 +1450,18 @@ else
 
             var subtotal = 0;
 
-            if (lineas[i].porcIva > 0)
+            if (lineas[i].PorcIVA > 0)
                 subtotal = lineas[i].subTotalGravado;
             else
                 subtotal = lineas[i].subTotalExcento;
 
             var model = {
-                item: getItem(lineas[i].idInventario).codigo,
-                descripcion: getItem(lineas[i].idInventario).descripcion,
+                item: lineas[i].articulo,
                 cantidad: lineas[i].cantidad.toString(),
-                precioUnid: formatearMoneda(lineas[i].precioUnitario),
+                precioUnid: formatearMoneda(lineas[i].PrecioUnidad),
                 descuento: lineas[i].porcDescuento.toString(),
-                iva: lineas[i].porcIva.toString(),
+                iva: lineas[i].PorcIVA.toString(),
                 subtotal: formatearMoneda(subtotal),
-                bodega: getBodegaItem(lineas[i].idBodega).nombre
             };
 
             row.push(model);
@@ -1641,7 +1591,7 @@ else
             $numDocumento.val('AutogeneradoXML');
             //console.log(crearModelo());
 
-            guardarCompra(false);
+            guardarCompra();
         }
 
 
@@ -1671,18 +1621,18 @@ else
     function crearModeloDetalleXML(array) {
         console.log(array);
         var model = {
-            id: 0,
+            IdCompraDetalle: 0,
             idCompra: 0,
-            idInventario: getItemPorCodigo(array.Codigo.Codigo["#text"]).idInventario,
-            //nombreInventario: $descripcion.val(),
-            idMonedaCD: parseInt($('.tipoMoneda').val()),
+            IdCategoriaGasto: getCategoriaItem($categoria.val()).id,
+            articulo: $articulo.val(),
+            idMonedaCDS: parseInt($('.tipoMoneda').val()),
             cantidad: parseFloat(array.Cantidad["#text"]),
-            precioUnitario: parseFloat(array.PrecioUnitario["#text"]),
+            PrecioUnidad: parseFloat(array.PrecioUnidad["#text"]),
             subTotalGravado: calcularSubtotalGravadoXML(array),
             subTotalExcento: calcularSubtotalExcentoXML(array),
             subTotalGravadoNeto: calcularSubtotalGravadoNetoXML(array),
             subTotalExcentoNeto: calcularSubtotalExcentoNetoXML(array),
-            porcIva: getImpuestoXML(array).Tarifa,
+            PorcIVA: getImpuestoXML(array).Tarifa,
             totalIs: 0,
             porcFa: 0,
             totalFa: 0,
@@ -1690,8 +1640,8 @@ else
             porcDescuento: getDescuentoXML(array),
             totalDescuento: getDescuentoXML(array),
             totalIva: getImpuestoXML(array).Monto,
-            total: parseFloat(array.MontoTotalLinea["#text"]),
-            bodega: $('#bodega option:selected').text()
+            total: parseFloat(array.MontoTotalLinea["#text"])
+           
         };
 
         //lineasAgregadas = [];
