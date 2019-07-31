@@ -44,7 +44,7 @@ function generate_cutomPDF(modelo) {
     var rightStartCol2 = 460;
     var InitialstartX = 40;
     var startX = 40;
-    var InitialstartY = 50;
+    var tempY = 0;
     var startY = 0;
     var midY = 5;
     var lineHeights = 12;
@@ -61,7 +61,11 @@ function generate_cutomPDF(modelo) {
 
     //pdf.addImage(agency_logo.src, 'PNG', logo_sizes.centered_x, _y, logo_sizes.w, logo_sizes.h);
     //doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
-    doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
+
+    if (company_logo.src != "data:,") {
+        doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
+        tempY += 50;
+    }
 
     doc.textAlign(comapnyJSON.nombre, { align: "left" }, startX, startY += 15 + company_logo.h);
     doc.setFontSize(fontSizes.NormalFontSize);
@@ -83,14 +87,8 @@ function generate_cutomPDF(modelo) {
 
 
 
-    var tempY = InitialstartY;
     doc.setFontType('bold');
-    doc.textAlign( "",{ align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing);
-    doc.setFontType('normal');
-    doc.textAlign("", { align: "left" }, rightStartCol2, tempY);
-
-    doc.setFontType('bold');
-    doc.textAlign(modelo.usuarioTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing+50);
+    doc.textAlign(modelo.usuarioTitulo, { align: "left" }, rightStartCol1, tempY += 15 + company_logo.h);
     doc.setFontType('normal');
     doc.textAlign(modelo.usuario, { align: "left" }, rightStartCol2, tempY);
 
