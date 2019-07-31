@@ -2,11 +2,25 @@
 @inject IStringLocalizer<SharedResources> Lb
 
 @{
-    ViewData["Title"] = "CrearEditarFactura";
+    if (Model.Id != 0)
+    {
+        ViewData["Title"] = Lb["Editar"] + " " + Lb["Factura"];
+    }
+    else
+    {
+        ViewData["Title"] = Lb["Nueva"] + " " + Lb["Factura"];
+    }
+
 }
 
-<h3>CrearEditarFactura</h3>
-
+@if (Model.Id != 0)
+{
+    <h3>@Lb["Editar"] @Lb["Factura"]</h3>
+}
+else
+{
+    <h3>@Lb["Nueva"] @Lb["Factura"]</h3>
+}
 <hr />
 <div class="row">
     <form id="frmFactura">
@@ -21,7 +35,7 @@
             <select onkeyup="pasarSigCampo(event,'IdCliente')" asp-for="IdVendedor" class="form-control selectItems">
                 @foreach (var item in ViewData["usuarios"] as IList<TbSeUsuario>)
                 {
-                    if (item.Id == int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value))
+                    if (item.Id == int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value) && Model.Id != 0)
                     {
                         <option selected value="@item.Id">@item.Nombre</option>
                     }
@@ -35,7 +49,7 @@
                 <option value="0">@Lb["ClienteContado"]</option>
                 @foreach (var item in ViewData["clientes"] as IList<TbCrContacto>)
                 {
-                    if (item.Persona && Model.Id != 0)
+                    if (item.Persona)
                     {
                         <option value="@item.IdContacto">@item.Nombre @item.Apellidos</option>
                     }
@@ -60,7 +74,6 @@
         <div hidden class="form-group">
             <label asp-for="FechaFactura" class="control-label"></label>
             <input asp-for="FechaFactura" class="form-control" />
-            <span asp-validation-for="FechaFactura" class="text-danger"></span>
         </div>
         <div hidden class="form-group">
             <label asp-for="IdMoneda" class="control-label"></label>
@@ -107,6 +120,10 @@
             <label asp-for="MontoIva" class="control-label"></label>
             <input asp-for="MontoIva" class="form-control" />
             <span asp-validation-for="MontoIva" class="text-danger"></span>
+        </div>
+        <div hidden class="form-group">
+            <label asp-for="MontoExoneracion" class="control-label"></label>
+            <input asp-for="MontoExoneracion" class="form-control" />
         </div>
         <div hidden class="form-group">
             <label asp-for="Total" class="control-label"></label>
@@ -178,7 +195,8 @@
 </div>
 <div class="row">
     <div class="form-group col-md-12 col-sm-12 col-xs-12" style="padding-top: 1rem;">
-        <a class="btn btn-success pull-right" onclick="guardarCambios()">@Lb["Facturar"]</a>
+        <a class="btn btn-success pull-right" onclick="guardarCambios()">@Lb["Guardar"]</a>
+        <a class="btn btn-default pull-right" onclick="cancelar()">@Lb["Cancelar"]</a>
     </div>
 </div>
 <div class="row">
@@ -233,11 +251,11 @@
                     <input id="descuentoEditar" class="form-control porcentaje" value="0" type="text" />
                 </div>
                 <div class="col-md-12 col-sm-12 col-xs-12">
-                    <button type="button" onclick="editarLinea()" class="btn btn-success">@Lb["Guardar"]</button>
+                    <button type="button" onclick="editarLinea()" data-dismiss="modal" class="btn btn-success">@Lb["Guardar"]</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
                 </div>
             </div>
-            
+
         </div>
     </div>
 </div>
@@ -259,7 +277,7 @@
     var items = [];
     var lineas = [];
     var lineasAgregadas = [];
-    var lineasActualizadas = [];
+    var lineasActoUp = [];
     var lineasEliminadas = [];
     var totalFactura = 0;
 
@@ -268,9 +286,7 @@
 
     $(document).ready(function () {
 
-        //$('.autocomplete').selectize({
-        //    create: true,
-        //});
+
         $('.selectItems').select2();
         $(".numerico").inputmask({
             'alias': 'decimal',
@@ -285,29 +301,28 @@
         facturaModel = getFormData();
 
 
-        //$(".moneda").inputmask({
-        //    'alias': 'decimal',
-        //    rightAlign: true,
-        //    'groupSeparator': '.',
-        //    'autoGroup': true,
-        //    min: 0
-        //});
-
         getMonedas();
         getInventario();
 
         comprobarBorrador();
 
+
+
+
     });
 
     function getFormData() {
         var unindexed_array = $('#frmFactura ').serializeArray();
+
         var indexed_array = {};
 
         $.map(unindexed_array, function (n, i) {
 
             indexed_array[n['name']] = n['value'];
         });
+
+        indexed_array['FacturaDetalle'] = lineasActoUp;
+        //indexed_array['lineas'] = lineas;
 
         return indexed_array;
     }
@@ -354,12 +369,48 @@
         $item.select();
         $cantidad.val(1);
     }
+    function cargarLineas(data) {
+
+        for (var i = 0; i < data.length; i++) {
+            var moneda = @Model.IdMoneda;
+            var model = {
+                id: data[i].id,
+                idFactura: @Model.Id,
+                idInventario: data[i].idInventario,
+                cantidad: data[i].cantidad,
+                precio: moneda === 1 ? data[i].precioBase : moneda == 2 ? data[i].precioDolar : data[i].precioEuro,
+                porcIva: data[i].porcIva,
+                porcDescuento: data[i].porcDescuento,
+                porcExoneracion: data[i].porcExoneracion,
+                fechaCreacion: data[i].fechaCreacion,
+                idUsuarioCreador: data[i].idUsuarioCreador,
+                subTotal: moneda === 1 ? data[i].subTotalBase : moneda === 2 ? data[i].subTotalDolar : data[i].subTotalEuro,
+                subTotalGravado: moneda === 1 ? data[i].subTotalGravadoBase : moneda === 2 ? data[i].subTotalGravadoDolar : data[i].subTotalGravadoEuro,
+                subTotalExcento: moneda === 1 ? data[i].subTotalExcentoBase : moneda === 2 ? data[i].subTotalExcentoDolar : data[i].subTotalExcentoEuro,
+                subTotalGravadoNeto: moneda === 1 ? data[i].subTotalGravadoNetoBase : moneda === 2 ? data[i].subTotalGravadoNetoDolar : data[i].subTotalGravadoNetoEuro,
+                subTotalExcentoNeto: moneda === 1 ? data[i].subTotalExcentoNetoBase : moneda === 2 ? data[i].subTotalExcentoNetoDolar : data[i].subTotalExcentoNetoEuro,
+                montoDescuento: moneda === 1 ? data[i].montoDescuentoBase : moneda === 2 ? data[i].montoDescuentoDolar : data[i].montoDescuentoEuro,
+                montoIva: moneda === 1 ? data[i].montoIvabase : moneda === 2 ? data[i].montoIvadolar : data[i].montoIvaeuro,
+                total: moneda === 1 ? data[i].totalBase : moneda === 2 ? data[i].totalDolar : data[i].totalEuro,
+                fechaVencimiento: data[i].fechaVencimiento,
+                montoExoneracion: moneda === 1 ? data[i].montoExoneracionBase : moneda === 2 ? data[i].montoExoneracionDolar : data[i].montoExoneracionEuro,
+                idMonedaFD: moneda
+            };
+
+            lineas.push(model);
+
+
+        }
+
+        cargarTabla(lineas);
+        calcularTotales();
+    }
+
 
     function guardarLinea() {
 
         var producto = getItemPorCodigo($item.val());
 
-        
         var model = {
             id: 0,
             idFactura: @Model.Id,
@@ -379,12 +430,13 @@
             montoDescuento: calcularDescuentoLinea(),
             montoIva: calcularMontoIvaLinea(producto.impuestoVenta),
             total: calcularTotalLinea(),
-            FechaVencimiento: "",
-            montoExoneracion: calcularExoneracion()                    
+            fechaVencimiento: "",
+            montoExoneracion: calcularExoneracion(),
+            idMonedaFD: @Model.IdMoneda
         };
 
         lineas.push(model);
-        lineasAgregadas.push(model);
+        lineasActoUp.push(model);
         calcularTotales();
         setFacturaModel();
 
@@ -397,7 +449,7 @@
 
              if (result) {
 
-                 lineasAgregadas.splice($.inArray(lineas[key], lineasAgregadas), 1);
+                 lineasActoUp.splice($.inArray(lineas[key], lineasActoUp), 1);
                  if (lineas[key].id !== 0)
                     lineasEliminadas.push(lineas[key]);
                  lineas.splice(key, 1);
@@ -427,18 +479,17 @@
     function editarLinea() {
         var key = parseInt($('#idLinea').val());
 
-        console.log(key);
-
         lineas[key].cantidad = parseFloat($('#cantidadEditar').val());
         lineas[key].precio = parseFloat($('#precioEditar').inputmask('unmaskedvalue'));
         lineas[key].porcDescuento = parseFloat($('#descuentoEditar').inputmask('unmaskedvalue'));
 
         var subTotal = lineas[key].cantidad * lineas[key].precio;
         var descuento = subTotal * (lineas[key].porcDescuento / 100);
+
         var imp = lineas[key].porcIva;
         lineas[key].subTotal = subTotal;
         lineas[key].montoDescuento = descuento;
-        lineas[key].montoIva = (subTotal - descuento) * (lineas[key].porcDescuento / 100);
+        lineas[key].montoIva = (subTotal - descuento) * (imp / 100);
         lineas[key].subTotalGravado = imp > 0 ? subTotal : 0;
         lineas[key].subTotalGravadoNeto = imp > 0 ? subTotal - descuento : 0;
         lineas[key].subTotalExcento = imp === 0 ? subTotal : 0;
@@ -446,16 +497,22 @@
         lineas[key].montoExoneracion = lineas[key].montoIva * (lineas[key].porcExoneracion / 100);
         lineas[key].total = (subTotal - descuento) + lineas[key].montoIva;
 
-        if (lineas[key].id !== 0) {
-            lineasAgregadas.splice($.inArray(lineas[key], lineasAgregadas), 1);
-            lineasAgregadas.push(lineas[key]);
+       
+        var flag = false;
+        for (var i = 0; i < lineasActoUp.length; i++) {
+            if (lineasActoUp[i].idInventario == lineas[key].idInventario) {
+                lineasActoUp[i] = lineas[key];
+                flag = true;
+                break;
+            }
         }
-        else {
-            lineasActualizadas.push(lineas[key]);
-        }
+
+        if (!flag)
+            lineasActoUp.push(lineas[key]);
 
         calcularTotales();
         cargarTabla(lineas);
+
         setFacturaModel();
 
     }
@@ -525,7 +582,7 @@
     }
 
     function calcularExoneracion() {
-        var porc = parseFloat('#exoneracion');
+        var porc = 0;
         if (porc != 0)
             return calcularMontoIvaLinea * (porc / 100);
         else
@@ -582,6 +639,7 @@
             facturaModel.SubTotalGravadoNeto += lineas[i].subTotalGravadoNeto;
             facturaModel.TotalDescuento += lineas[i].montoDescuento;
             facturaModel.MontoIva += lineas[i].montoIva;
+            facturaModel.MontoExoneracion += lineas[i].montoExoneracion;
         }
 
         $('#monedaFormatter').val(facturaModel.Total);
@@ -594,22 +652,94 @@
 
     function guardarCambios() {
 
+        console.log(crearModelo());
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: '@Url.Action("CrearEditarFactura")',
+            data: { viewModel: crearModelo(), detalle: crearModeloDetalle(lineasActoUp) },
+            success: function (data) {
+                localStorage.removeItem("FacturaBorrador");
+
+                window.location.href = "@Url.Action("ListarFacturas")";
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
 
     }
 
     function setFacturaModel() {
 
-        facturaModel["DetalleFactura"] = lineasAgregadas;
-        facturaModel["Lineas"] = lineas;
+        facturaModel.FacturaDetalle = lineasActoUp;
+        //facturaModel.lineas = lineas;
         facturaModel.IdMoneda = $('#IdMoneda').val();
         facturaModel.TipoCambioEuro = $('#TipoCambioEuro').val();
         facturaModel.TipoCambioDolar = $('#TipoCambioDolar').val();
         facturaModel.IdVendedor = $('#IdVendedor').val();
         facturaModel.IdCliente = $('#IdCliente').val();
         facturaModel.Tipo = $('#Tipo').val();
+        facturaModel.Estado = '@Model.Estado';
+        facturaModel.FechaFactura = $('#FechaFactura').val();
 
         guardarLocalStorage();
 
+    }
+
+    function crearModelo() {
+
+        setFacturaModel();
+
+        var model = {
+            id: @Model.Id,
+            idCliente: $('#IdCliente').val(),
+            fechaFactura: facturaModel.FechaFactura,
+            fechaCreacion: "@Model.FechaCreacion",
+            fechaVencimiento: "@Model.FechaCreacion.AddDays(30)",
+            idVendedor: $('#IdVendedor').val(),
+            idUsuarioCreador: 1,
+            idMoneda: 1,
+            subTotal: facturaModel.SubTotal.toString().replace(".", ","),
+            subTotalGravado: facturaModel.SubTotalGravado.toString().replace(".", ","),
+            subTotalExcento: facturaModel.SubTotalExcento.toString().replace(".", ","),
+            subTotalGravadoNeto: facturaModel.SubTotalGravadoNeto.toString().replace(".", ","),
+            subTotalExcentoNeto: facturaModel.SubTotalExcentoNeto.toString().replace(".", ","),
+            montoIva: facturaModel.MontoIva.toString().replace(".", ","),
+            montoExoneracion: facturaModel.MontoExoneracion.toString().replace(".", ","),
+            totalDescuento: facturaModel.TotalDescuento.toString().replace(".", ","),
+            total: facturaModel.Total.toString().replace(".", ","),
+            tipoCambioDolar: facturaModel.TipoCambioDolar,
+            tipoCambioEuro: facturaModel.TipoCambioEuro,
+            estado: '@Model.Estado',
+            tipo: facturaModel.Tipo
+        };
+
+        return model;
+    }
+
+    function crearModeloDetalle(model) {
+
+        for (var i = 0; i < model.length; i++) {
+            model[i].cantidad = model[i].cantidad.toString().replace(".", ",");
+            model[i].precio = model[i].precio.toString().replace(".", ",");
+            model[i].subTotal = model[i].subTotal.toString().replace(".", ",");
+            model[i].subTotalGravado = model[i].subTotalGravado.toString().replace(".", ",");
+            model[i].subTotalExcento = model[i].subTotalExcento.toString().replace(".", ",");
+            model[i].subTotalGravadoNeto = model[i].subTotalGravadoNeto.toString().replace(".", ",");
+            model[i].subTotalExcentoNeto = model[i].subTotalExcentoNeto.toString().replace(".", ",");
+            model[i].porcIva = model[i].porcIva.toString().replace(".", ",");
+            model[i].montoIva = model[i].montoIva.toString().replace(".", ",");
+            model[i].porcExoneracion = model[i].porcExoneracion.toString().replace(".", ",");
+            model[i].montoExoneracion = model[i].montoExoneracion.toString().replace(".", ",");
+            model[i].porcDescuento = model[i].porcDescuento.toString().replace(".", ",");
+            model[i].montoDescuento = model[i].montoDescuento.toString().replace(".", ",");
+            model[i].total = model[i].total.toString().replace(".", ",");
+        }
+
+        return model;
     }
 
     function guardarLocalStorage() {
@@ -623,7 +753,7 @@
 
         var borrador = JSON.parse(localStorage.getItem("FacturaBorrador"));
 
-        if (borrador !== null) {
+        if (borrador !== null && borrador.FacturaDetalle.length !== 0 && borrador.Id === "@Model.Id") {
             bootbox.confirm("@Lb["DeseaReanudar"]", function (result) {
 
                 if (result) {
@@ -638,8 +768,10 @@
 
                     $('.selectItems').trigger('change.select2');
 
-                    lineas = borrador.Lineas;
-                    lineasAgregadas = borrador.DetalleFactura;
+                    for (var i = 0; i < borrador.FacturaDetalle.length; i++) {
+                        lineas.push(borrador.FacturaDetalle[i]);
+                    }
+                    lineasActoUp = borrador.FacturaDetalle;
 
                     cargarTabla(lineas);
                     calcularTotales();
@@ -668,11 +800,11 @@
 
 
             var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
-                + '<td >' + data[i].cantidad.toFixed(2) + ' </td>'
+                + '<td >' + parseFloat(data[i].cantidad).toFixed(2) + ' </td>'
                 + '<td >' + getItemPorId(data[i].idInventario).descripcion + '</td>'
                 + '<td style="text-align: right">' + darFomatoMoneda(data[i].precio) + '</td>'
                 + '<td style="text-align: right">' + darFomatoMoneda(data[i].total) + '</td>'
-                + '<td><a style="font-size:1.8rem;" value="' + contadorFila + '" onclick="eliminarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-trash"></i></a> &nbsp;&nbsp; <a style="font-size:1.8rem;" onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-edit"></i></a></td></tr>';
+                + '<td><a href="#" style="font-size:1.8rem;" value="' + contadorFila + '" onclick="eliminarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-trash"></i></a> &nbsp;&nbsp; <a  href="#" style="font-size:1.8rem;" onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-edit"></i></a></td></tr>';
 
             $('#tblFD > tbody').append(body);
 
@@ -717,13 +849,13 @@
 
                  monedas = data;
                  $(".moneda").inputmask('currency', {
-                     prefix: data[0].simbolo + ' ',
+                     prefix: @Model.IdMoneda === 1 ? data[0].simbolo + ' ' : @Model.IdMoneda === 2 ? data[1].simbolo + ' ' : data[2].simbolo + ' ',
                      rightAlign: true,
                      min: 0
                  });
 
                  $('#TipoCambioDolar').val(data[1].valorVenta);
-                 $('#TipoCambioEuro').val(data[1].valorEuro);
+                 $('#TipoCambioEuro').val(data[2].valorVenta);
 
 
               },
@@ -806,11 +938,30 @@
               url: '@Url.Action("GetInventarioFacturable", "Inventario")',
               success: function (data) {
                  items = data;
-                 cargarItems(data);
+                  cargarItems(data);
+                  if (@Model.Id != 0)
+                    getDetalles();
               },
               error: function (err, scnd) {
                   cargarAlert('@Lb["errorGeneral"]');
                   console.log(err.statusText);
+              }
+         });
+    }
+
+    function getDetalles() {
+
+         $.ajax({
+              type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetFacturaDetalle", "Factura")',
+             success: function (data) {
+                 cargarLineas(data);
+
+             },
+             error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
               }
          });
     }
@@ -889,6 +1040,14 @@
         $('#monedaFormatter').val(value);
         return $('#monedaFormatter').val();
 
+    }
+
+    function cancelar() {
+        bootbox.confirm("@Lb["confirmCancelar"]", function (result) {
+            if (result)
+                window.location.href = "@Url.Action("ListarFacturas")";
+
+        });
     }
 
 </script>

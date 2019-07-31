@@ -9,7 +9,7 @@ namespace AltivaWebApp.ViewModels
     {
         public long Id { get; set; }
         public byte Tipo { get; set; }
-        public long FechaFactura { get; set; }
+        public DateTime FechaFactura { get; set; }
         public long IdCliente { get; set; }
         public string Estado { get; set; }
         public byte IdMoneda { get; set; }
@@ -24,6 +24,7 @@ namespace AltivaWebApp.ViewModels
         public double SubTotalGravadoNeto { get; set; }
         public double SubTotalExcentoNeto { get; set; }
         public double MontoIva { get; set; }
+        public double MontoExoneracion { get; set; }
         public double Total { get; set; }
         public DateTime FechaVencimiento { get; set; }
         public double TipoCambioDolar { get; set; }

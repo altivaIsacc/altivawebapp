@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AltivaWebApp.Domains
+namespace AltivaWebApp.Models
 {
     public partial class TbFdFactura
     {
@@ -12,7 +12,7 @@ namespace AltivaWebApp.Domains
 
         public long Id { get; set; }
         public byte Tipo { get; set; }
-        public DateTime FechaFactura { get; set; }
+        public long FechaFactura { get; set; }
         public long IdCliente { get; set; }
         public string Estado { get; set; }
         public byte IdMoneda { get; set; }
@@ -50,7 +50,6 @@ namespace AltivaWebApp.Domains
         public DateTime FechaVencimiento { get; set; }
         public double TipoCambioDolar { get; set; }
         public double TipoCambioEuro { get; set; }
-        public bool EnCola { get; set; }
 
         public virtual TbCrContacto IdClienteNavigation { get; set; }
         public virtual ICollection<TbFdFacturaDetalle> TbFdFacturaDetalle { get; set; }

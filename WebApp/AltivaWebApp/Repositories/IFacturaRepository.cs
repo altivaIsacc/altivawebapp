@@ -8,7 +8,7 @@ namespace AltivaWebApp.Repositories
 {
     public interface IFacturaRepository
     {
-        IList<TbFdFactura> GetAll();
+        IList<TbFdFactura> GetAllFacturas();
         TbFdFactura Save(TbFdFactura Factura);
         TbFdFactura Update(TbFdFactura Factura);
         TbFdFactura GetFacturaById(long id);

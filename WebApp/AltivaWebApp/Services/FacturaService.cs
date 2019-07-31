@@ -18,9 +18,9 @@ namespace AltivaWebApp.Services
             return repository.DeleteFacturaDetalle(domain);
         }
 
-        public IList<TbFdFactura> GetAll()
+        public IList<TbFdFactura> GetAllFacturas()
         {
-            return repository.GetAll();
+            return repository.GetAllFacturas();
         }
 
         public TbFdFactura GetFacturaById(long id)

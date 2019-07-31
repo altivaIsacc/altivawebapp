@@ -38,7 +38,7 @@ namespace AltivaWebApp.Controllers
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["clientes"] = contactoService.GetAllClientes();
 
-            return View("CrearEditarFactura", new FacturaViewModel());
+            return View("CrearEditarFactura", new FacturaViewModel { Estado = "Enviada", FechaFactura = DateTime.Now });
         }
 
         [Route("Editar/{id}")]
@@ -50,20 +50,24 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("CrearEditarFactura")]
-        public IActionResult CrearEditarFactura(FacturaViewModel viewModel)
+        public IActionResult CrearEditarFactura(FacturaViewModel viewModel, IList<FacturaDetalleViewModel> detalle)
         {
             try
             {
+                
                 if(viewModel.Id != 0)
                 {
                     var factura = map.Update(viewModel);
-                    if (viewModel.FacturaDetalle.Count() > 0)
+                    viewModel.FacturaDetalle = detalle;
+                    if (detalle.Count() > 0)
                     {
                         var fd = map.CreateOrUpdateFD(viewModel);
                     }
                 }
                 else
                 {
+                    viewModel.FacturaDetalle = detalle;
+
                     viewModel.IdUsuarioCreador = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     viewModel.FechaCreacion = DateTime.Now;
                     var factura = map.Create(viewModel);
@@ -77,11 +81,24 @@ namespace AltivaWebApp.Controllers
             }
         }
         [HttpGet("GetAllFacturas")]
-        public IActionResult GetAllFacturas(long id)
+        public IActionResult GetAllFacturas()
         {
             try
             {
-                return Ok(service.GetAll());
+                return Ok(service.GetAllFacturas());
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("GetFacturaDetalle/{id}")]
+        public IActionResult GetFacturaDetalle(long id)
+        {
+            try
+            {
+                return Ok(service.GetFacturaDetalleById(id));
             }
             catch (Exception)
             {

@@ -1,22 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AltivaWebApp.Domains
+namespace AltivaWebApp.Models
 {
-    public partial class TbFdFactura
+    public partial class TbFdFacturaDetalle
     {
-        public TbFdFactura()
-        {
-            TbFdFacturaDetalle = new HashSet<TbFdFacturaDetalle>();
-        }
-
         public long Id { get; set; }
-        public byte Tipo { get; set; }
-        public DateTime FechaFactura { get; set; }
-        public long IdCliente { get; set; }
-        public string Estado { get; set; }
-        public byte IdMoneda { get; set; }
-        public long IdVendedor { get; set; }
+        public long IdFactura { get; set; }
+        public long IdInventario { get; set; }
+        public double Cantidad { get; set; }
+        public double PrecioBase { get; set; }
+        public double PrecioDolar { get; set; }
+        public double PrecioEuro { get; set; }
+        public double PorcIva { get; set; }
+        public double PorcDescuento { get; set; }
+        public double PorcExoneracion { get; set; }
         public DateTime FechaCreacion { get; set; }
         public long IdUsuarioCreador { get; set; }
         public double SubTotalBase { get; set; }
@@ -28,31 +26,27 @@ namespace AltivaWebApp.Domains
         public double SubTotalExcentoBase { get; set; }
         public double SubTotalExcentoDolar { get; set; }
         public double SubTotalExcentoEuro { get; set; }
-        public double PorcDescuento { get; set; }
-        public double TotalDescuentoBase { get; set; }
-        public double TotalDescuentoDolar { get; set; }
-        public double TotalDescuentoEuro { get; set; }
         public double SubTotalGravadoNetoBase { get; set; }
         public double SubTotalGravadoNetoDolar { get; set; }
         public double SubTotalGravadoNetoEuro { get; set; }
         public double SubTotalExcentoNetoBase { get; set; }
         public double SubTotalExcentoNetoDolar { get; set; }
         public double SubTotalExcentoNetoEuro { get; set; }
+        public double MontoDescuentoBase { get; set; }
+        public double MontoDescuentoDolar { get; set; }
+        public double MontoDescuentoEuro { get; set; }
         public double MontoIvabase { get; set; }
         public double MontoIvadolar { get; set; }
         public double MontoIvaeuro { get; set; }
-        public double MontoExoneracionBase { get; set; }
         public double MontoExoneracionDolar { get; set; }
+        public double MontoExoneracionBase { get; set; }
         public double MontoExoneracionEuro { get; set; }
         public double TotalBase { get; set; }
         public double TotalDolar { get; set; }
         public double TotalEuro { get; set; }
         public DateTime FechaVencimiento { get; set; }
-        public double TipoCambioDolar { get; set; }
-        public double TipoCambioEuro { get; set; }
-        public bool EnCola { get; set; }
 
-        public virtual TbCrContacto IdClienteNavigation { get; set; }
-        public virtual ICollection<TbFdFacturaDetalle> TbFdFacturaDetalle { get; set; }
+        public virtual TbFdFactura IdFacturaNavigation { get; set; }
+        public virtual TbPrInventario IdInventarioNavigation { get; set; }
     }
 }
