@@ -51,10 +51,10 @@ function generate_cutomPDF(modelo) {
 
     var InitialstartX = 40;
     var startX = 40;
-    var InitialstartY = 50;
     var startY = 0;
     var midY = 5;
 
+    var tempY = 0;
     var lineHeights = 12;
 
     var res = doc.autoTableHtmlToJson(document.getElementById("tblDetalleCotizacion"));
@@ -66,7 +66,12 @@ function generate_cutomPDF(modelo) {
 
     //pdf.addImage(agency_logo.src, 'PNG', logo_sizes.centered_x, _y, logo_sizes.w, logo_sizes.h);
     //  doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
-   doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
+
+    if (company_logo.src!="data:,") {
+        doc.addImage(company_logo.src, 'JPEG', startX, startY += 50, company_logo.w, company_logo.h);
+        tempY += 50;
+
+    }
 
     doc.textAlign(comapnyJSON.nombre, { align: "left" }, startX, startY += 15 + company_logo.h);
     doc.setFontSize(fontSizes.NormalFontSize);
@@ -88,10 +93,10 @@ function generate_cutomPDF(modelo) {
 
 
 
-    var tempY = InitialstartY;
+
 
     doc.setFontType('bold');
-    doc.textAlign(modelo.estadoTitulo, { align: "left" }, rightStartCol1, tempY += lineSpacing.NormalSpacing+50);
+    doc.textAlign(modelo.estadoTitulo, { align: "left" }, rightStartCol1, tempY += 15 + company_logo.h);
     doc.setFontType('normal');
     doc.textAlign(modelo.estado, { align: "left" }, rightStartCol2, tempY);
 
@@ -146,19 +151,19 @@ function generate_cutomPDF(modelo) {
     var _midY = midY;
 
     doc.setFontType('bold');
-    doc.textAlign(modelo.clienteTitulo, { align: "left" }, 150, 179);
+    doc.textAlign(modelo.clienteTitulo, { align: "left" }, 150, startY += lineSpacing.NormalSpacing-34);
     doc.setFontType('normal');
-    doc.textAlign(modelo.cliente, { align: "left" }, 150, 189);
+    doc.textAlign(modelo.cliente, { align: "left" }, 150, startY += lineSpacing.NormalSpacing);
 
     doc.setFontType('bold');
-    doc.textAlign(modelo.usuarioTitulo, { align: "left" }, rightStartCol1 - 10, 179);
+    doc.textAlign(modelo.usuarioTitulo, { align: "left" }, rightStartCol1 - 10, startY += lineSpacing.NormalSpacing - 27);
     doc.setFontType('normal');
-    doc.textAlign(modelo.usuario, { align: "left" }, rightStartCol1 - 10, 189);
+    doc.textAlign(modelo.usuario, { align: "left" }, rightStartCol1 - 10, startY += lineSpacing.NormalSpacing);
 
     doc.setFontType('bold');
-    doc.textAlign(modelo.vendedorTitulo, { align: "left" }, rightStartCol2, 179);
+    doc.textAlign(modelo.vendedorTitulo, { align: "left" }, rightStartCol2, startY += lineSpacing.NormalSpacing - 24);
     doc.setFontType('normal');
-    doc.textAlign(modelo.vendedor, { align: "left" }, rightStartCol2, 189);
+    doc.textAlign(modelo.vendedor, { align: "left" }, rightStartCol2, startY += lineSpacing.NormalSpacing);
 
 
     var header = function (data) {
