@@ -77,28 +77,38 @@ namespace AltivaWebApp.Controllers
             return View("CrearEditarGasto", model);
         }
         [HttpPost("CrearEditar-Gasto")]
-        public ActionResult CrearEditarGasto(CompraServicioViewModel viewModel)
+        public ActionResult CrearEditarGasto(CompraServicioViewModel viewModel, IList<ComprasDetalleServicioViewModel> model2, int estado)
         {
             try
             {
                 
-                if (viewModel.Id != 0)
+                if (viewModel.Id != 0 || model2.Count() >0)
                 {
                     var compra = service.GetCompraByDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento, viewModel.IdProveedor);
                     if (compra == null || compra.Id == viewModel.Id)
                     {
                         long idCD = 0;
-                        var c = map.UpdateGasto(viewModel);
-                        if (viewModel.ComprasDetalleServicio != null && viewModel.ComprasDetalleServicio.Count() > 0)
+                        if(estado == 1)
                         {
-                            var cd = map.CreateCDS(viewModel);
-                            idCD = cd.IdCompraDetalle;
-                           
-                        }
-                       
-                            
+                            if (viewModel.ComprasDetalleServicio != null && viewModel.ComprasDetalleServicio.Count() > 0 && model2.Count() == 0)
+                            {
+                                var c = map.UpdateGasto(viewModel);
+                                var cd = map.CreateCDS(viewModel);
+                                idCD = cd.IdCompraDetalle;
 
-                        return Json(new { success = true, idCD = idCD });
+                            }
+                        }
+                        if(estado == 2)
+                        {
+                            if (model2.Count() > 0)
+                            {
+                                viewModel.ComprasDetalleServicio = model2;
+                                var cds = map.UpdateCDS(viewModel);
+
+                            }
+                        }
+                        
+                             return Json(new { success = true, idCD = idCD });
                     }
                     else
                         return Json(new { success = false });

@@ -96,20 +96,11 @@ namespace AltivaWebApp.Controllers
 
                     }
                     if (model2.Count() > 0)
-                        {
+                    {
                             viewModel.OrdenDetalle = model2;
                             map.UpdateOD(viewModel);
-                        }
-                        
-                       
-
-
-
-
-                    
-                    
-
-                   
+                    }
+                          
                 }
                 else
                 {

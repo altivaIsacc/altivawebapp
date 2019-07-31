@@ -207,9 +207,9 @@ else
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <div class="col-md-6"> <h5 data-translate="EditarOrden" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["editarOrden"]</h5></div>
+                    <div class="col-md-6"> <h5 data-translate="editarOrden" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["editarOrden"]</h5></div>
                  </div>
-                <div class="modal-body" id="editarBodega">
+                <div class="modal-body" id="editar">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -293,9 +293,8 @@ else
  
 
     $(document).ready(function () {
-       getProveedores();
+        getProveedores();
         
-
         var date = new Date();
         if (@Model.Id != 0) {
             $proveedores.val(@Model.IdProveedor);
@@ -337,18 +336,16 @@ else
         $('#item').on('change.select2', function () {
 
             var itemInfo = getItem($(this).val());
-
+            var monto = getPrecioAlCambio(itemInfo);
+            var monto1 = parseFloat(monto.toFixed(2));
+            
             $descripcion.val(itemInfo.descripcion);
-            $precio.val(getPrecioAlCambio(itemInfo));
+            $precio.val(monto1);
             $cantidad.val(1);
             $iva.val(itemInfo.impuestoVenta);
             setSubTotalLinea();
         });
-         $('#cantidad').on('change.select2', function () {
-
-            var itemInfo = getItem($(this).val());
-            nuevoSubTotalLinea();
-        });
+        
         $('textarea[data-limit-rows=true]')
             .on('keypress', function (event) {
                 var textarea = $(this),
@@ -363,6 +360,27 @@ else
 
     });
 
+    $('#editCantidad').on('keyup, change, focusout', function () {
+        if ($(this).val() < 0 || $(this).val() === "")
+            $(this).val(0);
+
+        setSubTotalLinea();
+    });
+
+    $('#editPrecio').on('keyup, change, focusout', function () {
+        if ($(this).val() < 0 || $(this).val() === "")
+            $(this).val(0);
+
+        setSubTotalLinea();
+
+    });
+
+    $('#editDescuento').on('keyup, change, focusout', function () {
+
+        if ($(this).val() < 0 || $(this).val() === "")
+            $(this).val(0)
+
+    });
 
     $cantidad.on('keyup, change, focusout', function () {
         if ($(this).val() < 0 || $(this).val() === "")
@@ -415,7 +433,7 @@ else
 
                $('#editId').val(arreglo[i].idInventario);
                $('#editCantidad').val(arreglo[i].cantidad);
-               $('#editPrecio').val(arreglo[i].precio);
+               $('#editPrecio').val(parseFloat((arreglo[i].precio).toFixed(2)));
                $('#editDescuento').val(arreglo[i].porcDesc);
                $('#editIva').val(arreglo[i].porcIva);
                editDescuento = $('#editDescuento').val();
@@ -454,7 +472,6 @@ else
                if (lineas[i].idInventario == $('#editId').val() &&
                    lineas[i].precio == editPrecio && lineas[i].porcDesc == editDescuento) {
                    setSubTotalLinea();
-
                    lineas[i].cantidad = parseFloat($("#editCantidad").val());
                    lineas[i].precio = parseFloat($('#editPrecio').val());
                    lineas[i].subTotalGrabado = calcularSubtotalGrabadoLinea();
@@ -476,53 +493,7 @@ else
            $('#modalEditarOrden').modal('hide');
        }
    }
-    //recalcular linea
-    function nuevoSubTotalLinea() {
-        var precio = parseFloat($('#editPrecio').val());
-        var cantidad = parseFloat($('#editCantidad').val());
-        $nSubTotal.val(cantidad * precio);
-
-    }
-      function recalcularSubtotalGrabadoLinea() {
-          var iva = parseFloat($('#editIva').val());
-          if (iva > 0)
-          {
-            return parseFloat($nSubTotal.val()) ;
-          }
-        else
-            return 0;
-    }
-    function recalcularSubtotalExcentoLinea() {
-      
-        var iva = parseFloat( $('#editIva').val());
-  if (iva === 0)
-      return parseFloat($nSubTotal.val()) ;
-        else
-            return 0;
-    }
-     function recalcularSubtotalNetoLinea() {
-         return parseFloat($nSubTotal.val()) - recalcularTotalDescuentoLinea();
-
-    }
-    function recalcularTotalIvaLinea() {
-        var iva = parseFloat($('#editIva').val());
-
-        var subTotal = parseFloat($nSubTotal.val()) - recalcularTotalDescuentoLinea();
-        return (iva / 100) * subTotal;
-    }
-
-    function recalcularTotalDescuentoLinea() {
-        var desc = parseFloat($('#editDescuento').val());
-        var subTotal = parseFloat($nSubTotal.val());
-        return (desc / 100) * subTotal;
-
-    }
-    function recalcularTotalLinea() {
-
-        return recalcularSubtotalNetoLinea() + recalcularTotalIvaLinea();
-
-    }
-    
+   
     ///calculos de línea
     function setSubTotalLinea() {
         if ($('#modalEditarOrden').hasClass('in')) {
@@ -663,9 +634,16 @@ else
     }
     function guardarLinea() {
         var existe =true;
-        if ($cantidad.val() == 0) {
-            bootbox.alert("@SharedLocalizer["AlertCompraCantidad"]", function () { });
-        } else
+        if ($cantidad.val() <= 0) {
+            cargarAlert('@SharedLocalizer["AlertCompraCantidad"]');
+            return;
+        }
+        if ($precio.val() <= 0) {
+            cargarAlert('@SharedLocalizer["AlertCompraPrecio"]');
+            return;
+
+        }
+        else
         {
           for (var i = 0; i < lineas.length; i++)
           {
