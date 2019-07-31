@@ -38,10 +38,26 @@ namespace AltivaWebApp.Mappers
 
         public IList<TbFdFacturaDetalle> CreateOrUpdateFD(FacturaViewModel viewModel)
         {
-            if(viewModel.FacturaDetalle[0].Id != 0)
-                return service.UpdateFacturaDetalle(ViewModelToDomainFD(viewModel));
-            else
-                return service.SaveFacturaDetalle(ViewModelToDomainFD(viewModel));
+            var update = new List<FacturaDetalleViewModel>();
+            var insert = new List<FacturaDetalleViewModel>();
+
+            foreach (var item in viewModel.FacturaDetalle)
+            {
+                if(item.Id == 0)
+                {
+                    insert.Add(item);
+                }
+                else
+                {
+                    update.Add(item);
+                }
+            }
+
+            viewModel.FacturaDetalle = update;
+            service.UpdateFacturaDetalle(ViewModelToDomainFD(viewModel));
+
+            viewModel.FacturaDetalle = insert;
+            return service.SaveFacturaDetalle(ViewModelToDomainFD(viewModel));
         }
 
         public TbFdFactura ViewModelToDomain(FacturaViewModel viewModel)
@@ -63,7 +79,7 @@ namespace AltivaWebApp.Mappers
                 PorcDescuento = viewModel.PorcDescuento,
                 Tipo = viewModel.Tipo,
                 
-                TbFdFacturaDetalle = ViewModelToDomainFD(viewModel)
+                TbFdFacturaDetalle = viewModel.FacturaDetalle != null ? ViewModelToDomainFD(viewModel) : null
             };
 
             if (viewModel.IdMoneda == 1)
@@ -92,6 +108,10 @@ namespace AltivaWebApp.Mappers
                 domain.MontoIvabase = viewModel.MontoIva;
                 domain.MontoIvadolar = domain.MontoIvabase / domain.TipoCambioDolar;
                 domain.MontoIvaeuro = domain.MontoIvabase / domain.TipoCambioEuro;
+
+                domain.MontoExoneracionBase = viewModel.MontoExoneracion;
+                domain.MontoExoneracionDolar = domain.MontoExoneracionBase / domain.TipoCambioDolar;
+                domain.MontoExoneracionEuro = domain.MontoExoneracionBase / domain.TipoCambioEuro;
 
                 domain.TotalBase = viewModel.Total;
                 domain.TotalDolar = domain.TotalBase / domain.TipoCambioDolar;
@@ -129,6 +149,10 @@ namespace AltivaWebApp.Mappers
                 domain.MontoIvadolar = viewModel.MontoIva;
                 domain.MontoIvaeuro = domain.MontoIvabase / domain.TipoCambioEuro;
 
+                domain.MontoExoneracionBase = viewModel.MontoExoneracion * domain.TipoCambioDolar;
+                domain.MontoExoneracionDolar = viewModel.MontoExoneracion;
+                domain.MontoExoneracionEuro = domain.MontoExoneracionBase / domain.TipoCambioEuro;
+
                 domain.TotalBase = viewModel.Total * domain.TipoCambioDolar;
                 domain.TotalDolar = viewModel.Total;
                 domain.TotalEuro = domain.TotalBase / domain.TipoCambioEuro;
@@ -164,6 +188,10 @@ namespace AltivaWebApp.Mappers
                 domain.MontoIvabase = viewModel.MontoIva * domain.TipoCambioEuro;
                 domain.MontoIvadolar = domain.MontoIvabase / domain.TipoCambioDolar;
                 domain.MontoIvaeuro = viewModel.MontoIva;
+
+                domain.TotalBase = viewModel.MontoExoneracion * domain.TipoCambioEuro;
+                domain.TotalDolar = domain.MontoExoneracionBase / domain.TipoCambioDolar;
+                domain.TotalEuro = viewModel.MontoExoneracion;
 
                 domain.TotalBase = viewModel.Total * domain.TipoCambioEuro;
                 domain.TotalDolar = domain.TotalBase / domain.TipoCambioDolar;
@@ -204,6 +232,7 @@ namespace AltivaWebApp.Mappers
                 viewModel.SubTotalGravado = domain.SubTotalGravadoBase;
                 viewModel.Total = domain.TotalBase;
                 viewModel.MontoIva = domain.MontoIvabase;
+                viewModel.MontoExoneracion = domain.MontoExoneracionBase;
                 viewModel.TotalDescuento = domain.TotalDescuentoBase;
                 viewModel.SubTotalExcentoNeto = domain.SubTotalExcentoNetoBase;
                 viewModel.SubTotalGravadoNeto = domain.SubTotalGravadoNetoBase;
@@ -215,6 +244,7 @@ namespace AltivaWebApp.Mappers
                 viewModel.SubTotalGravado = domain.SubTotalGravadoDolar;
                 viewModel.Total = domain.TotalDolar;
                 viewModel.MontoIva = domain.MontoIvadolar;
+                viewModel.MontoExoneracion = domain.MontoExoneracionDolar;
                 viewModel.TotalDescuento = domain.TotalDescuentoDolar;
                 viewModel.SubTotalExcentoNeto = domain.SubTotalExcentoNetoDolar;
                 viewModel.SubTotalGravadoNeto = domain.SubTotalGravadoNetoDolar;
@@ -226,6 +256,7 @@ namespace AltivaWebApp.Mappers
                 viewModel.SubTotalGravado = domain.SubTotalGravadoEuro;
                 viewModel.Total = domain.TotalEuro;
                 viewModel.MontoIva = domain.MontoIvaeuro;
+                viewModel.MontoExoneracion = domain.MontoExoneracionEuro;
                 viewModel.TotalDescuento = domain.TotalDescuentoEuro;
                 viewModel.SubTotalExcentoNeto = domain.SubTotalExcentoNetoEuro;
                 viewModel.SubTotalGravadoNeto = domain.SubTotalGravadoNetoEuro;

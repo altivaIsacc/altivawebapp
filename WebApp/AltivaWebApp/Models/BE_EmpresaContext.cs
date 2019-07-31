@@ -205,9 +205,9 @@ namespace AltivaWebApp.Models
         // Unable to generate entity type for table 'dbo.Tmp_tb_PR_Requisicion'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomaticaDetalle'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_NotaDebitoAjusteSaldoMenor'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -2675,9 +2675,9 @@ namespace AltivaWebApp.Models
 
                 entity.Property(e => e.Tipo).HasDefaultValueSql("((1))");
 
-                entity.HasOne(d => d.IdVendedorNavigation)
+                entity.HasOne(d => d.IdClienteNavigation)
                     .WithMany(p => p.TbFdFactura)
-                    .HasForeignKey(d => d.IdVendedor)
+                    .HasForeignKey(d => d.IdCliente)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_FD_Factura_tb_CR_Contacto");
             });
@@ -2699,6 +2699,8 @@ namespace AltivaWebApp.Models
                 entity.Property(e => e.MontoIvadolar).HasColumnName("MontoIVADolar");
 
                 entity.Property(e => e.MontoIvaeuro).HasColumnName("MontoIVAEuro");
+
+                entity.Property(e => e.PorcIva).HasColumnName("PorcIVA");
 
                 entity.HasOne(d => d.IdFacturaNavigation)
                     .WithMany(p => p.TbFdFacturaDetalle)

@@ -12,7 +12,7 @@ namespace AltivaWebApp.Domains
 
         public long Id { get; set; }
         public byte Tipo { get; set; }
-        public long FechaFactura { get; set; }
+        public DateTime FechaFactura { get; set; }
         public long IdCliente { get; set; }
         public string Estado { get; set; }
         public byte IdMoneda { get; set; }
@@ -41,6 +41,9 @@ namespace AltivaWebApp.Domains
         public double MontoIvabase { get; set; }
         public double MontoIvadolar { get; set; }
         public double MontoIvaeuro { get; set; }
+        public double MontoExoneracionBase { get; set; }
+        public double MontoExoneracionDolar { get; set; }
+        public double MontoExoneracionEuro { get; set; }
         public double TotalBase { get; set; }
         public double TotalDolar { get; set; }
         public double TotalEuro { get; set; }
@@ -48,7 +51,7 @@ namespace AltivaWebApp.Domains
         public double TipoCambioDolar { get; set; }
         public double TipoCambioEuro { get; set; }
 
-        public virtual TbCrContacto IdVendedorNavigation { get; set; }
+        public virtual TbCrContacto IdClienteNavigation { get; set; }
         public virtual ICollection<TbFdFacturaDetalle> TbFdFacturaDetalle { get; set; }
     }
 }

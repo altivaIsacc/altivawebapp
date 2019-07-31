@@ -1,5 +1,6 @@
 ﻿using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,18 @@ namespace AltivaWebApp.Repositories
         public FacturaRepository(EmpresasContext context):base(context)
         {
 
+        }
+
+        public IList<TbFdFactura> GetAllFacturas()
+        {
+            var facturas = context.TbFdFactura.Include(c => c.IdClienteNavigation).ToList();
+
+            foreach (var item in facturas)
+            {
+                item.IdClienteNavigation.TbFdFactura = null;
+            }
+
+            return facturas;
         }
 
         public TbFdFactura GetFacturaById(long id)

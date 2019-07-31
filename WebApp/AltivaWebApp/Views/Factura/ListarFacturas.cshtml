@@ -36,9 +36,6 @@
                 <th>
                     @Lb["Estado"]
                 </th>
-                <th>
-                    @Lb["Vendedor"]
-                </th>
 
                 <th>@Lb["Acción"]</th>
             </tr>
@@ -46,3 +43,93 @@
         <tbody></tbody>
     </table>
 </div>
+
+<script>
+
+    var facturas = [];
+
+    $(function () {
+
+        getFacuras();
+
+    });
+
+    function getFacuras() {
+            ///get Compras
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetAllFacturas", "Factura")',
+            success: function (data) {
+                console.log(data);
+                facturas = JSON.parse(JSON.stringify(data));
+                cargarFiltros();
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+    function cargarDatos(data) {
+       
+        $("#tblFacturas > tbody").remove();
+        $('#tblFacturas').append('<tbody></tbody>');
+
+        var contadorFila = 0;
+
+        for (var i = 0; i < data.length; i++) {
+
+
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td><a href="' + "@Url.Action("EditarFactura", new { id = "__id__" })".replace("__id__", data[i].id) + '" >' + data[i].id + '</a></td>'
+                + '<td><p>' + getTipo(data[i].tipo) + '</p></td>'
+                + '<td><p>' + recuperarFecha(data[i].fechaFactura) + '</p></td>'
+                + '<td><p>' + getNombreContacto(data[i].idClienteNavigation) + '</p></td>'
+                + '<td><p>' + data[i].estado + '</p></td>'
+                + '<td><a href="' + "@Url.Action("EditarFactura", new { id = "__id__" })".replace("__id__", data[i].id) + '" style="font-size:1.8rem;" onclick="editarFactura(' + data[i].id + ')" ><i class="fas fa-edit"></i></a></td></tr>';
+            $('#tblFacturas > tbody').append(body);
+            contadorFila++;
+        }
+
+
+
+        //inicializarTabla();
+
+    }
+    function cargarFiltros() {
+
+        facturasFiltrado = facturas;//JSON.parse(JSON.stringify(ordenes));
+
+        //facturasFiltrado = filtroAnuladas(comprasFiltrado);
+
+        //facturasFiltrado = filtroFecha(comprasFiltrado, desde, hasta);
+
+        cargarDatos(facturasFiltrado);
+
+    }
+    function getTipo(tipo) {
+        if (tipo === 1)
+            return "@Lb["Contado"]";
+        else
+            return "@Lb["Crédito"]";
+    }
+
+    function getNombreContacto(data) {
+
+        if (data.empresa)
+            return data.nombreComercial;
+        else
+            return data.nombre + ' ' + data.apellidos;
+
+    }
+    function recuperarFecha(_fecha) {
+
+
+        var f = new Date(_fecha);
+        return f.toLocaleString();
+
+    }
+
+</script>

@@ -35,9 +35,15 @@ namespace AltivaWebApp.Models
         public double SubTotalGravadoNetoBase { get; set; }
         public double SubTotalGravadoNetoDolar { get; set; }
         public double SubTotalGravadoNetoEuro { get; set; }
+        public double SubTotalExcentoNetoBase { get; set; }
+        public double SubTotalExcentoNetoDolar { get; set; }
+        public double SubTotalExcentoNetoEuro { get; set; }
         public double MontoIvabase { get; set; }
         public double MontoIvadolar { get; set; }
         public double MontoIvaeuro { get; set; }
+        public double MontoExoneracionBase { get; set; }
+        public double MontoExoneracionDolar { get; set; }
+        public double MontoExoneracionEuro { get; set; }
         public double TotalBase { get; set; }
         public double TotalDolar { get; set; }
         public double TotalEuro { get; set; }
@@ -45,7 +51,7 @@ namespace AltivaWebApp.Models
         public double TipoCambioDolar { get; set; }
         public double TipoCambioEuro { get; set; }
 
-        public virtual TbCrContacto IdVendedorNavigation { get; set; }
+        public virtual TbCrContacto IdClienteNavigation { get; set; }
         public virtual ICollection<TbFdFacturaDetalle> TbFdFacturaDetalle { get; set; }
     }
 }

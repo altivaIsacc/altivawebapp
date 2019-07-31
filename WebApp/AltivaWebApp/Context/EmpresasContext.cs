@@ -26,9 +26,9 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbCeCanton> TbCeCanton { get; set; }
         public virtual DbSet<TbCeCodigosReferencia> TbCeCodigosReferencia { get; set; }
         public virtual DbSet<TbCeCofiguracion> TbCeCofiguracion { get; set; }
+        public virtual DbSet<TbCeColaAprobacion> TbCeColaAprobacion { get; set; }
         public virtual DbSet<TbCeComprobantesEnviados> TbCeComprobantesEnviados { get; set; }
         public virtual DbSet<TbCeConsecutivoProvisionalHa> TbCeConsecutivoProvisionalHa { get; set; }
-        public virtual DbSet<TbCeColaAprobacion> TbCeColaAprobacion { get; set; }
         public virtual DbSet<TbCeDistrito> TbCeDistrito { get; set; }
         public virtual DbSet<TbCeProvincias> TbCeProvincias { get; set; }
         public virtual DbSet<TbCeSucursal> TbCeSucursal { get; set; }
@@ -59,6 +59,12 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbCrContactoRelacion> TbCrContactoRelacion { get; set; }
         public virtual DbSet<TbCrContactosCamposPersonalizados> TbCrContactosCamposPersonalizados { get; set; }
         public virtual DbSet<TbCrListaDesplegables> TbCrListaDesplegables { get; set; }
+        //public virtual DbSet<TbFaDescuentoProducto> TbFaDescuentoProducto { get; set; }
+        //public virtual DbSet<TbFaDescuentoUsuario> TbFaDescuentoUsuario { get; set; }
+        //public virtual DbSet<TbFaDescuentoUsuarioClave> TbFaDescuentoUsuarioClave { get; set; }
+        //public virtual DbSet<TbFaDescuentoUsuarioRango> TbFaDescuentoUsuarioRango { get; set; }
+        //public virtual DbSet<TbFaPromocionProducto> TbFaPromocionProducto { get; set; }
+        //public virtual DbSet<TbFaRebajaConfig> TbFaRebajaConfig { get; set; }
         public virtual DbSet<TbFdAjusteSaldoMenor> TbFdAjusteSaldoMenor { get; set; }
         public virtual DbSet<TbFdAperturaCaja> TbFdAperturaCaja { get; set; }
         public virtual DbSet<TbFdArchivosAdjuntos> TbFdArchivosAdjuntos { get; set; }
@@ -196,19 +202,12 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbSeConfiguracion> TbSeConfiguracion { get; set; }
         public virtual DbSet<TbSePuntoVenta> TbSePuntoVenta { get; set; }
 
-        // Unable to generate entity type for table 'dbo.tb_FD_NotaCreditoAjusteSaldoMenor'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomaticaDetalle'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_NotaDebitoAjusteSaldoMenor'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_AmadeLlave'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_CuentaEnCasaNotaCredito'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
+                //StringFactory.StringGE
                 optionsBuilder.UseSqlServer(StringProvider.StringEmpresas);
             }
         }
@@ -2670,9 +2669,9 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.Tipo).HasDefaultValueSql("((1))");
 
-                entity.HasOne(d => d.IdVendedorNavigation)
+                entity.HasOne(d => d.IdClienteNavigation)
                     .WithMany(p => p.TbFdFactura)
-                    .HasForeignKey(d => d.IdVendedor)
+                    .HasForeignKey(d => d.IdCliente)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_FD_Factura_tb_CR_Contacto");
             });
@@ -2694,6 +2693,8 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.MontoIvadolar).HasColumnName("MontoIVADolar");
 
                 entity.Property(e => e.MontoIvaeuro).HasColumnName("MontoIVAEuro");
+
+                entity.Property(e => e.PorcIva).HasColumnName("PorcIVA");
 
                 entity.HasOne(d => d.IdFacturaNavigation)
                     .WithMany(p => p.TbFdFacturaDetalle)
