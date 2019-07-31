@@ -13,7 +13,7 @@ namespace AltivaWebApp.Services
             this.repository = repository;
         }
 
-        public bool DeleteFacturaDetalle(IList<TbFdFacturaDetalle> domain)
+        public bool DeleteFacturaDetalle(IList<long> domain)
         {
             return repository.DeleteFacturaDetalle(domain);
         }
