@@ -9,7 +9,6 @@
 }
 
 @{
-    var monedas = ViewData["monedas"] as IList<TbSeMoneda>;
     var estado = "";
     var estado2 = "";
     var usuario = ViewData["usuario"] as TbSeUsuario;
@@ -250,6 +249,7 @@ else
                     </button>
                     <div class="row">
                         <input id="editId" type="hidden" class="form-control" />
+                        <input id="editArticulo" type="hidden" class="form-control" />
                         <input id="nSubTotal" type="hidden" class="form-control" />
 
                         <div class="form-group col-sm-7">
@@ -270,7 +270,7 @@ else
                         </div>
                         <div class="form-group col-sm-7">
 
-                            <button id="btnEditOrden" onclick="editOrden()" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
+                            <button id="btnEditGasto" onclick="editarGasto()" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
 
                             <button class="btn btn-default" data-dismiss="modal"><span>@SharedLocalizer["Cancelar"]</span></button>
 
@@ -330,6 +330,11 @@ else
     var totalImpuesto = 0;
     var totalCompra = 0;
     var idCDS = 0;
+    var editDescuento = 0;
+    var editPrecio = 0;
+    var editIva = 0;
+    var editArticulo = 0;
+    var idTemporal = 0;
 
     var compraDetalleBD = [];
     var lineas = [];
@@ -482,7 +487,6 @@ else
               success: function (data) {
 
                  monedas = data;
-                  console.log(monedas);
                  for (var i = 0; i < data.length; i++) {
                      var o = new Option(data[i].nombre, data[i].codigo);
                     $(".tipoMoneda").append(o);
@@ -563,7 +567,51 @@ else
     }
 
    function guardarCompra(salir) {
-        var model = crearModelo();
+       var model = crearModelo();
+       lineasActualizadas = [];
+        if (lineasAgregadas.length === 0)
+            model.enCola = $('#enCola').prop('checked');
+        $.ajax({
+              type: "POST",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("CrearEditarGasto")',
+            data: { viewModel: crearModelo(), model2: lineasActualizadas, estado: 1 },
+            success: function (data) {
+
+                if (data.success) {
+                    if (salir)
+                   window.location.href = "@Url.Action("ListarGastos")";
+
+                    lineas[lineas.length - 1].IdCompra = data.idCD;
+                    idTemporal = data.idCD;
+                    lineasAgregadas=[];
+                    cargarTabla(lineas);
+                    if (@Model.Id === 0) {
+                         var url = "@Url.Action("EditarGasto", new { id = "__id__" })";
+                        window.location.href = url.replace("__id__", data.idCompra);
+                    }
+                    
+                }
+                else {
+                    cargarAlert("@SharedLocalizer["numCompraRepitida"]");
+                    eliminarLinea(lineas.length -1);
+                }
+
+
+
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+
+    }
+     function modificarGasto() {
+       // var model = crearModelo();
 
         if (lineasAgregadas.length === 0)
             model.enCola = $('#enCola').prop('checked');
@@ -574,21 +622,12 @@ else
               },
               dataType: "json",
             url: '@Url.Action("CrearEditarGasto")',
-            data: { viewModel: crearModelo(), model2: lineasActualizadas },
+            data: { viewModel: crearModelo(), model2: lineasActualizadas, estado: 2 },
             success: function (data) {
 
                 if (data.success) {
-                    if (salir)
-                   window.location.href = "@Url.Action("ListarGastos")";
-
-                    lineas[lineas.length - 1].IdCompra = data.idCD;
-                    lineasAgregadas=[];
-                    cargarTabla(lineas);
-                    if (@Model.Id === 0) {
-                         var url = "@Url.Action("EditarGasto", new { id = "__id__" })";
-                        window.location.href = url.replace("__id__", data.idCompra);
-                    }
-                    
+                    lineasActualizadas = [];
+                    cargarTabla(lineas);  
                 }
                 else {
                     cargarAlert("@SharedLocalizer["numCompraRepitida"]");
@@ -718,23 +757,24 @@ else
     ////helpers////////////////////////////////////////////////////////////////////////////////////
    function cargarModalEditar(j)
    {
-       var arreglo = [];
-       if (@Model.Id  === 0)
-           arreglo = lineasAgregadas;
-       else
-           arreglo = lineas;
+      
        $('#modalEditar').modal('show');
-       for (var i = 0; i < arreglo.length; i++) {
-           if (arreglo[i].articulo == arreglo[j].articulo && arreglo[i].PrecioUnidad == arreglo[j].PrecioUnidad && arreglo[i].porcDescuento == arreglo[j].porcDescuento
-               && arreglo[i].PorcIVA == arreglo[j].PorcIVA && arreglo[i].IdCategoriaGasto == arreglo[j].IdCategoriaGasto) {
-
-               $('#editId').val(arreglo[i].articulo);
-               $('#editCantidad').val(arreglo[i].cantidad);
-               $('#editPrecio').val(parseFloat((arreglo[i].PrecioUnidad).toFixed(2)));
-               $('#editDescuento').val(arreglo[i].porcDescuento);
-               $('#editIva').val(arreglo[i].PorcIVA);
+       for (var i = 0; i < lineas.length; i++) {
+           if (lineas[i].articulo == lineas[j].articulo && lineas[i].PrecioUnidad == lineas[j].PrecioUnidad && lineas[i].porcDescuento == lineas[j].porcDescuento
+               && lineas[i].PorcIVA == lineas[j].PorcIVA && lineas[i].IdCategoriaGasto == lineas[j].IdCategoriaGasto)
+           {
+               $('#editId').val(parseFloat(lineas[i].IdCompraDetalle));
+               $('#editArticulo').val(lineas[i].articulo);
+               $('#editCantidad').val(lineas[i].cantidad);
+               $('#editPrecio').val(parseFloat(lineas[i].PrecioUnidad));
+               $('#editDescuento').val(lineas[i].porcDescuento);
+               $('#editIva').val(lineas[i].PorcIVA);
                editDescuento = $('#editDescuento').val();
                editPrecio = $('#editPrecio').val();
+               editIva = $('#editIva').val();
+               editArticulo = $('#editArticulo').val();
+               
+               
                
                
 
@@ -743,35 +783,39 @@ else
 
     }
 
-     function editOrden()
+     function editarGasto()
    {
            for (var i = 0; i < lineas.length; i++) {
-               if (lineas[i].idInventario == $('#editId').val() &&
-                   lineas[i].precio == editPrecio && lineas[i].porcDesc == editDescuento) {
+               if (lineas[i].articulo == $('#editArticulo').val() &&
+                   lineas[i].PrecioUnidad == editPrecio && lineas[i].porcDescuento == editDescuento && lineas[i].PorcIVA == editIva ) {
                    setSubTotalLinea();
+                   if (parseFloat($("#editId").val()) == 0)
+                       lineas[i].IdCompraDetalle = parseFloat(idTemporal);
+                   else
+                       lineas[i].IdCompraDetalle = parseFloat($("#editId").val());
 
+                   lineas[i].IdCompra= @Model.Id;
                    lineas[i].cantidad = parseFloat($("#editCantidad").val());
                    lineas[i].PrecioUnidad = parseFloat($('#editPrecio').val());
                    lineas[i].subTotalGrabado = calcularSubtotalGrabadoLinea();
                    lineas[i].subTotalExcento = calcularSubtotalExcentoLinea();
-                   lineas[i].subTotalNeto = calcularSubtotalNetoLinea();
                    lineas[i].subTotalGravadoNeto= calcularSubtotalGrabadoNetoLinea();
                    lineas[i].subTotalExcentoNeto= calcularSubtotalExcentoNetoLinea();
-                   PorcIVA = parseFloat($("#editIva").val()); 
+                   lineas[i].PorcIVA = parseFloat($("#editIva").val()); 
                    lineas[i].porcIs = 0;
                    lineas[i].totalIs = 0;
                    lineas[i].porcDescuento = parseFloat($('#editDescuento').val());
                    lineas[i].totalDescuento = calcularTotalDescuentoLinea();
                    lineas[i].totalIva = calcularTotalIvaLinea();
                    lineas[i].total = calcularTotalLinea();
-                   if (@Model.Id!= 0)
-                       lineasActualizadas.push(lineas[i]);
+                   lineasActualizadas.push(lineas[i]);
+                   modificarGasto();
 
                }
            
 
-           }
-           cargarTabla(lineas);
+         }
+         
            $('#modalEditar').modal('hide');
        
    }
@@ -879,7 +923,7 @@ else
 
         for (var i = 0; i < data.length; i++) {
             var model = {
-                IdCompraDetalle: data[i].IdCompraDetalle,
+                IdCompraDetalle: data[i].idCompraDetalle,
                 IdCompra: @Model.Id,
                 IdCategoriaGasto: data[i].idCategoriaGasto,
                 articulo: data[i].articulo,
@@ -1004,6 +1048,8 @@ else
     }
 
     function cargarTabla(data) {
+                 getMonedas();
+
         $('.filasCargadas').remove();
         contadorFila = 0;
         var subtotal = 0;
@@ -1030,6 +1076,7 @@ else
             contadorFila++;
 
         }
+
         //data[i].PrecioUnidad)
         calcularTotales();
         var simbolo = monedas[0].simbolo + " ";
@@ -1117,17 +1164,24 @@ else
     //////calculos de linea/////////////////////////////////////////////////////////////////////
 
     function setSubTotalLinea() {
-
-        var precio = parseFloat($precio.val());
-        var cantidad = parseFloat($cantidad.val());
+        if ($('#modalEditar').hasClass('in')) {
+            var precio = parseFloat($('#editPrecio').val());
+            var cantidad = parseFloat($('#editCantidad').val());
+        } else {
+            var precio = parseFloat($precio.val());
+            var cantidad = parseFloat($cantidad.val());
+        }
 
         $subTotalLinea.val(cantidad * precio);
 
     }
 
     function calcularSubtotalGrabadoLinea() {
+        if ($('#modalEditar').hasClass('in')) {
+            var iva = parseFloat($('#editIva').val());
+        } else
+            var iva = parseFloat($iva.val());
 
-        var iva = parseFloat($iva.val());
         if (iva > 0)
             return parseFloat($subTotalLinea.val());
         else
@@ -1135,7 +1189,11 @@ else
     }
 
     function calcularSubtotalExcentoLinea() {
-        var iva = parseFloat($iva.val());
+         if ($('#modalEditar').hasClass('in')) {
+            var iva = parseFloat($('#editIva').val());
+        } else
+            var iva = parseFloat($iva.val());
+
         if (iva === 0)
             return parseFloat($subTotalLinea.val());
         else
@@ -1165,14 +1223,21 @@ else
 
 
     function calcularTotalIvaLinea() {
-        var iva = parseFloat($iva.val());
+         if ($('#modalEditar').hasClass('in')) {
+            var iva = parseFloat($('#editIva').val());
+        } else
+            var iva = parseFloat($iva.val());
+
         var subTotal = parseFloat($subTotalLinea.val()) - calcularTotalDescuentoLinea();
         return (iva / 100) * subTotal;
     }
 
     function calcularTotalDescuentoLinea() {
+         if ($('#modalEditar').hasClass('in')) {
+            var desc = parseFloat($('#editDescuento').val());
+        } else
+            var desc = parseFloat($descuento.val());
 
-        var desc = parseFloat($descuento.val());
         var subTotal = parseFloat($subTotalLinea.val());
         return (desc / 100) * subTotal;
 
