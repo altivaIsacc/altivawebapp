@@ -11,160 +11,187 @@ namespace AltivaWebApp.Services
     public class ContactoService : IContactoService
     {
 
-        public IContactoRepository ContactoRepository;
-        public IContactoRelacionRepository IContactoRelacionRepository;
-        public ICondicionesDePagoRepository ICondicionesDePagoRepository;
-        public ICuentasBancariasRepository ICuentasBancariasRepository;
+        public IContactoRepository repository;
+        public IContactoRelacionRepository crRepository;
+        public ICondicionesDePagoRepository cpRepository;
+        public ICuentasBancariasRepository cbRepository;
         public ContactoService(ICondicionesDePagoRepository ICondicionesDePagoRepository,ICuentasBancariasRepository ICuentasBancariasRepository,IContactoRepository ContactoRepository, IContactoRelacionRepository IContactoRelacionRepository)
         {
-            this.ICondicionesDePagoRepository = ICondicionesDePagoRepository;
-            this.ICuentasBancariasRepository = ICuentasBancariasRepository;
-            this.ContactoRepository = ContactoRepository;
-            this.IContactoRelacionRepository = IContactoRelacionRepository;
+            this.cpRepository = ICondicionesDePagoRepository;
+            this.cbRepository = ICuentasBancariasRepository;
+            this.repository = ContactoRepository;
+            this.crRepository = IContactoRelacionRepository;
         }
 
-        public TbFdCondicionesDePago AgregarCondicion(TbFdCondicionesDePago domain)
+        public IList<TbFdCondicionesDePago> CreateOrUpdateCondicionPago(IList<TbFdCondicionesDePago> domain)
         {
-            return this.ICondicionesDePagoRepository.Save(domain);
-        }
-
-        public TbFdCuentasBancarias AgregarCuentas(TbFdCuentasBancarias domain)
-        {
-            return this.ICuentasBancariasRepository.Save(domain);
+            return this.cpRepository.CreateOrUpdate(domain);
         }
 
         public TbFdCuentasBancarias AgregarCuentasBancarias(TbFdCuentasBancarias domain)
         {
-            return this.ICuentasBancariasRepository.Save(domain);
+            return this.cbRepository.Save(domain);
         }
 
         public bool DeleteCuentasBancarias(TbFdCuentasBancarias domain)
         {
-            return this.ICuentasBancariasRepository.Delete(domain);
+            return this.cbRepository.Delete(domain);
         }
 
-        public TbCrContacto Edit(TbCrContacto domain)
+        public TbCrContacto Update(TbCrContacto domain)
         {
-            return this.ContactoRepository.Update(domain);
+            return this.repository.Update(domain);
         }
 
         public TbFdCondicionesDePago EditarCondicion(TbFdCondicionesDePago domain)
         {
-            return this.ICondicionesDePagoRepository.Update(domain);
+            return this.cpRepository.Update(domain);
         }
 
-        public TbFdCuentasBancarias EditarCuentas(TbFdCuentasBancarias domain)
+        public TbFdCuentasBancarias EditarCuentasBancarias(TbFdCuentasBancarias domain)
         {
-            return this.ICuentasBancariasRepository.Update(domain);
+            return this.cbRepository.Update(domain);
         }
+
+       
+
         public IList<TbCrContacto> GetAllProveedores()
         {
-            return ContactoRepository.GetAllProveedores();
+            return repository.GetAllProveedores();
         }
 
-        public TbCrContactoRelacion EditarRelacion(EditarRelacionContactoViewModel domain)
-        {
-            return this.IContactoRelacionRepository.Update(viewModelEditarRelacion(domain));
-        }
 
         public IList<TbCrContacto> GetAll()
         {
-            return this.ContactoRepository.GetAll();
+            return this.repository.GetAll();
         }
 
+        public IList<TbCrContactoRelacion> GetContactoRelacion(int id)
+        {
+            return repository.GetContactosRelacion(id);
+        }
 
         public IList<TbCrContacto> GetAllEmpresas()
         {
-            return this.ContactoRepository.GetAllEmpresas();
+            return this.repository.GetAllEmpresas();
         }
 
         public IList<TbCrContacto> GetAllPersonas()
         {
-            return this.ContactoRepository.GetAllPersonas();
+            return this.repository.GetAllPersonas();
         }
 
+   
         public TbCrContacto GetByCedulaContacto(string cedula)
         {
-            return this.ContactoRepository.GetByCedulaContacto(cedula);
+            return repository.GetByCedulaContacto(cedula);
         }
+
+      
 
         public IList<TbFdCuentasBancarias> GetByContacto(int idContacto)
         {
-            return this.ICuentasBancariasRepository.GetByContacto(idContacto);
+            return this.cbRepository.GetByContacto(idContacto);
         }
 
-        public ContactoViewModel GetByEdit(int id)
-        {
-            return this.ContactoRepository.GetByEdit(id);
-        }
 
         public TbCrContacto GetByEmailContacto(string correo)
         {
-            return this.ContactoRepository.GetByEmailContacto(correo);
+            return this.repository.GetByEmailContacto(correo);
         }
 
-        public ContactoViemModelDetalle getById(int id)
+
+        public bool EliminarRelacion(int idRelacion)
         {
-            return this.ContactoRepository.getById(id);
+            return repository.EliminarRelacion(idRelacion);
         }
 
         public TbCrContacto GetByIdContacto(long id)
         {
-            return this.ContactoRepository.GetByIdContacto(id);
+            return this.repository.GetByIdContacto(id);
         }
 
         public IList<TbCeCanton> GetCantones(int idProvincia)
         {
-            return this.ContactoRepository.GetCantones(idProvincia);
+            return this.repository.GetCantones(idProvincia);
         }
 
-        public IList<TbFdCondicionesDePago> GetCondiciones(int idContacto)
+        public IList<TbFdCondicionesDePago> GetCondicionesByIdContacto(int idContacto)
         {
-            return this.ICondicionesDePagoRepository.GetById(idContacto);
+            return this.cpRepository.GetByIdContacto(idContacto);
         }
 
-        public IList<ContactoRelacionGETViewModel> GetContactosRelacion(int id)
+
+        public TbFdCuentasBancarias GetCuentaById(int id)
         {
-            return this.ContactoRepository.GetContactosRelacion(id);
+            return this.cbRepository.GetCuentaById(id);
         }
 
-        public TbFdCuentasBancarias GetCuentasById(int id)
+        public IList<TbFdCuentasBancarias> GetCuentasByContacto(int id)
         {
-            return this.ICuentasBancariasRepository.GetById(id);
+            return cbRepository.GetByContacto(id);
         }
 
         public IList<TbCeDistrito> GetDistrito(int idDistrito, int idProvincia)
         {
-            return this.ContactoRepository.GetDistrito(idDistrito, idProvincia);
+            return this.repository.GetDistrito(idDistrito, idProvincia);
         }
 
         public IList<TbCeProvincias> GetProvincias()
         {
-           return this.ContactoRepository.GetProvincias();
+           return this.repository.GetProvincias();
         }
 
-        public TbCrContacto GetTareas(int idContacto)
+        public IList<TbFdTarea> GetTareas(int idContacto)
         {
-            return this.ContactoRepository.GetTareas(idContacto);
+            return this.repository.GetTareas(idContacto);
+        }
+
+        public TbCrContactoRelacion SaveRelacion(TbCrContactoRelacion domain)
+        {
+            return this.crRepository.Save(domain);
+        }
+        public IList<TbCrContacto> GetAllClientes()
+        {
+            return repository.GetAllClientes();
         }
 
         public TbCrContactoRelacion InsertarRelacion(TbCrContactoRelacion domain)
         {
-            return this.IContactoRelacionRepository.Save(domain);
+            return this.crRepository.Save(domain);
+        }
+
+        public TbCrContactoRelacion UpdateRelacion(TbCrContactoRelacion domain)
+        {
+            return this.crRepository.Update(domain);
+        }
+
+        public TbCrContactoRelacion GetRelacionById(int id)
+        {
+            return crRepository.GetById(id);
         }
 
         public TbCrContacto Save(TbCrContacto domain)
         {
-            return this.ContactoRepository.Save(domain) ;
+            if (!domain.Cliente)
+            {
+                domain.IdTipoCliente = 0;
+                domain.IdFamiliaCliente = 0;
+                domain.IdSubFamiliaCliente = 0;
+            }
+            if (!domain.Proveedor)
+            {
+                domain.IdTipoProveedor = 0;
+                domain.IdFamiliaProveedor = 0;
+                domain.IdSubFamiliaProveedor = 0;
+            }
+
+            return this.repository.Save(domain);
         }
 
-        public TbCrContactoRelacion viewModelEditarRelacion(EditarRelacionContactoViewModel domain)
+        public TbCrContactoRelacion GetByIdPadreAndIdHijo(int idPadre, int idHijo)
         {
-            TbCrContactoRelacion cr = new TbCrContactoRelacion();
-            cr = this.IContactoRelacionRepository.GetById(Convert.ToInt32(domain.IdRelacion));
-
-            cr.NotaRelacion = domain.Nota;
-            return cr;
+            return crRepository.GetByIdPadreAndIdHijo(idPadre, idHijo);
         }
     }
 }

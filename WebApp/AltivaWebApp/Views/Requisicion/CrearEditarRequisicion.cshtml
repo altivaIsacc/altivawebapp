@@ -10,10 +10,15 @@
 
 @{
     var estado = "";
-
+    var estado2 = "";
     if (Model.Anulado)
     {
         estado = "disabled";
+    }
+
+    if (ViewBag.tieneToma)
+    {
+        estado2 = "disabled";
     }
 }
 
@@ -34,11 +39,15 @@ else
 <div class="row">
     @if (Model.Id != 0 && !Model.Anulado)
     {
-        <div class="col-md-12 text-right"><button class="btn btn-danger btn-sm" onclick="anularReq()">@SharedLocalizer["Anular"]</button></div>
+        <div class="col-md-12 text-right"><button @estado2 class="btn btn-danger btn-sm" onclick="anularReq()">@SharedLocalizer["Anular"]</button></div>
     }
     else if (Model.Id != 0)
     {
         <div class="col-md-12 text-left"> <h4 class="text-danger">@SharedLocalizer["RequisicionAnulada"]</h4></div>
+    }
+    @if (ViewBag.tieneToma)
+    {
+        <div class="col-md-12 text-left"><h5 class="text-danger">@SharedLocalizer["DocumentoConToma"]</h5></div>
     }
 </div>
 
@@ -54,7 +63,7 @@ else
                     <div class="form-group">
                         <label for="fecha">@SharedLocalizer["Fecha"]:</label>
                         <div class='input-group date' id='fechaPicker'>
-                            <input @estado type='text' class="form-control" id="fecha" />
+                            <input @estado2 @estado type='text' class="form-control" id="fecha" />
                             <span class="input-group-addon">
                                 <span class="fas fa-calendar"></span>
                             </span>
@@ -64,30 +73,31 @@ else
             </div>
             <div class="form-group col-md-4 col-sm-6 col-xs-12">
                 <div class="col-md-8">
-                    <label class="control-label">@SharedLocalizer["Departamento"]</label>
-                    <select @estado id="departamento" class="form-control selectItems"></select>
+                    <label class="control-label">@SharedLocalizer["Departamento"]:</label>
+                    <select @estado2 @estado id="departamento" class="form-control selectItems"></select>
                     <span hidden id="departamentoValid" class="text-danger">@SharedLocalizer["departementoValid"]</span>
                 </div>
                 <div class="col-md-4">
-                    <a style="padding-top:2.5rem" href="#" class="btn btn-link" onclick="getCrearEditarPartial(0)"><span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span></a>
-                    <a style="padding-top:2.5rem" href="#" class="btn btn-link" onclick="getEditarPartial()"><span style="font-size: 2rem"><i class="fas fa-edit"></i></span></a>
+                    <a @estado2 @estado style="padding-top:2.5rem" class="btn btn-link" onclick="getCrearEditarPartial(0)"><span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span></a>
+                    <a @estado2 @estado style="padding-top:2.5rem" class="btn btn-link" onclick="getEditarPartial()"><span style="font-size: 2rem"><i class="fas fa-edit"></i></span></a>
                 </div>
             </div>
 
             <div class="form-group col-md-2 col-sm-6 col-xs-12">
-                <label class="control-label">@SharedLocalizer["Bodega"]</label>
-                <select @estado id="bodegas" class="form-control selectItems"></select>
+                <label class="control-label">@SharedLocalizer["Bodega"]:</label>
+                <select @estado2 @estado id="bodegas" class="form-control selectItems"></select>
             </div>
 
             <div class="form-group col-md-4 col-sm-12 col-xs-12">
-                <label asp-for="Descripcion" class="control-label">@SharedLocalizer["Descripción"]</label>
-                <textarea @estado asp-for="Descripcion" id="descripcion" rows="4" maxlength="250" class="form-control">@Model.Descripcion</textarea>
+                <label asp-for="Descripcion" class="control-label">@SharedLocalizer["Descripción"]:</label>
+                <textarea @estado2 @estado asp-for="Descripcion" id="descripcion" rows="4" maxlength="250" class="form-control">@Model.Descripcion</textarea>
                 <span hidden id="descripcionValid" class="text-danger">@SharedLocalizer["descripcionValid"]</span>
             </div>
 
         </form>
     </div>
     <div class="col-md-12 table-responsive">
+        <span hidden id="sinDetalleValid" class="text-danger">@SharedLocalizer["docSinDetalle"].</span>
         <table class="table table-bordered table-striped" id="tblReq" style="min-width:900px">
             <thead>
                 <tr>
@@ -101,12 +111,12 @@ else
             </thead>
             <tbody>
                 <tr class="lineaForm">
-                    <td><select @estado class="form-control selectItems" id="item"></select></td>
+                    <td><select @estado2 @estado class="form-control selectItems" id="item"></select></td>
                     <td class="col-md-3"><div class="col-md-10"><input readonly class="form-control" id="descripcionLinea" /></div><div style="padding-top: 1rem" class="col-md-2"><label id="lblItemInfo"></label></div></td>
-                    <td><input @estado class="form-control numerico" type="text" min="0" id="cantidad" /></td>
-                    <td><input @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
+                    <td><input @estado2 @estado class="form-control numerico" type="text" min="0" id="cantidad" /></td>
+                    <td><input @estado2 @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
                     <td><input class="form-control moneda" readonly type="text" id="totalLinea" /></td>
-                    <td><button @estado class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button></td>
+                    <td><button @estado2 @estado class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button></td>
                 </tr>
             </tbody>
         </table>
@@ -124,7 +134,7 @@ else
 
 <div class="row">
     <div class="form-group col-md-3">
-        <button @estado class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+        <button @estado2 @estado class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
         <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
     </div>
 </div>
@@ -156,7 +166,7 @@ else
 <script src="~/js/comentario.js"></script>
 <script src="~/js/base64ImageCreator.js"></script>
 <script>
-
+    var $anulado = $('#Anulado');
     ///linea
     var $item = $('#item');
     var $descripcionLinea = $('#descripcionLinea');
@@ -182,6 +192,7 @@ else
     var departamentos = [];
     var bodegas = [];
     var monedad = [];
+    var depaAnulado = false;
 
 
     $(document).ready(function () {
@@ -209,10 +220,7 @@ else
             'alias': 'decimal',
             rightAlign: false,
         });
-        $(".currency").inputmask('currency', {
-            prefix: "CRC ",
-            rightAlign: true
-        });
+       
 
         getMonedas();
         getBodegasInventario();
@@ -247,9 +255,22 @@ else
 
         $("#bodegas").change(function () {
 
+
             for (var i = 0; i < bodegas.length; i++) {
-                if (bodegas[i].id === parseInt($(this).val()))
+                if (bodegas[i].id === parseInt($(this).val()))                  
                     cargarItems(bodegas[i].tbPrInventarioBodega);
+            }
+        });
+
+        $("#departamento").on('change', function () {
+
+            if (!getDepaAnulado($(this).val())) {
+                depaAnulado = false;
+                $("#departamentoValid").attr("hidden", true);
+            }
+            else {
+                $("#departamentoValid").attr("hidden", false);
+                depaAnulado = true;
             }
 
         });
@@ -274,8 +295,11 @@ else
 
 
     function getEditarPartial() {
-        getCrearEditarPartial($departamento.val());
+        if("@Model.Anulado" !== "True")
+            getCrearEditarPartial($departamento.val());
     }
+
+    
 
 
     ////////////////////////////////////////ajax////////////////////////////////////////////
@@ -305,28 +329,30 @@ else
 
     function getCrearEditarPartial(id)
     {
-        var url = "@Url.Action("_CrearDepartamento", "Departamento")";
-        if (id != 0) {
-            url = '@Url.Action("_EditarDepartamento", "Departamento", new { id = "__id__"})';
-            url = url.replace("__id__", id);
-        }
-            
-         $.ajax({
-            type: "GET",
-            headers: {
-                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-            },
-            url: url,
-
-            success: function (data) {
-                $('#crearEditarPartial').html(data);
-                $('#modalDepartamento').modal('show');
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
+        if ("@Model.Anulado" !== "True") {
+            var url = "@Url.Action("_CrearDepartamento", "Departamento")";
+            if (id != 0) {
+                url = '@Url.Action("_EditarDepartamento", "Departamento", new { id = "__id__"})';
+                url = url.replace("__id__", id);
             }
+            
+            $.ajax({
+                type: "GET",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
 
-        });
+                success: function (data) {
+                    $('#crearEditarPartial').html(data);
+                    $('#modalDepartamento').modal('show');
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+        }
     }
 
     function getMonedas() {
@@ -339,35 +365,14 @@ else
               url: '@Url.Action("GetMonedas", "Monedas")',
              success: function (data) {
 
-                 monedas = data;               
+                 monedas = data;  
+
+                 $(".currency").inputmask('currency', {
+                     prefix: monedas[0].simbolo + " ",
+                     rightAlign: true
+                 });
 
               },
-              error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-          });
-    }
-
-    function getInventario() {
-
-         $.ajax({
-              type: "get",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
-              url: '@Url.Action("GetAllInventario", "Inventario")',
-             success: function (data) {
-
-                 for (var i = 0; i < data.length; i++) {
-                     if (!data[i].inactiva)
-                         items.push(data[i]);
-                 }
-                 //items = data;
-                 cargarItems(items);
-                 getReqDetalle();
-               },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
                   console.log(err.statusText);
@@ -387,6 +392,8 @@ else
              success: function (data) {
                  departamentos = data;
 
+                 var depaAnulados = [];
+
                  $('#departamento').empty();
 
                  var flag = false;
@@ -396,29 +403,29 @@ else
                          var o = new Option(data[i].descripcion, data[i].id);
                          if (data[i].id === parseInt(pos)) {
                              $(o).attr('selected', true);
-                             flag = false;
-                         }                            
-                         else {
                              flag = true;
                          }
+
                          $("#departamento").append(o);
                      }
+                     else
+                         depaAnulados.push(data[i]);
                  }
 
-                 if (flag) 
+                 if (!flag) 
                      if (@Model.Id != 0) {
 
-                         for (var i = 0; i < data.length; i++) {
-                             if (data[i].id === @Model.IdDepartamento) {
-                                 var o2 = new Option(data[i].descripcion, data[i].id);
+                         for (var i = 0; i < depaAnulados.length; i++) {
+                             if (depaAnulados[i].id === @Model.IdDepartamento) {
+                                 var o2 = new Option(depaAnulados[i].descripcion, depaAnulados[i].id);
                                  $(o2).attr('selected', true);
                                  $("#departamento").append(o2);
                                  $("#departamentoValid").attr("hidden", false);
+                                 depaAnulado = true;
                              }
-                        }
+                         }
                        
                      }
-
               },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -522,11 +529,15 @@ else
               dataType: "json",
               url: '@Url.Action("GetBodegaInventario", "AjusteInventario")',
               success: function (data) {
-                  bodegas = data;
-                  cargarBodegas(data);
+                  //bodegas = JSON.parse(JSON.stringify(data));
+                  for (var i = 0; i < data.length; i++) {
+                      if (data[i].tbPrInventarioBodega.length > 0)
+                          bodegas.push(data[i]);
+                  }
 
+                  cargarBodegas(bodegas);
                   getReqDetalle();
-               },
+              },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
                   console.log(err.statusText);
@@ -537,7 +548,12 @@ else
 
     //////////////////////////////////////////////////////helpers///////////////////////////////////
 
-
+    function getDepaAnulado(idDepa) {
+        for (var i = 0; i < departamentos.length; i++) {
+            if (parseInt(idDepa) === departamentos[i].id)
+                return departamentos[i].anulado;
+        }
+    }
     
 
     function formatearFecha() {
@@ -560,22 +576,12 @@ else
                 flag = false;
             }
 
+
             $("#bodegas").append(o);
         }
 
         if (flag)
             cargarItems(data[0].tbPrInventarioBodega);
-
-
-        @*if (@Model.Id != 0)
-            $bodega.val(@Model.IdBodega);
-        else
-            $bodega.val(1);
-
-        $('.selectItems').trigger('change.select2');*@
-
-
-        //getAjusteInventario();
 
     }
 
@@ -584,15 +590,18 @@ else
 
         var detalle = lineas[key - 1];
 
-
         $item.val(detalle.idInventario);
-        $('.selectItems').trigger('change');
+        $('.selectItems').trigger('change.select2');
         $cantidad.val(detalle.cantidad);
         $precio.val(detalle.precioUnitario);
 
         $precio.trigger("focusout");
 
+
         eliminarLineaDirect(key, id);
+
+        var itemInfo = getItem(detalle.idInventario);
+        $lblItemInfo.text(itemInfo.existenciaBodega + " " + itemInfo.idInventarioNavigation.idUnidadMedidaNavigation.abreviatura);
 
     }
 
@@ -663,17 +672,39 @@ else
             total: parseFloat($cantidad.val()) * parseFloat($precio.val())
         };
 
-        if (getItem(model.idInventario).existenciaBodega >= model.cantidad) {
-            lineasAgregadas.push(model);
-            lineas.push(model);
-            cargarTabla(lineas);
 
-            actualizarInventarioLocal(model.idInventario, false, model.cantidad);
+        if (!existeItemLineas(model.idInventario)) {
+            if (getItem(model.idInventario).existenciaBodega >= model.cantidad) {
+                lineasAgregadas.push(model);
+                lineas.push(model);
+                cargarTabla(lineas);
+
+                actualizarInventarioLocal(model.idInventario, false, model.cantidad);
+                $('.selectItems').trigger('change');
+            }
+            else
+                cargarAlert('@SharedLocalizer["cantidaMayorQueExistencias"]');
         }
         else
-            cargarAlert('@SharedLocalizer["cantidaMayorQueExistencias"]');
+            cargarAlert("@SharedLocalizer["repetidoValid"]");
+      
+        
 
 
+    }
+
+    function existeItemLineas(idInventario) {
+
+        var flag = false;
+
+        for (var i = 0; i < lineas.length; i++) {
+            if (idInventario.toString() === lineas[i].idInventario.toString()) {
+                flag = true;
+                break;
+            }
+        }
+
+        return flag;
     }
 
     function actualizarInventarioLocal(idItem, isDeleted, cantidad) {
@@ -683,30 +714,41 @@ else
         for (var i = 0; i < arrayInventario.length; i++) {
             if (arrayInventario[i].idInventario === parseInt(idItem) && arrayInventario[i].idBodega === parseInt($bodega.val())) {
                 if (isDeleted)
-                    arrayInventario[i].existenciaBodega += cantidad;
+                    arrayInventario[i].existenciaBodega = arrayInventario[i].existenciaBodega + cantidad;
                 else
-                    arrayInventario[i].existenciaBodega -= cantidad;
+                    arrayInventario[i].existenciaBodega = arrayInventario[i].existenciaBodega - cantidad;
             }
 
         }
 
-        $('.selectItems').trigger('change');
+
+       // $('.selectItems').trigger('change');
 
     }
 
     function validarForm() {
         //var frmOrden = $('#frmOrden').serializeArray();
+        var flag = true;
 
         if ($descripcion.val().replace(/ /g, "") === "") {
             $('#descripcionValid').attr("hidden", false);
-            return false;
-        }
-        else if (lineas.length <= 0) {
-            cargarAlert('@SharedLocalizer["requisicionSinDetalle"]');
-            return false;
-        }
+            flag = false;
+        } else
+            $('#descripcionValid').attr("hidden", true);
 
-        return true;
+        if (lineas.length <= 0) {
+            $('#sinDetalleValid').prop('hidden', false);
+            flag = false;
+        } else
+            $('#sinDetalleValid').prop('hidden', true);
+
+        if (depaAnulado) {
+            cargarAlert("@SharedLocalizer["depaAnulado"]");
+            flag = false;
+        } 
+
+
+        return flag;
     }
 
     function eliminarLinea(_key, idLinea) {
@@ -716,6 +758,7 @@ else
             if (result) {
 
                 eliminarLineaDirect(_key, idLinea);
+                $('.selectItems').trigger('change');
             }
 
         });
@@ -737,7 +780,10 @@ else
 
         cargarTabla(lineas);
 
+       
 
+        //$('.selectItems').trigger('change');
+      
 
     }
 
@@ -761,7 +807,7 @@ else
                 + '<td style="padding-top:2rem;">' + data[i].cantidad + ' </td>'
                 + '<td style="padding-top:2rem; text-align:right"> ' + formatCurrency(data[i].precioUnitario) + '</td>'
                 + '<td style="padding-top:2rem; text-align:right">' + formatCurrency(data[i].total) + '</td>'
-                + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
+                + '<td><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
 
             $('.lineaForm').before(body);
 
@@ -772,21 +818,12 @@ else
 
     }
 
-    //function getItem(id) {
-    //    for (var i = 0; i < items.length; i++) {
-    //        if (items[i].idInventario == parseInt(id))
-    //            return items[i];
-    //    }
-
-    //}
-
-
     function getItem(id) {
 
 
         var it = {};
         for (var i = 0; i < arrayInventario.length; i++) {
-            if (arrayInventario[i].idInventarioNavigation.idInventario === parseInt(id))
+            if (arrayInventario[i].idInventario === parseInt(id))
                 it = arrayInventario[i];
         }
 
@@ -799,20 +836,14 @@ else
 
         $('#item option').remove();
 
-        arrayItems = [];
-
         for (var i = 0; i < data.length; i++) {
 
             if (!data[i].idInventarioNavigation.inactiva) {
                 var o = new Option(data[i].idInventarioNavigation.codigo, data[i].idInventarioNavigation.idInventario);
                 $("#item").append(o);
-                items.push(data[i].idInventarioNavigation);
             }
 
         }
-
-
-        //console.log(items);
 
         $("#item").trigger('change');
 
@@ -876,7 +907,7 @@ else
             },          
             total: $total.val(),
             nombreDoc: getTittulos().req + '#@Model.Id',
-            nombreDescarga: '@SharedLocalizer["requisicion"]_ ' + ' ' + @Model.Id + '.pdf',
+            nombreDescarga: '@SharedLocalizer["Requisicion"]_ ' + ' ' + @Model.Id + '.pdf',
             columnas: {
                 item: "Item",
                 descripcion: getTittulos().desc,
@@ -962,7 +993,7 @@ else
 
     function getEstado() {
         if ('@Model.Anulado' === "True")
-            return "@SharedLocalizer["OrdenAnulada"]";
+            return "@SharedLocalizer["ReqAnulada"]";
         else
             return "";
     }

@@ -82,7 +82,7 @@ namespace AltivaWebApp.Controllers
         [Route("Lista-Comentarios")]
         public ActionResult ListarComentarios(ComentarioViewModel model)
         {
-            var comentarios = ImensajeService.GetComentarios(model).ToList();
+            var comentarios = ImensajeService.GetComentarios(model).OrderByDescending(c => c.Id).ToList();
             return PartialView("_PartialComentarios", comentarios);
         }
 

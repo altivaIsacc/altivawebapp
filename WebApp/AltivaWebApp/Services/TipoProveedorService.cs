@@ -23,7 +23,7 @@ namespace AltivaWebApp.Services
 
         public IList<TbFdTipoProveedor> GetAll()
         {
-            throw new NotImplementedException();
+            return ITipoProveedor.GetAll();
         }
 
         public TbFdTipoProveedor GetById(int IdTipoCliente)

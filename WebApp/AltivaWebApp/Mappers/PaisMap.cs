@@ -18,9 +18,9 @@ namespace AltivaWebApp.Mappers
         {
             this.paisService = paisService;
         }
-        public PaisViewModel Create(PaisViewModel viewModel)
+        public TbSePais Create(PaisViewModel viewModel)
         {
-            throw new NotImplementedException();
+            return paisService.Create(ViewModelToDomain(viewModel));
         }
 
         public IList<PaisViewModel> DomainToViewModel(IList<TbSePais> domain)
@@ -30,28 +30,35 @@ namespace AltivaWebApp.Mappers
 
         public PaisViewModel DomainToViewModelSingle(TbSePais domain)
         {
-            throw new NotImplementedException();
+            return new PaisViewModel {
+                Id = domain.Id,
+                GentilicioEn = domain.GentilicioEn,
+                GentilicioEs = domain.GentilicioEs,
+                Inactivo = domain.Inactivo,
+                Iniciales = domain.Iniciales,
+                NombreEn = domain.NombreEn,
+                NombreEs = domain.NombreEs
+            };
         }
 
         public TbSePais Update(PaisViewModel viewModel)
         {
-            var pais = ViewModelToDomain(viewModel);
-            return paisService.UpdatePais(pais);
+            return paisService.UpdatePais(ViewModelToDomain(viewModel));
         }
 
         public TbSePais ViewModelToDomain(PaisViewModel officeViewModel)
         {
-            var domain = paisService.GetPaisById(officeViewModel.Id);
-
-
-        
-            domain.NombreEs = officeViewModel.NombreEs;
-            domain.NombreEn = officeViewModel.NombreEn;
-            domain.Inactivo = officeViewModel.Inactivo;
-            domain.GentilicioEs= officeViewModel.GentilicioEs;
-            domain.GentilicioEn = officeViewModel.GentilicioEn;
-            domain.Iniciales = officeViewModel.Iniciales;
-            return domain;
+            return new TbSePais
+            {
+                Id = officeViewModel.Id,
+                NombreEs = officeViewModel.NombreEs,
+                NombreEn = officeViewModel.NombreEn,
+                Inactivo = officeViewModel.Inactivo,
+                GentilicioEs = officeViewModel.GentilicioEs,
+                GentilicioEn = officeViewModel.GentilicioEn,
+                Iniciales = officeViewModel.Iniciales
+            }; //paisService.GetPaisById(officeViewModel.Id);
+            
 
         }
     }

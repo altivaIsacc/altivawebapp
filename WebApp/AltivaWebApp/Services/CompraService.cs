@@ -14,7 +14,14 @@ namespace AltivaWebApp.Services
         {
             this.repository = repository;
         }
-
+        public IList<TbCpCategoriaGasto> GetAllCategoriaGasto()
+        {
+            return repository.GetAllCategoriaGasto();
+        }
+        public IList<TbPrCompra> GetAllGastos()
+        {
+            return repository.GetAllGastos();
+        }
         public bool ExisteDocumento(string numDoc, string tipo, int idProveedor)
         {
             return repository.ExisteDocumento(numDoc, tipo, idProveedor);
@@ -29,9 +36,17 @@ namespace AltivaWebApp.Services
             return repository.DeleteCompraDetalle(domain);
         }
 
+        public bool DeleteComprasDetalleServicio(TbCpComprasDetalleServicio domain)
+        {
+            return repository.DeleteComprasDetalleServicio(domain);
+        }
         public IList<TbPrCompraDetalle> GetAllCompraDetalleByCompraId(int id)
         {
             return repository.GetAllCompraDetalleByCompraId(id);
+        }
+        public IList<TbCpComprasDetalleServicio> GetAllComprasDetalleServicioByCompraId(int id)
+        {
+            return repository.GetAllComprasDetalleServicioByCompraId(id);
         }
 
         public IList<TbPrCompra> GetAllCompras()
@@ -48,10 +63,18 @@ namespace AltivaWebApp.Services
         {
             return repository.Save(domain);
         }
+        public TbPrCompra SaveServicio(TbPrCompra domain)
+        {
+            return repository.SaveServicio(domain);
+        }
 
         public TbPrCompraDetalle SaveCompraDetalle(TbPrCompraDetalle domain)
         {
             return repository.SaveCompraDetalle(domain);
+        }
+        public TbCpComprasDetalleServicio SaveComprasDetalleServicio(TbCpComprasDetalleServicio domain)
+        {
+            return repository.SaveComprasDetalleServicio(domain);
         }
 
         public bool ExisteRelacionInventarioBodega(long idInventario, long idBodega)
@@ -62,8 +85,16 @@ namespace AltivaWebApp.Services
         {
             return repository.GetCompraDetalleById(id);
         }
+        public TbCpComprasDetalleServicio GetComprasDetalleServicioById(long id)
+        {
+            return repository.GetComprasDetalleServicioById(id);
+        }
 
         public TbPrCompra Update(TbPrCompra domain)
+        {
+            return repository.Update(domain);
+        }
+        public TbPrCompra UpdateGasto(TbPrCompra domain)
         {
             return repository.Update(domain);
         }
@@ -72,10 +103,19 @@ namespace AltivaWebApp.Services
         {
             return repository.UpdateCompraDetalle(domain);
         }
+        public bool UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain)
+        {
+            return repository.UpdateComprasDetalleServicio(domain);
+        }
 
         public long IdUltimoDocumento()
         {
             return repository.IdUltimoDocumento();
+        }
+
+        public TbPrCompra GetCompraByIdWithoutD(int id)
+        {
+            return repository.GetCompraByIdWithoutD(id);
         }
     }
 }

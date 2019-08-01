@@ -17,37 +17,46 @@ namespace AltivaWebApp.Mappers
             this.ItipoCliente = ItipoCliente;
         }
 
-        public TbFdTipoCliente Save(TipoClienteViewModel domain)
+        public TbFdTipoCliente Save(TipoClienteViewModel viewModel)
         {
-            return this.ItipoCliente.Save(ViewModelToSave(domain));
+            return this.ItipoCliente.Save(ViewModelToDomain(viewModel));
         }
 
-        public TbFdTipoCliente Update(TipoClienteViewModel domain)
+        public TbFdTipoCliente Update(TipoClienteViewModel viewModel)
         {
-            return this.ItipoCliente.Updtae(ViewModelToUpdate(domain));
+            return this.ItipoCliente.Updtae(ViewModelToDomain(viewModel));
         }
 
-        public TbFdTipoCliente ViewModelToSave(TipoClienteViewModel domain)
+        public TbFdTipoCliente ViewModelToDomain(TipoClienteViewModel viewModel)
         {
-            TbFdTipoCliente Tc = new TbFdTipoCliente();
-            Tc.IdPadre = domain.IdPadre;
-            Tc.Nombre = domain.Nombre;
-            Tc.Inactivo = domain.Inactivo;
-            Tc.FechaCreacion = DateTime.Now;
+            TbFdTipoCliente Tc = new TbFdTipoCliente
+            {
+                Id = viewModel.Id,
+                IdUsuario = viewModel.IdUsuario,
+                IdPadre = viewModel.IdPadre,
+                Nombre = viewModel.Nombre,
+                Inactivo = viewModel.Inactivo,
+                FechaCreacion = viewModel.FechaCreacion
+            };
 
             return Tc;
         }
 
-        public TbFdTipoCliente ViewModelToUpdate(TipoClienteViewModel domain)
+        public TipoClienteViewModel DomainToViewModel(TbFdTipoCliente domain)
         {
-            TbFdTipoCliente Tc = new TbFdTipoCliente();
-            Tc = this.ItipoCliente.GetById(Convert.ToInt32(domain.Id));
-          
-            Tc.Nombre = domain.Nombre;
-            Tc.Inactivo = domain.Inactivo;
-
+            TipoClienteViewModel Tc = new TipoClienteViewModel
+            {
+                Id = domain.Id,
+                IdUsuario = (int) domain.IdUsuario,
+                IdPadre = domain.IdPadre,
+                Nombre = domain.Nombre,
+                Inactivo = (bool) domain.Inactivo,
+                FechaCreacion = domain.FechaCreacion
+            };
 
             return Tc;
         }
+
+
     }
 }

@@ -31,6 +31,7 @@ namespace AltivaWebApp.Mappers
         {
             return new BodegaViewModel
             {
+                Id =(int) domain.Id,
                 Almacenamiento = (bool) domain.Almacenamiento,
                 Estado = (bool) domain.Estado,
                 Consignacion = (bool) domain.Consignacion,
@@ -54,6 +55,7 @@ namespace AltivaWebApp.Mappers
 
             return new TbPrBodega
             {
+                Id = viewModel.Id,
                 Almacenamiento = viewModel.Almacenamiento,
                 Estado = true,
                 FechaCreacion = DateTime.Now,

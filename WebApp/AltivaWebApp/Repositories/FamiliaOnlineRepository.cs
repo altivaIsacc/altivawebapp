@@ -30,6 +30,11 @@ namespace AltivaWebApp.Repositories
             return context.TbPrFamiliaVentaOnline.Where(f => f.IdFamilia != null).ToList();
         }
 
+        public TbPrFamiliaVentaOnline GetFamiliaByDescripcion(string descripcion)
+        {
+            return context.TbPrFamiliaVentaOnline.FirstOrDefault(f => f.Descripcion == descripcion);
+        }
+
         public void UpdateSubFamilia(IList<TbPrFamiliaVentaOnline> subFamilias)
         {
             try

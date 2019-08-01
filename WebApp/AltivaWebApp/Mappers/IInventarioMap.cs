@@ -10,12 +10,15 @@ namespace AltivaWebApp.Mappers
 {
     public interface IInventarioMap
     {
+        TbPrInventarioBodega UpdateIBodega(InventarioBodegaViewModel viewModel);
+        TbPrInventarioBodega ViewModelToDomainEditarIBodega(InventarioBodegaViewModel viewModel);
         TbPrInventario Create(InventarioViewModel viewModel);
         TbPrInventario Update(int id, InventarioViewModel viewModel);
         TbPrInventario ViewModelToDomainNuevo(InventarioViewModel viewModel);
         IList<TbPrImagenInventario> ViewModelToDomainNuevoImagen(int id, IFormFile[] files);
-        TbPrInventario ViewModelToDomainEditar(int id, InventarioViewModel viewModel);
+        TbPrInventario ViewModelToDomainEditar(int id,InventarioViewModel viewModel);
         InventarioViewModel DomainToViewModel(TbPrInventario domain);
+        InventarioBodegaViewModel DomainToViewModelIBodega(TbPrInventarioBodega domain);
         void CreateInventarioBodega(int idInventario, IList<InventarioBodegaViewModel> viewModelaRel);
         void CreateImagen(int id, IFormFile[] files);
         void CreateCaracteristica(int id, string caracteristica);

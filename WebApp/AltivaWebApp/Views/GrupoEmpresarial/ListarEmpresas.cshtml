@@ -1,4 +1,4 @@
-﻿@model IEnumerable<AltivaWebApp.GEDomain.TbGeEmpresa>
+﻿@model TbSeUsuario
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
@@ -17,27 +17,29 @@
 
 
 <div class="row">
-    <h3 data-translate="">Bienvenido al grupo empresarial "@grupoEmpresa.Nombre"</h3>
+    <div class="col-md-12">
+        <h3 data-translate="">Bienvenido al grupo empresarial "@grupoEmpresa.Nombre"</h3>
+    </div>
     <br />
 </div>
 
 <br />
 
-<div class="col-md-12" style="background-color: #EDEDED; width: 100%">
+<div style="background-color: #EDEDED; width: 100%">
     <br />
 
-    <div class="row" style="padding-left: 1rem"><h4>Información del grupo</h4></div>
-
-    <div class="row">
-
-        <div class="col-md-3">
+    <div class="row" style="padding-left: 1rem">
+        <div class="col-md-12">
+            <h4>Información del grupo</h4>
+        </div>
+        <div class="col-md-4 col-sm-6 col-xs-12" style="min-width:25rem">
             <img style="width: 20rem; height:12rem; margin-top: 0.5rem" src="@grupoEmpresa.Foto" />
         </div>
-      <div class="col-md-6 col-md-offset-3"> 
-            <table class="table table-bordered">
+        <div class="col-md-8 col-sm-6 col-xs-12">
+            <table class="table table-bordered" style="min-width:400px">
                 <tr>
-                    <th>
-                        <span data-translate="nombre">Nombre</span>
+                    <th >
+                        <span>@SharedLocalizer["Nombre"]</span>
                     </th>
                     <td>
                         <p>@grupoEmpresa.Nombre</p>
@@ -45,7 +47,7 @@
                 </tr>
                 <tr>
                     <th>
-                        <span>Tel</span>
+                        <span>@SharedLocalizer["Teléfono"]</span>
                     </th>
                     <td>
                         <p>@grupoEmpresa.Telefono1 - @grupoEmpresa.Telefono2</p>
@@ -53,7 +55,7 @@
                 </tr>
                 <tr>
                     <th>
-                        <span data-translate="geTxtCorreo">Correo</span>
+                        <span>@SharedLocalizer["Corrreo"]</span>
                     </th>
                     <td>
                         <p>@grupoEmpresa.Correo</p>
@@ -61,66 +63,51 @@
                 </tr>
             </table>
         </div>
-
-
     </div>
 
-    <style>
-
-        #empresa {
-            position: relative;
-            text-align: center;
-            color: white;
-        }
-
-        #empresaText {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-    </style>
 
     <hr />
 
-    <div class="row" style="padding-left: 1rem"><h4>Empresas Activas</h4></div>
+    <div class="col-md-12" style="padding-left: 1rem"><h4>@SharedLocalizer["Empresas"]</h4></div>
 
 
-    <div class="row">
-
-        @foreach (var item in Model)
+    <div class="row" style="padding-top:1rem">
+        
+        @foreach (var item in Model.TbSeEmpresaUsuario.OrderByDescending(e => e.Estado && e.IdEmpresaNavigation.Estado ? 1 : 0))
         {
             var estado = "";
+            var estadoUser = "";
             var activa = true;
             var btn = SharedLocalizer["Desactivar"];
-            if (!item.Estado)
+            if (!item.IdEmpresaNavigation.Estado)
             {
                 estado = "disabled";
                 activa = false;
                 btn = SharedLocalizer["Activar"];
             }
+            if (!item.Estado)
+            {
+                estadoUser = "disabled";
+            }
 
-
-            <div class="card" style="margin: 1rem; width: 18rem;">
-                <img class="card-img-top" style="width:100%; height:10rem" src="@item.Foto" alt="Card image cap">
-                <div class="card-body">
-                    <h5>@item.Nombre</h5>
-                    <p class="card-text"><strong><span data-translate="cedulaJuridica">Cédula juídica: </span></strong>@item.CedJuridica</p>
-                    <p class="card-text"><strong><span>Teléfonos: </span></strong> @item.Telefono1 - @item.Telefono2</p>
-                    <p class="card-text"><strong><span>Dirección: </span></strong> @item.Direccion</p>
-                    <button @estado onclick="setEmpresa('@item.Nombre', '@item.Foto', '@item.Correo', '@item.Telefono1', '@item.Telefono1', '@item.CedJuridica')" class="btn btn-primary">Ingresar</button>
-                    <button onclick="cambiarEstadoEmpresa(@item.Id, '@item.Estado')" class="btn btn-link">@btn</button>
+            <div class="col-md-3 col-sm-6 col-xs-12 card " style="margin-left: 2rem; min-width: 15rem;">
+                <img class="card-img-top" style="width:100%; height:10rem" src="@item.IdEmpresaNavigation.Foto" alt="Card image cap">
+                <div style="padding:0.5rem">
+                    <h5>@item.IdEmpresaNavigation.Nombre</h5>
+                    <p class="card-text"><strong><span>@SharedLocalizer["cedulaJuridica"]: </span></strong>@item.IdEmpresaNavigation.CedJuridica</p>
+                    <p class="card-text"><strong><span>@SharedLocalizer["Teléfono"]: </span></strong> @item.IdEmpresaNavigation.Telefono1 - @item.IdEmpresaNavigation.Telefono2</p>
+                    <p class="card-text"><strong><span>@SharedLocalizer["Dirección"]: </span></strong> @item.IdEmpresaNavigation.Direccion</p>
+                    <button @estadoUser @estado onclick="setEmpresa('@item.IdEmpresaNavigation.Nombre', '@item.IdEmpresaNavigation.Foto', '@item.IdEmpresaNavigation.Correo', '@item.IdEmpresaNavigation.Telefono1', '@item.IdEmpresaNavigation.Telefono1', '@item.IdEmpresaNavigation.CedJuridica')" class="btn btn-primary">@SharedLocalizer["Ingresar"]</button>
+                    <button @estadoUser onclick="cambiarEstadoEmpresa(@item.IdEmpresaNavigation.Id, '@item.IdEmpresaNavigation.Estado')" class="btn btn-link">@btn</button>
                 </div>
             </div>
 
         }
-        <div class="col-md-3" style="margin: 1rem; width: 18rem;">
-            <div class="card" style="width: 18rem;">
+            <div class="col-md-3 col-sm-6 col-xs-12 card" style="margin-left: 2rem; width: 18rem;">
                 <div class="card-body">
-                    <a data-translate="geBtnNuevaEmpresa" style="width: 16rem;" href="@Url.Action("CrearEmpresa")" class="btn btn-primary">Nueva Empresa</a>
+                    <a style="width: 100%;" href="@Url.Action("CrearEmpresa")" class="btn btn-primary">@SharedLocalizer["Nueva"] @SharedLocalizer["Empresa"]</a>
                 </div>
             </div>
-        </div>
 
     </div>
 
@@ -177,10 +164,10 @@
                 if (result) {
                     ajaxEstado(idEmpresa);
                 }
-               
+
             });
 
-       
+
 
     }
 
@@ -188,7 +175,7 @@
         var url = '@Url.Action("CambiarEstadoEmpresa", new { id = "__id__" })';
             url = url.replace("__id__", idEmpresa);
 
-             
+
                 $.ajax({
                     type: "get",
                     headers: {
@@ -204,7 +191,7 @@
                     }
                 });
 
-            
+
     }
 
 </script>

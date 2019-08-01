@@ -61,21 +61,11 @@ namespace AltivaWebApp.Controllers
 
             }
 
-            var empresas = new List<TbGeEmpresa>();
-
-            if (user.TbSeEmpresaUsuario.Count() > 0)
-            {
-                foreach (var item in user.TbSeEmpresaUsuario)
-                {
-                    empresas.Add(item.IdEmpresaNavigation);
-                }
-            }
-
             
            ViewData["grupoEmpresas"] = service.GetGE();
 
 
-            return View(empresas);
+            return View(user);
         }
 
         [HttpGet("Empresa/{nombre}")]
@@ -112,6 +102,14 @@ namespace AltivaWebApp.Controllers
 
         }
 
+        [Route("Autorizacion-Usuarios")]
+        public IActionResult AutorizacionUsuarios()
+        {
+            //var usuarios = userService.GetAllConEmpresas();
+            return View();
+        }
+
+
         [HttpGet("Nueva-Empresa")]
         public IActionResult CrearEmpresa()
         {
@@ -122,7 +120,7 @@ namespace AltivaWebApp.Controllers
         [HttpPost("Nueva-Empresa")]        
         public IActionResult CrearEmpresa(EmpresaViewModel model)
         {
-
+            var result = new TbGeEmpresa();
 
             try
             {
@@ -130,17 +128,20 @@ namespace AltivaWebApp.Controllers
                 var existeEmpresaN = service.GetEmpresaByNombre(model.Nombre);
                 if(existeEmpresaN != null)
                 {
-                    return Json(new { success = _sharedLocalizer["yaExisteEmpresaN"].ToString() });
+                    return Json(new { success = _sharedLocalizer["yaExisteEmpresa"].ToString() });
                 }
                 var existeEmpresaC = service.GetByCedula(model.CedJuridica);
                 if (existeEmpresaN != null)
                 {
-
-                    return Json(new { success = _sharedLocalizer["yaExisteEmpresaC"].ToString() });
+                    return Json(new { success = _sharedLocalizer["yaExisteEmpresa"].ToString() });
                 }
 
+                model.Id_GE = (int)service.GetGE().Id;
 
-                var result = geMap.Create(model);
+               result = geMap.Create(model);
+
+               
+
                 if (result != null)
                 {
                     var res = service.CrearBD(model.Bd);
@@ -149,15 +150,15 @@ namespace AltivaWebApp.Controllers
                         service.AgregarUsuarios((int)result.Id);
 
                         // return Json(new { success = true });
-                        return RedirectToAction("ListarEmpresas", "GrupoEmpresarial");
+                        return Json(new { success = true });
 
                     }
                     else
                     {
                         ///eliminar datos si la bd no se crea
-                        var em = service.GetEmpresaById((int)result.Id);
+                        //var em = service.GetEmpresaById((int)result.Id);
 
-                        var deleted = service.EliminarEmpresa(em);
+                        var deleted = service.EliminarEmpresa(result);
 
                         return Json(new { success = _sharedLocalizer["errorGeneral"].ToString() });
                     }
@@ -166,12 +167,15 @@ namespace AltivaWebApp.Controllers
                 }
                 else
                 {
+                    
                     return Json(new { success = _sharedLocalizer["errorGeneral"].ToString() });
                 }
 
             }
             catch
             {
+                var deleted = service.EliminarEmpresa(result);
+                //throw;
                 return BadRequest(new { success = _sharedLocalizer["errorGeneral"].ToString() });
             }
         }
@@ -203,8 +207,8 @@ namespace AltivaWebApp.Controllers
 
 
                 var empresa = geMap.Update(viewModel);
-                // return Json(new { success = true });
-                return RedirectToAction("ListarEmpresas", "GrupoEmpresarial");
+                return Json(new { success = true });
+                //return RedirectToAction("DetallesEmpresa", "GrupoEmpresarial", new { nombre = empresa.Nombre });
             }
             catch
             {
@@ -213,7 +217,31 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        [Route("CambiarEstado-Empresa/(id)")]
+
+        [HttpPost("CambiarFoto-Empresa/{id}")]
+        public ActionResult CambiarFotoEmpresa(int id, FileViewModel model)
+        {
+            try
+            {
+
+                if (model.file != null)
+                {
+                    var empresa = service.GetEmpresaById(id);
+
+                    empresa.Foto = FotosService.SubirFotoEmpresa(model.file, System.IO.Path.Combine(Startup.entorno.WebRootPath, "uploads"));
+                    var res = service.Update(empresa);
+                    Sesion.Sesion.SetFotoEmpresa(HttpContext.Session, res.Foto);
+                }
+                
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("CambiarEstado-Empresa/{id}")]
         public ActionResult CambiarEstadoEmpresa(int id)
         {
             try

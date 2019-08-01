@@ -28,25 +28,23 @@ namespace AltivaWebApp.Repositories
 
         public IList<ContactoViewModel> GetCamposEdit(int id)
         {
-            var model = (from us in context.TbCrContacto
-                         join c in context.TbCrContactosCamposPersonalizados on us.IdContacto equals c.IdContacto
-                         join cp in context.TbCrCamposPersonalizados on c.IdCampoPersonalizados equals cp.Id
-                         where c.IdContacto == id
-                         select new ContactoViewModel
-                         {
+            //return (from us in context.TbCrContacto
+            //             join c in context.TbCrContactosCamposPersonalizados on us.IdContacto equals c.IdContacto
+            //             join cp in context.TbCrCamposPersonalizados on c.IdCampoPersonalizados equals cp.Id
+            //             where c.IdContacto == id
+            //             select new CamposPersonalizadosViewModel
+            //             {
 
-                             Tipo = cp.Tipo,
-                             Valor = c.Valor,
-                             IdCampoPersonalizados = c.Id,
-                             NombreCampo = cp.Nombre,
-                             Id = cp.Id
+            //                 Tipo = cp.Tipo,
+            //                 Valor = c.Valor,
+            //                 IdCampoPersonalizados = c.Id,
+            //                 NombreCampo = cp.Nombre,
+            //                 IdContacto = cp.Id
 
 
-                         }
+            //             }).ToList();
+            return null;
 
-     ).ToList();
-
-            return model;
         }
 
         public void Update(IList<TbCrContactosCamposPersonalizados> domain)

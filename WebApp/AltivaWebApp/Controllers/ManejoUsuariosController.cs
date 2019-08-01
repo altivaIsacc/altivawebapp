@@ -10,6 +10,8 @@ using AltivaWebApp.Mappers;
 using AltivaWebApp.ViewModels;
 using System.Security.Claims;
 using AltivaWebApp.GEDomain;
+using Microsoft.Extensions.Localization;
+using System.Net.Http;
 
 namespace AltivaWebApp.Controllers
 {
@@ -17,54 +19,52 @@ namespace AltivaWebApp.Controllers
     [Route("{culture}/Usuarios")]
     public class ManejoUsuariosController : Controller
     {
-       
+
         IUserMap userMap;
         IUserService userService;
         IPerfilService perfilService;
-        public EmailSender email;
-        public void notificar(string mensaje)
-        {
-            var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            //email.insertarNotificacion(int.Parse(id), mensaje);
 
-        }
-        public ManejoUsuariosController(EmailSender email,IPerfilService perfilService, IUserMap map, IUserService userservice)
+        private readonly IStringLocalizer<SharedResources> _sharedLocalizer;
+       
+        public ManejoUsuariosController(IStringLocalizer<SharedResources> sharedLocalizer, IPerfilService perfilService, IUserMap map, IUserService userservice)
         {
             this.userMap = map;
             this.userService = userservice;
             this.perfilService = perfilService;
-            this.email = email;
+            _sharedLocalizer = sharedLocalizer;
         }
 
         // GET: ManejoUsuarios
-        [HttpGet("Listar-Usarios")]
+        [HttpGet("Listar-Usuarios")]
         public ActionResult ListaUsuarios(string estado)
         {
 
+            ViewBag.Perfiles = perfilService.GetAll();
 
-            if (estado == null || estado == "" )   
+            if (estado == null || estado == "")
                 estado = "ACTIVO";
 
             ViewBag.estado = estado;
 
             var usariosFiltrados = new List<TbSeUsuario>();
-            IList<TbSeUsuario> usuarios= userService.GetAll();
+            IList<TbSeUsuario> usuarios = userService.GetAllByIdEmpresaConPerfiles((int)HttpContext.Session.GetInt32("idEmpresa"));
 
             foreach (var item in usuarios)
             {
-                if(item.Estado == estado)
+                if (item.Estado == estado)
                 {
                     usariosFiltrados.Add(item);
                 }
             }
+            
 
-            return View(usariosFiltrados);
+            return View(usariosFiltrados.OrderByDescending(u => u.Id));
 
         }
         [Route("Cuenta-Usuario/{codigo}")]
         public ActionResult CuentaUsuario(string codigo)
         {
-            var model =  userService.GetUsuarioConPerfiles(codigo);
+            var model = userService.GetUsuarioConPerfiles(codigo);
             //long id = model.Id;
             //ViewBag.id = id;
             var asignados = new List<TbSePerfil>();
@@ -99,7 +99,25 @@ namespace AltivaWebApp.Controllers
 
             return View(userMap.DomainToViewModelSingle(model));
         }
+        [HttpPost("CambiarContrasena")]
+        public IActionResult CambiarContrasena(UsuarioViewModel model)
+        {
+            
 
+            try
+            {
+                var user = userService.GetSingleUser(model.id);
+                user.Contrasena = model.contrasena;
+                userService.UpdateUsuario(user);
+
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
 
         [Route("UserA/{codigo?}")]
         public ActionResult UserAccount(string codigo)
@@ -153,7 +171,7 @@ namespace AltivaWebApp.Controllers
                 Idioma = config.Idioma,
                 Tema = config.Tema,
                 IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value)
-        };
+            };
 
             var model = userService.CreateOrUpdateConfiguracion(domain);
 
@@ -167,7 +185,7 @@ namespace AltivaWebApp.Controllers
         {
 
             var pu = userMap.CreatePU(model);
-            notificar("Se ha asignado un nuevo perfil");
+            
             if (pu)
                 return Json(new { success = true });
             else
@@ -199,14 +217,13 @@ namespace AltivaWebApp.Controllers
         }
 
 
-      
+
         // POST: ManejoUsuarios/Create
         [HttpPost("Nuevo-Usuario")]
-        [ValidateAntiForgeryToken]
         public ActionResult CrearUsuario(UsuarioViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View();
+            //if (!ModelState.IsValid)
+            //    return View();
             try
             {
                 var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -216,58 +233,50 @@ namespace AltivaWebApp.Controllers
 
                 if (userService.ExisteUsuarioPorCodigo(model.codigo))
                 {
-                    ModelState.AddModelError(string.Empty, "El código ya existe en el sistema");
-                    return View(model);
+                    return Json(new { success = false, err = _sharedLocalizer["usuarioCodigoExiste"].ToString() });
                 }
-                    
+
                 if (userService.ExisteUsuarioPorCorreo(model.correo))
                 {
-                    ModelState.AddModelError(string.Empty, "El correo ya existe en el sistema");
-                    return View(model);
+                    return Json(new { success = false, err = _sharedLocalizer["usuarioCorreoExiste"].ToString() });
                 }
 
                 var user = userMap.Create(model);
 
-                if(user != null)
+                if (user != null)
                 {
-                    var uId = userService.GetUsuarioConPerfiles(user.codigo);
-                    var idEmpresa =(int) HttpContext.Session.GetInt32("idEmpresa");
+                    //var uId = userService.GetUsuarioConPerfiles(user.codigo);
+                    var idEmpresa = (int)HttpContext.Session.GetInt32("idEmpresa");
                     var empresaUsuarioRel = new TbSeEmpresaUsuario
                     {
                         IdEmpresa = idEmpresa,
                         Estado = true,
-                        IdUsuario = uId.Id
+                        IdUsuario = user.id
                     };
                     var configUsuario = new TbSeUsuarioConfiguraion
                     {
-                        Idioma= "es",
-                        IdUsuario = uId.Id,
+                        Idioma = "es",
+                        IdUsuario = user.id,
                         Tema = "TemaCombinado"
                     };
 
                     var resCU = userService.CreateOrUpdateConfiguracion(configUsuario);
                     var resEU = userService.CreateEmpresaUsuarioRel(empresaUsuarioRel);
 
-                    if (resEU != null && resCU != null)
-                        return RedirectToAction("CuentaUsuario", new { codigo = model.codigo });
-                    else
-                    {
-                        userService.Delete(uId);
-                        return View(string.Empty, "Error al crear la relación del usuario y la empresa");
-                    }
-                       
+                    return Json(new { success = true, cod =  user.codigo});
+
                 }
                 else
                 {
-                    return View(string.Empty, "Error al crear el usuario");
+                    return Json(new { success = false, err = _sharedLocalizer["errorGeneral"].ToString() });
                 }
 
-                
+
             }
             catch
             {
-                
-                throw;                
+                return BadRequest();
+                throw;
             }
         }
 
@@ -280,17 +289,18 @@ namespace AltivaWebApp.Controllers
             return View(modelView);
 
         }
+        
         [HttpPost("Editar-Usuario/{id?}")]
         public ActionResult EditarUsuario(UsuarioViewModel model)
         {
             string i = "";
-            
+
             try
-            {               
+            {
 
                 var domain = userService.GetUsuarioConPerfiles(model.codigo);
-                if(userService.ExisteUsuarioPorCodigo(model.codigo))
-                    if(domain.Id != model.id)
+                if (userService.ExisteUsuarioPorCodigo(model.codigo))
+                    if (domain.Id != model.id)
                     {
                         return Json(new { success = false });
                     }
@@ -304,23 +314,24 @@ namespace AltivaWebApp.Controllers
                     }
 
                 var user = userMap.Update(model);
-                Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
+                if(user.Id.ToString() == User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value)
+                    Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
                 i = user.Codigo;
                 return Json(new { success = true });
-                
+
             }
             catch
             {
                 return BadRequest();
             }
-           
+
 
         }
 
 
         [HttpGet("Editar-Avatar/{codigo}/{img}")]
-        public IActionResult EditarAvatar(string codigo,string img)
-        {            
+        public IActionResult EditarAvatar(string codigo, string img)
+        {
             var user = userService.GetUsuarioConPerfiles(codigo);
 
             string directorio = $"/avatars/{img}";
@@ -328,7 +339,9 @@ namespace AltivaWebApp.Controllers
 
 
             user.Avatar = directorio;
-            Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
+
+            if(codigo == User.Identity.Name)
+                Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
 
             userService.UpdateUsuario(user);
 
@@ -337,14 +350,12 @@ namespace AltivaWebApp.Controllers
         }
 
 
-        [HttpGet("Editar-Estado/{id}")]      
+        [HttpGet("Editar-Estado/{id}")]
         public ActionResult EditarEstadoUsuario(int id)
         {
             try
             {
                 // TODO: Add delete logic here
-
-
                 var model = userService.GetSingleUser(id);
 
                 var estado = model.Estado;
@@ -352,14 +363,15 @@ namespace AltivaWebApp.Controllers
                 if (model.Estado == "ACTIVO")
                 {
                     model.Estado = "INACTIVO";
-                }else
+                }
+                else
                     model.Estado = "ACTIVO";
 
                 var user = userService.UpdateUsuario(model);
                 if (user != null)
                 {
 
-                        return RedirectToAction("ListaUsuarios", new { estado = model.Estado});
+                    return RedirectToAction("ListaUsuarios", new { estado = model.Estado });
 
                 }
                 else
@@ -372,5 +384,63 @@ namespace AltivaWebApp.Controllers
                 return RedirectToAction("ListaUsuarios");
             }
         }
+
+        [HttpPost("AsignarUsuariosEmpresa")]
+        public ActionResult AsignarUsuariosEmpresa(IList<TbSeEmpresaUsuario> newViewModel, IList<TbSeEmpresaUsuario> upViewModel)
+        {
+            try
+            {
+                var res = userService.CrearRelEmpresaUsuario(newViewModel);
+                var res2 = userService.DesactivarRelEmpresaUsuario(upViewModel);
+
+                return Json( new { success = true });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
+        [HttpGet("_AutorizacionUsuario/{idUsuario}")]
+        public ActionResult _AutorizacionUsuario(int idUsuario)
+        {
+            ViewBag.idUsuario = idUsuario;
+            return PartialView();
+        }
+
+
+        [HttpGet("GetEmpresasPorUsuario/{idUsuario}")]
+        public ActionResult GetEmpresasPorUsuario(int idUsuario)
+        {
+            return Ok(userService.GetEmpresasPorUsuario(idUsuario));
+        }
+
+        [HttpGet("GetUsuariosPorEmpresa")]
+        public ActionResult GetUsuariosPorEmpresa()
+        {
+            return Ok(userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa")));
+        }
+
+        [HttpGet("GetUsuariosConEmpresas")]
+        public ActionResult GetUsuariosConEmpresas()
+        {
+            return Ok(userService.GetAllConEmpresas());
+        }
+
+              [HttpGet("GetAllPerfilModulo")]
+        public ActionResult GetAllPerfilModulo()
+        {
+           
+            return Ok(userService.GetAllPerfilModulo());
+        }
+
+        [HttpGet("GetAllPerfilUsuario")]
+        public ActionResult GetAllPerfilUsuario()
+        {
+            
+            return Ok(userService.GetAllPerfilUsuario());
+        }
+
     }
 }

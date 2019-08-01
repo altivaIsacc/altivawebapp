@@ -61,23 +61,27 @@ namespace AltivaWebApp.Mappers
 
         public TbGeEmpresa ViewModelToDomainCrear(EmpresaViewModel model)
         {
-            var savePath = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "Files");
+            var savePath = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "uploads");
             var domain = new TbGeEmpresa
             {
                 Bd = model.Bd,
                 CedJuridica = model.CedJuridica,
                 Correo = model.Correo,
                 Direccion = model.Direccion,
-                Estado = model.Estado,
+                Estado = true,
                 FechaCreacion = DateTime.Now,
                 FechaMod = DateTime.Now,
                 Nombre = model.Nombre,
                 Telefono1 = model.Telefono1,
                 Telefono2 = model.Telefono2,
-                IdGrupoEmpresarial = model.Id_GE,
-                Foto = FotosService.SubirFotoEmpresa(model.Foto,savePath)
+                IdGrupoEmpresarial = model.Id_GE             
+            };
 
-            };        
+            if (model.Foto != null)
+                domain.Foto = FotosService.SubirFotoEmpresa(model.Foto, savePath);
+            else
+                domain.Foto = "";
+
 
             return domain;
         }

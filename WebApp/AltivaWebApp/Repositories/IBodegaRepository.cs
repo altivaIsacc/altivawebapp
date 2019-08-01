@@ -12,6 +12,7 @@ namespace AltivaWebApp.Repositories
         TbPrBodega Update(TbPrBodega domain);
         bool Delete(TbPrBodega domain);
         IList<TbPrBodega> GetAllActivas();
+        IList<TbPrBodega> GetAll();
         TbPrBodega GetBodegaById(int id);
         TbPrBodega GetBodegaByNombre(string nombre);
         IList<TbPrBodega> GetAllInactivas();

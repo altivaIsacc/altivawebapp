@@ -47,6 +47,7 @@ namespace AltivaWebApp.Mappers
             tbTarea.Titulo = domain.Titulo;
             tbTarea.IdContacto = domain.IdContacto;
             tbTarea.IdUsuario = domain.IdUsuario;
+            tbTarea.Eliminada = false;
 
             if (domain.FechaLimite == null)
             {

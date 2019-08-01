@@ -15,9 +15,23 @@ namespace AltivaWebApp.Services
             this.repository = repository;
         }
 
+        public IList<TbPrInventario> GetAllByCoincidence(string word)
+        {
+            return this.repository.GetAllByCoincidence(word);
+        }
+
+        public IList<TbPrInventario> GetInventarioFacturable()
+        {
+            return repository.GetInventarioFacturable();
+        }
+
         public TbPrInventario GetInventarioById(int id)
         {
             return repository.GetInventarioById(id);
+        }
+        public TbPrInventarioBodega GetInventarioBodegaById(int id)
+        {
+            return repository.GetInventarioBodegaById(id);
         }
         public TbPrInventario GetInventarioByCodigo(string codigo)
         {
@@ -46,6 +60,10 @@ namespace AltivaWebApp.Services
         public TbPrInventario Update(TbPrInventario domain)
         {
             return repository.Update(domain);
+        }
+        public TbPrInventarioBodega UpdateIBodega(TbPrInventarioBodega domain)
+        {
+            return repository.UpdateIBodega(domain);
         }
         public bool Delete(TbPrInventario domain)
         {

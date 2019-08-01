@@ -1,0 +1,407 @@
+﻿
+@inject IStringLocalizer<SharedResources> Lb
+
+@{
+    ViewData["Title"] = @Lb["AutorizacionUsuarios"];
+}
+
+
+
+<div class="row">
+
+    <div class="col-md-3 col-sm-3 col-xs-9">
+        <h3>@Lb["AutorizacionUsuarios"]</h3>
+        <hr />
+    </div>
+    <div class="col-md-9 col-sm-9 col-xs-3" style="padding-top: 0.5rem">
+        <a href="@Url.Action("DetallesEmpresa", "GrupoEmpresarial", new { nombre = Context.Session.GetString("nombreEmpresa") })" class="btn btn-default">@Lb["Atrás"]</a>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-3 col-sm-3 col-xs-12">
+        <label for="filtroPalabra">@Lb["Buscar"]:</label>
+        <input type="text" class="form-control" maxlength="40" id="filtroPalabra" placeholder="@Lb["Nombre"]" />
+    </div>
+    <div class="col-md-3 col-sm-3 col-xs-12" style="padding-top:0.8rem">
+        <br />
+        <label for="filtroEstado">
+            @Lb["VerInactivos"] <input type="checkbox" id="filtroEstado" />
+        </label>
+    </div>
+</div>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <button onclick="guardarCambios()" class="btn btn-success">@Lb["Guardar"]</button>
+    </div>
+    <div class="col-md-12 col-sm-12 col-xs-12 table-responsive">
+        <table id="tblUsuarios" class="table table-bordered" style="width:100%">
+            <thead>
+                <tr>
+                    <th>
+                        <span for="asignarTodos">
+                            @Lb["Asignado"] <input id="asignarTodos" type="checkbox" name="todos" />
+                        </span>
+                    </th>
+                    <th>
+                        <span>@Lb["Código"]</span>
+                    </th>
+                    <th>
+                        <span>@Lb["Nombre"]</span>
+                    </th>
+                    <th>
+                        <span>@Lb["Estado"]</span>
+                    </th>
+                    <th hidden>
+
+                    </th>
+                    <th>
+                        <span>@Lb["Iniciales"]</span>
+                    </th>
+                    <th>
+                        <span>@Lb["Fecha Mod"]</span>
+                    </th>
+                    <th>
+                        <span>@Lb["Correo"]</span>
+                    </th>
+                    <th>
+                        Avatar
+                    </th>
+
+                </tr>
+            </thead>
+            <tbody></tbody>
+
+        </table>
+    </div>
+</div>
+
+
+<script>
+    var usuarios = [];
+    var tblUsuarios = "";
+    var _estadoA = 1;
+    var _estadoI = 2;
+
+    var relacionLocal = []; //nuevas relaciones
+    var relacionBD = [];//actualizar estado de relacion
+
+    $(document).ready(function () {
+
+        getUsuarios();
+
+        
+    });
+
+
+    $('#asignarTodos').change(function () {
+
+        if ($(this).prop("checked")) {
+
+            $(".usuarios").each(function (i, elem) {
+
+                if (!$(elem).prop('checked')) {
+                    asignarEmpresa(parseInt($(elem).val()));
+                }
+            });
+
+            $(".usuarios").prop("checked", true);
+        }
+        else {
+
+            $(".usuarios").each(function (i, elem) {
+
+                if ($(elem).prop('checked')) {
+                    desactivarUsuario(parseInt($(elem).val()));
+                }
+            });
+
+            $(".usuarios").prop("checked", false);
+        }
+
+    });
+
+    function checkUsuario(idUsuario) {
+
+        $(".usuarios").each(function (i, elem) {
+
+            if ($(elem).val() === idUsuario.toString()) {
+                if ($(elem).prop('checked')) {
+                    asignarEmpresa(parseInt(idUsuario));
+                } else {
+                    desactivarUsuario(parseInt(idUsuario));
+                }
+            }
+        });
+        
+    }
+
+    function asignarEmpresa(idUsuario) {
+
+        var existeRel = getEmpresaUsuario(idUsuario);
+
+        if (existeRel !== "") {
+
+            for (var i = 0; i < relacionBD.length; i++) {
+                if (relacionBD[i].idUsuario === idUsuario) {
+                    relacionBD.splice(i, 1);
+                    break;
+                }
+            }
+            
+            existeRel.estado = true;
+            relacionBD.push(existeRel);
+
+
+
+        } else {
+            var model = {
+                idEmpresa: @Context.Session.GetInt32("idEmpresa"),
+                idUsuario: idUsuario,
+                id: 0,
+                estado: true
+            };
+
+            relacionLocal.push(model);
+        }
+
+    }
+    function desactivarUsuario(idUsuario) {
+        var existeRel = getEmpresaUsuario(idUsuario);
+
+        if (existeRel !== "") {
+
+            for (var i = 0; i < relacionBD.length; i++) {
+                if (relacionBD[i].idUsuario === idUsuario) {
+                    relacionBD.splice(i, 1);
+                    break;
+                }
+            }
+            existeRel.estado = false;
+            relacionBD.push(existeRel);
+
+        } else {
+            for (var i = 0; i < relacionLocal.length; i++) {
+                if (relacionLocal[i].idUsuario === idUsuario) {
+                    relacionLocal.splice(i, 1);
+                    break;
+                }
+            }               
+        }
+    }
+
+    function getEmpresaUsuario(idUsuario) {
+
+        var idEmpresa = @Context.Session.GetInt32("idEmpresa");
+
+        var usuario = "";
+
+        for (var i = 0; i < usuarios.length; i++) {
+            if (usuarios[i].id === idUsuario) {
+                for (var k = 0; k < usuarios[i].tbSeEmpresaUsuario.length; k++) {
+                    var emp = usuarios[i].tbSeEmpresaUsuario[k];
+                    if (emp.idEmpresa === idEmpresa) {
+                        usuario = emp;
+                        break;
+                    }
+
+                }
+            }
+
+        }
+
+        return usuario;
+
+    }
+
+
+    function getUsuarios() {
+
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetUsuariosConEmpresas", "ManejoUsuarios")',
+            success: function (data) {
+
+                usuarios = JSON.parse(JSON.stringify(data));
+
+                cargarDatos(usuarios);
+
+                
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+
+    }
+
+    function cargarFiltros() {
+        
+    }
+
+    $("#filtroEstado").on("change", function () {
+        
+        if ($(this).prop("checked")) {
+            filtroEstado(_estadoI);
+        }
+        else {
+            filtroEstado(_estadoA);
+        }
+        
+    });
+
+    function filtroEstado(key) {
+        
+        tblUsuarios
+            .columns(4)
+            .search(key)
+            .draw();
+    }
+
+    $("#filtroPalabra").on("keyup", function () {
+        tblUsuarios
+            .columns(2)
+            .search(this.value)
+            .draw();
+    });
+
+    
+
+    function recuperarFecha(_fecha) {
+
+
+        var f = new Date(_fecha);
+
+        return f.toLocaleString();
+
+    }
+
+    function existeEnEmpresa(idUsuario) {
+
+        var idEmpresa = @Context.Session.GetInt32("idEmpresa");
+
+        var flag = "";
+
+        for (var i = 0; i < usuarios.length; i++) {
+            if (usuarios[i].id === idUsuario) {
+                for (var k = 0; k < usuarios[i].tbSeEmpresaUsuario.length; k++) {
+                    var emp = usuarios[i].tbSeEmpresaUsuario[k];
+                    if (emp.idEmpresa === idEmpresa && emp.estado) {
+                        flag = "checked";
+                        break;
+                    }
+
+                }
+            }
+
+        }
+
+        return flag;
+    }
+
+
+    function guardarCambios() {
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: '@Url.Action("AsignarUsuariosEmpresa", "ManejoUsuarios")',
+            data: { newViewModel: relacionLocal, upViewModel: relacionBD },
+            success: function (data) {
+
+                cargarAlert('@Lb["actualizadoCorrectamente"]');
+                
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+
+    }
+
+    function cargarDatos(data) {
+
+        $("#tblUsuarios > tbody").remove();
+        $('#tblUsuarios').append('<tbody></tbody>');
+
+        var contadorFila = 0;
+        for (var i = 0; i < data.length; i++) {
+
+            var body = '<tr class="fila' + contadorFila + ' filas" >'
+                + '<td class="text-center"><p><p/><input onchange="checkUsuario(' + data[i].id + ')" class="usuarios"  name="chkUsuarios" type="checkbox" value="' + data[i].id + '" ' + existeEnEmpresa(data[i].id) + '/></td>'
+                + '<td><a class="btn btn-link" href="' + "@Url.Action("CuentaUsuario", "ManejoUsuarios", new { codigo = "__cod__" })".replace("__cod__", data[i].codigo) + '" style="padding-top:1rem;">' + data[i].codigo + '</a></td>'
+                + '<td><p style="padding-top:1.2rem;">' + data[i].nombre + '</p></td>'
+                + '<td><p style="padding-top:1.2rem;">' + data[i].estado + '</p></td>'
+                + '<td hidden><p style="padding-top:1rem;">' + getEstado(data[i].estado) + '</p></td>'
+                + '<td><p style="padding-top:1.2rem;">' + data[i].iniciales + '</p></td>'
+                + '<td><p style="padding-top:1.2rem;">' + recuperarFecha(data[i].fechaMod) + '</p></td>'
+                + '<td><p style="padding-top:1.2rem;">' + data[i].correo + '</p></td>'
+                + '<td class="text-center"><img style="height:4rem; width: 4rem;" src="' + data[i].avatar + '" /></td>';
+            $('#tblUsuarios > tbody').append(body);
+            contadorFila++;
+
+        }
+
+
+        inicializarTabla();
+
+    }
+
+    function inicializarTabla() {
+
+        $('#tblUsuarios').DataTable().destroy();
+
+        tblUsuarios = $('#tblUsuarios').DataTable({
+            "info": false,
+            "bSort": false,
+            "order": [[2, "asc"]],
+            "paginate": false,
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            }
+        });
+
+        filtroEstado(_estadoA);
+    }
+
+    function getEstado(estado) {
+        if (estado === "ACTIVO") {
+            return _estadoA;
+        }
+        else
+            return _estadoI;
+    }
+
+</script>
+
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

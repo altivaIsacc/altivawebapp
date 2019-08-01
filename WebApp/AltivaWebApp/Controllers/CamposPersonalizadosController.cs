@@ -40,7 +40,7 @@ namespace AltivaWebApp.Controllers
         public ActionResult Index()
         {
             IList<TbCrCamposPersonalizados> campos = new List<TbCrCamposPersonalizados>();
-            campos = this.pCamposPersonalizados.GetAll();
+            campos = this.pCamposPersonalizados.GetAll(0);
             return View(campos);
             // return View(campos);
         }
@@ -58,7 +58,7 @@ namespace AltivaWebApp.Controllers
         }
         [HttpPost("CrearCamposPersonalizados")]
     
-        public IActionResult CrearCamposPersonalizados(CamposPersonalizadosViewModelSingle domain2)
+        public IActionResult CrearCamposPersonalizados(CamposPersonalizadosViewModel domain2)
         {
             ViewBag.id = 0;
             return PartialView("_CrearEditarCampos",domain2);
@@ -70,7 +70,7 @@ namespace AltivaWebApp.Controllers
             return View();
         }
         [HttpPost("CrearNuevoCamposPersonalizados")]
-        public IActionResult CrearNuevoCamposPersonalizados(CamposPersonalizadosViewModelSingle domain)
+        public IActionResult CrearNuevoCamposPersonalizados(CamposPersonalizadosViewModel domain)
         {
             List<TbCrCamposPersonalizados> ListaCampos = new List<TbCrCamposPersonalizados>();
           
@@ -94,7 +94,7 @@ namespace AltivaWebApp.Controllers
             ViewBag.id = 1;
             TbCrCamposPersonalizados contactoMap = new TbCrCamposPersonalizados();
             contactoMap = this.pCamposPersonalizados.getById(id);
-            CamposPersonalizadosViewModelSingle domain2 = new CamposPersonalizadosViewModelSingle();
+            CamposPersonalizadosViewModel domain2 = new CamposPersonalizadosViewModel();
             domain2.Id = Convert.ToInt32( contactoMap.Id);
             domain2.Nombre = contactoMap.Nombre;
             domain2.Tipo = contactoMap.Tipo;
@@ -102,13 +102,13 @@ namespace AltivaWebApp.Controllers
             return PartialView("_CrearEditarCampos", domain2);
         }
         [HttpPost("Editar")]
-        public ActionResult Editar(CamposPersonalizadosViewModelSingle model1)
+        public ActionResult Editar(CamposPersonalizadosViewModel model1)
         {
             try
             {
                
                 TbCrCamposPersonalizados contactoMap = new TbCrCamposPersonalizados();
-                contactoMap = this.IcontactoMap.Edit(model1);
+                contactoMap = this.IcontactoMap.UpdateCP(model1);
                 return new JsonResult(true);
             }
             catch
@@ -120,7 +120,7 @@ namespace AltivaWebApp.Controllers
        public ActionResult Delete(int id)
         {
             TbCrCamposPersonalizados cp = new TbCrCamposPersonalizados();
-            cp = this.IcontactoMap.Delete(id);
+            cp = this.IcontactoMap.EliminarCP(id);
 
             return new JsonResult(1);
 

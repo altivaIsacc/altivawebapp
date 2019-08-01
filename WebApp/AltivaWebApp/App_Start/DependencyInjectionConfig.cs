@@ -60,7 +60,7 @@ namespace AltivaWebApp.App_Start
          
             services.AddScoped<FotosService>();
             //
-            services.AddScoped< IcontactoCamposMap, ContactosCamposMap>();
+            services.AddScoped< IContactoCamposMap, ContactosCamposMap>();
             //
 
             services.AddScoped<IContactoRelacionRepository, ContactoRelacionRepository>();
@@ -70,7 +70,7 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<ICamposPersonalizadosService, CamposPersonalizadosServices>();
             services.AddScoped<ICamposPersonalizadosRepository, CamposPersonalizadosRepository>();
             //
-            services.AddScoped<IContactoMap, ContactoMapper>();
+            services.AddScoped<IContactoMap, ContactoMap>();
             //
             services.AddScoped<IContactoService, ContactoService>();
             services.AddScoped<IContactoRepository, ContactoRepository>();
@@ -126,10 +126,6 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IModuloRepository, ModuloRepository>();
             services.AddScoped<IModuloMap, ModuloMap>();
 
-            ///HistorialMoneda
-            services.AddScoped<IHistorialMonedaService, HistorialMonedaService>();
-            services.AddScoped<IHistorialMonedaMap, HistorialMonedaMap>();
-            services.AddScoped<IHistorialMonedaRepository, HistorialMonedaRepository>();
 
             //ModuloPerfil
             services.AddScoped<IModuloPerfilMap, ModuloPerfilMap>();
@@ -198,6 +194,7 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<ICompraRepository, CompraRepository>();
             services.AddScoped<ICompraService, CompraService>();
             services.AddScoped<ICompraMap, CompraMap>();
+           
 
             //Departamento
 
@@ -217,7 +214,66 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IRequisicionService, RequisicionService>();
             services.AddScoped<IRequisicionMap, RequisicionMap>();
 
+            /// Toma
+            services.AddScoped<ITomaRepository, TomaRepository>();
+            services.AddScoped<ITomaService, TomaService>();
+            services.AddScoped<ITomaMap, TomaMap>();
 
+            /// CategoriaGasto
+            services.AddScoped<ICategoriaGastoRepository, CategoriaGastoRepository>();
+            services.AddScoped<ICategoriaGastoService, CategoriaGastoService>();
+            services.AddScoped<ICategoriaGastoMap, CategoriaGastoMap>();
+
+            /// CategoriaGasto
+            services.AddScoped<IFacturaRepository, FacturaRepository>();
+            services.AddScoped<IFacturaService, FacturaService>();
+            services.AddScoped<IFacturaMap, FacturaMap>();
+
+            //Cotizaciones
+            services.AddScoped<ICotizacionRepository,CotizacionRepository>();
+            services.AddScoped<ICotizacionService, CotizacionService>();
+            services.AddScoped<ICotizacionMap, CotizacionMap>();
+
+            //Denominaciones
+            services.AddScoped<IDenominacionRepository,DenominacionRepository>();
+            services.AddScoped<IDenominacionesService, DenominacionesService>();
+            services.AddScoped<IDenominacionMap, DenominacionMap>();
+
+            //Caja
+            services.AddScoped<ICajaService, CajaService>();
+            services.AddScoped<ICajaRepository, CajaRepository>();
+            services.AddScoped<ICajaMap, CajaMap>();
+            //RebajaConfig
+            services.AddScoped<IDescuentoPromocionRepository, DescuentoPromocionRepository>();
+            services.AddScoped<IDescuentoPromocionService, DescuentoPromocionService>();
+            services.AddScoped<IDescuentoPromocionMap, DescuentoPromocionMap>();
+
+            //DescuentoUSuario
+            services.AddScoped<IDescuentoUsuarioRepository, DescuentoUsuarioRepository>();
+            services.AddScoped<IDescuentoUsuarioService, DescuentoUsuarioService>();
+            services.AddScoped<IDescuentoUsuarioMap, DescuentoUsuarioMap>();
+
+
+            //DescuentoUSuarioRango
+            services.AddScoped<IDescuentoUsuarioRangoRepository, DescuentoUsuarioRangoRepository>();
+            services.AddScoped<IDescuentoUsuarioRangoService, DescuentoUsuarioRangoService>();
+            services.AddScoped<IDescuentoUsuarioRangoMap, DescuentoUsuarioRangoMap>();
+
+            //DescuentoUSuarioClave
+            services.AddScoped<IDescuentoUsuarioClaveRepository, DescuentoUsuarioClaveRepository>();
+            services.AddScoped<IDescuentoUsuarioClaveService, DescuentoUsuarioClaveService>();
+            services.AddScoped<IDescuentoUsuarioClaveMap, DescuentoUsuarioClaveMap>();
+
+            //PromocionProducto
+            services.AddScoped<IPromocionProductoRepository, PromocionProductoRepositoy>();
+            services.AddScoped<IPromocionProductoService, PromocionProductoService>();
+            services.AddScoped<IPromocionProductoMap, PromocionProductoMap>();
+
+            //Flujo Categoria
+
+            services.AddScoped<IFlujoCategoriaRepository, FlujoCategoriaRepository>();
+            services.AddScoped<IFlujoCategoriaService, FlujoCategoriaService>();
+            services.AddScoped<IFlujoCategoriaMap, FlujoCategoriaMap>();
 
         }
     }

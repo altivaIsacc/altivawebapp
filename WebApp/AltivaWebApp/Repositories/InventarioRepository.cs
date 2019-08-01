@@ -8,16 +8,51 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Repositories
 {
-    public class InventarioRepository: BaseRepository<TbPrInventario>, IInventarioRepository
+    public class InventarioRepository : BaseRepository<TbPrInventario>, IInventarioRepository
     {
+        
         public InventarioRepository(EmpresasContext context) : base(context)
         {
 
         }
 
+        public IList<TbPrInventario> GetAllByCoincidence(string word)
+        {
+            return (from i in context.TbPrInventario where 
+                    EF.Functions.Like(i.IdInventario.ToString(), $"%{word}%") || 
+                    EF.Functions.Like(i.Descripcion, $"%{word}%") ||
+                    EF.Functions.Like(i.Codigo, $"%{word}%") && i.HabilitarVentaDirecta
+                    select i
+                    ).ToList(); //context.TbPrInventario.Where(i => i.IdInventario like word);
+        }
+
         public TbPrInventario GetInventarioById(int id)
         {
             return context.TbPrInventario.FirstOrDefault(i => i.IdInventario == id);
+        }
+        
+        public TbPrInventarioBodega UpdateIBodega(TbPrInventarioBodega domain)
+        {
+            try
+            {
+                context.TbPrInventarioBodega.Update(domain);
+                context.SaveChanges();
+                return domain;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public TbPrInventarioBodega GetInventarioBodegaById(int id)
+        {
+            return context.TbPrInventarioBodega.FirstOrDefault(i => i.Id == id);
+        }
+
+        public IList<TbPrInventario> GetInventarioFacturable()
+        {
+            return context.TbPrInventario.Where(i => i.HabilitarVentaDirecta == true).ToList();
         }
 
         public IList<TbPrImagenInventario> GetInventarioImagenByCodigo(int id)
@@ -40,7 +75,70 @@ namespace AltivaWebApp.Repositories
                 .Include(i => i.IdSubFamiliaNavigation)
                     .ThenInclude(f => f.IdFamiliaNavigation)
                 .Include(i => i.IdUnidadMedidaNavigation)
-                .Include(i => i.TbPrInventarioBodega).ToList();
+                .Include(i => i.TbPrInventarioBodega)
+                .Select(i => new TbPrInventario {
+                    AbreviacionFacturas = i.AbreviacionFacturas,
+                    HabilitarVentaDirecta = i.HabilitarVentaDirecta,
+                    Codigo = i.Codigo,
+                    Descripcion = i.Descripcion,
+                    CantidadUnidad = i.CantidadUnidad,
+                    CodigoMoneda = i.CodigoMoneda,
+                    CodigoMonedaVenta = i.CodigoMonedaVenta,
+                    CostoPromedioGeneral = i.CostoPromedioGeneral,
+                    DescripcionVenta = i.DescripcionVenta,
+                    ExistenciaGeneral = i.ExistenciaGeneral,
+                    FactorAprovechamiento = i.FactorAprovechamiento,
+                    FechaCreacion = i.FechaCreacion,
+                    HabilitarVentaOnline = i.HabilitarVentaOnline,
+                    IdFamiliaOnline = i.IdFamiliaOnline,
+                    IdInventario = i.IdInventario,
+                    IdMonedaVentaOnline = i.IdMonedaVentaOnline,
+                    IdSubFamilia = i.IdSubFamilia,
+                    IdSubFamiliaNavigation = i.IdSubFamiliaNavigation,
+                    IdUnidadMedida = i.IdUnidadMedida,
+                    IdUnidadMedidaNavigation = new TbPrUnidadMedida
+                    {
+                        Abreviatura = i.IdUnidadMedidaNavigation.Abreviatura,
+                        Id = i.IdUnidadMedidaNavigation.Id,
+                        Nombre = i.IdUnidadMedidaNavigation.Nombre,
+                    },
+                    IdUsuario = i.IdUsuario,
+                    ImpuestoVenta = i.ImpuestoVenta,
+                    Inactiva = i.Inactiva,
+                    NombreCarrito = i.NombreCarrito,
+                    Notas = i.Notas,
+                    PrecioCredito = i.PrecioCredito,
+                    PrecioCreditoFinal = i.PrecioCreditoFinal,
+                    PrecioTemporal = i.PrecioTemporal,
+                    PrecioTemporalFinal = i.PrecioTemporalFinal,
+                    PrecioVenta = i.PrecioVenta,
+                    PrecioVentaFinal = i.PrecioVentaFinal,
+                    PrecioVentaOnline = i.PrecioVentaOnline,
+                    SkuOnline = i.SkuOnline,
+                    UltimoPrecioCompra = i.UltimoPrecioCompra,
+                    UtilidadCredito = i.UtilidadCredito,
+                    UtilidadDeseada = i.UtilidadDeseada,
+                    UtilidadTemporal = i.UtilidadTemporal,
+                    TbPrInventarioBodega = i.TbPrInventarioBodega.Select(ib => new TbPrInventarioBodega {
+                        CostoPromedioBodega = ib.CostoPromedioBodega,
+                        Id = ib.Id,
+                        ExistenciaBodega = ib.ExistenciaBodega,
+                        ExistenciaMaxima = ib.ExistenciaMaxima,
+                        ExistenciaMedia = ib.ExistenciaMedia,
+                        ExistenciaMinima = ib.ExistenciaMinima,
+                        IdBodega = ib.IdBodega,
+                        IdBodegaNavigation = new TbPrBodega
+                        {
+                            Id = ib.IdBodegaNavigation.Id,
+                            Nombre = ib.IdBodegaNavigation.Nombre
+                        },
+                        SaldoBodega = ib.SaldoBodega,
+                        UltimoCostoBodega = ib.UltimoCostoBodega
+
+                    }).ToList()
+                    
+
+                }).ToList();
         }
 
         public IList<TbPrInventarioBodega> GetAllBodegasPorInventario(int id)

@@ -94,7 +94,10 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var departamento = service.GetDepartamentoById(id);
-                departamento.Anulado = true;
+                if (!departamento.Anulado)
+                    departamento.Anulado = true;
+                else
+                    departamento.Anulado = false;
                 departamento = service.Update(departamento);
                 return Ok(departamento);
             }

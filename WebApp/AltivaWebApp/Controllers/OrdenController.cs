@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
@@ -14,7 +15,7 @@ namespace AltivaWebApp.Controllers
     [Route("{culture}/Orden")]
     public class OrdenController : Controller
     {
-
+       
         private readonly IOrdenService service;
         private readonly IOrdenMap map;
         private readonly IContactoService contactoService;
@@ -38,10 +39,29 @@ namespace AltivaWebApp.Controllers
             return View();
         }
 
+        [HttpGet("GenerarCompraAutomatica/{idProveedor}")]
+        public IActionResult GenerarCompraAutomatica(int idProveedor)
+        {
+            try
+            {
+                var ca = service.compraProveedor(idProveedor);
+                return Ok(ca);
+                
+            }
+            catch (Exception)
+            {
+                //return BadRequest();
+                throw;
+            }
+            
+        }
+
+
+
+
         [Route("Nueva-Orden")]
         public ActionResult CrearOrden()
         {
-            ViewData["proveedores"] = contactoService.GetAllProveedores();
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
 
             var tipoCambio = monedaService.GetAll(); 
@@ -56,22 +76,31 @@ namespace AltivaWebApp.Controllers
         public ActionResult EditarOrden(int id)
         {
             var orden = map.DomainToViewModel(service.GetOrdenById(id));
-            ViewData["proveedores"] = contactoService.GetAllProveedores();
             ViewData["usuario"] = userService.GetSingleUser((int)orden.IdUsuario);
             return View("CrearEditarOrden", orden);
         }
 
         // POST: Orden/Create
         [HttpPost("CrearEditar-Orden")]
-        public ActionResult CrearEditarOrden(OrdenViewModel viewModel)
+        public ActionResult CrearEditarOrden(OrdenViewModel viewModel, IList<OrdenDetalleViewModel> model2)
         {
             try
             {
                 if(viewModel.Id != 0)
                 {
                     var orden = map.Update(viewModel);
-                    if (viewModel.OrdenDetalle != null && viewModel.OrdenDetalle.Count() > 0)
+
+                    if (viewModel.OrdenDetalle != null)
+                    {
                         map.CreateOD(viewModel);
+
+                    }
+                    if (model2.Count() > 0)
+                    {
+                            viewModel.OrdenDetalle = model2;
+                            map.UpdateOD(viewModel);
+                    }
+                          
                 }
                 else
                 {
@@ -84,7 +113,8 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
-                return BadRequest();
+                //return BadRequest();
+                throw;
             }
         }
 
@@ -167,7 +197,8 @@ namespace AltivaWebApp.Controllers
             }
             catch
             {
-                return BadRequest();
+                throw;
+                //return BadRequest();
             }
         }
 

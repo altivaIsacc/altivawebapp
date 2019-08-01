@@ -17,5 +17,12 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbCrContactoRelacion.Where(u => u.Id == id).FirstOrDefault();
         }
+
+
+        public TbCrContactoRelacion GetByIdPadreAndIdHijo(int idPadre, int idHijo)
+        {
+            return context.TbCrContactoRelacion.FirstOrDefault(u => u.IdContactoPadre == idPadre && u.IdContactoHijo == idHijo || u.IdContactoPadre == idHijo && u.IdContactoHijo == idPadre);
+        }
+
     }
 }

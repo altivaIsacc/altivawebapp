@@ -9,17 +9,16 @@
 
     <div class=" container">
         <div id="tareas">
-            <h3>Reporte de costos:</h3>
+            
             <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group col-md-2">
-                        <button class="btn btn-default btnAtras">Atrás</button>
+                <div class="col-md-3 col-sm-3 col-xs-3"><h3>Reporte de Costos</h3></div>
+                <div class="col-md-9 col-sm-9 col-xs-9">
+                    <div class="form-group col-md-2" style="padding-top:0.5rem">
+                        <a href="@Url.Action("ListarTareas")" class="btn btn-default">Atrás</a>
                     </div>
                 </div>
             </div>
-            <div class="row col-md-12">
-
-
+            <div class="row">
                 <div class="col-md-2">
                     <label style="padding-top: 0.2rem">Asignados:</label>
                     <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroAsignado">
@@ -102,7 +101,7 @@
                     <tr>
                        
                         <th>
-                            Tipo tarea
+                            Tipo Tarea
                         </th>
                         <th>
                             Título
@@ -114,35 +113,33 @@
                             Contacto
                         </th>
                         <th>
-                            Fecha Limite
+                            Fecha Límite
                         </th>
                         <th hidden>
                             Asignado
                         </th>
 
-
-
                         <th hidden>
                             Descripción
                         </th>
                         <th hidden>
-                            Dias estimados
+                            Dias Estimados
                         </th>
                         <th hidden>
-                            Dias reales
+                            Dias Reales
                         </th>
                         <th >
-                            Costo estimado
+                            Costo Estimado
                         </th>
                         <th >
                             Costo Real
                         </th>
 
                         <th hidden>
-                            Fecha inicio
+                            Fecha Inicio
                         </th>
                         <th hidden>
-                            Fecha final
+                            Fecha Final
                         </th>
 
                     </tr>
@@ -156,6 +153,7 @@
     </div>
 
 
+    <input readonly hidden id="monedaFormatter" />
     <script>
         var reportes = [];
         var TareasMostrar = [];
@@ -345,8 +343,10 @@
 
 
 
- $(document).ready(function () {
-     cargarTabla();
+        $(document).ready(function () {
+
+            getMonedaBase();
+            cargarTabla();
      
         $('#filtroFecha').daterangepicker({
             opens: 'left',
@@ -394,7 +394,31 @@
                 //filtroFecha(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
 
             });
-    });
+        });
+
+
+        function getMonedaBase() {
+            $.ajax({
+                type: "get",
+                headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                dataType: "json",
+                url: '@Url.Action("GetTipoCambio", "Monedas", new { id = 1 })',
+                success: function (data) {
+                        $("#monedaFormatter").inputmask('currency', {
+                        prefix: data.simbolo + " ",
+                        rightAlign: true
+                    });
+                },
+                error: function (err, scnd) {
+                   
+                    console.log(err.statusText);
+                }
+            });
+        }
+
+
         //cargar datos de las tareas..
         function cargarDatos(data) {
             var contadorFila = 0;
@@ -441,8 +465,8 @@
                     + '<td hidden>' + data[i].descripcion + '</td>'
                     + '<td hidden>' + data[i].diasEstimados + '</td>'
                     + '<td hidden>' + data[i].diasReales + '</td>'
-                    + '<td >' + data[i].costoEstimado + '</td>'
-                    + '<td bgColor=' + color + '>' + data[i].costoReal + '</td>'
+                    + '<td style="text-align:right" >' + fomatearMoneda(data[i].costoEstimado) + '</td>'
+                    + '<td style="text-align:right" bgColor=' + color + '>' + fomatearMoneda(data[i].costoReal) + '</td>'
                     + '<td hidden hidden>' + data[i].fechaInicio + '</td>'
                     + '<td hidden hidden>' + data[i].fechaFinal + '</td>'
 
@@ -505,6 +529,13 @@
                 ]
             });
         }
+
+        function fomatearMoneda(val) {
+            $('#monedaFormatter').val(val);
+
+            return $('#monedaFormatter').val();
+        }
+        
          //cargar tabla
         function cargarTabla() {
          var url = '@Url.Action("GetTareas", "Tarea")';
@@ -531,17 +562,12 @@
         }
         function recuperarFecha(_fecha) {
 
-            var fecha = _fecha.substr(0, 10);
-            var y = fecha.substr(0, 4);
-            var m = fecha.substr(6, 1);
-            var d = fecha.substr(8, 3);
 
-            //var date = new Date();
-            //console.log(fecha);
-
-            return d + "/" + m + "/" + y + " " + _fecha.substr(-8, 8);
+            var f = new Date(_fecha);
+            return f.toLocaleString();
 
         }
+
         function recuperarFechaSinHora(_fecha) {
 
             var fecha = _fecha.substr(0, 10);
@@ -556,3 +582,11 @@
 
         }
     </script>
+
+    <style>
+        .dataTables_wrapper .dataTables_filter {
+            float: right;
+            text-align: right;
+            visibility: hidden;
+        }
+    </style>

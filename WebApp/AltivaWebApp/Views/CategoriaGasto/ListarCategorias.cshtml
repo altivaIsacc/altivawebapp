@@ -1,0 +1,144 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@inject IStringLocalizer<SharedResources> Lb
+
+
+<div class="row">
+    <div class="col-md-3">
+        <h3>@Lb["CategoriaGastos"]</h3>
+    </div>
+    <div class="col-md-9">
+        <p style="padding-top:0.5rem">
+            <button class="btn btn-primary" onclick="crearEditarPartial(0)"><span>@Lb["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></button>
+        </p>
+    </div>
+    
+</div>
+
+<hr />
+
+<div class="row">
+
+    <div class="col-md-3 col-sm-4 col-xs-12">
+        <label for="buscarPorNombre">@Lb["Buscar"]:</label>
+        <input class="form-control" id="buscarPorNombre" type="text" placeholder="@Lb["Nombre"]" />
+    </div>
+    <div style="padding-top:0.4rem" class="col-md-2 col-sm-4 col-xs-12">
+        <br />
+        <button onclick="filtrarPorEstado(value)" class="btn btn-dark" id="btnEstado" value="1">@Lb["VerInactivos"]</button>
+    </div>
+
+</div>
+
+<br />
+<div class="row">
+    <div class="col-md-10 col-sm-12 col-xs-12 table-responsive" id="tablaContenedor">
+
+    </div>
+</div>
+
+<div class="row">
+    <!-- Modal -->
+    <div class="modal fade" id="modalCategoriaGasto" tabindex="-1" role="dialog" aria-labelledby="categoriaGastoModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body" id="crearEditarPartial">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        getCategoriaGasto(false);
+        
+        
+    });
+
+    function crearEditarPartial(id) {
+         var url = "@Url.Action("_CrearCategoriaGasto")";
+            if (id != 0) {
+                url = '@Url.Action("_EditarCategoriaGasto", new { id = "__id__"})';
+                url = url.replace("__id__", id);
+            }
+            
+            $.ajax({
+                type: "GET",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+
+                success: function (data) {
+                    $('#crearEditarPartial').html(data);
+                    $('#modalCategoriaGasto').modal('show');
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+    }
+    function getCategoriaGasto(value)
+    {
+       
+        $.ajax({
+            type: "GET",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: '@Url.Action("_CategoriasGasto")',
+
+            success: function (data) {
+                $('#tablaContenedor').html(data);
+
+                var estado = $("#btnEstado").val();
+                if (value) {
+
+                    if (estado === "1")
+                        estado = "0";
+                    else
+                        estado = "1";
+
+                    filtrarPorEstado(estado);
+
+                }
+                else
+                    filtrarPorEstado("1");
+                
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+
+       
+    }
+
+
+    function filtrarPorEstado(value) {
+        if (value === "0") {
+            filtrarInactivos("False");
+            $("#btnEstado").html('@Lb["VerActivos"]');
+            $("#btnEstado").val(1);
+        }
+        else {
+            filtrarInactivos("True");
+            $("#btnEstado").html('@Lb["VerInactivos"]');
+            $("#btnEstado").val(0);
+        }
+    }
+
+
+    
+
+</script>

@@ -14,6 +14,7 @@ namespace AltivaWebApp.Services
         TbSeUsuario UpdateUsuario(TbSeUsuario domain);
         void Delete(TbSeUsuario domain);
         IList<TbSeUsuario> GetAll();
+       
         TbSeUsuario GetSingleUser(int id);
         TbSeUsuario GetUsuarioConPerfiles(string usuario);
         TbSeUsuario GetUsuarioConEmpresas(string usuario);
@@ -24,7 +25,14 @@ namespace AltivaWebApp.Services
         TbSeUsuarioConfiguraion CreateOrUpdateConfiguracion(TbSeUsuarioConfiguraion domain);
         TbSeEmpresaUsuario CreateEmpresaUsuarioRel(TbSeEmpresaUsuario domain);
         IList<TbSeUsuario> GetAllByIdEmpresa(int idEmpresa);
+        IList<TbSeUsuario> GetAllByIdEmpresaConPerfiles(int idEmpresa);
         bool ExisteUsuarioPorCodigo(string codigo);
         bool ExisteUsuarioPorCorreo(string correo);
+        IList<TbSeUsuario> GetAllConEmpresas();
+        bool CrearRelEmpresaUsuario(IList<TbSeEmpresaUsuario> domain);
+        bool DesactivarRelEmpresaUsuario(IList<TbSeEmpresaUsuario> domain);
+        IList<TbGeEmpresa> GetEmpresasPorUsuario(int idUsuario);
+        IList<TbSePerfilUsuario> GetAllPerfilUsuario();
+        IList<TbSePerfilModulo> GetAllPerfilModulo();
     }
 }

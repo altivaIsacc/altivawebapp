@@ -17,13 +17,15 @@ namespace AltivaWebApp.Controllers
         private readonly IRequisicionMap map;
         private readonly IDepartamentoService depaService;
         private readonly IKardexMap kardexMap;
+        private readonly ITomaService tomaService;
 
-        public RequisicionController(IKardexMap kardexMap, IDepartamentoService depaService, IRequisicionService service, IRequisicionMap map)
+        public RequisicionController(ITomaService tomaService, IKardexMap kardexMap, IDepartamentoService depaService, IRequisicionService service, IRequisicionMap map)
         {
             this.service = service;
             this.map = map;
             this.depaService = depaService;
             this.kardexMap = kardexMap;
+            this.tomaService = tomaService;
         }
 
         [Route("Listar-Requisiciones")]
@@ -35,13 +37,18 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Nueva-Rquisicion")]
         public IActionResult CrearRequisicion()
         {
+            ViewBag.tieneToma = false;
             return View("CrearEditarRequisicion", new RequisicionViewModel());
         }
 
         [HttpGet("Editar-Rquisicion/{id}")]
         public IActionResult EditarRequisicion(int id)
         {
-            return View("CrearEditarRequisicion", map.DomainToViewModel(service.GetReqById(id)));
+            var req = service.GetReqById(id);//map.DomainToViewModel();
+            ViewBag.tieneToma = tomaService.TieneToma(req.FechaCreacion);
+            var req2 = map.DomainToViewModel(req);
+
+            return View("CrearEditarRequisicion", req2);
         }
 
         [HttpPost("CrearEditar-Requisicion")]

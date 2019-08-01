@@ -1,0 +1,597 @@
+﻿
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+    var date = DateTime.Now;
+}
+
+<div class="row">
+
+    <div class="col-md-2 col-sm-2 col-xs-4">
+        <h3>@Lb["Histórico"]</h3>
+        <hr />
+    </div>
+    <div class="col-md-10 col-sm-10 col-xs-8" style="padding-top: 0.5rem">
+        <a href="@Url.Action("ListarMonedas")" class="btn btn-default">@Lb["Atrás"]</a>
+    </div>
+
+</div>
+
+<div class="row">
+
+    <div class="col-md-2 col-sm-6 col-xs-12">
+        <div class="form-group" style="padding-top:0.4rem">
+            <label class="control-label">@Lb["Moneda"]:</label>
+            <select class="form-control monedas" id="selectMoneda"></select>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-12 col-xs-12">
+        <label class="control-label">
+            <input type="checkbox" id="habilitaFiltroFecha"> @Lb["FiltroFecha"]
+        </label>
+        <form id="frmFecha" class="form-horizontal">
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="input-prepend input-group">
+                            <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                            <input disabled type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="@date.Date - @date.Date" />
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+    </div>
+
+    <div class="col-md-2 col-sm-12 col-xs-12" style="padding-top:2.5rem">
+        <a onclick="modalCrear()" class="btn btn-primary"><span>@Lb["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 col-xs-12 table-responsive">
+        <table class="table table-bordered" style="min-width: 330px; max-width: 660px" id="tblHistorial">
+            <thead>
+                <tr>
+                    <th hidden></th>
+                    <th style="width:35%">
+                        @Lb["Fecha"]
+                    </th>
+                    <th style="width:25%">
+                        @Lb["Compra"]
+                    </th>
+                    <th style="width:25%">
+                        @Lb["Venta"]
+                    </th>
+                    <th style="width:15%">
+                        @Lb["Acción"]
+                    </th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    
+</div>
+
+
+<div class="modal fade" id="historialModal" tabindex="-1" role="dialog" aria-labelledby="historialModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="modal-title" id="historialModalLabel"><span id="titulo1"></span><span>@Lb["Histórico"]</span></h5>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="row">
+                        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+                            <fieldset disabled>
+                                <div class="form-group">
+                                    <label for="fecha">@Lb["Fecha"]:</label>
+                                    <div class='input-group date' id='fechaPicker'>
+                                        <input type='text' class="form-control" id="fecha" />
+                                        <span class="input-group-addon">
+                                            <span class="fas fa-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div hidden><input readonly id="idHistorico" /> </div>
+                        <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                            <label for="compra">@Lb["Compra"]:</label>
+                            <input class="form-control numerico" id="compra" />
+                            <span hidden id="compraValid" class="text-danger">@Lb["compraValid"]</span>
+                        </div>
+                        <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                            <label for="venta">@Lb["Venta"]:</label>
+                            <input class="form-control numerico" id="venta" />
+                            <span hidden id="ventaValid" class="text-danger">@Lb["ventaValid"]</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="validarCampos()" class="btn btn-success">@Lb["Guardar"] <i class="fas fa-save"></i></button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">@Lb["Cancelar"]</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+         $(document).keypress(function (e) {
+        if (e.which == 13) {
+            validarCampos();
+        }
+    });
+    var historial = [];
+  
+    ///form historial
+    var $compra = $('#compra');
+    var $venta = $('#venta');
+    var $fecha = $('#fecha');
+    var $idHistorico = $('#idHistorico');
+    var $moneda = $('#selectMoneda');
+
+    ///editar 1 -- crear 0
+    var opt = 0;
+
+    var hasta;
+    var desde;
+
+    $(document).ready(function () {
+     
+        getHistorial(@ViewBag.cod);
+        getMonedas();
+        $(".numerico").inputmask({
+            'alias': 'decimal',
+            rightAlign: true,
+            min: 1
+        });
+
+        $('#fechaPicker').datetimepicker({
+            //defaultDate: new Date,
+            locale: localStorage.getItem("idioma"),
+            format: "@Lb["DD/MM/YYYY"]",
+            maxDate: new Date()
+        });
+
+        //$('#filtroFecha').attr('disabled', true);
+
+        $('#filtroFecha').daterangepicker({
+            opens: 'left',
+            "locale": {
+                format: "@Lb["formatoFecha"]",
+                "separator": " - ",
+                "applyLabel": "@Lb["Aplicar"]",
+                "cancelLabel": "@Lb["Cancelar"]",
+                "fromLabel": "@Lb["DE"]",
+                "toLabel": "@Lb["Hasta"]",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "@Lb["Dom"]",
+                    "@Lb["Lun"]",
+                    "@Lb["Mar"]",
+                    "@Lb["Mie"]",
+                    "@Lb["Jue"]",
+                    "@Lb["Vie"]",
+                    "@Lb["Sáb"]"
+                ],
+                "monthNames": [
+                    "@Lb["Enero"]",
+                    "@Lb["Febrero"]",
+                    "@Lb["Marzo"]",
+                    "@Lb["Abril"]",
+                    "@Lb["Mayo"]",
+                    "@Lb["Junio"]",
+                    "@Lb["Julio"]",
+                    "@Lb["Agosto"]",
+                    "@Lb["Septiembre"]",
+                    "@Lb["Octubre"]",
+                    "@Lb["Noviembre"]",
+                    "@Lb["Diciembre"]"
+                ],
+                "firstDay": 1
+            }
+        },
+        function (start, end, label) {
+
+            desde = start.format('YYYY-MM-DD');
+            hasta = end.format('YYYY-MM-DD');
+            cargarFiltros(historial);
+
+        });
+
+
+
+
+    });
+
+    $('#selectMoneda').on('change', function () {
+
+        getHistorial($(this).val());
+        history.pushState(null, "", $(this).val());
+        if ($('#habilitaFiltroFecha').prop('checked'))
+            $('#habilitaFiltroFecha').trigger('click');
+    });
+
+    function getMonedas() {
+
+            $.ajax({
+                type: "get",
+                headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                dataType: "json",
+                url: '@Url.Action("GetMonedas", "Monedas")',
+                success: function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        var o = new Option(data[i].nombre, data[i].codigo);
+                        if (@ViewBag.cod === data[i].codigo)
+                            $(o).attr('selected', true);
+                        if (data[i].codigo != 1)
+                            $(".monedas").append(o);
+                    }
+
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@Lb["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+
+    }
+
+    function getHistorial(codigo) {
+
+
+         $.ajax({
+            type: "post",
+            headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+             url: '@Url.Action("GetHistorialMoneda", "Monedas")',
+             data: { cod: codigo },
+             success: function (data) {
+                 historial = data;
+                 cargarFiltros(data);
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+         });
+
+    }
+
+    function cargarDatos(data) {
+
+        $("#tblHistorial > tbody").remove();
+        $('#tblHistorial').append('<tbody></tbody>');
+
+        var contadorFila = 0;
+        var colorFila = "";
+        for (var i = 0; i < data.length; i++) {
+            var body = '<tr class="fila' + contadorFila + ' filas" >'
+                + '<td hidden ><p style="padding-top:1rem;">' + new Date(data[i].fecha).getTime() + '</p></td>'
+                + '<td><p style="padding-top:1rem;">' + recuperarFecha(data[i].fecha) + '</p></td>'
+                + '<td style="text-align: right"><p style="padding-top:1rem;">' + data[i].valorCompra + '</p></td>'
+                + '<td style="text-align: right"><p style="padding-top:1rem;">' + data[i].valorVenta + '</p></td>'
+                + '<td>  <button value="' + data[i].id + '" onclick="modalEditar(' + data[i].id + ')" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+            $('#tblHistorial > tbody').append(body);
+            contadorFila++;
+
+        }
+
+        inicializarTabla();
+
+    }
+
+    function modalEditar(key) {
+
+        $('#compraValid').prop('hidden', true);
+        $('#ventaValid').prop('hidden', true);
+        $('#fechaPicker').datetimepicker('hide');
+
+        var pos = getItemPos(key);
+
+
+        var date = new Date(historial[pos].fecha);
+
+        $compra.val(historial[pos].valorCompra);
+        $venta.val(historial[pos].valorVenta);
+        $fecha.val(date.toLocaleDateString());
+        $fecha.prop('disabled', true);
+        $idHistorico.val(pos);
+
+        $('#titulo1').text('@Lb["Editar"] ');
+
+        opt = 1;
+
+        $('#historialModal').modal('show');
+
+
+
+    }
+       
+    function modalCrear() {
+        $('#compraValid').prop('hidden', true);
+        $('#ventaValid').prop('hidden', true);
+        $('#fechaPicker').datetimepicker('hide');
+
+        var date = new Date;
+
+        $compra.val(0);
+        $venta.val(0);
+        $fecha.val(date.toLocaleDateString());
+        $fecha.attr('disabled', false);
+
+        $idHistorico.val(0);
+
+        $('#titulo1').text('@Lb["Nuevo"] ');
+
+        opt = 0;
+
+        $('#historialModal').modal('show');
+      
+    }
+
+    function validarCampos() {
+
+        var flag = true;
+
+        if ($compra.val().replace(/ /g, "") === "") {
+            flag = false;
+            $('#compraValid').prop('hidden', false);
+        }
+        if ($venta.val().replace(/ /g, "") === "") {
+            flag = false;
+            $('#ventaValid').prop('hidden', false);
+        }
+
+        if (flag)
+            guardarCambios();
+
+
+
+    }
+
+    function getItemPos(id) {
+        for (var i = 0; i < historial.length; i++) {
+            if (historial[i].id === id)
+                return i;
+        }
+    }
+
+    function guardarCambios() {
+
+        var key = $idHistorico.val();
+
+        if (opt == 0) {
+
+            var model = {
+                id: 0,
+                valorCompra: $compra.val().replace(".", ","),
+                valorVenta: $venta.val().replace(".", ","),
+                idUsuario: 0,
+                codigoMoneda: $moneda.val(),
+                fecha: $fecha.val()
+
+            };
+
+            $.ajax({
+                type: "POST",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                dataType: "json",
+                url: '@Url.Action("CrearHistorialMoneda")',
+                data: { viewModel: model },
+                success: function (data) {
+                    $('#historialModal').modal('hide');
+                    //model.id = data.id;
+                    //model.idUsuario = data.idUsuario;
+                    //model.fecha = data.fecha;
+
+                    //for (var i = 0; i < historial.length; i++) {
+                    //    if (historial[i].fecha === data.fecha)
+                    //        historial.splice(i, 1);
+                    //}
+
+                    //historial.push(model);
+                    getHistorial($('#selectMoneda').val());
+
+                    cargarAlert('@Lb["actualizadoCorrectamente"]');
+
+                    cargarFiltros(historial);
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@Lb["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+        }
+        else {
+
+
+            historial[key].valorCompra = $compra.val().replace(".", ",");
+            historial[key].valorVenta = $venta.val().replace(".", ",");
+
+            $.ajax({
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("EditarHistorialMoneda")',
+            data: { viewModel: historial[key] },
+            success: function (data) {
+                $('#historialModal').modal('hide');
+                cargarAlert('@Lb["actualizadoCorrectamente"]');
+                cargarFiltros(historial);
+            },
+            error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+            }
+        });
+        }
+
+
+    }
+
+
+    $('#habilitaFiltroFecha').change(function () {
+
+        if (!$(this).prop('checked')) {
+            cargarFiltros(filtroFecha(historial, desde, hasta));
+            $('#filtroFecha').attr('disabled', true);
+        }
+
+        else {
+            cargarFiltros(filtroFecha(historial, desde, hasta));
+            $('#filtroFecha').attr('disabled', false);
+        }
+
+    });
+
+    function cargarFiltros(data) {
+        cargarDatos(filtroFecha(data, desde, hasta));
+    }
+
+    function filtroFecha(array, _desde, _hasta) {
+
+        var arrayH = [];
+
+        if ($('#habilitaFiltroFecha').prop('checked')) {
+
+            var desdeLocal = new Date(_desde).getTime();
+            var hastaLocal = new Date(_hasta).getTime();
+
+            for (var i = 0; i < array.length; i++) {
+
+                var documento = new Date(array[i].fecha.substring(0, 10)).getTime();
+
+                if (documento >= desdeLocal && documento <= hastaLocal)
+                    arrayH.push(array[i]);
+
+            }
+
+            return arrayH;
+        }
+        else
+            return array;
+    }
+
+    function recuperarFecha(_fecha) {
+
+        var f = new Date(_fecha);
+
+        var today = f;
+        var dd = today.getDate();
+        var mm = today.getMonth() + 1; //January is 0!
+
+        var yyyy = today.getFullYear();
+        if (dd < 10) {
+            dd = '0' + dd;
+        }
+        if (mm < 10) {
+            mm = '0' + mm;
+        }
+        var today = dd + '/' + mm + '/' + yyyy;
+
+        return today;
+
+    }
+
+
+    function inicializarTabla() {
+
+        $('#tblHistorial').DataTable().destroy();
+
+
+        $('#tblHistorial').DataTable({
+            "info": false,
+            dom: 'Bfrtip',
+            "bSort": false,
+            "order": [[0, "desc"]],
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   "></i>',
+                    titleAttr: 'Copy',
+                    title: '@Lb["Histótrico"]',
+                    exportOptions: {
+                        columns: [1,2,3]
+                    }
+
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: '@Lb["Histótrico"]',
+                    exportOptions: {
+                        columns: [1, 2, 3]
+                    }
+
+                },
+
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: '@Lb["Histótrico"]',
+                    exportOptions: {
+                        columns: [1, 2, 3]
+                    }
+                }
+            ]
+        });
+
+        //$(".dataTables_searching").hide();
+    }
+
+
+</script>

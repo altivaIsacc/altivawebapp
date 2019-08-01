@@ -10,22 +10,22 @@
 
 
 
-<table class="table">
+<table class="table table-bordered">
     <thead>
         <tr>
-            <th>
+            <th style="width:30%">
                 <span>Item</span>
             </th>
-            <th>
+            <th style="width:40%">
                 <span>@SharedLocalizer["Observaciones"]</span>
             </th>
-            <th>
+            <th style="width:10%">
                 <span>@SharedLocalizer["Costo"]</span>
             </th>
-            <th>
+            <th style="width:10%">
                 <span>@SharedLocalizer["Unilateral"]</span>
             </th>
-            <th>
+            <th style="width:10%">
                 <span>@SharedLocalizer["accion"]</span>
             </th>
         </tr>
@@ -71,34 +71,32 @@
                 </tr>
             }
         }
-            <tr>
-                <td>
-                    <select class="selectpicker" id="equivalente">
-                        @{ foreach (var item in ViewData["items"] as IList<TbPrInventario>)
+        <tr>
+            <td>
+                <select class="selectItems" id="equivalente">
+                    @{ foreach (var item in ViewData["items"] as IList<TbPrInventario>)
+                        {
+                            if (item.IdInventario != Model.IdInventario)
                             {
-                                if (item.IdInventario != Model.IdInventario)
-                                {
-                                    <option data-subtext="@item.Codigo" value="@item.IdInventario">@item.Descripcion</option>
-                                }
+                                <option value="@item.IdInventario">@item.Codigo @item.Descripcion</option>
                             }
                         }
-                    </select>
-                </td>
-                <td><textarea id="observaciones" placeholder="@SharedLocalizer["Observaciones"]"></textarea></td>
-                <td><span id="costoPromedio"></span></td>
-                <td><input id="unilateral" class="form-check-input" type="checkbox" /></td>
-                <td><button class="btn btn-link" id="agregarEquivalencia" onclick="guardarEquivalencia()"><i class="fas fa-save"></i></button></td>
-            </tr>
-        </tbody>
+                    }
+                </select>
+            </td>
+            <td><input class="form-control"  id="observaciones" placeholder="@SharedLocalizer["Observaciones"]" /></td>
+            <td style="text-align:right; padding-top:1.5rem"><span id="costoPromedio">0</span></td>
+            <td><input style="padding-top:2rem" id="unilateral" class="form-check-input" type="checkbox" /></td>
+            <td><button class="btn btn-link" id="agregarEquivalencia" onclick="guardarEquivalencia()"><i class="fas fa-save"></i></button></td>
+        </tr>
+    </tbody>
 </table>
 
 
 <script>
     $(document).ready(function () {
-        $('.selectpicker').selectpicker({
-            liveSearch: true,
-            showSubtext: true
-        });
+        
+        $('.selectItems').select2({ width: null, language: localStorage.getItem("idioma") });
     });
 
 
@@ -113,7 +111,7 @@
                 unilateral: $('#unilateral').prop('checked')
             };
 
-        console.log(model);
+       
             $.ajax({
                 type: "post",
                 headers: {
@@ -123,7 +121,7 @@
                 data: model,
                 success: function (data) {
                     if (data.existe)
-                        cargarAlert("@SharedLocalizer["errorDuplicacion"]");
+                        cargarAlert("@SharedLocalizer["repetidoValid"]");
                     else
                         getEquivalencias();
                     },
@@ -153,7 +151,7 @@
                     console.log(err.statusText);
                 }
             });
-           
+
         });
 
 

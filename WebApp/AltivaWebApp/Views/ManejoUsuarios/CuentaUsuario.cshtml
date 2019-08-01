@@ -1,5 +1,6 @@
 ﻿@model UsuarioViewModel
 @inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject IStringLocalizer<SharedResources> Lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -8,6 +9,16 @@
     }
 }
 
+@{
+
+    var inactivo = "";
+
+    if (Model.estado == "INACTIVO")
+    {
+        inactivo = "disabled";
+    }
+
+}
 
 
 <style>
@@ -25,7 +36,6 @@
         background-image: linear-gradient(to right, black, white);
     }
 </style>
-
 <div class="row">
     <div class="col-md-12">
 
@@ -39,15 +49,18 @@
         }
 
     </div>
-    <div class="col-md-2">
+</div>
+<div class="row">
+
+    <div class="col-md-2 col-sm-2">
         <h4>Avatar</h4>
         <div class="col-md-12">
-            <div class="well"style="background-color:#EDEDED; padding: 1rem; text-align:center">
+            <div class="well" style="background-color:#EDEDED; padding: 1rem; text-align:center">
                 <img style="height: 10rem; width:10rem" src="@Model.avatar" class="img-circle" />
                 <div class="row">
-                    <a data-translate="avatar" class="btn btn-link" data-toggle="modal" data-target="#exampleModal">
+                    <button @inactivo data-translate="avatar" class="btn btn-link" data-toggle="modal" data-target="#exampleModal">
                         Cargar tu avatar
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -58,13 +71,13 @@
                 <h5 data-translate="tema">Tema: </h5>
 
                 <div class="col-md-12">
-                    <span data-translate="MUFuenteM">Fuente M:</span>
+                    <p>@SharedLocalizer["Fuente"]: @SharedLocalizer["Mediana"]</p>
                     <button type="button" name="1" value="TemaClaro" class="btn btntema btn-default btn-circle"></button>
                     <button type="button" name="3" value="TemaCombinado" class="btn btntema btn-combined btn-circle"></button>
                 </div>
 
                 <div class="col-md-12">
-                    <span data-translate="MUFuenteG">Fuente G:</span>
+                    <p>@SharedLocalizer["Fuente"]: @SharedLocalizer["Grande"] </p>
                     <button type="button" name="4" value="TemaClaroG" class="btn btntema btn-default btn-circle"></button>
                     <button type="button" name="6" value="TemaCombinadoG" class="btn btntema btn-combined btn-circle"></button>
                 </div>
@@ -73,74 +86,67 @@
             }
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6 col-sm-6 col-xs-12">
         <h4 data-translate="datosUsuario">Datos</h4>
         <form id="frmUsuario" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group" hidden>
-                <input asp-for="id" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label data-translate="codigo" asp-for="codigo" class="control-label">Codigo:</label>
-                <input asp-for="codigo" id="codigo" class="form-control" />
-                <div id="codigoValidation"></div>
-            </div>
-            <div class="form-group">
-                <label data-translate="nombre" asp-for="nombre" class="control-label">Nombre:</label>
-                <input asp-for="nombre" class="form-control" />
-                <div id="nombreValidation"></div>
-            </div>
-            <div class="form-group">
-                <label data-translate="estado" asp-for="estado" class="control-label">Estado:</label>
-                <select asp-for="estado" class="form-control">
-                    <option data-translate="estadoA" value="ACTIVO">ACTIVO</option>
-                    <option data-translate="estadoI" value="INACTIVO">INACTIVO</option>
-                </select>
-                <span asp-validation-for="estado" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label data-translate="iniciales" asp-for="iniciales" class="control-label">Iniciales:</label>
-                <input asp-for="iniciales" class="form-control" />
-                <div id="inicialesValidation"></div>
-            </div>
-            <div class="form-group">
-                <label asp-for="contrasena" class="control-label">Contraseña: </label>
-                <input pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" title="Es necesario que contenga al menos un número, una mayúscula y un caracter especial" asp-for="contrasena" class="form-control" />
-                <div id="passwordValidation"></div>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Confirmar Contraseña:</label>
-                <input asp-for="ConfirmPassowrd" class="form-control" />
-                <div id="passwordConfirmValidation"></div>
-            </div>
-            <div class="form-group">
-                <label data-translate="correo" asp-for="correo" class="control-label">Correo:</label>
-                <input type="email" asp-for="correo" class="form-control" />
-                <div id="correoValidation"></div>
-            </div>
-            <div class="form-group" hidden>
-                <label asp-for="Id_Usuario" class="control-label">Id usuario:</label>
-                <input asp-for="Id_Usuario" class="form-control" />
-                <span asp-validation-for="Id_Usuario" class="text-danger"></span>
-            </div>
+            <fieldset @inactivo>
+                @Html.HiddenFor(x => x.id)
+                @Html.HiddenFor(x => x.Id_Usuario)
+                @Html.HiddenFor(x => x.contrasena)
+                @Html.HiddenFor(x => x.ConfirmPassowrd)
 
+                <div class="form-group">
+                    <label asp-for="codigo" class="control-label">@SharedLocalizer["Codigo"]:</label>
+                    <input asp-for="codigo" id="codigo" maxlength="25" class="form-control sinEspaciosNiEspeciales" autofocus />
+                    <div id="codigoValidation"></div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="nombre" class="control-label">@SharedLocalizer["Nombre"]:</label>
+                    <input asp-for="nombre" maxlength="50" id="nombre" class="form-control" />
+                    <div id="nombreValidation"></div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="estado" class="control-label">@SharedLocalizer["Estado"]:</label>
+                    <select asp-for="estado" id="estado" class="form-control">
+                        <option value="ACTIVO">@SharedLocalizer["ACTIVO"]</option>
+                        <option value="INACTIVO">@SharedLocalizer["INACTIVO"]</option>
+                    </select>
+                    <span asp-validation-for="estado" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="iniciales" class="control-label">@SharedLocalizer["Iniciales"]:</label>
+                    <input asp-for="iniciales" maxlength="15" id="iniciales" class="form-control" />
+                    <div id="inicialesValidation"></div>
+                </div>
+
+
+
+                <div class="form-group">
+                    <label asp-for="correo" class="control-label">@SharedLocalizer["Correo"]:</label>
+                    <input type="email" asp-for="correo" id="correo" maxlength="50" class="form-control" />
+                    <div id="correoValidation"></div>
+                    <span hidden id="correoInvalido">@SharedLocalizer["correoInvalido"]</span>
+                </div>
+            </fieldset>
         </form>
-        <div class="form-group">
-            <button type="submit" id="btnEditarUsuario" data-translate="guardar" class="btn btn-success"><span>Guardar </span><span><i class="fas fa-save"></i></span></button>
-            <a class="btn btn-default btnAtras">Cancelar</a>
-        </div>
+        @if (Model.codigo == User.Identity.Name)
+        {
+            <div>
+                <button @inactivo class="btn btn-link" data-toggle="modal" data-target="#claveModal">@SharedLocalizer["Cambiar"] @SharedLocalizer["Contraseña"]</button>
+            </div>
+        }
 
     </div>
-    <div class="col-md-4">
-        <h4 data-translate="MUPerfilesAsig">Perfiles Asignados</h4>
+    <div class="col-md-4 col-sm-6 col-xs-12">
+        <h4>@SharedLocalizer["Perfiles Asignados"]</h4>
         <table class="table table-bordered" id="perfiles">
             <thead>
                 <tr>
                     <th>
-                        <p data-translate="perfil">Perfil</p>
+                        <p>@SharedLocalizer["Perfil"]</p>
                     </th>
                     <th>
-                        <p data-translate="accion">Acción</p>
+                        <p>@SharedLocalizer["Acción"]</p>
                     </th>
                 </tr>
             </thead>
@@ -152,7 +158,7 @@
                             @Html.DisplayFor(modelItem => item.Nombre)
                         </td>
                         <td>
-                            @Html.ActionLink("Quitar", "QuitarPerfil", "ManejoUsuarios", new { usuario = Model.id, id = item.Id })
+                            <button @inactivo class="btn btn-link" onclick="eliminarPerfilUsuario(value)" value="@item.Id"><i class="fas fa-trash"></i></button>
                         </td>
 
                     </tr>
@@ -160,9 +166,9 @@
                 }
                 <tr>
                     <td>
-                        <a class="btn btn-link" data-toggle="modal" data-target="#perfilModal">
+                        <button @inactivo class="btn btn-link" data-toggle="modal" data-target="#perfilModal">
                             <span style="font-size:3rem"><i class="fas fa-plus-circle"></i></span>
-                        </a>
+                        </button>
                     </td>
                     <td></td>
                 </tr>
@@ -172,20 +178,48 @@
 
 
 </div>
-
-
-
 <div class="row">
-
-
-
-    <div id="errorDiv" class="col-md-6 col-sm-12 alert alert-warning alert-dismissible fade show" role="alert">
-        <strong>Lo siento!</strong> <span>Algo ha salido mal, no se pudo guardar la configuración</span>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
+    <div class="form-group col-md-12">
+        <button @inactivo type="submit" onclick="validarForm()" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
+        <a class="btn btn-default btnAtras">Cancelar</a>
     </div>
+</div>
 
+<!-- Modal for contrasena-->
+<div class="modal fade" id="claveModal" tabindex="-1" role="dialog" aria-labelledby="claveModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header row">
+                <div class="col-md-6">
+                    <h4 class="modal-title" id="claveModalLabel">@SharedLocalizer["Cambiar"] @SharedLocalizer["Contraseña"]</h4>
+                </div>
+                <div class="col-md-6">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body" style="padding-left: 5rem">
+                <div class="row">
+                    <div class="form-group">
+                        <label class="control-label">@SharedLocalizer["Contraseña"]: (@SharedLocalizer["claveRequisitos"]) </label>
+                        <input type="password" id="nuevaContrasena" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" title="@SharedLocalizer["claveRequisitos"]" class="form-control" />
+                        <div id="passwordValidation"></div>
+                        <span hidden id="claveInvalida" class="text-danger">@SharedLocalizer["claveInvalida"]</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">@SharedLocalizer["Confirmar"] @SharedLocalizer["Contraseña"]:</label>
+                        <input type="password" id="confirmContrasena" class="form-control" />
+                        <div id="passwordConfirmValidation"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="cambiarContrasena()" class="btn btn-primary">@SharedLocalizer["Guardar"]</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">@SharedLocalizer["Cancelar"]</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 
@@ -220,8 +254,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button data-translate="cancelar" type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                <button data-translate="guardar" type="button" id="guardar" class="btn btn-primary">Guardar</button>
+                <button data-translate="guardar" type="button" id="guardar" class="btn btn-success">Guardar</button>
+                <button data-translate="cancelar" type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
             </div>
         </div>
     </div>
@@ -246,20 +280,54 @@
     </div>
 </div>
 
-<hr />
+<br />
 
-<div>
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <ul class="nav nav-tabs">
+            <li class="active"><a class="optTab" data-toggle="tab" href="#comentario">@Lb["Comentarios"]</a></li>
+            <li><a class="optTab" data-toggle="tab" href="#empresas">@Lb["Empresas"]</a></li>
+        </ul>
+    </div>
+</div>
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade in active row" id="comentario">
+        <div class="col-md-12">
+            <div id="comentarios">
 
+            </div>
+        </div>
+    </div>
+    <div class=" tab-pane fade row" id="empresas">
+        <br />
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <button onclick="guardarCambiosEmpresa()" class="btn btn-success">@Lb["Guardar"]</button>
+        </div>
+        <div class="col-md-8 col-md-10 col-xs-12">
+            <div id="empresasUsuario">
+
+            </div>
+        </div>
+    </div>
 </div>
 
+<script type="text/javascript" src="~/js/comentario.js"></script>
+<script type="text/javascript">
+    //Funcion guardar con la tecla enter
+
+ $("#codigo").keypress(function(e) {
+       if(e.which == 13) {
+            validarForm();
+       }
+    });
+     $(document).keypress(function (e) {
+        if (e.which == 13) {
+            validarForm();
+        }
+    });
 
 
-   
-    <script type="text/javascript">
         //validaciones de campos editar usuario
-        $('#btnEditarUsuario').on('click', function () {
-            guardarUsuario();
-        });
 
         function validarPassword(email) {
             var i = '(?=^.{ 8, } $) ((?=.*\d)| (?=.*\W +)) (? ![.\n])(?=.* [A - Z])(?=.* [a - z]).* $';
@@ -269,9 +337,11 @@
                 return true;
             }
         }
+
         $(document).ready(function () {
 
             GetComentarios('Usuario', @Model.id);
+            getEmpresas();
 
             $('.btntema').on('click', function () {
                 $("#tema").attr('href', '/../css/' + $(this).val() + '.css');
@@ -346,14 +416,47 @@
                     }
                 });
             });
+
+
+            $('#claveModal').on('hidden.bs.modal', function () {
+                $('#nuevaContrasena').val("");
+                $('#confirmContrasena').val("");
+                $('#passwordValidation').empty();
+                $('#passwordConfirmValidation').empty();
+                $('#claveInvalida').prop("hidden", true);
+            });
+
+            $('#exampleModal').on('hidden.bs.modal', function () {
+                $('#tamanoArchivo').attr('hidden', true);
+                $('#tipoArchivo').attr('hidden', true);
+            });
+
         });
 
 
+
+
+        function getEmpresas() {
+
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("_AutorizacionUsuario", "ManejoUsuarios", new { idUsuario = Model.id })',
+                success: function (data) {
+                    $('#empresasUsuario').html(data);
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                }
+
+            });
+        }    
+
         function guardarUsuario() {
 
-            console.log($('#frmUsuario').serialize());
+            console.log($('#frmUsuario').serializeArray());
+
             var url = '@Url.Action("EditarUsuario", "ManejoUsuarios")';
-            if (validarForm())
                 $.ajax({
                     type: "POST",
                     headers: {
@@ -377,54 +480,173 @@
 
         }
 
-        function validarForm() {
+        function eliminarPerfilUsuario(id) {
+            window.location.href = '@Url.Action("QuitarPerfil", "ManejoUsuarios", new { usuario = Model.id, id = "__id__" })'.replace("__id__", id);
+        }
 
-            if ($('#codigo').val() == "") {
+        function cambiarContrasena() {
 
-                $('#codigoValidation').empty();
-                $('#codigoValidation').append('<span class="text-danger">@SharedLocalizer["codigoValid"]</span>');
+            var model = $('#frmUsuario').serializeArray()
 
+    
+            if (validarContrasena()) {
+
+                model[2].value = $('#nuevaContrasena').val();
+            //console.log(model);
+
+            var url = '@Url.Action("CambiarContrasena", "ManejoUsuarios")';
+
+                $.ajax({
+                    type: "POST",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: url,
+                    data: model,
+                    success: function (data) {
+                        if (data.success) {
+                            cargarAlert('@SharedLocalizer["datosActualizados"]');
+
+                        }
+                        else
+                            cargarAlert('@SharedLocalizer["usuarioExistente"]');
+                    },
+                        error: function (err, scnd) {
+                            cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    }
+                });
+        }
+
+
+        }
+
+
+
+
+    function validarContrasena() {
+
+
+        if ($('#nuevaContrasena').val().replace(/ /g, "") === "") {
+            $('#passwordValidation').empty();
+            $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["contrasenaValid"]</span>');
+            $('#passwordConfirmValidation').empty();
+            $('#claveInvalida').prop("hidden", true);
+            return false;
+
+        } else {
+            $('#passwordValidation').empty();
+            if (!validarFormatoContrasena($('#nuevaContrasena').val())) {
+                $('#claveInvalida').prop("hidden", false);
                 return false;
             }
+            else
+                $('#claveInvalida').prop("hidden", true);
+        }
 
-            if ($('#nombre').val() == "") {
-                $('#nombreValidation').empty();
-                $('#nombreValidation').append('<span class="text-danger">@SharedLocalizer["nombreValid"]</span>');
+        if ($('#confirmContrasena').val().replace(/ /g, "") === "") {
+            $('#passwordConfirmValidation').empty();
+            $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["confirmacionValid"]</span>');
 
-                return false;
-            }
-            if ($('#iniciales').val() == "") {
-                $('#inicialesValidation').empty();
-                $('#inicialesValidation').append('<span class="text-danger">@SharedLocalizer["inicialesValid"]</span>');
+            return false;
+        }
+        else
+            $('#passwordConfirmValidation').empty();
 
-                return false;
-            }
-            if ($('#contrasena').val() == "") {
-                $('#passwordValidation').empty();
-                $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["contrasenaValid"]</span>');
+        if ($('#nuevaContrasena').val() != $('#confirmContrasena').val()) {
+            $('#passwordConfirmValidation').empty();
+            $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
+            $('#passwordValidation').empty();
+            $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
 
-                return false;
-            }
-            if ($('#ConfirmPassowrd').val() == "") {
-                $('#passwordConfirmValidation').empty();
-                $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["confirmacionValid"]</span>');
+            return false;
+        }
+        else {
+            $('#passwordConfirmValidation').empty();
+            $('#passwordValidation').empty();
+        }
 
-                return false;
-            } if ($('#correo').val() == "") {
-                $('#correoValidation').empty();
-                $('#correoValidation').append('<span class="text-danger">@SharedLocalizer["correoValid"]</span>');
+        return true;
+    }
 
-                return false;
-            }
-            if ($('#contrasena').val() != $('#ConfirmPassowrd').val()) {
-                $('#passwordConfirmValidation').empty();
-                $('#passwordConfirmValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
-                $('#passwordValidation').empty();
-                $('#passwordValidation').append('<span class="text-danger">@SharedLocalizer["coincidenciaValid"]</span>');
+    function validarForm() {
 
-                return false;
-            }
+        var flag = true;
 
+        if ($('#codigo').val().replace(/ /g, "") === "") {
+
+            $('#codigoValidation').empty();
+            $('#codigoValidation').append('<span class="text-danger">@SharedLocalizer["codigoValid"]</span>');
+
+            flag = false;
+        }
+
+        if ($('#nombre').val().replace(/ /g, "") === "") {
+            $('#nombreValidation').empty();
+            $('#nombreValidation').append('<span class="text-danger">@SharedLocalizer["nombreValid"]</span>');
+
+            flag = false;
+        }
+        if ($('#iniciales').val().replace(/ /g, "") === "") {
+            $('#inicialesValidation').empty();
+            $('#inicialesValidation').append('<span class="text-danger">@SharedLocalizer["inicialesValid"]</span>');
+
+            flag = false;
+        }
+
+         if ($('#correo').val().replace(/ /g, "") === "") {
+             $('#correoValidation').empty();
+             $('#correoValidation').append('<span class="text-danger">@SharedLocalizer["correoValid"]</span>');
+
+            flag = false;
+         } else {
+             $('#correoValidation').empty();
+             if (!isEmail($('#correo').val())) {
+                 $('#correoInvalido').prop("hidden", false);
+                 flag = false;
+             } else
+                 $('#correoInvalido').prop("hidden", true);
+
+         }
+
+
+        if (flag)
+            guardarUsuario();
+
+    }
+
+    function isEmail(email) {
+        var regex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        return regex.test(email);
+    }
+
+    function validarFormatoContrasena(val) {
+
+        var flag = true;
+
+        var pswd = val;
+        if (pswd.length < 8 || pswd.length > 16) {
+            flag = false;
+        }
+
+        if (!pswd.match(/[a-z]/g)) {
+            flag = false;
+        }
+
+        //validate capital letter
+        if (!pswd.match(/[A-Z]/g)) {
+            flag = false;
+        }
+
+        //validate number
+        if (!pswd.match(/[0-9]/g)) {
+            flag = false;
+        }
+
+
+        return flag;
+    }
+
+</script>
 <script src="~/js/guardarConfigUsuario.js"></script>
 
 

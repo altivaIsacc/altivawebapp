@@ -9,8 +9,8 @@ namespace AltivaWebApp.Mappers
    public interface ITipoProveedorMapper
     {
         TbFdTipoProveedor Save(TipoClienteViewModel domain);
-        TbFdTipoProveedor ViewModelToSave(TipoClienteViewModel domain);
         TbFdTipoProveedor Update(TipoClienteViewModel domain);
-        TbFdTipoProveedor ViewModelToUpdate(TipoClienteViewModel domain);
+        TbFdTipoProveedor ViewModelToDomain(TipoClienteViewModel domain);
+        TipoClienteViewModel DomainToViewModel(TbFdTipoProveedor domain);
     }
 }

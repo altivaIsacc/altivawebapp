@@ -9,15 +9,11 @@ namespace AltivaWebApp.Mappers
 {
     public interface IPaisMap
     {
-        PaisViewModel Create(PaisViewModel viewModel);
+        TbSePais Create(PaisViewModel viewModel);
 
         TbSePais Update(PaisViewModel viewModel);
 
-
-
         PaisViewModel DomainToViewModelSingle(TbSePais domain);
-
-        IList<PaisViewModel> DomainToViewModel(IList<TbSePais> domain);
 
         TbSePais ViewModelToDomain(PaisViewModel officeViewModel);
     }

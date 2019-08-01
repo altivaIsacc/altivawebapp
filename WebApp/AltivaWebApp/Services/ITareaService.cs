@@ -20,5 +20,7 @@ namespace AltivaWebApp.Services
         void UpdateRange(IList<TbFdSubtareas> domain);
         IList<TbFdSubtareas> GetSubTareas(int idTarea);
         TbFdSubtareas RemoveSubtareas(int SubTarea);
+        bool ExisteTipo();
+        bool ExisteEstado();
     }
 }

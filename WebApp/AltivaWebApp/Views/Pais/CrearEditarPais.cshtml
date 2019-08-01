@@ -1,0 +1,179 @@
+﻿@model AltivaWebApp.ViewModels.PaisViewModel
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    ViewData["Title"] = "CrearEditarPais";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        @if (Model.Id != 0)
+        {
+            <h3>@Lb["Editar"] @Lb["País"]</h3>
+        }
+        else
+        {
+            <h3>@Lb["Nuevo"] @Lb["País"]</h3>
+        }
+    </div>
+</div>
+
+
+<hr />
+<div class="row">
+    <div class="col-md-6 col-sm-8 col-xs-12">
+        <form id="frmPais">
+            @Html.HiddenFor(x => x.Id)
+
+            <div class="form-group">
+                <label asp-for="NombreEs" class="control-label">@Lb["Nombre"] @Lb["ES"]:</label>
+                <input asp-for="NombreEs" maxlength="25" class="form-control" autofocus />
+                <span hidden id="nombreEsValid" class="text-danger">@Lb["nombreValid"]</span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NombreEn" class="control-label">@Lb["Nombre"] @Lb["EN"]:</label>
+                <input asp-for="NombreEn" maxlength="25" class="form-control" />
+                <span hidden id="nombreEnValid" class="text-danger">@Lb["nombreValid"]</span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GentilicioEs" class="control-label">@Lb["Gentilicio"] @Lb["ES"]:</label>
+                <input asp-for="GentilicioEs" maxlength="25" class="form-control" />
+                <span hidden id="gentilicioEsValid" class="text-danger">@Lb["gentilicioValid"]</span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GentilicioEn" class="control-label">@Lb["Gentilicio"] @Lb["EN"]:</label>
+                <input asp-for="GentilicioEn" maxlength="25" class="form-control" />
+                <span hidden id="gentilicioEnValid" class="text-danger">@Lb["gentilicioValid"]</span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Iniciales" class="control-label">@Lb["Iniciales"]:</label>
+                <input asp-for="Iniciales" maxlength="6" class="form-control" />
+                <span hidden id="inicialesValid" class="text-danger">@Lb["inicialesValid"]</span>
+            </div>
+            <div class="form-group">
+                <label>
+                    @Lb["Inactivo"]? <input asp-for="Inactivo" />
+                </label>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="form-group col-md-3">
+        <button class="btn btn-success btnAccion" onclick="validarForm()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
+        <a onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div id="comentarios">
+
+        </div>
+    </div>
+</div>
+
+<script src="~/js/comentario.js"></script>
+
+<script>
+      $(document).keypress(function (e) {
+        if (e.which == 13) {
+            validarForm();
+        }
+    });
+     $(document).ready(function () {
+
+         if (@Model.Id != 0) {
+             GetComentarios("Paises", @Model.Id);
+         }
+
+    });
+
+    function guardarCambios() {
+
+        var frm = $('#frmPais').serializeArray();
+
+        var url = '@Url.Action("CrearEditarPais", "Pais")';
+
+        $.ajax({
+
+            type: "post",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: frm,
+            success: function (data) {
+                if (!data.success)
+                    $('#duplicacionValid').attr('hidden', false);
+                else
+                    window.location.href = '@Url.Action("Index")';
+                },
+             error: function (err) {
+                 cargarAlert('@Lb["errorGeneral"]');
+                 console.log(err.success);
+             }
+            });
+
+    }
+
+    function validarForm() {
+        var flag = true;
+
+        if ($('#NombreEs').val().replace(/ /g, "") === "") {
+            $('#nombreEsValid').attr('hidden', false);
+            flag = false;
+        } else
+            $('#nombreEsValid').attr('hidden', true);
+
+        if ($('#NombreEn').val().replace(/ /g, "") === "") {
+            $('#nombreEnValid').attr('hidden', false);
+            flag = false;
+        } else
+            $('#nombreEnValid').attr('hidden', true);
+
+        if ($('#GentilicioEs').val().replace(/ /g, "") === "") {
+            $('#gentilicioEsValid').attr('hidden', false);
+            flag = false;
+        } else
+            $('#gentilicioEsValid').attr('hidden', true);
+
+        if ($('#GentilicioEn').val().replace(/ /g, "") === "") {
+            $('#gentilicioEnValid').attr('hidden', false);
+            flag = false;
+        } else
+            $('#gentilicioEnValid').attr('hidden', true);
+
+        if ($('#Iniciales').val().replace(/ /g, "") === "") {
+            $('#inicialesValid').attr('hidden', false);
+            flag = false;
+        } else
+            $('#inicialesValid').attr('hidden', true);
+
+
+        if (flag)
+            guardarCambios();
+    }
+
+     function cancelar() {
+        bootbox.confirm("@Lb["confirmCancelar"]", function (result) {
+
+            if (result)
+                 window.location.href = "@Url.Action("Index")";
+            else {
+                setTimeout(function () { $('#NombreEs').focus(); }, 1);// $('input:visible:enabled:first').focus();
+            }
+
+        });
+    }
+
+</script>
+

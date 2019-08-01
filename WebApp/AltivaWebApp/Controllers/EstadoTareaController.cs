@@ -38,18 +38,19 @@ namespace AltivaWebApp.Controllers
         // GET: EstadoTarea
         public ActionResult ListarEstados()
         {
-            
+
 
             return View();
         }
         [HttpGet("ListarEstadosTareas/{inactivo?}")]
 
-        public IActionResult ListarEstadosTareas(string inactivo) {
+        public IActionResult ListarEstadosTareas(string inactivo)
+        {
             IList<TbFdTareaEstado> te = new List<TbFdTareaEstado>();
-  IList<TbFdTareaEstado> tpL = new List<TbFdTareaEstado>();
-           
+            IList<TbFdTareaEstado> tpL = new List<TbFdTareaEstado>();
+
             te = this.IEstadoService.GetAll();
-           
+
             if (inactivo == null)
             {
                 ViewBag.estado = 1;
@@ -128,16 +129,17 @@ namespace AltivaWebApp.Controllers
                 }
             }
 
-        
-                estadoTarea = this.IEstadoMapper.Update(domain);
+
+            estadoTarea = this.IEstadoMapper.Update(domain);
             return Json(new { titulo = false, color = false, defecto = false });
         }
         [HttpPost("CrearEstado")]
-      
+
         public JsonResult CrearEstado(EstadoTareaViewModel domain)
         {
             try
             {
+
                 if (this.IEstadoService.GetByTitulo(domain.Titulo))
                 {
                     return Json(new { titulo = true });
@@ -146,18 +148,21 @@ namespace AltivaWebApp.Controllers
                 {
                     return Json(new { color = true });
                 }
-                else if (domain.EsDefecto != false)
+                if (domain.EsDefecto != false)
                 {
 
                     if (this.IEstadoService.GetByDefecto(domain.EsDefecto) == true)
                     {
                         return Json(new { defecto = true });
                     }
+                    else
+                    {
+                        var estadoTarea = this.IEstadoMapper.Save(domain);
+                    }
                 }
                 else
                 {
-                    TbFdTareaEstado estadoTarea = new TbFdTareaEstado();
-                    estadoTarea = this.IEstadoMapper.Save(domain);
+                    var estadoTarea = this.IEstadoMapper.Save(domain);
                 }
             }
             catch

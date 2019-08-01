@@ -57,102 +57,69 @@ namespace AltivaWebApp.Controllers
             return View(bodega);
         }
 
-        [Route("Nueva-Bodega/{err?}")]
+        [Route("Nueva-Bodega")]
         public ActionResult CrearBodega(string err)
         {
-            ViewBag.accion = "1";
-            if (err == "err")
-                ViewBag.error = "Tuvimos un problema al procesar tu solicitud, revisa que no se haya creado una bodega con ese nombre anteriormente";
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
-            return View("../Bodega/CrearEditarBodega");
+            return View("../Bodega/CrearEditarBodega", new BodegaViewModel());
         }
 
-        // POST: Bodega/Create
-        [HttpPost("Nueva-Bodega/{err?}")]
-        [ValidateAntiForgeryToken]
-        public ActionResult CrearBodega(BodegaViewModel model)
+
+        [HttpPost("CrearEditarBodega")]
+        public ActionResult CrearEditarBodega(BodegaViewModel model)
         {
             try
             {
+                
                 var existeBodega = service.GetBodegaByNombre(model.Nombre);
-                if(existeBodega == null)
+                if(model.Id != 0)
                 {
+                    if (existeBodega != null)
+                        if ((int)existeBodega.Id != model.Id)
+                            return Json(new { success = false });
+
+                    var bodega = map.Update(model, model.Id);
+                    var idUsuario = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+                    string comentarioES = "Editó la bodega " + bodega.Nombre;
+
+                    bitacoraMap.CrearBitacora(int.Parse(idUsuario), comentarioES, (int)bodega.Id, "Bodega");
+
+                    return Json(new { success = true });
+                }
+                else
+                {
+                    if (existeBodega != null)
+                        return Json(new { success = false });
+
                     var bodega = map.Create(model);
-                    var idUsuario =  User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                    var idUsuario = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                     string comentarioES = "Creo una nueva bodega " + bodega.Nombre;
                     //string comentarioIN = "Creo una nueva bitacora";
                     bitacoraMap.CrearBitacora(int.Parse(idUsuario), comentarioES, (int)bodega.Id, "Bodega");
-                    return RedirectToAction(nameof(ListarBodegas));
+                    return Json(new { success = true });
+
                 }
-                else
-                {                   
-                    return RedirectToAction("CrearBodega", new { err = "err" });
-                }
-                
 
-            }
-            catch
-            {
-                return RedirectToAction("CrearBodega", new { err = "err" });
-            }
-        }
-
-        [Route("Editar-Bodega/{id}/{err?}")]
-        public ActionResult EditarBodega(int id, string err)
-        {
-            ViewBag.accion = "2";
-            var bodega = map.DomainToViewModel(service.GetBodegaById(id));
-            ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
-            if (err == "err")
-                ViewBag.error = "Tuvimos un problema al procesar tu solicitud, revisa que no se haya creado una bodega con ese nombre anteriormente";                       
-
-
-            return View("../Bodega/CrearEditarBodega", bodega);
-        }
-
-        [HttpPost("Editar-Bodega/{id}/{err?}")]
-        [ValidateAntiForgeryToken]
-        public ActionResult EditarBodega(int id, BodegaViewModel model)
-        {
-            try
-            {
-                var dataIsValid = false;
-                var existeBodega = service.GetBodegaByNombre(model.Nombre);
-
-                if (existeBodega != null)
-                {
-                    if ((int)existeBodega.Id == id)                   
-                        dataIsValid = true;
-                    else
-                    {                       
-                        return RedirectToAction("EditarBodega", new { id = id, err = "err" });
-                    }
-                }
-                else
-                    dataIsValid = true;
-
-                if (dataIsValid)
-                {
-                    var bodega = map.Update(model, id);
-                    var idUsuario = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-                    string comentarioES = "Editó la bodega " + bodega.Nombre;
-                    //string comentarioIN = "Creo una nueva bitacora";
-                    bitacoraMap.CrearBitacora(int.Parse(idUsuario), comentarioES, (int)bodega.Id, "Bodega");
-
-                    return RedirectToAction(nameof(ListarBodegas));
-                }
-                else
-                {
-                    return RedirectToAction("EditarBodega", new { id = id, err = "err" });
-                }                           
 
             }
             catch
             {
                 //throw;
-                return RedirectToAction("EditarBodega", new { id = id, err = "err" });
+                return BadRequest();
             }
         }
+
+        [Route("Editar-Bodega/{id}")]
+        public ActionResult EditarBodega(int id)
+        {
+            var bodega = map.DomainToViewModel(service.GetBodegaById(id));
+            ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+
+            return View("../Bodega/CrearEditarBodega", bodega);
+        }
+
+        
 
         // POST: Bodega/Delete/5
         [Route("CambiarEstado-Bodega/{id}")]
@@ -190,6 +157,14 @@ namespace AltivaWebApp.Controllers
                 ///poner mensasje de error
                 return RedirectToAction(nameof(ListarBodegas), new { err = "err" });
             }
+        }
+
+
+
+        [HttpGet("GetAllBodegas")]
+        public IActionResult GetAllBodegas()
+        {
+            return Ok(service.GetAll());
         }
     }
 }

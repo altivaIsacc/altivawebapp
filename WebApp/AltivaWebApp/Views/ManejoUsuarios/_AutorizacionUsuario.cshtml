@@ -1,0 +1,241 @@
+﻿@inject IStringLocalizer<SharedResources> Lb
+
+
+<div class="table-responsive">
+    <table id="tblEmpresas" class="table table-bordered">
+        <thead>
+            <tr>
+                <th style="width:14%">
+                    @Lb["Asignado"] <input id="asignarTodos" type="checkbox" name="todos" />
+                </th>
+                <th style="width:50%">
+                    @Lb["Nombre"]
+                </th>
+                <th style="width:12%">
+                    @Lb["Estado"]
+                </th>
+                <th style="width:50%">
+                    @Lb["Cédula"]
+                </th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script>
+    var empresas = [];
+    var idUsuario = @ViewBag.idUsuario;
+    var relacionLocal = []; //nuevas relaciones
+    var relacionBD = [];//actualizar estado de relacion
+
+    $(document).ready(function () {
+
+        getEmpresas();
+
+    });
+
+
+    $('#asignarTodos').change(function () {
+
+        if ($(this).prop("checked")) {
+
+            $(".empresas").each(function (i, elem) {
+
+                if (!$(elem).prop('checked')) {
+                    asignarEmpresa(parseInt($(elem).val()));
+                }
+            });
+
+            $(".empresas").prop("checked", true);
+        }
+        else {
+
+            $(".empresas").each(function (i, elem) {
+
+                if ($(elem).prop('checked')) {
+                    desactivarUsuario(parseInt($(elem).val()));
+                }
+            });
+
+            $(".empresas").prop("checked", false);
+        }
+
+    });
+
+    function checkEmpresa(idEmpresa) {
+
+        $(".empresas").each(function (i, elem) {
+
+            if ($(elem).val() === idEmpresa.toString()) {
+                if ($(elem).prop('checked')) {
+                    asignarEmpresa(parseInt(idEmpresa));
+                } else {
+                    desactivarUsuario(parseInt(idEmpresa));
+                }
+            }
+        });
+
+        console.log(relacionBD);
+        console.log(relacionLocal);
+
+    }
+
+    function asignarEmpresa(idEmpresa) {
+
+        var existeRel = getEmpresaUsuario(idEmpresa);
+
+        if (existeRel !== "") {
+
+            for (var i = 0; i < relacionBD.length; i++) {
+                if (relacionBD[i].idEmpresa === idEmpresa) {
+                    relacionBD.splice(i, 1);
+                    break;
+                }
+            }
+
+            existeRel.estado = true;
+            relacionBD.push(existeRel);
+
+
+        } else {
+            var model = {
+                idEmpresa: idEmpresa,
+                idUsuario: idUsuario,
+                id: 0,
+                estado: true
+            };
+
+            relacionLocal.push(model);
+        }
+
+    }
+
+    function desactivarUsuario(idEmpresa) {
+        var existeRel = getEmpresaUsuario(idEmpresa);
+
+        if (existeRel !== "") {
+
+            for (var i = 0; i < relacionBD.length; i++) {
+                if (relacionBD[i].idEmpresa === idEmpresa) {
+                    relacionBD.splice(i, 1);
+                    break;
+                }
+            }
+            existeRel.estado = false;
+            relacionBD.push(existeRel);
+
+        } else {
+            for (var i = 0; i < relacionLocal.length; i++) {
+                if (relacionLocal[i].idEmpresa === idEmpresa) {
+                    relacionLocal.splice(i, 1);
+                    break;
+                }
+            }
+        }
+    }
+
+
+    function getEmpresaUsuario(idEmpresa) {
+
+        var empresa = "";
+
+        for (var i = 0; i < empresas.length; i++) {
+            if (empresas[i].id === idEmpresa) {
+                if (empresas[i].tbSeEmpresaUsuario.length !== 0) {
+                    empresa = empresas[i].tbSeEmpresaUsuario[0];
+                    break;
+                }
+            }
+        }
+
+        return empresa;
+
+    }
+
+
+    function getEmpresas() {
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetEmpresasPorUsuario", "ManejoUsuarios")',
+            success: function (data) {
+
+                empresas = JSON.parse(JSON.stringify(data));
+                console.log(empresas);
+                cargarDatos(empresas);
+
+
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+    function cargarDatos(data) {
+
+        $("#tblEmpresas > tbody").remove();
+        $('#tblEmpresas').append('<tbody></tbody>');
+
+        var contadorFila = 0;
+        for (var i = 0; i < data.length; i++) {
+
+            var body = '<tr class="fila' + contadorFila + ' filas" >'
+                + '<td class="text-center"><input onchange="checkEmpresa(' + data[i].id + ')" class="empresas"  name="chkEmpresas" type="checkbox" value="' + data[i].id + '" ' + existeEnEmpresa(data[i].id) + '/></td>'
+                + '<td><p style="padding-top:0.3rem;">' + data[i].nombre + '</p></td>'
+                + '<td><p style="padding-top:0.3rem;">' + getEstado(data[i].estado) + '</p></td>'
+                + '<td><p style="padding-top:0.3rem;">' + data[i].cedJuridica + '</p></td>';
+            $('#tblEmpresas > tbody').append(body);
+            contadorFila++;
+
+        }
+
+    }
+
+    function guardarCambiosEmpresa() {
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: '@Url.Action("AsignarUsuariosEmpresa", "ManejoUsuarios")',
+            data: { newViewModel: relacionLocal, upViewModel: relacionBD },
+            success: function (data) {
+
+                cargarAlert('@Lb["actualizadoCorrectamente"]');
+                
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+
+    }
+
+    function getEstado(estado) {
+        if (estado)
+            return "@Lb["Activa"]";
+        else
+            return "@Lb["Inactiva"]";
+    }
+
+    function existeEnEmpresa(idEmpresa) {
+
+        var flag = "";
+        for (var i = 0; i < empresas.length; i++) {
+            if (empresas[i].id === idEmpresa) {
+                if (empresas[i].tbSeEmpresaUsuario.length != 0 && empresas[i].tbSeEmpresaUsuario[0].estado) {
+                    flag = "checked";
+                    break;
+                }
+
+            }
+
+        }
+
+        return flag;
+    }
+
+</script>

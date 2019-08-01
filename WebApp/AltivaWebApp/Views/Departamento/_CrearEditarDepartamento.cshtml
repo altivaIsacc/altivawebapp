@@ -19,7 +19,7 @@
     }
     else
     {
-        titulo = @SharedLocalizer["NuevoDepartamento"];
+        titulo = @SharedLocalizer["Nuevo"] + " " + @SharedLocalizer["Departamento"];
     }
 
 }
@@ -45,9 +45,10 @@
             @Html.HiddenFor(x => x.Fecha)
 
             <div class="form-group">
-                <label asp-for="Descripcion" class="control-label">@SharedLocalizer["Descripción"]</label>
+                <label asp-for="Descripcion" class="control-label">@SharedLocalizer["Descripción"]:</label>
                 <input asp-for="Descripcion" class="form-control" id="txtDescripcionDepa" />
-                <span hidden id="descripcionValid" class="text-danger">@SharedLocalizer["descripcionValid"]</span>
+                <span hidden id="descripcionReqValid" class="text-danger">@SharedLocalizer["descripcionValid"]</span>
+                <span hidden id="duplicacionValid" class="text-danger">@SharedLocalizer["repetidoValid"]</span>
             </div>
         </form>
 
@@ -82,12 +83,14 @@
 
                     if (data.success) {
 
-                        console.log(data);
                         $('#modalDepartamento').modal('hide');
                         getDepartamentos(data.departamento.id);
                     }
-                    else
-                        cargarAlert("@SharedLocalizer["errorDuplicacion"]");
+                    else {
+                        $('#descripcionReqValid').attr('hidden', true);
+                        $('#duplicacionValid').attr('hidden', false);
+                    }
+
 
 
                 },
@@ -96,8 +99,11 @@
                     console.log(err.statusText);
                 }
             });
-        else
-            $('#descripcionValid').attr('hidden', false);
+        else {
+            $('#descripcionReqValid').attr('hidden', false);
+            $('#duplicacionValid').attr('hidden', true);
+        }
+            
 
     }
 </script>

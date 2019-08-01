@@ -9,7 +9,7 @@ public interface ICuentasBancariasRepository
     {
         TbFdCuentasBancarias Save(TbFdCuentasBancarias domain);
         TbFdCuentasBancarias Update(TbFdCuentasBancarias domain);
-        TbFdCuentasBancarias GetById(int id);
+        TbFdCuentasBancarias GetCuentaById(int id);
         bool Delete(TbFdCuentasBancarias domain);
         IList<TbFdCuentasBancarias> GetByContacto(int idContacto);
     }

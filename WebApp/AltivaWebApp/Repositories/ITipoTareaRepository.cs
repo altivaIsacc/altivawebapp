@@ -18,5 +18,6 @@ namespace AltivaWebApp.Repositories
         TbFdTareaTipo GetDefecto(bool flag);
         TbFdTareaTipo GetTitulo(string idTipo);
         TbFdTareaTipo GetColor(string idTipo);
+        bool TieneTareasAsignadas(int idTipo);
     }
 }

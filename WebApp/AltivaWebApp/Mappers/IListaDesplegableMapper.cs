@@ -8,8 +8,8 @@ namespace AltivaWebApp.Mappers
 {
     public interface IListaDesplegableMapper
     {
-        TbCrCamposPersonalizados Save(CamposPersonalizadosViewModelSingle domain);
-        TbCrCamposPersonalizados viewModelCampos(CamposPersonalizadosViewModelSingle domain);
+        TbCrCamposPersonalizados Save(CamposPersonalizadosViewModel domain);
+        TbCrCamposPersonalizados viewModelCampos(CamposPersonalizadosViewModel domain);
   
         void SaveRange(IList<ListaViewModel> domain);
         IList<TbCrListaDesplegables> viewModelCamposLista(IList<ListaViewModel> domain);

@@ -20,14 +20,16 @@ namespace AltivaWebApp.Controllers
         private readonly IUserService userService;
         private readonly IBodegaService bodegaService;
         private readonly IKardexMap kardexMap;
+        private readonly ITomaService tomaService;
 
-        public AjusteInventarioController(IKardexMap kardexMap, IBodegaService bodegaService, IAjusteService service, IAjusteMap map, IUserService userService)
+        public AjusteInventarioController(ITomaService tomaService, IKardexMap kardexMap, IBodegaService bodegaService, IAjusteService service, IAjusteMap map, IUserService userService)
         {
             this.service = service;
             this.map = map;
             this.userService = userService;
             this.bodegaService = bodegaService;
             this.kardexMap = kardexMap;
+            this.tomaService = tomaService;
         }
 
         [HttpGet("Lista-Ajustes")]
@@ -42,17 +44,20 @@ namespace AltivaWebApp.Controllers
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             ViewData["cuentaContable"] = service.GetAllCC();
             ViewData["cuentaCosto"] = service.GetAllCG();
+            ViewBag.tieneToma = false;
             return View("CrearEditarAjuste", new AjusteViewModel());
         }
 
         [Route("Editar-Ajuste/{id}")]
         public ActionResult EditarAjuste(int id)
         {
+            var ajuste = map.DomainToViewModel(service.GetAjusteById(id));
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             ViewData["cuentaContable"] = service.GetAllCC();
             ViewData["cuentaCosto"] = service.GetAllCG();
+            ViewBag.tieneToma = tomaService.TieneToma(ajuste.FechaCreacion);
 
-            return View("CrearEditarAjuste", map.DomainToViewModel(service.GetAjusteById(id)));
+            return View("CrearEditarAjuste", ajuste);
         }
 
         [HttpPost("CrearEditar-Ajuste")]
@@ -119,7 +124,6 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-
                 var ai = service.GetAjusteById((int)viewModel.FirstOrDefault().IdAjuste);
 
                 service.SaveAjusteInventario(map.AIViewModelToDomain(viewModel).ToList());
@@ -157,7 +161,6 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
-
 
         ////get auxiliares
 

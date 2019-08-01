@@ -11,19 +11,23 @@
 @{
     var monedas = ViewData["monedas"] as IList<TbSeMoneda>;
     var estado = "";
+    var estado2 = "";
     var usuario = ViewData["usuario"] as TbSeUsuario;
-    if (Model.Anulado)
+    if (Model.Anulado || Model.EnCola)
     {
         estado = "disabled";
     }
 
     var numDocumento = Model.NumeroDocumento;
 
-    if(Model.NumeroDocumento == "AutogeneradoXML")
+    if (Model.NumeroDocumento == "AutogeneradoXML")
     {
         numDocumento = Model.Id.ToString();
     }
-
+    if (ViewBag.tieneToma)
+    {
+        estado2 = "disabled";
+    }
 
 }
 
@@ -33,7 +37,6 @@
         <div class="col-md-3"><h3>@SharedLocalizer["editarCompra"]</h3></div>
         <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
     </div>
-
 
 }
 else
@@ -45,18 +48,27 @@ else
 }
 
 
+
+
 <hr />
 
 <div class="row">
     @if (Model.Id != 0 && !Model.Anulado)
     {
-        <div class="col-md-12 text-right"><button class="btn btn-danger btn-sm" onclick="anularCompra()">@SharedLocalizer["Anular"]</button></div>
+        <div class="col-md-12 text-right"><button @estado2 class="btn btn-danger btn-sm" onclick="anularCompra()">@SharedLocalizer["Anular"]</button></div>
     }
     else if (Model.Id != 0)
     {
         <div class="col-md-12 text-left"><h4 class="text-danger">@SharedLocalizer["CompraAnulada"]</h4></div>
     }
+    @if (ViewBag.tieneToma)
+    {
+        estado2 = "disabled";
+        <div class="col-md-12 text-left"><h5 class="text-danger">@SharedLocalizer["DocumentoConToma"]</h5></div>
+        
+    }
 </div>
+
 <div class="row well">
 
     <form id="frmCompra">
@@ -66,7 +78,7 @@ else
         @Html.HiddenFor(x => x.IdUsuario)
         @Html.HiddenFor(x => x.Borrador)
         <div class="form-group col-md-2 col-sm-6 col-xs-12">
-            <fieldset>
+            <fieldset >
                 <div class="form-group">
                     <label for="fecha">@SharedLocalizer["Fecha"]:</label>
                     <div class='input-group date' id='fechaPicker'>
@@ -101,21 +113,21 @@ else
 
             <div class="form-group col-md-6 col-sm-6 col-xs-12">
                 <label asp-for="IdMoneda" class="control-label">@SharedLocalizer["Moneda"]:</label>
-                <select onchange="recalcularPrecio(), deshabilitaTipoCambio()" id="moneda" class="form-control tipoMoneda">
+                <select onchange="recalcularPrecio()" id="moneda" class="form-control tipoMoneda">
                     @*@{
-                        foreach (var item in monedas)
-                        {
-                            <option value="@item.Codigo">@item.Nombre</option>
-                        }
-                    }*@
+                            foreach (var item in monedas)
+                            {
+                                <option value="@item.Codigo">@item.Nombre</option>
+                            }
+                        }*@
                 </select>
             </div>
 
             <div class="form-group col-md-6 col-sm-6 col-xs-12">
                 <label class="control-label">@SharedLocalizer["Dolar"]</label>
-                <input id="dolar" asp-for="TipoCambioDolar" class="form-control moneda" />
+                <input id="dolar" asp-for="TipoCambioDolar" class="form-control moneda monedaCambio" />
                 <label class="control-label">@SharedLocalizer["Euro"]</label>
-                <input id="euro" asp-for="TipoCambioEuro" class="form-control moneda" />
+                <input id="euro" asp-for="TipoCambioEuro" class="form-control moneda monedaCambio" />
             </div>
 
         </div>
@@ -128,6 +140,7 @@ else
     </form>
 
     <div class="table-responsive">
+        <span hidden id="sinDetalleValid" class="text-danger">@SharedLocalizer["docSinDetalle"].</span>
         <table class="table table-bordered table-striped" id="tblCompra" style="min-width:1250px">
             <thead>
                 <tr>
@@ -145,20 +158,20 @@ else
             <tbody>
                 <tr class="lineaForm">
                     <td>
-                        <select @estado class="form-control selectItems" id="item"></select>
+                        <select @estado2 @estado class="form-control selectItems" id="item"></select>
                     </td>
                     <td>
                         <input readonly class="form-control" id="descripcion" />
                     </td>
-                    <td><div class="col-md-9"><input @estado class="form-control numerico" type="text" min="0" id="cantidad" /></div><div class="col-md-3" style="padding-top:1rem"><span id="unidad"></span></div></td>
-                    <td><input @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
-                    <td><input @estado class="form-control numerico" type="text" id="descuento" /></td>
+                    <td><div class="col-md-9"><input @estado2 @estado class="form-control numerico" type="text" min="0" id="cantidad" /></div><div class="col-md-3" style="padding-top:1rem"><span id="unidad"></span></div></td>
+                    <td><input @estado2 @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
+                    <td><input @estado2 @estado class="form-control numerico" type="text" id="descuento" /></td>
                     <td><input class="form-control" readonly type="number" id="iva" /></td>
                     <td><input class="form-control moneda" readonly type="text" id="subtotalLinea" /></td>
                     <td>
                         <select class="form-control bodegas" id="bodega"></select>
                     </td>
-                    <td><button @estado class="btn btn-link btnAccion" onclick="guardarCambios()"><i class="fas fa-save"></i></button></td>
+                    <td><button @estado2 @estado class="btn btn-link btnAccion" onclick="guardarCambios()"><i class="fas fa-save"></i></button></td>
                 </tr>
             </tbody>
         </table>
@@ -189,8 +202,15 @@ else
 </div>
 <div class="row">
     <div class="col-md-12">
+        <div class="form-group" col-md-3>
+            <label @estado2 @estado class="control-label" style="padding-left:1rem">
+                <input type="checkbox" asp-for="EnCola" id="enCola" /> @SharedLocalizer["EnviarACola"]
+            </label>
+        </div>
+    </div>
+    <div class="col-md-12">
         <div class="form-group col-md-3">
-            <button @estado class="btn btn-success btnAccion" onclick="guardarSalir()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+            <button @estado2 @estado class="btn btn-success btnAccion" onclick="guardarSalir()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
             <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
         </div>
     </div>
@@ -239,7 +259,7 @@ else
 
 <script>
 
-
+     var $anulado = $('#Anulado');
     ///linea
     var $item = $('#item');
     var $descripcion = $('#descripcion');
@@ -255,7 +275,6 @@ else
     var $cantidadEditar = $('#cantidadEditar');
     var $precioEditar = $('#precioEditar');
     var $key = $('#key');
-
     ///general
     var $moneda = $('#moneda');
     var $dolar = $('#dolar');
@@ -279,6 +298,7 @@ else
     var totalDescuento = 0;
     var totalImpuesto = 0;
     var totalCompra = 0;
+    var idCDS = 0;
 
     var compraDetalleBD = [];
     var lineas = [];
@@ -291,19 +311,13 @@ else
 
 
 
-     $(document).ready(function () {
-
+    $(document).ready(function () {
         var date = new Date();
         if (@Model.Id != 0) {
 
             GetComentarios("Compra", @Model.Id);
             date = new Date(formatearFecha());
-            
-         }
-
-
-
-        deshabilitaTipoCambio();
+        }
 
 
         $descuento.val(0);
@@ -325,6 +339,9 @@ else
          if('@Model.Anulado' === 'True')
             $('input, select').attr('disabled', true);
 
+         if('@ViewBag.tieneToma' === 'True')
+            $('input, select').attr('disabled', true);
+
         $(".numerico").inputmask({
             'alias': 'decimal',
             rightAlign: false,
@@ -332,7 +349,9 @@ else
 
          getMonedas();
          getInventario();
-         getProveedores();
+        getProveedores();
+        
+
 
 
          $('.selectItems').select2({ width: null, language: localStorage.getItem("idioma") });
@@ -356,7 +375,8 @@ else
 
 
 
-    ////eventos de elementos
+    ///////manejo del dom///////////////////////////////////////////////////////////////////////////
+
     $cantidad.on('keyup, change, focusout', function () {
         if ($(this).val() < 0 || $(this).val() === "")
             $(this).val(0);
@@ -380,22 +400,6 @@ else
     });
 
 
-
-
-    ///////manejo del dom///////////////////////////////////////////////////////////////////////////
-
-    function deshabilitaTipoCambio() {
-        if ($('.tipoMoneda').val() != "1") {
-            $dolar.attr('disabled', true);
-            $euro.attr('disabled', true);
-        }
-        else {
-            $dolar.attr('disabled', false);
-            $euro.attr('disabled', false);
-        }
-
-    }
-
     //////ajax////////////////////////////////////////////////////////////////////////
 
     function getBodegas() {
@@ -406,7 +410,7 @@ else
               },
               dataType: "json",
               url: '@Url.Action("GetBodegas")',
-             success: function (data) {
+              success: function (data) {
 
                  bodegas = data;
 
@@ -421,7 +425,6 @@ else
                  $(".bodegas").trigger('change');
 
                  getCompraDetalle();
-
 
               },
               error: function (err, scnd) {
@@ -439,14 +442,13 @@ else
               },
               dataType: "json",
               url: '@Url.Action("GetMonedas", "Monedas")',
-             success: function (data) {
+              success: function (data) {
 
                  monedas = data;
 
                  for (var i = 0; i < data.length; i++) {
                      var o = new Option(data[i].nombre, data[i].codigo);
                     $(".tipoMoneda").append(o);
-
 
                  }
                  if(@Model.Id!= 0)
@@ -475,11 +477,10 @@ else
               },
               dataType: "json",
               url: '@Url.Action("GetAllInventario", "Inventario")',
-             success: function (data) {
+              success: function (data) {
                  items = data;
                  cargarItems(data);
                  getBodegas();
-                 
               },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -505,7 +506,7 @@ else
                      if (data[i].persona)
                          nombre = data[i].nombre + ' ' + data[i].apellidos;
                      else
-                         nombre = data[i].nombreJuridico;
+                         nombre = data[i].nombreComercial;
                     var o = new Option(nombre, data[i].idContacto);
                     $("#proveedores").append(o);
                  }
@@ -543,10 +544,16 @@ else
         });
     }
 
-    function guardarCompra() {
+    function guardarCompra(salir) {
         @*if (lineas.length <= 0) {
             cargarAlert('@SharedLocalizer["compraSinDetalle"]');
         } else*@
+
+        var model = crearModelo();
+
+        if (lineasAgregadas.length === 0)
+            model.enCola = $('#enCola').prop('checked');
+
         $.ajax({
               type: "POST",
               headers: {
@@ -554,22 +561,37 @@ else
               },
               dataType: "json",
             url: '@Url.Action("CrearEditarCompra")',
-            data: crearModelo(),
+            data: model,
             success: function (data) {
 
                 if (data.success) {
                     lineas[lineas.length - 1].id = data.idCD;
                     lineasAgregadas[lineasAgregadas.length - 1].id = data.idCD;
+                    idCDS = data;
                     cargarTabla(lineas);
                     if (@Model.Id === 0) {
 
                         var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
                         window.location.href = url.replace("__id__", data.idCompra);
 
+                    if (salir)
+                        window.location.href = "@Url.Action("ListarCompras")";
+                    else {
+                        lineas[lineas.length - 1].id = data.idCD;
+                        lineasAgregadas = [];
+                        cargarTabla(lineas);
+                        if (@Model.Id === 0) {
+                            var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
+                            window.location.href = url.replace("__id__", data.idCompra);
+                        }
                     }
+                        
                 }
-                else
+                else {
                     cargarAlert("@SharedLocalizer["numCompraRepitida"]");
+                    eliminarLinea(lineas.length -1);
+                }
+
 
 
                },
@@ -579,12 +601,11 @@ else
               }
         });
 
+
     }
 
      function guardarCompraBorrador() {
-        if (lineas.length <= 0) {
-            cargarAlert('@SharedLocalizer["compraSinDetalle"]');
-        } else
+       
         $.ajax({
               type: "POST",
               headers: {
@@ -597,7 +618,9 @@ else
                 @*window.location.href = "@Url.Action("ListarCompras")";*@
 
                 if (!data.success)
-                   cargarAlert("@SharedLocalizer["numCompraRepitida"]");
+                    cargarAlert("@SharedLocalizer["numCompraRepitida"]");
+                else
+                    window.location.href = "@Url.Action("ListarCompras")";
 
                },
               error: function (err, scnd) {
@@ -622,21 +645,24 @@ else
 
 
                 if (idLinea != 0) {
-                     $.ajax({
-                    type: "POST",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                    },
-                    dataType: "json",
-                    url: '@Url.Action("EliminarCompraDetalle")',
-                    data: { idCD: idLinea },
-                    success: function (data) {
-                        eliminarLinea(_id);
-                    },
-                    error: function (err, scnd) {
-                        cargarAlert('@SharedLocalizer["errorGeneral"]');
-                        console.log(err.statusText);
-                    }
+                    $.ajax({
+                        type: "POST",
+                        headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        dataType: "json",
+                        url: '@Url.Action("EliminarCompraDetalle")',
+                        data: { idCD: idLinea },
+                        success: function (data) {
+                            if (data.success)
+                                eliminarLinea(_id);
+                            else
+                                cargarAlert("@SharedLocalizer["anulacionInvalida"]");
+                        },
+                        error: function (err, scnd) {
+                            cargarAlert('@SharedLocalizer["errorGeneral"]');
+                            console.log(err.statusText);
+                        }
                     });
                 }
                 else
@@ -664,10 +690,14 @@ else
                         url: '@Url.Action("CambiarEstadoCompra")',
                         data: {id: @Model.Id},
                         success: function (data) {
-                            setMensajeFromOut(result);
-                            cargarAlert('@SharedLocalizer["CompraAnuladaMSJ"]');
-                            window.location.href = "@Url.Action("ListarCompras")";
-
+                            if (data.success) {
+                                setMensajeFromOut(result);
+                                cargarAlert('@SharedLocalizer["CompraAnuladaMSJ"]');
+                                window.location.href = "@Url.Action("ListarCompras")";
+                            }
+                            else{
+                                cargarAlert("@SharedLocalizer["anulacionInvalida"]");
+                        }
                         },
                         error: function (err, scnd) {
                             cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -684,7 +714,7 @@ else
         });
     }
 
-   
+
 
 
 
@@ -695,8 +725,10 @@ else
 
         if (validarForm()) {
             guardarLinea();
-            guardarCompra();
+            guardarCompra(false);
         }
+   console.log(idCDS);
+
     }
 
     function guardarSalir() {
@@ -705,27 +737,57 @@ else
         if (validarForm()) {
 
             //guardarLinea();
+            if (lineas.length <= 0) {
+                $('#sinDetalleValid').prop('hidden', false);
+                flag = false;
+            } else {
+                if ($('#enCola').prop('checked')) {
+                    bootbox.confirm("@SharedLocalizer["confirmEnivarCola"]", function (result) {
 
-            if ('@Model.Borrador' === 'True')
-                guardarCompraBorrador();
-            else
-                guardarCompra();
+                        if (!result) {
+                            $('#enCola').attr('checked', false);
 
-            window.location.href = "@Url.Action("ListarCompras")";
+                        }
+
+                        if ('@Model.Borrador' === 'True')
+                            guardarCompraBorrador();
+                        else
+                            guardarCompra(true);
+
+                        
+
+                    });
+                }
+
+                else {
+
+                    if ('@Model.Borrador' === 'True')
+                        guardarCompraBorrador();
+                    else
+                        guardarCompra(true);
+
+                    
+                }
+
+            }
+
+
         }
-
-
 
     }
 
     function validarForm() {
+        var flag = true;
 
         if ($('#numDocumento').val().replace(/ /g, "") === "") {
             $('#numDocumentoValid').attr("hidden", false);
-            return false;
-        }
+            flag = false;
+        } else
+            $('#numDocumentoValid').attr("hidden", true);
 
-        return true;
+        
+
+        return flag;
     }
 
     function crearModelo() {
@@ -750,6 +812,7 @@ else
             total: totalCompra.toString().replace(".", ","),
             tipoCambioDolar: $dolar.val(),
             tipoCambioEuro: $euro.val(),
+            enCola: false,
             compraDetalle: crearModeloDetalle(lineasAgregadas)
 
         };
@@ -788,7 +851,7 @@ else
                 nombreInventario: data[i].nombreInventario,
                 idMonedaCD: @Model.IdMoneda,
                 cantidad: data[i].cantidad,
-                precioUnitario: parseFloat(data[i].precioUnitario),
+                precioUnitario: recuperarPrecio(data[i]),
                 subTotalGravado: recuperarSubTotalGravado(data[i]),
                 subTotalExcento: recuperarSubTotalExcento(data[i]),
                 subTotalGravadoNeto: recuperarSubTotalGravadoNeto(data[i]),
@@ -816,8 +879,7 @@ else
 
     function guardarLinea() {
 
-
-        var model = {
+       var model = {
             id: 0,
             idCompra: @Model.Id,
             idInventario: $item.val(),
@@ -845,7 +907,6 @@ else
 
         lineasAgregadas.push(model);
         lineas.push(model);
-
         calcularTotales();
 
 
@@ -855,12 +916,12 @@ else
 
     function eliminarLinea(key) {
 
+    
         lineasAgregadas.splice($.inArray(lineas[key], lineasAgregadas), 1);
         lineas.splice(key, 1);
 
         calcularTotales();
         cargarTabla(lineas);
-
     }
 
     function editarLinea(key, idDetalle) {
@@ -872,7 +933,7 @@ else
 
 
         $item.val(detalle.idInventario);
-        $('.selectItems').trigger('change');
+        $('.selectItems').trigger('change.select2');
         $bodega.val(detalle.idBodega);
         $cantidad.val(detalle.cantidad);
         $precio.val(detalle.precioUnitario);
@@ -923,9 +984,9 @@ else
                 + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(data[i].precioUnitario) + '</td>'
                 + '<td style="padding-top:2rem;">' + data[i].porcDescuento + '%</td>'
                 + '<td style="padding-top:2rem;">' + data[i].porcIva + '%</td>'
-                + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(subtotal) + '</td>'
+                + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(subtotal) +'</td>'
                 + '<td style="padding-top:2rem;">' + data[i].bodega + ' </td>'
-                + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="elimarCompraDetalle(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
+                + '<td><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="elimarCompraDetalle(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
 
             $('.lineaForm').before(body);
 
@@ -934,11 +995,12 @@ else
         }
         //data[i].precioUnitario)
         //calcularTotales();
-        var simbolo = "₡";
+        var simbolo = monedas[0].simbolo + " ";
+
         if (parseInt($('.tipoMoneda').val()) === 2)
-            simbolo = "$";
+            simbolo = monedas[1].simbolo + " ";
         else if (parseInt($('.tipoMoneda').val()) === 3)
-            simbolo = "€";
+            simbolo = monedas[2].simbolo + " ";
 
         $(".currency").inputmask('currency', {
             prefix: simbolo,
@@ -1015,7 +1077,7 @@ else
     }
 
 
-    //////calculos de linea/////////////////////////////////////////////////////////////////////
+//////////calculos de linea/////////////////////////////////////////////////////////////////////
 
     function setSubTotalLinea() {
 
@@ -1115,6 +1177,8 @@ else
         $total.val(totalCompra);
     }
 
+
+
     function getPrecioAlCambio(item) {
 
 
@@ -1148,6 +1212,7 @@ else
     }
 
     function recalcularPrecio() {
+
 
         var subtotal = 0;
 
@@ -1218,7 +1283,7 @@ else
 
         var euro = parseFloat($euro.val());
 
-        
+
 
         if (moneda === 1 && item.idMonedaCD === 1)
             return item.precioUnitario;
@@ -1242,7 +1307,17 @@ else
     }
 
 
+    function recuperarPrecio(data) {
 
+        var moneda = parseInt($('.tipoMoneda').val());
+
+        if (moneda === 1)
+            return data.precioUnitarioBase;
+        else if (moneda === 2)
+            return data.precioUnitarioDolar;
+        else if (moneda === 3)
+            return data.precioUnitarioEuro;
+    }
 
 
     function recuperarSubTotalExcento(data) {
@@ -1481,8 +1556,6 @@ else
         }
 
 
-
-
         return {
             subtotal: subtotal + $subTotal.val().replace("₡", ""),
             imp: imp + $totalImpuesto.val().replace("₡", ""),
@@ -1566,12 +1639,12 @@ else
             $numDocumento.val('AutogeneradoXML');
             //console.log(crearModelo());
 
-            guardarCompra();
+            guardarCompra(false);
         }
-        
-        
 
-            
+
+
+
     }
 
     function crearModeloCompra(data) {
@@ -1584,12 +1657,10 @@ else
         var date1 = new Date(doc.FechaEmision["#text"]);
         var date2 = new Date(date1.getTime());
 
-
         $('#fecha').datetimepicker({
             date: date2,
             locale: localStorage.getItem("idioma")
         });
-
 
     }
 
@@ -1637,7 +1708,7 @@ else
         var doc = file.FacturaElectronica;
 
         if (doc === undefined) {
-            
+
             cargarAlert("@SharedLocalizer["XMLInvalido"]");
             return false;
         }
@@ -1649,22 +1720,22 @@ else
 
 
         if (doc.Receptor.Identificacion.Numero["#text"] != cedEmpresa) {
-            flag = false;          
+            flag = false;
         }
-                   
-            
+
+
         if (doc.ResumenFactura.CodigoMoneda["#text"] != monedas[0].nombre) {
-            flag = false;           
+            flag = false;
         }
-            
+
 
 
         if (detalle.length === undefined) {
             if (getItemPorCodigo(detalle.Codigo.Codigo["#text"]) === undefined) {
                 flag = false;
-                
+
             }
-                
+
         }
         else {
             for (var i = 0; i < detalle.length; i++) {
@@ -1679,7 +1750,7 @@ else
             cargarAlert("@SharedLocalizer["XMLInvalido"]");
 
         return flag;
-
+        
     }
 
 

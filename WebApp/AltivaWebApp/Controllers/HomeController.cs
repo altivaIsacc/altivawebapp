@@ -26,11 +26,8 @@ namespace AltivaWebApp.Controllers
         [Route("Login")]
         public IActionResult Login(string grupo)
        {
-         
-
 
             StringFactory.SetStringGE(HttpContext.Session, grupo);
-
             try
             {
                 using (SqlConnection conn = new SqlConnection(StringFactory.StringGE))
@@ -39,6 +36,8 @@ namespace AltivaWebApp.Controllers
                     conn.Close();
                     return RedirectToAction("Login", "Cuenta", new { grupo = grupo });
                 }
+
+                
             }
             catch
             {                
@@ -48,10 +47,5 @@ namespace AltivaWebApp.Controllers
 
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
     }
 }

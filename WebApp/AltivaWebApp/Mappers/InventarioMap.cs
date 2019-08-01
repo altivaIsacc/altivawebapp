@@ -21,6 +21,31 @@ namespace AltivaWebApp.Mappers
             this.hostingEnvironment = hostingEnvironment;
         }
 
+        //////////
+        public TbPrInventarioBodega UpdateIBodega(InventarioBodegaViewModel viewModel)
+        {
+            return service.UpdateIBodega(ViewModelToDomainEditarIBodega(viewModel));
+        }
+
+        public TbPrInventarioBodega ViewModelToDomainEditarIBodega(InventarioBodegaViewModel viewModel)
+        {
+            var ib = new TbPrInventarioBodega
+            {
+                Id = viewModel.Id,
+                IdInventario = viewModel.IdInventario,
+                IdBodega = viewModel.IdBodega,
+                ExistenciaMinima = viewModel.ExistenciaMinima,
+                ExistenciaMaxima = viewModel.ExistenciaMaxima,
+                ExistenciaBodega = viewModel.ExistenciaBodega,
+                CostoPromedioBodega = viewModel.CostoPromedioBodega,
+                SaldoBodega = viewModel.SaldoBodega,
+                UltimoCostoBodega = viewModel.UltimoCostoBodega,
+                ExistenciaMedia = viewModel.ExistenciaMedia
+            };
+                 return ib;
+        }
+        /////////
+
         public TbPrInventario Create(InventarioViewModel viewModel)
         {
             var inventario = service.Save(ViewModelToDomainNuevo(viewModel));
@@ -55,8 +80,6 @@ namespace AltivaWebApp.Mappers
 
 
         }
-
-
 
         public TbPrInventario Update(int id, InventarioViewModel viewModel)
         {
@@ -189,10 +212,8 @@ namespace AltivaWebApp.Mappers
             inventario.NombreCarrito = viewModel.NombreCarrito;
             inventario.PrecioVentaOnline = viewModel.PrecioVentaOnline;
             inventario.AbreviacionFacturas = viewModel.AbreviacionFactura;
-            inventario.IdFamiliaOnline = viewModel.CodigoMonedaOnline;
             inventario.HabilitarVentaOnline = viewModel.HabilitarVentaOnline;
-            inventario.SkuOnline = viewModel.SkuOnline;
-                     
+            inventario.SkuOnline = viewModel.SkuOnline;   
            
             return inventario;
 
@@ -240,6 +261,25 @@ namespace AltivaWebApp.Mappers
 
 
                 Bodegas = domain.TbPrInventarioBodega.ToList()
+            };
+        }
+
+        public InventarioBodegaViewModel DomainToViewModelIBodega(TbPrInventarioBodega domain)
+        {
+            return new InventarioBodegaViewModel
+            {
+                Id = domain.Id,
+                IdInventario = domain.IdInventario,
+                IdBodega = domain.IdBodega,
+                ExistenciaMinima = domain.ExistenciaMinima,
+                ExistenciaMaxima = domain.ExistenciaMaxima,
+                ExistenciaBodega = domain.ExistenciaBodega,
+                CostoPromedioBodega = domain.CostoPromedioBodega,
+                SaldoBodega = domain.SaldoBodega,
+                UltimoCostoBodega = domain.UltimoCostoBodega,
+                ExistenciaMedia = domain.ExistenciaMedia
+
+
             };
         }
 

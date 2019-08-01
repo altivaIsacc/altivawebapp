@@ -18,240 +18,409 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace AltivaWebApp.Controllers
 {
-    [Route("{culture}/Contacto")]
+    [Route("{culture}/Contactos")]
     public class ContactoController : Controller
     {
-        //
-        public FotosService Fotos;
-        //variable service
-        public IContactoService contactoService;
-        //
-        public IcontactoCamposMap pContactoMap;
-        //
-        public IContactoMap contactoMap;
-        // GET: Contacto
-        public IcontactoCamposMap pContactoCamposMap;
 
-        //
-        public IEstadoTareaService IEstadoService;
+        private readonly IContactoService contactoService;
+        private readonly IContactoMap contactoMap;
+        private readonly IContactoCamposMap ccMap;
+        private readonly IUserService userService;
+        private readonly IContactoCamposService ccService;
+        private readonly IPaisService paisService;
+        private readonly ICamposPersonalizadosService cpService;
+        private readonly IMonedaService monedaService;
 
-        public ITipoTareaService ITipoService;
-        public IUserService IUserService;
-        private readonly IHostingEnvironment hostingEnvironment;
-
-        //metodo usuasrios del sitemas
-        public IUserRepository userMap;
-        //variable de contactosCamposPersonalizadosService:
-        public IContactoCamposService ICCService;
-        public ContactoController(IUserService IUserService, IHostingEnvironment hostingEnvironment, ITipoTareaService ITipoService, IEstadoTareaService IEstadoService, FotosService pFotos, IUserRepository IUserRepository, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IcontactoCamposMap pContactoCamposMap, IcontactoCamposMap pContactoMap)
+        public ContactoController(IMonedaService monedaService, ICamposPersonalizadosService cpService, IPaisService paisService, IUserService IUserService, IContactoCamposService ICCService, IContactoService contactoService, IContactoMap contactoMap, IContactoCamposMap pContactoCamposMap)
         {
             this.contactoService = contactoService;
             this.contactoMap = contactoMap;
-            this.pContactoCamposMap = pContactoCamposMap;
-            this.pContactoCamposMap = pContactoMap;
-            this.ICCService = ICCService;
-            this.userMap = IUserRepository;
-            this.Fotos = pFotos;
-            this.IUserService = IUserService;
-            this.hostingEnvironment = hostingEnvironment;
-            this.ITipoService = ITipoService;
-            this.IEstadoService = IEstadoService;
-
+            ccMap = pContactoCamposMap;
+            this.ccService = ICCService;
+            this.userService = IUserService;
+            this.paisService = paisService;
+            this.cpService = cpService;
+            this.monedaService = monedaService;
 
         }
-        //metodo que devuele en el edit las condiciones de pago.
-        [HttpGet("GetCondicionesPago/{idContacto?}")]
-        public IActionResult GetCondicionesPago(int idContacto)
+
+
+        /// /////////////////////////////////////////////////listar contactos
+
+        [HttpGet("Todo/{nombreContacto?}")]
+        public IActionResult ListarContactos(string nombreContacto)
         {
-            IList<TbFdCondicionesDePago> condiciones = new List<TbFdCondicionesDePago>();
-            condiciones = this.contactoService.GetCondiciones(idContacto);
-            if (condiciones.Count() > 0)
-            {
-                return new JsonResult(condiciones);
-            }
-            else
-            {
-                return new JsonResult(false);
-            }
-
-        }
-        //metodo que devuelve los cuentas de un contacto
-
-        [HttpGet("GetCuentasByContacto/{idContacto?}")]
-
-        public IActionResult GetCuentasByContacto(int idContacto)
-        {
-            IList<TbFdCuentasBancarias> cb = new List<TbFdCuentasBancarias>();
-            cb = this.contactoService.GetByContacto(idContacto);
-            if (cb.Count() > 0)
-            {
-                return new JsonResult(cb);
-            }
-            else
-            {
-                return Ok(false);
-            }
-
-        }
-        //metodo para agregar condiciones de pago
-        [HttpPost("AddCondicionesPago")]
-        public IActionResult AddCondicionesPago(TbFdCondicionesDePago domain)
-        {
-            TbFdCondicionesDePago condicionesPago = new TbFdCondicionesDePago();
-            condicionesPago = this.contactoService.AgregarCondicion(domain);
-
-
-            return new JsonResult(true);
-        }
-        [HttpPost("EditCondicionesPago")]
-        public IActionResult EditCondicionesPago(TbFdCondicionesDePago domain)
-        {
-            TbFdCondicionesDePago condicionesPago = new TbFdCondicionesDePago();
-            condicionesPago = this.contactoService.EditarCondicion(domain);
-
-            return new JsonResult(true);
-        }
-        [HttpPost("AgregarCuentasBancarias")]
-        public IActionResult AgregarCuentasBancarias(TbFdCuentasBancarias domain)
-        {
-
-            TbFdCuentasBancarias cb = new TbFdCuentasBancarias();
-            cb = this.contactoService.AgregarCuentasBancarias(domain);
-
-            return new JsonResult(true);
-        }
-        [HttpPost("EditarCuentasBancarias")]
-        public IActionResult EditarCuentasBancarias(TbFdCuentasBancarias domain)
-        {
-            TbFdCuentasBancarias cb = new TbFdCuentasBancarias();
-            cb = this.contactoService.EditarCuentas(domain);
-            return new JsonResult(true);
-        }
-        [HttpDelete("DeleteCuentasBancarias/{idCuenta?}")]
-        public IActionResult DeleteCuentasBancarias(int idCuenta)
-        {
-            TbFdCuentasBancarias tc = new TbFdCuentasBancarias();
-            tc = this.contactoService.GetCuentasById(idCuenta);
-            this.contactoService.DeleteCuentasBancarias(tc);
-            return new JsonResult(true);
-
-        }
-        [HttpGet]
-        public IActionResult PartialCrearTipoCuentaBancaria()
-        {
-            TbFdCuentasBancarias tc = new TbFdCuentasBancarias();
-
-            return PartialView("_AgregarEditarCuentasBancarias", tc);
-
-        }
-        [HttpGet("PartialEditarTipoCuentaBancaria/{idCuenta?}")]
-        public IActionResult PartialEditarTipoCuentaBancaria(int idCuenta)
-        {
-            TbFdCuentasBancarias tc = new TbFdCuentasBancarias();
-            tc = this.contactoService.GetCuentasById(idCuenta);
-            return PartialView("_AgregarEditarCuentasBancarias", tc);
-
-        }
-        [HttpGet("Index/{palabra?}")]
-        public IActionResult Index(string palabra = "All")
-        {
-
-
-
-            IList<TbCrContacto> buscar = new List<TbCrContacto>();
-            IList<TbCrContacto> conPersonas = new List<TbCrContacto>();
-            IList<TbCrContacto> abecedario = new List<TbCrContacto>();
-            conPersonas = this.contactoService.GetAll();
-            string nombre;
-            string nombreComercial;
-            if (palabra.Length > 3)
-            {
-                for (int j = 0; j < conPersonas.Count; j++)
-                {
-
-                    if (conPersonas[j].Nombre != null)
-                    {
-                        nombre = conPersonas[j].Nombre;
-                        if (nombre == palabra)
-                        {
-                            buscar.Add(conPersonas[j]);
-                        }
-                    }
-                    else
-                    {
-                        nombreComercial = conPersonas[j].NombreComercial;
-                        if (nombreComercial == palabra)
-                        {
-
-                            buscar.Add(conPersonas[j]);
-                        }
-                    }
-                    if (palabra == conPersonas[j].Correo)
-                    {
-                        buscar.Add(conPersonas[j]);
-                    }
-                    else if (palabra == conPersonas[j].Cedula)
-                    {
-                        buscar.Add(conPersonas[j]);
-                    }
-                }
-                ViewData["conPersonas"] = buscar;
-
-            }
-            else
-            {
-
-
-                if (palabra == "All")
-                {
-
-                    ViewData["conPersonas"] = conPersonas;
-                }
-                else
-                {
-
-                    for (int i = 0; i < conPersonas.Count; i++)
-                    {
-
-                        if (conPersonas[i].Nombre != null)
-                        {
-                            nombre = conPersonas[i].Nombre.Substring(0, 1);
-                            if (nombre == palabra)
-                            {
-                                abecedario.Add(conPersonas[i]);
-                            }
-                        }
-                        else
-                        {
-                            nombreComercial = conPersonas[i].NombreComercial.Substring(0, 1);
-                            if (nombreComercial == palabra)
-                            {
-                                abecedario.Add(conPersonas[i]);
-                            }
-                        }
-                    }
-                    ViewData["conPersonas"] = abecedario;
-                }
-            }
+            ViewBag.nombre = "";
+            if (nombreContacto != null)
+                ViewBag.nombre = nombreContacto;
             return View();
         }
 
-        [HttpGet("Details/{id?}")]
-        public IActionResult Details(int id)
+        [HttpGet("GetAllContactos")]
+        public IActionResult GetAllContactos()
+        {
+            try
+            {
+                return Ok(contactoService.GetAll());
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("GetAllClientes")]
+        public IActionResult GetAllClientes()
+        {
+            try
+            {
+                return Ok(contactoService.GetAllClientes());
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        /// //////////////////////////////////////////////////////////////////////////crear o editar contacto
+        /// 
+
+        [HttpGet("Nuevo")]
+        public IActionResult CrearContacto()
         {
 
-            ContactoViemModelDetalle contactoMap = new ContactoViemModelDetalle();
-            contactoMap = this.contactoService.getById(id);
-            ViewBag.id = contactoMap.Id;
-            return new JsonResult(contactoMap);
+            ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+            ViewData["paises"] = paisService.GetAll();
+
+            var contacto = new ContactoViewModel();
+            contacto.TipoCedula = "1";
+
+            return View("CrearEditarContacto", contacto);
         }
-        [HttpPost("Distritos/{idDistrito?}/{idProvincia?}")]
-        public JsonResult Distritos(int idDistrito, int idProvincia)
+
+        [HttpGet("Editar/{id}")]
+        public IActionResult EditarContacto(int id)
         {
-            IList<TbCeDistrito> distritos = new List<TbCeDistrito>();
-            distritos = this.contactoService.GetDistrito(idDistrito, idProvincia);
-            return new JsonResult(distritos);
+
+            ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+            ViewData["paises"] = paisService.GetAll();
+            var contacto = contactoMap.DomainToViewModelC(contactoService.GetByIdContacto(id));
+
+
+            return View("CrearEditarContacto", contacto);
         }
+
+        [HttpPost("CrearEditarContacto")]
+        public IActionResult CrearEditarContacto(IList<CCPersonalizadosViewModel> cpViewModel, ContactoViewModel cViewModel, IList<TbFdCondicionesDePago> cPagoViewModel)
+        {
+            try
+            {
+                var existeContacto = contactoService.GetByCedulaContacto(cViewModel.Cedula);
+                var contacto = new TbCrContacto();
+                if (cViewModel.IdContacto != 0)
+                {
+                    if (existeContacto != null && existeContacto.IdContacto != cViewModel.IdContacto)
+                    {
+                        return Json(new { success = false });
+                    }
+
+                    contacto = contactoMap.UpdateContacto(cViewModel);
+
+                    contactoService.CreateOrUpdateCondicionPago(cPagoViewModel);
+
+                    var listaCCPCrear = new List<CCPersonalizadosViewModel>();
+                    var listaCCPAct = new List<CCPersonalizadosViewModel>();
+
+                    foreach (var item in cpViewModel)
+                    {
+                        if (item.Id != 0)
+                            listaCCPAct.Add(item);
+                        else
+                            listaCCPCrear.Add(item);
+                    }
+
+                    if (listaCCPCrear.Count() != 0)
+                        ccMap.Create(listaCCPCrear, (int)cViewModel.IdContacto);
+                    else
+                        ccMap.Update(listaCCPAct, (int)cViewModel.IdContacto);
+
+
+                    return Json(new { success = true, accion = true, id = contacto.IdContacto, nombre = contacto.Cedula });
+
+                }
+                else
+                {
+                    if (existeContacto != null)
+                    {
+                        return Json(new { success = false });
+                    }
+
+                    contacto = contactoMap.CreateContacto(cViewModel);
+
+                    foreach (var item in cPagoViewModel)
+                    {
+                        item.IdContacto = contacto.IdContacto;
+                    }
+
+                    contactoService.CreateOrUpdateCondicionPago(cPagoViewModel);
+
+                    ccMap.Create(cpViewModel, (int)contacto.IdContacto);
+
+                    return Json(new { success = true, accion = false, id = contacto.IdContacto });
+
+
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        [HttpPost("GuardarImagen/{idContacto}")]
+        public IActionResult GuardarImagen(int idContacto, IFormFile foto)
+        {
+            try
+            {
+                var contacto = contactoService.GetByIdContacto(idContacto);
+                var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "uploads");
+                contacto.Ruta = FotosService.SubirFotoContacto(foto, savePath);
+
+                contactoService.Update(contacto);
+
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
+
+
+        [HttpGet("CamposPersonalizados/{idContacto?}")]
+        public IActionResult GetCamposPersonalizados(int idContacto)
+        {
+            try
+            {
+                var campos = cpService.GetAll(idContacto);
+                return Json(campos);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
+
+
+        ///////////////////////////////////////////////////////////////////////condiciones de pago
+
+        [HttpGet("GetCondicionesPago/{idContacto}")]
+        public IActionResult GetCondicionesPago(int idContacto)
+        {
+            try
+            {
+                return Ok(contactoService.GetCondicionesByIdContacto(idContacto));
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+
+        }
+
+        ///////////////////////////////////////////////////////////////////fin condiciones de pago//////////////////////////////////////////////
+
+
+
+        /////////////////////////////////////////////////////////////////cuentas bancarias//////////////////////////////////////////////////
+
+        [HttpGet("_ListarCuentasBancarias/{idContacto}")]
+        public IActionResult _ListarCuentasBancarias(int idContacto)
+        {
+            ViewBag.idContacto = idContacto;
+            return View(contactoService.GetCuentasByContacto(idContacto));
+        }
+
+        [HttpPost("_CrearEditarCuentasBancarias")]
+        public IActionResult _CrearEditarCuentasBancarias(int idCuenta, int idContacto)
+        {
+            ViewBag.monedas = monedaService.GetAll();
+            if (idCuenta != 0)
+            {
+                return PartialView(contactoMap.DomainToViewModelCB(contactoService.GetCuentaById(idCuenta)));
+            }
+            else
+            {
+                var modelo = new CuentaBancariaViewModel
+                {
+                    IdContacto = idContacto
+                };
+                return PartialView(modelo);
+            }
+        }
+
+        [HttpPost("CrearEditarCuentasBancarias")]
+        public IActionResult CrearEditarCuentasBancarias(CuentaBancariaViewModel viewModel)
+        {
+            try
+            {
+                var cuenta = new TbFdCuentasBancarias();
+                if (viewModel.Id != 0)
+                {
+                    contactoMap.UpdateCuentaBancaria(viewModel);
+                }
+                else
+                {
+                    contactoMap.CreateCuentaBancaria(viewModel);
+                }
+
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
+        [HttpPost("EliminarCuentaBancaria")]
+        public IActionResult EliminarCuentaBancaria(int idCuenta)
+        {
+            try
+            {
+                contactoService.DeleteCuentasBancarias(contactoService.GetCuentaById(idCuenta));
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
+
+        /////////////////////////////////////////////////////////////////////////////fin cuentas bancarias/////////////////////////////////////////////
+
+        /// ///////////////////////////////////////////////relaciones entre contactos////////////////////////////////////////////////////
+
+        [HttpPost("RelacionContacto")]
+        public IActionResult _RelacionContacto(int idContacto)
+        {
+
+            var relacion = contactoService.GetContactoRelacion(idContacto);
+            ViewBag.idContacto = idContacto;
+            return PartialView(relacion);
+
+        }
+
+        [HttpPost("EliminarRelacionContacto")]
+        public IActionResult EliminarRelacionContacto(int idRelacion)
+        {
+            try
+            {
+                contactoService.EliminarRelacion(idRelacion);
+                return Json(new { success = true });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
+        [HttpPost("_CrearEditarRelacion")]
+        public IActionResult _CrearEditarRelacion(ContactoRelacionViewModel viewModel)
+        {
+            var contactos = contactoService.GetAll();
+            ViewBag.contactos = contactos;
+            ViewBag.contacto = contactos.FirstOrDefault(c => c.IdContacto == viewModel.IdContactoPadre);
+
+            if (viewModel.Id != 0)
+            {
+                viewModel.Id = 0;
+                viewModel.IdContactoPadre = 0;
+
+                return PartialView(viewModel);
+            }
+            else
+            {
+                return PartialView(new ContactoRelacionViewModel());
+            }
+
+        }
+
+
+
+        //metodo que va permitir guardar las relaciones 
+        [HttpPost("CrearEditarRelacion")]
+        public IActionResult CrearEditarRelacion(ContactoRelacionViewModel viewModel)
+        {
+            try
+            {
+                var contactoRel = contactoService.GetByIdPadreAndIdHijo((int)viewModel.IdContactoPadre, (int)viewModel.IdContactoHijo);
+                if (contactoRel != null)
+                {
+                    contactoRel.NotaRelacion = viewModel.NotaRelacion;
+                    var cr = contactoService.UpdateRelacion(contactoRel);
+                }
+                else
+                {
+                    var cr = this.contactoMap.CreateRelacion(viewModel);
+                }
+
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
+
+        /// /////////////////////////////////////////////// fin relaciones entre contactos////////////////////////////////////////////////////
+
+
+
+
+
+        /// /////////////////////////////////////////////// tareas contactos////////////////////////////////////////////////////
+        [HttpGet("_ListarTareasContacto/{idContacto}")]
+        public IActionResult _ListarTareasContacto(int idContacto)
+        {
+            ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+            return PartialView(contactoService.GetTareas(idContacto));
+        }
+
+        /// /////////////////////////////////////////////// fin tareas contactos////////////////////////////////////////////////////
+
+
+
+
+        [HttpGet("GetProveedores")]
+        public IActionResult GetProveedores(int idContacto)
+        {
+            try
+            {
+                var prov = contactoService.GetAllProveedores().OrderBy(p => p.Nombre ?? p.NombreJuridico);
+                return Ok(prov);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+
+        }
+
+
+
+        //////////////////////////////////////localizaciones///////////////////////////////////////
+
         [HttpPost("Provincias")]
         public IActionResult Provincias()
         {
@@ -266,294 +435,12 @@ namespace AltivaWebApp.Controllers
             cantones = this.contactoService.GetCantones(idProvincia);
             return new JsonResult(cantones);
         }
-        [HttpGet("Usuarios")]
-        public IActionResult Usuarios()
+        [HttpPost("Distritos/{idDistrito?}/{idProvincia?}")]
+        public JsonResult Distritos(int idDistrito, int idProvincia)
         {
-            var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-
-            IList<TbSeUsuario> USER = new List<TbSeUsuario>();
-            USER = this.userMap.GetAllByIdUsuario(int.Parse(id));
-            return new JsonResult(USER);
-        }
-        [HttpGet("Create")]
-        public IActionResult Create()
-        {
-            var id = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-
-            IList<TbSeUsuario> USER = new List<TbSeUsuario>();
-            USER = this.userMap.GetAllByIdUsuario(int.Parse(id));
-            IList<TbCrContacto> contactos = new List<TbCrContacto>();
-            contactos = this.contactoService.GetAll();
-            ViewData["Contactos"] = this.contactoService.GetAll();
-            ViewData["Asignados"] = this.IUserService.GetAll();
-            ViewData["estados"] = this.IEstadoService.GetAll();
-            ViewData["tipos"] = this.ITipoService.GetAll();
-            ViewData["Asignados"] = this.IUserService.GetAll();
-            ViewData["Usuarios"] = USER;
-            ViewData["contactos"] = contactos;
-            return View();
-        }
-        [HttpGet("editFoto")]
-        public IActionResult editFoto(IFormCollection id, IFormFile foto)
-        {
-            IList<ContactoRelacionGETViewModel> cr = null;
-            ViewData["contactoRelacion"] = cr;
-            var idd = id["id"].ToString();
-            string ruta = "";
-            var savePath = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "uploads");
-
-            ruta = FotosService.SubirFotoContacto(foto,savePath);
-
-            int i = Convert.ToInt32(idd);
-
-            this.contactoMap.ingresarImagen(i, ruta);
-            return new JsonResult(1);
-        }
-        [HttpPost("Crear")]
-        public IActionResult Crear(IList<CamposViewModel> model, ContactoViewModel model2)
-
-        {
-            //IList<CamposViewModel> model = new List<CamposViewModel>(); ContactoViewModel model2 = new ContactoViewModel();
-
-
-            TbCrContacto contacto = new TbCrContacto();
-            TbCrContacto correo = new TbCrContacto();
-            TbCrContacto cedula = new TbCrContacto();
-
-            IList<TbCrContactosCamposPersonalizados> contactosCampos = new List<TbCrContactosCamposPersonalizados>();
-            try
-            {
-                correo = this.contactoService.GetByEmailContacto(model2.Correo);
-                if (model2.TipoCedula == "CedulaFisica")
-                {
-                    cedula = this.contactoService.GetByCedulaContacto(model2.Cedula);
-                }
-                else if (model2.TipoCedula == "CedulaJuridica")
-                {
-                    cedula = this.contactoService.GetByCedulaContacto(model2.juridica);
-                }
-                else if (model2.dimex == "Dimex")
-
-                {
-                    cedula = this.contactoService.GetByCedulaContacto(model2.dimex);
-
-                }
-                else if (model2.nite == "NITE")
-                {
-                    cedula = this.contactoService.GetByCedulaContacto(model2.nite);
-
-                }
-
-                if (cedula != null)
-                {
-                    return Json(new { cedula = "cedula" });
-                }
-                if (correo != null)
-                {
-                    return Json(new { correo = "correo" });
-                }
-
-                if (model != null || model2 != null)
-                {
-                    contacto = this.contactoMap.NuevoContacto(model2);
-                    if (contacto != null)
-                    {
-                        this.pContactoCamposMap.Agregar(model, contacto.IdContacto);
-                    }
-                }
-
-                model = null;
-                model2 = null;
-                return Json(new { id = contacto.IdContacto, correo = "libre", cedula = "Libre" });
-            }
-            catch
-            {
-                throw;
-            }
-
-
-        }
-        [HttpGet("camposEdit/{id?}")]
-        public IActionResult camposEdit(int id)
-        {
-
-            IList<ContactoViewModel> con = new List<ContactoViewModel>();
-            con = this.ICCService.GetCamposEdit(id);
-            return new JsonResult(con);
-        }
-        [HttpGet("GetContactosRelacion/{id?}")]
-        public IActionResult GetContactosRelacion(int id)
-        {
-            IList<ContactoRelacionGETViewModel> cr = new List<ContactoRelacionGETViewModel>();
-            cr = this.contactoService.GetContactosRelacion(id);
-
-            return new JsonResult(cr);
-        }
-        [HttpGet("Edit/{id?}")]
-        public IActionResult Edit(int id)
-        {
-            IList<ContactoRelacionGETViewModel> cr = new List<ContactoRelacionGETViewModel>();
-            cr = this.contactoService.GetContactosRelacion(id);
-            ContactoViewModel contacto = new ContactoViewModel();
-            contacto = this.contactoService.GetByEdit(id);
-            var ids = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            IList<TbCrContacto> contactos = new List<TbCrContacto>();
-            contactos = this.contactoService.GetAll();
-            ViewData["Contactos"] = this.contactoService.GetAll();
-            ViewData["Asignados"] = this.IUserService.GetAll();
-            ViewData["estados"] = this.IEstadoService.GetAll();
-            ViewData["tipos"] = this.ITipoService.GetAll();
-            ViewData["Asignados"] = this.IUserService.GetAll();
-            ViewData["contactoRelacion"] = cr;
-            ViewData["contactos"] = contactos;
-            IList<TbSeUsuario> USER = new List<TbSeUsuario>();
-            USER = this.userMap.GetAllByIdUsuario(int.Parse(ids));
-            ViewData["Usuarios"] = USER;
-            return View(contacto);
-        }
-
-        // POST: Contacto/Edit/5
-
-        [HttpPost("Editar")]
-        public IActionResult Editar(IList<CamposViewModel> model1, ContactoViewModel model2)
-
-        {
-
-            try
-            {
-
-                TbCrContacto correo = new TbCrContacto();
-                TbCrContacto cedula = new TbCrContacto();
-                correo = this.contactoService.GetByEmailContacto(model2.Correo);
-                if (correo != null)
-                {
-                    if (correo.IdContacto == model2.Id)
-                    {
-
-                    }
-                    else
-                    {
-                        return Json(new { correo = "correo" });
-                    }
-                }
-                if (model2.TipoCedula == "CedulaFisica")
-                {
-
-                    cedula = this.contactoService.GetByCedulaContacto(model2.Cedula);
-
-                }
-                else if (model2.TipoCedula == "CedulaJuridica")
-                {
-                    cedula = this.contactoService.GetByCedulaContacto(model2.juridica);
-                }
-                else if (model2.dimex == "Dimex")
-
-                {
-                    cedula = this.contactoService.GetByCedulaContacto(model2.dimex);
-
-                }
-                else if (model2.nite == "NITE")
-                {
-                    cedula = this.contactoService.GetByCedulaContacto(model2.nite);
-
-                }
-
-                if (cedula != null)
-                {
-                    if (cedula.IdContacto == model2.Id)
-                    {
-
-                    }
-                    else
-                    {
-                        return Json(new { cedula = "cedula" });
-                    }
-                }
-                TbCrContacto contacto;
-                contacto = this.contactoMap.EditarContacto(model2);
-
-                if (contacto != null)
-                {
-                    this.pContactoCamposMap.Update(model1, contacto.IdContacto);
-
-                }
-                return Json(new { id = contacto.IdContacto, correo = "libre", cedula = "Libre" });
-            }
-            catch
-            {
-                throw;
-            }
-
-        }
-
-        //metodo que va permitir guardar las relaciones 
-        [HttpPost("GuardarRelacion")]
-        public IActionResult GuardarRelacion(ContactoRelacionViewModel domain)
-        {
-            try
-            {
-                TbCrContactoRelacion cr = new TbCrContactoRelacion();
-                cr = this.contactoMap.InsertarRelacion(domain);
-            }
-            catch
-            {
-                throw;
-            }
-            return new JsonResult(1);
-        }
-
-
-        [HttpGet("Partial")]
-        public IActionResult Partial()
-        {
-            ContactoViewModel con = new ContactoViewModel();
-
-            return PartialView("subContacto.cshtml", new ContactoViewModel());
-        }
-        [HttpPost("EditarRelacion")]
-        public IActionResult EditarRelacion(EditarRelacionContactoViewModel domain)
-        {
-            TbCrContactoRelacion cr = new TbCrContactoRelacion();
-            cr = this.contactoService.EditarRelacion(domain);
-
-            return new JsonResult(true);
-        }
-
-        [HttpGet("GetTareas/{idContacto?}")]
-        public IActionResult GetTareas(int idContacto)
-        {
-
-            var ccT = this.contactoService.GetTareas(idContacto);
-            IList<TbFdTarea> tarea = new List<TbFdTarea>();
-            if (ccT.TbFdTarea.Count() > 0)
-            {
-                foreach (var item in ccT.TbFdTarea)
-                {
-                    item.IdContactoNavigation = null;
-                    item.IdEstadoNavigation.TbFdTarea = null;
-                    item.IdTipoNavigation.TbFdTarea = null;
-                    tarea.Add(item);
-                }
-                return Ok(tarea);
-            }
-            else
-            {
-                return Ok(false);
-            }
-        }
-
-        [HttpGet("GetProveedores")]
-        public IActionResult GetProveedores(int idContacto)
-        {
-            try
-            {
-                return Ok(contactoService.GetAllProveedores());
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-
+            IList<TbCeDistrito> distritos = new List<TbCeDistrito>();
+            distritos = this.contactoService.GetDistrito(idDistrito, idProvincia);
+            return new JsonResult(distritos);
         }
 
 

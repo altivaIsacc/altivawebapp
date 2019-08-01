@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
+using Microsoft.EntityFrameworkCore;
+
 namespace AltivaWebApp.Repositories
 {
     public class CamposPersonalizadosRepository : BaseRepository<TbCrCamposPersonalizados>, ICamposPersonalizadosRepository
@@ -24,24 +26,19 @@ namespace AltivaWebApp.Repositories
             return context.TbCrCamposPersonalizados.Where(u => u.Id == id).FirstOrDefault();
         }
 
-        public IList<TbCrCamposPersonalizados> GetCampos()
+        public IList<TbCrCamposPersonalizados> GetCampos(int id)
         {
-            var model = (from us in context.TbCrCamposPersonalizados
-                         where us.Estado != "Eliminado"
-                         orderby us.Nombre descending
-                         select new TbCrCamposPersonalizados
-                         {
-
-                             Id = us.Id,
-                             Nombre =us.Nombre,
-                             Tipo = us.Tipo
-
-                         }
-
-       ).ToList();
-
-            return model;
+            return context.TbCrCamposPersonalizados.Where(c => c.Estado == "Activo")
+            .Select(c => new TbCrCamposPersonalizados {
+                Estado = c.Estado,
+                Id = c.Id,
+                Nombre = c.Nombre,
+                Tipo = c.Tipo,
+                TbCrListaDesplegables = c.TbCrListaDesplegables,
+                TbCrContactosCamposPersonalizados = c.TbCrContactosCamposPersonalizados.Where(cc => cc.IdContacto == id).ToList()
+            }).ToList();
         }
+
       
     }
 }

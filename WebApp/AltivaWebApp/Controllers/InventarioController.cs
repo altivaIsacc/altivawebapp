@@ -42,31 +42,20 @@ namespace AltivaWebApp.Controllers
 
 
         // GET: Inventario
-        [Route("Lista-Inventario")]
-        public ActionResult ListarInventario()
+        [Route("Lista-Inventario/{cod?}")]
+        public ActionResult ListarInventario(string cod)
         {
+            ViewBag.cod = cod;
             ViewData["bodegas"] = bodegaService.GetAllActivas();
+            var algo= bodegaService.GetAllActivas(); 
             return View();
         }
 
         [HttpGet("Lista-Inventario/todo")]
         public IActionResult GetAllInventario()
         {
-            //ViewData["bodegas"] = bodegaService.GetAllActivas();
             var catalogo = service.GetAllInventario();
 
-            foreach (var item in catalogo)
-            {
-                item.IdSubFamiliaNavigation.TbPrInventario = null;
-                item.IdSubFamiliaNavigation.IdFamiliaNavigation.InverseIdFamiliaNavigation = null;
-                item.IdUnidadMedidaNavigation.TbPrInventario = null;
-                foreach (var i in item.TbPrInventarioBodega)
-                {
-                    i.IdBodegaNavigation = null;
-                    i.IdInventarioNavigation = null;
-
-                }
-            }
             return Ok(catalogo);
         }
 
@@ -169,6 +158,7 @@ namespace AltivaWebApp.Controllers
                 var inventario = new TbPrInventario();
 
                 var idInventario = 0;
+                var codigoInventario = "";
 
                 if(id == 0)
                 {
@@ -197,6 +187,7 @@ namespace AltivaWebApp.Controllers
                     {
                         inventario = map.Update(id, model);
                         idInventario = id;
+                        codigoInventario = inventario.Codigo;
                     }
 
 
@@ -204,12 +195,34 @@ namespace AltivaWebApp.Controllers
 
                 }
 
-                return Json(new { id = idInventario });
+                return Json(new { id = idInventario, codigo = codigoInventario });
             }
             
             catch
             {
                 return BadRequest();
+            }
+        }
+        [HttpGet("Editar-BodegaInventario/{id?}")]
+        public ActionResult EditarBodegaIventario(int id)
+        {
+                ViewBag.id = id;
+                var inventario = map.DomainToViewModelIBodega(service.GetInventarioBodegaById(id));
+                return PartialView("_EditarBodega", inventario);
+         }
+        [HttpPost("Editar-BodegaInventario/{id?}")]
+        public ActionResult EditarIventarioBodega(InventarioBodegaViewModel inventarioBodega)
+        {
+            try
+            {
+                map.UpdateIBodega(inventarioBodega);
+                return Json(new { success = true });
+
+            }
+            catch
+            {
+                return BadRequest();
+
             }
         }
 
@@ -220,7 +233,7 @@ namespace AltivaWebApp.Controllers
             {
                 
                 map.CreateInventarioBodega(id, inventarioBodega);
-
+                
                 return Json(new { success = true });
             }
             catch
@@ -337,6 +350,36 @@ namespace AltivaWebApp.Controllers
         }
 
         //get auxiliares
+
+
+        [HttpGet("GetInventarioFacturable")]
+        public IActionResult GetInventarioFacturable()
+        {
+            try
+            {
+                return Ok(service.GetInventarioFacturable());
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            
+        }
+
+        [HttpGet("GetInventarioPorCoincidencia/{word}")]
+        public IActionResult GetInventarioPorCoincidencia(string word)
+        {
+            try
+            {
+                var inventario = service.GetAllByCoincidence(word);
+                return Ok(inventario);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
 
         [HttpGet("get-bodegas/{id}")]
         public IActionResult GetBodegas(int id)

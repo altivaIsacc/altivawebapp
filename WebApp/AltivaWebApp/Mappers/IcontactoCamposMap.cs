@@ -6,12 +6,10 @@ using AltivaWebApp.Domains;
 using AltivaWebApp.ViewModels;
 namespace AltivaWebApp.Mappers
 {
-  public  interface IcontactoCamposMap
+    public interface IContactoCamposMap
     {
-       void Agregar(IList<CamposViewModel> domain, long? id);
-        void Update(IList<CamposViewModel> domain,long? id);
-       TbCrContactosCamposPersonalizados viewToModelContacto(CamposViewModel domain,long? id);
-        TbCrContactosCamposPersonalizados viewToModelContactoEdit(CamposViewModel domain, long? id);
-
+        void Create(IList<CCPersonalizadosViewModel> domain, int id);
+        void Update(IList<CCPersonalizadosViewModel> domain, int id);
+        TbCrContactosCamposPersonalizados ViewModelToDomaiCP(CCPersonalizadosViewModel domain, int id);
     }
 }
