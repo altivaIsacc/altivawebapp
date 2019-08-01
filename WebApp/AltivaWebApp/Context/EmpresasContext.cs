@@ -19,7 +19,6 @@ namespace AltivaWebApp.Context
         {
         }
 
-        public virtual DbSet<TbCpComprasDetalleServicio> TbCpComprasDetalleServicio { get; set; }
         public virtual DbSet<CompraAutomaticoViewModel> CompraAutomatico { get; set; }
         public virtual DbSet<TbBaConciliacion> TbBaConciliacion { get; set; }
         public virtual DbSet<TbBaConciliacionDetalle> TbBaConciliacionDetalle { get; set; }
@@ -61,6 +60,8 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbCrContacto> TbCrContacto { get; set; }
         public virtual DbSet<TbCrContactoRelacion> TbCrContactoRelacion { get; set; }
         public virtual DbSet<TbCrContactosCamposPersonalizados> TbCrContactosCamposPersonalizados { get; set; }
+        public virtual DbSet<TbCpComprasDetalleServicio> TbCpComprasDetalleServicio { get; set; }
+
         public virtual DbSet<TbCrListaDesplegables> TbCrListaDesplegables { get; set; }
         public virtual DbSet<TbFdAjusteSaldoMenor> TbFdAjusteSaldoMenor { get; set; }
         public virtual DbSet<TbFdAperturaCaja> TbFdAperturaCaja { get; set; }
@@ -160,6 +161,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbPrKardex> TbPrKardex { get; set; }
         public virtual DbSet<TbPrOrden> TbPrOrden { get; set; }
         public virtual DbSet<TbPrOrdenDetalle> TbPrOrdenDetalle { get; set; }
+        public virtual DbSet<TbPrPrecios> TbPrPrecios { get; set; }
         public virtual DbSet<TbPrPreciosInventarios> TbPrPreciosInventarios { get; set; }
         public virtual DbSet<TbPrPreciosInventariosAutomaticos> TbPrPreciosInventariosAutomaticos { get; set; }
         public virtual DbSet<TbPrPreciosInventariosAutomaticosDetalle> TbPrPreciosInventariosAutomaticosDetalle { get; set; }
@@ -4071,6 +4073,25 @@ namespace AltivaWebApp.Context
                     .HasConstraintName("FK_tb_PR_OrdenDetalle_tb_PR_Orden");
             });
 
+
+            modelBuilder.Entity<TbPrPrecios>(entity =>
+            {
+                entity.ToTable("tb_PR_Precios");
+
+                entity.Property(e => e.Descripcion)
+                    .IsRequired()
+                    .HasMaxLength(250)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Fecha).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(250)
+                    .HasDefaultValueSql("('')");
+            });
             modelBuilder.Entity<TbPrPreciosInventarios>(entity =>
             {
                 entity.ToTable("tb_PR_PreciosInventarios");
