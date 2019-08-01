@@ -169,7 +169,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbCpComprasDetalleServicio.Include(c => c.IdCompraNavigation).FirstOrDefault(c => c.IdCompra == id);
+                return context.TbCpComprasDetalleServicio.Include(c => c.IdCompraNavigation).FirstOrDefault(c => c.IdCompraDetalle == id);
             }
             catch (Exception)
             {

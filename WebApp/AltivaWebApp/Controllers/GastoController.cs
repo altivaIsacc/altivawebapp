@@ -202,7 +202,7 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("CambiarEstado-Orden")]
-        public ActionResult CambiarEstadoOrden(int id)
+        public ActionResult CambiarEstadoGasto(int id)
         {
             try
             {
@@ -216,6 +216,23 @@ namespace AltivaWebApp.Controllers
             catch (Exception)
             {
                 throw;
+            }
+        }
+
+        [HttpPost("Eliminar-Gasto")]
+        public ActionResult EliminarGasto(int idCD)
+        {
+            try
+            {
+                var cd = service.GetComprasDetalleServicioById(idCD);
+                var res = service.DeleteComprasDetalleServicio(cd);
+               
+
+                return Json(new { success = res });
+            }
+            catch
+            {
+                return BadRequest();
             }
         }
 
