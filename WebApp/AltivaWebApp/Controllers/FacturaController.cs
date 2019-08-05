@@ -38,7 +38,7 @@ namespace AltivaWebApp.Controllers
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["clientes"] = contactoService.GetAllClientes();
 
-            return View("CrearEditarFactura", new FacturaViewModel { Estado = "Enviada", FechaFactura = DateTime.Now });
+            return View("CrearEditarFactura", new FacturaViewModel { Estado = "Enviada", FechaFactura = DateTime.Now, FechaCreacion = DateTime.Now, FechaVencimiento = DateTime.Now.AddDays(30), IdMoneda = 1 });
         }
 
         [Route("Editar/{id}")]
@@ -50,7 +50,7 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("CrearEditarFactura")]
-        public IActionResult CrearEditarFactura(FacturaViewModel viewModel, IList<FacturaDetalleViewModel> detalle)
+        public IActionResult CrearEditarFactura(FacturaViewModel viewModel, IList<FacturaDetalleViewModel> detalle, IList<long> eliminadas)
         {
             try
             {
@@ -63,6 +63,8 @@ namespace AltivaWebApp.Controllers
                     {
                         var fd = map.CreateOrUpdateFD(viewModel);
                     }
+
+                    var deleted = service.DeleteFacturaDetalle(eliminadas);
                 }
                 else
                 {

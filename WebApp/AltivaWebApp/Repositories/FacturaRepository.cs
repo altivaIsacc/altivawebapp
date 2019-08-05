@@ -71,11 +71,12 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public bool DeleteFacturaDetalle(IList<TbFdFacturaDetalle> domain)
+        public bool DeleteFacturaDetalle(IList<long> domain)
         {
             try
             {
-                context.TbFdFacturaDetalle.RemoveRange(domain);
+                //
+                context.TbFdFacturaDetalle.RemoveRange(context.TbFdFacturaDetalle.Where(r => domain.Any(id => id == r.Id)));
 
                 context.SaveChanges();
 
