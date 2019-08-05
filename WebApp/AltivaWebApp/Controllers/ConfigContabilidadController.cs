@@ -20,10 +20,21 @@ namespace AltivaWebApp.Controllers
         public IActionResult Index()
         {
             ViewBag.Titulo = "setConfigContable";
-            var u = bd.ConfiguracionContable.First();
+            var u = bd.ConfiguracionContable.SingleOrDefault();
+           
             if (u == null)
             {
-                u = new DomainsConta.ConfiguracionContable();
+                u = new ConfiguracionContable();
+                u.Nivel1 = 1;
+                u.Nivel2 = 1;
+                u.Nivel3 = 1;
+                u.Nivel4 = 1;
+                u.Nivel5 = 1;
+                u.Nivel6 = 1;
+                u.Nivel7 = 1;
+                u.Nivel8 = 1;
+                u.TamanoCuenta = 4;
+                    
 
             }
             return View(u);
