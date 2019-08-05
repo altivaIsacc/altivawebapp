@@ -161,6 +161,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbPrKardex> TbPrKardex { get; set; }
         public virtual DbSet<TbPrOrden> TbPrOrden { get; set; }
         public virtual DbSet<TbPrOrdenDetalle> TbPrOrdenDetalle { get; set; }
+        public virtual DbSet<TbPrPrecioCatalogo> TbPrPrecioCatalogo { get; set; }
         public virtual DbSet<TbPrPrecios> TbPrPrecios { get; set; }
         public virtual DbSet<TbPrPreciosInventarios> TbPrPreciosInventarios { get; set; }
         public virtual DbSet<TbPrPreciosInventariosAutomaticos> TbPrPreciosInventariosAutomaticos { get; set; }
@@ -3882,6 +3883,7 @@ namespace AltivaWebApp.Context
                     .HasDefaultValueSql("(' ')");
             });
 
+
             modelBuilder.Entity<TbPrInventario>(entity =>
             {
                 entity.HasKey(e => e.IdInventario);
@@ -3938,12 +3940,11 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(60)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('''')");
-
                 entity.HasOne(d => d.IdSubFamiliaNavigation)
-                    .WithMany(p => p.TbPrInventario)
-                    .HasForeignKey(d => d.IdSubFamilia)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_tb_PR_Inventario_tb_PR_Familia");
+                   .WithMany(p => p.TbPrInventario)
+                   .HasForeignKey(d => d.IdSubFamilia)
+                   .OnDelete(DeleteBehavior.ClientSetNull)
+                   .HasConstraintName("FK_tb_PR_Inventario_tb_PR_Familia");
 
                 entity.HasOne(d => d.IdUnidadMedidaNavigation)
                     .WithMany(p => p.TbPrInventario)
@@ -4072,7 +4073,24 @@ namespace AltivaWebApp.Context
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_PR_OrdenDetalle_tb_PR_Orden");
             });
+            modelBuilder.Entity<TbPrPrecioCatalogo>(entity =>
+            {
+                entity.HasKey(e => e.IdPrecioCatalogo);
 
+                entity.ToTable("tb_PR_PrecioCatalogo");
+
+               entity.HasOne(d => d.IdInventarioNavigation)
+                    .WithMany(p => p.TbPrPrecioCatalogo)
+                    .HasForeignKey(d => d.IdInventario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_PrecioCatalogo_tb_PR_Inventario");
+
+                entity.HasOne(d => d.IdTipoPrecioNavigation)
+                    .WithMany(p => p.TbPrPrecioCatalogo)
+                    .HasForeignKey(d => d.IdTipoPrecio)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_PrecioCatalogo_tb_PR_Precios");
+            });
 
             modelBuilder.Entity<TbPrPrecios>(entity =>
             {
