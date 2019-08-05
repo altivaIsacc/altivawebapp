@@ -254,7 +254,7 @@ else
 
                         <div class="form-group col-sm-7">
                             <label class="control-label">@SharedLocalizer["Cantidad"]</label>
-                            <input id="editCantidad" class="form-control numerico" autofocus />
+                            <input id="editCantidad" class="form-control numerico"  />
                         </div>
                         <div class="form-group col-sm-7">
                             <label class="control-label ">@SharedLocalizer["PrecioUnitario"]</label>
@@ -346,6 +346,7 @@ else
     var monedas = [];
     var lineasActualizadas = [];
 
+ 
 
     $(document).ready(function () {
         $('#cantidad').val(1);
@@ -1588,22 +1589,17 @@ else
     ///////////////////////////////////////////////crear pdf//////////////////////////////////
 
     function crearPdf() {
-
         generate_cutomPDF(crearModeloPDF());
-
     }
-
     function crearModeloPDF() {
-
         var empresaModel = JSON.parse(localStorage.getItem("empresaInfo"));
-
         var modelo = {
             empresa: {
                 nombre: localStorage.getItem("empresa"),
                 telefono: empresaModel.tel,
                 correo: empresaModel.correo,
                 cedJuridica: empresaModel.ced,
-               // logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
+               logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
                 nombreTitulo: "@SharedLocalizer["Nombre"]:",
                 telTitulo: "@SharedLocalizer["Telefonos"]:",
                 correoTitulo: "@SharedLocalizer["Correo"]:",
@@ -1613,8 +1609,8 @@ else
             descuento: formatTotales().desc,
             impuesto: formatTotales().imp,
             total: formatTotales().total,
-            nombreDoc: '@SharedLocalizer["Compra"] ' + '#@Model.NumeroDocumento',
-            nombreDescarga: '@SharedLocalizer["compra"]_' + @Model.Id + '.pdf',
+            nombreDoc: '@SharedLocalizer["Gastos"] ' + '#@Model.NumeroDocumento',
+            nombreDescarga: '@SharedLocalizer["Gastos"]_' + @Model.Id + '.pdf',
             columnas: {
                 item: "Item",
                 descripcion: getTittulos().desc,
@@ -1622,8 +1618,7 @@ else
                 precioUnid: "@SharedLocalizer["PrecioUnid"]",
                 descuento: "@SharedLocalizer["Descuento"]",
                 iva: "@SharedLocalizer["IVA"]",
-                subtotal: "@SharedLocalizer["SubTotal"]",
-                bodega: "@SharedLocalizer["Bodega"]"
+                subtotal: "@SharedLocalizer["SubTotal"]"
             },
             filas: crearFilasPdf(),
             resumen: {
@@ -1650,21 +1645,15 @@ else
         };
         console.log(modelo);
         return modelo;
-
     }
-
     function crearFilasPdf() {
-
         var row = [];
         for (var i = 0; i < lineas.length; i++) {
-
             var subtotal = 0;
-
             if (lineas[i].PorcIVA > 0)
                 subtotal = lineas[i].subTotalGravado;
             else
                 subtotal = lineas[i].subTotalExcento;
-
             var model = {
                 item: lineas[i].articulo,
                 cantidad: lineas[i].cantidad.toString(),
@@ -1672,12 +1661,10 @@ else
                 descuento: lineas[i].porcDescuento.toString(),
                 iva: lineas[i].PorcIVA.toString(),
                 subtotal: formatearMoneda(subtotal),
+                IdCategoriaGasto: getCategoriaItem($categoria.val()).id
             };
-
             row.push(model);
         }
-
-
         return row;
     }
 
