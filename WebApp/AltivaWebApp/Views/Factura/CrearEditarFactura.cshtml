@@ -24,7 +24,7 @@ else
 <hr />
 
 <div class="btn-group">
-    <button type="button" class="btn btn-primary">@Lb["Imprimir"]</button>
+    <button type="button" onclick="imprimirTicket()" class="btn btn-primary">@Lb["Imprimir"]</button>
     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
         <span class="caret"></span>
         <span class="sr-only">Toggle Dropdown</span>
@@ -255,7 +255,7 @@ else
         </div>
     </div>
 
-    <div class="d-md-none d-sm-none">
+    <div class="d-xl-none d-lg-none d-md-none d-sm-none">
         <div class="table-responsive">
             <table id="tblFDxs" class="table table-bordered" style="width:100%">
                 <thead>
@@ -269,6 +269,19 @@ else
                 <tbody></tbody>
             </table>
         </div>
+    </div>
+
+    <div hidden>
+        <table id="tblFDTicket" class="table table-borderless" style="width:100%">
+            <thead>
+                <tr>
+                    <th style="width:70%">@Lb["Producto"]</th>
+                    <th style="width:20%">@Lb["Cant."]</th>
+                    <th style="width:10%">@Lb["SubTotal"]</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 
 </div>
@@ -313,7 +326,9 @@ else
     </div>
 </div>
 
+
 <input hidden id="monedaFormatter" class="moneda" type="text" />
+<input hidden id="moneyFormatter" class="money" type="text" />
 
 
 <script src="~/js/comentario.js"></script>
@@ -348,6 +363,20 @@ else
             rightAlign: false,
             min: 0
         });
+
+        $(".money").inputmask('currency', {
+                     prefix: '',
+                     rightAlign: true,
+                     min: 0
+         });
+        //$(".money").inputmask({
+        //    'alias': 'decimal',
+        //    rightAlign: true,
+        //    'groupSeparator': '.',
+        //    'autoGroup': true,
+        //    min: 0
+        //});
+
         $(".porcentaje").inputmask({
             'alias': 'percentage',
             rightAlign: false,
@@ -851,6 +880,9 @@ else
         $("#tblFDxs > tbody").remove();
         $('#tblFDxs').append('<tbody></tbody>');
 
+        $("#tblFDTicket > tbody").remove();
+        $('#tblFDTicket').append('<tbody></tbody>');
+
         contadorFila = 0;
 
         for (var i = 0; i < data.length; i++) {
@@ -858,15 +890,35 @@ else
 
             var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
                 + '<td >' + parseFloat(data[i].cantidad).toFixed(2) + ' </td>'
-                + '<td >' + getItemPorId(data[i].idInventario).descripcion + '</td>'
+                + '<td >' + getItemPorId(data[i].idInventario).descripcionVenta + '</td>'
                 + '<td style="text-align: right">' + darFomatoMoneda(data[i].precio) + '</td>'
                 + '<td style="text-align: right">' + darFomatoMoneda(data[i].total) + '</td>'
                 + '<td> <a  href="#" style="font-size:1.8rem;" onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-edit"></i></a>&nbsp;&nbsp; <a href="#" style="font-size:1.8rem;" value="' + contadorFila + '" onclick="eliminarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-trash"></i></a></td></tr>';
 
             var body2 = '<tr class="filasCargadas" id="filaxs' + contadorFila + '">'
-                + '<td >' + getItemPorId(data[i].idInventario).descripcion.substr(0, 30) + '</td>'
+                + '<td >' + getItemPorId(data[i].idInventario).descripcionVenta.substr(0, 30) + '</td>'
                 + '<td style="text-align: right">' + darFomatoMoneda(data[i].total) + '</td>'
                 + '<td> <a  href="#" style="font-size:1.8rem;" onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-edit"></i></a>&nbsp;&nbsp; <a href="#" style="font-size:1.8rem;" value="' + contadorFila + '" onclick="eliminarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-trash"></i></a></td></tr>';
+
+            //var body3 = "";
+            //if (data[i].cantidad > 1) {
+
+            //    body3 = '<tr class="filasCargadas" id="filaticket' + contadorFila + '">'
+            //        + '<td>' + getItemPorId(data[i].idInventario).descripcion + '</td>'
+            //        + '<td style="text-align: right">' + darFomatoMoneda(data[i].tot) + '</td></tr>'
+            //        + '<tr>'
+            //        + '<td>' + parseFloat(data[i].cantidad).toFixed(2).toString() + "x" + darFomatoMoneda(data[i].precio) + '</td>'
+            //        +'</tr>';
+
+            //} else {
+            //    body3 = '<tr class="filasCargadas" id="filaticket' + contadorFila + '">'
+            //        + '<td>' + parseFloat(data[i].cantidad).toFixed(2) + '</td>'
+            //        + '<td>' + getItemPorId(data[i].idInventario).descripcion + '</td>'
+            //        + '<td style="text-align: right">' + darFomatoMoneda(data[i].subTotal) + '</td></tr>';
+            //}
+            
+
+            //$('#tblFDTicket > tbody').append(body3);
 
             $('#tblFDxs > tbody').append(body2);
 
@@ -889,7 +941,7 @@ else
                 $('#precio').val(items[i].precioVenta);
                 $('#descuento').val(0);
                 $('#iva').val(items[i].impuestoVenta);
-                $('#descProducto').text(items[i].descripcion.substr(0, 32) + (items[i].descripcion.length > 25 ? '...' : '')).prop('href', '@Url.Action("EditarInventario", "Inventario", new { id = "__id__" })'.replace("__id__", items[i].idInventario));
+                $('#descProducto').text(items[i].descripcionVenta.substr(0, 32) + (items[i].descripcionVenta.length > 25 ? '...' : '')).prop('href', '@Url.Action("EditarInventario", "Inventario", new { id = "__id__" })'.replace("__id__", items[i].idInventario));
                 break;
             }
             else {
@@ -1105,6 +1157,12 @@ else
 
     }
 
+    function darFomatoDinero(value) {
+
+        $('#moneyFormatter').val(value);
+        return $('#moneyFormatter').val();
+
+    }
 
     function crearPdf() {
 
@@ -1124,6 +1182,13 @@ else
 
     }
 
+    function imprimirTicket() {
+        var model = crearModeloPDF();
+        var pdf = generate_cutomPDFTicket(model);
+        //pdf.autoPrint();
+        window.open(pdf.output('bloburl'), '_blank');
+    }
+
     function crearModeloPDF() {
 
         var empresaModel = JSON.parse(localStorage.getItem("empresaInfo"));
@@ -1131,20 +1196,22 @@ else
         var modelo = {
             empresa: {
                 nombre: localStorage.getItem("empresa"),
-                telefono: empresaModel.tel,
+                telefono: empresaModel.tel.replace(/ /g, ""),
                 correo: empresaModel.correo,
-                cedJuridica: empresaModel.ced,
+                cedJuridica: empresaModel.ced.replace(/-/g, ""),
                 logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
                 nombreTitulo: "@Lb["Nombre"]:",
-                telTitulo: "@Lb["Telefonos"]:",
+                telTitulo: getTittulos().telefono,
                 correoTitulo: "@Lb["Correo"]:",
-                cedTitulo: getTittulos().cedJuridica
+                cedTitulo: getTittulos().cedJuridica,
+                cedTT: getTittulos().ced,
+                telTT: "@Lb["Tel"]:"
             },
-            subtotal: darFomatoMoneda(facturaModel.SubTotal),
-            descuento: darFomatoMoneda(facturaModel.TotalDescuento),
-            impuesto: darFomatoMoneda(facturaModel.MontoIva),
-            exoneracion: darFomatoMoneda(facturaModel.MontoExoneracion),
-            total: darFomatoMoneda(facturaModel.Total),
+            subtotal: darFomatoDinero(facturaModel.SubTotal.toFixed(2)),
+            descuento: darFomatoDinero(facturaModel.TotalDescuento.toFixed(2)),
+            impuesto: darFomatoDinero(facturaModel.MontoIva.toFixed(2)),
+            exoneracion: darFomatoDinero(facturaModel.MontoExoneracion),
+            total: darFomatoDinero(facturaModel.Total.toFixed(2)),
             tieneEx: facturaModel.MontoExoneracion != 0 ? true : false,
             tieneDesc: facturaModel.MontoDescuento != 0 ? true : false,
             nombreDoc: '@Lb["Factura"] ' + '#@Model.Id',
@@ -1152,8 +1219,9 @@ else
             columnas: {
                 descripcion: getTittulos().desc,
                 cantidad: "@Lb["Cantidad"]",
-                precio: "@Lb["PrecioUnid"]",
-                total: "@Lb["Total"]"
+                precio: "@Lb["PrecioUnit"]",
+                total: "@Lb["Total"]",
+                subtotal: "@Lb["Subtotal"]"
             },
             filas: crearFilasPdf(),
             resumen: {
@@ -1178,7 +1246,7 @@ else
             tipoDocumentoTitulo: '@Lb["Tipo"]:',
             tipoDocumento: $('#Tipo option:selected').text()
         };
-        console.log(modelo);
+        
         return modelo;
 
     }
@@ -1189,10 +1257,11 @@ else
         for (var i = 0; i < lineas.length; i++) {
             var tieneImp = lineas[i].porcIva != 0 ? "*" : "";
             var model = {
-                descripcion: getItemPorId(lineas[i].idInventario).descripcion + " " + tieneImp,
+                descripcion: getItemPorId(lineas[i].idInventario).descripcionVenta + " " + tieneImp,
                 cantidad: lineas[i].cantidad.toString(),
-                precio: darFomatoMoneda(lineas[i].precio),
-                total: darFomatoMoneda(lineas[i].total),
+                precio: darFomatoDinero(lineas[i].precio.toFixed(2)),
+                total: darFomatoDinero(lineas[i].total.toFixed(2)),
+                subtotal: darFomatoDinero(lineas[i].subTotal.toFixed(2))
             };
 
             row.push(model);
@@ -1206,12 +1275,16 @@ else
         if (idioma === "es")
             return {
                 desc: "Descripción",
-                cedJuridica: "Cédula Jurídica:"
+                cedJuridica: "Cédula Jurídica:",
+                ced: "Céd:",
+                telefono: "Teléfono:"
             };
         else
             return {
                 desc: "Description",
-                cedJuridica: "Legal Number:"
+                cedJuridica: "Legal Number:",
+                ced: "Id:",
+                telefono: "Phone Number:"
             };
     }
 
