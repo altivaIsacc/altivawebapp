@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AltivaWebApp.Helpers;
 using AltivaWebApp.Mappers;
+using AltivaWebApp.Reporte;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
+using FastReport;
+using FastReport.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,6 +49,17 @@ namespace AltivaWebApp.Controllers
         [Route("Editar/{id}")]
         public IActionResult EditarFactura(long id)
         {
+            var Report = new WebReport();
+            var dataSet = new DataSet();
+
+            Report.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;
+            Report.Report.Load($@"Reporte/Facturaticket.frx");
+
+           
+            ViewBag.WebReport = Report;
+
+            
+
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["clientes"] = contactoService.GetAllClientes();
             return View("CrearEditarFactura", map.DomainToViewModel(service.GetFacturaById(id)));
