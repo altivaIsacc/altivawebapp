@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AltivaWebApp.Helpers;
 using AltivaWebApp.Mappers;
+using AltivaWebApp.Reporte;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
+using FastReport;
+using FastReport.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,19 +43,30 @@ namespace AltivaWebApp.Controllers
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["clientes"] = contactoService.GetAllClientes();
 
-            return View("CrearEditarFactura", new FacturaViewModel { Estado = "Enviada", FechaFactura = DateTime.Now });
+            return View("CrearEditarFactura", new FacturaViewModel { Estado = "Enviada", FechaFactura = DateTime.Now, FechaCreacion = DateTime.Now, FechaVencimiento = DateTime.Now.AddDays(30), IdMoneda = 1 });
         }
 
         [Route("Editar/{id}")]
         public IActionResult EditarFactura(long id)
         {
+            var Report = new WebReport();
+            var dataSet = new DataSet();
+
+            Report.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;
+            Report.Report.Load($@"Reporte/Facturaticket.frx");
+
+           
+            ViewBag.WebReport = Report;
+
+            
+
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["clientes"] = contactoService.GetAllClientes();
             return View("CrearEditarFactura", map.DomainToViewModel(service.GetFacturaById(id)));
         }
 
         [HttpPost("CrearEditarFactura")]
-        public IActionResult CrearEditarFactura(FacturaViewModel viewModel, IList<FacturaDetalleViewModel> detalle)
+        public IActionResult CrearEditarFactura(FacturaViewModel viewModel, IList<FacturaDetalleViewModel> detalle, IList<long> eliminadas)
         {
             try
             {
@@ -63,6 +79,8 @@ namespace AltivaWebApp.Controllers
                     {
                         var fd = map.CreateOrUpdateFD(viewModel);
                     }
+
+                    var deleted = service.DeleteFacturaDetalle(eliminadas);
                 }
                 else
                 {

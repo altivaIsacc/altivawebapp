@@ -274,6 +274,15 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IFlujoCategoriaRepository, FlujoCategoriaRepository>();
             services.AddScoped<IFlujoCategoriaService, FlujoCategoriaService>();
             services.AddScoped<IFlujoCategoriaMap, FlujoCategoriaMap>();
+            //Precios
+            services.AddScoped<IPreciosRepository, PreciosRepository>();
+            services.AddScoped<IPreciosService, PreciosService>();
+            services.AddScoped<IPreciosMap, PreciosMap>();
+            //PrecioCatalogo
+            services.AddScoped<IPrecioCatalogoRepository, PrecioCatalogoRepository>();
+            services.AddScoped<IPrecioCatalogoService, PrecioCatalogoService>();
+            services.AddScoped<IPrecioCatalogoMap, PrecioCatalogoMap>();
+
 
         }
     }

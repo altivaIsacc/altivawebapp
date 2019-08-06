@@ -1,0 +1,107 @@
+﻿@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+<div class="row">
+    <div class="col-md-2"><h3>@SharedLocalizer["TiposPrecio"]</h3></div>
+    <div class="col-md-10" style="padding-top: 0.5rem">
+        <button class="btn btn-primary" onclick="getCrearEditarPartial(0)">@SharedLocalizer["Agregar"]</button>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <hr />
+        <div id="listaPrecio"></div>
+    </div>
+</div>
+
+
+
+<div class="row">
+    <!-- Modal -->
+    <div class="modal fade" id="modalPrecio" tabindex="-1" role="dialog" aria-labelledby="departamentoModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+
+                <div class="modal-body" id="crearEditarPartial">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+
+        getlistarPartial();
+
+    });
+
+
+    function crearModelo() {
+        var form = $('#frmDepartamento').serializeArray();
+
+
+        console.log(form);
+
+
+    }
+
+    function getCrearEditarPartial(id)
+    {
+        var url = "@Url.Action("_CrearPrecio", "Precios")";
+        if (id != 0) {
+            url = '@Url.Action("_EditarPrecio", "Precios", new { id = "__id__"})';
+            url = url.replace("__id__", id);
+        }
+
+         $.ajax({
+            type: "GET",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+
+            success: function (data) {
+                $('#crearEditarPartial').html(data);
+                $('#modalPrecio').modal('show');
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+    }
+
+    function getlistarPartial()
+    {
+        var url = "@Url.Action("_ListarPrecios", "Precios")";
+
+
+         $.ajax({
+            type: "GET",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+
+            success: function (data) {
+                $('#listaPrecio').html(data);
+             },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+    }
+
+
+</script>
