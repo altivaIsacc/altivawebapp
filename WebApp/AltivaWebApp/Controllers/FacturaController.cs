@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using AltivaWebApp.Helpers;
 using AltivaWebApp.Mappers;
-using AltivaWebApp.Reporte;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
-using FastReport;
+using FastReport.Export.Html;
+using FastReport.Export.Image;
 using FastReport.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -49,20 +48,74 @@ namespace AltivaWebApp.Controllers
         [Route("Editar/{id}")]
         public IActionResult EditarFactura(long id)
         {
-            var Report = new WebReport();
-            var dataSet = new DataSet();
 
-            Report.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;
-            Report.Report.Load($@"Reporte/Facturaticket.frx");
+            FastReport.Utils.Config.WebMode = true;
+            var rep = new WebReport();
+            var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "Reportes");
+            var path = $"{savePath}\\Facturaticket.frx";
 
-           
-            ViewBag.WebReport = Report;
 
-            
+            rep.Report.Load(path);
+
+
+            rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;
+            rep.Report.SetParameterValue("idFactura", id);
+            rep.Report.Prepare();
+
+            ViewBag.reporte = rep;
 
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["clientes"] = contactoService.GetAllClientes();
             return View("CrearEditarFactura", map.DomainToViewModel(service.GetFacturaById(id)));
+        }
+
+        [HttpGet("GetTicket/{id}")]
+        public IActionResult GetTicket(long idFactura)
+        {
+
+
+            FastReport.Utils.Config.WebMode = true;
+            var rep = new WebReport();
+            var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "Reportes");
+            var path = $"{savePath}\\Facturaticket.frx";
+
+
+            rep.Report.Load(path);
+
+
+            rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;
+            rep.Report.SetParameterValue("idFactura", idFactura);
+            //rep.Report.Prepare();
+
+            if (rep.Report.Prepare())
+            {
+                // Set PDF export props
+                FastReport.Export.PdfSimple.PDFSimpleExport pdfExport = new FastReport.Export.PdfSimple.PDFSimpleExport();
+                pdfExport.ShowProgress = false;
+                pdfExport.Subject = "Subject";
+                pdfExport.Title = "ticket_" + idFactura;
+
+                //FastReport.Export.Image.ImageExport imgExport = new FastReport.Export.Image.ImageExport();
+                ////imgExport.ShowProgress = false;
+                //imgExport.ImageFormat = FastReport.Export.Image.ImageExportFormat.Jpeg;
+                //imgExport.SeparateFiles = false;
+                //imgExport.Resolution = 600;
+
+                MemoryStream strm = new MemoryStream();
+                rep.Report.Export(pdfExport, strm);
+                rep.Report.Dispose();
+                pdfExport.Dispose();
+                strm.Position = 0;
+
+                // return stream in browser
+                return File(strm, "application/pdf", "report.pdf");
+            }
+            else
+            {
+                return null;
+            }
+
+
         }
 
         [HttpPost("CrearEditarFactura")]
@@ -70,8 +123,8 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                
-                if(viewModel.Id != 0)
+
+                if (viewModel.Id != 0)
                 {
                     var factura = map.Update(viewModel);
                     viewModel.FacturaDetalle = detalle;
