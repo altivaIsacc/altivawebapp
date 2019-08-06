@@ -33,8 +33,7 @@ namespace AltivaWebApp.Controllers
                 u.Nivel6 = 1;
                 u.Nivel7 = 1;
                 u.Nivel8 = 1;
-                u.TamanoCuenta = 4;
-                    
+                u.TamanoCuenta = 4;                   
 
             }
             return View(u);
