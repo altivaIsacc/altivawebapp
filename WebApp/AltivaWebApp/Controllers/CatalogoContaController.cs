@@ -25,16 +25,17 @@ namespace AltivaWebApp.Controllers
         }
         public IActionResult u(long id)
         {
-            ViewBag.Titulo = "setCatalogoConta";
-            var u = bd.CatalogoContable.Find(id);
+            ViewBag.Titulo = "setCatalogoConta";           
+           ConfiguracionContable c = bd.ConfiguracionContable.FirstOrDefault();
+            ViewBag.Formato = c.Ejemplo;
+           var u = bd.CatalogoContable.Find(id);
             if (u == null)
             {
                 u = new DomainsConta.CatalogoContable();
-
-            }
-
-            return View(u);
-        }
+                u.Notas = 
+                u.CuentaContablePadre = "";
+            }            return View(u);
+        }        
         [BindProperty]
         public CatalogoContable p { get; set; }
         public IActionResult guardar()
