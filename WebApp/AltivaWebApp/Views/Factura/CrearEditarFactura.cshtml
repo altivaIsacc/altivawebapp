@@ -326,6 +326,15 @@ else
     </div>
 </div>
 
+<div class="row">
+    <div class="col-md-12" id="factTicket">
+        
+    </div>
+    
+    <div class="col-md-12">
+        @await ViewBag.reporte.Render()
+    </div>
+</div>
 
 <input hidden id="monedaFormatter" class="moneda" type="text" />
 <input hidden id="moneyFormatter" class="money" type="text" />
@@ -390,7 +399,7 @@ else
 
         comprobarBorrador();
 
-
+        imprimirTicket();
 
 
     });
@@ -1302,6 +1311,45 @@ else
                 window.location.href = "@Url.Action("ListarFacturas")";
             }
         });
+    }
+
+
+    function imprimirTicket() {
+         @*$.ajax({
+              type: "get",
+              dataType: "application/pdf",
+              url: '@Url.Action("GetTicket", "Factura", new { idFactura = Model.Id })',
+             success: function (data) {
+                 $('#factTicket').prop('attr', data);
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });*@
+
+        var request = new XMLHttpRequest();
+        request.responseType = "blob";
+        request.open("GET", '@Url.Action("GetTicket", "Factura", new { idFactura = Model.Id })');
+        request.onload = function () {
+            var url = window.URL.createObjectURL(this.response);
+
+            var img = window.open(url, '_blank');
+            img.autoPrint();
+
+            var Pagelink = "about:blank";
+            var pwa = window.open(Pagelink, "_new");
+            pwa.document.open();
+            pwa.document.write(ImagetoPrint(source));
+            pwa.document.close();
+
+            //var a = document.createElement("a");
+            //document.body.appendChild(a);
+            //a.href = url;
+            //a.download = this.response.name || "download-" + $.now()
+            //a.click();
+        }
+        request.send();
     }
 
 </script>
