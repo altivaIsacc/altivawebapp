@@ -1,9 +1,73 @@
-﻿@{ 
-    Layout = null;
-    
+﻿@inject IStringLocalizer<SharedResources> lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
 }
-<div class="FAQ">
-    <center>
-        <img class="irc_mi" src="https://acegif.com/wp-content/uploads/loading-13.gif" width="300" height="300">
-        </center>
-</div>
+@{
+    ViewData["Title"] = @lb[ViewBag.Titulo];
+}
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@lb[ViewBag.Titulo];</title>
+
+</head>
+<body>
+    <table id="CatalogoCuenta" class="table" style="width:100%">
+        <tr>
+            <td>@lb["ID"]</td>
+            <td>@lb["CuentaContable"]</td>
+            <td>@lb["Descripcion"]</td>
+            <td>@lb["Tipo"]</td>
+            <td>@lb["CuentaMadre"]</td>
+            <td>@lb["DescCuentaMadre"]</td>
+            <td>@lb["Movimiento"]</td>           
+        </tr>
+
+        @foreach (AltivaWebApp.DomainsConta.CatalogoContable c in ViewBag.CatalogoContable)
+        {
+    <tr>
+        @{
+            <td>@c.IdCuentaContable</td>
+
+            if (c.Inactivo)
+            {
+                <td>
+                    <a style="border: 0; padding: 2px 4px;background: #808080;color: white;border-radius: 24px; transition: 0.25s;">@c.CuentaContable</a>
+
+                </td>
+            }
+            else
+            {
+                <td>
+                    @c.CuentaContable
+                </td>
+
+            }
+            <td>
+                @c.Descripcion
+            </td>
+            <td>
+                @c.IdTipoCuentaContable
+            </td>
+            <td>
+                @c.CuentaContablePadre
+            </td>
+            <td>
+                @c.DescCuentaPadre
+            </td>
+            <td>
+                @c.Movimiento
+            </td>
+        }
+
+    </tr>
+        }
+    </table>
+
+</body>
+</html>

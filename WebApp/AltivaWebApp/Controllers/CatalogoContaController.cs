@@ -43,7 +43,7 @@ namespace AltivaWebApp.Controllers
             {
                 return RedirectToAction("Index");
             }
-            var _Cambios = bd.CatalogoContable.Where(x => x.id == p.id).SingleOrDefault();
+            var _Cambios = bd.CatalogoContable.Where(x => x.IdCuentaContable == p.IdCuentaContable).SingleOrDefault();
             if (_Cambios == null)
             {
                 _Cambios = new CatalogoContable();
@@ -52,10 +52,10 @@ namespace AltivaWebApp.Controllers
             _Cambios.CuentaContable = p.CuentaContable;
             _Cambios.Descripcion = p.Descripcion;
             _Cambios.Nivel = p.Nivel;
-            _Cambios.Tipo = p.Tipo;
-            _Cambios.PARENTID = p.PARENTID;
-            _Cambios.CuentaMadre = p.CuentaMadre;
-            _Cambios.DescCuentaMadre = p.DescCuentaMadre;
+            _Cambios.IdTipoCuentaContable = p.IdTipoCuentaContable;
+            _Cambios.IdCuentaContablePadre = p.IdCuentaContablePadre;
+            _Cambios.CuentaContablePadre = p.CuentaContablePadre;
+            _Cambios.DescCuentaPadre = p.DescCuentaPadre;
             _Cambios.Movimiento = p.Movimiento;
             _Cambios.Evaluacion = p.Evaluacion;
             _Cambios.Inactivo = p.Inactivo;

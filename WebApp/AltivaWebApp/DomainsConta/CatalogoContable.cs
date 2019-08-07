@@ -8,18 +8,22 @@ namespace AltivaWebApp.DomainsConta
     public class CatalogoContable
     {
         [Key]
-        public long id { get; set; }
+        public long IdCuentaContable { get; set; }
         public string CuentaContable { get; set; }
         public string Descripcion { get; set; }
+        public string Notas { get; set; }
         public short Nivel { get; set; }
-        public string Tipo { get; set; }
-        public int PARENTID { get; set; }
-        public string CuentaMadre { get; set; }
-        public string DescCuentaMadre { get; set; }
+        public short IdTipoCuentaContable { get; set; }
+        public int IdCuentaContablePadre { get; set; }
+        public string CuentaContablePadre { get; set; }
+        public string DescCuentaPadre { get; set; }
         public bool Movimiento { get; set; }
+        public int IdCuentaPresupuesto { get; set; }
         public bool Evaluacion { get; set; }
+        public int IdMonedaEvaluacion { get; set; }
+        public int IdTipoConversion { get; set; }
         public bool Inactivo { get; set; }
-        public string Notas { get; set; } 
+       
 
     }
 }

@@ -1,0 +1,55 @@
+﻿@model AltivaWebApp.DomainsConta.CatalogoContable
+@inject IStringLocalizer<SharedResources> lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+    ViewData["Title"] = @lb[ViewBag.Titulo];
+}
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@lb[ViewBag.Titulo];</title>
+</head>
+<body>
+
+    <div class="row">
+
+        <div>
+            <div class="col-md-4">
+
+                <form asp-action="guardar" asp-controller="CatalogoConta" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="IdCuentaContable" />
+                    <div class="form-group">
+                        <label asp-for="Descripcion" class="control-label">@lb["Descripción"]:</label>
+                        <input  asp-for="Descripcion" class="form-control" required maxlength="50" />
+                        <span asp-validation-for="Descripcion" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CuentaContable" class="control-label">@lb["CuentaContable"]:</label>
+                        <input asp-for="CuentaContable" class="form-control" required maxlength="50" />
+                        <span asp-validation-for="CuentaContable" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" value="Editar" class="btn btn-success">@lb["Guardar"]<i class="fas fa-save"></i></button>
+                        <a class="btn btn-default btnAtras">@lb["Cancelar"]</a>
+                        <a class="btn btn-link btnEditar" asp-action="Index" asp-controller="CatalogoConta" asp-route-id="@Model.IdCuentaContable">
+                            <i class="fas fa-edit" style="text-align:start"></i>
+                        </a>
+                    </div>
+                    
+                </form>
+            </div>
+            
+        </div>
+    </div>
+
+</body>
+</html>
