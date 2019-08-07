@@ -65,7 +65,7 @@ else
     {
         estado2 = "disabled";
         <div class="col-md-12 text-left"><h5 class="text-danger">@SharedLocalizer["DocumentoConToma"]</h5></div>
-        
+
     }
 </div>
 
@@ -78,7 +78,7 @@ else
         @Html.HiddenFor(x => x.IdUsuario)
         @Html.HiddenFor(x => x.Borrador)
         <div class="form-group col-md-2 col-sm-6 col-xs-12">
-            <fieldset >
+            <fieldset>
                 <div class="form-group">
                     <label for="fecha">@SharedLocalizer["Fecha"]:</label>
                     <div class='input-group date' id='fechaPicker'>
@@ -259,7 +259,7 @@ else
 
 <script>
 
-     var $anulado = $('#Anulado');
+
     ///linea
     var $item = $('#item');
     var $descripcion = $('#descripcion');
@@ -275,6 +275,7 @@ else
     var $cantidadEditar = $('#cantidadEditar');
     var $precioEditar = $('#precioEditar');
     var $key = $('#key');
+
     ///general
     var $moneda = $('#moneda');
     var $dolar = $('#dolar');
@@ -298,7 +299,6 @@ else
     var totalDescuento = 0;
     var totalImpuesto = 0;
     var totalCompra = 0;
-    var idCDS = 0;
 
     var compraDetalleBD = [];
     var lineas = [];
@@ -312,6 +312,7 @@ else
 
 
     $(document).ready(function () {
+
         var date = new Date();
         if (@Model.Id != 0) {
 
@@ -349,9 +350,7 @@ else
 
          getMonedas();
          getInventario();
-        getProveedores();
-        
-
+         getProveedores();
 
 
          $('.selectItems').select2({ width: null, language: localStorage.getItem("idioma") });
@@ -565,14 +564,6 @@ else
             success: function (data) {
 
                 if (data.success) {
-                    lineas[lineas.length - 1].id = data.idCD;
-                    lineasAgregadas[lineasAgregadas.length - 1].id = data.idCD;
-                    idCDS = data;
-                    cargarTabla(lineas);
-                    if (@Model.Id === 0) {
-
-                        var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
-                        window.location.href = url.replace("__id__", data.idCompra);
 
                     if (salir)
                         window.location.href = "@Url.Action("ListarCompras")";
@@ -585,7 +576,7 @@ else
                             window.location.href = url.replace("__id__", data.idCompra);
                         }
                     }
-                        
+
                 }
                 else {
                     cargarAlert("@SharedLocalizer["numCompraRepitida"]");
@@ -601,11 +592,10 @@ else
               }
         });
 
-
     }
 
      function guardarCompraBorrador() {
-       
+
         $.ajax({
               type: "POST",
               headers: {
@@ -727,8 +717,6 @@ else
             guardarLinea();
             guardarCompra(false);
         }
-   console.log(idCDS);
-
     }
 
     function guardarSalir() {
@@ -754,7 +742,7 @@ else
                         else
                             guardarCompra(true);
 
-                        
+
 
                     });
                 }
@@ -766,7 +754,7 @@ else
                     else
                         guardarCompra(true);
 
-                    
+
                 }
 
             }
@@ -785,7 +773,7 @@ else
         } else
             $('#numDocumentoValid').attr("hidden", true);
 
-        
+
 
         return flag;
     }
@@ -879,7 +867,8 @@ else
 
     function guardarLinea() {
 
-       var model = {
+
+        var model = {
             id: 0,
             idCompra: @Model.Id,
             idInventario: $item.val(),
@@ -907,6 +896,7 @@ else
 
         lineasAgregadas.push(model);
         lineas.push(model);
+
         calcularTotales();
 
 
@@ -916,12 +906,12 @@ else
 
     function eliminarLinea(key) {
 
-    
         lineasAgregadas.splice($.inArray(lineas[key], lineasAgregadas), 1);
         lineas.splice(key, 1);
 
         calcularTotales();
         cargarTabla(lineas);
+
     }
 
     function editarLinea(key, idDetalle) {
@@ -984,7 +974,7 @@ else
                 + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(data[i].precioUnitario) + '</td>'
                 + '<td style="padding-top:2rem;">' + data[i].porcDescuento + '%</td>'
                 + '<td style="padding-top:2rem;">' + data[i].porcIva + '%</td>'
-                + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(subtotal) +'</td>'
+                + '<td style="padding-top:2rem; text-align: right">' + darFomatoMoneda(subtotal) + '</td>'
                 + '<td style="padding-top:2rem;">' + data[i].bodega + ' </td>'
                 + '<td><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="elimarCompraDetalle(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
 
@@ -1077,7 +1067,7 @@ else
     }
 
 
-//////////calculos de linea/////////////////////////////////////////////////////////////////////
+    //////calculos de linea/////////////////////////////////////////////////////////////////////
 
     function setSubTotalLinea() {
 
@@ -1556,6 +1546,8 @@ else
         }
 
 
+
+
         return {
             subtotal: subtotal + $subTotal.val().replace("₡", ""),
             imp: imp + $totalImpuesto.val().replace("₡", ""),
@@ -1657,10 +1649,12 @@ else
         var date1 = new Date(doc.FechaEmision["#text"]);
         var date2 = new Date(date1.getTime());
 
+
         $('#fecha').datetimepicker({
             date: date2,
             locale: localStorage.getItem("idioma")
         });
+
 
     }
 
@@ -1750,7 +1744,7 @@ else
             cargarAlert("@SharedLocalizer["XMLInvalido"]");
 
         return flag;
-        
+
     }
 
 
