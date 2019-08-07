@@ -327,10 +327,6 @@ else
 </div>
 
 <div class="row">
-    <div class="col-md-12" id="factTicket">
-        
-    </div>
-    
     <div class="col-md-12">
         @await ViewBag.reporte.Render()
     </div>
@@ -1191,12 +1187,12 @@ else
 
     }
 
-    function imprimirTicket() {
-        var model = crearModeloPDF();
-        var pdf = generate_cutomPDFTicket(model);
-        //pdf.autoPrint();
-        window.open(pdf.output('bloburl'), '_blank');
-    }
+    //function imprimirTicket1() {
+    //    var model = crearModeloPDF();
+    //    var pdf = generate_cutomPDFTicket(model);
+    //    //pdf.autoPrint();
+    //    window.open(pdf.output('bloburl'), '_blank');
+    //}
 
     function crearModeloPDF() {
 
@@ -1313,20 +1309,23 @@ else
         });
     }
 
+    function getTicket() {
+
+        var request = new XMLHttpRequest();
+        request.responseType = "blob";
+        request.open("GET", '@Url.Action("GetTicketImage", "Factura", new { idFactura = Model.Id })');
+        request.onload = function () {
+            var url = window.URL.createObjectURL(this.response);
+            console.log(this.response);
+        }
+        request.send();
+
+    }
 
     function imprimirTicket() {
-         @*$.ajax({
-              type: "get",
-              dataType: "application/pdf",
-              url: '@Url.Action("GetTicket", "Factura", new { idFactura = Model.Id })',
-             success: function (data) {
-                 $('#factTicket').prop('attr', data);
-              },
-              error: function (err, scnd) {
-                  cargarAlert('@Lb["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-        });*@
+        
+        
+         
 
         var request = new XMLHttpRequest();
         request.responseType = "blob";
@@ -1334,23 +1333,37 @@ else
         request.onload = function () {
             var url = window.URL.createObjectURL(this.response);
 
-            var img = window.open(url, '_blank');
-            img.autoPrint();
-
-            var Pagelink = "about:blank";
-            var pwa = window.open(Pagelink, "_new");
-            pwa.document.open();
-            pwa.document.write(ImagetoPrint(source));
-            pwa.document.close();
-
-            //var a = document.createElement("a");
-            //document.body.appendChild(a);
-            //a.href = url;
-            //a.download = this.response.name || "download-" + $.now()
-            //a.click();
+            var reader = new FileReader();
+            reader.readAsDataURL(this.response);
+            reader.onloadend = function () {
+                base64data = reader.result;
+                crearTicketPdf(base64data);
+            }
+            
         }
         request.send();
     }
 
+
+    function crearTicketPdf(img) {
+
+        var imgData = img//getImgFromUrl(img)  
+
+        
+        
+        var doc = new jsPDF('p', 'mm', [80, 210]);
+
+
+        doc.addImage(imgData, 'JPEG', 0, 0, 80, 210)
+
+        
+        doc.autoPrint();
+        window.open(doc.output('bloburl'), '_blank');
+        
+    }
+
 </script>
+
+
+
 <script src="~/lib/vendors/jsPDF/FA.js"></script>

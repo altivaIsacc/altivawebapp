@@ -7,6 +7,7 @@ using AltivaWebApp.Helpers;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
+using FastReport;
 using FastReport.Export.Html;
 using FastReport.Export.Image;
 using FastReport.Web;
@@ -84,37 +85,72 @@ namespace AltivaWebApp.Controllers
 
 
             rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;
+            rep.Report.Dictionary.Connections[1].ConnectionString = StringProvider.StringGE;
             rep.Report.SetParameterValue("idFactura", idFactura);
-            //rep.Report.Prepare();
+            rep.Report.SetParameterValue("idEmpresa", HttpContext.Session.GetInt32("idEmpresa"));
+
 
             if (rep.Report.Prepare())
             {
                 // Set PDF export props
-                FastReport.Export.PdfSimple.PDFSimpleExport pdfExport = new FastReport.Export.PdfSimple.PDFSimpleExport();
-                pdfExport.ShowProgress = false;
-                pdfExport.Subject = "Subject";
-                pdfExport.Title = "ticket_" + idFactura;
+                //FastReport.Export.PdfSimple.PDFSimpleExport pdfExport = new FastReport.Export.PdfSimple.PDFSimpleExport();
+                //pdfExport.ShowProgress = false;
+                //pdfExport.Subject = "Subject";
+                //pdfExport.Title = "ticket_" + idFactura;
 
-                //FastReport.Export.Image.ImageExport imgExport = new FastReport.Export.Image.ImageExport();
-                ////imgExport.ShowProgress = false;
-                //imgExport.ImageFormat = FastReport.Export.Image.ImageExportFormat.Jpeg;
-                //imgExport.SeparateFiles = false;
-                //imgExport.Resolution = 600;
+                FastReport.Export.Image.ImageExport imgExport = new FastReport.Export.Image.ImageExport();
+                //imgExport.ShowProgress = false;
+                imgExport.ImageFormat = FastReport.Export.Image.ImageExportFormat.Jpeg;
+                imgExport.SeparateFiles = false;
+                imgExport.Resolution = 300;
 
                 MemoryStream strm = new MemoryStream();
-                rep.Report.Export(pdfExport, strm);
+                rep.Report.Export(imgExport, strm);
                 rep.Report.Dispose();
-                pdfExport.Dispose();
+                imgExport.Dispose();
                 strm.Position = 0;
 
                 // return stream in browser
-                return File(strm, "application/pdf", "report.pdf");
+                //"application/pdf"
+                return File(strm, "image/jpeg", "report.pdf");
             }
             else
             {
                 return null;
             }
 
+
+        }
+
+        public IActionResult GetTicketImage()
+        {
+            // Creatint the Report object
+
+            FastReport.Utils.Config.WebMode = true;
+            var report = new WebReport();
+            var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "Reportes");
+            var path = $"{savePath}\\Facturaticket.frx";
+
+
+            report.Report.Load(path);
+
+
+            report.Report.Prepare();// Preparing a report
+
+            // Creating the Image export
+            using (ImageExport image = new ImageExport())
+            {
+                image.ImageFormat = ImageExportFormat.Jpeg;
+                image.JpegQuality = 100; // Set up the quality
+                image.Resolution = 100; // Set up a resolution 
+                image.SeparateFiles = false; // We need all pages in one big single file
+
+                using (MemoryStream st = new MemoryStream())// Using stream to save export
+                {
+                    report.Report.Export(image, st);
+                    return base.File(st.ToArray(), "image/jpeg");
+                }
+            }
 
         }
 
