@@ -19,7 +19,7 @@ namespace AltivaWebApp.Controllers
         private readonly IPrecioCatalogoMap map;
         public PrecioCatalogoController(IPrecioCatalogoService service, IPrecioCatalogoMap map)
         {
-          
+
             this.service = service;
             this.map = map;
         }
@@ -43,9 +43,21 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
-       
-      
-     
+        [HttpPost("Editar-PrecioCatalogo")]
+        public ActionResult EditarPrecioCatalogo(IList<PrecioCatalogoViewModel> viewModel)
+        {
+            try
+            {
+                var precioCat = map.Update(viewModel);
 
+                return Ok(precioCat);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+
+
+        }
     }
 }

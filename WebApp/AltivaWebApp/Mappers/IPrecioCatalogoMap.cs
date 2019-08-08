@@ -10,9 +10,9 @@ namespace AltivaWebApp.Mappers
     public interface IPrecioCatalogoMap
     {
         TbPrPrecioCatalogo Create(PrecioCatalogoViewModel viewModel);
-        TbPrPrecioCatalogo Update(PrecioCatalogoViewModel viewModel);
+        bool Update(IList<PrecioCatalogoViewModel> viewModel);
         TbPrPrecioCatalogo ViewModelToDomain(PrecioCatalogoViewModel viewModel);
-        TbPrPrecioCatalogo ViewModelToDomainEditar(PrecioCatalogoViewModel viewModel);
+        IList<TbPrPrecioCatalogo> ViewModelToDomainEditar(IList<PrecioCatalogoViewModel> viewModel);
         PrecioCatalogoViewModel DomainToVIewModel(TbPrPrecioCatalogo domain);
     }
 }

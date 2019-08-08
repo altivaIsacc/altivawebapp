@@ -94,7 +94,7 @@
 <br />
 <div class="row">
     <div class="form-group col-md-12">
-        <button id="btnGuardar" class="btn btn-success"><span>@SharedLocalizer["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
+        <button onclick = "guardarCambios()" class="btn btn-success"><span>@SharedLocalizer["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
         <a class="btn btn-default" id="btnCancelar" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
     </div>
 </div>
@@ -136,11 +136,15 @@
     var lineas = [];
     var lineasFInventario = [];
     var lineasFPrecio = [];
+    var lineasFiltradas = [];
     var inventario = [];
     var precios = [];
     $(document).ready(function () {
         getInventario();
-        getFamilias();
+         getPrecios();
+      
+
+       
 
     
 
@@ -150,14 +154,15 @@
      $("#precioConImpuesto").on("input", function(){
          alert($("#id").val());
     });
-       $('#precios').change(function () {
-
+    $('#precios').change(function () {
+        lineas = [];
+        getPrecioCatalogo();
            
-           filtrarTipoPrecio();
      });
      $('.selectFiltro').change(function () {
 
-         filtrarTodo();
+         lineas = [];
+        getInventario();
      });
     
     $("#marcar").change(function () {
@@ -192,6 +197,37 @@
         });
     
     ///Ajax///
+     function guardarCambios() {
+       
+         alert("ww");
+         var model = crearModelo(lineasFPrecio);
+
+
+        $.ajax({
+              type: "POST",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("EditarPrecioCatalogo")',
+            data: model,
+            success: function (data) {
+
+                if (data.success) {
+                    
+                    alert("cambios realizados exitosamente");
+                    getInventario();
+                }
+ 
+            },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+
+
+    }
     function getFamilias() {
           var url = '@Url.Action("GetFamilia", "Inventario")';
         $.ajax({
@@ -225,8 +261,8 @@
             url: '@Url.Action("GetPrecioCatalogo")',
 
               success: function (data) {
-
-                  cargarLineas(data);
+                 
+                  cargarFiltros(data);
                  
                },
             error: function (err, scnd) {
@@ -241,7 +277,8 @@
             url: '@Url.Action("GetPrecios", "Precios")',
 
               success: function (data) {
-                  precios = data;
+                  $("#precios").val("");
+                  precios = JSON.parse(JSON.stringify(data));
                   for (var i = 0; i < data.length; i++) {
                       var o = new Option(data[i].nombre, data[i].id);
                       $("#precios").append(o);
@@ -252,7 +289,13 @@
             }
         });
     }
-      function getInventario() {
+    function getInventario() {
+       lineas = [];
+     lineasFInventario = [];
+     lineasFPrecio = [];
+     lineasFiltradas = [];
+     inventario = [];
+    
           $.ajax({
               type: "get",
                headers: {
@@ -262,15 +305,19 @@
             url: '@Url.Action("GetAllInventario", "Inventario")',
 
               success: function (data) {
-                  inventario = data;
-                   getPrecios();
-                   getPrecioCatalogo();
+                    inventario = JSON.parse(JSON.stringify(data));
+                   
+                    getFamilias();
+                    getPrecioCatalogo();
+                  
+                 
 
                },
             error: function (err, scnd) {
                cargarAlert('@SharedLocalizer["errorGeneral"]');
             }
-        });
+          });
+         
         }
     ///helpers///
     function cambiarUtilidad()
@@ -286,55 +333,51 @@
      $("#marcar").prop('checked', false);
 $('#modalCambiarU').modal('hide');
     }
-    function filtrarTipoPrecio() {
-        
-        lineasFPrecio = [];
-        var idTipoPrecio = parseInt($('#precios').val());
+    function filtrarPrecio(lineasFPrecio) {
+        var precioFiltrado = [];
+         var idTipoPrecio = parseInt($('#precios').val());
        
-        for (var j = 0; j < lineas.length; j++) {
-                
-                if (lineas[j].idTipoPrecio == idTipoPrecio) {
-                  
-                    lineasFPrecio.push(lineas[j]);
-                }
+        for (var i = 0; i < lineasFPrecio.length; i++) {
+            if (lineasFPrecio[i].idTipoPrecio == idTipoPrecio)
+                precioFiltrado.push(lineasFPrecio[i]);
+        }
+        return precioFiltrado;     
                     
-        }
-        cargarTabla(lineasFPrecio);
-        
-       
-
     }
-    function filtrarTodo() {
-                var lineasFiltradas = [];
 
-        cargarFiltros();
-         if (lineasFInventario.length != 0) {
-            for (var i = 0; i < lineasFInventario.length; i++) {
-                for (var j = 0; j < lineasFPrecio.length; j++) {
-                    if (lineasFInventario[i].idInventario == lineasFPrecio[j].idInventario) {
-                        lineasFiltradas.push(lineasFPrecio[j]);
-                    }
-
-                }
-            }
-            cargarTabla(lineasFiltradas);
-        }
-        else if (parseInt($("#filtroFamilia").val()) === 0) {
-            cargarTabla(lineasFPrecio);
-        }
-
-    }
+    
    
-     function cargarFiltros() {
+     function cargarFiltrosFamilia() {
      
         lineasFInventario = JSON.parse(JSON.stringify(inventario));
         lineasFInventario = filtroFamilia(lineasFInventario);
          lineasFInventario = filtroSubFamilia(lineasFInventario);
          
-        
-
-       
     }
+    function filtrarFamilias(lineasFPrecio) {
+         var precioFiltrado = [];
+        if (parseInt($("#filtroFamilia").val()) === 0) {
+            return lineasFPrecio;
+        } else {
+            for (var i = 0; i < lineasFInventario.length; i++) {
+                for (var j = 0; j < lineasFPrecio.length; j++) {
+                    if (lineasFInventario[i].idInventario == lineasFPrecio[j].idInventario)
+                        precioFiltrado.push(lineasFPrecio[j]);
+                }
+
+            }
+            return precioFiltrado;
+        }
+    }
+
+    function cargarFiltros(data) {
+        cargarFiltrosFamilia();
+        lineasFPrecio = JSON.parse(JSON.stringify(data));
+        lineasFPrecio = filtrarPrecio(lineasFPrecio);
+        lineasFPrecio = filtrarFamilias(lineasFPrecio);
+        cargarLineas(lineasFPrecio);
+         
+     }
     function filtroFamilia(lineasFInventario) {
 
         //console.log(lineasFInventario);
@@ -469,12 +512,12 @@ $('#modalCambiarU').modal('hide');
                   precioSinImpuesto: data[i].precioSinImpuesto,
                   precioFinal : data[i].precioFinal
 
-            };
+              };
+
               lineas.push(model);
-              
         }
+        cargarTabla(lineas);
         
-        filtrarTipoPrecio();
     }
 
 
@@ -485,67 +528,68 @@ $('#modalCambiarU').modal('hide');
         contadorFila = 0;
 
         for (var i = 0; i < data.length; i++) {
+            
+                var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;"> <input type="checkbox" onchange="marcar(' + contadorFila + ')"  class="case" value="' + data[i].idPrecioCatalogo + '" /></td>'
+                    + '<td style="padding-top:2rem;"><input readonly style="border:0; background-color : #F7F7F7" value="' + data[i].producto + '"/></td>'
+                    + '<td style="padding-top:2rem;"><input readonly style="border:0; background-color : #F7F7F7" value="' + data[i].presentacion + '"/></td>'
+                    + '<td style="padding-top:2rem;">' + data[i].costo + ' </td>'
+                    + '<td style="padding-top:2rem; width:12rem;"><input id="utilidad" onchange="calcular(' + contadorFila + ',' + 1 + ', value)"   style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].porcUtilidad + '"/></td>'
+                    + '<td style="padding-top:2rem; width:12rem;"><input id="impuesto"  style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].impuesto + '"/></td>'
+                    + '<td style="padding-top:2rem; width:12rem;"><input id="precioSinImpuesto" onchange="calcular(' + contadorFila + ',' + 2 + ', value)" style="border:0; background-color : #F7F7F7"  value="' + data[i].precioSinImpuesto + '"/></td>'
+                    + '<td hidden style="padding-top:2rem; width:12rem;"><input id="id" style="border:0; background-color : #F7F7F7"  value="' + data[i].idPrecioCatalogo + '"/></td>'
+                    + '<td style="padding-top:2rem; "><input id="precioConImpuesto" onchange="calcular(' + contadorFila + ',' + 3 + ',value)" style="width:6rem; border:0; background-color : #F7F7F7"  value="' + data[i].precioFinal + '"/></td></tr>';
 
-            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;"> <input type="checkbox" onchange="marcar('+contadorFila+')"  class="case" value="' + data[i].idPrecioCatalogo + '" /></td>'
-                + '<td style="padding-top:2rem;"><input readonly style="border:0; background-color : #F7F7F7" value="' + data[i].producto + '"/></td>'
-                + '<td style="padding-top:2rem;"><input readonly style="border:0; background-color : #F7F7F7" value="' + data[i].presentacion + '"/></td>'
-                + '<td style="padding-top:2rem;">' + data[i].costo + ' </td>'
-                + '<td style="padding-top:2rem; width:12rem;"><input id="utilidad" onchange="calcular('+contadorFila+','+1+', value)"   style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].porcUtilidad + '"/></td>'
-                + '<td style="padding-top:2rem; width:12rem;"><input id="impuesto"  style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].impuesto+ '"/></td>'
-                + '<td style="padding-top:2rem; width:12rem;"><input id="precioSinImpuesto" onchange="calcular('+contadorFila+','+2+', value)" style="border:0; background-color : #F7F7F7"  value="' + data[i].precioSinImpuesto + '"/></td>'
-                + '<td hidden style="padding-top:2rem; width:12rem;"><input id="id" style="border:0; background-color : #F7F7F7"  value="' + data[i].idPrecioCatalogo + '"/></td>'
-                + '<td style="padding-top:2rem; "><input id="precioConImpuesto" onchange="calcular('+contadorFila+','+3+',value)" style="width:6rem; border:0; background-color : #F7F7F7"  value="' + data[i].precioFinal + '"/></td></tr>';
-
-            $('.lineaForm').before(body);
+                $('.lineaForm').before(body);
 
 
-            contadorFila++;
-
+                contadorFila++;
+            
 
         }
+        
       
     }
     function marcar(pos) {
-        if (lineasFPrecio[pos].marcador == true)
-            lineasFPrecio[pos].marcador = false;
+        if (lineas[pos].marcador == true)
+            lineas[pos].marcador = false;
         else
-            lineasFPrecio[pos].marcador = true; 
+            lineas[pos].marcador = true; 
     }
     function calcular(pos, numero, valor)
     {
         if (numero == 3)
-        {   lineasFPrecio[pos].precioFinal = parseFloat(valor);
-            lineasFPrecio[pos].precioSinImpuesto = calcularSinImpuesto(pos);
-            lineasFPrecio[pos].porcUtilidad = calcularUtilidad(pos);
+        {   lineas[pos].precioFinal = parseFloat(valor);
+            lineas[pos].precioSinImpuesto = calcularSinImpuesto(pos);
+            lineas[pos].porcUtilidad = calcularUtilidad(pos);
              
            
         }
          if (numero == 2)
          {
-             lineasFPrecio[pos].precioSinImpuesto = valor;
-              lineasFPrecio[pos].precioFinal = calcularConImpuesto(pos);
-              lineasFPrecio[pos].porcUtilidad = calcularUtilidad(pos);
+             lineas[pos].precioSinImpuesto = valor;
+              lineas[pos].precioFinal = calcularConImpuesto(pos);
+              lineas[pos].porcUtilidad = calcularUtilidad(pos);
         }
           if (numero == 1)
           {
-                 lineasFPrecio[pos].porcUtilidad = valor;
-            lineasFPrecio[pos].precioSinImpuesto = calcularSinImpuesto(pos);
-            lineasFPrecio[pos].precioFinal = calcularConImpuesto(pos);
+                 lineas[pos].porcUtilidad = valor;
+            lineas[pos].precioSinImpuesto = calcularSinImpuesto(pos);
+            lineas[pos].precioFinal = calcularConImpuesto(pos);
         }
-        cargarTabla(lineasFPrecio);
+        cargarTabla(lineas);
     }
 
     function calcularSinImpuesto(pos)
     {
         var resultado = 0;
         var utilidad = 0;
-        if (parseFloat(lineasFPrecio[pos].porcUtilidad) == 0)
+        if (parseFloat(lineas[pos].porcUtilidad) == 0)
             utilidad = calcularUtilidad(pos);
         else
-            utilidad = parseFloat(lineasFPrecio[pos].porcUtilidad); 
+            utilidad = parseFloat(lineas[pos].porcUtilidad); 
        
 
-        resultado = parseFloat(lineasFPrecio[pos].costo) * (1 + (utilidad / 100));
+        resultado = parseFloat(lineas[pos].costo) * (1 + (utilidad / 100));
         return resultado;
     }
 
@@ -553,12 +597,12 @@ $('#modalCambiarU').modal('hide');
     {
         var resultado = 0;
         var sinimpuesto = 0;
-        if (parseFloat(lineasFPrecio[pos].precioSinImpuesto) == 0)
+        if (parseFloat(lineas[pos].precioSinImpuesto) == 0)
             sinimpuesto = calcularSinImpuesto(pos);
         else
-            sinimpuesto = parseFloat(lineasFPrecio[pos].precioSinImpuesto); 
+            sinimpuesto = parseFloat(lineas[pos].precioSinImpuesto); 
 
-        resultado = sinimpuesto * ((parseFloat(lineasFPrecio[pos].impuesto) / 100));
+        resultado = sinimpuesto * ((parseFloat(lineas[pos].impuesto) / 100));
         return resultado;
 
     }
@@ -566,10 +610,10 @@ $('#modalCambiarU').modal('hide');
     {
          
         var sinimpuesto = 0;
-        if (parseFloat(lineasFPrecio[pos].precioSinImpuesto) == 0)
+        if (parseFloat(lineas[pos].precioSinImpuesto) == 0)
             sinimpuesto = calcularSinImpuesto(pos);
         else
-            sinimpuesto = parseFloat(lineasFPrecio[pos].precioSinImpuesto); 
+            sinimpuesto = parseFloat(lineas[pos].precioSinImpuesto); 
 
         return sinimpuesto + calcularImpuesto(pos);
         
@@ -579,16 +623,31 @@ $('#modalCambiarU').modal('hide');
     function calcularUtilidad(pos)
     {
         var sinimpuesto;
-        if (parseFloat(lineasFPrecio[pos].precioSinImpuesto) == 0)
+        if (parseFloat(lineas[pos].precioSinImpuesto) == 0)
             sinimpuesto = calcularSinImpuesto(pos);
         else
-            sinimpuesto = parseFloat(lineasFPrecio[pos].precioSinImpuesto);
+            sinimpuesto = parseFloat(lineas[pos].precioSinImpuesto);
 
-        return ((parseFloat(lineasFPrecio[pos].costo) / sinimpuesto) - 1) * 100;
+        return ((parseFloat(lineas[pos].costo) / sinimpuesto) - 1) * 100;
 
     }
 
+    function crearModelo(lineas) {
 
+        for (var i = 0; i < lineas.length; i++) {
+            lineas[i].idPrecioCatalogo = lineas[i].idPrecioCatalogo.toString().replace(".", ",");
+            lineas[i].idInventario = lineas[i].idInventario.toString().replace(".", ",");
+            lineas[i].idTipoPrecio = lineas[i].idTipoPrecio.toString().replace(".", ",");
+            lineas[i].porcUtilidad = lineas[i].porcUtilidad.toString().replace(".", ",");
+            lineas[i].precioSinImpuesto = lineas[i].precioSinImpuesto.toString().replace(".", ",");
+            lineas[i].precioFinal = lineas[i].precioFinal.toString().replace(".", ",");
+            
+           
+        }
+
+        return lineas;
+    }
+    
 
 
 

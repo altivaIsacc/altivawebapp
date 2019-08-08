@@ -28,6 +28,21 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbPrPrecioCatalogo.ToList();
         }
+        public bool UpdatePrecio(IList<TbPrPrecioCatalogo> domain)
+        {
+            try
+            {
+                context.TbPrPrecioCatalogo.UpdateRange(domain);
+                context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
 
 
 

@@ -8,7 +8,7 @@ namespace AltivaWebApp.Repositories
     public interface IPrecioCatalogoRepository
     {
         TbPrPrecioCatalogo Save(TbPrPrecioCatalogo domain);
-        TbPrPrecioCatalogo Update(TbPrPrecioCatalogo domain);
+       bool UpdatePrecio(IList<TbPrPrecioCatalogo> domain);
         IList<TbPrPrecioCatalogo> GetAll();
         TbPrPrecioCatalogo GetPrecioCatalogoById(int id);
        
