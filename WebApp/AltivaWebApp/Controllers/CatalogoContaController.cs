@@ -32,10 +32,24 @@ namespace AltivaWebApp.Controllers
             if (u == null)
             {
                 u = new DomainsConta.CatalogoContable();
-                u.Notas = 
-                u.CuentaContablePadre = "";
-            }            return View(u);
-        }        
+               
+            }
+            return View(u);
+        }
+        public IActionResult uDet(long id)
+        {
+            ViewBag.Titulo = "setCatalogoConta";
+            ConfiguracionContable c = bd.ConfiguracionContable.FirstOrDefault();
+            ViewBag.Formato = c.Ejemplo;
+
+            var padre = bd.CatalogoContable.Find(id);
+            var d = new DomainsConta.CatalogoContable();            
+            d.IdCuentaContablePadre = padre.IdCuentaContable;
+            d.CuentaContablePadre = padre.CuentaContable;
+            d.CuentaContable = padre.CuentaContable;
+            d.DescCuentaPadre = padre.Descripcion;
+            return View("u",d);
+        }
         [BindProperty]
         public CatalogoContable p { get; set; }
         public IActionResult guardar()
@@ -55,12 +69,36 @@ namespace AltivaWebApp.Controllers
             _Cambios.Nivel = p.Nivel;
             _Cambios.IdTipoCuentaContable = p.IdTipoCuentaContable;
             _Cambios.IdCuentaContablePadre = p.IdCuentaContablePadre;
-            _Cambios.CuentaContablePadre = p.CuentaContablePadre;
-            _Cambios.DescCuentaPadre = p.DescCuentaPadre;
+            if (p.CuentaContablePadre != null)
+            {
+                _Cambios.CuentaContablePadre = p.CuentaContablePadre;
+            }
+            else {
+                _Cambios.CuentaContablePadre = "";
+
+            }
+            if (p.DescCuentaPadre != null)
+            {
+                _Cambios.DescCuentaPadre = p.DescCuentaPadre;
+            }
+            else {
+                _Cambios.DescCuentaPadre = "";
+            }
             _Cambios.Movimiento = p.Movimiento;
             _Cambios.Evaluacion = p.Evaluacion;
             _Cambios.Inactivo = p.Inactivo;
-            _Cambios.Notas = p.Notas;       
+            if (p.Notas != null)
+            {
+                _Cambios.Notas = p.Notas;
+
+            }
+            else {
+                _Cambios.Notas = "";
+
+            }
+
+            _Cambios.IdMonedaEvaluacion = p.IdMonedaEvaluacion;
+            _Cambios.IdTipoConversion = p.IdTipoConversion;
 
             bd.SaveChanges();
             return RedirectToAction("Index");

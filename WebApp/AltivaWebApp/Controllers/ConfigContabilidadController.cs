@@ -21,7 +21,9 @@ namespace AltivaWebApp.Controllers
         {
             ViewBag.Titulo = "setConfigContable";
             var u = bd.ConfiguracionContable.SingleOrDefault();
-           
+            bool hayCuentas = false;
+            hayCuentas = bd.CatalogoContable.Where(x => x.Inactivo == false).Count() > 0;
+            ViewBag.HayCuentas = hayCuentas;
             if (u == null)
             {
                 u = new ConfiguracionContable();
@@ -64,8 +66,6 @@ namespace AltivaWebApp.Controllers
                 _Cambios.Ejemplo = p.Ejemplo;
                 _Cambios.FechaCreacion = DateTime.Now;
                 _Cambios.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
-
-
             bd.SaveChanges();
             return RedirectToAction("Index");
         }
