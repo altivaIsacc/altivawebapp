@@ -83,6 +83,7 @@ else
                         </div>
                     </div>
                 </fieldset>
+
             </div>
 
             <div class="form-group col-md-2 col-sm-6 col-xs-12">
@@ -111,10 +112,14 @@ else
     </div>
 
     <div class="row">
+
         <form id="frmLinea">
             <div class="form-group col-md-3 col-sm-3 col-xs-4">
-                <label class="control-label">@Lb["Item"]: <span style="font-size:1.1rem" class="text-info"><a id="descProducto"></a></span></label>
-                <input id="producto" onkeyup="pasarSigCampo(event,'movimiento')" class="form-control autocomplete" autocomplete="off" autofocus type="text" />
+                <label class="control-label">@Lb["Item"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                <input id="items" onkeyup="pasarSigCampo(event,'movimiento')" class="form-control autocomplete" autofocus type="text" />
+                @*<select id="items" onkeyup="pasarSigCampo(event,'movimiento')" class="form-control autocomplete" autocomplete="off" autofocus type="text">
+
+            </select>*@
             </div>
 
             <div class="form-group col-md-2 col-sm-2 col-xs-4">
@@ -127,12 +132,12 @@ else
 
             <div class="form-group col-md-1 col-sm-1 col-xs-4">
                 <label class="control-label">@Lb["Cantidad"]:</label>
-                <input id="cantidad" onkeyup="pasarSigCampo(event,'costoPromedio')" class="form-control numerico" value="1" type="text" />
+                <input id="cantidad" onkeyup="pasarSigCampo(event,'costoPromedio'), calcularTotalMovientoLinea()" class="form-control numerico" value="1" type="text" />
             </div>
 
             <div class="form-group col-md-2 col-sm-2 col-xs-4">
                 <label class="control-label">@Lb["CostoPromedio"]:</label>
-                <input @estado2 id="costoPromedio" onkeyup="pasarSigCampo(event,'cuentaContable')" class="form-control moneda" type="text" />
+                <input @estado2 id="costoPromedio" onkeyup="pasarSigCampo(event,'cuentaContable'), calcularTotalMovientoLinea()" class="form-control  moneda" type="text" />
             </div>
 
             <div class="form-group col-md-2 col-sm-2 col-xs-4">
@@ -151,11 +156,15 @@ else
             </div>
 
             <div class="form-group col-md-1 col-sm-1 col-xs-1" style="padding-top: 2.3rem;">
-                <a onkeyup="pasarSigCampo(event,'producto')" onclick="" id="submitFrmAI" class="btn btn-success"><span><i class="fas fa-save"></i></span></a>
+                <a onkeyup="pasarSigCampo(event,'items')" onclick="prepararLinea()" id="submitFrmAI" class="btn btn-success"><span><i class="fas fa-save"></i></span></a>
             </div>
+
+            <div class="form-group col-md-2 col-sm-2 col-xs-6" style="padding-top: 2.5rem;">
+                <span style="padding-top: 2.3rem; font-size: 1.5rem" >@Lb["Existencia"]: </span><span class="text-info" id="lblExistencia"></span>
+            </div>
+
         </form>
 
-        
         
 
     </div>
@@ -286,27 +295,34 @@ else
     var lineas = [];
     var lineasEliminadas = [];
     var lineasAgregadas = [];
+    var lineasCrOrUp = [];
+
+
     var cuentaCostoArray = [];
     var cuentaContableArray = [];
     var monedas = [];
 
     var frmAjuste = $('.frmAjuste');
     var frmAjuste2 = $('.frmAjuste2');
-    var items = $('#items');
-    var movimiento = $('#movimiento');
-    var descripcionLinea = $('#descripcionLinea');
-    var cantidad = $('#cantidad');
-    var costoPromedio = $('#costoPromedio');
-    var total = $('#total');
-    var cuentaContable = $('#cuentaContable');
-    var cuentaCosto = $('#cuentaCosto');
+    var $items = $('#items');
+    var $movimiento = $('#movimiento');
+    var $descripcionLinea = $('#descripcionLinea');
+    var $cantidad = $('#cantidad');
+    var $costoPromedio = $('#costoPromedio');
+    var $total = $('#total');
+    var $cuentaContable = $('#cuentaContable');
+    var $cuentaCosto = $('#cuentaCosto');
+    var $lblInfoItem = $('#lblInfoItem');
+    var $lblExistencia = $('#lblExistencia');
+
+
     var entradas = 0;
     var salidas = 0;
     var saldo = 0;
     var $entradas = $('#entradas');
     var $salidas = $('#salidas');
     var $saldo = $('#saldo');
-    var fechaDocumento = $('#fecha');
+    var $fechaDocumento = $('#fecha');
     var arrayInventario = [];
 
 
@@ -331,10 +347,8 @@ else
 
 
         $('.selectItem').select2();
-        $('#items').select2({ width: null, language: localStorage.getItem("idioma") });
+        
         getBodegasInventario();
-
-        inicializaTabla();
 
         validaAnulacion();
 
@@ -343,19 +357,17 @@ else
             locale: localStorage.getItem("idioma")
         });
 
-        $(".moneda").inputmask({
-            'alias': 'decimal',
-            rightAlign: true,
-        });
 
         $(".numerico").inputmask({
             'alias': 'decimal',
             rightAlign: false,
+            min: 0
         });
 
-
-        $('#items').on('change.select2', function () {
-            cargarCostoPromedio(arrayItems);
+        $(".moneda").inputmask('currency', {
+            prefix: '',
+            rightAlign: true,
+            min: 0
         });
 
         $('textarea[data-limit-rows=true]')
@@ -370,186 +382,115 @@ else
                 }
             });
 
-
     });
+
+    
     function formatearFecha() {
 
         return '@Model.FechaDocumento.Month' + "/" + '@Model.FechaDocumento.Day' + "/" + '@Model.FechaDocumento.Year' + " " + '@Model.FechaDocumento.TimeOfDay';
 
     }
 
-    function getAjusteInventario() {
-        if(@Model.Id != 0)
-        $.ajax({
-              type: "get",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
-            url: '@Url.Action("GetAjusteinventario", "AjusteInventario")',
-            data: {id: @Model.Id},
-            success: function (data) {
-                arrayAjusteFromDB = JSON.parse(JSON.stringify(data.tbPrAjusteInventario));
-                cargarLineas(data);
-               },
-              error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-          });
-    }
+    ////////////////////////////movimientos de linea
 
+    $('#items').on('focusout', function (evt, item) {
 
-    function guardarCambios() {
-
-        if (validarCampos()) {
-            if (@Model.Id != 0)
-                editarAjuste();
+        setTimeout(function () {
+            if ($('#items').val().replace(/ /g, "") !== "")
+                cargarInfoItem($('#items').val());
             else
-                guardarAjuste();
-        }
+                limpiarLinea();
+        }, 100);
 
-    }
-
-    function cargarItems(data) {
-
-
-        arrayInventario = data;
-
-        arrayItems = [];
-
-        for (var i = 0; i < data.length; i++) {
-
-            if (!data[i].idInventarioNavigation.inactiva) {
-                arrayItems.push(data[i].idInventarioNavigation);
-            }
-
-        }
-
-        //$("#items").select2('destroy');
-
-
-        var items = arrayItems;
-        $('.autocomplete').autoComplete({
-            resolver: 'custom',
-            formatResult: function (item) {
-                return {
-                    value: item.idInventario,
-                    text:  item.codigo,
-                    html: [
-                        item.codigo + ' - ',
-                        item.descripcion
-                    ]
-                };
-            },
-            events: {
-                search: function (_keyword, callback) {
-                    var keyword = _keyword.toUpperCase();
-                    var filtrado = [];
-                    //var array = contactos;
-                    if (keyword.replace(/ /g, "") === "") {
-                        filtrado = [];
-                    }
-                    else {
-                        for (var i = 0; i < items.length; i++) {
-
-                            var keyArray = items[i].codigo.toUpperCase();
-                            var keyArray2 = items[i].descripcion.toUpperCase();
-
-                            if (keyArray.indexOf(keyword) > -1  )
-                                filtrado.push(items[i]);
-                            else
-                                if (keyArray2.indexOf(keyword) > -1)
-                                    filtrado.push(items[i]);
-                        }
-
-                    }
-
-                    callback(filtrado);
-                }
-            },
-            noResultsText: '@Lb["sinResultados"]',
-            autoSelect: false,
-            minLength: 2,
-
-        });
-
-    }
-
-
-    $('#producto').on('change', function (e) {
-        console.log(getItemPorCodigo(this.value));
-        cargarCostoPromedio(getItemPorCodigo(this.value));
     });
 
+    $movimiento.change(function () {
 
-    function getItemPorCodigo(codigo) {
-        for (var i = 0; i < arrayItems.length; i++) {
-            if (codigo === arrayItems[i].codigo) {
-                return arrayItems[i];
-            }
+        if (this.value === "false") {
+            $costoPromedio.prop('readonly', true);
+            cargarInfoItem($items.val());
         }
+        else
+            $costoPromedio.prop('readonly', false);
+    });
+
+    function cargarInfoItem(cod) {
+
+        
+        var item = getItemPorCodigo(cod);
+        
+
+        if (item !== undefined) {
+
+            
+
+            var itemBodega = getItem(item.idInventario)[0];
+
+            $costoPromedio.val(item.costoPromedioGeneral);
+            $lblInfoItem.text(item.descripcion.substr(0, 32) + (item.descripcion.length > 25 ? '...' : '')).prop('href', '@Url.Action("EditarInventario", "Inventario", new { id = "__id__" })'.replace("__id__", item.idInventario));
+            $lblExistencia.text(itemBodega.existenciaBodega + " " + item.idUnidadMedidaNavigation.abreviatura);
+            calcularTotalMovientoLinea();
+        }
+        else
+            cargarAlert('@Lb["itemInvalido"]');
+
+        
     }
 
+    function calcularTotalMovientoLinea() {
 
-    function guardarLinea() {
+        var totalLinea = parseFloat($cantidad.val()) * parseFloat($costoPromedio.val().replace(/,/g, ""));
 
-        if (validarLinea()) {
-             var model = {
-                 id: 0,
-                 idAjuste: @Model.Id,
-                 idInventario: items.val(),
-                 descripcion: "n/a",
-                 movimiento: movimiento.val(),
-                 cantidad: parseFloat(cantidad.val()),
-                 costoPromedio: costoPromedio.val(),
-                 totalMovimiento: total.val(),
-                 idCuentaContable: cuentaContable.val(),
-                 idCentroGastos: cuentaCosto.val(),
-                 cuentaContable: {
-                     codigo: $('#cuentaContable option:selected').text(),
-                     descripcion: ""
-                 },
-                 cuentaCosto: {
-                     codigo: $('#cuentaCosto option:selected').text(),
-                     descripcion: ""
-                 },
-                 nombreItem: $('#items option:selected').text().replace(/ /g, " "),
-             };
+        $('#total').val(totalLinea);
 
-             var model2 = {
-                 id: 0,
-                 idAjuste: @Model.Id,
-                 idInventario: items.val(),
-                 descripcion: "n/a",
-                 movimiento: movimiento.val(),
-                 cantidad: cantidad.val().toString().replace(/\./g, ','),
-                 costoPromedio: costoPromedio.val().toString().replace(/\./g, ','),
-                 totalMovimiento: total.val().toString().replace(/\./g, ','),
-                 idCuentaContable: cuentaContable.val(),
-                 idCentroGastos: cuentaCosto.val(),
-                 cuentaContable: {
-                     codigo: $('#cuentaContable option:selected').text(),
-                     descripcion: ""
-                 },
-                 cuentaCosto: {
-                     codigo: $('#cuentaCosto option:selected').text(),
-                     descripcion: ""
-                 },
-                 nombreItem: $('#items option:selected').text().replace(/ /g, ""),
-             };
+    }
 
-            if (!existeItem(model.idInventario, model.movimiento)) {
-                recalcularExistencias(model);
-                lineas.push(model);
-                cargarTabla(lineas);
-                lineasAgregadas.push(model2);
-                $('#bodegas').attr("disabled", true);
-            }
-            else
-                cargarAlert('@SharedLocalizer["duplicacionValid"]');
+    function guardarLinea(item) {
+
+        var model = {
+            id: 0,
+            idAjuste: @Model.Id,
+            idInventario: item.idInventario,
+            descripcion: "n/a",
+            movimiento: $movimiento.val(),
+            cantidad: parseFloat($cantidad.val()),
+            costoPromedio: parseFloat($costoPromedio.val().replace(/,/g, "")),
+            totalMovimiento: $total.val().replace(/,/g, ""),
+            idCuentaContable: $cuentaContable.val(),
+            idCentroGastos: $cuentaCosto.val(),
+            cuentaContable: $('#cuentaContable option:selected').text(),
+            cuentaCosto: $('#cuentaCosto option:selected').text(),
+            nombreItem: item.descripcion,
+            descItem: item.codigo
+        };
+
+
+        lineasCrOrUp.push(model);
+        lineas.push(model);
+        recalcularExistencias(model);
+        cargarTabla(lineas);
+
+    }
+
+    function prepararLinea() {
+
+        var item = getItemPorCodigo($items.val());
+
+        if (validarLinea(item)) {
+            guardarLinea(item);
+            limpiarLinea();
+            $items.focus();
         }
+        
+    }
 
+    function limpiarLinea() {
+        $items.val("");
+        $lblInfoItem.text("");
+        $costoPromedio.val(0);
+        $cantidad.val(1);
+        $total.val(0);
+        $lblExistencia.text("");
     }
 
     function eliminarLinea(_id, idLinea) {
@@ -564,7 +505,7 @@ else
                     if (idLinea != 0)
                         lineasEliminadas.push(lineas[id].id);
                     else
-                        lineasAgregadas.splice($.inArray(lineas[id], lineasAgregadas), 1);
+                        lineasCrOrUp.splice($.inArray(lineas[id], lineasCrOrUp), 1);
 
                     //la linea hay que convertirla a salida para que se reste o al revez para que se sume
                     if (lineas[id].movimiento === "true")
@@ -591,32 +532,42 @@ else
     }
 
 
-    function validarLinea() {
+    function validarLinea(item) {
+
+        if ($('#items').val().replace(/ /g, "") === "")
+            return false;
 
         var flag = true;
+        if (item !== undefined) {
 
-        if (movimiento.val() === "false" && getItem(items.val())[0].existenciaBodega < parseFloat(cantidad.val())) {
+            if (existeItem(item.idInventario, $movimiento.val())) {
+                cargarAlert('@Lb["duplicacionValid"]');
+                return false;
+            }
+
+            if ($movimiento.val() === "false" && getItem(item.idInventario)[0].existenciaBodega < parseFloat($cantidad.val())) {
                 flag = false;
                 cargarAlert('@SharedLocalizer["cantidaMayorQueExistencias"]');
-        }
+            }
 
-        if (parseFloat(costoPromedio.val()) <= 0) {
-            flag = false;
-            cargarAlert('@SharedLocalizer["costoPromedioValidacion"]');
+            if (parseFloat($costoPromedio.val().replace(/,/g, "")) <= 0) {
+                flag = false;
+                cargarAlert('@SharedLocalizer["costoPromedioValidacion"]');
+            }
         }
+        else {
+            cargarAlert('@Lb["itemInvalido"]');
+        }
+        
 
         return flag;
 
     }
 
     function validarExistencia(idlinea) {
-
         var salida = "";
         var linea = lineas[idlinea];
-
         if (linea.movimiento === "true") {
-
-
             for (var i = 0; i < lineas.length; i++) {
                 if (lineas[i].idInventario === linea.idInventario && lineas[i].movimiento === "false")
                     salida = lineas[i];
@@ -625,100 +576,139 @@ else
                 return true;
             else {
                 var item = getItem(parseInt(linea.idInventario))[0];
-
                 var existencia = item.existenciaBodega - parseInt(linea.cantidad);
-
                 if (existencia >= parseInt(salida.cantidad))
                     return true;
                 else {
-
                     cargarAlert("@SharedLocalizer["anulacionInvalida"]");
                     return false;
                 }
             }
-
         }
-
         else
             return true;
-
-
-
     }
 
-    function cargarLineas(array) {
+    function recalcularExistencias(linea) {
+        var item = getItem(parseInt(linea.idInventario))[0];
+        if (linea.movimiento === "true") {
+            item.existenciaBodega += parseInt(linea.cantidad);
+        }
+        else if (linea.movimiento === "false") {
+            item.existenciaBodega -= parseInt(linea.cantidad);
+        }
+    }
 
-        var data = array.tbPrAjusteInventario;
+    ////////////////////////////fin mov de linea/////////////////////////
 
-        for (var i = 0; i < data.length; i++) {
-            var model = {
-                id: data[i].id,
-                idAjuste: @Model.Id,
-                idInventario: data[i].idInventario,
-                descripcion: data[i].descripcion,
-                movimiento: data[i].movimiento.toString(),
-                cantidad: data[i].cantidad,
-                costoPromedio: data[i].costoPromedio,
-                totalMovimiento: data[i].totalMovimiento,
-                idCuentaContable: data[i].idCuentaContableNavigation.id,
-                idCentroGastos: data[i].idCentroGastosNavigation.id,
-                cuentaContable: {
-                    codigo: data[i].idCuentaContableNavigation.cuentaContable,
-                    descripcion: data[i].idCuentaContableNavigation.descripcion
-                },
-                cuentaCosto: {
-                    codigo: data[i].idCentroGastosNavigation.codigo,
-                    descripcion: data[i].idCentroGastosNavigation.nombre
-                },
-                nombreItem: data[i].idInventarioNavigation.descripcion
-            };
 
-            lineas.push(model);
+    ////////////////////////////calculos de ajuste//////////////////////
+    function calcularTotales() {
+
+        $entradas.val("");
+        $salidas.val("");
+        entradas = 0;
+        salidas = 0;
+
+
+        for (var i = 0; i < lineas.length; i++) {
+            if (lineas[i].movimiento === "true")
+                entradas += parseFloat(lineas[i].totalMovimiento);
+            else
+                salidas += parseFloat(lineas[i].totalMovimiento);
         }
 
-        cargarTabla(lineas);
+        $entradas.val(entradas);
+        $salidas.val(salidas);
+        saldo = entradas - salidas;
+        $saldo.val(saldo);
+    }
+
+    ////////////////////////////fin calculos de ajuste//////////////////////
+
+
+    function guardarCambios() {
+
+        if (validarCampos()) {
+            
+        }
 
     }
 
-    function getBodegasInventario() {
+    function cargarItems(data) {
 
-          $.ajax({
-              type: "get",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
-              url: '@Url.Action("GetBodegaInventario", "AjusteInventario")',
-              success: function (data) {
-                  bodegas = data;
-                  cargarBodegas(data);
-               },
-              error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-          });
+
+        arrayInventario = data;
+
+        arrayItems = [];
+
+        for (var i = 0; i < data.length; i++) {
+
+            if (!data[i].idInventarioNavigation.inactiva) {
+                arrayItems.push(data[i].idInventarioNavigation);
+            }
+
+        }
+
+        console.log(arrayItems);
+
+        var items = arrayItems;
+        $('.autocomplete').autoComplete({
+            resolver: 'custom',
+            formatResult: function (item) {
+                return {
+                    value: item.idInventario,
+                    text:  item.codigo,
+                    html: [
+                        item.codigo + ' - ',
+                        item.descripcion
+                    ]
+                };
+            },
+            events: {
+                search: function (_keyword, callback) {
+                    var keyword = _keyword.toUpperCase();
+                    var filtrado = [];
+                    
+                    if (keyword.replace(/ /g, "") === "") {
+                        filtrado = [];
+                    }
+                    else {
+                        for (var i = 0; i < items.length; i++) {
+
+                            var keyArray = items[i].codigo.toUpperCase();
+                            var keyArray2 = items[i].descripcion.toUpperCase();
+
+                            if (keyArray.indexOf(keyword) > -1  )
+                                filtrado.push(items[i]);
+                            else
+                                if (keyArray2.indexOf(keyword) > -1)
+                                    filtrado.push(items[i]);
+                        }
+
+                    }
+
+                    callback(filtrado);
+                }
+            },
+            noResultsText: '@Lb["sinResultados"]',
+            autoSelect: true,
+            minLength: 2,
+
+        });
+
     }
 
-    function getMonedas() {
-         $.ajax({
-              type: "get",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
-              url: '@Url.Action("GetMonedas", "Monedas")',
-             success: function (data) {
 
-                 monedas = data;
-
-              },
-              error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-          });
+    function getItemPorCodigo(codigo) {
+        for (var i = 0; i < arrayItems.length; i++) {
+            if (codigo === arrayItems[i].codigo) {
+                return arrayItems[i];
+            }
+        }
     }
+    
+
 
     $("#bodegas").change(function () {
 
@@ -727,63 +717,32 @@ else
                 cargarItems(bodegas[i].tbPrInventarioBodega);
         }
 
-    });
+    });   
 
-    costoPromedio.on('keyup, change, focusout', function () {
-
-        calcularTotalMovimiento();
-
-    });
-
-    cantidad.on('focusout', function () { if ($(this).val() === "" || $(this).val() === "0") cantidad.val(0.1); });
-
-    movimiento.change(function () {
-
-        if ($(this).val() === "true")
-            costoPromedio.attr('disabled', false);
-        else {
-            costoPromedio.attr('disabled', true);
-            $('#items').trigger('change');
-        }
-
-    });
-
-    fechaDocumento.on('keyup', function () {
-        $('#fechaPicker').datetimepicker('defaultDate', new Date());
-    });
-
-
-
-    cantidad.on("keyup, change, focusout", function () {
-
-        if (parseFloat(cantidad.val()) < 0)
-            cantidad.val(0);
-
-        calcularTotalMovimiento();
-
-    });
 
     function cargarTabla(data) {
-        $('.filasCargadas').remove();
+        $("#tblAjusteInventario > tbody").remove();
+        $('#tblAjusteInventario').append('<tbody></tbody>');
 
         contadorFila = 0;
 
 
         for (var i = 0; i < data.length; i++) {
-            contadorFila++;
-
-
+            
             var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' +  data[i].nombreItem + '</td>'
                 + '<td style="padding-top:2rem;">' + getMovimiento(data[i].movimiento) + '</td>'
                 + '<td style="padding-top:2rem;">' + data[i].cantidad + '</td>'
                 + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].costoPromedio + '"/></td>'
                 + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].totalMovimiento + '"/></td>'
-                + '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaContable.codigo + ' - ' + data[i].cuentaContable.descripcion + '</a></td>'
-                + '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaCosto.codigo + ' - ' + data[i].cuentaCosto.descripcion + '</a></td>'
+                + '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaContable +'</a></td>'
+                //+ '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaContable.codigo + ' - ' + data[i].cuentaContable.descripcion + '</a></td>'
+                //+ '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaCosto.codigo + ' - ' + data[i].cuentaCosto.descripcion + '</a></td>'
+                + '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaCosto +'</a></td>'
                 + '<td><button @estado2  @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
 
-            $('.lineaForm').before(body);
+            $('#tblAjusteInventario > tbody').append(body);
 
+            contadorFila++;
         }
 
         $(".currency").inputmask('currency', {
@@ -792,10 +751,9 @@ else
         });
 
         calcularTotales();
-        inicializaTabla();
-        inicializaCampos(data[data.length -1]);
-
     }
+
+    
 
     function cargarBodegas(data) {
 
@@ -818,29 +776,7 @@ else
         getAjusteInventario();
 
     }
-
-
-    function cargarCostoPromedio(data) {
-
-        costoPromedio.val(data.costoPromedioGeneral);
-        $('#lblItemInfo').text(getItem(data.idInventario).existenciaBodega + " " + data.idUnidadMedidaNavigation.abreviatura);
-        //for (var i = 0; i < data.length; i++) {
-        //    if (parseInt(items.val()) === data[i].idInventario) {
-        //        costoPromedio.val(data[i].costoPromedioGeneral);
-        //        $('#lblItemInfo').text(getItem(data[i].idInventario)[0].existenciaBodega + " " + data[i].idUnidadMedidaNavigation.abreviatura);
-        //        break;
-        //    }
-        //}
-
-       calcularTotalMovimiento();
-    }
-    function calcularTotalMovimiento() {
-
-        var res = parseFloat(cantidad.val()) * parseFloat(costoPromedio.val());
-        if (cantidad.val() === '')
-            res = 0;
-        total.val(res);
-    }
+  
 
     function getItem(id) {
 
@@ -871,68 +807,55 @@ else
             return "@SharedLocalizer["Salida"]";
     }
 
-    function calcularTotales() {
-
-        $entradas.val("");
-        $salidas.val("");
-        entradas = 0;
-        salidas = 0;
+    
 
 
-        for (var i = 0; i < lineas.length; i++) {
-            if (lineas[i].movimiento === "true")
-                entradas += parseFloat(lineas[i].totalMovimiento);
-            else
-                salidas += parseFloat(lineas[i].totalMovimiento);
-        }
+    /////////////////////////////////////////////////////////////////ajax///////////////////////////////////////////////////////////////////////
 
-        $entradas.val(entradas);
-        $salidas.val(salidas);
-        saldo = entradas - salidas;
-        $saldo.val(saldo);
-    }
-
-    function recalcularExistencias(linea) {
-
-
-
-        var item = getItem(parseInt(linea.idInventario))[0];
-
-        if (linea.movimiento === "true") {
-            item.existenciaBodega += parseInt(linea.cantidad);
-        }
-        else if (linea.movimiento === "false") {
-            item.existenciaBodega -= parseInt(linea.cantidad);
-        }
-
-    }
-
-    function inicializaTabla() {
-
-    }
-
-    function guardarAjuste() {
-
-       $.ajax({
-              type: "POST",
+    function getAjusteInventario() {
+        var ajuste = @Model.Id;
+        if (ajuste != 0)
+        $.ajax({
+              type: "get",
               headers: {
                   "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
               },
               dataType: "json",
-            url: '@Url.Action("CrearEditarAjuste", "AjusteInventario")',
-            data: crearModelo(),
+            url: '@Url.Action("GetAjusteinventario", "AjusteInventario")',
+            data: {id: @Model.Id},
             success: function (data) {
-                //console.log(data);
-                window.location.href = "@Url.Action("ListarAjustes","AjusteInventario")";
+                arrayAjusteFromDB = JSON.parse(JSON.stringify(data.tbPrAjusteInventario));
+                cargarLineas(data);
                },
-           error: function (err, scnd) {
-                var msj = '@SharedLocalizer["errorGeneral"]';
-                  cargarAlert(msj);
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
                   console.log(err.statusText);
               }
         });
+    }
+
+    function guardarAjuste() {
+
+        $.ajax({
+            type: "POST",
+            headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("CrearEditarAjuste", "AjusteInventario")',
+            data: crearModelo(),
+            success: function (data) {
+                window.location.href = "@Url.Action("ListarAjustes","AjusteInventario")";
+            },
+            error: function (err, scnd) {
+                var msj = '@SharedLocalizer["errorGeneral"]';
+                cargarAlert(msj);
+                console.log(err.statusText);
+            }
+        });
 
     }
+
     function editarAjuste() {
 
         $.ajax({
@@ -944,7 +867,7 @@ else
             url: '@Url.Action("CrearEditarAjuste", "AjusteInventario")',
             data: crearModeloEditar(),
             success: function (data) {
-                //console.log(data);
+                
                 if (lineasAgregadas.length > 0)
                     guardarAjusteInventario();
                 if (lineasEliminadas.length > 0)
@@ -957,9 +880,6 @@ else
                   console.log(err.statusText);
               }
         });
-
-
-
 
     }
 
@@ -1003,48 +923,63 @@ else
           });
     }
 
+    function getBodegasInventario() {
+
+          $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetBodegaInventario", "AjusteInventario")',
+              success: function (data) {
+                  bodegas = data;
+                  cargarBodegas(data);
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    function getMonedas() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+
+                 monedas = data;
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+
+
+
     function crearModelo() {
 
 
-        var frm = frmAjuste.serializeArray();
-        console.log(frm);
-
-
         var ajusteModel = {
             id: @Model.Id,
-            anulada: frm[1].value,
+            anulada: '@Model.Anulada',
             totalEntrada: entradas,
             totalSalida: salidas,
             saldoAjuste: saldo,
-            idUsuario: frm[2].value,
+            idUsuario: @Model.IdUsuario,
             idBodega: $('#bodegas').val(),
             descripcion: $('#descripcionAjuste').val(),
             fechaDocumento: fechaDocumento.val(),
-            ajusteInventario: lineas
-        };
-
-        return ajusteModel;
-
-    }
-
-    function crearModeloEditar() {
-
-
-        var frm = frmAjuste.serializeArray();
-
-
-
-        var ajusteModel = {
-            id: @Model.Id,
-            anulada: frm[1].value,
-            totalEntrada: entradas,
-            totalSalida: salidas,
-            saldoAjuste: saldo,
-            idUsuario: frm[2].value,
-            idBodega: $('#bodegas').val(),
-            descripcion: frm[4].value,
-            fechaDocumento: fechaDocumento.val(),
-            ajusteInventario: null
+            ajusteInventario: ""
         };
 
         return ajusteModel;
@@ -1061,6 +996,7 @@ else
 
 
                 prepararLinea();
+                
 
             }
             else {
@@ -1246,17 +1182,7 @@ else
         return flag;
     }
 
-    function inicializaCampos(linea) {
-
-        //console.log(linea);
-        $('#items').trigger('change.select2');
-        descripcionLinea.val("");
-        cantidad.val(0);
-        calcularTotalMovimiento();
-
-        if (linea != undefined)
-            movimiento.val(linea.movimiento);
-    }
+    
 
     function cancelar() {
         var msj = "@SharedLocalizer["confirmCancelar"]";
