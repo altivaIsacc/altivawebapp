@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using AltivaWebApp.Domains;
+﻿using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 
 namespace AltivaWebApp.Controllers
 {
@@ -30,7 +28,7 @@ namespace AltivaWebApp.Controllers
         [Route("Lista-Bodegas/{estado?}/{err?}")]
         public ActionResult ListarBodegas(string estado, string err)
         {
-            
+
             var bodegas = new List<TbPrBodega>();
             if (estado == null)
             {
@@ -45,13 +43,13 @@ namespace AltivaWebApp.Controllers
 
             if (err == "err")
                 ViewBag.error = "Error al procesar tu solicitud";
-            
+
             return View(bodegas);
         }
 
         [Route("detalles/{id}")]
         public ActionResult DetallesBodega(int id)
-        {           
+        {
             var bodega = service.GetBodegaById(id);
             ViewData["usuario"] = userService.GetSingleUser((int)bodega.UsuarioEncargado);
             return View(bodega);
@@ -70,9 +68,9 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                
+
                 var existeBodega = service.GetBodegaByNombre(model.Nombre);
-                if(model.Id != 0)
+                if (model.Id != 0)
                 {
                     if (existeBodega != null)
                         if ((int)existeBodega.Id != model.Id)
@@ -119,7 +117,7 @@ namespace AltivaWebApp.Controllers
             return View("../Bodega/CrearEditarBodega", bodega);
         }
 
-        
+
 
         // POST: Bodega/Delete/5
         [Route("CambiarEstado-Bodega/{id}")]
@@ -141,13 +139,13 @@ namespace AltivaWebApp.Controllers
                 {
                     bodega.Estado = true;
                     comentarioES = "Activó la bodega " + bodega.Nombre;
-                }                   
+                }
 
                 service.Update(bodega);
                 var idUsuario = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                 bitacoraMap.CrearBitacora(int.Parse(idUsuario), comentarioES, (int)bodega.Id, "Bodega");
 
-                if ((bool)bodega.Estado)               
+                if ((bool)bodega.Estado)
                     return RedirectToAction(nameof(ListarBodegas));
                 else
                     return RedirectToAction(nameof(ListarBodegas), new { estado = "Inactivas" });

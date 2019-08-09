@@ -1,13 +1,12 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace AltivaWebApp.DomainsConta
+namespace AltivaWebApp.ViewModels
 {
-    [Table("tb_CO_CuentaContable")]
-    public class CatalogoContable
-    {
-        [Key]
+    public class CatalogoContableViewModel
+    {     
         public long IdCuentaContable { get; set; }
         public string CuentaContable { get; set; }
         public string Descripcion { get; set; }
@@ -23,7 +22,5 @@ namespace AltivaWebApp.DomainsConta
         public int IdMonedaEvaluacion { get; set; }
         public int IdTipoConversion { get; set; }
         public bool Inactivo { get; set; }
-       
     }
 }
-

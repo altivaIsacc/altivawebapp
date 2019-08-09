@@ -1,18 +1,22 @@
-﻿using System.Linq;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 
 namespace AltivaWebApp.Controllers
 {
-    using AltivaWebApp.DomainsConta;
     using AltivaWebApp.Context;
-    using System;
+    using AltivaWebApp.DomainsConta;
+    using AltivaWebApp.Mappers;
+    using AltivaWebApp.Services;
+    using AltivaWebApp.ViewModels;
     using System.Security.Claims;
 
     public class CatalogoContaController : Controller
     {
         BaseConta bd;
-
+        readonly ICatalogoContableService service;
+        readonly ICatalogoContableMap map;
+        readonly IBitacoraMapper bitacoraMap;
         public CatalogoContaController(BaseConta _bd)
         {
             bd = _bd;
@@ -25,14 +29,14 @@ namespace AltivaWebApp.Controllers
         }
         public IActionResult u(long id)
         {
-            ViewBag.Titulo = "setCatalogoConta";           
-           ConfiguracionContable c = bd.ConfiguracionContable.FirstOrDefault();
+            ViewBag.Titulo = "setCatalogoConta";
+            ConfiguracionContable c = bd.ConfiguracionContable.FirstOrDefault();
             ViewBag.Formato = c.Ejemplo;
-           var u = bd.CatalogoContable.Find(id);
+            var u = bd.CatalogoContable.Find(id);
             if (u == null)
             {
                 u = new DomainsConta.CatalogoContable();
-               
+
             }
             return View(u);
         }
@@ -43,15 +47,59 @@ namespace AltivaWebApp.Controllers
             ViewBag.Formato = c.Ejemplo;
 
             var padre = bd.CatalogoContable.Find(id);
-            var d = new DomainsConta.CatalogoContable();            
+            var d = new DomainsConta.CatalogoContable();
             d.IdCuentaContablePadre = padre.IdCuentaContable;
             d.CuentaContablePadre = padre.CuentaContable;
             d.CuentaContable = padre.CuentaContable;
             d.DescCuentaPadre = padre.Descripcion;
-            return View("u",d);
+            return View("u", d);
         }
         [BindProperty]
         public CatalogoContable p { get; set; }
+        [HttpPost("CrearEditarBodega")]
+        public ActionResult CrearEditarBodega(CatalogoContableViewModel model)
+        {
+            try
+            {
+
+                var existeBodega = service.GetCatalogoContableByNombre(model.Descripcion);
+                if (model.IdCuentaContable != 0)
+                {
+                    if (existeBodega != null)
+                        if ((int)existeBodega.IdCuentaContable != model.IdCuentaContable)
+                            return Json(new { success = false });
+
+                    var catalogoCuenta = map.Update(model, model.IdCuentaContable);
+                    var idUsuario = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+                    string comentarioES = "Editó la cuenta contable " + catalogoCuenta.Descripcion;
+
+                    bitacoraMap.CrearBitacora(int.Parse(idUsuario), comentarioES, (int)catalogoCuenta.IdCuentaContable, "CatalogoCuentaContable");
+
+                    return Json(new { success = true });
+                }
+                else
+                {
+                    if (existeBodega != null)
+                        return Json(new { success = false });
+
+                    var catalogoCuenta = map.Create(model);
+                    var idUsuario = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                    string comentarioES = "Creo una cuenta contable " + catalogoCuenta.Descripcion;
+                    //string comentarioIN = "Creo una nueva bitacora";
+                    bitacoraMap.CrearBitacora(int.Parse(idUsuario), comentarioES, (int)catalogoCuenta.IdCuentaContable, "CatalogoCuentaContable");
+                    return Json(new { success = true });
+
+                }
+
+
+            }
+            catch
+            {
+                //throw;
+                return BadRequest();
+            }
+        }
         public IActionResult guardar()
         {
             if (!ModelState.IsValid)
@@ -73,7 +121,8 @@ namespace AltivaWebApp.Controllers
             {
                 _Cambios.CuentaContablePadre = p.CuentaContablePadre;
             }
-            else {
+            else
+            {
                 _Cambios.CuentaContablePadre = "";
 
             }
@@ -81,7 +130,8 @@ namespace AltivaWebApp.Controllers
             {
                 _Cambios.DescCuentaPadre = p.DescCuentaPadre;
             }
-            else {
+            else
+            {
                 _Cambios.DescCuentaPadre = "";
             }
             _Cambios.Movimiento = p.Movimiento;
@@ -92,7 +142,8 @@ namespace AltivaWebApp.Controllers
                 _Cambios.Notas = p.Notas;
 
             }
-            else {
+            else
+            {
                 _Cambios.Notas = "";
 
             }

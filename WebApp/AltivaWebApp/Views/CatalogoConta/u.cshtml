@@ -46,13 +46,17 @@
                     </div>
                     <div class="form-group">
                         <label asp-for="CuentaContable" class="control-label"><span class="text-danger"></span>@lb["CuentaContable"]:</label>
-                        <input asp-for="CuentaContable" class="form-control" required maxlength="255" placeholder=@ViewBag.Formato data-mask=@ViewBag.Formato />
+                        <input asp-for="CuentaContable" id="CuentaContableInput" class="form-control" required maxlength="255" placeholder=@ViewBag.Formato data-mask=@ViewBag.Formato />
+                        <span hidden id="duplicacionCuentaValid" class="text-danger">@lb["repetidoValid"]</span>
+                        <span hidden id="nombreCuentaValid" class="text-danger">@lb["nombreValid"]</span>
                     </div>
 
                     <div class="form-group">
                         <label asp-for="Descripcion" class="control-label">@lb["Descripcion"]:</label>
                         <input asp-for="Descripcion" class="form-control" required maxlength="250" />
                         <span asp-validation-for="Descripcion" class="text-danger"></span>
+                        <span hidden id="duplicacionDescripcionValid" class="text-danger">@lb["repetidoValid"]</span>
+                        <span hidden id="nombreDescripcionValid" class="text-danger">@lb["nombreValid"]</span>
                     </div>
 
                     <div class="form-group">
@@ -113,7 +117,53 @@
             </div>
 
         </div>
-    </div>
+        <script>
+            
+    function validarForm() {
+        var flag = true;
+
+        var contador = 0;
+
+        var nombre = $('#CuentaContableInput').val().replace(/ /g, "");
+        if (nombre.length < 1) {
+            $('#nombreCuentaValid').attr('hidden', false);
+            flag = false;
+        } else
+            $('#nombreCuentaValid').attr('hidden', true);            
+               
+
+        if (flag)
+            guardarCambios();
+            }
+            
+    function guardarCambios() {
+
+        var frm = $('#frmBodega').serializeArray();
+
+        var url = '@Url.Action("CrearEditarBodega", "Bodega")';
+
+        $.ajax({
+
+            type: "post",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+            data: frm,
+            success: function (data) {
+                if (!data.success)
+                    $('#duplicacionValid').attr('hidden', false);
+                else
+                    window.location.href = '@Url.Action("ListarBodegas")';
+                },
+             error: function (err) {
+                 cargarAlert('@lb["errorGeneral"]');
+                 console.log(err.success);
+             }
+        });
+
+    }
+            </script>
 
 </body>
 </html>
