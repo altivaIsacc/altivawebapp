@@ -115,7 +115,7 @@ else
 
         <form id="frmLinea">
             <div class="form-group col-md-3 col-sm-3 col-xs-4">
-                <label class="control-label">@Lb["Item"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                <label id="lblItem" class="control-label">@Lb["Item"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
                 <input id="items" onkeyup="pasarSigCampo(event,'movimiento')" class="form-control autocomplete" autofocus type="text" />
                 @*<select id="items" onkeyup="pasarSigCampo(event,'movimiento')" class="form-control autocomplete" autocomplete="off" autofocus type="text">
 
@@ -251,6 +251,48 @@ else
 
 
 </div>
+
+
+<div class="modal fade" id="lineaModal" tabindex="-1" role="dialog" aria-labelledby="lineaModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header row">
+                <div class="col-md-10 col-sm-10 col-xs-10" style="text-align:left">
+                    <h4 class="modal-title" id="lineaModalLabel">@Lb["Editar"] @Lb["Línea"]</h4>
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2" style="text-align:right">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body row">
+                <div hidden class="form-group col-md-2 col-sm-2 col-xs-12">
+                    <input readonly id="idLinea" class="form-control" type="number" />
+                </div>
+                <div class="form-group col-md-2 col-sm-2 col-xs-12">
+                    <label class="control-label">@Lb["Cantidad"]:</label>
+                    <input id="cantidadEditar" class="form-control numerico" value="1" type="text" />
+                </div>
+                <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                    <label class="control-label">@Lb["CostoPromedio"]:</label>
+                    <input id="costoEditar" class="form-control moneda" type="text" />
+                </div>
+
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <button type="button" onclick="editarLinea()" data-dismiss="modal" class="btn btn-success">@Lb["Guardar"]</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
 <div class="form-group row">
     <div class="col-md-12">
         <button @estado2 class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
@@ -346,8 +388,6 @@ else
         getMonedas();
 
 
-        $('.selectItem').select2();
-        
         getBodegasInventario();
 
         validaAnulacion();
@@ -461,7 +501,7 @@ else
             cuentaContable: $('#cuentaContable option:selected').text(),
             cuentaCosto: $('#cuentaCosto option:selected').text(),
             nombreItem: item.descripcion,
-            descItem: item.codigo
+            codItem: item.codigo
         };
 
 
@@ -493,13 +533,91 @@ else
         $lblExistencia.text("");
     }
 
-    function eliminarLinea(_id, idLinea) {
+    function cargarLineas(array) {
+
+        var data = array.tbPrAjusteInventario;
+
+        console.log(array);
+
+        for (var i = 0; i < data.length; i++) {
+
+            var item = data[i];
+
+
+            var desCCont = getCContInfo(item.idCuentaContable);
+            var desCCost = getCCostInfo(item.idCentroGastos);
+
+            var model = {
+
+                id: 0,
+                idAjuste: @Model.Id,
+                idInventario: item.idInventario,
+                descripcion: "n/a",
+                movimiento: item.movimiento.toString(),
+                cantidad: item.cantidad,
+                costoPromedio: item.costoPromedio,
+                totalMovimiento: item.totalMovimiento,
+                idCuentaContable: item.idCuentaContable,
+                idCentroGastos: item.idCentroGastos,
+                cuentaContable: desCCont.cuentaContable + " - " + desCCont.descripcion,
+                cuentaCosto: desCCost.codigo + " - " + desCCost.nombre,
+                nombreItem: item.idInventarioNavigation.descripcion,
+                codItem: item.idInventarioNavigation.codigo
+
+            };
+
+            lineas.push(model);
+
+        }
+
+        
+
+        cargarTabla(lineas);
+
+    }
+
+
+    function modalEditarLinea(key) {
+
+        var linea = lineas[key];
+
+        $('#idLinea').val(key);
+        $('#cantidadEditar').val(linea.cantidad);
+        $('#costoEditar').val(linea.costoPromedio);
+
+        $('#lineaModal').modal('show');
+
+    }
+
+    function editarLinea() {
+
+        var key = $('#idLinea').val();
+
+        lineas[key].cantidad = parseFloat($('#cantidadEditar').val());
+        lineas[key].costoPromedio = parseFloat($('#costoEditar').val().replace(/,/g, ""));
+        lineas[key].totalMovimiento = lineas[key].cantidad * lineas[key].costoPromedio;
+
+        var flag = false;
+        for (var i = 0; i < lineasCrOrUp.length; i++) {
+            if (lineasCrOrUp[i].idInventario == lineas[key].idInventario) {
+                lineasCrOrUp[i] = lineas[key];
+                flag = true;
+                break;
+            }
+        }
+
+        if (!flag)
+            lineasCrOrUp.push(lineas[key]);
+
+        cargarTabla(lineas);
+
+    }
+
+    function eliminarLinea(id, idLinea) {
 
         bootbox.confirm("@SharedLocalizer["confirmEliminarLinea"]", function (result) {
 
             if (result) {
-
-                var id = _id - 1;
 
                 if (validarExistencia(id)) {
                     if (idLinea != 0)
@@ -650,12 +768,18 @@ else
 
         }
 
-        console.log(arrayItems);
+        var items = [];
+        items = arrayItems;
 
-        var items = arrayItems;
+        //$('#items').remove();
+        //$('#lblItem').after('<input id="items" onkeyup="pasarSigCampo(event,movimiento)" class="form-control autocomplete" autofocus type="text" />');
+
+        $('.autocomplete').unbind().removeData();
+
         $('.autocomplete').autoComplete({
             resolver: 'custom',
             formatResult: function (item) {
+
                 return {
                     value: item.idInventario,
                     text:  item.codigo,
@@ -687,6 +811,8 @@ else
                         }
 
                     }
+
+                    
 
                     callback(filtrado);
                 }
@@ -729,16 +855,16 @@ else
 
         for (var i = 0; i < data.length; i++) {
             
-            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' +  data[i].nombreItem + '</td>'
-                + '<td style="padding-top:2rem;">' + getMovimiento(data[i].movimiento) + '</td>'
-                + '<td style="padding-top:2rem;">' + data[i].cantidad + '</td>'
-                + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].costoPromedio + '"/></td>'
-                + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].totalMovimiento + '"/></td>'
-                + '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaContable +'</a></td>'
+            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td >' +  data[i].nombreItem + '</td>'
+                + '<td >' + getMovimiento(data[i].movimiento) + '</td>'
+                + '<td >' + data[i].cantidad + '</td>'
+                + '<td ><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].costoPromedio + '"/></td>'
+                + '<td ><input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].totalMovimiento + '"/></td>'
+                + '<td ><a class"btn btn-link" href="#">' + data[i].cuentaContable +'</a></td>'
                 //+ '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaContable.codigo + ' - ' + data[i].cuentaContable.descripcion + '</a></td>'
                 //+ '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaCosto.codigo + ' - ' + data[i].cuentaCosto.descripcion + '</a></td>'
-                + '<td style="padding-top:2rem;"><a class"btn btn-link" href="#">' + data[i].cuentaCosto +'</a></td>'
-                + '<td><button @estado2  @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                + '<td><a class"btn btn-link" href="#">' + data[i].cuentaCosto +'</a></td>'
+                + '<td><a  href="#" style="font-size:1.8rem;" onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-edit"></i></a>&nbsp;&nbsp; <a href="#" style="font-size:1.8rem;" value="' + contadorFila + '" onclick="eliminarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-trash"></i></a></td></tr>';
 
             $('#tblAjusteInventario > tbody').append(body);
 
