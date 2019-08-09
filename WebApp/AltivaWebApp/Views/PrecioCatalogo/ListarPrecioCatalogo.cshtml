@@ -17,7 +17,7 @@
 <div class="row">
     <div class="col-md-12"><label>@SharedLocalizer["TiposPrecio"]:</label></div>
     <div class="col-md-2">
-        <select id="precios"  class="form-control search-key">
+        <select id="precios"  class="form-control search-key ">
     
         </select>
     </div>
@@ -39,12 +39,12 @@
                     <span>@SharedLocalizer["Eligir"] </span>
                 </th>
                 <th style="width:10%">
-                    <span>@SharedLocalizer["Producto"]</span>
+                    <span>@SharedLocalizer["Articulo"]</span>
                 </th>
-                <th style="width:3%">
+                <th style="width:1%">
                     <span>@SharedLocalizer["Presentación"]</span>
                 </th>
-                <th style="width:20%">
+                <th style="width:15%">
                     <span>@SharedLocalizer["CostoPromedio"]</span>
                 </th>
                 <th style="width:15%">
@@ -54,10 +54,10 @@
                     <span>@SharedLocalizer["Impuesto"]</span>
                 </th>
                 <th style="width:15%">
-                    <span>@SharedLocalizer["Precio sin impuesto"]</span>
+                    <span>@SharedLocalizer["PrecioSinImpuesto"]</span>
                 </th>
                 <th style="width:15%">
-                    <span>@SharedLocalizer["Precio con impuesto"]</span>
+                    <span>@SharedLocalizer["PrecioConImpuesto"]</span>
                 </th>
             </tr>
         </thead>
@@ -73,7 +73,7 @@
 <div class="row">
 
     <div class="col-md-2">
-        <input type="checkbox" id="marcar" /><span>Marcar/ Desmarcar todos</span>
+        <input type="checkbox" id="marcar" /><span>@SharedLocalizer["SelectTodos"]</span>
         
     </div>
 
@@ -95,7 +95,7 @@
 <div class="row">
     <div class="form-group col-md-12">
         <button onclick = "guardarCambios()" class="btn btn-success"><span>@SharedLocalizer["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
-        <a class="btn btn-default" id="btnCancelar" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
+       
     </div>
 </div>
 <div>
@@ -113,8 +113,8 @@
                     <div class="row">
                         
                         <div class="form-group col-sm-7">
-                            <label class="control-label">@SharedLocalizer["Utilidad deseada"]</label>
-                            <input id="editUtilidad" class="form-control numerico" />
+                            <label class="control-label">@SharedLocalizer["UtilidadDeseada"]</label>
+                            <input id="editUtilidad" class="form-control porc" />
                         </div>
                        
                         <div class="form-group col-sm-7">
@@ -133,21 +133,33 @@
 
 
 <script>
+    var allLineas = [];
     var lineas = [];
     var lineasFInventario = [];
     var lineasFPrecio = [];
-    var lineasFiltradas = [];
     var inventario = [];
-    var precios = [];
+    var lineasActualizadas = [];
+  
     $(document).ready(function () {
         getInventario();
-         getPrecios();
-      
+         getFamilias();
+        getPrecios();
+        //getPrecioCatalogo();
+        $.ajax({
+              type: "get",
+              dataType: "json",
+            url: '@Url.Action("GetPrecioCatalogo")',
 
-       
-
-    
-
+              success: function (data) {
+                  allLineas = JSON.parse(JSON.stringify(data));
+                 
+                 
+               },
+            error: function (err, scnd) {
+               cargarAlert('@SharedLocalizer["errorGeneral"]');
+            }
+          });
+  
     });
     ///Eventos directos///
     
@@ -155,27 +167,27 @@
          alert($("#id").val());
     });
     $('#precios').change(function () {
+
         lineas = [];
-        getPrecioCatalogo();
-           
+        $("#marcar").prop('checked', false);
+         cargarFiltros();
      });
      $('.selectFiltro').change(function () {
-
          lineas = [];
-        getInventario();
+         cargarFiltros();
      });
     
     $("#marcar").change(function () {
         if ($(this).is(':checked')) {
             $("#marcados input[type=checkbox]").prop('checked', true);
-            for (var i = 0; i < lineasFPrecio.length; i++) {
-                lineasFPrecio[i].marcador = true;
+            for (var i = 0; i < lineas.length; i++) {
+                lineas[i].marcador = true;
             }
         }
         else {
             $("#marcados input[type=checkbox]").prop('checked', false);
-            for (var i = 0; i < lineasFPrecio.length; i++) {
-                lineasFPrecio[i].marcador = false;
+            for (var i = 0; i < lineas.length; i++) {
+                lineas[i].marcador = false;
             }
         }
           
@@ -197,26 +209,26 @@
         });
     
     ///Ajax///
-     function guardarCambios() {
-       
-         alert("ww");
-         var model = crearModelo(lineasFPrecio);
+    function guardarCambios() {
+       console.log(lineasActualizadas);
+         
+         var model = crearModelo();
 
 
         $.ajax({
-              type: "POST",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
             url: '@Url.Action("EditarPrecioCatalogo")',
-            data: model,
+            data: {viewModel: model},
             success: function (data) {
 
                 if (data.success) {
                     
                     alert("cambios realizados exitosamente");
-                    getInventario();
+                     window.location.href = "@Url.Action("ListarPrecioCatalogo")";
                 }
  
             },
@@ -254,22 +266,7 @@
         });
     }
    
-    function getPrecioCatalogo() {
-          $.ajax({
-              type: "get",
-              dataType: "json",
-            url: '@Url.Action("GetPrecioCatalogo")',
-
-              success: function (data) {
-                 
-                  cargarFiltros(data);
-                 
-               },
-            error: function (err, scnd) {
-               cargarAlert('@SharedLocalizer["errorGeneral"]');
-            }
-        });
-    }
+   
      function getPrecios() {
           $.ajax({
               type: "get",
@@ -277,8 +274,8 @@
             url: '@Url.Action("GetPrecios", "Precios")',
 
               success: function (data) {
-                  $("#precios").val("");
-                  precios = JSON.parse(JSON.stringify(data));
+                 
+                 
                   for (var i = 0; i < data.length; i++) {
                       var o = new Option(data[i].nombre, data[i].id);
                       $("#precios").append(o);
@@ -290,12 +287,7 @@
         });
     }
     function getInventario() {
-       lineas = [];
-     lineasFInventario = [];
-     lineasFPrecio = [];
-     lineasFiltradas = [];
-     inventario = [];
-    
+     
           $.ajax({
               type: "get",
                headers: {
@@ -305,13 +297,8 @@
             url: '@Url.Action("GetAllInventario", "Inventario")',
 
               success: function (data) {
-                    inventario = JSON.parse(JSON.stringify(data));
-                   
-                    getFamilias();
-                    getPrecioCatalogo();
-                  
-                 
-
+                  inventario = JSON.parse(JSON.stringify(data));
+                  cargarFiltros();
                },
             error: function (err, scnd) {
                cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -322,12 +309,14 @@
     ///helpers///
     function cambiarUtilidad()
     {
-         for (var i = 0; i < lineasFPrecio.length; i++) {
-             if (lineasFPrecio[i].marcador == true)
+        var editUtilidad = parseFloat($('#editUtilidad').val());
+        console.log(editUtilidad);
+         for (var i = 0; i < lineas.length; i++) {
+             if (lineas[i].marcador == true)
              {
-                 lineasFPrecio[i].porcUtilidad = parseFloat($('#editUtilidad').val());
-                 calcular(i, 1, lineasFPrecio[i].porcUtilidad);
-                 lineasFPrecio[i].marcador = false;
+                
+                 calcular(i, 1, editUtilidad);
+                 lineas[i].marcador = false;
              }
         }
      $("#marcar").prop('checked', false);
@@ -370,9 +359,11 @@ $('#modalCambiarU').modal('hide');
         }
     }
 
-    function cargarFiltros(data) {
+    function cargarFiltros() {
+        lineasFInventario = [];
+        lineasFPrecio = [];
         cargarFiltrosFamilia();
-        lineasFPrecio = JSON.parse(JSON.stringify(data));
+        lineasFPrecio = JSON.parse(JSON.stringify(allLineas));
         lineasFPrecio = filtrarPrecio(lineasFPrecio);
         lineasFPrecio = filtrarFamilias(lineasFPrecio);
         cargarLineas(lineasFPrecio);
@@ -380,7 +371,6 @@ $('#modalCambiarU').modal('hide');
      }
     function filtroFamilia(lineasFInventario) {
 
-        //console.log(lineasFInventario);
 
         var inventarioFiltrado = [];
         var idFamilia = parseInt($('#filtroFamilia').val());
@@ -403,7 +393,6 @@ $('#modalCambiarU').modal('hide');
                 }
             }
 
-            //console.log(inventarioFiltrado);
 
             return inventarioFiltrado;
 
@@ -430,7 +419,6 @@ $('#modalCambiarU').modal('hide');
                 }
 
             }
-            //console.log(subF);
 
             for (var i = 0; i < lineasFInventario.length; i++) {
                 if (lineasFInventario[i].idSubFamilia == subF.id)
@@ -485,7 +473,7 @@ $('#modalCambiarU').modal('hide');
     function getItemCosto(id) {
         for (var i = 0; i < inventario.length; i++) {
             if (inventario[i].idInventario == parseInt(id))
-                return inventario[i].costoPromedioGeneral;
+                return parseFloat(inventario[i].costoPromedioGeneral.toFixed(2));
         }
     }
     function getItemImp(id) {
@@ -509,8 +497,8 @@ $('#modalCambiarU').modal('hide');
                   idInventario: data[i].idInventario,
                   idTipoPrecio: data[i].idTipoPrecio,
                   porcUtilidad: data[i].porcUtilidad,
-                  precioSinImpuesto: data[i].precioSinImpuesto,
-                  precioFinal : data[i].precioFinal
+                  precioSinImpuesto:data[i].precioSinImpuesto,
+                  precioFinal: data[i].precioFinal
 
               };
 
@@ -529,15 +517,15 @@ $('#modalCambiarU').modal('hide');
 
         for (var i = 0; i < data.length; i++) {
             
-                var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;"> <input type="checkbox" onchange="marcar(' + contadorFila + ')"  class="case" value="' + data[i].idPrecioCatalogo + '" /></td>'
-                    + '<td style="padding-top:2rem;"><input readonly style="border:0; background-color : #F7F7F7" value="' + data[i].producto + '"/></td>'
-                    + '<td style="padding-top:2rem;"><input readonly style="border:0; background-color : #F7F7F7" value="' + data[i].presentacion + '"/></td>'
-                    + '<td style="padding-top:2rem;">' + data[i].costo + ' </td>'
-                    + '<td style="padding-top:2rem; width:12rem;"><input id="utilidad" onchange="calcular(' + contadorFila + ',' + 1 + ', value)"   style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].porcUtilidad + '"/></td>'
-                    + '<td style="padding-top:2rem; width:12rem;"><input id="impuesto"  style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].impuesto + '"/></td>'
-                    + '<td style="padding-top:2rem; width:12rem;"><input id="precioSinImpuesto" onchange="calcular(' + contadorFila + ',' + 2 + ', value)" style="border:0; background-color : #F7F7F7"  value="' + data[i].precioSinImpuesto + '"/></td>'
-                    + '<td hidden style="padding-top:2rem; width:12rem;"><input id="id" style="border:0; background-color : #F7F7F7"  value="' + data[i].idPrecioCatalogo + '"/></td>'
-                    + '<td style="padding-top:2rem; "><input id="precioConImpuesto" onchange="calcular(' + contadorFila + ',' + 3 + ',value)" style="width:6rem; border:0; background-color : #F7F7F7"  value="' + data[i].precioFinal + '"/></td></tr>';
+                var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td> <input type="checkbox" onchange="marcar(' + contadorFila + ')"  class="case" value="' + data[i].idPrecioCatalogo + '" /></td>'
+                    + '<td ><input readonly style="border:0; background-color : #F7F7F7" value="' + data[i].producto + '"/></td>'
+                    + '<td><input readonly style="border:0; background-color : #F7F7F7" value="' + data[i].presentacion + '"/></td>'
+                    + '<td ><input class="moneda" readonly style="border:0; background-color : #F7F7F7" value="' + data[i].costo  + '"/></td>'
+                    + '<td ><input id="utilidad" class=" form-control porc" onchange="calcular(' + contadorFila + ',' + 1 + ', value)"    value="' + data[i].porcUtilidad + '"/></td>'
+                    + '<td ><input id="impuesto"  style="width:6rem;border:0; background-color : #F7F7F7" class="currency " value="' + data[i].impuesto + '%"/></td>'
+                    + '<td ><input id="precioSinImpuesto" class=" form-control moneda"  onchange="calcular(' + contadorFila + ',' + 2 + ', value)"   value="' + data[i].precioSinImpuesto + '"/></td>'
+                    + '<td hidden style="padding-top:2rem; width:12rem;"><input id="id"   style=" border:0; background-color : #F7F7F7"  value="' + data[i].idPrecioCatalogo + '"/></td>'
+                    + '<td ><input id="precioConImpuesto" class=" form-control moneda" onchange="calcular(' + contadorFila + ',' + 3 + ',value)"  value="' + data[i].precioFinal + '"/></td></tr>';
 
                 $('.lineaForm').before(body);
 
@@ -546,7 +534,17 @@ $('#modalCambiarU').modal('hide');
             
 
         }
-        
+       
+              $(".porc").inputmask({
+           'alias': 'percentage',
+           rightAlign: false,
+       });
+
+$(".moneda").inputmask('currency', {
+           prefix: '',
+           rightAlign: true,
+           min: 0
+       });
       
     }
     function marcar(pos) {
@@ -555,9 +553,12 @@ $('#modalCambiarU').modal('hide');
         else
             lineas[pos].marcador = true; 
     }
-    function calcular(pos, numero, valor)
+    function calcular(pos, numero, _valor)
     {
+       
+        var existe = false;
         if (numero == 3)
+         var valor = _valor.replace(/,/g, "")
         {   lineas[pos].precioFinal = parseFloat(valor);
             lineas[pos].precioSinImpuesto = calcularSinImpuesto(pos);
             lineas[pos].porcUtilidad = calcularUtilidad(pos);
@@ -566,16 +567,30 @@ $('#modalCambiarU').modal('hide');
         }
          if (numero == 2)
          {
-             lineas[pos].precioSinImpuesto = valor;
+              var valor = _valor.replace(/,/g, "")
+             lineas[pos].precioSinImpuesto = parseFloat(valor);
               lineas[pos].precioFinal = calcularConImpuesto(pos);
               lineas[pos].porcUtilidad = calcularUtilidad(pos);
-        }
+         }
           if (numero == 1)
           {
-                 lineas[pos].porcUtilidad = valor;
+              
+              lineas[pos].porcUtilidad = parseFloat(_valor);
             lineas[pos].precioSinImpuesto = calcularSinImpuesto(pos);
             lineas[pos].precioFinal = calcularConImpuesto(pos);
+          }
+        for (var i = 0; i < allLineas.length; i++) {
+            if (allLineas[i].idPrecioCatalogo == lineas[pos].idPrecioCatalogo)
+                allLineas[i] = lineas[pos];
         }
+        for (var j = 0; j < lineasActualizadas.length; j++) {
+            if (lineasActualizadas[j].idPrecioCatalogo == lineas[pos].idPrecioCatalogo) {
+                lineasActualizadas[j] = lineas[pos];
+                existe = true;
+            }
+        }
+        if (!existe)
+ lineasActualizadas[lineasActualizadas.length] = lineas[pos];
         cargarTabla(lineas);
     }
 
@@ -622,8 +637,8 @@ $('#modalCambiarU').modal('hide');
 
     function calcularUtilidad(pos)
     {
-        var sinimpuesto;
-        if (parseFloat(lineas[pos].precioSinImpuesto) == 0)
+        var sinimpuesto = 0;
+        if (lineas[pos].precioSinImpuesto == 0.00)
             sinimpuesto = calcularSinImpuesto(pos);
         else
             sinimpuesto = parseFloat(lineas[pos].precioSinImpuesto);
@@ -632,20 +647,30 @@ $('#modalCambiarU').modal('hide');
 
     }
 
-    function crearModelo(lineas) {
+    function crearModelo() {
+        var actualizar = [];
+        for (var i = 0; i < lineasActualizadas.length; i++) {
+            lineasActualizadas[i].idPrecioCatalogo = lineasActualizadas[i].idPrecioCatalogo.toString().replace(".", ",");
+            lineasActualizadas[i].idInventario = lineasActualizadas[i].idInventario.toString().replace(".", ",");
+            lineasActualizadas[i].idTipoPrecio = lineasActualizadas[i].idTipoPrecio.toString().replace(".", ",");
+            lineasActualizadas[i].porcUtilidad = lineasActualizadas[i].porcUtilidad.toString().replace(".", ",");
+            lineasActualizadas[i].precioSinImpuesto = lineasActualizadas[i].precioSinImpuesto.toString().replace(".", ",");
+            lineasActualizadas[i].precioFinal = lineasActualizadas[i].precioFinal.toString().replace(".", ",");
+             var model = {
+                  idPrecioCatalogo:lineasActualizadas[i].idPrecioCatalogo,
+                  idInventario:  lineasActualizadas[i].idInventario,
+                  idTipoPrecio:   lineasActualizadas[i].idTipoPrecio,
+                  porcUtilidad:  lineasActualizadas[i].porcUtilidad,
+                  precioSinImpuesto: lineasActualizadas[i].precioSinImpuesto,
+                  precioFinal: lineasActualizadas[i].precioFinal
 
-        for (var i = 0; i < lineas.length; i++) {
-            lineas[i].idPrecioCatalogo = lineas[i].idPrecioCatalogo.toString().replace(".", ",");
-            lineas[i].idInventario = lineas[i].idInventario.toString().replace(".", ",");
-            lineas[i].idTipoPrecio = lineas[i].idTipoPrecio.toString().replace(".", ",");
-            lineas[i].porcUtilidad = lineas[i].porcUtilidad.toString().replace(".", ",");
-            lineas[i].precioSinImpuesto = lineas[i].precioSinImpuesto.toString().replace(".", ",");
-            lineas[i].precioFinal = lineas[i].precioFinal.toString().replace(".", ",");
+              };
+
+              actualizar.push(model);
             
-           
-        }
+          }
 
-        return lineas;
+        return actualizar;
     }
     
 
