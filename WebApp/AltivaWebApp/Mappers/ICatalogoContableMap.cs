@@ -3,7 +3,7 @@ using AltivaWebApp.ViewModels;
 
 namespace AltivaWebApp.Mappers
 {
-    interface ICatalogoContableMap
+   public  interface ICatalogoContableMap
     {
         CatalogoContable Create(CatalogoContableViewModel viewModel);
         CatalogoContable Update(CatalogoContableViewModel viewModel, long id);
