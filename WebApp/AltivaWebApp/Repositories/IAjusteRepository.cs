@@ -14,7 +14,8 @@ namespace AltivaWebApp.Repositories
         IList<TbPrAjuste> GetAllAjustes();
         TbPrAjuste GetAjusteById(int id);
         bool SaveAjusteInventario(IList<TbPrAjusteInventario> domain);
-        void DeleteAjusteInventario(IList<int> id, int idAjuste);
+        void DeleteAjusteInventario(IList<long> domain);
+        bool UpdateAjusteInventario(IList<TbPrAjusteInventario> domain);
         IList<TbCoCuentaContable> GetAllCC();
         IList<TbCoCentrosDeGastos> GetAllCG();
 
