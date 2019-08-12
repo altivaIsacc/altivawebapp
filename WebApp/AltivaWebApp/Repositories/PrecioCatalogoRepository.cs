@@ -44,7 +44,36 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+        public bool SaveFromInventario(int idInventario)
+        {
+            try
+            {
+                
+            context.Database.ExecuteSqlCommand($"EXECUTE dbo.pr_PR_SaveFromInventario {idInventario}");
 
+                return true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+            public bool SaveFromPrecios(int idTipoPrecio)
+        {
+            try
+            {
+                context.Database.ExecuteSqlCommand($"EXECUTE dbo.pr_PR_SaveFromPrecios {idTipoPrecio}");
+
+
+                return true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
 
     }
 }

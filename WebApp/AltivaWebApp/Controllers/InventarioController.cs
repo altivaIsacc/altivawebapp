@@ -26,9 +26,11 @@ namespace AltivaWebApp.Controllers
         readonly IFamiliaService familiaService;
         readonly IFamiliaOnlineService familiaOnlineService;
         readonly IMonedaService monedaService;
+        readonly IPreciosService preciosService;
+        readonly IPrecioCatalogoService precioCatalogoService;
         private readonly IStringLocalizer<SharedResources> _sharedLocalizer;
         readonly IHostingEnvironment hostingEnvironment;
-        public InventarioController(IStringLocalizer<SharedResources> sharedLocalizer, IHostingEnvironment hostingEnvironment, IMonedaService monedaService, IFamiliaService familiaService,IFamiliaOnlineService familiaOnlineService, IUnidadService unidadService, IBodegaService bodegaService, IInventarioService service, IInventarioMap map)
+        public InventarioController(IStringLocalizer<SharedResources> sharedLocalizer, IHostingEnvironment hostingEnvironment, IMonedaService monedaService, IFamiliaService familiaService,IFamiliaOnlineService familiaOnlineService, IUnidadService unidadService, IBodegaService bodegaService, IInventarioService service, IInventarioMap map, IPreciosService preciosService, IPrecioCatalogoService precioCatalogoService)
         {
             this.service = service;
             this.map = map;
@@ -38,6 +40,8 @@ namespace AltivaWebApp.Controllers
             this.familiaOnlineService = familiaOnlineService;
             this.monedaService = monedaService;
             this.hostingEnvironment = hostingEnvironment;
+            this.preciosService = preciosService;
+            this.precioCatalogoService = precioCatalogoService;
         }
 
 
@@ -180,7 +184,9 @@ namespace AltivaWebApp.Controllers
                         var idUser = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                         model.IdUsuario = int.Parse(idUser);
                         inventario = map.Create(model);
-                        idInventario = (int) inventario.IdInventario;
+                        var precios = preciosService.GetAll();
+                        precioCatalogoService.SaveFromInventario(idInventario);
+
                     }
                 }
                 else

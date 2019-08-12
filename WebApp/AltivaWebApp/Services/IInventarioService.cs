@@ -9,6 +9,8 @@ namespace AltivaWebApp.Services
     public interface IInventarioService
     {
         TbPrInventarioBodega UpdateIBodega(TbPrInventarioBodega domain);
+        IList<TbPrInventario> GetAllByCoincidence(string word);
+        IList<TbPrInventario> GetInventarioFacturable();
         TbPrInventario GetInventarioById(int id);
         TbPrInventarioBodega GetInventarioBodegaById(int id);
         IList<TbPrImagenInventario> GetInventarioImagenById(int id);

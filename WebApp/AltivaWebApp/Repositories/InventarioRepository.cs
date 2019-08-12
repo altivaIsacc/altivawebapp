@@ -15,12 +15,24 @@ namespace AltivaWebApp.Repositories
         {
 
         }
-
+        public IList<TbPrInventario> GetAllByCoincidence(string word)
+        {
+            return (from i in context.TbPrInventario
+                    where
+                      EF.Functions.Like(i.IdInventario.ToString(), $"%{word}%") ||
+                      EF.Functions.Like(i.Descripcion, $"%{word}%") ||
+                      EF.Functions.Like(i.Codigo, $"%{word}%") && i.HabilitarVentaDirecta
+                    select i
+                    ).ToList(); //context.TbPrInventario.Where(i => i.IdInventario like word);
+        }
         public TbPrInventario GetInventarioById(int id)
         {
             return context.TbPrInventario.FirstOrDefault(i => i.IdInventario == id);
         }
-        
+        public IList<TbPrInventario> GetInventarioFacturable()
+        {
+            return context.TbPrInventario.Where(i => i.HabilitarVentaDirecta == true).ToList();
+        }
         public TbPrInventarioBodega UpdateIBodega(TbPrInventarioBodega domain)
         {
             try
