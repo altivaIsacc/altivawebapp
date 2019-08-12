@@ -56,17 +56,17 @@ namespace AltivaWebApp.Controllers
         }
         [BindProperty]
         public CatalogoContable p { get; set; }
-        [HttpPost("CrearEditarBodega")]
-        public ActionResult CrearEditarBodega(CatalogoContableViewModel model)
+        [HttpPost("Guardar")]
+        public ActionResult Guardar(CatalogoContableViewModel model)
         {
             try
             {
 
-                var existeBodega = service.GetCatalogoContableByNombre(model.Descripcion);
+                var existeCuenta = service.GetCatalogoContableByNombre(model.Descripcion);
                 if (model.IdCuentaContable != 0)
                 {
-                    if (existeBodega != null)
-                        if ((int)existeBodega.IdCuentaContable != model.IdCuentaContable)
+                    if (existeCuenta != null)
+                        if ((int)existeCuenta.IdCuentaContable != model.IdCuentaContable)
                             return Json(new { success = false });
 
                     var catalogoCuenta = map.Update(model, model.IdCuentaContable);
@@ -80,7 +80,7 @@ namespace AltivaWebApp.Controllers
                 }
                 else
                 {
-                    if (existeBodega != null)
+                    if (existeCuenta != null)
                         return Json(new { success = false });
 
                     var catalogoCuenta = map.Create(model);
