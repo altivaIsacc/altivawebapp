@@ -21,7 +21,7 @@ namespace AltivaWebApp.Mappers
             return service.Save(ViewModelToDomain(viewModel));
         }
 
-        public TbPrPrecioCatalogo Update(PrecioCatalogoViewModel viewModel)
+        public bool Update(IList<PrecioCatalogoViewModel> viewModel)
         {
             return service.Update(ViewModelToDomainEditar(viewModel));
         }
@@ -37,13 +37,22 @@ namespace AltivaWebApp.Mappers
                PrecioFinal = viewModel.PrecioFinal
             };
         }
-        public TbPrPrecioCatalogo ViewModelToDomainEditar(PrecioCatalogoViewModel viewModel)
+        public IList<TbPrPrecioCatalogo> ViewModelToDomainEditar(IList<PrecioCatalogoViewModel> viewModel)
         {
-            var domain = service.GetPrecioCatalogoById((int)viewModel.IdPrecioCatalogo);
-
-            domain.PorcUtilidad = viewModel.PorcUtilidad;
-            domain.PrecioSinImpuesto = viewModel.PrecioSinImpuesto;
-            domain.PrecioFinal = viewModel.PrecioFinal;
+            var domain = new List<TbPrPrecioCatalogo>();
+            foreach (var item in viewModel)
+            {
+                var precio = new TbPrPrecioCatalogo();
+                {
+                    precio.IdPrecioCatalogo = item.IdPrecioCatalogo;
+                    precio.IdInventario = item.IdInventario;
+                    precio.IdTipoPrecio = item.IdTipoPrecio;
+                    precio.PorcUtilidad = item.PorcUtilidad;
+                    precio.PrecioSinImpuesto = item.PrecioSinImpuesto;
+                    precio.PrecioFinal = item.PrecioFinal;
+                };
+                domain.Add(precio);
+            }
 
             return domain;
         }
