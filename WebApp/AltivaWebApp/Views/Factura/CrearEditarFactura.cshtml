@@ -351,7 +351,7 @@ else
     var items = [];
     var lineas = [];
     var lineasAgregadas = [];
-    var lineasActoUp = [];
+    var lineasCrOrUp = [];
     var lineasEliminadas = [];
     var totalFactura = 0;
 
@@ -362,6 +362,8 @@ else
 
 
         $('.selectItems').select2();
+
+
         $(".numerico").inputmask({
             'alias': 'decimal',
             rightAlign: false,
@@ -369,10 +371,10 @@ else
         });
 
         $(".money").inputmask('currency', {
-                     prefix: '',
-                     rightAlign: true,
-                     min: 0
-         });
+            prefix: '',
+            rightAlign: true,
+            min: 0
+        });
         
 
         $(".porcentaje").inputmask({
@@ -403,7 +405,7 @@ else
             indexed_array[n['name']] = n['value'];
         });
 
-        indexed_array['FacturaDetalle'] = lineasActoUp;
+        indexed_array['FacturaDetalle'] = lineasCrOrUp;
         //indexed_array['lineas'] = lineas;
 
         return indexed_array;
@@ -519,7 +521,7 @@ else
         };
 
         lineas.push(model);
-        lineasActoUp.push(model);
+        lineasCrOrUp.push(model);
         calcularTotales();
         setFacturaModel();
 
@@ -532,7 +534,7 @@ else
 
              if (result) {
 
-                 lineasActoUp.splice($.inArray(lineas[key], lineasActoUp), 1);
+                 lineasCrOrUp.splice($.inArray(lineas[key], lineasCrOrUp), 1);
                  if (lineas[key].id !== 0)
                      lineasEliminadas.push(lineas[key].id);
                  lineas.splice(key, 1);
@@ -581,16 +583,16 @@ else
 
 
         var flag = false;
-        for (var i = 0; i < lineasActoUp.length; i++) {
-            if (lineasActoUp[i].idInventario == lineas[key].idInventario) {
-                lineasActoUp[i] = lineas[key];
+        for (var i = 0; i < lineasCrOrUp.length; i++) {
+            if (lineasCrOrUp[i].idInventario == lineas[key].idInventario) {
+                lineasCrOrUp[i] = lineas[key];
                 flag = true;
                 break;
             }
         }
 
         if (!flag)
-            lineasActoUp.push(lineas[key]);
+            lineasCrOrUp.push(lineas[key]);
 
         calcularTotales();
         cargarTabla(lineas);
@@ -734,13 +736,12 @@ else
 
     function guardarCambios() {
 
-        console.log(crearModelo());
 
         $.ajax({
             type: "POST",
             dataType: "json",
             url: '@Url.Action("CrearEditarFactura")',
-            data: { viewModel: crearModelo(), detalle: crearModeloDetalle(lineasActoUp), eliminadas: lineasEliminadas },
+            data: { viewModel: crearModelo(), detalle: crearModeloDetalle(lineasCrOrUp), eliminadas: lineasEliminadas },
             success: function (data) {
                 localStorage.removeItem("FacturaBorrador");
 
@@ -756,7 +757,7 @@ else
 
     function setFacturaModel() {
 
-        facturaModel.FacturaDetalle = lineasActoUp;
+        facturaModel.FacturaDetalle = lineasCrOrUp;
         //facturaModel.lineas = lineas;
         facturaModel.IdMoneda = $('#IdMoneda').val();
         facturaModel.TipoCambioEuro = $('#TipoCambioEuro').val();
@@ -776,6 +777,7 @@ else
         setFacturaModel();
 
         var model = {
+
             id: @Model.Id,
             idCliente: $('#IdCliente').val(),
             fechaFactura: facturaModel.FechaFactura,
@@ -853,7 +855,7 @@ else
                     for (var i = 0; i < borrador.FacturaDetalle.length; i++) {
                         lineas.push(borrador.FacturaDetalle[i]);
                     }
-                    lineasActoUp = borrador.FacturaDetalle;
+                    lineasCrOrUp = borrador.FacturaDetalle;
 
                     cargarTabla(lineas);
                     calcularTotales();
