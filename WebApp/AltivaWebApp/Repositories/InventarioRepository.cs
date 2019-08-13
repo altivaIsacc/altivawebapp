@@ -30,10 +30,7 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbPrInventario.FirstOrDefault(i => i.IdInventario == id);
         }
-        public IList<TbPrInventario> GetInventarioFacturable()
-        {
-            return context.TbPrInventario.Where(i => i.HabilitarVentaDirecta == true).ToList();
-        }
+      
         public TbPrInventarioBodega UpdateIBodega(TbPrInventarioBodega domain)
         {
             try
