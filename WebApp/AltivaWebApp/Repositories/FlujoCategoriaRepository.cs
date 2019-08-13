@@ -30,9 +30,9 @@ namespace AltivaWebApp.Repositories
             return context.TbBaFlujoCategoria.FirstOrDefault(a => a.IdCategoriaFlujo == id);
         }
 
-        public TbBaFlujoCategoria GetFlujoCategoriaByDesc(string desc)
+        public TbBaFlujoCategoria GetFlujoCategoriaByDesc(string cod, int idTipo)
         {
-            return context.TbBaFlujoCategoria.FirstOrDefault(a => a.Codigo.ToLower() == desc.ToLower());
+            return context.TbBaFlujoCategoria.FirstOrDefault(a => a.Codigo.ToLower() == cod.ToLower() && a.IdTipoFlujo == idTipo);
         }
 
 

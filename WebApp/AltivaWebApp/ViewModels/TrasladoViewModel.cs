@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace AltivaWebApp.Domains
+namespace AltivaWebApp.ViewModels
 {
-    public partial class TbPrTraslado
+    public class TrasladoViewModel
     {
-        public TbPrTraslado()
-        {
-            TbPrTrasladoInventario = new HashSet<TbPrTrasladoInventario>();
-        }
 
         public long IdTraslado { get; set; }
         public long IdUsuario { get; set; }
@@ -20,9 +18,7 @@ namespace AltivaWebApp.Domains
         public double CostoTraslado { get; set; }
         public string Comentario { get; set; }
 
-        public virtual TbPrBodega IdBodegaDestinoNavigation { get; set; }
-        public virtual TbPrBodega IdBodegaOrigenNavigation { get; set; }
-        public virtual ICollection<TbPrTrasladoInventario> TbPrTrasladoInventario { get; set; }
+        public IList<TrasladoInventarioViewModel> trasladoInventarioDetalle { get; set; }//si
+
     }
 }
-

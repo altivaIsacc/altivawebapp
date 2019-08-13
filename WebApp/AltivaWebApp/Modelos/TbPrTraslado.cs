@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AltivaWebApp.Domains
+namespace AltivaWebApp.Modelos
 {
     public partial class TbPrTraslado
     {
@@ -25,4 +25,8 @@ namespace AltivaWebApp.Domains
         public virtual ICollection<TbPrTrasladoInventario> TbPrTrasladoInventario { get; set; }
     }
 }
+
+
+
+
 
