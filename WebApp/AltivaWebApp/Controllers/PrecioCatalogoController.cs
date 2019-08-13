@@ -28,6 +28,11 @@ namespace AltivaWebApp.Controllers
         {
             return View();
         }
+        [HttpGet("ListarPrecioCatalogo")]
+        public IActionResult _ListarPrecioCatalogo()
+        {
+            return PartialView("_ListarPrecioCatalogo");
+        }
 
         [HttpGet("Get-PrecioCatalogo/")]
         public ActionResult GetPrecioCatalogo()
