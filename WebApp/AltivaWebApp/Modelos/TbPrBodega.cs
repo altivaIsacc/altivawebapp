@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AltivaWebApp.Domains
+namespace AltivaWebApp.Modelos
 {
     public partial class TbPrBodega
     {
@@ -10,8 +10,7 @@ namespace AltivaWebApp.Domains
             TbPrAjuste = new HashSet<TbPrAjuste>();
             TbPrCompraDetalle = new HashSet<TbPrCompraDetalle>();
             TbPrInventarioBodega = new HashSet<TbPrInventarioBodega>();
-            TbPrRequisicion = new HashSet<TbPrRequisicion>();
-            TbPrToma = new HashSet<TbPrToma>();
+
             TbPrTrasladoIdBodegaDestinoNavigation = new HashSet<TbPrTraslado>();
             TbPrTrasladoIdBodegaOrigenNavigation = new HashSet<TbPrTraslado>();
         }
@@ -30,8 +29,6 @@ namespace AltivaWebApp.Domains
         public virtual ICollection<TbPrAjuste> TbPrAjuste { get; set; }
         public virtual ICollection<TbPrCompraDetalle> TbPrCompraDetalle { get; set; }
         public virtual ICollection<TbPrInventarioBodega> TbPrInventarioBodega { get; set; }
-        public virtual ICollection<TbPrRequisicion> TbPrRequisicion { get; set; }
-        public virtual ICollection<TbPrToma> TbPrToma { get; set; }
         public virtual ICollection<TbPrTraslado> TbPrTrasladoIdBodegaDestinoNavigation { get; set; }
         public virtual ICollection<TbPrTraslado> TbPrTrasladoIdBodegaOrigenNavigation { get; set; }
     }

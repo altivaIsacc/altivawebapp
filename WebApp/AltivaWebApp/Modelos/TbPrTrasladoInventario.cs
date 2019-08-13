@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AltivaWebApp.Domains
+namespace AltivaWebApp.Modelos
 {
     public partial class TbPrTrasladoInventario
-    {      
+    {
         public long Id { get; set; }
         public long IdTraslado { get; set; }
         public long IdInventario { get; set; }

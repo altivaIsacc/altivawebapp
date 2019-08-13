@@ -231,6 +231,9 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+
+
+        // ocupo este
         [HttpGet("Get-BodegaInventario")]
         public ActionResult GetBodegaInventario()
         {

@@ -283,6 +283,20 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IPrecioCatalogoMap, PrecioCatalogoMap>();
 
 
+
+            //Traslado
+
+            services.AddScoped<ITrasladoRepository, TrasladoRepository>();
+            services.AddScoped<ITrasladoService, TrasladoService>();
+            services.AddScoped<ITrasladoMap, TrasladoMap>();
+
+            //Traslado Inventario
+
+            services.AddScoped<ITrasladoInventarioRepository, TrasladoInventarioRepository>();
+            services.AddScoped<ITrasladoInventarioService, TrasladoInventarioService>();
+            services.AddScoped<ITrasladoInventarioMap, TrasladoInventarioMap>();
+
+
         }
     }
 }
