@@ -517,7 +517,7 @@ else
             movimiento: $movimiento.val(),
             cantidad: parseFloat($cantidad.val()),
             costoPromedio: parseFloat($costoPromedio.val().replace(/,/g, "")),
-            totalMovimiento: $total.val().replace(/,/g, ""),
+            totalMovimiento: parseFloat($total.val().replace(/,/g, "")),
             idCuentaContable: $cuentaContable.val(),
             idCentroGastos: $cuentaCosto.val(),
             cuentaContable: $('#cuentaContable option:selected').text(),
@@ -571,7 +571,7 @@ else
 
             var model = {
 
-                id: 0,
+                id: item.id,
                 idAjuste: @Model.Id,
                 idInventario: item.idInventario,
                 descripcion: "n/a",
@@ -1034,6 +1034,16 @@ else
     }
 
     function guardarAjuste() {
+
+        console.log(lineasCrOrUp);
+
+        if (lineasCrOrUp.length > 0) {
+            for (var i = 0; i < lineasCrOrUp.length; i++) {
+                lineasCrOrUp[i].totalMovimiento = lineasCrOrUp[i].totalMovimiento.toString().replace(/,/g, "");
+                lineasCrOrUp[i].costoPromedio = lineasCrOrUp[i].costoPromedio.toString().replace(/,/g, "");
+            }
+        }
+        
 
         $.ajax({
             type: "POST",

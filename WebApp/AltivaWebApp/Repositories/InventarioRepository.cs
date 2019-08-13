@@ -30,7 +30,7 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbPrInventario.FirstOrDefault(i => i.IdInventario == id);
         }
-        
+      
         public TbPrInventarioBodega UpdateIBodega(TbPrInventarioBodega domain)
         {
             try

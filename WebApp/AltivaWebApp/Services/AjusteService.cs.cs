@@ -36,15 +36,7 @@ namespace AltivaWebApp.Services
         {
             return repository.GetAjusteById(id);
         }
-        public bool SaveAjusteInventario(IList<TbPrAjusteInventario> domain)
-        {
-            return repository.SaveAjusteInventario(domain);
-        }
-
-        public bool UpdateAjusteInventario(IList<TbPrAjusteInventario> domain)
-        {
-            return repository.UpdateAjusteInventario(domain);
-        }
+        
 
         public void DeleteAjusteInventario(IList<long> id)
         {
@@ -64,6 +56,14 @@ namespace AltivaWebApp.Services
             return repository.GetAllCG();
         }
 
+        public TbPrAjuste GetAjusteForKardex(int id, IList<long> idDetalles)
+        {
+            return repository.GetAjusteForKardex(id, idDetalles);
+        }
 
+        public IList<TbPrAjusteInventario> SaveOrUpdateAjusteInventario(IList<TbPrAjusteInventario> domain)
+        {
+            return repository.SaveOrUpdateAjusteInventario(domain);
+        }
     }
 }
