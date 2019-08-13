@@ -1,48 +1,104 @@
-﻿@model IList<AltivaWebApp.ViewModels.ContactoRelacionGETViewModel>
+﻿@model IList<AltivaWebApp.Domains.TbCrContactoRelacion>
 @inject IStringLocalizer<SharedResources> Lb
+
+
+
+<div id="crearEditarPartial">
+
+</div>
 
 <div class="table-responsive">
     <table class="table table-bordered">
 
         <thead>
             <tr>
-                <th hidden>idRelacion</th>
-                <th hidden>id</th>
                 <th class="col-md-2">@Lb["Nombre"]</th>
                 <th class="col-md-2">@Lb["Cédula"]</th>
-                <th class="col-md-2">@Lb["Nota"]</th>
+                <th class="col-md-2">@Lb["nota"]</th>
                 <th class="col-md-1">@Lb["Acción"]</th>
             </tr>
         </thead>
         <tbody id="tr">
-            @{
-                int x = 0;
-            }
+
             @foreach (var cr in Model)
             {
-                <tr>
-                    <td hidden>@cr.Id</td>
-                    <td hidden>@cr.IdContactoHijo</td>
-                    @if (cr.Nombre != null)
+            <tr>
+                @if (cr.IdContactoPadre != ViewBag.idContacto)
+                {
+                    @if ((bool)cr.IdContactoPadreNavigation.Persona)
                     {
-                        <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.Nombre</button></td>
+                        <td><a class="btn btn-link" href="@Url.Action("EditarContacto", new { id = @cr.IdContactoPadre })">@cr.IdContactoPadreNavigation.Nombre @cr.IdContactoPadreNavigation.Apellidos</a></td>
                     }
                     else
                     {
-                        <td><button class="btn btn-link" onclick="MostarInfo(@cr.IdContactoHijo);">@cr.NombreComercial</button></td>
+                        <td><a class="btn btn-link" href="@Url.Action("EditarContacto", new { id = @cr.IdContactoPadre })">@cr.IdContactoPadreNavigation.NombreComercial</a></td>
                     }
 
-                    <td>@cr.Cedula</td>
+                    <td style="padding-top:1.8rem">@cr.IdContactoPadreNavigation.Cedula</td>
+                    <td style="padding-top:1.8rem">@cr.NotaRelacion </td>
+                    <td><button class="btn btn-link" id="nota" onclick="crearEditarRelacion(@cr.Id, @cr.IdContactoHijo, @cr.IdContactoPadre, '@cr.NotaRelacion')"><i class="fas fa-edit"></i></button><button class="btn btn-link" onclick="eliminarRelacion(@cr.Id)"><i class="fas fa-trash"></i></button></td>
 
-                    <td id="nota @x"><button class="btn btn-link" id="nota @x" onclick="EditarRelacionLista(@cr.Id,@x)">@cr.NotaRelacion</button><input hidden type="text" id="as_@x" value="@cr.NotaRelacion " /> </td>
-                    <td><button class="btn btn-link" onclick="eliminarRelacion(@cr.Id)"><i class="fas fa-trash"></i></button></td>
-                </tr>
-                x++;
+                }
+                else
+                {
+                    @if ((bool)cr.IdContactoHijoNavigation.Persona)
+                    {
+
+                        <td><a class="btn btn-link" href="@Url.Action("EditarContacto", new { id = @cr.IdContactoHijo })">@cr.IdContactoHijoNavigation.Nombre @cr.IdContactoHijoNavigation.Apellidos</a></td>
+                    }
+                    else
+                    {
+                        <td><a class="btn btn-link" href="@Url.Action("EditarContacto", new { id = @cr.IdContactoHijo })">@cr.IdContactoHijoNavigation.NombreComercial</a></td>
+                    }
+
+                    <td style="padding-top:1.8rem">@cr.IdContactoHijoNavigation.Cedula</td>
+                    <td style="padding-top:1.8rem">@cr.NotaRelacion </td>
+                    <td><button class="btn btn-link" id="nota" onclick="crearEditarRelacion(@cr.Id, @cr.IdContactoPadre, @cr.IdContactoHijo, '@cr.NotaRelacion')"><i class="fas fa-edit"></i></button><button class="btn btn-link" onclick="eliminarRelacion(@cr.Id)"><i class="fas fa-trash"></i></button></td>
+
+
+                }
+
+
+
+
+            </tr>
+
             }
         </tbody>
     </table>
 </div>
-    <script>
+
+<script>
+
+    $(document).ready(function () {
+
+        crearEditarRelacion(0, "@ViewBag.idContacto");
+    });
+
+    function crearEditarRelacion(idRelacion, idPadre, idHijo, nota) {
+
+        var model = {
+            id: idRelacion,
+            idContactoPadre: idPadre,
+            idContactoHijo: idHijo,
+            notaRelacion: nota
+        };
+
+         $.ajax({
+             type: "POST",
+             url: '@Url.Action("_CrearEditarRelacion", "Contacto")',
+             data: { viewModel: model },
+             success: function (data) {
+                 $('#crearEditarPartial').html(data);
+             },
+             error: function (err, scnd) {
+                 console.log(err.statusText);
+             }
+
+        });
+
+    }
+
     function eliminarRelacion(idRelacion) {
 
         bootbox.confirm("@Lb["confirmEliminar"]", function (result) {
@@ -54,7 +110,7 @@
                     url: '@Url.Action("EliminarRelacionContacto", "Contacto")',
                     data: { idRelacion: idRelacion },
                     success: function (data) {
-                        getContactoRelaciones();
+                        getRelaciones();
                     },
                     error: function (err, scnd) {
                         cargarAlert("errorGeneral")
@@ -64,6 +120,5 @@
             }
 
         });
-
     }
-    </script>
+</script>

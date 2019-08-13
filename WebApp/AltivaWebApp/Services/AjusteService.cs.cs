@@ -40,9 +40,15 @@ namespace AltivaWebApp.Services
         {
             return repository.SaveAjusteInventario(domain);
         }
-        public void DeleteAjusteInventario(IList<int> id, int idAjuste)
+
+        public bool UpdateAjusteInventario(IList<TbPrAjusteInventario> domain)
         {
-            repository.DeleteAjusteInventario(id, idAjuste);
+            return repository.UpdateAjusteInventario(domain);
+        }
+
+        public void DeleteAjusteInventario(IList<long> id)
+        {
+            repository.DeleteAjusteInventario(id);
         }
 
 

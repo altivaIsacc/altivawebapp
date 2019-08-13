@@ -26,10 +26,19 @@ namespace AltivaWebApp.Repositories
             return context.TbCrCamposPersonalizados.Where(u => u.Id == id).FirstOrDefault();
         }
 
-        public IList<TbCrCamposPersonalizados> GetCampos()
+        public IList<TbCrCamposPersonalizados> GetCampos(int id)
         {
-            return context.TbCrCamposPersonalizados.Include(c => c.TbCrListaDesplegables).Where(c => c.Estado == "Activo").ToList();
+            return context.TbCrCamposPersonalizados.Where(c => c.Estado == "Activo")
+            .Select(c => new TbCrCamposPersonalizados {
+                Estado = c.Estado,
+                Id = c.Id,
+                Nombre = c.Nombre,
+                Tipo = c.Tipo,
+                TbCrListaDesplegables = c.TbCrListaDesplegables,
+                TbCrContactosCamposPersonalizados = c.TbCrContactosCamposPersonalizados.Where(cc => cc.IdContacto == id).ToList()
+            }).ToList();
         }
+
       
     }
 }

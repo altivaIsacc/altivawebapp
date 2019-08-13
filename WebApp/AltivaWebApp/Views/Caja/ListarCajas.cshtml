@@ -1,0 +1,656 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@inject IStringLocalizer<SharedResources> Lb
+
+
+@{
+    ViewData["Title"] = "ListarCajas";
+}
+
+
+<div class="row">
+    <div class="col-md-2 col-sm-6 col-xs-12">
+        <h2>@Lb["Cajas"]</h2>
+
+    </div>
+    <div class="col-md-4 col-sm-6 col-xs-12" style="margin-left:1rem; padding-top:0.7rem">
+        <p>
+            <a asp-action="CajaApertura" class="btn btn-primary"><span>@Lb["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+        </p>
+    </div>
+</div>
+
+<h5>
+    <a data-toggle="collapse" href="#collapseFiltros" role="button" aria-expanded="false" aria-controls="collapseFiltros">
+        <span>@Lb["Filtros"]</span>&nbsp;<i class="fas fa-plus-circle"></i>
+    </a>
+</h5>
+
+<div class="row collapse" id="collapseFiltros">
+    <div class="col-md-2 col-sm-6 col-xs-12" style="margin-top: 0.2rem">
+        <label class="numerico">@Lb["BuscarPorId"]:</label>
+        <input type="text" id="filtroId" class="form-control" />
+    </div>
+
+    <div class="col-md-2 col-sm-6 col-xs-12" style="margin-top: 0.2rem">
+        <label>@Lb["BuscarPorUsuario"]:</label>
+        <select id="ddUsuarios" class="form-control search-key">
+            <option selected value="0">@Lb["seleccione"]</option>
+        </select>
+    </div>
+
+    <div class="col-md-2 col-sm-6 col-xs-12">
+        <label>@Lb["BuscarPorEstado"]:</label>
+        <select id="Estados" class="form-control search-key">
+            <option selected value="-1">@Lb["seleccione"]</option>
+            <option value="0">@Lb["Todos"]</option>
+            <option value="1">@Lb["Abierta"]</option>
+            <option value="2">@Lb["Arqueo"]</option>
+            <option value="3">@Lb["ArqueoReabierto"]</option>
+            <option value="4">@Lb["Cerrada"]</option>
+            <option value="5">@Lb["CierreReabierto"]</option>
+            <option value="6">@Lb["Anulada"]</option>
+        </select>
+    </div>
+
+    <div class="col-md-3 col-sm-6 col-xs-12">
+        <input type="checkbox" id="habilitaFiltroFecha" />
+        <label for="habilitaFiltroFecha">@Lb["FiltroFecha"]</label>
+        <form id="frmFecha" class="form-horizontal">
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="input-prepend input-group">
+                            <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+<br />
+
+<div class="row">
+    <div class="col-md-12  table-responsive">
+        <table class="table table-bordered" style="width:100%" id="tblCajas">
+            <thead>
+                <tr>
+                    <th style="display:none;"><span>@Lb["IdCaja"]</span> </th>
+                    <th><span>@Lb["Usuario"]</span> </th>
+                    <th><span>@Lb["Caja"]</span> </th>
+                    <th><span>@Lb["Estado"]</span> </th>
+                    <th><span>@Lb["Creacion"]</span></th>
+                    <th style="display:none;"><span>@Lb["FechaModificacion"]</span> </th>
+                    <th><span>@Lb["Editar"]</span></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<input readonly hidden id="monedaFormater" />
+
+
+
+<script>
+//////////////////////////////////////////////////////////DOCUMENT READY//////////////////////////////////////////////////////////////////////////////////////////
+    var _CajasCerradas = [];
+    var Cajas = [];
+    var Usuarios = [];
+    var tblCajas;
+    var hasta;
+    var desde;
+    var _CajasAbiertas = [];
+    var _CajasFiltro = [];
+
+    $(document).ready(function () {
+
+        getUsuarios();
+
+             $('#filtroFecha').attr('disabled', true);
+
+        $('#filtroFecha').daterangepicker({
+            opens: 'left',
+
+            "locale": {
+                format: "@Lb["DD/MM/YYYY"]",
+                "separator": " - ",
+                "applyLabel": "@Lb["Aplicar"]",
+                "cancelLabel": "@Lb["Cancelar"]",
+                "fromLabel": "@Lb["DE"]",
+                "toLabel": "@Lb["Hasta"]",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "@Lb["Dom"]",
+                    "@Lb["Lun"]",
+                    "@Lb["Mar"]",
+                    "@Lb["Mie"]",
+                    "@Lb["Jue"]",
+                    "@Lb["Vie"]",
+                    "@Lb["Sáb"]"
+                ],
+                "monthNames": [
+                    "@Lb["Enero"]",
+                    "@Lb["Febrero"]",
+                    "@Lb["Marzo"]",
+                    "@Lb["Abril"]",
+                    "@Lb["Mayo"]",
+                    "@Lb["Junio"]",
+                    "@Lb["Julio"]",
+                    "@Lb["Agosto"]",
+                    "@Lb["Septiembre"]",
+                    "@Lb["Octubre"]",
+                    "@Lb["Noviembre"]",
+                    "@Lb["Diciembre"]"
+                ],
+                "firstDay": 1
+            }
+                },
+            function (start, end, label) {
+
+                desde = start.format('YYYY-MM-DD');
+                hasta = end.format('YYYY-MM-DD');
+                cargarFiltros();
+                //filtroFecha(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+
+            });
+
+       
+    });
+////////////////////////////////////////////////////////////////GETS////////////////////////////////////////////////////////////////////////////
+    function getAbiertas(data) {
+                        for (var p = 0; p <data.length; p++) {
+
+                    if (parseInt(data[p].estado) === 1) {
+                        _CajasAbiertas.push(data[p]);
+
+                    } else {
+                        _CajasFiltro.push(data[p]);
+                    }
+                }
+
+    }
+        function getCajas() {
+            ///get ajustes
+        $.ajax({
+            type: "get",
+            headers: {
+                      "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetCajas", "Caja")',
+            success: function (data) {
+                Cajas = JSON.parse(JSON.stringify(data));
+                getAbiertas(data);
+                Cajas.sort(function (a, b) {
+
+                    return b.idCaja - a.idCaja ;
+                });
+
+
+ 
+                cargarDatos(_CajasAbiertas);  
+         
+
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+
+            }
+        });
+    }
+
+    
+        function getUsuarios() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
+             success: function (data) {
+                 Usuarios = data;
+                 cargarddUsuarios(data);
+                 getCajas();
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+/////////////////////////////////////////////////////////////////////CARGAR EL DOM/////////////////////////////////////////////////////////////////
+    function cargarDatos(data) {
+        var colorLinea = "";
+        var contadorFila = 0;
+        $("#tblCajas > tbody").remove();
+        $('#tblCajas').append('<tbody></tbody>');
+
+
+
+        for (var i = 0; i < data.length; i++) {
+            var body;
+            switch (parseInt(data[i].estado)) {
+                case 1:
+                    colorLinea = "#59fe63";
+                    body = '<tr style="background-color:' + colorLinea + ' ;" class="fila' + contadorFila + ' filas">'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCaja + '</p></td>'
+                        + '<td><p style="padding-top:1rem;">' + GetUsuarioxId(data[i].idUsuario) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + data[i].idCaja + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + GetEstado(data[i].estado) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].fechaModificacion + '</p></td>'
+                        + '<td>  <button value="' + data[i].idCaja + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+
+                    break;
+                case 2:
+                    colorLinea = "#eff176 ";
+                    body = '<tr style="background-color:' + colorLinea + ' ;" class="fila' + contadorFila + ' filas">'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCaja + '</p></td>'
+                        + '<td><p style="padding-top:1rem;">' + GetUsuarioxId(data[i].idUsuario) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + data[i].idCaja + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + GetEstado(data[i].estado) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].fechaModificacion + '</p></td>'
+                        + '<td>  <button value="' + data[i].idCaja + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+
+                    break;
+                case 3:
+                    colorLinea = "#59fe63";
+                    body = '<tr style="background-color:' + colorLinea + ' ;" class="fila' + contadorFila + ' filas">'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCaja + '</p></td>'
+                        + '<td><p style="padding-top:1rem;">' + GetUsuarioxId(data[i].idUsuario) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + data[i].idCaja + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + GetEstado(data[i].estado) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].fechaModificacion + '</p></td>'
+                        + '<td>  <button value="' + data[i].idCaja + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+                    break;
+                case 4:
+                    colorLinea = "#fc8383 ";
+                    body = '<tr style="background-color:' + colorLinea + ' ;" class="fila' + contadorFila + ' filas">'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCaja + '</p></td>'
+                        + '<td><p style="padding-top:1rem;">' + GetUsuarioxId(data[i].idUsuario) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + data[i].idCaja + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + GetEstado(data[i].estado) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].fechaModificacion + '</p></td>'
+                        + '<td>  <button value="' + data[i].idCaja + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+                    break;
+                case 5:
+                    colorLinea = "#eff176";
+                    body = '<tr style="background-color:' + colorLinea + ' ;" class="fila' + contadorFila + ' filas">'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCaja + '</p></td>'
+                        + '<td><p style="padding-top:1rem;">' + GetUsuarioxId(data[i].idUsuario) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + data[i].idCaja + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + GetEstado(data[i].estado) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].fechaModificacion + '</p></td>'
+                        + '<td>  <button value="' + data[i].idCaja + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+                    break;
+                case 6:
+                    colorLinea = "#858281 ";
+                    body = '<tr style="background-color:' + colorLinea + ' ;" class="fila' + contadorFila + ' filas">'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].idCaja + '</p></td>'
+                        + '<td><p style="padding-top:1rem;">' + GetUsuarioxId(data[i].idUsuario) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + data[i].idCaja + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + GetEstado(data[i].estado) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].fechaModificacion + '</p></td>'
+                        + '<td>  <button value="' + data[i].idCaja + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+                    break;
+            }
+     
+            $('#tblCajas > tbody').append(body);
+            contadorFila++;
+        }
+
+        inicializarTabla();
+    }
+
+    
+        function cargarddUsuarios(usuarios) {
+            for (var i = 0; i < usuarios.length; i++) {
+                var o = "<option value=" + usuarios[i].id + ">" + usuarios[i].nombre + "</option>";
+                $("#ddUsuarios").append(o);
+            }
+           
+        }
+
+////////////////////////////////////////////////////////////////////////FUNCIONES COMPLEMENTARIAS/////////////////////////////////////////////////
+    
+        function inicializarTabla() {
+       $('#tblCajas').DataTable().destroy();
+
+        tblCajas = $('#tblCajas').DataTable({
+            "info": false,
+            "order": [[5, "desc"]],
+
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   " ></i>',
+                    titleAttr: 'Copy',
+                    title: '@Lb["AjusteManual"]',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4]
+                    }
+                   
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: '@Lb["AjusteManual"]',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4]
+                    }
+                    
+                },
+
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: '@Lb["AjusteManual"]',
+                    exportOptions: {
+                        columns: [0, 1, 2,3,4]
+                    }
+                }
+            ]
+        });
+
+        $(".dataTables_searching").hide();
+    }
+
+    function recuperarFecha(_fecha) {
+
+        var fecha = _fecha.substr(0, 10);
+        var y = fecha.substr(0, 4);
+        var m = fecha.substr(5, 2);
+        var d = fecha.substr(8, 3);
+
+        //var date = new Date();
+        //console.log(fecha);
+
+        return d + "-" + m + "-" + y;///new Date(fecha).toLocaleDateString(); //fecha.replace(/-/g, "/");
+    }
+
+
+    function GetUsuarioxId(IdVendedor) {
+
+
+        for (var i = 0; i < Usuarios.length; i++) {
+            if (Usuarios[i].id === IdVendedor) {
+
+                return Usuarios[i].nombre;
+            }
+        }
+    }
+
+    function GetEstado(Estado) {
+        Estado = parseInt(Estado);
+        switch (Estado) {
+
+            case 1:
+                return "@Lb["Abierta"]";
+                break;
+            case 2:
+                   return "@Lb["Arqueo"]";
+                break;
+            case 3:
+                   return "@Lb["ArqueoReabierto"]";
+                break;
+            case 4:
+                   return "@Lb["Cerrada"]";
+                break;
+            case 5:
+                   return "@Lb["CierreReabierto"]";
+                break;
+            case 6:
+                return "@Lb["Anulada"]";
+                break;
+        }
+
+    }
+
+    function editarCotizacion(id) {
+
+        var url = '@Url.Action("EditarCaja", "Caja", new { id = "__id__" })';
+        window.location.href = url.replace("__id__", id);
+    }
+
+ ////////////////////////////////////////////////FILTROS///////////////////////////////////////////////////////////////////////////////////////
+    $('#ddUsuarios').on('change', function () {
+
+        var nombre = $('#ddUsuarios option:selected').text();
+        tblCajas
+             .columns(1)
+             .search(""+nombre+"")
+             .draw();
+    });
+
+    $('#Estados').on('change', function () {
+
+        switch (parseInt( this.value)) {
+            case 1:
+                cargarDatos(_CajasAbiertas);
+                tblCajas
+                    .columns(3)
+                    .search("@Lb["Abierta"]")
+                    .draw();
+
+                $('#filtroId').val("");
+                $('#ddUsuarios').val(0);
+                break;
+            case 2:
+                cargarDatos(_CajasFiltro);
+                tblCajas
+                    .columns(3)
+                    .search("@Lb["Arqueo"]")
+                    .draw();
+
+                $('#filtroId').val("");
+                $('#ddUsuarios').val(0);
+                break;
+            case 3:
+                cargarDatos(_CajasFiltro);
+                tblCajas
+                    .columns(3)
+                    .search("@Lb["ArqueoReabierto"]")
+                    .draw();
+
+                $('#filtroId').val("");
+                $('#ddUsuarios').val(0);
+                break;
+            case 4:
+                cargarDatos(_CajasFiltro);
+                           tblCajas
+                    .columns(3)
+                    .search("@Lb["Cerrada"]")
+                    .draw();
+
+                $('#filtroId').val("");
+                $('#ddUsuarios').val(0);
+                break;
+            case 5:
+                cargarDatos(_CajasFiltro);
+                tblCajas
+                    .columns(3)
+                    .search("@Lb["CierreReabierto"]")
+                    .draw();
+
+                $('#filtroId').val("");
+                $('#ddUsuarios').val(0);
+                break;
+            case 0:
+                cargarDatos(Cajas);
+                $('#filtroId').val("");
+                $('#ddUsuarios').val(0);
+                break;
+            case 6:
+                cargarDatos(_CajasFiltro);
+                tblCajas
+                    .columns(3)
+                    .search("@Lb["Anulada"]")
+                    .draw();
+
+                $('#filtroId').val("");
+                $('#ddUsuarios').val(0);
+                break;
+        }
+    });
+
+
+    $("#filtroId").on("keyup", function () {
+        console.log(this.value);
+        tblCajas
+            .columns(2)
+            .search(this.value)
+            .draw();
+    });
+
+    $('#habilitaFiltroFecha').change(function () {
+
+        if (!$(this).prop('checked')) {
+            cargarFiltros();
+            $('#filtroFecha').attr('disabled', true);
+        }
+
+        else {
+            $('#filtroFecha').attr('disabled', false);
+            cargarFiltros();
+        }
+
+    });
+
+      function cargarFiltros() {
+
+        ajusteFiltrado = JSON.parse(JSON.stringify(Cotizaciones));
+
+        ajusteFiltrado = filtroFecha(ajusteFiltrado, desde, hasta);
+
+        cargarDatos(ajusteFiltrado);
+
+    }
+
+    function filtroFecha(array ,_desde, _hasta) {
+
+
+        var arrayAjustes = [];
+
+        if ($('#habilitaFiltroFecha').prop('checked')) {
+            var desdeLocal = new Date(_desde).getTime();
+            var hastaLocal = new Date(_hasta).getTime();
+
+            for (var i = 0; i < array.length; i++) {
+
+                var documento = new Date(array[i].fechaCotizacion).getTime();
+                var flag = false;
+
+                if (documento >= desdeLocal && documento <= hastaLocal)
+                    arrayAjustes.push(array[i]);
+            }
+            return arrayAjustes;
+        }
+        else
+            return array;
+
+
+
+
+
+    }
+
+    $('#habilitaFiltroFecha').change(function () {
+
+        if (!$(this).prop('checked')) {
+            cargarFiltros();
+            $('#filtroFecha').attr('disabled', true);
+        }
+
+        else {
+            $('#filtroFecha').attr('disabled', false);
+            cargarFiltros();
+        }
+    });
+
+    function cargarFiltros() {
+
+        CajasFiltro = JSON.parse(JSON.stringify(Cajas));
+
+        CajasFiltro = filtroFecha(CajasFiltro, desde, hasta);
+
+        cargarDatos(CajasFiltro);
+
+    }
+
+    function filtroFecha(array, _desde, _hasta) {
+
+        var arrayAjustes = [];
+
+        if ($('#habilitaFiltroFecha').prop('checked')) {
+            var desdeLocal = new Date(_desde).getTime();
+            var hastaLocal = new Date(_hasta).getTime();
+
+            for (var i = 0; i < array.length; i++) {
+
+                var documento = new Date(array[i].fechaCreacion).getTime();
+                var flag = false;
+
+                if (documento >= desdeLocal && documento <= hastaLocal)
+                    arrayAjustes.push(array[i]);
+            }
+            return arrayAjustes;
+        }
+        else
+            return array;
+    }
+
+
+
+</script>
+
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

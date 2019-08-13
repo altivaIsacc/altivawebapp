@@ -10,16 +10,15 @@
 
 
 <div class="row">
-    <div class="col-md-3">
+    <div class="col-md-2 col-sm-2 col-xs-5">
         <h3>@Lb["Contactos"]</h3>
     </div>
-    <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
+    <div class="col-md-6 col-sm-4 col-xs-6" style="margin-left:1rem; padding-top:0.7rem">
         <p>
             <a asp-action="CrearContacto" class="btn btn-primary"><span>@Lb["Agregar"] </span>&nbsp;<i class="fa fa-plus-circle"></i></a>
         </p>
     </div>
-    
-    <div class="col-md-4 col-sm-4 col-xs-12 form-group pull-right top_search">
+    <div class="col-md-3 col-sm-5 col-xs-12 form-group pull-right top_search">
         <div class="input-group" style="padding-top:1.2rem">
             <input id="keyword" type="text" class="form-control" placeholder="@Lb["nombre"], @Lb["Cédula"]...">
             <span class="input-group-btn">
@@ -27,16 +26,17 @@
             </span>
         </div>
     </div>
-</div>
 
-<hr />
+</div>
 
 
 <div class="row">
+
     <div class="col-md-12 col-sm-12 col-xs-12 text-center">
-        <ul class="pagination pagination-split">
-            <li><button id="All" class="btn btn-sm abecedario " value="All">@Lb["Todos"]</button></li>
-            <li><button id="A" class="btn btn-sm abecedario activo" value="A">A</button></li>
+        <ul class="pagination pagination-split" id="paginacion">
+            <li><button style="background-color: #337AB7; color: #fff; font-weight: bold" id="All" class="btn btn-sm abecedario " value="All">@Lb["Todos"]</button></li>
+            <li class="especial"><button id="especial" class="btn btn-sm abecedario" value="especial">#@@1</button></li>        
+    @*<li><button id="A" class="btn btn-sm abecedario activo" value="A">A</button></li>
             <li><button id="B" class="btn btn-sm abecedario" value="B">B</button></li>
             <li><button id="C" class="btn btn-sm abecedario" value="C">C</button></li>
             <li><button id="D" class="btn btn-sm abecedario" value="D">D</button></li>
@@ -61,16 +61,18 @@
             <li><button id="W" class="btn btn-sm abecedario" value="W">W</button></li>
             <li><button id="X" class="btn btn-sm abecedario" value="X">X</button></li>
             <li><button id="Y" class="btn btn-sm abecedario" value="Y">Y</button></li>
-            <li><button id="Z" class="btn btn-sm abecedario" value="Z">Z</button></li>
+            <li><button id="Z" class="btn btn-sm abecedario" value="Z">Z</button></li>*@
 
         </ul>
     </div>
 </div>
 
 <div class="row">
-    <div id="contactosContainer" >
+
+    <div style="padding:0.5rem; overflow-y: auto; max-height:50rem" id="contactosContainer">
 
     </div>
+
 </div>
 
 
@@ -80,15 +82,23 @@
 
     var contactos = [];
     var letra = "All";
+    var arrayRender = [];
 
     $(document).ready(function () {
 
         getContactos();
 
+
+        if ("@ViewBag.nombre" != "") {
+            var url = "@Url.Action("ListarContactos", "Contacto")";
+            var regex = new RegExp('/[^/]*$');
+            history.pushState(null, "", url.replace(regex, '/'));
+        }
+
     });
 
     function getContactos() {
-        
+
             $.ajax({
                 type: "get",
                 headers: {
@@ -99,8 +109,16 @@
                 success: function (data) {
 
                     contactos = modeloToRender(data);
-                    console.log(data);
-                    cargarContactos(contactos);
+
+                    
+                    //cargarContactos(contactos);
+                    $('#keyword').val("@ViewBag.nombre");
+                    cargarFiltros('All', "@ViewBag.nombre");
+
+                    reenderizarPaginado();
+
+                    $('.abecedario').trigger('change');
+
                 },
                 error: function (err, scnd) {
                     cargarAlert('@Lb["errorGeneral"]');
@@ -109,23 +127,30 @@
             });
     }
 
+    
+
 
     $('.abecedario').on('click', function () {
 
-        letra = this.value;
-        
-       // cargarContactos(filtroLetra(this.value));
+        buscarPaginado(this.value);
+
+    });
+
+    function buscarPaginado(key) {
+        letra = key;
+
+        // cargarContactos(filtroLetra(this.value));
 
         cargarFiltros(letra, $('#keyword').val());
 
         $('.abecedario').removeAttr('style');
-        $(this).css({
+        $('#' + letra).css({
             "background-color": "#337AB7",
             "color": "#fff",
             "font-weight": "bold"
         });
+    }
 
-    });
 
     $('#keyword').on('keyup', function(){
 
@@ -142,15 +167,24 @@
         if (key === "All") {
             return array;
         }
+        else if(key === "especial") {
+            for (var i = 0; i < array.length; i++) {
+
+                if (!esLetra(array[i].nombre.charAt(0).toUpperCase()))
+                    filtrado.push(array[i]);
+            }
+
+            return filtrado;
+        }
         else {
             for (var i = 0; i < array.length; i++) {
+
                 if (array[i].nombre.charAt(0).toUpperCase() == key)
                     filtrado.push(array[i]);
             }
 
             return filtrado;
         }
-           
 
     }
 
@@ -191,6 +225,7 @@
 
 
         cargarContactos(filtradoFinal);
+
     }
 
     function ordenarArray(data){
@@ -205,58 +240,83 @@
     function cargarContactos(data) {
 
         var array = ordenarArray(data);
-
+        
         for (var i = 0; i < array.length; i++) {
-            $('#contactosContainer').append(reenderizarCard(array[i]))
+            $('#contactosContainer').append(reenderizarCard(array[i]))            
         }
-
 
     }
 
+    function reenderizarPaginado() {
+
+        var abc = [];
+        var flag = true;
+
+        $('.letter').remove();
+
+        for (var i = 0; i < arrayRender.length; i++) {
+
+            var letra = arrayRender[i].nombre.charAt(0).toUpperCase();
+
+            if (esLetra(letra)) {
+                for (var k = 0; k < abc.length; k++) {
+                    if (abc[k].toUpperCase() === letra) {
+                        flag = false;
+                    }
+                    else
+                        flag = true;
+                }
+                if (flag) {
+                    abc.push(letra);
+                    $('.especial').before('<li class="letter" ><button onclick="buscarPaginado(value)" id="' + letra + '" class="btn btn-sm abecedario" value="' + letra + '">' + letra + '</button></li>');
+                    
+                }
+
+            }
+        }
+        
+    }
 
     function reenderizarCard(data) {
 
-        return "<div  class=\"col-md-4 col-sm-4 col-xs-12 profile_details\">" +
-            "                        <div  class=\"well profile_view\">" +
-            "                          <div class=\"col-sm-12\">" +
-            "                            <h4>" + data.nombre + "</h4>" +
-            "                            <div class=\"left col-xs-7\">" +
-            "                              <ul class=\"list-unstyled\">" +
-            "                                <li><i class=\"fas fa-id-card\"></i> @Lb["Cédula"]: " + data.cedula +"</li>" +
-            "                                <li><i class=\"fa fa-phone\"></i> @Lb["Teléfono"]: " + data.telefono + " </li>" +
-            "                                <li><i class=\"fa fa-at\"></i> @Lb["Correo"]: " + data.correo +" </li>" +
-            "                              </ul>" +
-            "                            </div>" +
-            "                            <div class=\"right col-xs-5 text-center\">" +
-            "                              <img src=" + data.ruta + " alt=\"\" class=\"img-circle img-responsive\">" +
-            "                            </div>" +
-            "                          </div>" +
-            "                          <div class=\"col-xs-12 bottom text-center\">" +
-            "                            <div class=\"col-xs-12 col-sm-6 emphasis\">" +
-            "                              <button type=\"button\" class=\"btn btn-primary btn-xs\">" +
-            "                                <i class=\"fa fa-user\"> </i> @Lb["VerPerfil"]" +
-            "                              </button>" +
-            "                            </div>" +
-            "                          </div>" +
-            "                        </div>" +
-            "                      </div>";
+        var rutaEditar = '@Url.Action("EditarContacto", new { id = "__id__" })'.replace("__id__", data.id);
+        var img = '<img style="height:6rem; width: 6rem;" src="' + data.ruta + '" class="img-circle " alt="Profile Image" />';
+        
+        if (data.ruta === "") {
+            var string = data.nombre;
+            var names = string.split(' '),
+            initials = names[0].substring(0, 1).toUpperCase();
 
+            if (names.length > 1) {
+                initials += names[names.length - 1].substring(0, 1).toUpperCase();
+            }
+
+            img = '<h2>' + initials + '</h2>'
+        }
+
+        return '<a href="' + rutaEditar + '"> <div class="col-md-4 col-sm-6 col-xs-12"> <div class="well" style="padding:1rem"> ' +
+            '                           <div class="col-md-3 col-sm-3 col-xs-3" ><span class="image">' + img + '</span> </div>' +
+            '                           <div>' +
+            '                             <p>&nbsp;<strong>' + data.nombre + '<strong></p> ' +
+            '                             <p>&nbsp;<i class=\"fas fa-id-card\"></i>: ' + data.cedula + '&nbsp;/&nbsp;<i class=\"fa fa-phone\"></i>: ' + data.telefono + '</p>' +
+            '                           </div>' +
+            '                         </div >' +
+            '                       </div > </a>';
     }
-
 
     function getNombre(data) {
 
         if (data.persona)
             return data.nombre + " " + data.apellidos;
         else
-            return data.nombreJuridico;
+            return data.nombreComercial;
 
 
     }
 
     function modeloToRender(data) {
 
-        var array = [];
+        arrayRender = [];
         for (var i = 0; i < data.length; i++) {
             var model = {
                 id: data[i].idContacto,
@@ -268,11 +328,15 @@
 
             };
 
-            array.push(model);
+            arrayRender.push(model);
         }
 
-        return array;
+        return arrayRender;
 
+    }
+
+    function esLetra(c) {
+        return c.toLowerCase() != c.toUpperCase();
     }
 
 </script>

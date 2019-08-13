@@ -28,5 +28,11 @@ namespace AltivaWebApp.Services
         IList<TbSeUsuario> GetAllByIdEmpresaConPerfiles(int idEmpresa);
         bool ExisteUsuarioPorCodigo(string codigo);
         bool ExisteUsuarioPorCorreo(string correo);
+        IList<TbSeUsuario> GetAllConEmpresas();
+        bool CrearRelEmpresaUsuario(IList<TbSeEmpresaUsuario> domain);
+        bool DesactivarRelEmpresaUsuario(IList<TbSeEmpresaUsuario> domain);
+        IList<TbGeEmpresa> GetEmpresasPorUsuario(int idUsuario);
+        IList<TbSePerfilUsuario> GetAllPerfilUsuario();
+        IList<TbSePerfilModulo> GetAllPerfilModulo();
     }
 }

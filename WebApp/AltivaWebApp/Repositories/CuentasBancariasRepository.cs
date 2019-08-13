@@ -17,7 +17,7 @@ namespace AltivaWebApp.Repositories
             return context.TbFdCuentasBancarias.Where(cb => cb.IdContacto == idContacto).ToList();
         }
 
-        public TbFdCuentasBancarias GetById(int id)
+        public TbFdCuentasBancarias GetCuentaById(int id)
         {
             return context.TbFdCuentasBancarias.FirstOrDefault(cb => cb.Id == id);
         }

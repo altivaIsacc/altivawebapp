@@ -12,26 +12,26 @@ namespace AltivaWebApp.Mappers
     {
 
         //variable service de contacto
-        public IContactoService contactoService;
-        public ICamposPersonalizadosService ICamposPersonalizados;
+        private readonly IContactoService contactoService;
+        private readonly ICamposPersonalizadosService cpService;
         public ContactoMap(IContactoService pContactoService, ICamposPersonalizadosService ICamposPersonalizados)
         {
             this.contactoService = pContactoService;
-            this.ICamposPersonalizados = ICamposPersonalizados;
+            this.cpService = ICamposPersonalizados;
         }
 
         public TbCrCamposPersonalizados EliminarCP(int id)
         {
             TbCrCamposPersonalizados cp = new TbCrCamposPersonalizados();
-            cp = this.ICamposPersonalizados.getById(id);
+            cp = this.cpService.getById(id);
             cp.Estado = "Eliminado";
 
-            return this.ICamposPersonalizados.Edit(cp);
+            return this.cpService.Edit(cp);
         }
 
         public TbCrCamposPersonalizados UpdateCP(CamposPersonalizadosViewModel domain)
         {
-            return this.ICamposPersonalizados.Edit(ViewModelToDomainCP(domain));
+            return this.cpService.Edit(ViewModelToDomainCP(domain));
         }
 
         public TbCrContacto UpdateContacto(ContactoViewModel domain)
@@ -75,18 +75,56 @@ namespace AltivaWebApp.Mappers
             };
         }
 
+        public ContactoViewModel DomainToViewModelC(TbCrContacto domain)
+        {
+
+
+            return new ContactoViewModel
+            {
+                Nombre = domain.Nombre,
+                Apellidos = domain.Apellidos,
+                TipoCedula = domain.TipoCedula,
+                Cedula = domain.Cedula,
+                NombreComercial = domain.NombreComercial,
+                NombreJuridico = domain.NombreJuridico,
+                Telefono = domain.Telefono,
+                Correo = domain.Correo,
+                Pais = domain.Pais,
+                Provincia = domain.Provincia,
+                Cliente = (bool) domain.Cliente,
+                Proveedor = (bool)domain.Proveedor,
+                Canton = domain.Canton,
+                Distrito = domain.Distrito,
+                OtrasSenas = domain.OtrasSenas,
+                Persona = (bool) domain.Persona,
+                Empresa = (bool)domain.Empresa,
+                IdUsuario = domain.IdUsuario,
+                WebLink = domain.WebLink,
+                MapLink = domain.MapLink,
+                IdTipoCliente = (int) domain.IdTipoCliente,
+                IdFamiliaCliente = (int)domain.IdFamiliaCliente,
+                IdSubFamiliaCliente = (int)domain.IdSubFamiliaCliente,
+                IdTipoProveedor = (int)domain.IdTipoProveedor,
+                IdFamiliaProveedor = (int)domain.IdFamiliaProveedor,
+                IdSubFamiliaProveedor = (int) domain.IdSubFamiliaProveedor,
+                Ruta = domain.Ruta,
+                IdContacto = domain.IdContacto,
+            };
+
+        }
+
         public TbCrContacto ViewModelToDomainC(ContactoViewModel viewModel)
         {
 
 
             return new TbCrContacto
             {
-                Nombre = viewModel.Nombre,
-                Apellidos = viewModel.Apellidos,
-                TipoCedula = viewModel.TipoCedula,
+                Nombre = viewModel.Nombre ?? "",
+                Apellidos = viewModel.Apellidos ?? "",
+                TipoCedula = viewModel.TipoCedula ?? "",
                 Cedula = viewModel.Cedula,
-                NombreComercial = viewModel.NombreComercial,
-                NombreJuridico = viewModel.NombreJuridico,
+                NombreComercial = viewModel.NombreComercial ?? "",
+                NombreJuridico = viewModel.NombreJuridico ?? "",
                 Telefono = viewModel.Telefono,
                 Correo = viewModel.Correo,
                 Pais = viewModel.Pais,
@@ -95,19 +133,19 @@ namespace AltivaWebApp.Mappers
                 Proveedor = viewModel.Proveedor,
                 Canton = viewModel.Canton,
                 Distrito = viewModel.Distrito,
-                OtrasSenas = viewModel.OtrasSenas,
+                OtrasSenas = viewModel.OtrasSenas ?? "",
                 Persona = viewModel.Persona,
                 Empresa = viewModel.Empresa,
                 IdUsuario = viewModel.IdUsuario,
-                WebLink = viewModel.WebLink,
-                MapLink = viewModel.MapLink,
+                WebLink = viewModel.WebLink ?? "",
+                MapLink = viewModel.MapLink ?? "",
                 IdTipoCliente = viewModel.IdTipoCliente,
                 IdFamiliaCliente = viewModel.IdFamiliaCliente,
                 IdSubFamiliaCliente = viewModel.IdSubFamiliaCliente,
                 IdTipoProveedor = viewModel.IdTipoProveedor,
                 IdFamiliaProveedor = viewModel.IdFamiliaProveedor,
                 IdSubFamiliaProveedor = viewModel.IdSubFamiliaProveedor,
-                Ruta = viewModel.Ruta,
+                Ruta = viewModel.Ruta ?? "",
                 IdContacto = viewModel.IdContacto
             };
 
@@ -120,9 +158,57 @@ namespace AltivaWebApp.Mappers
                 Id = domain.Id,
                 IdContactoPadre = domain.IdContactoPadre,
                 IdContactoHijo = domain.IdContactoHijo,
-                NotaRelacion = domain.NotaRelacion
+                NotaRelacion = domain.NotaRelacion ?? ""
             };
 
+        }
+
+        public ContactoRelacionViewModel  DomainToViewModelCR(TbCrContactoRelacion domain)
+        {
+            return new ContactoRelacionViewModel
+            {
+                Id = domain.Id,
+                IdContactoPadre = domain.IdContactoPadre,
+                IdContactoHijo = domain.IdContactoHijo,
+                NotaRelacion = domain.NotaRelacion ?? ""
+
+            };
+
+        }
+
+        public TbFdCuentasBancarias CreateCuentaBancaria(CuentaBancariaViewModel viewModel)
+        {
+            return contactoService.AgregarCuentasBancarias(ViewModelToDomainCB(viewModel));
+        }
+        public TbFdCuentasBancarias UpdateCuentaBancaria(CuentaBancariaViewModel viewModel)
+        {
+            return contactoService.EditarCuentasBancarias(ViewModelToDomainCB(viewModel));
+        }
+
+        public CuentaBancariaViewModel DomainToViewModelCB(TbFdCuentasBancarias domain)
+        {
+            return new CuentaBancariaViewModel
+            {
+                Banco = domain.Banco,
+                CuentaBancaria = domain.CuentaBancaria,
+                Id = domain.Id,
+                IdContacto =(long) domain.IdContacto,
+                Moneda = domain.Moneda,
+                TipoCuenta = domain.TipoCuenta
+            };
+        }
+
+        public TbFdCuentasBancarias ViewModelToDomainCB (CuentaBancariaViewModel viewModel)
+        {
+            return new TbFdCuentasBancarias
+            {
+                Banco = viewModel.Banco,
+                CuentaBancaria = viewModel.CuentaBancaria,
+                Id = viewModel.Id,
+                IdContacto = (long)viewModel.IdContacto,
+                Moneda = viewModel.Moneda,
+                TipoCuenta = viewModel.TipoCuenta
+            };
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿@model IEnumerable<AltivaWebApp.GEDomain.TbSePais>
-
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject IStringLocalizer<SharedResources> Lb
 <div class="container">
     <div class="row">
         <div class="col-md-1">
@@ -14,34 +15,34 @@
     <hr />
     @if (ViewBag.estado == 1)
     {
-        <a class="btn btn-dark" href="@Url.Action("Index", "Pais", new { mensaje = "Inactivo" })"><span >Ver Inactivos</span></a>
+        <a class="btn btn-dark" href="@Url.Action("Index", "Pais", new { mensaje = "Inactivo" })"><span>Ver Inactivos</span></a>
     }
     else
     {
-        <a class="btn btn-dark" href="@Url.Action("Index", "Pais", new { mensaje = "" })"><span >Ver Activos</span></a>
+        <a class="btn btn-dark" href="@Url.Action("Index", "Pais", new { mensaje = "" })"><span>Ver Activos</span></a>
     }
-    <table id="example" class="display table table-bordered" style="width:100%">
+    <table id="tblPais" class="table table-bordered" style="width:100%">
         <thead>
             <tr>
                 <th class="col-md-2">
-                    <span>Nombre en Español</span>
+                    <span>@Lb["Nombre"] @Lb["ES"]</span>
                 </th>
                 <th class="col-md-2">
-                    <span>Nombre en Inglés</span>
+                    <span>@Lb["Nombre"] @Lb["EN"]</span>
                 </th>
                 <th class="col-md-2">
-                    <span>Gentilicio en Español</span>
+                    <span>@Lb["Gentilicio"] @Lb["ES"]</span>
                 </th>
                 <th class="col-md-2">
-                    <span>Gentilicio en Inglés</span>
+                    <span>@Lb["Gentilicio"] @Lb["EN"]</span>
                 </th>
                 <th>
-                    <span data-translate="estadoI">Inativo</span>
+                    <span>@Lb["Estado"]</span>
                 </th>
                 <th>
-                    <span data-translate="iniciales">Iniciales</span>
+                    <span>@Lb["Iniciales"]</span>
                 </th>
-                <th><span data-translate="accion" class="col-md-1">Acción</span></th>
+                <th><span class="col-md-1">@Lb["Acción"]</span></th>
             </tr>
         </thead>
         <tbody>
@@ -61,7 +62,14 @@
                         @Html.DisplayFor(modelItem => item.GentilicioEn)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Inactivo)
+                        @if (item.Inactivo)
+                        {
+                            <span>@SharedLocalizer["Inactivo"]</span>
+                        }
+                        else
+                        {
+                            <span>@SharedLocalizer["Activo"]</span>
+                        }
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Iniciales)
@@ -78,62 +86,81 @@
 </div>
 
 <script>
+    $(document).ready(function () {
 
- 
-    $('#example').DataTable({
-        dom: 'Bfrtip',
-        info: false,
-        "ordering": false,
-         language: {
-            "decimal": "",
-            "emptyTable": "No hay información",
-            
-            "infoPostFix": "",
-            "thousands": ",",
-         
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-             "search": "<a ><i  class='fas fa-search ' ></i></a>",
-            "zeroRecords": "Sin resultados encontrados",
-            "paginate": {
-                "first": "Primero",
-                "last": "Ultimo",
-                "next": "Siguiente",
-                "previous": "Anterior"
-            }
-        },
-        buttons: [
-            {
-                extend: 'copyHtml5',
-                text: '<i class="fas fa-copy   " ></i>',
-                titleAttr: 'Copy',
-                title: 'Países',
-                exportOptions: {
-                    columns: [0, 1,2, 3, 5]
-                }
-            },
-            {
-                extend: 'excelHtml5',
-                text: '<i class="fas fa-file-excel  "></i>',
-                titleAttr: 'Excel',
-                title: 'Países',
-                exportOptions: {
-                    columns: [0, 1,2, 3,  5]
-                }
-            },
+        inicializarTabla();
 
-            {
-                extend: 'pdfHtml5',
-                text: '<i class="fas fa-file-pdf   "></i>',
-                titleAttr: 'PDF',
-                title: 'Países',
-                exportOptions: {
-                    columns: [0, 1,2, 3, 5]
-                }
-            }
-        ]
     });
 
+    function inicializarTabla() {
+        $('#tblPais').DataTable({
+            "info": false,
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@SharedLocalizer["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                "paginate": {
+                    "first": "@SharedLocalizer["Primero"]",
+                    "last": "@SharedLocalizer["Último"]",
+                    "next": "@SharedLocalizer["Sguiente"]",
+                    "previous": "@SharedLocalizer["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   "></i>',
+                    titleAttr: 'Copy',
+                    title: getTitulo(),
+                    exportOptions: {
+                        columns: [0, 1, 2 ,3 ,4 ,5]
+                    }
 
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: getTitulo(),
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5]
+                    }
+                },
 
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: getTitulo(),
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5]
+                    }
+                }
+            ]
+        });
+    }
+
+    function getTitulo() {
+        if (localStorage.getItem("idioma") === "es")
+            return "Países";
+        else
+            return "Countries";
+    }
 </script>
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

@@ -167,7 +167,7 @@ function generate_cutomPDF(modelo) {
             overflow: 'linebreak',
             fontSize: 8,
             rowHeight: 'auto',
-            columnWidth: 'wrap'
+            columnWidth: '100%'
         },
         columnStyles: {
             1: { columnWidth: 'auto' },

@@ -20,7 +20,19 @@ namespace AltivaWebApp.ViewModels
             IdTipoProveedor = 0;
             Persona = true;
             Empresa = false;
+            Nombre = "";
+            Apellidos = "";
+            NombreComercial = "";
+            NombreJuridico = "";
+            Canton = 0;
+            Distrito = 0;
+            Provincia = 0;
+            Ruta = "";
+            MapLink = "";
+            WebLink = "";
+            OtrasSenas = "";
         }
+
         public long IdContacto { get; set; }
         public string Nombre { get; set; }
         public string Apellidos { get; set; }
@@ -31,16 +43,16 @@ namespace AltivaWebApp.ViewModels
         public string Telefono { get; set; }
         public string Correo { get; set; }
         public string Pais { get; set; }
-        public int? Provincia { get; set; }
-        public int? Canton { get; set; }
-        public int? Distrito { get; set; }
+        public int Provincia { get; set; }
+        public int Canton { get; set; }
+        public int Distrito { get; set; }
         public bool Persona { get; set; }
         public bool Empresa { get; set; }
         public bool Cliente { get; set; }
         public bool Proveedor { get; set; }
         public string OtrasSenas { get; set; }
         public IFormFile Foto { get; set; }
-        public long? IdUsuario { get; set; } 
+        public long IdUsuario { get; set; } 
         public string Ruta { get; set; }
         public string WebLink { get; set; }
         public string MapLink { get; set; }

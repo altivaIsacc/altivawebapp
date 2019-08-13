@@ -48,10 +48,11 @@ namespace AltivaWebApp.Controllers
             return View();
         }
 
+
         [Route("Nueva-Compra")]
         public ActionResult CrearCompra()
         {
-            
+
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             ViewData["bodegas"] = bodegaService.GetAllActivas();
             var tipoCambio = monedaService.GetAll();
@@ -69,7 +70,7 @@ namespace AltivaWebApp.Controllers
         [Route("Editar-Compra/{id}")]
         public ActionResult EditarCompra(int id)
         {
-            var compra = map.DomainToViewModel(service.GetCompraById(id));
+            var compra = map.DomainToViewModel(service.GetCompraByIdWithoutD(id));
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             ViewData["bodegas"] = bodegaService.GetAllActivas();
             ViewData["monedas"] = monedaService.GetAll();
@@ -84,13 +85,11 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-               
-
                 if (viewModel.NumeroDocumento == null || viewModel.NumeroDocumento == "AutogeneradoXML")
                     viewModel.NumeroDocumento = "AutogeneradoXML" + (service.IdUltimoDocumento() + 1).ToString();
                 if (viewModel.Id != 0)
                 {
-                    var compra = service.GetCompraByDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento,viewModel.IdProveedor);
+                    var compra = service.GetCompraByDocumento(viewModel.NumeroDocumento, viewModel.TipoDocumento, viewModel.IdProveedor);
                     if (compra == null || compra.Id == viewModel.Id)
                     {
                         long idCD = 0;
@@ -111,9 +110,9 @@ namespace AltivaWebApp.Controllers
                         }
                         else
                             if (c.EnCola)
-                                haciendaMap.CreateCACompra(compra);
+                            haciendaMap.CreateCACompra(compra);
 
-                        return Json(new { success = true, idCD = idCD});
+                        return Json(new { success = true, idCD = idCD });
                     }
                     else
                         return Json(new { success = false });
@@ -125,11 +124,11 @@ namespace AltivaWebApp.Controllers
                     {
                         viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                         var compra = map.Create(viewModel);
-                           
-                        if(!compra.Borrador)
+
+                        if (!compra.Borrador)
                             kardexMap.CreateKardexCD((int)compra.TbPrCompraDetalle.FirstOrDefault().Id);
 
-                        return Json(new { success = true, idCompra =  compra.Id});
+                        return Json(new { success = true, idCompra = compra.Id });
                     }
                     else
                         return Json(new { success = false });
@@ -148,17 +147,15 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                TbPrCompra compra = service.GetCompraByIdWithoutD(id);
+                var res = true;
+                TbPrCompra compra = service.GetCompraById(id);
                 compra.Anulado = true;
-                if(!compra.Borrador)
-                    kardexMap.CreateKardexEliminarCD(compra);
-                compra = service.Update(compra);
+                if (!compra.Borrador)
+                    res = kardexMap.CreateKardexEliminarCD(compra);
+                if (res)
+                    compra = service.Update(compra);
 
-                //var hacienda = haciendaService.GetCAById(compra.Id);
-                //hacienda.Anulado = true;
-                //haciendaService.UpdateCA(hacienda);
-               
-                return Json(new { success = true });
+                return Json(new { success = res });
             }
             catch (Exception)
             {
@@ -183,8 +180,8 @@ namespace AltivaWebApp.Controllers
                     return Json(new { success = true });
                 }
                 else
-                    return Json(new { succes = false});
-                
+                    return Json(new { succes = false });
+
             }
             catch (Exception)
             {
@@ -230,10 +227,12 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
+                var res = true;
                 var cd = service.GetCompraDetalleById(idCD);
-                if(!cd.IdCompraNavigation.Borrador)
-                    kardexMap.CreateKardexEliminarCDSingle(idCD);
-                var res = service.DeleteCompraDetalle(cd);            
+                if (!cd.IdCompraNavigation.Borrador)
+                    res = kardexMap.CreateKardexEliminarCDSingle(idCD);
+                if (res)
+                    service.DeleteCompraDetalle(cd);
 
                 return Json(new { success = res });
             }
@@ -307,7 +306,7 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-     
+
 
     }
 }

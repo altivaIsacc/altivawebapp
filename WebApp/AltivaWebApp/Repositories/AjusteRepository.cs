@@ -66,27 +66,26 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-
-        public void DeleteAjusteInventario(IList<int> id, int idAjuste)
+        public bool UpdateAjusteInventario(IList<TbPrAjusteInventario> domain)
         {
             try
             {
-                var existencia = new List<TbPrInventarioBodega>();
-                var ai = context.TbPrAjuste.Include(a => a.TbPrAjusteInventario).FirstOrDefault(a => a.Id == idAjuste);
+                context.TbPrAjusteInventario.UpdateRange(domain);
+                context.SaveChanges();
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
-                var aiEliminar = new List<TbPrAjusteInventario>();
 
-                foreach (var item in ai.TbPrAjusteInventario)
-                {
-                    foreach (var i in id)
-                    {
-                        if (item.Id == i)
-                            aiEliminar.Add(item);
-                    }
-                }
-
-             
-                context.TbPrAjusteInventario.RemoveRange(aiEliminar);
+        public void DeleteAjusteInventario(IList<long> domain)
+        {
+            try
+            {
+                context.TbPrAjusteInventario.RemoveRange(context.TbPrAjusteInventario.Where(r => domain.Any(id => id == r.Id)));
                 context.SaveChanges();
 
             }

@@ -8,7 +8,7 @@ namespace AltivaWebApp.Repositories
    public interface ICamposPersonalizadosRepository
     {
         IList<TbCrCamposPersonalizados> GetAll();
-        IList<TbCrCamposPersonalizados> GetCampos();
+        IList<TbCrCamposPersonalizados> GetCampos(int id);
         TbCrCamposPersonalizados getById(int id);
         TbCrCamposPersonalizados Save(TbCrCamposPersonalizados domain);
         TbCrCamposPersonalizados Update(TbCrCamposPersonalizados domain);

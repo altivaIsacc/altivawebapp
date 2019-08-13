@@ -1,0 +1,222 @@
+﻿@inject IStringLocalizer<SharedResources> Lb
+@{
+    
+}
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <h3>@Lb["TiposdeProveedores"]</h3>
+    </div>
+</div>
+
+<div class="row">
+
+
+    <div class="form-group col-md-6 col-sm-6 col-xs-10 ">
+        <label for="IdTipoProveedor" class="control-label">@Lb["Tipo"]:</label>
+        <select onchange="cargarFamiliaProveedores(value)" id="IdTipoProveedor" class="form-control"><option value=""></option></select>
+
+
+    </div>
+
+    <div class="form-group col-md-6 col-sm-6 col-xs-2">
+        <br />
+        <button style="padding:0.2rem; margin:0.5rem" onclick="crearEditarTipoProveedor(1, 0)" class="btn btn-link">
+            <span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span>
+        </button>
+        <button style="padding:0.2rem; margin:0.5rem" onclick="editarTipoProveedor(1)" class="btn btn-link ">
+            <span style="font-size: 2rem"> <i class="fas fa-edit"></i></span>
+        </button>
+    </div>
+
+    <div class="form-group col-md-6 col-sm-6 col-xs-10">
+        <label for="IdFamiliaProveedor" class="control-label">@Lb["Familia"]:</label>
+        <select onchange="cargarSubFamiliaProveedores(value)" id="IdFamiliaProveedor" class="form-control"><option value=""></option></select>
+    </div>
+
+    <div class="form-group col-md-6 col-sm-6 col-xs-2">
+        <br />
+        <button style="padding:0.2rem; margin:0.5rem" onclick="crearEditarTipoProveedor(2, 0)" class="btn btn-link">
+            <span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span>
+        </button>
+        <button style="padding:0.2rem; margin:0.5rem" onclick="editarTipoProveedor(2)" class="btn btn-link ">
+            <span style="font-size: 2rem"> <i class="fas fa-edit"></i></span>
+        </button>
+    </div>
+
+
+    <div class="form-group col-md-6 col-sm-6 col-xs-10 ">
+        <label for="IdSubFamiliaProveedor" class="control-label">@Lb["Sub-Familia"]:</label>
+        <select id="IdSubFamiliaProveedor" class="form-control "><option value=""></option></select>
+    </div>
+    <div class="form-group col-md-6 col-sm-6 col-xs-2">
+        <br />
+        <button style="padding:0.2rem; margin:0.5rem" onclick="crearEditarTipoProveedor(3, 0)" class="btn btn-link">
+            <span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span>
+        </button>
+        <button style="padding:0.2rem; margin:0.5rem" onclick="editarTipoProveedor(3)" class="btn btn-link ">
+            <span style="font-size: 2rem"> <i class="fas fa-edit"></i></span>
+        </button>
+    </div>
+
+</div>
+
+
+<div>
+    <!-- Modal -->
+    <div class="modal fade" id="modalTipoProveedor" tabindex="-1" role="dialog" aria-labelledby="tipoProveedorModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body" id="crearEditarPartialProveedor">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var tipoProveedoresList = [];
+
+    $(document).ready(function () {
+
+        getTipoProveedores(1, 0);
+
+    });
+
+    function editarTipoProveedor(key) {
+
+        var valor = 0;
+        if (key === 1)
+            valor = $('#IdTipoProveedor').val();
+        else if (key === 2)
+            valor = $('#IdFamiliaProveedor').val();
+        else
+            valor = $('#IdSubFamiliaProveedor').val();
+
+        crearEditarTipoProveedor(key, valor);
+    }
+
+    function crearEditarTipoProveedor(tipo, id) {
+
+
+        var url = '@Url.Action("_CrearEditarTipoProveedor", "TipoProveedor", new { id = "__id__" })';
+
+        var model = {
+
+            tipo: tipo,
+            idFamilia: $('#IdFamiliaProveedor').val(),
+            idTipo: $('#IdTipoProveedor').val()
+        };
+
+        $.ajax({
+            type: "POST",
+            url: url.replace("__id__", id),
+            data: {viewModel: model},
+            success: function (data) {
+                $('#crearEditarPartialProveedor').html(data);
+                $('#modalTipoProveedor').modal('show');
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+    }
+
+    /////////Tipos de Proveedores
+
+    function getTipoProveedores(tipo, idTipoProveedor) {
+
+
+
+         $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetTiposProveedor", "TipoProveedor")',
+            success: function (data) {
+
+
+                tipoProveedoresList = data;
+                if (tipo === 1)
+                    setTipoProveedores(tipo, idTipoProveedor);
+                else if (tipo === 2)
+                    cargarFamiliaProveedores($('#IdTipoProveedor').val(), 2, idTipoProveedor);
+                else
+                    cargarSubFamiliaProveedores($('#IdFamiliaProveedor').val(), 3, idTipoProveedor);
+
+
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+         });
+    }
+
+    function setTipoProveedores(tipo, idTipo) {
+
+        $('#IdTipoProveedor')
+            .find('option')
+            .remove();
+
+        for (var i = 0; i < tipoProveedoresList.length; i++) {
+            if (tipoProveedoresList[i].idPadre === 0) {
+                var o = new Option(tipoProveedoresList[i].nombre, tipoProveedoresList[i].id);
+                if (tipo === 1 && tipoProveedoresList[i].id === idTipo) {
+                    $(o).attr('selected', true);
+                }
+                $("#IdTipoProveedor").append(o);
+            }
+        }
+
+        cargarFamiliaProveedores($('#IdTipoProveedor').val(), tipo, idTipo);
+
+    }
+
+    function cargarFamiliaProveedores(_idPadre, tipo, idTipo) {
+
+        var idPadre = parseInt(_idPadre);
+        $('#IdFamiliaProveedor')
+            .find('option')
+            .remove();
+
+        for (var i = 0; i < tipoProveedoresList.length; i++) {
+            if (tipoProveedoresList[i].idPadre === idPadre) {
+                var o = new Option(tipoProveedoresList[i].nombre, tipoProveedoresList[i].id);
+                if (tipo === 2 && tipoProveedoresList[i].id === idTipo) {
+                    $(o).attr('selected', true);
+                }
+                $("#IdFamiliaProveedor").append(o);
+            }
+        }
+
+        cargarSubFamiliaProveedores($('#IdFamiliaProveedor').val());
+
+    }
+
+    function cargarSubFamiliaProveedores(_idFamilia, tipo, idTipo) {
+
+
+        var idFamilia = parseInt(_idFamilia);
+
+        $('#IdSubFamiliaProveedor')
+            .find('option')
+            .remove();
+
+        for (var i = 0; i < tipoProveedoresList.length; i++) {
+            if (tipoProveedoresList[i].idPadre === idFamilia) {
+                var o = new Option(tipoProveedoresList[i].nombre, tipoProveedoresList[i].id);
+                if (tipo === 3 && tipoProveedoresList[i].id === idTipo) {
+                    $(o).attr('selected', true);
+                }
+                $("#IdSubFamiliaProveedor").append(o);
+            }
+        }
+
+    }
+
+
+</script>

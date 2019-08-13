@@ -1,0 +1,236 @@
+﻿@model TipoClienteViewModel
+
+@inject IStringLocalizer<SharedResources> Lb
+
+
+@{
+    var edita = "";
+
+    if (Model.Id != 0)
+    {
+        edita = "hidden";
+    }
+}
+
+<div class="row">
+    <div class="col-md-6">
+        @if (Model.Id != 0)
+        {
+            <h4 class="modal-title" id="familiaModallabel">@Lb["Editar"] @Lb["TipoProveedor"]</h4>
+        }
+        else
+        {
+            <h4 class="modal-title" id="familiaModallabel">@Lb["Nuevo"] @Lb["TipoProveedor"]</h4>
+        }
+
+    </div>
+    <div class="col-md-6">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+
+<hr />
+
+<div class="row">
+    @if (Model.Id == 0)
+    {
+        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+            <label class="radio-inline" for="tipoC"><input type="radio" name="radioTipoC" onchange="ocultarCamposTipoC(1)" checked="checked" value="1" id="tipoC" />@Lb["Tipo"]</label>
+            <label class="radio-inline" for="familiaC"><input type="radio" name="radioTipoC" onchange="ocultarCamposTipoC(2)" value="2" id="familiaC" />@Lb["Familia"]</label>
+            <label class="radio-inline" for="subFamiliaC"><input type="radio" name="radioTipoC" onchange="ocultarCamposTipoC(3)" value="3" id="subFamiliaC" />@Lb["Sub-Familia"]</label>
+        </div>
+    }
+
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <form id="frmTipoProveedor">
+            @Html.HiddenFor(x => x.Id, new { @id = "tcId" })
+            @Html.HiddenFor(x => x.IdUsuario, new { @id = "tcIdUsuario" })
+            @Html.HiddenFor(x => x.FechaCreacion, new { @id = "tcFechaCreacion" })
+
+            <div @edita>
+                <div hidden id="tipoCContainer" class="form-group">
+                    <label class="control-label">@Lb["Tipo"]:</label>
+                    <select id="tipoCSelect" class="form-control"></select>
+                </div>
+
+                <div hidden id="familiaCContainer" class="form-group">
+                    <label id="idPadreLabel" for="IdPadre" class="control-label"></label>
+                    <select asp-for="IdPadre" class="form-control"><option value=""></option></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Nombre" class="control-label">@Lb["Nombre"]:</label>
+                <input asp-for="Nombre" id="tcNombre" class="form-control" />
+                <span hidden id="tcNombreValid" class="text-danger">@Lb["nombreValid"]</span>
+            </div>
+            <div class="form-group">
+
+                <label asp-for="Inactivo" id="tcInactivo" class="form-check-label">
+                    @Lb["Inactivo"] <input type="checkbox" class="form-check-input" asp-for="Inactivo" />
+                </label>
+
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-md-2 col-sm-2 col-xs-4">
+        <button onclick="guardarTipoProveedor()" class="btn btn-success"><span>@Lb["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
+    </div>
+    <div class="col-md-2 col-sm-2 col-xs-4">
+        <button class="btn btn-default" data-dismiss="modal">@Lb["Cancelar"]</button>
+    </div>
+</div>
+
+<script>
+
+    var tipoProveedoresCrear = [];
+
+    $(document).ready(function () {
+
+        getTipoProveedoresCrear();
+
+    });
+
+
+    function ocultarCamposTipoC(key) {
+
+        $('#IdPadre')
+            .find('option')
+            .remove();
+
+
+        if (key === 1) {
+            $("#tipoC").prop("checked", true);
+            $('#tipoCContainer').prop('hidden', true);
+            $('#familiaCContainer').prop('hidden', true);
+        }
+        else if (key === 2) {
+            $("#familiaC").prop("checked", true);
+            $('#familiaCContainer').prop('hidden', false);
+            $('#tipoCContainer').prop('hidden', true);
+            $('#idPadreLabel').text('@Lb["Tipo"]:');
+
+
+            cargarPadreItems(0, @ViewBag.idTipo);
+
+        } else {
+
+            $("#subFamiliaC").prop("checked", true);
+            $('#tipoCContainer').prop('hidden', false);
+            $('#familiaCContainer').prop('hidden', false);
+            $('#idPadreLabel').text('@Lb["Familia"]:');
+
+            cargarPadreItems(@ViewBag.idTipo, @ViewBag.idFamilia);
+        }
+    }
+
+
+
+
+
+    /////////Tipos de Clientes
+
+    function guardarTipoProveedor() {
+
+        var flag = true;
+        if ($('#tcNombre').val().replace(/ /g, "") === "") {
+            flag = false;
+            $('#tcNombreValid').prop('hidden', false);
+        }
+
+
+        if (flag) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("CrearEditarTipoProveedor", "TipoProveedor")',
+                data: $('#frmTipoProveedor').serialize(),
+                success: function (data) {
+
+                    var tipo = $("input[name='radioTipoC']:checked").val();
+                    getTipoProveedores(parseInt(tipo), data.tipoP.id);
+                    $('#modalTipoProveedor').modal('hide');
+
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@Lb["errorGeneral"]');
+                }
+
+            });
+        }
+
+    }
+
+
+    function getTipoProveedoresCrear() {
+
+         $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetTiposProveedor", "TipoProveedor")',
+            success: function (data) {
+
+
+                tipoProveedoresCrear = data;
+                setTipoProveedoresSelect(@ViewBag.idTipo);
+                ocultarCamposTipoC(@ViewBag.tipoP);
+                //cargarTipoCLientes(data);
+
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+         });
+    }
+
+    function setTipoProveedoresSelect(id) {
+
+        $('#tipoCSelect')
+            .find('option')
+            .remove();
+
+        for (var i = 0; i < tipoProveedoresCrear.length; i++) {
+            if (tipoProveedoresCrear[i].idPadre === 0) {
+                var o = new Option(tipoProveedoresCrear[i].nombre, tipoProveedoresCrear[i].id);
+                if (tipoProveedoresCrear[i].id === id) {
+                    $(o).attr('selected', true);
+                }
+                $("#tipoCSelect").append(o);
+            }
+        }
+
+        //cargarPadreItems(parseInt($('#tipoCSelect').val()));
+
+    }
+
+    $('#tipoCSelect').change(function () {
+
+        cargarPadreItems(parseInt(this.value), 0);
+
+    });
+
+    function cargarPadreItems(idTipo, id) {
+
+
+        for (var i = 0; i < tipoProveedoresCrear.length; i++) {
+            if (tipoProveedoresCrear[i].idPadre === idTipo) {
+                var o = new Option(tipoProveedoresCrear[i].nombre, tipoProveedoresCrear[i].id);
+
+                if (tipoProveedoresCrear[i].id === id) {
+                    $(o).attr('selected', true);
+                }
+
+                $("#IdPadre").append(o);
+            }
+        }
+
+    }
+
+</script>
+
+

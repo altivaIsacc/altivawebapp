@@ -12,6 +12,6 @@ namespace AltivaWebApp.Repositories
         TbCrContactoRelacion Save(TbCrContactoRelacion domain);
         TbCrContactoRelacion Update(TbCrContactoRelacion domain);
         TbCrContactoRelacion GetById(int id);
-
+        TbCrContactoRelacion GetByIdPadreAndIdHijo(int idPadre, int idHijo);
     }
 }

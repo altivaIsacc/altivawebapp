@@ -8,8 +8,8 @@ namespace AltivaWebApp.Mappers
 {
     public interface IContactoCamposMap
     {
-        void Create(IList<CCPersonalizadosViewModel> domain, long? id);
-        void Update(IList<CCPersonalizadosViewModel> domain, long? id);
-        TbCrContactosCamposPersonalizados ViewModelToDomaiCP(CCPersonalizadosViewModel domain, long? id);
+        void Create(IList<CCPersonalizadosViewModel> domain, int id);
+        void Update(IList<CCPersonalizadosViewModel> domain, int id);
+        TbCrContactosCamposPersonalizados ViewModelToDomaiCP(CCPersonalizadosViewModel domain, int id);
     }
 }

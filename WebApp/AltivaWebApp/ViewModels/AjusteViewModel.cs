@@ -11,7 +11,7 @@ namespace AltivaWebApp.ViewModels
         public long Id { get; set; }
         public bool Anulada { get; set; }
         public double TotalEntrada { get; set; }
-        public double TotalSalida { get; set; }
+        public double TotalSalida { get; set; }       
         public double SaldoAjuste { get; set; }
         public long IdUsuario { get; set; }
         public long IdBodega { get; set; }

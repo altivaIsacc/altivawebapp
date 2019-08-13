@@ -1,0 +1,2039 @@
+﻿
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@model AltivaWebApp.ViewModels.RebajaConfigViewModel
+
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+    var usuarios = ViewData["usuarios"] as IList<TbSeUsuario>;
+}
+
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="form-group descuentoGeneralnGroup">
+            <input type="checkbox" class="form-check-input" id="chkDescuentoGeneral" asp-for="ActivaMaxGeneral" />
+            <label data-translate="chkDescuentoGeneral" class="form-check-label" for="chkDescuentoGeneral">Maximo descuento general en el sistema</label>
+
+            <input id="txtPorcentajeDescuentoGeneral" type="number" min="0" max="100" asp-for="PorcMaxGeneral" class="form-control porcentaje" />
+        </div>
+
+        <div class="form-group descMaximoUsuario">
+            <input type="checkbox" class="form-check-input" id="chkDescMaximoUsuario" asp-for="ActivaMaxUsuario" />
+            <label data-translate="chkDescMaximoUsuario" class="form-check-label" for="chkDescMaximoUsuario">Maximo de descuento permitido a ciertos usuarios  </label>
+
+            <p>
+                <a class="btn btn-primary btn-xs" id="btnDescMaximoUsuario"><span data-translate="Configurar">Configurar </span>&nbsp;<i class="fas fa-cog"></i></a>
+            </p>
+        </div>
+
+        <div class="form-group descMaximoUsuarioRango">
+            <input type="checkbox" class="form-check-input" id="chkDescMaximoUsuarioRango" asp-for="ActivaMaxUsuarioRango" />
+            <label data-translate="chkDescMaximoUsuarioRango" class="form-check-label" for="chkDescMaximoUsuarioRango">Maximo de descuento permitido a ciertos usuarios por rango de fechas </label>
+
+            <p>
+                <a class="btn btn-primary btn-xs" id="btnDescMaximoUsuarioRango"><span data-translate="Configurar">Configurar </span>&nbsp;<i class="fas fa-cog"></i></a>
+            </p>
+        </div>
+
+        <div class="form-group descMaximoUsuarioClave">
+            <input type="checkbox" class="form-check-input" id="chkDescMaximoUsuarioClave" asp-for="ActivaMaxUsuarioClave" />
+            <label data-translate="chkDescMaximoUsuarioClave" class="form-check-label" for="chkDescMaximoUsuarioClave">Maximo de descuento autorizado mediante clave especial y usuarios que autorizan  </label>
+
+            <p>
+                <a class="btn btn-primary btn-xs" id="btnDescMaximoUsuarioClave"><span data-translate="Configurar">Configurar </span>&nbsp;<i class="fas fa-cog"></i></a>
+            </p>
+        </div>
+
+        <div class="form-group ActPromoProd">
+            <input type="checkbox" class="form-check-input" id="chkActPromoProd" asp-for="ActivaPromoProducto" />
+            <label data-translate="chkActPromoProd" class="form-check-label" for="chkActPromoProd">Activar promociones de producto </label>
+
+            <p>
+                <a class="btn btn-primary btn-xs" id="btnActPromoProd"><span data-translate="Configurar">Configurar </span>&nbsp;<i class="fas fa-cog"></i></a>
+            </p>
+        </div>
+
+        @*<div class="form-group ActPromoUsuarioClave">
+                <input type="checkbox" class="form-check-input" id="chkActPromoUsuarioClave" asp-for="ActivaPromoProductoUsuario" />
+                <label data-translate="chkActPromoUsuarioClave" class="form-check-label" for="chkActPromoUsuarioClave">Activar promociones de los productos solo mediante clave especial y usuarios que autorizan  </label>
+
+                <p>
+                    <a class="btn btn-primary btn-xs" id="btnActPromoUsuarioClave"><span data-translate="Configurar">Configurar </span>&nbsp;<i class="fas fa-cog"></i></a>
+                </p>
+            </div>*@
+
+        <div class="form-group ActDescProd">
+            <input type="checkbox" class="form-check-input" id="chkActDescProd" asp-for="ActivaDescuentoPromoUsuario" />
+            <label data-translate="chk ActDescProd" class="form-check-label" for="chk ActDescProd">Activar descuentos de productos </label>
+
+            <p>
+                <a class="btn btn-primary btn-xs" id="btnActDescProd"><span data-translate="Configurar">Configurar </span>&nbsp;<i class="fas fa-cog"></i></a>
+            </p>
+        </div>
+
+        @*<div class="form-group ActDescProdUsuarioClave">
+                <input type="checkbox" class="form-check-input" id="chkActDescProdUsuarioClave" asp-for="ActivaDescuentoPromoUsuarioClave" />
+                <label data-translate="chkActDescProdUsuarioClave" class="form-check-label acciones" for="chkActDescProdUsuarioClave">Activar descuentos de los productos solo mediante clave especial y usuarios que autorizan  </label>
+
+                <p>
+                    <a class="btn btn-primary btn-xs config" id="btnActDescProdUsuarioClave"><span data-translate="Configurar">Configurar </span>&nbsp;<i class="fas fa-cog"></i></a>
+                </p>
+            </div>*@
+
+        <hr />
+
+        <div class="form-group">
+            <button id="btnGuardar" class="btn btn-success" onclick="guardarConfiguracion()"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
+        </div>
+
+    </div>
+</div>
+
+<div>
+    <!-- Modal Maximo descuento permitido -->
+    <div class="modal fade" id="modalMaximoDesc" tabindex="-1" role="dialog" aria-labelledby="maximoDescModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 data-translate="Configuracion" class="modal-title" id="maximoDescModallabel">@SharedLocalizer["Configuracion maximo descuento permitido"]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                    <hr />
+
+                    <div class="form-group" style="margin-left:1rem; padding-top:0.7rem">
+                        <p>
+                            <a class="btn btn-primary btn-xs" id="btnAgregarMaximoDesc"><span data-translate="Agregar">Agregar</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-body" id="crearPartialDescuentoUsuarios">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <!-- Modal Maximo descuento permitido por Fecha-->
+    <div class="modal fade" id="modalMaximoDescRango" tabindex="-1" role="dialog" aria-labelledby="maximoDescRangoModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 data-translate="Configuracion" class="modal-title" id="maximoDescRangoModallabel">@SharedLocalizer["Configuracion maximo descuento permitido por rango de Fecha"]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                    <hr />
+
+                    <div class="form-group" style="margin-left:1rem; padding-top:0.7rem">
+                        <p>
+                            <a class="btn btn-primary btn-xs" id="btnAgregarMaximoDescFecha"><span data-translate="Agregar">Agregar</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-body" id="crearPartialDescuentoUsuariosFecha">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <!-- Modal Maximo descuento permitido mediante clave autorizada -->
+    <div class="modal fade" id="modalMaximoDescClave" tabindex="-1" role="dialog" aria-labelledby="maximoDescClaveModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 data-translate="Configuracion" class="modal-title" id="maximoDescClaveModallabel">@SharedLocalizer["Configuracion maximo descuento permitido mediante clave autorizada"]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <hr />
+
+                <div class="form-group" style="margin-left:1rem; padding-top:0.7rem">
+                    <p>
+                        <a class="btn btn-primary btn-xs" id="btnAgregarMaximoDescClave"><span data-translate="Agregar">Agregar</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+                    </p>
+                </div>
+
+                <div class="modal-body" id="crearPartialDescuentoUsuariosClave">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <!-- Modal Activar Promociones de productos -->
+    <div class="modal fade" id="modalPromoProd" tabindex="-1" role="dialog" aria-labelledby="PromoProdModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 data-translate="Configuracion" class="modal-title" id="PromoProdModallabel">@SharedLocalizer["Configuracion promociones de producto"]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                    <hr />
+
+                    <div class="form-group" style="margin-left:1rem; padding-top:0.7rem">
+                        <p>
+                            <a class="btn btn-primary btn-xs" id="btnAgregarPromocionProd"><span data-translate="Agregar">Agregar</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+                        </p>
+                    </div>
+
+                </div>
+                <div class="modal-body" id="crearEditarPartial">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <!-- Modal Activar Promociones de productos mediante clave-->
+    @*<div class="modal fade" id="modalPromoProdClave" tabindex="-1" role="dialog" aria-labelledby="PromoProdClaveModallabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 data-translate="Configuracion" class="modal-title" id="PromoProdClaveModallabel">@SharedLocalizer["Configuracion de promociones de producto mediante clave"]</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="crearEditarPartial">
+
+                    </div>
+                </div>
+            </div>
+        </div>*@
+</div>
+
+<div>
+    <!-- Modal Activar descuentos de productos -->
+    <div class="modal fade" id="modalDescProd" tabindex="-1" role="dialog" aria-labelledby="DescProdModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 data-translate="Configuracion" class="modal-title" id="DescProdModallabel">@SharedLocalizer["Configuracion de descuentos de productos"]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                    <hr />
+
+                    <div class="form-group" style="margin-left:1rem; padding-top:0.7rem">
+                        <p>
+                            <a class="btn btn-primary btn-xs" id="btnAgregarDescProducto"><span data-translate="Agregar">Agregar</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+                        </p>
+                    </div>
+
+                </div>
+                <div class="modal-body" id="crearEditarPartial">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <!-- Modal Activar descuentos de productos mediante clave -->
+    @*<div class="modal fade" id="modalDescProdClave" tabindex="-1" role="dialog" aria-labelledby="DescProdClaveModallabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 data-translate="Configuracion" class="modal-title" id="DescProdClaveModallabel">@SharedLocalizer["Configuracion de descuentos de producto mediante clave"]</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="crearEditarPartial">
+
+                    </div>
+                </div>
+            </div>
+        </div>*@
+</div>
+
+<!--**********************SubModales ************************-->
+<div>
+    <!-- SubModal Maximo Descuento a Usuarios -->
+    <div class="modal fade" role="dialog" id="modalAgregarMaximoDesc" tabindex="-1" style="overflow-y: scroll; " aria-labelledby="AgregarMaximoDescModallabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered big">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 data-translate="Configuracion" class="modal-title" id="AgregarMaximoDescModallabel">@SharedLocalizer["Maximo Descuento a Usuarios"]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="limpiarCampos()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="crearEditarPartial">
+
+                    <input id="txtIdUsuarioDesc" type="text" hidden value="0" />
+
+                    <div class="form-group ">
+                        <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
+                        <select class="form-control selUsuarios " style="width:100%;" multiple="multiple" data-live-search="true" id="asignado" onchange="cargarIdUsuarioSelect()" @*asp-for="@ViewData[" Asignados"].[IdUsuario]"*@>
+                            @*@foreach (var asignados in ViewData["asignados"] as IList<TbSeUsuario>)
+                                {
+                                    <option value="@asignados.Id">@asignados.Nombre</option>
+                                }*@
+
+
+                        </select>
+                    </div>
+
+                    <div class="form-group descuentoGeneralnGroup ">
+                        <label data-translate="txtMaxDesc" class="form-label" for="txtMaxDesc"> Descuento (%)</label>
+
+                        <input id="txtMaxDesc" type="number" min="0" max="100" class="form-control porcentaje" value="" required />
+                        <span hidden id="txtMaxDesc" class="text-danger">@SharedLocalizer["Campo requerido."]</span>
+
+                    </div>
+
+                    <div class=" form-group">
+                        <label class="col-form-label">Nota:</label><br />
+                        <input type="text" class="form-control" id="txtNotaDesc" required>
+                    </div>
+
+                    <div class="form-group">
+                        <button id="btnGuardarDescUsuario" class="btn btn-success btn-xs " onclick="guardarDescuentoUsuario()"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
+                        <a class="btn btn-default btn-xs" id="btnCancelar" onclick="limpiarCampos()" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <!-- SubModal Maximo Descuento a Usuarios por rango de fecha -->
+    <div class="modal fade" role="dialog" id="modalAgregarMaximoDescFecha" tabindex="-1" style="overflow-y: scroll; " aria-labelledby="AgregarMaximoDescFechaModallabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered big">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 data-translate="Configuracion" class="modal-title" id="AgregarMaximoDescFechaModallabel">@SharedLocalizer["Maximo Descuento a Usuarios"]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="limpiarCampos()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body" id="crearEditarPartial">
+
+                    <input id="txtIdUsuarioDescRango" type="text" hidden value="0" />
+
+                    <div class="form-group">
+                        <label class="form-label">Asignado:</label><br />
+                        <select class="form-control selUsuarios" style="width:100%;" multiple="multiple" data-live-search="true" id="asignadoRango" onchange="cargarIdUsuarioRangoSelect()" asp-for="@ViewData.[IdUsuario]"></select>
+                    </div>
+
+                    <div class="form-group descuentoGeneralnGroup ">
+                        <label data-translate="txtMaxDesc" class="form-label" for="txtMaxDescRango"> Descuento (%)</label>
+
+                        <input id="txtMaxDescRango" type="number" min="0" max="100" class="form-control porcentaje" value="" required />
+                        <span hidden id="txtMaxDescRango" class="text-danger">@SharedLocalizer["Campo requerido."]</span>
+
+                    </div>
+
+                    <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="fecha">@SharedLocalizer["Desde"]:</label>
+                                <div class='input-group date fechaPicker' id='fechaPicker'>
+                                    <input type='text' class="form-control" id="txtInicio" />
+                                    <span class="input-group-addon">
+                                        <span class="fas fa-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="fecha">@SharedLocalizer["Hasta"]:</label>
+                                <div class='input-group date fechaPicker' id='fechaPicker'>
+                                    <input type='text' class="form-control" id="txtHasta" />
+                                    <span class="input-group-addon">
+                                        <span class="fas fa-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class=" form-group">
+                        <label class="col-form-label">Nota:</label><br />
+                        <input type="text" class="form-control" id="txtNotaDescRango" required>
+                    </div>
+
+                    <div class="form-group">
+                        <button id="btnGuardarDescUsuarioFecha" class="btn btn-success btn-xs " onclick="guardarDescuentoUsuarioRango()"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
+                        <a class="btn btn-default btn-xs" id="btnCancelarFecha" onclick="limpiarCampos()" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <!-- SubModal Maximo Descuento a Usuarios mediante clave-->
+    <div class="modal fade" role="dialog" id="modalAgregarMaximoDescClave" tabindex="-1" style="overflow-y: scroll; " aria-labelledby="AgregarMaximoDescClaveModallabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered big">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 data-translate="Configuracion" class="modal-title" id="AgregarMaximoDescClaveModallabel">@SharedLocalizer["Maximo descuento a usuarios mediante clave."]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="limpiarCampos()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="crearEditarPartial">
+
+                    <input id="txtIdUsuarioDescClave" type="text" hidden value="0" />
+
+                    <div class="form-group">
+                        <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
+                        <select class="form-control selUsuarios" style="width:100%;" multiple="multiple" data-live-search="true" id="asignadoClave" onchange="cargarIdUsuarioClaveSelect()" asp-for="@ViewData.[IdUsuario]">
+                            @*@foreach (var asignados in ViewData["asignadosClave"] as IList<TbSeUsuario>)
+                                {
+                                    <option value="@asignados.Id">@asignados.Nombre</option>
+                                }*@
+                        </select>
+                    </div>
+
+                    <div class="form-group descuentoGeneralnGroup ">
+                        <label data-translate="txtMaxDescClave" class="form-label" for="txtMaxDescClave"> Descuento (%):</label>
+
+                        <input id="txtMaxDescClave" type="number" min="0" max="100" class="form-control porcentaje" value="" required />
+                        <span hidden id="txtMaxDescClave" class="text-danger">@SharedLocalizer["Campo requerido."]</span>
+
+                    </div>
+
+                    <div class=" form-group">
+                        <label class="col-form-label">Clave Autorizacion:</label><br />
+                        <input type="password" class="form-control" id="txtClaveDescClave" required>
+                    </div>
+
+                    <div class=" form-group">
+                        <label class="col-form-label">Nota:</label><br />
+                        <input type="text" class="form-control" id="txtNotaDescClave" required>
+                    </div>
+
+                    <div class="form-group">
+                        <button id="btnGuardarDescUsuarioClave" class="btn btn-success btn-xs " onclick="guardarDescuentoUsuarioClave()"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
+                        <a class="btn btn-default btn-xs" id="btnCancelarClave" onclick="limpiarCampos()" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <!-- SubModal Promocion Producto -->
+    <div class="modal fade" role="dialog" id="modalAgregarPromocionProd" tabindex="-1" style="overflow-y: scroll; " aria-labelledby="AgregarPromocionProdModallabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered big">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 data-translate="Configuracion" class="modal-title" id="AgregarPromocionProdModallabel">@SharedLocalizer["Promociones de producto"]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="limpiarCampos()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body" id="crearEditarPartial">
+
+                    <input id="txtIdPromocionProducto" type="text" hidden value="0" />
+
+                    <div class="form-group">
+                        <div>
+                            <input type="checkbox" class="form-check-input" id="chkClavePromo" />
+                            <label data-translate="chkClavePromo" class="form-check-label" for="chkClavePromo">Con cierta clave de autorizacion.</label>
+                        </div>
+                        <div>
+                            <input type="password" class="form-control" id="txtClavePromo" />
+                        </div>
+                    </div>
+
+                    <div class="form-group ">
+                        <input type="checkbox" class="form-check-input" id="chkClientePromo" />
+
+                        <label class=" col-form-label">Para venta de clientes:</label><br />
+                        <select class="form-control selPromocion " style="width:100%;" data-live-search="true" id="cliente" onchange="cargarIdPromocionProdSelect()" asp-for="@ViewData["Cliente"].[IdContacto]">
+
+                            @foreach (var asignados in ViewData["Cliente"] as IList<TbCrContacto>)
+                            {
+                                if (asignados.Empresa == null)
+                                {
+                                    <option value="@asignados.IdContacto">@asignados.Nombre  </option>
+                                }
+                                else
+                                {
+                                    <option value="@asignados.IdContacto">@asignados.NombreComercial  </option>
+                                }
+                            }
+
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <div>
+                            <input type="checkbox" class="form-check-input" id="chkEntreFechasPromo" />
+                            <label data-translate="chkClavePromo" class="form-check-label" for="chkClavePromo">Entre fechas definidas.</label>
+                        </div>
+                        <div>
+                            <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                                <fieldset>
+                                    <div class="form-group">
+                                        <label for="fecha">@SharedLocalizer["Desde"]:</label>
+                                        <div class='input-group date fechaPicker' id='fechaPicker'>
+                                            <input type='text' class="form-control" id="txtInicioPromo" />
+                                            <span class="input-group-addon">
+                                                <span class="fas fa-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                            <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                                <fieldset>
+                                    <div class="form-group">
+                                        <label for="fecha">@SharedLocalizer["Desde"]:</label>
+                                        <div class='input-group date fechaPicker' id='fechaPicker'>
+                                            <input type='text' class="form-control" id="txtFinPromo" />
+                                            <span class="input-group-addon">
+                                                <span class="fas fa-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group col-xs-12 col-sm-12 col-md-12">
+                        <label class=" col-form-label">Nota:</label><br />
+                        <input type="text" class="form-control" id="txtNotaPromo" />
+
+
+                    </div>
+
+                    <div class="form-group ">
+                        <input type="checkbox" class="form-check-input" id="chkFamilias" />
+
+                        <label class=" col-form-label">Para cierta familia o sub familia de cliente:</label><br />
+                        <div id="familiaDv" class="form-group">
+                            <div class="col-md-4 col-sm-12 col-xs-12">
+                                <label>Tipo Cliente:</label>
+                                <select id="tipoClientes" class="form-control search-key"></select>
+                            </div>
+
+                            <div class="col-md-4 col-sm-12 col-xs-12">
+                                <label>Familia cliente:</label>
+                                <select id="familia" class="form-control search-key">
+                                    <option selected value="0" data-translate="selecciones">Seleccione</option>
+
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 col-sm-12 col-xs-12 ">
+                                <label>Sub-Familia:</label>
+                                <select id="subFamilia" class="form-control search-key">
+                                    <option selected value="0" data-translate="selecciones">Seleccione</option>
+
+                                </select>
+                            </div>
+                            <br />
+                            <hr />
+                        </div>
+
+                    </div>
+
+                    <!--**************Tipo 1 ***********************-->
+                    <div class="form-group">
+                        <br />
+                        <div class="col-xs-12">
+                            <input type="radio" class="form-check-input" id="rdbClientePromo" name="tipo" />
+                            <label>Tipo 1</label><br />
+                        </div>
+                        <div>
+                            <div class="col-md-3 col-sm-12 col-xs-12">
+
+                                <label>Si lleva:</label><br />
+                                <input type="number" min="1" value="1" class="form-control col-md-4" id="txtCantTipo1Ref" />
+                            </div>
+
+                            <div class="col-md-9 col-sm-12 col-xs-12">
+                                <label class=" col-form-label">Articulo:</label><br />
+
+                                <select id="productoRef" class="form-control search-key">
+                                    <option value="0">Seleccione</option>
+                                    @foreach (var prod in ViewData["Inventario"] as IList<TbPrInventario>)
+                                    {
+
+                                        <option value="@prod.IdInventario">@prod.Descripcion  </option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-3 col-sm-12 col-xs-12">
+
+                                <label>Llevar:</label><br />
+                                <input type="number" min="1" value="1" class="form-control col-md-4" id="txtCantTipo1" />
+                            </div>
+
+                            <div class="col-md-6 col-sm-12 col-xs-12 ">
+                                <label class=" col-form-label">Articulo:</label><br />
+
+                                <select id="producto" class="form-control search-key">
+                                    <option value="0">Seleccione</option>
+                                    @foreach (var prod in ViewData["Inventario"] as IList<TbPrInventario>)
+                                    {
+
+                                        <option value="@prod.IdInventario">@prod.Descripcion  </option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-3 col-sm-12 col-xs-12">
+
+                                <label>% Descuento</label><br />
+                                <input type="number" min="1" value="0" class="form-control col-md-4" id="txtPorcTipo1" />
+                                <hr />
+                                <hr />
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <!--****************Promocion tipo 2********************-->
+                    <div class="form-group">
+
+
+                        <div class="col-xs-12">
+                            <input type="radio" class="form-check-input" id="rdbClientePromoTipo2" name="tipo" checked />
+                            <label>Tipo 2</label><br />
+                        </div>
+                        <div>
+                            <div class="col-md-2 col-sm-12 col-xs-12">
+
+                                <label>Mayor que:</label><br />
+                                <input type="number" min="1" value="0" class="form-control col-md-4" id="txtCantTipo2" />
+                            </div>
+
+                            <div class="col-md-7 col-sm-12  col-xs-12">
+                                <label class=" col-form-label">Productos de proveedor:</label><br />
+
+                                <select id="productoTipo2" class="form-control search-key">
+                                    <option value="0">Seleccione</option>
+                                    @foreach (var prod in ViewData["Inventario"] as IList<TbPrInventario>)
+                                    {
+
+                                        <option value="@prod.IdInventario">@prod.Descripcion  </option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-3 col-sm-12 col-xs-12">
+
+                                <label>% Descuento:</label><br />
+                                <input type="number" min="1" value="0" class="form-control col-md-4" id="txtporcTipo2" />
+
+                            </div>
+
+                            <div class="form-group">
+                                <input type="checkbox" class="form-check-input" id="chkFamiliasProducto" />
+                                <label>Para cierta familia de proveedor:</label><br />
+                            </div>
+
+                            <div id="familiaDv" class="form-group">
+                                <div class="col-md-4 col-sm-12 col-xs-12">
+                                    <label>Tipo Proveedor:</label>
+                                    <select id="tipoProveedor" class="form-control search-key"></select>
+                                </div>
+
+                                <div class="col-md-4 col-sm-12 col-xs-12">
+
+                                    <label>Familia proveedor:</label>
+                                    <select id="familiaProveedor" class="form-control search-key">
+                                        <option selected value="0" data-translate="selecciones">Seleccione</option>
+
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4 col-sm-12 col-xs-12">
+                                    <label>Sub-Familia Proveedor:</label>
+                                    <select id="subfamiliaProveedor" class="form-control search-key">
+                                        <option selected value="0" data-translate="selecciones">Seleccione</option>
+
+                                    </select>
+                                </div>
+                                <br />
+                                <hr />
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="form-group">
+                        <hr />
+                        <button id="btnGuardarPromoProd" class="btn btn-success  " onclick="guardarDescuentoUsuarioRango()"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
+                        <a class="btn btn-default " id="btnCancelarPromoProd" onclick="limpiarCampos()" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div>
+    <!-- SubModal Descuento de Producto-->
+    <div class="modal fade" role="dialog" id="modalAgregarDescProd" tabindex="-1" style="overflow-y: scroll; " aria-labelledby="AgregarDescProductoModallabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered big">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 data-translate="Configuracion" class="modal-title" id="AgregarDescProductoModallabel">@SharedLocalizer["Descuento de Productos."]</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="limpiarCampos()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="crearEditarPartial">
+
+                    <input id="txtIdDescProd" type="text" hidden value="0" />
+
+                    <div class="form-group">
+                        <label for="staticEmail" class=" col-form-label">Asignado:</label><br />
+                        <select class="form-control selUsuarios" style="width:100%;" multiple="multiple" data-live-search="true" id="DescProducto" onchange="cargarIdUsuarioClaveSelect()" asp-for="@ViewData.[IdUsuario]">
+                            @foreach (var prod in ViewData["Inventario"] as IList<TbPrInventario>)
+                            {
+
+                                <option value="@prod.IdInventario">@prod.Descripcion  </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-xs-12">
+                        <input type="radio" class="form-check-input" id="rdbDescProd1" name="tipoDesc" checked />
+                        <label>Tipo 1</label><br />
+
+                        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+
+                            <label>Porcentaje fijo de descuento independientemente el usuario:</label><br />
+                            <div class="col-md-2">
+                                <input type="number" min="1" max="100" value="0" class="form-control col-md-3" id="txtPorcDesc1" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12">
+                        <input type="radio" class="form-check-input" id="rdbDescProd2" name="tipoDesc" checked />
+                        <label>Tipo 2</label><br />
+
+                        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+
+                            <label>Hasta cierto Porcentaje maximo de descuento independientemente del usuario:</label><br />
+                            <div class="col-md-2">
+                                <input type="number" min="1" max="100" value="0" class="form-control col-md-3" id="txtPorcDesc2" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12">
+                        <input type="radio" class="form-check-input" id="rdbDescProd3" name="tipoDesc" checked />
+                        <label>Tipo 3</label><br />
+
+                        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+
+                            <label>Hasta cierto porcentaje maximo de descuento dependiendo si es menor al % maximo del usuario permitido:</label><br />
+                            <div class="col-md-2">
+                                <input type="number" min="1" max="100" value="0" class="form-control col-md-3" id="txtPorcDesc3" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12">
+                        <input type="radio" class="form-check-input" id="rdbDescProd4" name="tipoDesc" checked />
+                        <label>Sin descuento.</label><br />
+
+                    </div>
+
+                    <div class="form-group">
+                        <hr />
+                        <button id="btnGuardarPromoProd" class="btn btn-success  " onclick="guardarDescuentoUsuarioRango()"><span data-translate="guardar">Guardar</span> <span><i class="fas fa-save"></i></span></button>
+                        <a class="btn btn-default " id="btnCancelarPromoProd" onclick="limpiarCampos()" data-translate="cancelar">@SharedLocalizer["Cancelar"]</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--********************Fin SubModales ***********************-->
+
+<script>
+
+    var usuarios = [];
+    var usuariosRango = [];
+    var usuariosClave = [];
+    var promoProd = [];
+
+    $(document).ready(function () {
+
+            //*********************Mostrar Modales**********************************
+            $('#btnDescMaximoUsuario').click(function () {
+
+                if ($('#chkDescMaximoUsuario').prop('checked')) {
+                    $('#modalMaximoDesc').modal('show');
+                    getDescuentoUsuario();
+
+                } else {
+                    cargarAlert("@SharedLocalizer["No ha seleccionado ningun elemento"]");
+                }
+        });
+
+            $('#btnDescMaximoUsuarioRango').click(function () {
+
+                if ($('#chkDescMaximoUsuarioRango').prop('checked')) {
+                    $('#modalMaximoDescRango').modal('show');
+                    getDescuentoUsuarioFecha();
+
+                } else {
+                    cargarAlert("@SharedLocalizer["No ha seleccionado ningun elemento"]");
+                }
+        });
+
+            $('#btnDescMaximoUsuarioClave').click(function () {
+
+                  if ($('#chkDescMaximoUsuarioClave').prop('checked')) {
+                      $('#modalMaximoDescClave').modal('show');
+                      getDescuentoUsuarioClave();
+
+                } else {
+                    cargarAlert("@SharedLocalizer["No ha seleccionado ningun elemento"]");
+                }
+        });
+
+            $('#btnActPromoProd').click(function () {
+
+                     if ($('#chkActPromoProd').prop('checked')) {
+                         $('#modalPromoProd').modal('show');
+
+                } else {
+                    cargarAlert("@SharedLocalizer["No ha seleccionado ningun elemento"]");
+                }
+        });
+
+            $('#btnActPromoUsuarioClave').click(function () {
+
+                  if ($('#chkActPromoUsuarioClave').prop('checked')) {
+                $('#modalPromoProdClave').modal('show');
+
+                } else {
+                    cargarAlert("@SharedLocalizer["No ha seleccionado ningun elemento"]");
+                }
+        });
+
+            $('#btnActDescProd').click(function () {
+
+                if ($('#chkActDescProd').prop('checked')) {
+                $('#modalDescProd').modal('show');
+
+                } else {
+                    cargarAlert("@SharedLocalizer["No ha seleccionado ningun elemento"]");
+                }
+        });
+
+            $('#btnActDescProdUsuarioClave').click(function () {
+
+               if ($('#chkActDescProdUsuarioClave').prop('checked')) {
+                   $('#modalDescProdClave').modal('show');
+
+                } else {
+                    cargarAlert("@SharedLocalizer["No ha seleccionado ningun elemento"]");
+                }
+        });
+
+            //**********************Modal 1 **********************
+
+        $('#btnAgregarMaximoDesc').click(function () {
+            $('#modalAgregarMaximoDesc').modal("show");
+            $('.selUsuarios').select2();
+            obtenerUserSinDesc();
+        });
+            //**********************Fin Modal 1 ******************
+
+          //**********************Modal 2 **********************
+
+        $('#btnAgregarMaximoDescFecha').click(function () {
+            $('#modalAgregarMaximoDescFecha').modal("show");
+            $('.selUsuarios').select2();
+            obtenerUserSinDescRango();
+        });
+            //**********************Fin Modal 2 ******************
+
+         //**********************Modal 3 **********************
+
+       $('#btnAgregarMaximoDescClave').click(function () {
+            $('#modalAgregarMaximoDescClave').modal("show");
+           $('.selUsuarios').select2();
+           obtenerUserSinDescClave();
+        });
+            //**********************Fin Modal 3 ******************
+
+           //**********************Modal 4 **********************
+
+        //if (! $('#chkClavePromo').prop('checked')) {
+        $('#txtClavePromo').attr('disabled', true);
+        //}
+
+        ///Bloquear Campos
+        $('#tipoClientes').attr('disabled', true);
+        $('#familia').attr('disabled', true);
+        $('#subFamilia').attr('disabled', true);
+        $('#txtInicioPromo').attr('disabled', true);
+        $('#txtFinPromo').attr('disabled', true);
+        $('#cliente').attr('disabled', true);
+        $('#tipoProveedor').attr('disabled', true);
+        $('#familiaProveedor').attr('disabled', true);
+        $('#subfamiliaProveedor').attr('disabled', true);
+        $('#txtCantTipo1Ref').attr('disabled', true);
+        $('#productoRef').attr('disabled', true);
+        $('#txtCantTipo1').attr('disabled', true);
+        $('#producto').attr('disabled', true);
+        $('#txtPorcTipo1').attr('disabled', true);
+
+        $('#btnAgregarPromocionProd').click(function () {
+            $('.selPromocion').select2();
+            $('#modalAgregarPromocionProd').modal("show");
+        });
+
+        getTiposClientes();
+        getTiposProveedor();
+        $('.fechaPicker').datetimepicker({
+            defaultDate: new Date(),
+            locale: localStorage.getItem("idioma")
+        });
+
+        $("#tipoClientes").change(function () {
+            if ($(this).val() != 0) {
+
+                getFamilias($(this).val());
+
+            } else {
+                $("#familia option").remove();
+
+                var option = new Option("Seleccione", 0);
+                option.setAttribute("selected", "selected");
+                $("#familia").append(option);
+                $('#subFamilia option').remove();
+                var option = new Option("Seleccione", 0);
+                option.setAttribute("selected", "selected");
+                $("#subFamilia").append(option)
+            }
+        });
+
+        $("#familia").change(function () {
+            if ($(this).val() != 0) {
+                getSubFamilias($(this).val());
+
+            } else {
+                $('#subFamilia option').remove();
+                var option = new Option("Seleccione", 0);
+                option.setAttribute("selected", "selected");
+                $("#subFamilia").append(option)
+            }
+        });
+
+        $('#chkClavePromo').change(function () {
+            if ($(this).prop('checked'))
+                $('#txtClavePromo').attr('disabled', false);
+            else
+                $('#txtClavePromo').attr('disabled', true);
+        });
+
+        $('#chkClientePromo').change(function () {
+            if ($(this).prop('checked'))
+                $('#cliente').attr('disabled', false);
+            else
+                $('#cliente').attr('disabled', true);
+        });
+
+        $('#chkEntreFechasPromo').change(function () {
+            if ($(this).prop('checked')) {
+                $('#txtInicioPromo').attr('disabled', false);
+                $('#txtFinPromo').attr('disabled', false);
+            }
+            else {
+                $('#txtInicioPromo').attr('disabled', true);
+                $('#txtFinPromo').attr('disabled', true);
+            }
+        });
+
+        $('#chkFamilias').change(function () {
+            if ($(this).prop('checked')) {
+                $('#tipoClientes').attr('disabled', false);
+                $('#familia').attr('disabled', false);
+                $('#subFamilia').attr('disabled', false);
+            }
+            else {
+                $('#tipoClientes').attr('disabled', true);
+                $('#familia').attr('disabled', true);
+                $('#subFamilia').attr('disabled', true);
+
+            }
+        });
+
+        $('#chkFamiliasProducto').change(function () {
+            if ($(this).prop('checked')) {
+                $('#tipoProveedor').attr('disabled', false);
+                $('#familiaProveedor').attr('disabled', false);
+                $('#subfamiliaProveedor').attr('disabled', false);
+            }
+            else {
+                $('#tipoProveedor').attr('disabled', true);
+                $('#familiaProveedor').attr('disabled', true);
+                $('#subfamiliaProveedor').attr('disabled', true);
+            }
+        });
+
+        $('#rdbClientePromoTipo2').change(
+            function () {
+                if ($(this).prop('checked')) {
+                    $('#txtCantTipo1Ref').attr('disabled', true);
+                    $('#productoRef').attr('disabled', true);
+                    $('#txtCantTipo1').attr('disabled', true);
+                    $('#producto').attr('disabled', true);
+                    $('#txtPorcTipo1').attr('disabled', true);
+                    $('#txtCantTipo2').attr('disabled', false);
+                    $('#productoTipo2 ').attr('disabled', false);
+                    $('#txtporcTipo2').attr('disabled', false);
+
+                    $('#txtCantTipo1Ref').val(1);
+                    $('#productoRef').val(0);
+                    $('#txtCantTipo1').val(1);
+                    $('#producto').val(0);
+                    $('#txtPorcTipo1').val(0);
+                }
+            });
+
+        $('#rdbClientePromo').change(
+            function () {
+                if ($(this).prop('checked')) {
+                    $('#txtCantTipo1Ref').attr('disabled', false);
+                    $('#productoRef').attr('disabled', false);
+                    $('#txtCantTipo1').attr('disabled', false);
+                    $('#producto').attr('disabled', false);
+                    $('#txtPorcTipo1').attr('disabled', false);
+                    $('#txtCantTipo2').attr('disabled', true);
+                    $('#productoTipo2 ').attr('disabled', true);
+                    $('#txtporcTipo2').attr('disabled', true);
+
+                    $('#txtCantTipo2').val(0);
+                    $('#productoTipo2 ').val(0);
+                    $('#txtporcTipo2').val(0);
+                }
+            });
+
+            //**********************Fin Modal 4 ******************
+
+        //**********************Modal 5 **********************
+
+        $('#btnAgregarDescProducto').click(function () {
+            $('#modalAgregarDescProd').modal("show");
+            $('.selUsuarios').select2();
+            //obtenerUserSinDescClave();
+        });
+
+        $('#rdbDescProd3').change(
+            function () {
+                if ($(this).prop('checked')) {
+                    $('#txtPorcDesc1').attr('disabled', true);
+                    $('#txtPorcDesc2').attr('disabled', true);
+                    $('#txtPorcDesc3').attr('disabled', false);
+                    $('#txtPorcDesc1').val(0);
+                    $('#txtPorcDesc2').val(0);
+                    
+                }
+            });
+
+        $('#rdbDescProd2').change(
+            function () {
+                if ($(this).prop('checked')) {
+                    $('#txtPorcDesc1').attr('disabled', true);
+                    $('#txtPorcDesc3').attr('disabled', true);
+                    $('#txtPorcDesc2').attr('disabled', false);
+                    $('#txtPorcDesc1').val(0);
+                    $('#txtPorcDesc3').val(0);
+
+                }
+            });
+
+        $('#rdbDescProd1').change(
+            function () {
+                if ($(this).prop('checked')) {
+                    $('#txtPorcDesc3').attr('disabled', true);
+                    $('#txtPorcDesc2').attr('disabled', true);
+                    $('#txtPorcDesc1').attr('disabled', false);
+                    $('#txtPorcDesc2').val(0);
+                    $('#txtPorcDesc3').val(0);
+
+                }
+            });
+
+        $('#rdbDescProd4').change(
+            function () {
+                if ($(this).prop('checked')) {
+                    $('#txtPorcDesc3').attr('disabled', true);
+                    $('#txtPorcDesc2').attr('disabled', true);
+                    $('#txtPorcDesc1').attr('disabled', true);
+                    $('#txtPorcDesc2').val(0);
+                    $('#txtPorcDesc1').val(0);
+                    $('#txtPorcDesc3').val(0);
+                }
+            });
+            //**********************Fin Modal 5 ******************
+
+    }); //Fin de document ready
+
+         function guardarConfiguracion() {
+
+            var _porcentaje = $('#txtPorcentajeDescuentoGeneral').val();
+            var _descGeneral = $('#chkDescuentoGeneral').is(':checked');
+            var _descMaximoUsuario = $('#chkDescMaximoUsuario').is(':checked');
+            var _descMaximoUsuarioRango = $('#chkDescMaximoUsuarioRango').is(':checked');
+            var _descMaximoUsuarioClave = $('#chkDescMaximoUsuarioClave').is(':checked');
+            var _actPromoProd = $('#chkActPromoProd').is(':checked');
+            var _actPromoUsuarioClave = $('#chkActPromoUsuarioClave').is(':checked');
+            var _actDescProd = $('#chkActDescProd').is(':checked');
+            var _actDescProdUsuarioClave = $('#chkActDescProdUsuarioClave').is(':checked');
+                 if ( @Model.IdRebajaConfig != 0) {
+                     var id = @Model.IdRebajaConfig;
+                     var model = {
+
+                         IdRebajaConfig: id,
+                         PorcMaxGeneral: _porcentaje,
+                         ActivaMaxGeneral: _descGeneral,
+                         ActivaMaxUsuario: _descMaximoUsuario,
+                         ActivaMaxUsuarioRango: _descMaximoUsuarioRango,
+                         ActivaMaxUsuarioClave: _descMaximoUsuarioClave,
+                         ActivaPromoProducto: _actPromoProd,
+                         ActivaPromoProductoUsuario: _actPromoUsuarioClave,
+                         ActivaDescuentoPromoUsuario: _actDescProd,
+                         ActivaDescuentoPromoUsuarioClave: _actDescProdUsuarioClave
+                     }
+                 } else {
+                      var model = {
+
+                         PorcMaxGeneral: _porcentaje,
+                         ActivaMaxGeneral: _descGeneral,
+                         ActivaMaxUsuario: _descMaximoUsuario,
+                         ActivaMaxUsuarioRango: _descMaximoUsuarioRango,
+                         ActivaMaxUsuarioClave: _descMaximoUsuarioClave,
+                         ActivaPromoProducto: _actPromoProd,
+                         ActivaPromoProductoUsuario: _actPromoUsuarioClave,
+                         ActivaDescuentoPromoUsuario: _actDescProd,
+                         ActivaDescuentoPromoUsuarioClave: _actDescProdUsuarioClave
+                     }
+                 }
+
+                $.ajax({
+                type: "post",
+                    headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: '@Url.Action("ActualizarConfig")',
+                    data: model,
+                    success: function (data) {
+                        cargarAlert("@SharedLocalizer["OperacionExitosa"]");
+                },
+                    error: function (err, scnd) {
+                        @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
+                        console.log(err.statusText);
+                }
+            });
+    }
+
+    //***************Funciones de modal 1********************//
+
+         function cargarIdUsuarioSelect() {
+
+            var selectUser = $('#asignado').val();
+
+            usuarios = $('#asignado').val();
+    }
+
+         function guardarDescuentoUsuario() {
+
+            cargarIdUsuarioSelect();
+            console.log(usuarios);
+            var model = [];
+            var _IdDescuentoUsuario = $('#txtIdUsuarioDesc').val();
+            var _IdConfig = @Model.IdRebajaConfig;
+            var _Descuento = $('#txtMaxDesc').val();
+            var _ObtenerUsuario =@User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var _Nota = $('#txtNotaDesc').val();
+
+            for (var i = 0; i < usuarios.length; i++) {
+                var m = {
+                    IdRebajaConfig: _IdConfig,
+                    IdDescuentoUsuario: _IdDescuentoUsuario,
+                    IdUsuario: usuarios[i],
+                    MaxDescuento: _Descuento,
+                    IdUsuarioCreador: _ObtenerUsuario,
+                    Nota: _Nota
+                };
+                model.push(m);
+            }
+
+            $.ajax({
+                type: "post",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: '@Url.Action("GuardarDescMaximo")',
+                data: {model: model} ,
+                success: function (data) {
+                      //  cargarAlert("@SharedLocalizer["OperacionExitosa"]");
+                        getDescuentoUsuario();
+                        limpiarCampos();
+                },
+                error: function (err, scnd) {
+                        cargarAlert('@SharedLocalizer["errorGeneral"]');
+                        console.log(err.statusText);
+                }
+            });
+        }
+
+         function limpiarCampos() {
+
+             //SubModal 1
+             $('#txtIdUsuarioDesc').val('');
+             $('#txtIdUsuarioDescRango').val('');
+             $('#txtNotaDesc').val('');
+             $('#txtMaxDesc').val('');
+             $('#asignado').val('').removeAttr('disabled');
+
+             //SubModal 2
+             $('#txtNotaDescRango').val('');
+             $('#txtMaxDescRango').val('');
+             $('#asignadoRango').val('').removeAttr('disabled');
+             $('#txtHasta').val('');
+             $('#txtInicio').val('');
+
+             //SubModal 3
+             $('#txtIdUsuarioDescClave').val('');
+             $('#txtNotaDescClave').val('');
+             $('#txtMaxDescClave').val('');
+             $('#txtClaveDescClave').val('');
+             $('#asignadoClave').val('').removeAttr('disabled');
+             $('.selUsuarios option').remove();
+
+             //SubModal 4
+             $('#txtIdPromocionProducto').val('');
+             $('#chkClavePromo').prop('checked', false);
+             $('#txtClavePromo').val('');
+             $('#chkClientePromo').prop('checked', false);
+             $('#cliente ').val(0);
+             $('#chkEntreFechasPromo').prop('checked', false);;
+             $('#txtInicioPromo').val('');
+             $('#txtFinPromo').val('');
+             $('#txtNotaPromo').val('');
+             $('#chkFamilias').prop('checked', false);;
+             $('#tipoClientes ').val(0);
+             $('#familia').val(0);
+             $('#subFamilia ').val(0);
+             $('#rdbClientePromo').prop('checked', false);
+             $('#txtCantTipo1Ref').val(1);
+             $('#productoRef ').val(0);
+             $('#txtCantTipo1').val(1);
+             $('#producto ').val(0);
+             $('#txtPorcTipo1').val(0);
+             $('#rdbClientePromoTipo2').prop('checked', true);
+             $('#txtCantTipo2').val(0);
+             $('#productoTipo2 ').val(0);
+             $('#txtporcTipo2').val(0);
+             $('#chkFamiliasProducto').prop('checked', false);;
+             $('#tipoProveedor ').val(0);
+             $('#familiaProveedor ').val(0);
+             $('#subfamiliaProveedor ').val(0);
+             $('#txtClavePromo').attr('disabled', true);
+             $('#tipoClientes').attr('disabled', true);
+             $('#familia').attr('disabled', true);
+             $('#subFamilia').attr('disabled', true);
+             $('#txtInicioPromo').attr('disabled', true);
+             $('#txtFinPromo').attr('disabled', true);
+             $('#cliente').attr('disabled', true);
+             $('#tipoProveedor').attr('disabled', true);
+             $('#familiaProveedor').attr('disabled', true);
+             $('#subfamiliaProveedor').attr('disabled', true);
+             $('#txtCantTipo1Ref').attr('disabled', true);
+             $('#productoRef').attr('disabled', true);
+             $('#txtCantTipo1').attr('disabled', true);
+             $('#producto').attr('disabled', true);
+             $('#txtPorcTipo1').attr('disabled', true);
+
+             $('#txtCantTipo2').attr('disabled', false);
+             $('#productoTipo2').attr('disabled', false);
+             $('#txtporcTipo2').attr('disabled', false);
+
+             $('#modalAgregarMaximoDesc').modal("hide");
+             $('#modalAgregarMaximoDescFecha').modal("hide");
+             $('#modalAgregarMaximoDescClave').modal("hide");
+             $('#modalAgregarPromocionProd').modal("hide");
+    }
+
+         function obtenerUserSinDesc() {
+
+             $.ajax({
+                type: "get",
+                    headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: '@Url.Action("GetUsuarioSInDesc", "DescuentoPromocion")',
+
+                    success: function (data) {
+                         for (var i = 0; i < data.length; i++) {
+                             var o = new Option(data[i].nombre, data[i].id);
+                             $("#asignado").append(o);
+                         }
+                    },
+                    error: function (err, scnd) {
+                        @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
+                        console.log(err.statusText);
+                    }
+            });
+    }
+
+         function obtenerUserConDesc(_id) {
+
+             $.ajax({
+                type: "get",
+                    headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: '@Url.Action("GetUsuarioConDesc", "DescuentoPromocion")',
+                    data: {id: _id},
+                    success: function (data) {
+                         var o = new Option(data.nombre, data.id);
+
+                         $(o).attr('selected', true);
+                         $("#asignado").append(o);
+                    },
+                    error: function (err, scnd) {
+                        @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
+                        console.log(err.statusText);
+                    }
+            });
+        }
+
+         function getDescuentoUsuario() {
+
+            var url = '@Url.Action("_ListarDescuentoUsuario", "DescuentoPromocion")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+                    $('#crearPartialDescuentoUsuarios').html(data);
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+        }
+    //************Fin funcioines modal 1*******************//
+
+        //************Inicio funcioines modal 2*******************//
+
+         function cargarIdUsuarioRangoSelect() {
+
+            var selectUserRango = $('#asignadoRango').val();
+
+            usuariosRango = $('#asignadoRango').val();
+          }
+
+         function guardarDescuentoUsuarioRango() {
+
+            cargarIdUsuarioRangoSelect();
+
+            console.log(usuarios);
+                var model = [];
+                var _IdDescuentoUsuarioRango = $('#txtIdUsuarioDescRango').val();
+                var _IdConfig = @Model.IdRebajaConfig;
+                var _Descuento = $('#txtMaxDescRango').val();
+                var _ObtenerUsuario =@User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                var _Desde = $('#txtInicio').val();
+                var _Hasta = $('#txtHasta').val();
+                var _Nota = $('#txtNotaDescRango').val();
+
+            for (var i = 0; i < usuariosRango.length; i++) {
+                var m = {
+                    IdRebajaConfig: _IdConfig,
+                    IdDescuentoUsuarioRango: _IdDescuentoUsuarioRango,
+                    IdUsuario: usuariosRango[i],
+                    MaxDescuento: _Descuento,
+                    IdUsuarioCreador: _ObtenerUsuario,
+                    FechaHasta: _Hasta,
+                    FechaDesde: _Desde,
+                    Nota: _Nota
+                };
+                model.push(m);
+            }
+
+            $.ajax({
+                type: "post",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: '@Url.Action("GuardarDescMaximoRango")',
+                data: {model: model} ,
+                success: function (data) {
+                        getDescuentoUsuarioFecha();
+                        limpiarCampos();
+                },
+                error: function (err, scnd) {
+                        cargarAlert('@SharedLocalizer["errorGeneral"]');
+                        console.log(err.statusText);
+                }
+            });
+        }
+
+         function getDescuentoUsuarioFecha() {
+
+            var url = '@Url.Action("_ListarDescuentoUsuarioFecha", "DescuentoPromocion")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+                    $('#crearPartialDescuentoUsuariosFecha').html(data);
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+    }
+
+         function obtenerUserSinDescRango() {
+
+             $.ajax({
+                type: "get",
+                    headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: '@Url.Action("GetUsuarioSInDescRango", "DescuentoPromocion")',
+                    success: function (data) {
+                         for (var i = 0; i < data.length; i++) {
+                             var o = new Option(data[i].nombre, data[i].id);
+                             $("#asignadoRango").append(o);
+                         }
+                    },
+                    error: function (err, scnd) {
+                        @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
+                        console.log(err.statusText);
+                    }
+            });
+    }
+
+         function obtenerUserConDescRango(_id) {
+
+                 $.ajax({
+                    type: "get",
+                        headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        url: '@Url.Action("GetUsuarioConDesc", "DescuentoPromocion")',
+                        data: {id: _id},
+                     success: function (data) {
+
+                             var o = new Option(data.nombre, data.id);
+
+                             $(o).attr('selected', true);
+                             $("#asignadoRango").append(o);
+                         },
+                        error: function (err, scnd) {
+                            @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
+                            console.log(err.statusText);
+                    }
+                });
+        }
+
+        //************Fin funcioines modal 2*******************//
+
+       //***************Funciones de modal 3******************//
+
+         function cargarIdUsuarioClaveSelect() {
+
+            var selectUser = $('#asignadoClave').val();
+
+            usuariosClave = $('#asignadoClave').val();
+    }
+
+         function obtenerUserSinDescClave() {
+
+                 $.ajax({
+                    type: "get",
+                        headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        url: '@Url.Action("GetUsuarioSInDescClave", "DescuentoPromocion")',
+                        success: function (data) {
+                             for (var i = 0; i < data.length; i++) {
+                                 var o = new Option(data[i].nombre, data[i].id);
+                                 $("#asignadoClave").append(o);
+                             }
+                         },
+                        error: function (err, scnd) {
+                            @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
+                            console.log(err.statusText);
+                    }
+                });
+        }
+
+         function obtenerUserConDescClave(_id) {
+
+                 $.ajax({
+                    type: "get",
+                        headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        url: '@Url.Action("GetUsuarioConDesc", "DescuentoPromocion")',
+                        data: {id: _id},
+                        success: function (data) {
+                             var o = new Option(data.nombre, data.id);
+
+                             $(o).attr('selected', true);
+                             $("#asignadoClave").append(o);
+                         },
+                        error: function (err, scnd) {
+                            @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
+                            console.log(err.statusText);
+                    }
+                });
+            }
+
+         function guardarDescuentoUsuarioClave() {
+
+             cargarIdUsuarioClaveSelect();
+
+            console.log(usuariosClave);
+            var model = [];
+            var _IdDescuentoUsuarioClave = $('#txtIdUsuarioDescClave').val();
+            var _IdConfig = @Model.IdRebajaConfig;
+            var _Descuento = $('#txtMaxDescClave').val();
+            var _Clave = $('#txtClaveDescClave').val();
+            var _ObtenerUsuario =@User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var _Nota = $('#txtNotaDescClave').val();
+
+            for (var i = 0; i < usuariosClave.length; i++) {
+                var m = {
+                    IdRebajaConfig: _IdConfig,
+                    IdDescuentoUsuario: _IdDescuentoUsuarioClave,
+                    IdUsuario: usuariosClave[i],
+                    MaxDescuento: _Descuento,
+                    Clave: _Clave,
+                    IdUsuarioCreador: _ObtenerUsuario,
+                    Nota: _Nota
+                };
+                model.push(m);
+            }
+
+            $.ajax({
+                type: "post",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: '@Url.Action("GuardarDescMaximoClave")',
+                data: {model: model} ,
+                success: function (data) {
+                        getDescuentoUsuarioClave();
+                        limpiarCampos();
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+        }
+
+         function getDescuentoUsuarioClave() {
+
+            var url = '@Url.Action("_ListarDescuentoUsuarioClave", "DescuentoPromocion")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+                    $('#crearPartialDescuentoUsuariosClave').html(data);
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+        }
+    //************Fin funcioines modal 3*******************//
+
+    //***********Funciones Modal 4*******************//
+
+       //function que devuelte las subfamilias por iD
+         function getSubFamilias(idTipoCliente) {
+         var url = '@Url.Action("GetSubFamilias", "TipoCliente")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { idCliente: idTipoCliente },
+                success: function (data) {
+                    if (data != false) {
+                        $("#subFamilia option").remove();
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#subFamilia").append(option);
+                        for (var i = 0; i < data.length; i++) {
+
+                            var o = new Option(data[i].nombre, data[i].id);
+                            $("#subFamilia").append(o);
+                        }
+
+                        $("#subFamilia").trigger('change');
+                    } else {
+                        $("#subFamilia option").remove();
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#subFamilia").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+    }
+            //function que devuelve las familias por ID
+         function getFamilias(idTipoCliente) {
+         var url = '@Url.Action("GetFamiliasTipoCliente", "TipoCliente")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { idCliente: idTipoCliente },
+                success: function (data) {
+                    if (data != false) {
+                        $("#familia option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#familia").append(option);
+                        for (var i = 0; i < data.length; i++) {
+
+                            var o = new Option(data[i].nombre, data[i].id);
+
+                            $("#familia").append(o);
+                        }
+
+                        $("#familia").trigger('change');
+                    } else {
+                        $("#familia option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#familia").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+        }
+
+         function getProductos() {
+
+            var url = '@Url.Action("GetAllInventarios", "Inventario")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+                    if (data != false) {
+                        $("#producto option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#producto").append(option);
+
+                        for (var i = 0; i < data.length; i++) {
+
+                            var o = new Option(data[i].descripcion, data[i].codigo);
+
+                            $("#producto").append(o);
+
+                            $("#producto").append(o);
+                        }
+
+                        $("#producto").trigger('change');
+                    } else {
+                        $("#producto option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#producto").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+        }
+
+         function getTiposClientes() {
+
+            var url = '@Url.Action("GetTiposClientes", "TipoCliente")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+                    if (data != false) {
+                        $("#tipoClientes option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#tipoClientes").append(option);
+
+                        for (var i = 0; i < data.length; i++) {
+
+                            var o = new Option(data[i].nombre, data[i].id);
+
+                            $("#tipoClientes").append(o);
+
+                            $("#tipoClientes").append(o);
+                        }
+
+                        $("#tipoClientes").trigger('change');
+                    } else {
+                        $("#tipoClientes option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#tipoClientes").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+        }
+
+          //accion del select tipo cliente que llama ala familiaProveedor..
+         $("#tipoProveedor").change(function () {
+        if ($(this).val() != 0) {
+
+            getfamiliaProveedors($(this).val());
+
+        } else {
+
+            $("#subfamiliaProveedor option").remove();
+            var option = new Option("Seleccione", 0);
+            option.setAttribute("selected", "selected");
+            $("#subfamiliaProveedor").append(option);
+            $("#familiaProveedor option").remove();
+            var option = new Option("Seleccione", 0);
+            option.setAttribute("selected", "selected");
+            $("#familiaProveedor").append(option);
+            $('#editarSubfamiliaProveedor').attr("disabled", true);
+            $('#eliminarFamiliaProveedor').attr("disabled", true);
+            $('#eliminaSubFamiliaProveedor').attr("disabled", true);
+        }
+         });
+
+        //accion del select familiaProveedor que devuelve alas subfamiliaProveedors:
+         $("#familiaProveedor").change(function () {
+        if ($(this).val() != 0) {
+            getSubfamiliaProveedors($(this).val());
+        } else {
+            $("#subfamiliaProveedor option").remove();
+            var option = new Option("Seleccione", 0);
+            option.setAttribute("selected", "selected");
+            $("#subfamiliaProveedor").append(option);
+        }
+    });
+
+         function getTiposProveedor() {
+
+            var url = '@Url.Action("GetTiposDeProveedores", "TipoProveedor")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+                    if (data != false) {
+                        $("#tipoProveedor option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#tipoProveedor").append(option);
+
+                        for (var i = 0; i < data.length; i++) {
+
+                            var o = new Option(data[i].nombre, data[i].id);
+
+                            $("#tipoProveedor").append(o);
+
+                            $("#tipoProveedor").append(o);
+                        }
+
+                        $("#tipoProveedor").trigger('change');
+                    } else {
+                        $("#tipoProveedor option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#tipoProveedor").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+        }
+
+         function getSubfamiliaProveedors(idTipoCliente) {
+         var url = '@Url.Action("GetSubFamiliasProveedor", "TipoProveedor")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { idProveedor: idTipoCliente },
+                success: function (data) {
+                    if (data != false) {
+                        $("#subfamiliaProveedor option").remove();
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#subfamiliaProveedor").append(option);
+                        for (var i = 0; i < data.length; i++) {
+
+                            var o = new Option(data[i].nombre, data[i].id);
+
+                            $("#subfamiliaProveedor").append(o);
+                        }
+
+                        $("#subfamiliaProveedor").trigger('change');
+                    } else {
+                        $("#subfamiliaProveedor option").remove();
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#subfamiliaProveedor").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+    }
+
+          //function que devuelve las familiaProveedors por ID
+         function getfamiliaProveedors(idTipoCliente) {
+         var url = '@Url.Action("GetFamiliasTipoProveedor", "TipoProveedor")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                data: { idProveedor: idTipoCliente },
+                success: function (data) {
+                    if (data != false) {
+                        $("#familiaProveedor option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#familiaProveedor").append(option);
+                        for (var i = 0; i < data.length; i++) {
+
+                            var o = new Option(data[i].nombre, data[i].id);
+
+                            $("#familiaProveedor").append(o);
+                        }
+
+                        $("#familiaProveedor").trigger('change');
+                    } else {
+                        $("#familiaProveedor option").remove();
+
+                        var option = new Option("Seleccione", 0);
+                        option.setAttribute("selected", "selected");
+                        $("#familiaProveedor").append(option);
+                    }
+                },
+                error: function (err, scnd) {
+                    console.log(err.statusText);
+                    cargarAlert("Tuvimos un error al procesar tu solicitud");
+                }
+            });
+        }
+
+         function cargarIdPromocionProdSelect() {
+
+            var selectUserRango = $('#cliente').val();
+
+            promoProd = $('#cliente').val();
+          }
+
+         function guardarDescuentoUsuarioRango() {
+
+            cargarIdPromocionProdSelect();
+             var model = [];
+
+             var _IdPromocion = $('#txtIdPromocionProducto').val();
+             var _IdConfig = @Model.IdRebajaConfig;
+             var _ConClaveAutorizacion = $('#chkClavePromo').is(':checked');
+             var _Clave = $('#txtClavePromo').val();
+             var _VentaCliente = $('#chkClientePromo').is(':checked');
+             var _EntreFechas = $('#chkEntreFechasPromo').is(':checked');
+             var _FechaDesde = $('#txtInicioPromo').val();
+             var _FechaHasta = $('#txtFinPromo').val();
+             var _Nota = $('#txtNotaPromo').val();
+             var _FamiliaCliente = $('#chkFamilias').is(':checked');
+             if ($('#subFamilia ').val() != 0) {
+                 var _IdFamiliaCliente = $('#subFamilia').val();
+             } else {
+                  var _IdFamiliaCliente = $('#familia').val();
+             }
+             var _EsTipo1 = $('#rdbClientePromo').is(':checked');
+             var _CantTipo1Ref =  $('#txtCantTipo1Ref').val();
+             var _IdTipoInventarioRef = $('#productoRef  ').val();
+             var _CantTipo1Promo =$('#txtCantTipo1').val();
+             var _IdTipo1InventarioPromo =$('#producto   ').val();
+             var _PorcTipo1DescuentoPromo =$('#txtPorcTipo1').val();
+             var _EsTipo2 = $('#rdbClientePromoTipo2').is(':checked');
+             var _CantTipo2Ref = $('#txtCantTipo2').val();
+             var _IdTipo2Inventario = $('#productoTipo2').val();
+             var _PorcTipo2Descuento = $('#txtporcTipo2').val();
+             var _FamiliaProveedor = $('#chkFamiliasProducto').is(':checked');
+             if ($('#subfamiliaProveedor ').val() != 0) {
+                 var _IdProveedor = $('#subfamiliaProveedor').val();
+             }
+             else {
+                 var _IdProveedor = $('#familiaProveedor').val();
+             }
+
+            for (var i = 0; i < promoProd.length; i++) {
+                var m = {
+                    IdPromocionProducto: _IdPromocion,
+                    IdRebajaConfig: _IdConfig,
+                    ConClaveAutorizacion: _ConClaveAutorizacion,
+                    Clave: _Clave,
+                    VentaCliente: _VentaCliente,
+                    IdCliente: promoProd[i],
+                    EntreFechas: _EntreFechas,
+                    FechaDesde: _FechaDesde,
+                    FechaHasta: _FechaHasta,
+                    Nota: _Nota,
+                    FamiliaCliente: _FamiliaCliente,
+                    IdFamiliaCliente: _IdFamiliaCliente,
+                    EsTipo1: _EsTipo1,
+                    CantTipo1Ref: _CantTipo1Ref,
+                    IdTipoINventarioRef: _IdTipoInventarioRef,
+                    CantTipo1Promo: _CantTipo1Promo,
+                    IdTipo1InventarioPromo: _IdTipo1InventarioPromo,
+                    PorcTipo1DescuentoPromo: _PorcTipo1DescuentoPromo,
+                    EsTipo2: _EsTipo2,
+                    CantTipo2Ref: _CantTipo2Ref,
+                    IdTipo2Inventario: _IdTipo2Inventario,
+                    PorcTipo2Descuento: _PorcTipo2Descuento,
+                    FamiliaProveedor: _FamiliaProveedor,
+                    IdProveedor: _IdProveedor
+                };
+                model.push(m);
+            }
+
+            $.ajax({
+                type: "post",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: '@Url.Action("GuardarPromocionProducto")',
+                data: {model: model} ,
+                success: function (data) {
+                        //getDescuentoUsuarioFecha();
+                        limpiarCampos();
+                },
+                error: function (err, scnd) {
+                        cargarAlert('@SharedLocalizer["errorGeneral"]');
+                        console.log(err.statusText);
+                }
+            });
+        }
+
+         function getPromoCionProducto() {
+
+            var url = '@Url.Action("_ListarDescuentoUsuarioFecha", "DescuentoPromocion")';
+            $.ajax({
+                type: "get",
+                headers: {
+                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                },
+                url: url,
+                success: function (data) {
+                    $('#crearPartialDescuentoUsuariosFecha').html(data);
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+    }
+</script>

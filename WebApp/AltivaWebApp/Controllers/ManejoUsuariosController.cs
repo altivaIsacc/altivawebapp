@@ -11,6 +11,7 @@ using AltivaWebApp.ViewModels;
 using System.Security.Claims;
 using AltivaWebApp.GEDomain;
 using Microsoft.Extensions.Localization;
+using System.Net.Http;
 
 namespace AltivaWebApp.Controllers
 {
@@ -355,8 +356,6 @@ namespace AltivaWebApp.Controllers
             try
             {
                 // TODO: Add delete logic here
-
-
                 var model = userService.GetSingleUser(id);
 
                 var estado = model.Estado;
@@ -386,10 +385,62 @@ namespace AltivaWebApp.Controllers
             }
         }
 
+        [HttpPost("AsignarUsuariosEmpresa")]
+        public ActionResult AsignarUsuariosEmpresa(IList<TbSeEmpresaUsuario> newViewModel, IList<TbSeEmpresaUsuario> upViewModel)
+        {
+            try
+            {
+                var res = userService.CrearRelEmpresaUsuario(newViewModel);
+                var res2 = userService.DesactivarRelEmpresaUsuario(upViewModel);
+
+                return Json( new { success = true });
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+        }
+
+        [HttpGet("_AutorizacionUsuario/{idUsuario}")]
+        public ActionResult _AutorizacionUsuario(int idUsuario)
+        {
+            ViewBag.idUsuario = idUsuario;
+            return PartialView();
+        }
+
+
+        [HttpGet("GetEmpresasPorUsuario/{idUsuario}")]
+        public ActionResult GetEmpresasPorUsuario(int idUsuario)
+        {
+            return Ok(userService.GetEmpresasPorUsuario(idUsuario));
+        }
+
         [HttpGet("GetUsuariosPorEmpresa")]
         public ActionResult GetUsuariosPorEmpresa()
         {
             return Ok(userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa")));
         }
+
+        [HttpGet("GetUsuariosConEmpresas")]
+        public ActionResult GetUsuariosConEmpresas()
+        {
+            return Ok(userService.GetAllConEmpresas());
+        }
+
+              [HttpGet("GetAllPerfilModulo")]
+        public ActionResult GetAllPerfilModulo()
+        {
+           
+            return Ok(userService.GetAllPerfilModulo());
+        }
+
+        [HttpGet("GetAllPerfilUsuario")]
+        public ActionResult GetAllPerfilUsuario()
+        {
+            
+            return Ok(userService.GetAllPerfilUsuario());
+        }
+
     }
 }

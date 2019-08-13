@@ -51,6 +51,7 @@ namespace AltivaWebApp.Mappers
 
         }
 
+
         public void Delete(TbSeUsuario domain)
 
         {
@@ -114,6 +115,7 @@ namespace AltivaWebApp.Mappers
             if(officeViewModel.contrasena != null || officeViewModel.contrasena != "")
                 domain.Contrasena = officeViewModel.contrasena;
             domain.Correo = officeViewModel.correo;
+            domain.FechaMod = DateTime.Now;
         
 
 

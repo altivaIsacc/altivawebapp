@@ -43,6 +43,17 @@ namespace AltivaWebApp.Services
 
         }
 
+        public IList<TbSePerfilModulo> GetAllPerfilModulo()
+        {
+            return repository.GetAllPerfilModulo();
+        }
+
+        public IList<TbSePerfilUsuario> GetAllPerfilUsuario()
+        {
+            return repository.GetAllPerfilUsuario();
+        }
+
+
         public TbSeEmpresaUsuario CreateEmpresaUsuarioRel(TbSeEmpresaUsuario domain)
         {
             return repository.CreateEmpresaUsuarioRel(domain);
@@ -121,6 +132,23 @@ namespace AltivaWebApp.Services
         public IList<TbSeUsuario> GetAllByIdEmpresa(int idEmpresa)
         {
             return repository.GetAllByIdEmpresa(idEmpresa);
+        }
+        public IList<TbSeUsuario> GetAllConEmpresas()
+        {
+            return repository.GetAllConEmpresas();
+        }
+        public IList<TbGeEmpresa> GetEmpresasPorUsuario(int idUsuario)
+        {
+            return repository.GetEmpresasPorUsuario(idUsuario);
+        }
+        public bool CrearRelEmpresaUsuario(IList<TbSeEmpresaUsuario> domain)
+        {
+            return repository.CrearRelEmpresaUsuario(domain);
+        }
+
+        public bool DesactivarRelEmpresaUsuario(IList<TbSeEmpresaUsuario> domain)
+        {
+            return repository.DesactivarRelEmpresaUsuario(domain);
         }
         public IList<TbSeUsuario> GetAllByIdEmpresaConPerfiles(int idEmpresa)
         {
