@@ -17,9 +17,7 @@
 <div class="row">
     <div class="col-md-12"><label>@SharedLocalizer["TiposPrecio"]:</label></div>
     <div class="col-md-2">
-        <select id="precios"  class="form-control search-key ">
-    
-        </select>
+        <select id="precios" class="form-control search-key "></select>
     </div>
     <div class="col-md-6">
         <button class="btn btn-primary" id="cambiarU"><span>@SharedLocalizer["cambiarUtilidad"]</span></button>
@@ -28,8 +26,8 @@
     </div>
 </div>
 <hr />
-<div class="table-responsive" id="marcados">
-    <table class="table table-bordered" id="tblCatalogo" style="width:100%">
+<div class="table-responsive "  style="overflow-y:scroll;height:300px;" id="marcados">
+    <table class=" table table table-bordered" id="tblCatalogo" style="width:100%">
         <thead>
             <tr>
                 <th hidden>
@@ -61,7 +59,7 @@
                 </th>
             </tr>
         </thead>
-        <tbody>
+        <tbody style=" overflow-x:50px;" >
             <tr class="lineaForm"></tr>
         </tbody>
     </table>
@@ -74,7 +72,7 @@
 
     <div class="col-md-2">
         <input type="checkbox" id="marcar" /><span>@SharedLocalizer["SelectTodos"]</span>
-        
+
     </div>
 
     <div class="col-md-2 col-sm-4 col-xs-4" style="padding-top:0.4rem">
@@ -92,10 +90,11 @@
 </div>
 
 <br />
-<div class="row">
-    <div class="form-group col-md-12">
-        <button onclick = "guardarCambios()" class="btn btn-success"><span>@SharedLocalizer["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
-       
+
+<div class="col-md-12">
+    <div class="form-group col-md-3">
+        <button class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+        <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
     </div>
 </div>
 <div>
@@ -105,18 +104,19 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <div class="col-md-6"> <h5 data-translate="editarOrden" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["PrecioCatalogo"]</h5></div>
-                </div>
-                <div class="modal-body" id="editar">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
+                </div>
+                <div class="modal-body" id="editar">
+
                     <div class="row">
-                        
+
                         <div class="form-group col-sm-7">
                             <label class="control-label">@SharedLocalizer["UtilidadDeseada"]</label>
                             <input id="editUtilidad" class="form-control porc" />
                         </div>
-                       
+
                         <div class="form-group col-sm-7">
 
                             <button id="btnEditOrden" onclick="cambiarUtilidad()" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
@@ -124,12 +124,14 @@
                             <button class="btn btn-default" data-dismiss="modal"><span>@SharedLocalizer["Cancelar"]</span></button>
 
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 
 <script>
@@ -139,12 +141,12 @@
     var lineasFPrecio = [];
     var inventario = [];
     var lineasActualizadas = [];
-  
+
     $(document).ready(function () {
         getInventario();
          getFamilias();
         getPrecios();
-        //getPrecioCatalogo();
+
         $.ajax({
               type: "get",
               dataType: "json",
@@ -152,17 +154,17 @@
 
               success: function (data) {
                   allLineas = JSON.parse(JSON.stringify(data));
-                 
-                 
+
+
                },
             error: function (err, scnd) {
                cargarAlert('@SharedLocalizer["errorGeneral"]');
             }
           });
-  
+
     });
     ///Eventos directos///
-    
+
      $("#precioConImpuesto").on("input", function(){
          alert($("#id").val());
     });
@@ -176,7 +178,7 @@
          lineas = [];
          cargarFiltros();
      });
-    
+
     $("#marcar").change(function () {
         if ($(this).is(':checked')) {
             $("#marcados input[type=checkbox]").prop('checked', true);
@@ -190,7 +192,7 @@
                 lineas[i].marcador = false;
             }
         }
-          
+
     });
 
     $('#cambiarU').click(function () {
@@ -207,11 +209,10 @@
             else
                 $('#filtroSubFamilias').attr('disabled', false);
         });
-    
+
     ///Ajax///
     function guardarCambios() {
-       console.log(lineasActualizadas);
-         
+
          var model = crearModelo();
 
 
@@ -225,12 +226,9 @@
             data: {viewModel: model},
             success: function (data) {
 
-                if (data.success) {
-                    
-                    alert("cambios realizados exitosamente");
-                     window.location.href = "@Url.Action("ListarPrecioCatalogo")";
-                }
- 
+               cargarAlert('@SharedLocalizer["datosActualizados"]');
+
+
             },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -265,8 +263,8 @@
             }
         });
     }
-   
-   
+
+
      function getPrecios() {
           $.ajax({
               type: "get",
@@ -274,8 +272,8 @@
             url: '@Url.Action("GetPrecios", "Precios")',
 
               success: function (data) {
-                 
-                 
+
+
                   for (var i = 0; i < data.length; i++) {
                       var o = new Option(data[i].nombre, data[i].id);
                       $("#precios").append(o);
@@ -287,7 +285,7 @@
         });
     }
     function getInventario() {
-     
+
           $.ajax({
               type: "get",
                headers: {
@@ -304,44 +302,47 @@
                cargarAlert('@SharedLocalizer["errorGeneral"]');
             }
           });
-         
+
         }
     ///helpers///
+    function cancelar() {
+        window.location.href = "@Url.Action("ListarPrecioCatalogo")";
+    }
     function cambiarUtilidad()
     {
         var editUtilidad = parseFloat($('#editUtilidad').val());
-        console.log(editUtilidad);
          for (var i = 0; i < lineas.length; i++) {
              if (lineas[i].marcador == true)
              {
-                
+
                  calcular(i, 1, editUtilidad);
                  lineas[i].marcador = false;
              }
         }
-     $("#marcar").prop('checked', false);
+        $("#marcar").prop('checked', false);
+        $('#editUtilidad').val(0);
 $('#modalCambiarU').modal('hide');
     }
     function filtrarPrecio(lineasFPrecio) {
         var precioFiltrado = [];
          var idTipoPrecio = parseInt($('#precios').val());
-       
+
         for (var i = 0; i < lineasFPrecio.length; i++) {
             if (lineasFPrecio[i].idTipoPrecio == idTipoPrecio)
                 precioFiltrado.push(lineasFPrecio[i]);
         }
-        return precioFiltrado;     
-                    
+        return precioFiltrado;
+
     }
 
-    
-   
+
+
      function cargarFiltrosFamilia() {
-     
+
         lineasFInventario = JSON.parse(JSON.stringify(inventario));
         lineasFInventario = filtroFamilia(lineasFInventario);
          lineasFInventario = filtroSubFamilia(lineasFInventario);
-         
+
     }
     function filtrarFamilias(lineasFPrecio) {
          var precioFiltrado = [];
@@ -367,7 +368,7 @@ $('#modalCambiarU').modal('hide');
         lineasFPrecio = filtrarPrecio(lineasFPrecio);
         lineasFPrecio = filtrarFamilias(lineasFPrecio);
         cargarLineas(lineasFPrecio);
-         
+
      }
     function filtroFamilia(lineasFInventario) {
 
@@ -505,18 +506,18 @@ $('#modalCambiarU').modal('hide');
               lineas.push(model);
         }
         cargarTabla(lineas);
-        
+
     }
 
 
-    
+
     function cargarTabla(data) {
         $('.filasCargadas').remove();
 
         contadorFila = 0;
 
         for (var i = 0; i < data.length; i++) {
-            
+
                 var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td> <input type="checkbox" onchange="marcar(' + contadorFila + ')"  class="case" value="' + data[i].idPrecioCatalogo + '" /></td>'
                     + '<td ><input readonly style="border:0; background-color : #F7F7F7" value="' + data[i].producto + '"/></td>'
                     + '<td><input readonly style="border:0; background-color : #F7F7F7" value="' + data[i].presentacion + '"/></td>'
@@ -531,10 +532,12 @@ $('#modalCambiarU').modal('hide');
 
 
                 contadorFila++;
-            
+
 
         }
-       
+      
+
+
               $(".porc").inputmask({
            'alias': 'percentage',
            rightAlign: false,
@@ -545,40 +548,40 @@ $(".moneda").inputmask('currency', {
            rightAlign: true,
            min: 0
        });
-      
+
     }
     function marcar(pos) {
         if (lineas[pos].marcador == true)
             lineas[pos].marcador = false;
         else
-            lineas[pos].marcador = true; 
+            lineas[pos].marcador = true;
     }
     function calcular(pos, numero, _valor)
     {
-       
         var existe = false;
+         if (numero == 1)
+          {
+              lineas[pos].porcUtilidad = parseFloat(_valor);
+              console.log(lineas[pos].porcUtilidad);
+              lineas[pos].precioSinImpuesto = calcularSinImpuesto(pos);
+              lineas[pos].precioFinal = calcularConImpuesto(pos);
+          }
+
         if (numero == 3)
-         var valor = _valor.replace(/,/g, "")
-        {   lineas[pos].precioFinal = parseFloat(valor);
+        {
+            var valor = _valor.replace(/,/g, "");
+            lineas[pos].precioFinal = parseFloat(valor);
             lineas[pos].precioSinImpuesto = calcularSinImpuesto(pos);
             lineas[pos].porcUtilidad = calcularUtilidad(pos);
-             
-           
         }
          if (numero == 2)
          {
-              var valor = _valor.replace(/,/g, "")
+              var valor = _valor.replace(/,/g, "");
              lineas[pos].precioSinImpuesto = parseFloat(valor);
-              lineas[pos].precioFinal = calcularConImpuesto(pos);
-              lineas[pos].porcUtilidad = calcularUtilidad(pos);
+             lineas[pos].precioFinal = calcularConImpuesto(pos);
+             lineas[pos].porcUtilidad = calcularUtilidad(pos);
          }
-          if (numero == 1)
-          {
-              
-              lineas[pos].porcUtilidad = parseFloat(_valor);
-            lineas[pos].precioSinImpuesto = calcularSinImpuesto(pos);
-            lineas[pos].precioFinal = calcularConImpuesto(pos);
-          }
+
         for (var i = 0; i < allLineas.length; i++) {
             if (allLineas[i].idPrecioCatalogo == lineas[pos].idPrecioCatalogo)
                 allLineas[i] = lineas[pos];
@@ -598,14 +601,18 @@ $(".moneda").inputmask('currency', {
     {
         var resultado = 0;
         var utilidad = 0;
-        if (parseFloat(lineas[pos].porcUtilidad) == 0)
-            utilidad = calcularUtilidad(pos);
-        else
-            utilidad = parseFloat(lineas[pos].porcUtilidad); 
-       
+        if (lineas[pos].costo == 0) {
+            lineas[pos].costo = 1;
+        }
+        if (parseFloat(lineas[pos].porcUtilidad) == 0) {
+            resultado = lineas[pos].costo;
+        }
+        else {
+            utilidad = parseFloat(lineas[pos].porcUtilidad);
+            resultado = parseFloat(lineas[pos].costo) * (1 + (utilidad / 100));
 
-        resultado = parseFloat(lineas[pos].costo) * (1 + (utilidad / 100));
-        return resultado;
+        }
+         return resultado;
     }
 
     function calcularImpuesto(pos)
@@ -615,7 +622,7 @@ $(".moneda").inputmask('currency', {
         if (parseFloat(lineas[pos].precioSinImpuesto) == 0)
             sinimpuesto = calcularSinImpuesto(pos);
         else
-            sinimpuesto = parseFloat(lineas[pos].precioSinImpuesto); 
+            sinimpuesto = parseFloat(lineas[pos].precioSinImpuesto);
 
         resultado = sinimpuesto * ((parseFloat(lineas[pos].impuesto) / 100));
         return resultado;
@@ -623,22 +630,22 @@ $(".moneda").inputmask('currency', {
     }
     function calcularConImpuesto(pos)
     {
-         
+
         var sinimpuesto = 0;
         if (parseFloat(lineas[pos].precioSinImpuesto) == 0)
             sinimpuesto = calcularSinImpuesto(pos);
         else
-            sinimpuesto = parseFloat(lineas[pos].precioSinImpuesto); 
+            sinimpuesto = parseFloat(lineas[pos].precioSinImpuesto);
 
         return sinimpuesto + calcularImpuesto(pos);
-        
+
 
     }
 
     function calcularUtilidad(pos)
     {
         var sinimpuesto = 0;
-        if (lineas[pos].precioSinImpuesto == 0.00)
+        if (lineas[pos].precioSinImpuesto == 0)
             sinimpuesto = calcularSinImpuesto(pos);
         else
             sinimpuesto = parseFloat(lineas[pos].precioSinImpuesto);
@@ -667,12 +674,12 @@ $(".moneda").inputmask('currency', {
               };
 
               actualizar.push(model);
-            
+
           }
 
         return actualizar;
     }
-    
+
 
 
 

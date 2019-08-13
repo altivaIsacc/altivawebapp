@@ -16,10 +16,7 @@ namespace AltivaWebApp.Mappers
             this.service = service;
         }
 
-        public TbPrPrecioCatalogo Create(PrecioCatalogoViewModel viewModel)
-        {
-            return service.Save(ViewModelToDomain(viewModel));
-        }
+       
 
         public bool Update(IList<PrecioCatalogoViewModel> viewModel)
         {

@@ -72,13 +72,40 @@ namespace AltivaWebApp.Controllers
                     
                     if (detalle.Count() > 0)
                     {
-                        map.CreateOrUpdateAI(detalle);
-                        kardexMap.CreateKardexAM(ajuste, (int)ajuste.Id);
+                        foreach (var item in detalle)
+                        {
+                            item.IdAjuste = ajuste.Id;
+                        }
+
+                        var ajusteInventario = map.CreateOrUpdateAI(detalle);
+
+
+                        ///agrega lineas actualizadas yt eliminadas en un solo list para despues revesar cambios en el kardex
+                        IList<long> detallesId = eliminadas;
+
+                        foreach (var i in ajusteInventario)
+                        {
+                            detallesId.Add(i.Id);
+                        }
+
+                        ////obtiene lineas con todos los datos para insertar en el kardex
+                        var ajusteKardex = service.GetAjusteForKardex((int)ajuste.Id, detallesId);
+
+
+                        ////lista sin lineas eliminadas
+                        ajuste.TbPrAjusteInventario = ajusteKardex.TbPrAjusteInventario.Where(d => eliminadas.Any(id => id != d.Id)).ToList();
+                        var kardex = kardexMap.CreateKardexAM(ajusteKardex, (int)ajuste.Id);
+
+                        ///lista solo lineas eliminadas
+                        ajuste.TbPrAjusteInventario = ajusteKardex.TbPrAjusteInventario.Where(d => eliminadas.Any(id => id == d.Id)).ToList();
+                        kardexMap.CreateKardexDeletedAM(ajuste);
+
+                        service.DeleteAjusteInventario(eliminadas);
+
                     }
 
-                    service.DeleteAjusteInventario(eliminadas);
-                    kardexMap.CreateKardexDeletedAM(ajuste);
                     
+
                 }
                 else
                 {
@@ -91,7 +118,12 @@ namespace AltivaWebApp.Controllers
                         item.IdAjuste = ajuste.Id;
                     }
 
-                    map.CreateOrUpdateAI(detalle);
+                    ajuste.TbPrAjusteInventario = map.CreateOrUpdateAI(detalle);
+
+                    ////obtiene lineas con todos los datos para insertar en el kardex
+                    var ajusteKardex = service.GetAjusteForKardex((int)ajuste.Id, ajuste.TbPrAjusteInventario.Select(d => d.Id).ToList());
+                    var kardex = kardexMap.CreateKardexAM(ajusteKardex, (int)ajuste.Id);
+
                 }
                 return Json(new { success = true });
             }
@@ -143,7 +175,7 @@ namespace AltivaWebApp.Controllers
             {
                 var ai = service.GetAjusteById((int)viewModel.FirstOrDefault().IdAjuste);
 
-                service.SaveAjusteInventario(map.AIViewModelToDomain(viewModel).ToList());
+                service.SaveOrUpdateAjusteInventario(map.AIViewModelToDomain(viewModel).ToList());
 
                 kardexMap.CreateKardexAM(ai, (int)viewModel.FirstOrDefault().IdAjuste);
 

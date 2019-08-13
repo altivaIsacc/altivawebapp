@@ -9,6 +9,8 @@ namespace AltivaWebApp.Services
     public interface IInventarioService
     {
         TbPrInventarioBodega UpdateIBodega(TbPrInventarioBodega domain);
+        IList<TbPrInventario> GetAllByCoincidence(string word);
+        IList<TbPrInventario> GetInventarioFacturable();
         TbPrInventario GetInventarioById(int id);
         TbPrInventarioBodega GetInventarioBodegaById(int id);
         IList<TbPrImagenInventario> GetInventarioImagenById(int id);
@@ -31,8 +33,6 @@ namespace AltivaWebApp.Services
         bool DeleteCaracteristica(int id);
         bool DeleteImagen(int id);
         void CrearRelacionInventarioBodega(int idInventario, int idBodega);
-        IList<TbPrInventario> GetInventarioFacturable();
-        IList<TbPrInventario> GetAllByCoincidence(string word);
 
     }
 }

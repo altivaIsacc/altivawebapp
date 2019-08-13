@@ -39,13 +39,19 @@ namespace AltivaWebApp.Services
             return reposistory.GetPreciosWithReqs();
         }
 
-        public TbPrPrecioCatalogo Save(TbPrPrecioCatalogo domain)
-        {
-            return reposistory.Save(domain);
-        }
+        
         public bool Update(IList<TbPrPrecioCatalogo> domain)
         {
             return reposistory.UpdatePrecio(domain);
         }
+        public bool SaveFromInventario(int idIventario)
+        {
+            return reposistory.SaveFromInventario(idIventario);
+        }
+        public  bool SaveFromPrecios(int idTipoPrecio)
+        {
+            return  reposistory.SaveFromPrecios(idTipoPrecio);
+        }
+        
     }
 }
