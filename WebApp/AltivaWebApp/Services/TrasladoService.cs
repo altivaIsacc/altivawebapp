@@ -11,6 +11,10 @@ namespace AltivaWebApp.Services
     {
         private readonly ITrasladoRepository repository;
 
+        public TrasladoService(ITrasladoRepository repository) {
+            this.repository = repository;
+        }
+
         public bool Delete(TbPrTraslado domain)
         {
             return repository.Delete(domain);
