@@ -9,15 +9,17 @@
 @inject IStringLocalizer<SharedResources> SL
 
 @{
-    ViewData["Title"] = "Categoria Flujo";
+
     var usuarios = ViewData["usuarios"] as IList<TbSeUsuario>;
+
+    ViewData["Title"] = @SL["CategoriaDeFlujo"];
 }
 
 
 <div class="row">
     <!--  SL = Cambiar POR SL -->
-    <div class="col-md-2">
-        <h3>@SL["FlujoCategoria"]</h3>
+    <div class="col-md-4">
+        <h3>@SL["CategoriaDeFlujo"]</h3>
     </div>
     <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
         <p>
@@ -32,26 +34,27 @@
 
     <div class="col-md-2" style="margin-top: 0.2rem">
         <label>@SL["buscarPorCodigo"]:</label>
-        <input type="text" maxlength="50" id="filtroBuscar" class="form-control" />
+        <input type="text" maxlength="50" id="filtroBuscar" class="form-control" placeholder="@SL["buscarPorCodigo"]" autofocus="autofocus" />
     </div>
 
+
     <div class="col-md-2" style="margin-top: 0.2rem">
-        <label>@SL["PorTipo"]:</label>
+        <label>@SL["Tipo"]:</label>
         <select id="filtroTipo" class="form-control search-key selectFiltro">
-            <option value="0" selected>Todos</option>
-            <option value="Bancario" selected>Bancario</option>
-            <option value="Canje" selected>Canje</option>
-            <option value="Efectivo" selected>Efectivo</option>
+            <option value="0" selected>@SL["todos"]</option>
+            <option value="Bancario" selected>@SL["bancario"]</option>
+            <option value="Canje" selected>@SL["canje"]</option>
+            <option value="Efectivo" selected>@SL["efectivo"]</option>
 
 
         </select>
     </div>
 
-  
 
-    <div class="col-md-2 checkbox">
+
+    <div class="col-md-7 checkbox">
         <label class="control-label">
-            <input type="checkbox" id="estado" onchange="filtroInactivo()"> @SL["Inactivos"]
+            <input type="checkbox" id="estado"> @SL["inactivos"]
         </label>
     </div>
 
@@ -63,51 +66,54 @@
 <div class="row">
 
     <div class="col-md-12 table-responsive">
-            <table class=" table table-bordered" style="width:100%" id="tblFlujoCategoria">
-                <thead>
+        <table class=" table table-bordered" style="width:100%" id="tblFlujoCategoria">
+            <thead>
 
 
-                    <tr>
-                        <th>
-                            <span>@SL["Id"]</span>
-                        </th>
-                        <th>
-                            <span>@SL["Tipo"]</span>
-                        </th>
-                        <th>
-                            <span>@SL["Nombre"]</span>
-                        </th>
-                        <th>
-                            <span>@SL["Codigó"]</span>
-                        </th>
-                        <th>
-                            <span>@SL["Estado"]</span>
-                        </th>
-                        <th><span>@SL["Acción"]</span></th>
-                    </tr>
+                <tr>
+                    <th>
+                        <span>@SL["Id"]</span>
+                    </th>
+                    <th>
+                        <span>@SL["tipo"]</span>
+                    </th>
+                    <th>
+                        <span>@SL["Nombre"]</span>
+                    </th>
+                    <th>
+                        <span>@SL["Código"]</span>
+                    </th>
+                    <th hidden>
 
-                </thead>
-                <tbody></tbody>
-            </table>
+                    </th>
+                    <th>
+                        <span>@SL["Estado"]</span>
+                    </th>
+                    <th><span>@SL["accion"]</span></th>
+                </tr>
 
-        </div>
+            </thead>
+            <tbody></tbody>
+        </table>
 
     </div>
 
-
-
-    <style>
-        .dataTables_wrapper .dataTables_filter {
-            float: right;
-            text-align: right;
-            visibility: hidden;
-        }
-    </style>
+</div>
 
 
 
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>
 
-    <script>
+
+
+
+<script>
     var FlujoCategoria = [];//se esta utilizando cambiar
     var FlujoCategoriaFiltrado = [];
     var tblFlujoCategoria;
@@ -117,9 +123,9 @@
 
     $(document).ready(function () {
 
+        getFlujoCategoria(); //lleno la tabla
 
-        getFlujoCategoria();
-
+        $('.selectFiltro').val(0);
         $('.selectFiltro').change(function () {
             var tipo = $('#filtroTipo').val();
             console.log(tipo);
@@ -168,12 +174,13 @@
                             "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
             },
             dataType: "json",
-            url: 'Get-Categorias',
+            url: '@Url.Action("GetCategoria", "FlujoCategoria")',
             success: function (data) {
                 //console.log(data);
                 FlujoCategoria = JSON.parse(JSON.stringify(data));
                 cargarDatos(data);
-                filtroInactivo();
+                validarLista();
+              
 
             },
             error: function (err, scnd) {
@@ -213,6 +220,7 @@
                     + '<td><p style="padding-top:1rem">' + respTipoFlujo + '</p></td>'
                     + '<td><p style="padding-top:1rem">' + data[i].nombre + '</p></td>'
                     + '<td><p style="padding-top:1rem">' + data[i].codigo + '</p></td>'
+                    + '<td hidden><p style="padding-top:1rem">' + data[i].estado + '</p></td>'
                     + '<td><p style="padding-top:1rem">' + estado + '</p></td>'
                     + '<td>  <button value="' + data[i].idCategoriaFlujo + '" onclick="editarCategoria(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
                 $('#tblFlujoCategoria > tbody').append(body);
@@ -256,6 +264,7 @@
 
         tblFlujoCategoria = $('#tblFlujoCategoria').DataTable({
             "info": false,
+            "order": [[0, "desc"]],
            // dom: 'Bfrtip',
             language: {
                 "decimal": "",
@@ -280,22 +289,177 @@
         });
 
         $(".dataTables_searching").hide();
+           
 
     }
 
 
-    $("#filtroBuscar").on("keyup", function () {
-         tblFlujoCategoria
-            .columns(3)
-            .search(this.value)
-            .draw();
+
+           function validarLista(){       
+               
+              var paso =0;
+               var codigoEncontrado = "";
+                var estadoFiltro = "";
+                 var estadoEncontrado = 0;
+
+              if (@ViewBag.id == 0) {
+
+                 // alert('Listar normal');
+                  filtroInactivoId(1);
+                                                             
+               }else{
+
+                   
+                    var url = "@Url.Action("ListarCategorias", "FlujoCategoria")";
+                    var regex = new RegExp('/[^/]*$');
+                    history.pushState(null, "", url.replace(regex, '/'));
+                            
+                           //alert("Buscar el codigo y estado del registro editado");
+                           codigoEncontrado = buscarCodigoRegistro(@ViewBag.id); 
+                           estadoEncontrado = buscarEstadoRegistro(@ViewBag.id);   
+                          // alert(codigoEncontrado);
+                          // alert(estadoEncontrado);
+                          // alert('Proceda a listar');
+
+                              if (estadoEncontrado == 1) {
+
+                                  filtroInactivoId(1);
+                                  $("#filtroBuscar").val(codigoEncontrado.replace(/ /g, ""));// lleno el buscador
+                                  buscarPorCodigo($("#filtroBuscar").val()); 
+                                  
+                              } else {
+
+                                  filtroInactivoId(0);
+                                  $("#estado").prop("checked", true);
+                                  $("#filtroBuscar").val(codigoEncontrado.replace(/ /g, ""));// lleno el buscador
+                                  buscarPorCodigo($("#filtroBuscar").val()); 
+                                
+                                 
+                              }
+
+               }
+   
+            }
+
+    
+        
+
+
+        $("#filtroBuscar").on("keyup", function () {
+            buscarPorCodigo(this.value)
+        });
+
+
+
+
+        function buscarPorCodigo(codigo) {
+            tblFlujoCategoria
+                .columns(3)
+                .search(codigo)
+                .draw();
+        }
+
+
+
+
+
+        $("#estado").change("checked", function () {
+
+            if ($('#estado').prop('checked')) {
+
+                filtroInactivoId(0);
+
+            } else {
+
+                filtroInactivoId(1);
+            }
+
     });
 
 
-    function filtroInactivo() {
+
+
+
+    function filtroInactivoId(val) {
+       
+            tblFlujoCategoria
+            .columns(4)
+            .search(val)
+            .draw();
+        }
+
+
+    function prueba(val) {
+        //alert("entro");
+        //alert(val);
+        tblFlujoCategoria
+            .columns(4)
+            .search(val)
+            .draw();
+    } 
+
+
+
+        function validarEstado() {
+
+            var array = FlujoCategoria;
+
+            for (var i = 0; i < array.length; i++) {
+
+                if (array[i].idCategoriaFlujo == @ViewBag.id) {
+
+                    if (array[i].estado == 0) {
+                        filtroInactivo(0);
+                    }
+                    else {
+
+                        filtroInactivo(1);
+
+                    }
+
+                    break;
+
+                } 
+            }
+        }
+
+        function buscarCodigoRegistro(id) {
+
+            var array = FlujoCategoria;
+            var codEncontrado = "";
+
+            for (var i = 0; i < array.length; i++) {
+
+                if (array[i].idCategoriaFlujo == id) {
+
+                    codEncontrado = array[i].codigo;
+                    return codEncontrado;
+                }
+            }
+        }
+
+        function buscarEstadoRegistro(id) {
+
+            var array = FlujoCategoria;
+            var estEncontrado = "";
+
+            for (var i = 0; i < array.length; i++) {
+
+                if (array[i].idCategoriaFlujo == id) {
+
+                    estEncontrado = array[i].estado;
+                    return estEncontrado;
+                }
+            }
+       }
+
+
+     
+
+
+        function filtroInactivo() {
 
         var array = FlujoCategoria;
-
 
         var arrayFlujoCate = [];//JSON.parse(JSON.stringify(ordenFiltrado));
 
@@ -305,17 +469,14 @@
                 if (!array[i].estado)
                     arrayFlujoCate.push(array[i]);
             }
-
         }
         else
             for (var i = 0; i < array.length; i++) {
                 if (array[i].estado)
                     arrayFlujoCate.push(array[i]);
             }
-
         cargarDatos(arrayFlujoCate);
-
-    }
+        }
 
 
 
@@ -333,5 +494,23 @@
 
 
 
-    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
 

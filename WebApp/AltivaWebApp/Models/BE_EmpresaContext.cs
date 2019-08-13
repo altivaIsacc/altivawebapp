@@ -9,7 +9,7 @@ namespace AltivaWebApp.Models
         public BE_EmpresaContext()
         {
         }
-		//constructor
+
         public BE_EmpresaContext(DbContextOptions<BE_EmpresaContext> options)
             : base(options)
         {
@@ -195,22 +195,22 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbSeConfiguracion> TbSeConfiguracion { get; set; }
         public virtual DbSet<TbSePuntoVenta> TbSePuntoVenta { get; set; }
 
+        // Unable to generate entity type for table 'dbo.tb_FD_CuentaEnCasaNotaCredito'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_NotaCreditoAjusteSaldoMenor'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_FD_AmadeLlave'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.Tmp_tb_PR_Requisicion'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomatica'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_FacturaAutomaticaDetalle'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_RE_PantallaCategoriaMenu'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_RE_Pantalla'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_AmadeLlave'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_NotaCreditoAjusteSaldoMenor'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.tb_FD_CuentaEnCasaNotaCredito'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.tb_FD_NotaDebitoAjusteSaldoMenor'. Please see the warning messages.
-        // Unable to generate entity type for table 'dbo.Tmp_tb_PR_Requisicion'. Please see the warning messages.
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=.\\Altiva;Database=BE_Empresa;User id=sa;Password=123;");
+                optionsBuilder.UseSqlServer("Server=(local);Database=BE_Empresa;User id=sa;Password=123;");
             }
         }
 
@@ -275,8 +275,7 @@ namespace AltivaWebApp.Models
 
             modelBuilder.Entity<TbBaFlujoCategoria>(entity =>
             {
-                entity.HasKey(e => e.IdCategoriaFlujo)
-                    .HasName("PK_dbo.tb_BA_FlujoCategoria");
+                entity.HasKey(e => e.IdCategoriaFlujo);
 
                 entity.ToTable("tb_BA_FlujoCategoria");
 
@@ -4298,14 +4297,14 @@ namespace AltivaWebApp.Models
 
             modelBuilder.Entity<TbPrTraslado>(entity =>
             {
-                entity.HasKey(e => e.IdTraslado)
-                    .HasName("PK_tb_PR_Traslados");
+                entity.HasKey(e => e.IdTraslado);
 
                 entity.ToTable("tb_PR_Traslado");
 
-                entity.Property(e => e.Anulado)
+                entity.Property(e => e.Comentario)
                     .IsRequired()
-                    .HasDefaultValueSql("('0')");
+                    .HasMaxLength(256)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Fecha)
                     .HasColumnType("datetime")
@@ -4314,6 +4313,18 @@ namespace AltivaWebApp.Models
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
+
+                entity.HasOne(d => d.IdBodegaDestinoNavigation)
+                    .WithMany(p => p.TbPrTrasladoIdBodegaDestinoNavigation)
+                    .HasForeignKey(d => d.IdBodegaDestino)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_Traslado_tb_PR_Bodega1");
+
+                entity.HasOne(d => d.IdBodegaOrigenNavigation)
+                    .WithMany(p => p.TbPrTrasladoIdBodegaOrigenNavigation)
+                    .HasForeignKey(d => d.IdBodegaOrigen)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_Traslado_tb_PR_Bodega");
             });
 
             modelBuilder.Entity<TbPrTrasladoInventario>(entity =>
@@ -4323,14 +4334,24 @@ namespace AltivaWebApp.Models
                 entity.Property(e => e.CodigoArticulo)
                     .IsRequired()
                     .HasMaxLength(60)
-                    .IsUnicode(false)
                     .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Descripcion)
                     .IsRequired()
                     .HasMaxLength(150)
-                    .IsUnicode(false)
                     .HasDefaultValueSql("('')");
+
+                entity.HasOne(d => d.IdInventarioNavigation)
+                    .WithMany(p => p.TbPrTrasladoInventario)
+                    .HasForeignKey(d => d.IdInventario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_TrasladoInventario_tb_PR_Inventario");
+
+                entity.HasOne(d => d.IdTrasladoNavigation)
+                    .WithMany(p => p.TbPrTrasladoInventario)
+                    .HasForeignKey(d => d.IdTraslado)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_TrasladoInventario_tb_PR_Traslado");
             });
 
             modelBuilder.Entity<TbPrUnidadMedida>(entity =>

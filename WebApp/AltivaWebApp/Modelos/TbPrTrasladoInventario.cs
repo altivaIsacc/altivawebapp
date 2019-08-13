@@ -13,5 +13,8 @@ namespace AltivaWebApp.Modelos
         public double Cantidad { get; set; }
         public double PrecioUnitario { get; set; }
         public double CostoTotal { get; set; }
+
+        public virtual TbPrInventario IdInventarioNavigation { get; set; }
+        public virtual TbPrTraslado IdTrasladoNavigation { get; set; }
     }
 }

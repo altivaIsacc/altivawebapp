@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 namespace AltivaWebApp.Models
-    //creada por lenin
 {
     public partial class TbBaFlujoCategoria
     {

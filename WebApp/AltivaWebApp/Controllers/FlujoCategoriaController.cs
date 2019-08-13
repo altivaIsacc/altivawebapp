@@ -29,11 +29,20 @@ namespace AltivaWebApp.Controllers
             this.userService = userService;
 
         }
-        //direccionan a la vista
-        [HttpGet("Lista-Categorias")]
-        public IActionResult ListarCategorias()
+     
+        [HttpGet("Lista-Categorias/{id?}")]
+        public IActionResult ListarCategorias(int id )
         {
+
+            ViewBag.id = 0;
+            if (id != 0)
+            {
+                ViewBag.id = id;
+            }
+
             return View();
+          
+
         }
 
         [Route("Nuevo-Categoria")]
@@ -59,13 +68,13 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-
-                var existeFlujoCate = service.GetFlujoCategoriaByDesc(viewModel.Codigo);//devuelve solo el codigo
+                var idTipoFlujo = viewModel.IdTipoFlujo;
+                var existeFlujoCate = service.GetFlujoCategoriaByDesc(viewModel.Codigo, viewModel.IdTipoFlujo);//devuelve solo el codigo
                 var categoria = new TbBaFlujoCategoria();
 
                 if (viewModel.IdCategoriaFlujo != 0)
                 {
-                    if (existeFlujoCate == null || existeFlujoCate.Codigo == viewModel.Codigo)
+                    if (existeFlujoCate == null || existeFlujoCate.IdCategoriaFlujo == viewModel.IdCategoriaFlujo)
                     {
                         categoria = map.Update(viewModel);
                     }
@@ -74,13 +83,22 @@ namespace AltivaWebApp.Controllers
                 }
                 else
                 {
-                    if (existeFlujoCate == null)
+                   
+                    if (existeFlujoCate == null)// cuando es la primera vez
+                    {
+                        viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+                        categoria = map.Create(viewModel);
+                    }
+                     else if (existeFlujoCate.IdTipoFlujo != viewModel.IdTipoFlujo && existeFlujoCate.Codigo == viewModel.Codigo)
                     {
                         viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                         categoria = map.Create(viewModel);
                     }
                     else
                         return Json(new { success = false });
+
+
+
                 }
 
                 return Json(new { success = true, categoria = categoria });

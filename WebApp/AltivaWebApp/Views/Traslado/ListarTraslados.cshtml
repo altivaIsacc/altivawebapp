@@ -1,0 +1,135 @@
+﻿@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@{
+
+    ViewData["Title"] = @SharedLocalizer["trasladosDeExistencias"];
+}
+
+
+<div class="row">
+    <div class="col-md-4"><h3>@SharedLocalizer["trasladosDeExistencias"]</h3></div>
+    <div class="col-md-8" style="padding-top: 0.5rem">
+        <button class="btn btn-primary" onclick="getCrearEditarPartial(0)">@SharedLocalizer["Agregar"]</button>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <hr />
+        <div id="listaTraslados"></div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="modal fade bd-example-modal-lg" id="modalTraslado" tabindex="-1" role="dialog" aria-labelledby="TrasladoModallabel" aria-hidden="true"  data-backdrop="static">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+
+                <div class="modal-body" id="crearEditarPartial">
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+
+   /*
+    .modal-content {
+        align-items: center;
+        height: 800px;
+        width: 1150px;
+    }
+   */
+
+</style>
+
+
+<script>
+
+    $(document).ready(function () {
+
+
+        getlistarPartial();
+
+    });
+
+
+     function crearModelo() {
+        var form = $('#frmTraslado').serializeArray();
+
+
+        console.log(form);
+
+
+    }
+
+    function getCrearEditarPartial(id)
+    {
+        var url = "@Url.Action("_CrearTraslado", "Traslado")";
+        if (id != 0) {
+            url = '@Url.Action("_EditarTraslado", "Traslado", new { id = "__id__"})';
+            url = url.replace("__id__", id);
+        }
+
+         $.ajax({
+            type: "GET",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+
+            success: function (data) {
+                $('#crearEditarPartial').html(data);
+                $('#modalTraslado').modal('show');
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+    }
+
+    function getlistarPartial()
+    {
+        var url = "@Url.Action("_ListarTraslados", "Traslado")";
+
+
+         $.ajax({
+            type: "GET",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+
+            success: function (data) {
+                $('#listaTraslados').html(data);
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+    }
+
+
+
+
+</script>
+
+
+
+
+
+
+
