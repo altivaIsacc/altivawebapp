@@ -82,7 +82,7 @@ namespace AltivaWebApp.Controllers
 
                 return Ok(traslado);
             }
-            catch
+            catch (Exception ex)
             {
                 return BadRequest();
             }
