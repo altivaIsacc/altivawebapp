@@ -64,10 +64,10 @@ namespace AltivaWebApp.Controllers
             d.DescCuentaPadre = padre.Descripcion;
             return View("u", d);
         }
-        [BindProperty]
-        public CatalogoContable p { get; set; }
-                             [HttpPost("Guardar")]
-        public JsonResult Guardar(CatalogoContableViewModel model)
+  
+
+        [HttpPost("gU")]
+        public JsonResult gU(CatalogoContableViewModel model)
         {
             try
             {
@@ -110,59 +110,72 @@ namespace AltivaWebApp.Controllers
                 return   Json(new { success = false });
             }
         }
-        //public IActionResult guardar()
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return RedirectToAction("Index");
-        //    }
-        //    var _Cambios = bd.CatalogoContable.Where(x => x.IdCuentaContable == p.IdCuentaContable).SingleOrDefault();
-        //    if (_Cambios == null)
-        //    {
-        //        _Cambios = new CatalogoContable();
-        //        bd.CatalogoContable.Add(_Cambios);
-        //    }
-        //    _Cambios.CuentaContable = p.CuentaContable;
-        //    _Cambios.Descripcion = p.Descripcion;
-        //    _Cambios.Nivel = p.Nivel;
-        //    _Cambios.IdTipoCuentaContable = p.IdTipoCuentaContable;
-        //    _Cambios.IdCuentaContablePadre = p.IdCuentaContablePadre;
-        //    if (p.CuentaContablePadre != null)
-        //    {
-        //        _Cambios.CuentaContablePadre = p.CuentaContablePadre;
-        //    }
-        //    else
-        //    {
-        //        _Cambios.CuentaContablePadre = "";
 
-        //    }
-        //    if (p.DescCuentaPadre != null)
-        //    {
-        //        _Cambios.DescCuentaPadre = p.DescCuentaPadre;
-        //    }
-        //    else
-        //    {
-        //        _Cambios.DescCuentaPadre = "";
-        //    }
-        //    _Cambios.Movimiento = p.Movimiento;
-        //    _Cambios.Evaluacion = p.Evaluacion;
-        //    _Cambios.Inactivo = p.Inactivo;
-        //    if (p.Notas != null)
-        //    {
-        //        _Cambios.Notas = p.Notas;
 
-        //    }
-        //    else
-        //    {
-        //        _Cambios.Notas = "";
+        [BindProperty]
+        public CatalogoContable p { get; set; }
+        public IActionResult guardar()
+        {
+            bool existe = false;
 
-        //    }
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction("Index");
+            }
+            var _Cambios = bd.CatalogoContable.Where(x => x.IdCuentaContable == p.IdCuentaContable).SingleOrDefault();
+            if (_Cambios == null)
+            {
+                _Cambios = new CatalogoContable();
+                bd.CatalogoContable.Add(_Cambios);
+            }
+            else {
 
-        //    _Cambios.IdMonedaEvaluacion = p.IdMonedaEvaluacion;
-        //    _Cambios.IdTipoConversion = p.IdTipoConversion;
+               bd.CatalogoContable.Where(x => x.Descripcion == p.Descripcion && x.IdCuentaContable != _Cambios.IdCuentaContable).SingleOrDefault();
+                if (_Cambios != null) {
+                    return RedirectToAction("Index");
+                }
+            }
+            _Cambios.CuentaContable = p.CuentaContable;
+            _Cambios.Descripcion = p.Descripcion;
+            _Cambios.Nivel = p.Nivel;
+            _Cambios.IdTipoCuentaContable = p.IdTipoCuentaContable;
+            _Cambios.IdCuentaContablePadre = p.IdCuentaContablePadre;
+            if (p.CuentaContablePadre != null)
+            {
+                _Cambios.CuentaContablePadre = p.CuentaContablePadre;
+            }
+            else
+            {
+                _Cambios.CuentaContablePadre = "";
 
-        //    bd.SaveChanges();
-        //    return RedirectToAction("Index");
-        //}
+            }
+            if (p.DescCuentaPadre != null)
+            {
+                _Cambios.DescCuentaPadre = p.DescCuentaPadre;
+            }
+            else
+            {
+                _Cambios.DescCuentaPadre = "";
+            }
+            _Cambios.Movimiento = p.Movimiento;
+            _Cambios.Evaluacion = p.Evaluacion;
+            _Cambios.Inactivo = p.Inactivo;
+            if (p.Notas != null)
+            {
+                _Cambios.Notas = p.Notas;
+
+            }
+            else
+            {
+                _Cambios.Notas = "";
+
+            }
+
+            _Cambios.IdMonedaEvaluacion = p.IdMonedaEvaluacion;
+            _Cambios.IdTipoConversion = p.IdTipoConversion;
+
+            bd.SaveChanges();
+            return RedirectToAction("Index");
+        }
     }
 }
