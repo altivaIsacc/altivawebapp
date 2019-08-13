@@ -282,11 +282,7 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IPrecioCatalogoRepository, PrecioCatalogoRepository>();
             services.AddScoped<IPrecioCatalogoService, PrecioCatalogoService>();
             services.AddScoped<IPrecioCatalogoMap, PrecioCatalogoMap>();
-            //CONTA> CatalogoContable          
-            //services.AddScoped<ICatalogoContableRepository, CatalogoContableRepository>();
-            //services.AddScoped<ICatalogoContableService, CatalogoContableService>();
-            //services.AddScoped<ICatalogoContableMap, CatalogoContableMap>();
-
+            //CONTA> CatalogoContable / Isacc      
             services.AddScoped<ICatalogoContableRepository>(provider => {
                 var dependency = provider.GetRequiredService<BaseConta>();
                 // You can select the constructor you want here.
@@ -302,6 +298,17 @@ namespace AltivaWebApp.App_Start
                 // You can select the constructor you want here.
                 return new CatalogoContableMap(dependency);
             });
+            //Traslado
+            services.AddScoped<ITrasladoRepository, TrasladoRepository>();
+            services.AddScoped<ITrasladoService, TrasladoService>();
+            services.AddScoped<ITrasladoMap, TrasladoMap>();
+
+            //Traslado Inventario
+            services.AddScoped<ITrasladoInventarioRepository, TrasladoInventarioRepository>();
+            services.AddScoped<ITrasladoInventarioService, TrasladoInventarioService>();
+            services.AddScoped<ITrasladoInventarioMap, TrasladoInventarioMap>();
+
+
         }
     }
 }

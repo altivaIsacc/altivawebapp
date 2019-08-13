@@ -61,34 +61,83 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("CrearEditar-Ajuste")]
-        //[ValidateAntiForgeryToken]
-        public ActionResult CrearEditarAjuste(AjusteViewModel viewModel)
+        public ActionResult CrearEditarAjuste(AjusteViewModel viewModel, IList<AjusteInventarioViewModel> detalle, IList<long> eliminadas)
         {
             try
             {
-                var ajuste = new TbPrAjuste();
+
                 if (viewModel.Id != 0)
-                    ajuste = map.Update(viewModel);
+                {
+                    var ajuste = map.Update(viewModel);
+                    
+                    if (detalle.Count() > 0)
+                    {
+                        foreach (var item in detalle)
+                        {
+                            item.IdAjuste = ajuste.Id;
+                        }
+
+                        var ajusteInventario = map.CreateOrUpdateAI(detalle);
+
+
+                        ///agrega lineas actualizadas yt eliminadas en un solo list para despues revesar cambios en el kardex
+                        IList<long> detallesId = eliminadas;
+
+                        foreach (var i in ajusteInventario)
+                        {
+                            detallesId.Add(i.Id);
+                        }
+
+                        ////obtiene lineas con todos los datos para insertar en el kardex
+                        var ajusteKardex = service.GetAjusteForKardex((int)ajuste.Id, detallesId);
+
+
+                        ////lista sin lineas eliminadas
+                        ajuste.TbPrAjusteInventario = ajusteKardex.TbPrAjusteInventario.Where(d => eliminadas.Any(id => id != d.Id)).ToList();
+                        var kardex = kardexMap.CreateKardexAM(ajusteKardex, (int)ajuste.Id);
+
+                        ///lista solo lineas eliminadas
+                        ajuste.TbPrAjusteInventario = ajusteKardex.TbPrAjusteInventario.Where(d => eliminadas.Any(id => id == d.Id)).ToList();
+                        kardexMap.CreateKardexDeletedAM(ajuste);
+
+                        service.DeleteAjusteInventario(eliminadas);
+
+                    }
+
+                    
+
+                }
                 else
                 {
+
                     viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
-                    ajuste = map.Create(viewModel);
-                    kardexMap.CreateKardexAM(null, (int)ajuste.Id);
+                    viewModel.FechaCreacion = DateTime.Now;
+                    var ajuste = map.Create(viewModel);
+                    foreach (var item in detalle)
+                    {
+                        item.IdAjuste = ajuste.Id;
+                    }
+
+                    ajuste.TbPrAjusteInventario = map.CreateOrUpdateAI(detalle);
+
+                    ////obtiene lineas con todos los datos para insertar en el kardex
+                    var ajusteKardex = service.GetAjusteForKardex((int)ajuste.Id, ajuste.TbPrAjusteInventario.Select(d => d.Id).ToList());
+                    var kardex = kardexMap.CreateKardexAM(ajusteKardex, (int)ajuste.Id);
+
                 }
-
-
                 return Json(new { success = true });
             }
-            catch
+            catch (Exception)
             {
+
                 throw;
-                //return BadRequest();
             }
+
         }
 
 
         [HttpPost("Eliminar-AjusteInventario/{idAjuste}")]
-        public ActionResult EliminarAjusteInventario(int idAjuste, IList<int> id)
+        public ActionResult EliminarAjusteInventario(int idAjuste, IList<long> id)
         {
             try
             {
@@ -106,7 +155,7 @@ namespace AltivaWebApp.Controllers
 
                 }
 
-                service.DeleteAjusteInventario(id, idAjuste);
+                service.DeleteAjusteInventario(id);
                 ai.TbPrAjusteInventario = ajuste;
                 kardexMap.CreateKardexDeletedAM(ai);
 
@@ -126,7 +175,7 @@ namespace AltivaWebApp.Controllers
             {
                 var ai = service.GetAjusteById((int)viewModel.FirstOrDefault().IdAjuste);
 
-                service.SaveAjusteInventario(map.AIViewModelToDomain(viewModel).ToList());
+                service.SaveOrUpdateAjusteInventario(map.AIViewModelToDomain(viewModel).ToList());
 
                 kardexMap.CreateKardexAM(ai, (int)viewModel.FirstOrDefault().IdAjuste);
 
@@ -214,6 +263,9 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+
+
+        // ocupo este
         [HttpGet("Get-BodegaInventario")]
         public ActionResult GetBodegaInventario()
         {

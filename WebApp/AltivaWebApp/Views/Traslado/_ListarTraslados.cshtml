@@ -1,0 +1,483 @@
+﻿@model IEnumerable<AltivaWebApp.Domains.TbPrTraslado>
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+
+<div class="row">
+
+    <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
+        <label>@SharedLocalizer["buscar"]:</label>
+        <input type="text" id="filtroBuscar" class="form-control" autofocus="autofocus" placeholder="@SharedLocalizer["buscarTraslado"]." />
+    </div>
+
+    <div class="col-md-2 " style="margin-top: 0.2rem">
+        <label class="control-label">
+            <input type="checkbox" id="habilitaFiltroFecha"> @SharedLocalizer["FiltroFecha"]
+        </label>
+        <form id="frmFecha" class="form-horizontal">
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="input-prepend input-group">
+                            <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="01/01/2015 - 01/01/2030" />
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+    </div>
+
+    <div class="col-md-2 checkbox" style="margin-top: 0.2rem">
+        <label class="control-label">
+            <input type="checkbox" id="Anulado" onchange="cargarFiltros()"> @SharedLocalizer["VerAnulados"]
+        </label>
+    </div>
+</div>
+
+
+<br />
+
+
+<div class="row">
+    <div class="col-md-12 table-responsive">
+        <table class="table table-bordered" id="tblTraslado">
+            <thead>
+                <tr>
+                    <th>
+                        @SharedLocalizer["Traslado"]
+                    </th>
+                    <th>
+                        @SharedLocalizer["Usuario"]
+                    </th>
+                    <th>
+                        @SharedLocalizer["BodegaOrigen"]
+                    </th>
+                    <th>
+                        @SharedLocalizer["BodegaDestino"]
+                    </th>
+                    <th>
+                        @SharedLocalizer["Fecha"]
+                    </th>
+                    <th>
+                        @SharedLocalizer["Anulado"]
+                    </th>
+                    <th>
+                        @SharedLocalizer["CostoTraslado"]
+                    </th>
+                    <th>
+                        @SharedLocalizer["accion"]
+                    </th>
+
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>
+
+
+<script>
+
+    var Traslado = [];//se esta utilizando para capturar todos los registros que vienen de la bd en formato jason
+    var TrasladoFiltrado = [];
+    var tblTraslado;
+    var Usuarios = [];
+    //variables utilizadas para la fecha
+    var hasta;
+    var desde;
+
+
+    $(document).ready(function () {
+
+
+        getUsuarios();
+        getTraslados();
+
+        $('#filtroFecha').attr('disabled', true);
+
+        $('#filtroFecha').daterangepicker({
+            opens: 'left',
+
+            "locale": {
+                format: "@SharedLocalizer["formatoFecha"]",
+                "separator": " - ",
+                "applyLabel": "@SharedLocalizer["Aplicar"]",
+                "cancelLabel": "@SharedLocalizer["Cancelar"]",
+                "fromLabel": "@SharedLocalizer["DE"]",
+                "toLabel": "@SharedLocalizer["Hasta"]",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "@SharedLocalizer["Dom"]",
+                    "@SharedLocalizer["Lun"]",
+                    "@SharedLocalizer["Mar"]",
+                    "@SharedLocalizer["Mie"]",
+                    "@SharedLocalizer["Jue"]",
+                    "@SharedLocalizer["Vie"]",
+                    "@SharedLocalizer["Sáb"]"
+                ],
+                "monthNames": [
+                    "@SharedLocalizer["Enero"]",
+                    "@SharedLocalizer["Febrero"]",
+                    "@SharedLocalizer["Marzo"]",
+                    "@SharedLocalizer["Abril"]",
+                    "@SharedLocalizer["Mayo"]",
+                    "@SharedLocalizer["Junio"]",
+                    "@SharedLocalizer["Julio"]",
+                    "@SharedLocalizer["Agosto"]",
+                    "@SharedLocalizer["Septiembre"]",
+                    "@SharedLocalizer["Octubre"]",
+                    "@SharedLocalizer["Noviembre"]",
+                    "@SharedLocalizer["Diciembre"]"
+                ],
+                "firstDay": 1
+            }
+        },
+
+        function (start, end, label) {
+
+            desde = start.format('YYYY-MM-DD');
+            hasta = end.format('YYYY-MM-DD');
+            cargarFiltros();
+
+            });       
+
+    });
+
+    $(document).keypress(function (e) {
+        if (e.which == 13) {
+            e.preventDefault();
+        }
+    });
+
+
+    $('#habilitaFiltroFecha').change(function () {
+
+        if (!$(this).prop('checked')) {
+           
+            $('#filtroFecha').attr('disabled', true);
+            filtroAnuladas();
+        }
+
+        else {
+            $('#filtroFecha').attr('disabled', false);
+            filtroAnuladas();
+        }
+
+    });
+
+
+
+    $("#filtroBuscar").on("keyup", function () {
+
+        cargarFiltros();
+       
+    });
+
+
+
+
+    function cargarFiltros() {
+
+        TrasladoFiltrado = Traslado;//JSON.parse(JSON.stringify(traslados));
+        TrasladoFiltrado = filtroFecha(TrasladoFiltrado, desde, hasta);
+        TrasladoFiltrado = filtroPalabra(TrasladoFiltrado);
+        TrasladoFiltrado = filtroAnuladas(TrasladoFiltrado);
+
+        cargarDatos(TrasladoFiltrado);
+
+
+    }
+
+    
+    function filtroPalabra(array) {
+
+        var keyword = $('#filtroBuscar').val();
+       // console.log(keyword);
+
+        var arrayTraslado = [];
+        //var array = contactos;
+        if (keyword.replace(/ /g, "") === "") {
+            return array;
+        }
+        else {
+            for (var i = 0; i < array.length; i++) {
+
+                var nombreDestino = array[i].idBodegaDestinoNavigation.nombre;
+                var nombreOrigen = array[i].idBodegaOrigenNavigation.nombre;
+                var id = array[i].idTraslado.toString();
+
+                if (nombreDestino.indexOf(keyword) > -1) {
+                    arrayTraslado.push(array[i]);
+                } else if (nombreOrigen.indexOf(keyword) > -1) {
+                    arrayTraslado.push(array[i]);
+                } else if (id.indexOf(keyword) > -1) {
+                    arrayTraslado.push(array[i]);
+                } 
+                                
+            }
+            return arrayTraslado;
+        }
+    }
+
+    function filtroFecha(array, _desde, _hasta) {
+
+
+        var arrayTraslados = [];
+
+        if ($('#habilitaFiltroFecha').prop('checked')) {
+
+            var desdeLocal = new Date(_desde).getTime();
+            var hastaLocal = new Date(_hasta).getTime();
+
+            for (var i = 0; i < array.length; i++) {
+
+                var documento = new Date(array[i].fecha.substring(0, 10)).getTime();//quita la hora y la fecha 
+
+                if (documento >= desdeLocal && documento <= hastaLocal)
+                    arrayTraslados.push(Traslado[i]);
+
+            }
+            return arrayTraslados;
+        }
+        else
+            return array;
+    }
+
+
+    
+    function getTraslados() {
+
+
+            $.ajax({
+            type: "get",
+            headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: 'Get-Traslados',
+            success: function (data) {
+                //console.log(data);
+                Traslado = JSON.parse(JSON.stringify(data));
+                //cargarDatos(data);            
+                cargarFiltros(); // este metodo carga la tabla
+            
+              
+
+            },
+            error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+            });
+
+    }
+
+  
+
+
+    function cargarDatos(data) {
+        ///console.log(data);
+        $("#tblTraslado> tbody").remove();
+        $('#tblTraslado').append('<tbody></tbody>');
+
+        var anulado = "";
+        var contadorFila = 0;
+
+
+        for (var i = 0; i < data.length; i++) {
+
+
+             if (data[i].anulado == true) { 
+                 anulado = '<input type="checkbox" disabled checked="checked" >';
+             }
+             else {
+                 anulado = '<input disabled type="checkbox" >';
+             }
+
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td><p style="padding-top:1rem">' + data[i].idTraslado + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + obtenerUsuario(data[i].idUsuario) + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + data[i].idBodegaOrigenNavigation.nombre  + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + data[i].idBodegaDestinoNavigation.nombre + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fecha) + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + anulado + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + data[i].costoTraslado + '</p></td>'
+                + '<td>  <button value="' + data[i].idTraslado + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i>';
+
+            $('#tblTraslado > tbody').append(body);
+            contadorFila++;
+
+        }
+
+        inicializarTabla();
+
+    }
+
+
+    function inicializarTabla() {
+
+        $('#tblTraslado').DataTable().destroy();
+
+
+        tblTraslado = $('#tblTraslado').DataTable({
+            "info": false,
+            "order": [[0, "desc"]],
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@SharedLocalizer["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                "paginate": {
+                    "first": "@SharedLocalizer["Primero"]",
+                    "last": "@SharedLocalizer["Último"]",
+                    "next": "@SharedLocalizer["Sguiente"]",
+                    "previous": "@SharedLocalizer["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   "></i>',
+                    titleAttr: 'Copy',
+                    title: '@SharedLocalizer["Traslados de Existencias"]',
+                    exportOptions: {
+                        columns: [0, 1]
+                    }
+
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: '@SharedLocalizer["Traslados de Existencias"]',
+                    exportOptions: {
+                        columns: [0, 1]
+                    }
+
+                },
+
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: '@SharedLocalizer["Traslados de Existencias"]',
+                    exportOptions: {
+                        columns: [0, 1]
+                    }
+                }
+            ]
+        });
+
+    }
+
+
+
+    function recuperarFecha(_fecha) {
+
+        var f = new Date(_fecha);
+
+        return f.toLocaleString();
+
+    }
+
+    function getUsuarios() {
+         $.ajax({
+             type: "get",
+             headers: {
+                 "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+             },
+             dataType: "json",
+             url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
+             success: function (data) {
+
+                 Usuarios = data;
+
+
+             },
+             error: function (err, scnd) {
+                 var msj = '@SharedLocalizer["errorGeneral"]';
+                  cargarAlert(msj);
+                  console.log(err.statusText);
+             }
+         });
+    }
+
+    function obtenerUsuario(id) {
+
+        for (var i = 0; i < Usuarios.length; i++) {
+
+            if (Usuarios[i].id == id) { // estan llegando los usuarios 1 ,2 y 3 seguidos por eso no los obtiene por que ha que recorrerlos
+
+                return Usuarios[i].nombre;
+
+            }
+
+        }
+
+    }
+
+
+
+    function filtroAnuladas(array) {
+       //console.log(array);
+       //var array = Traslado;
+
+        var arrayTraslado = [];
+
+
+        if ($('#Anulado').prop('checked')) {
+
+            for (var i = 0; i < array.length; i++) {
+                if (!array[i].anulado)
+                    arrayTraslado.push(array[i]);
+            }
+
+        }
+        else
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].anulado)
+                    arrayTraslado.push(array[i]);
+            }
+
+        return arrayTraslado;
+
+
+    }
+
+
+
+
+
+
+
+
+
+</script>
+
+

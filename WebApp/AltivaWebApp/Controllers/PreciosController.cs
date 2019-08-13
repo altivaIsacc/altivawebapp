@@ -17,10 +17,15 @@ namespace AltivaWebApp.Controllers
     {
         private readonly IPreciosService service;
         private readonly IPreciosMap map;
-        public PreciosController(IPreciosService service, IPreciosMap map)
+        private readonly IPrecioCatalogoService precioCatalogoService;
+        private readonly IInventarioService inventarioService;
+        public PreciosController(IPreciosService service, IPreciosMap map, IPrecioCatalogoService precioCatalogoService, IInventarioService inventarioService)
         {
             this.service = service;
             this.map = map;
+            this.precioCatalogoService = precioCatalogoService;
+            this.inventarioService = inventarioService;
+
         }
         [Route("Precios/")]
         public ActionResult ListarPrecios()
@@ -72,6 +77,10 @@ namespace AltivaWebApp.Controllers
                     {
                         viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                         Precios = map.Create(viewModel);
+                        var idTipoPrecio = (int) Precios.Id;
+                        var inventarios = inventarioService.GetAll();
+                       var resultado = precioCatalogoService.SaveFromPrecios(idTipoPrecio);
+
                     }
                     else
                         return Json(new { success = false });
@@ -79,7 +88,7 @@ namespace AltivaWebApp.Controllers
 
 
 
-                return Json(new { success = true, Precios = Precios });
+                return Json(new { success = true, precios =Precios});
             }
             catch
             {

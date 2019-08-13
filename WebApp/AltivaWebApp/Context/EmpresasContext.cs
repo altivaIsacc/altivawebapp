@@ -4746,16 +4746,17 @@ namespace AltivaWebApp.Context
                     .HasConstraintName("FK_tb_PR_TomaDetalle_tb_PR_Toma");
             });
 
+
             modelBuilder.Entity<TbPrTraslado>(entity =>
             {
-                entity.HasKey(e => e.IdTraslado)
-                    .HasName("PK_tb_PR_Traslados");
+                entity.HasKey(e => e.IdTraslado);
 
                 entity.ToTable("tb_PR_Traslado");
 
-                entity.Property(e => e.Anulado)
+                entity.Property(e => e.Comentario)
                     .IsRequired()
-                    .HasDefaultValueSql("('0')");
+                    .HasMaxLength(256)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Fecha)
                     .HasColumnType("datetime")
@@ -4764,6 +4765,18 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
+
+                entity.HasOne(d => d.IdBodegaDestinoNavigation)
+                    .WithMany(p => p.TbPrTrasladoIdBodegaDestinoNavigation)
+                    .HasForeignKey(d => d.IdBodegaDestino)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_Traslado_tb_PR_Bodega1");
+
+                entity.HasOne(d => d.IdBodegaOrigenNavigation)
+                    .WithMany(p => p.TbPrTrasladoIdBodegaOrigenNavigation)
+                    .HasForeignKey(d => d.IdBodegaOrigen)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_Traslado_tb_PR_Bodega");
             });
 
             modelBuilder.Entity<TbPrTrasladoInventario>(entity =>
@@ -4773,14 +4786,24 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.CodigoArticulo)
                     .IsRequired()
                     .HasMaxLength(60)
-                    .IsUnicode(false)
                     .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Descripcion)
                     .IsRequired()
                     .HasMaxLength(150)
-                    .IsUnicode(false)
                     .HasDefaultValueSql("('')");
+
+                entity.HasOne(d => d.IdInventarioNavigation)
+                    .WithMany(p => p.TbPrTrasladoInventario)
+                    .HasForeignKey(d => d.IdInventario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_TrasladoInventario_tb_PR_Inventario");
+
+                entity.HasOne(d => d.IdTrasladoNavigation)
+                    .WithMany(p => p.TbPrTrasladoInventario)
+                    .HasForeignKey(d => d.IdTraslado)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_TrasladoInventario_tb_PR_Traslado");
             });
 
             modelBuilder.Entity<TbPrUnidadMedida>(entity =>

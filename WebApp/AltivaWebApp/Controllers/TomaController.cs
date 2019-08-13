@@ -90,7 +90,7 @@ namespace AltivaWebApp.Controllers
 
                 var ajuste = map.AjustarInventario(toma.Id);
 
-                var kardex = kardexMap.CreateKardexAM(null, (int)ajuste.Id);
+                var kardex = kardexMap.CreateKardexAM(ajuste, (int)ajuste.Id);
 
                 return Json(new { success = true, idAjuste = ajuste.Id });
             }

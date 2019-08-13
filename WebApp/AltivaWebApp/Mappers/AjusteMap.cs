@@ -26,6 +26,10 @@ namespace AltivaWebApp.Mappers
             return service.Update(ViewModelToDomainEditar(viewModel));
         }
 
+        public IList<TbPrAjusteInventario> CreateOrUpdateAI(IList<AjusteInventarioViewModel> crOrup)
+        {
+            return service.SaveOrUpdateAjusteInventario(AIViewModelToDomain(crOrup).ToList());
+        }
 
         public AjusteViewModel DomainToViewModel(TbPrAjuste domain)
         {
