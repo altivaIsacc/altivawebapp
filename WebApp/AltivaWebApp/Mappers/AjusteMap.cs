@@ -26,23 +26,9 @@ namespace AltivaWebApp.Mappers
             return service.Update(ViewModelToDomainEditar(viewModel));
         }
 
-        public void CreateOrUpdateAI(IList<AjusteInventarioViewModel> crOrup)
+        public IList<TbPrAjusteInventario> CreateOrUpdateAI(IList<AjusteInventarioViewModel> crOrup)
         {
-            var actualizar = new List<TbPrAjusteInventario>();
-            var crear = new List<TbPrAjusteInventario>();
-
-            foreach (var item in crOrup)
-            {
-                if (item.Id != 0)
-                    actualizar.Add(AIViewModelToDomainSingle(item));
-                else
-                    crear.Add(AIViewModelToDomainSingle(item));
-            }
-
-
-            service.SaveAjusteInventario(crear);
-            service.UpdateAjusteInventario(actualizar);
-
+            return service.SaveOrUpdateAjusteInventario(AIViewModelToDomain(crOrup).ToList());
         }
 
         public AjusteViewModel DomainToViewModel(TbPrAjuste domain)

@@ -21,10 +21,10 @@ namespace AltivaWebApp.Mappers
             this.reqService = reqService;
         }
 
-        public bool CreateKardexAM(TbPrAjuste ajuste, int idAjuste)
+        public bool CreateKardexAM(TbPrAjuste domain, int idAjuste)
         {
             var flag = true;
-            var domain = ajusteService.GetAjusteById(idAjuste);
+            //var domain = ajusteService.GetAjusteById(idAjuste);
             var kardex = new List<TbPrKardex>();
 
             /////averiguar que hacer si se eliminar una linea, restar si es entrada y sumar si es salida
@@ -33,60 +33,59 @@ namespace AltivaWebApp.Mappers
 
             foreach (var item in domain.TbPrAjusteInventario)
             {
-                if (!ExisteAjusteInventario(ajuste, (int)item.Id))
-                {
-                    var k = new TbPrKardex();
-                    double existencia = 0;
-                    double existenciaB = 0;
 
-                    if (domain.Anulada)
-                        if (item.Movimiento)
-                            item.Movimiento = false;
-                        else
-                            item.Movimiento = true;
+                var k = new TbPrKardex();
+                double existencia = 0;
+                double existenciaB = 0;
 
+                if (domain.Anulada)
                     if (item.Movimiento)
-                    {
-                        existencia = item.IdInventarioNavigation.ExistenciaGeneral + item.Cantidad; //domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == true && i.IdInventario == item.IdInventario).Cantidad;
-                        existenciaB = item.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdBodega == domain.IdBodega).ExistenciaBodega + item.Cantidad; //domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == true && i.IdInventario == item.IdInventario).Cantidad;
-                        k.CantidadMov = item.Cantidad;
-                    }
+                        item.Movimiento = false;
                     else
-                    {
-                        existencia = item.IdInventarioNavigation.ExistenciaGeneral - item.Cantidad;//domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == false && i.IdInventario == item.IdInventario).Cantidad;
-                        existenciaB = item.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdBodega == domain.IdBodega).ExistenciaBodega - item.Cantidad;//domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == false && i.IdInventario == item.IdInventario).Cantidad;
-                        k.CantidadMov = item.Cantidad * -1;
-                    }
+                        item.Movimiento = true;
 
-                    if (existencia < 0 || existenciaB < 0)
-                    {
-                        flag = false;
-                        break;
-                    }
-
-
-                    k.CostoMov = item.TotalMovimiento;
-                    k.CostoPromedio = item.CostoPromedio;
-                    k.ExistAct = existencia;
-                    k.ExistActBod = existenciaB;
-                    k.ExistAnt = item.IdInventarioNavigation.ExistenciaGeneral;
-                    k.ExistAntBod = item.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdBodega == domain.IdBodega).ExistenciaBodega;
-                    k.Fecha = DateTime.Now;
-                    k.IdBodegaDestino = domain.IdBodega;
-                    k.IdBodegaOrigen = domain.IdBodega;
-                    k.IdDocumento = domain.Id;
-                    k.IdInventario = item.IdInventario;
-                    k.IdMoneda = 1;
-                    k.IdUsuario = domain.IdUsuario;
-                    k.Observaciones = domain.Descripcion;
-                    k.PrecioPromedio = 0;//item.CostoPromedio;
-                    k.PrecioUnit = item.IdInventarioNavigation.UltimoPrecioCompra;
-                    k.SaldoFinal = item.CostoPromedio * existenciaB;
-                    k.TipoDocumento = "AM";
-
-
-                    kardex.Add(k);
+                if (item.Movimiento)
+                {
+                    existencia = item.IdInventarioNavigation.ExistenciaGeneral + item.Cantidad; //domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == true && i.IdInventario == item.IdInventario).Cantidad;
+                    existenciaB = item.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdBodega == domain.IdBodega).ExistenciaBodega + item.Cantidad; //domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == true && i.IdInventario == item.IdInventario).Cantidad;
+                    k.CantidadMov = item.Cantidad;
                 }
+                else
+                {
+                    existencia = item.IdInventarioNavigation.ExistenciaGeneral - item.Cantidad;//domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == false && i.IdInventario == item.IdInventario).Cantidad;
+                    existenciaB = item.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdBodega == domain.IdBodega).ExistenciaBodega - item.Cantidad;//domain.TbPrAjusteInventario.FirstOrDefault(i => i.Movimiento == false && i.IdInventario == item.IdInventario).Cantidad;
+                    k.CantidadMov = item.Cantidad * -1;
+                }
+
+                if (existencia < 0 || existenciaB < 0)
+                {
+                    flag = false;
+                    break;
+                }
+
+
+                k.CostoMov = item.TotalMovimiento;
+                k.CostoPromedio = item.CostoPromedio;
+                k.ExistAct = existencia;
+                k.ExistActBod = existenciaB;
+                k.ExistAnt = item.IdInventarioNavigation.ExistenciaGeneral;
+                k.ExistAntBod = item.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdBodega == domain.IdBodega).ExistenciaBodega;
+                k.Fecha = DateTime.Now;
+                k.IdBodegaDestino = domain.IdBodega;
+                k.IdBodegaOrigen = domain.IdBodega;
+                k.IdDocumento = domain.Id;
+                k.IdInventario = item.IdInventario;
+                k.IdMoneda = 1;
+                k.IdUsuario = domain.IdUsuario;
+                k.Observaciones = domain.Descripcion;
+                k.PrecioPromedio = 0;//item.CostoPromedio;
+                k.PrecioUnit = item.IdInventarioNavigation.UltimoPrecioCompra;
+                k.SaldoFinal = item.CostoPromedio * existenciaB;
+                k.TipoDocumento = "AM";
+
+
+                kardex.Add(k);
+
 
 
             }
@@ -102,6 +101,7 @@ namespace AltivaWebApp.Mappers
         {
             var flag = true;
             var kardex = new List<TbPrKardex>();
+
 
             foreach (var item in domain.TbPrAjusteInventario)
             {
@@ -292,7 +292,7 @@ namespace AltivaWebApp.Mappers
 
                 var existAntBod = item.IdInventarioNavigation.TbPrInventarioBodega.FirstOrDefault(i => i.IdBodega == item.IdBodega).ExistenciaBodega;
                 var existActBod = existAntBod - item.Cantidad;
-                if(existActBod < 0)
+                if (existActBod < 0)
                 {
                     return false;
                 }
@@ -416,12 +416,12 @@ namespace AltivaWebApp.Mappers
             foreach (var item in rq)
             {
                 cantidad = 0;
-                if (isDeteled)              
-                    cantidad = item.Cantidad;                   
+                if (isDeteled)
+                    cantidad = item.Cantidad;
                 else
                     cantidad = item.Cantidad * -1;
 
-                    
+
 
                 var k = new TbPrKardex
                 {

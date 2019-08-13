@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Repositories
 {
-    public class AjusteRepository: BaseRepository<TbPrAjuste>, IAjusteRepository
+    public class AjusteRepository : BaseRepository<TbPrAjuste>, IAjusteRepository
     {
         public AjusteRepository(EmpresasContext context)
-            :base(context)
+            : base(context)
         {
 
         }
-        
+
         public IList<TbPrAjuste> GetAllAjustes()
         {
             return context.TbPrAjuste.Include(a => a.TbPrAjusteInventario).ThenInclude(a => a.IdInventarioNavigation).ToList();
@@ -52,13 +52,51 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public bool SaveAjusteInventario(IList<TbPrAjusteInventario> domain)
+        public TbPrAjuste GetAjusteForKardex(int id, IList<long> idDetalles)
         {
             try
             {
-                context.TbPrAjusteInventario.AddRange(domain);
-                context.SaveChanges();
-                return true;
+                //return context.TbPrAjuste
+                //                .Include(a => a.TbPrAjusteInventario)
+                //                .ThenInclude(a => a.IdInventarioNavigation)
+                //                .ThenInclude(b => b.TbPrInventarioBodega)
+                //                .FirstOrDefault(a => a.Id == id && a.TbPrAjusteInventario.Any(d => idDetalles.Any(idD => idD == a.Id)));
+
+                return context.TbPrAjuste
+                    .Select(a => new TbPrAjuste
+                    {
+                        Anulada = a.Anulada,
+                        Descripcion = a.Descripcion,
+                        FechaCreacion = a.FechaCreacion,
+                        FechaDocumento = a.FechaDocumento,
+                        Id = a.Id,
+                        IdBodega = a.IdBodega,
+                        IdUsuario = a.IdUsuario,
+                        SaldoAjuste = a.SaldoAjuste,
+                        TbPrAjusteInventario = a.TbPrAjusteInventario.Select(d => new TbPrAjusteInventario
+                        {
+                            Cantidad = d.Cantidad,
+                            CostoPromedio = d.CostoPromedio,
+                            Descripcion = d.Descripcion,
+                            Id = d.Id,
+                            IdAjuste = d.IdAjuste,
+                            IdInventario = d.IdInventario,
+                            IdInventarioNavigation = new TbPrInventario
+                            {
+                                IdInventario = d.IdInventarioNavigation.IdInventario,
+                                TbPrInventarioBodega = d.IdInventarioNavigation.TbPrInventarioBodega,
+                                ExistenciaGeneral = d.IdInventarioNavigation.ExistenciaGeneral,
+                                CostoPromedioGeneral = d.IdInventarioNavigation.CostoPromedioGeneral,
+                                UltimoPrecioCompra = d.IdInventarioNavigation.UltimoPrecioCompra
+                            },
+                            Movimiento = d.Movimiento
+
+                        }).Where(d => idDetalles.Any(idD => idD == d.Id)).ToList(),
+                        TotalEntrada = a.TotalEntrada,
+                        TotalSalida = a.TotalSalida
+
+                    }).FirstOrDefault(a => a.Id == id);
+
             }
             catch (Exception)
             {
@@ -66,13 +104,28 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public bool UpdateAjusteInventario(IList<TbPrAjusteInventario> domain)
+
+        public IList<TbPrAjusteInventario> SaveOrUpdateAjusteInventario(IList<TbPrAjusteInventario> domain)
         {
             try
             {
-                context.TbPrAjusteInventario.UpdateRange(domain);
+
+                var actualizar = new List<TbPrAjusteInventario>();
+                var crear = new List<TbPrAjusteInventario>();
+
+                foreach (var item in domain)
+                {
+                    if (item.Id != 0)
+                        actualizar.Add(item);
+                    else
+                        crear.Add(item);
+                }
+
+                context.TbPrAjusteInventario.AddRange(crear);
+                context.TbPrAjusteInventario.UpdateRange(actualizar);
+
                 context.SaveChanges();
-                return true;
+                return domain;
             }
             catch (Exception)
             {
