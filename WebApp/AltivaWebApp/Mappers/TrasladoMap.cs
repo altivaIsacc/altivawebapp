@@ -25,44 +25,29 @@ namespace AltivaWebApp.Mappers
 
         public TbPrTraslado Update(TrasladoViewModel viewModel)
         {
-            return service.Update(ViewModelToDomain(viewModel));
+            return service.Update(ViewModelToDomainEditar(viewModel));
         }
 
-        public TbPrTraslado ViewModelToDomain(TrasladoViewModel viewModel)
+        public IList<TbPrTrasladoInventario> CreateOrUpdateAI(IList<TrasladoInventarioViewModel> crOrup)
         {
-            var domain = new TbPrTraslado
-            {
-                IdTraslado = viewModel.IdTraslado,
-                IdUsuario = viewModel.IdUsuario,
-                IdBodegaOrigen = viewModel.IdBodegaOrigen,
-                IdBodegaDestino = viewModel.IdBodegaDestino,
-                Fecha = viewModel.Fecha,
-                FechaCreacion = viewModel.FechaCreacion, //  DateTime.Now
-                Anulado = viewModel.Anulado,
-                CostoTraslado = viewModel.CostoTraslado,
-                Comentario = viewModel.Comentario             
-            };
-            return domain;
+            return service.SaveOrUpdateTrasladoInventario(AIViewModelToDomain(crOrup).ToList());
         }
 
 
-        //si
-        public TrasladoViewModel DomainToViewModel(TbPrTraslado domain)
+        public TbPrTraslado ViewModelToDomainEditar(TrasladoViewModel viewModel)
         {
-            return new TrasladoViewModel
-            {
-                //TrasladoInventario = TIDomainToViewModel(domain.TbPrTrasladoInventario),              
-                IdTraslado = domain.IdTraslado,
-                IdBodegaOrigen = domain.IdBodegaOrigen,
-                IdBodegaDestino = domain.IdBodegaDestino,
-                Fecha = domain.Fecha,
-                FechaCreacion = domain.FechaCreacion,
-                Anulado = domain.Anulado,
-                CostoTraslado = domain.CostoTraslado,
-                Comentario = domain.Comentario,
-                IdUsuario = (long)domain.IdUsuario
+            var traslado = service.GetTrasladoById((long)viewModel.IdTraslado);
 
-            };
+            traslado.IdUsuario = viewModel.IdUsuario;
+            traslado.IdBodegaOrigen = viewModel.IdBodegaOrigen;
+            traslado.IdBodegaDestino = viewModel.IdBodegaDestino;
+            traslado.Fecha = viewModel.Fecha;
+            traslado.FechaCreacion = viewModel.FechaCreacion;
+            traslado.Anulado = viewModel.Anulado;
+            traslado.CostoTraslado = viewModel.CostoTraslado;
+            traslado.Comentario = viewModel.Comentario;
+           
+            return traslado;
         }
 
         public ICollection<TbPrTrasladoInventario> AIViewModelToDomain(IList<TrasladoInventarioViewModel> viewModel)
@@ -76,25 +61,6 @@ namespace AltivaWebApp.Mappers
             return domain;
         }
 
-        public void CreateOrUpdateTD(IList<TrasladoInventarioViewModel> trasladoInventario)
-        {
-
-            var actualizar = new List<TbPrTrasladoInventario>();
-            var crear = new List<TbPrTrasladoInventario>();
-
-            foreach (var item in trasladoInventario)
-            {
-                if (item.Id != 0)
-                    actualizar.Add(AIViewModelToDomainSingle(item));
-                else
-                    crear.Add(AIViewModelToDomainSingle(item));
-            }
-
-
-            service.SaveTrasladoInventario(crear);
-            service.UpdateTrasladoInventario(actualizar);
-
-        }
 
         public TbPrTrasladoInventario AIViewModelToDomainSingle(TrasladoInventarioViewModel viewModel)
         {
@@ -105,25 +71,44 @@ namespace AltivaWebApp.Mappers
                 IdInventario = viewModel.IdInventario,
                 CodigoArticulo = viewModel.CodigoArticulo,
                 Descripcion = viewModel.Descripcion,
-                Cantidad = viewModel.Cantidad,
-                PrecioUnitario = viewModel.PrecioUnitario,
-                CostoTotal = viewModel.CostoTotal
-               
+                Cantidad = (float)viewModel.Cantidad,
+                PrecioUnitario = (float)viewModel.PrecioUnitario,
+                CostoTotal = (float)viewModel.CostoTotal
+
             };
         }
 
-        public IList<TrasladoInventarioViewModel> TIDomainToViewModel(ICollection<TbPrTrasladoInventario> domain)
+        //si
+        public TrasladoViewModel DomainToViewModel(TbPrTraslado domain)
+        {
+            return new TrasladoViewModel
+            {
+                TrasladoInventarioDetalle = AIDomainToViewModel(domain.TbPrTrasladoInventario),
+                IdTraslado = domain.IdTraslado,
+                IdUsuario = domain.IdUsuario,
+                IdBodegaOrigen = domain.IdBodegaOrigen,
+                IdBodegaDestino = domain.IdBodegaDestino,
+                Fecha = domain.Fecha,
+                FechaCreacion = domain.FechaCreacion,
+                Anulado = domain.Anulado,
+                CostoTraslado = domain.CostoTraslado,
+                Comentario = domain.Comentario
+
+            };
+        }
+
+        public IList<TrasladoInventarioViewModel> AIDomainToViewModel(ICollection<TbPrTrasladoInventario> domain)
         {
             var viewModel = new List<TrasladoInventarioViewModel>();
 
             foreach (var item in domain)
             {
-                viewModel.Add(TIDomaintoViewModelSingle(item));
+                viewModel.Add(AIDomaintoViewModelSingle(item));
             }
             return viewModel;
         }
 
-        public TrasladoInventarioViewModel TIDomaintoViewModelSingle(TbPrTrasladoInventario domain)
+        public TrasladoInventarioViewModel AIDomaintoViewModelSingle(TbPrTrasladoInventario domain)
         {
             return new TrasladoInventarioViewModel
             {
@@ -132,16 +117,30 @@ namespace AltivaWebApp.Mappers
                 IdInventario = domain.IdInventario,
                 CodigoArticulo = domain.CodigoArticulo,
                 Descripcion = domain.Descripcion,
-                Cantidad = domain.Cantidad, //(double) domain.Cantidad
-                PrecioUnitario = domain.PrecioUnitario, //(double) domain.PrecioUnitario
-                CostoTotal = domain.CostoTotal //(double) domain.CostoTotal
+                Cantidad = (float)domain.Cantidad, //(double) domain.Cantidad
+                PrecioUnitario = (float)domain.PrecioUnitario, //(double) domain.PrecioUnitario
+                CostoTotal = (float)domain.CostoTotal //(double) domain.CostoTotal
 
             };
         }
 
 
-
-
+        public TbPrTraslado ViewModelToDomain(TrasladoViewModel viewModel)
+        {
+            var domain = new TbPrTraslado
+            {
+                IdTraslado = viewModel.IdTraslado,
+                IdUsuario = viewModel.IdUsuario,
+                IdBodegaOrigen = viewModel.IdBodegaOrigen,
+                IdBodegaDestino = viewModel.IdBodegaDestino,
+                Fecha = viewModel.Fecha,
+                FechaCreacion = viewModel.FechaCreacion, //  DateTime.Now
+                Anulado = viewModel.Anulado,
+                CostoTraslado = viewModel.CostoTraslado,
+                Comentario = viewModel.Comentario
+            };
+            return domain;
+        }
 
     }
 }

@@ -14,7 +14,7 @@ namespace AltivaWebApp.Repositories
         public TrasladoRepository(EmpresasContext context) : base(context)
         {
 
-        }      
+        }
 
         //si
         public IList<TbPrTraslado> GetAllTraslado()
@@ -35,34 +35,32 @@ namespace AltivaWebApp.Repositories
             //}
         }
 
-        //si
-        public bool SaveTrasladoInventario(IList<TbPrTrasladoInventario> domain)
-        {
-            try
-            {
-                context.TbPrTrasladoInventario.AddRange(domain);
-                context.SaveChanges();
-                return true;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
 
-        //si
-        public bool UpdateTrasladoInventario(IList<TbPrTrasladoInventario> domain)
+        public IList<TbPrTrasladoInventario> SaveOrUpdateTrasladoInventario(IList<TbPrTrasladoInventario> domain)
         {
             try
             {
-                context.TbPrTrasladoInventario.UpdateRange(domain);
+                var actualizar = new List<TbPrTrasladoInventario>();
+                var crear = new List<TbPrTrasladoInventario>();
+
+                foreach (var item in domain)
+                {
+                    if (item.Id != 0)
+                        actualizar.Add(item);
+                    else
+                        crear.Add(item);
+                }
+                context.TbPrTrasladoInventario.AddRange(crear);
+                context.TbPrTrasladoInventario.UpdateRange(actualizar);
+
                 context.SaveChanges();
-                return true;
+                return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 throw;
             }
+
         }
 
         public void DeleteTrasladoInventario(IList<long> domain)
@@ -79,10 +77,17 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+
+
+
+
+
+
         public IList<TbPrTraslado> GetTrasladosSinAnular()
         {
             return context.TbPrTraslado.Where(d => d.Anulado == false).ToList();
         }
+  
 
     }
 }

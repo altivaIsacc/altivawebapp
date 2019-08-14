@@ -107,10 +107,10 @@ namespace AltivaWebApp.Controllers
                 }
                 else
                 {
-                    traslado.trasladoInventarioDetalle = inventarioTraslado;
+                    traslado.TrasladoInventarioDetalle = inventarioTraslado;
                     traslado.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     traslado.FechaCreacion = DateTime.Now;
-                    traslado.Anulado = true;//cambiar luego
+                    traslado.Anulado = false;//cambiar luego
                                              
                     var respTraslado = trasladoMap.Create(traslado);
 
@@ -119,8 +119,8 @@ namespace AltivaWebApp.Controllers
                         item.IdTraslado = respTraslado.IdTraslado;
                     }
 
-                     trasladoMap.CreateOrUpdateTD(inventarioTraslado);
-
+                    respTraslado.TbPrTrasladoInventario = trasladoMap.CreateOrUpdateAI(inventarioTraslado);
+                  
                 }
                 return Json(new { success = true });
             }

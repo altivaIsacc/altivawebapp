@@ -92,9 +92,9 @@
                 </div>
             </div>
             <div class="col-md-2 col-sm-2 col-xs-2">
-                <div class="text-right" id="Anular">
+                <div class="text-right">
                     <br>
-                    <button class="btn btn-danger btn-sm" onclick="anular()">@SharedLocalizer["Anular"]</button>
+                    <button class="btn btn-danger btn-sm" id="Anular" onclick="anular()">@SharedLocalizer["Anular"]</button>
                 </div>
             </div>
         </div>
@@ -332,8 +332,8 @@
         $('#CostoTraslado').prop("disabled", true);
         $('#errorExistenciaArticulo').hide(); //el mensaje del error se muestre
         $('#IdBodegaDestino').prop("disabled", true);
-
-
+        $('#Anular').hide();
+      
 
         //$('#divFiltroFecha').hide();
         //$('#divFiltroAnuladas').hide();
@@ -991,45 +991,61 @@
 
 
 
-   function guardarTraslado() {
+    function guardarTraslado() {
 
 
-       $.ajax({
-           type: "POST",
-           headers: {
-               "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-           },
-           dataType: "json",
-           url: '@Url.Action("CrearEditarTraslado", "Traslado")',
-           data: { traslado: crearModelo(), inventarioTraslado: arrayTablaTraslado },
-            success: function (data) {
+        if (validarSelectBodegaOrigen() == false) {
 
-                if (data.success) {
+            if (validarTablaTraslado() == false) {
 
-                        console.log(data);
-                       // $('#modalTraslado').modal('hide'); //ocultar modal
-                    }
-                    else
-                    cargarAlert("@SharedLocalizer["errorDuplicacion"]");
+                    $.ajax({
+                        type: "POST",
+                        headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        dataType: "json",
+                        url: '@Url.Action("CrearEditarTraslado", "Traslado")',
+                        data: { traslado: crearModelo(), inventarioTraslado: arrayTablaTraslado },
+                        success: function (data) {
 
-               },
-           error: function (err, scnd) {
-                cargarAlert('@SharedLocalizer["errorGeneral"]');
-                    console.log(err.statusText);
-              }
-       });
+                            if (data.success) {
+
+                                console.log(data);
+                                $('#modalTraslado').modal('hide'); //ocultar modal
+                            }
+                            else
+                                cargarAlert("@SharedLocalizer["errorDuplicacion"]");
+
+                        },
+                        error: function (err, scnd) {
+                            cargarAlert('@SharedLocalizer["errorGeneral"]');
+                            console.log(err.statusText);
+                        }
+                    });
+
+                } else {
+                 $('#modalTraslado').modal('show'); //ocultar modal
+                 cargarAlert('@SharedLocalizer["La tabla se encuentra vacia, agregue articulos"]');
+                }
+
+        } else {
+           $('#modalTraslado').modal('show'); //ocultar modal
+           cargarAlert('@SharedLocalizer["Debe de seleccionar una bodega de origen"]');
+        }
+
+
 
    }
 
 
-   function crearModelo() {
-
-       $('#modalTraslado').modal('hide'); //ocultar modal
+    function crearModelo() {
+    
        //console.log(arrayTablaTraslado);
 
        var idBodegaOrigen = 0;
        var idBodegaDestino = 0;
        var fecha = "";
+       var fechaCreacion = "";
        var anulado = 0;
        var costoTraslado = 0;
        var comentario = "";
@@ -1037,7 +1053,6 @@
        idBodegaOrigen = $("#IdBodegaOrigen").val();
        idBodegaDestino = $("#IdBodegaDestino").val();
        fecha = $("#fecha").val();
-       anulado = validarAnular();
        costoTraslado = $("#CostoTraslado").val();
        comentario = $("#Comentario ").val();
 
@@ -1048,7 +1063,7 @@
                idBodegaOrigen: idBodegaOrigen,
                idBodegaDestino: idBodegaDestino,
                fecha: fecha,
-              // fechaCreacion: fecha,
+               fechaCreacion: fechaCreacion,
                anulado: anulado,
                costoTraslado: costoTraslado,
                comentario: comentario
@@ -1061,18 +1076,38 @@
        return modelTraslado;
    }
 
-   function validarAnular() {
-        var resp = 0;
-       if ($('#Anular').prop('checked')) {
-           resp = 1;
-           return resp;
-       } else {
-           resp = 0;
-           return resp;
-       }
+  
+    function validarSelectBodegaOrigen() {
+
+        var resp = false;
+
+        if ($('#IdBodegaOrigen').val() == "" ) {
+            resp = true;
+            return resp;
+
+        } else {
+            resp = false;
+            return resp;
+
+        }
+
     }
 
+    function validarTablaTraslado() {
 
+        var resp = false;
+
+        if (arrayTablaTraslado.length == 0) {
+            resp = true;
+            return resp;
+
+        } else {
+            resp = false;
+            return resp;
+
+        }
+
+    }
 
 
 

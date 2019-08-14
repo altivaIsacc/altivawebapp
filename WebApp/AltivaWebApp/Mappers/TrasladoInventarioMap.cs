@@ -52,9 +52,9 @@ namespace AltivaWebApp.Mappers
                 IdInventario = domain.IdInventario,              
                 CodigoArticulo = domain.CodigoArticulo,
                 Descripcion = domain.Descripcion,
-                Cantidad = domain.Cantidad,
-                PrecioUnitario = domain.PrecioUnitario,
-                CostoTotal = domain.CostoTotal
+                Cantidad = (float)domain.Cantidad,
+                PrecioUnitario = (float)domain.PrecioUnitario,
+                CostoTotal = (float)domain.CostoTotal
                
             };
         }
