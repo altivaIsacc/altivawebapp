@@ -386,6 +386,7 @@
 
                 var url = '@Url.Action("DetallesEmpresa", "GrupoEmpresarial", new { nombre = "__nombre__" })';
                 window.location.href = url.replace('__nombre__', empresa);
+
             });
 
             if (localStorage.getItem('idioma') != null) {
@@ -395,6 +396,8 @@
             ////INICLIALIZA SELECT2
             $.fn.select2.defaults.set("theme", "bootstrap");
 
+
+            //////////////////////////////////////////////idioma//////////////////////////////////////////
             $('#english').click(function () {
                 $("[data-translate]").jqTranslate('/../idiomas/altiva', { defaultLang: 'es', forceLang: 'en', asyncLoad: false });
                 localStorage.setItem('idioma', 'en');
@@ -407,7 +410,10 @@
             $('.btnIdioma').click(function () {
                 var idiomaActual = localStorage.getItem('idioma');
                 var url = window.location.pathname;
-                guardarConfigUsuario(1);
+
+                var urlPost = '@Url.Action("CambiarConfig", "ManejoUsuarios")';
+
+                guardarConfigUsuario(@User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value, urlPost);
 
                 if (idiomaActual === 'en')
                     url = url.replace("es-CR", 'en-US');
@@ -416,6 +422,9 @@
 
                 window.location.pathname = url;
             });
+
+
+            /////////////////////////////////////////////////////fin idioma/////////////////////////////////////////////////////
 
             bootbox.setDefaults({
                 locale: localStorage.getItem('idioma')

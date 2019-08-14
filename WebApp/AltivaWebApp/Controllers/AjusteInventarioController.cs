@@ -246,11 +246,11 @@ namespace AltivaWebApp.Controllers
             {
                 var ajuste = service.GetAjusteById(id);
                 ajuste.Anulada = true;
-                service.Update(ajuste);
-                var res = kardexMap.CreateKardexAM(null, id);
-                if (!res)
+                
+                var res = kardexMap.CreateKardexAM(ajuste, id);
+
+                if (res)
                 {
-                    ajuste.Anulada = false;
                     service.Update(ajuste);
                 }
 

@@ -1,5 +1,5 @@
 ﻿
-function guardarConfigUsuario(idUsuario) {
+function guardarConfigUsuario(idUsuario, url) {
     var config = {
         idUsuario: idUsuario,
         tema: localStorage.getItem('tema'),
@@ -9,7 +9,7 @@ function guardarConfigUsuario(idUsuario) {
     $.ajax({
         type: "POST",
        
-        url: '../Cambiar-Configuracion',
+        url: url,
         data: config,
         success: function (data) {
             console.log(data.data);
