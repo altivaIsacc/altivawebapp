@@ -25,14 +25,16 @@ namespace AltivaWebApp.Repositories
         //si
         public TbPrTraslado GetTrasladoById(long id)
         {
-            //try
-            //{
-                return context.TbPrTraslado.FirstOrDefault(d => d.IdTraslado == id);//se cambio Id por IdTraslado
-            //}
-            //catch (Exception)
-            //{
-            //    throw;
-            //}
+            try
+            {
+                return context.TbPrTraslado.FirstOrDefault(d => d.IdTraslado == id);//se trae el traslado en especifico
+                //return context.TbPrTraslado.Include(a => a.TbPrTrasladoInventario).FirstOrDefault(d => d.IdTraslado == id);//las dos tablas
+               
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
 

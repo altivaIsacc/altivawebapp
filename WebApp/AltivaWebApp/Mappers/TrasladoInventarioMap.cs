@@ -22,10 +22,10 @@ namespace AltivaWebApp.Mappers
             return service.Save(ViewModelToDomain(viewModel));
         }
 
-        public TbPrTrasladoInventario Update(TrasladoInventarioViewModel viewModel)
-        {
-            return service.Update(ViewModelToDomainEditar(viewModel));
-        }
+        //public TbPrTrasladoInventario Update(TrasladoInventarioViewModel viewModel)
+        //{
+        //    return service.Update(ViewModelToDomainEditar(viewModel));
+        //}
 
         public TbPrTrasladoInventario ViewModelToDomain(TrasladoInventarioViewModel viewModel)
         {
@@ -58,21 +58,31 @@ namespace AltivaWebApp.Mappers
                
             };
         }
-  
-        //tal vez falte 
+
+        public TbPrTrasladoInventario Update(TrasladoInventarioViewModel viewModel)
+        {
+            throw new NotImplementedException();
+        }
+
         public TbPrTrasladoInventario ViewModelToDomainEditar(TrasladoInventarioViewModel viewModel)
         {
-            var domain = service.GetTrasladoInventarioById(viewModel.IdTraslado);
-
-            domain.IdTraslado = viewModel.IdTraslado;
-            domain.IdInventario = viewModel.IdInventario;
-            domain.CodigoArticulo = viewModel.CodigoArticulo;
-            domain.Descripcion = viewModel.Descripcion;
-            domain.Cantidad = viewModel.Cantidad;
-            domain.PrecioUnitario = viewModel.PrecioUnitario;
-            domain.CostoTotal = viewModel.CostoTotal;      
-
-            return domain;
+            throw new NotImplementedException();
         }
-    }
+
+        //tal vez falte
+        //public TbPrTrasladoInventario ViewModelToDomainEditar(TrasladoInventarioViewModel viewModel)
+        //{
+        //    var domain = service.GetTrasladoInventarioById(viewModel.IdTraslado);
+
+        //    domain.IdTraslado = viewModel.IdTraslado;
+        //    domain.IdInventario = viewModel.IdInventario;
+        //    domain.CodigoArticulo = viewModel.CodigoArticulo;
+        //    domain.Descripcion = viewModel.Descripcion;
+        //    domain.Cantidad = viewModel.Cantidad;
+        //    domain.PrecioUnitario = viewModel.PrecioUnitario;
+        //    domain.CostoTotal = viewModel.CostoTotal;
+
+        //    return domain;
+        //}
+}
 }

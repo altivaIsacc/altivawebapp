@@ -132,6 +132,49 @@ namespace AltivaWebApp.Controllers
 
 
 
+        [HttpGet("Get-TrasladoInventario/{id}")]
+        public ActionResult GetTrasladoInventario(long id)
+        {
+            try
+            {
+             
+                var trasladoInventario = trasladoInventarioService.GetTrasladoInventarioById(id);
+                
+                return Ok(trasladoInventario);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+
+        [HttpGet("Get-Traslado/{id}")]
+        public ActionResult GetTraslado(long id)
+        {
+            try
+            {
+                var traslado = trasladoService.GetTrasladoById(id);
+               
+                //foreach (var item in traslado.TbPrTrasladoInventario)
+                //{
+                //    item.IdInventarioNavigation = null;
+                //    item.IdTrasladoNavigation = null;
+                //}
+                return Ok(traslado);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+
+
+
+
+
+
 
 
 
