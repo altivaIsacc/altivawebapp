@@ -60,11 +60,11 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var existePre = service.GetPreciosByDesc(viewModel.Descripcion);
+                var existePre = service.GetPreciosByDesc(viewModel.Id);
                 var Precios = new TbPrPrecios();
                 if (viewModel.Id != 0)
                 {
-                    if (existePre == null || existePre.Id == viewModel.Id)
+                    if (existePre.Id == viewModel.Id)
                     {
                         Precios = map.Update(viewModel);
                     }

@@ -66,6 +66,8 @@ namespace AltivaWebApp.Controllers
 
             var tipoCambio = monedaService.GetAll(); 
             var model = new OrdenViewModel();
+            model.Fecha = DateTime.Now;
+            
             model.TipoCambioDolar = tipoCambio.FirstOrDefault(m => m.Codigo == 2).ValorCompra;
             model.TipoCambioEuro = tipoCambio.FirstOrDefault(m => m.Codigo == 3).ValorCompra;
 

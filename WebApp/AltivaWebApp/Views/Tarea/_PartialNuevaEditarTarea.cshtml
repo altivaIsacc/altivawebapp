@@ -1,4 +1,5 @@
 ﻿@model AltivaWebApp.Domains.TbFdTarea
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -8,13 +9,17 @@
 }
 
 @inject IStringLocalizer<SharedResources> Lb;
+@{
+   var anulado = false;
 
+}
 <style>
     .color {
         color: #fff;
     }
 </style>
 <div class="container" style=" overflow-y: scroll; height:60rem;">
+    <input type="hidden" id="anulado" value="@anulado" />
     <div class=" row ">
         <div hidden="hidden" class="form-group">
             <input type="text" class="form-control" id="Id" asp-for="Id" hidden>
@@ -77,8 +82,7 @@
             </div>
             <div class="form-group col-md-9 col-sm-9 col-xs-10">
                 <label class=" col-form-label">Estado:</label>
-                <select class=" form-control" id="estados">
-                </select>
+                <select class=" form-control" id="estados"></select>
             </div>
             <div class="form-group col-md-3 col-sm-3 col-xs-2" style="padding-top:3rem;">
                 <button class=" btn-link" onclick="CrearEstado()"><i class="fas fa-plus-circle dark" style="font-size:1.5rem;"></i></button>
@@ -133,7 +137,7 @@
 
             <div class=" form-group col-md-6 col-sm-6 col-xs-12">
                 <label class="col-form-label">Monto Cobrado:</label>
-                <input type="text" disabled="disabled" class="form-control moneda" id="montoCobrado" asp-for="MontoCobrad"  value="@Model.MontoCobrad.ToString().Replace(',', '.')" />
+                <input type="text" disabled="disabled" class="form-control moneda" id="montoCobrado" asp-for="MontoCobrad" value="@Model.MontoCobrad.ToString().Replace(',', '.')" />
             </div>
         </div>
 
@@ -191,15 +195,15 @@
 
         <div class="modal-content">
             @*<div class="row modal-header" id="head">
-                <div class="col-md-6" style="text-align:left">
-                    <h4 class="modal-title w-100" id="myModalLabel">@Lb["Tipo"]</h4>
-                </div>
-                <div class="col-md-6" style="text-align:right">
-                    <button type="button" class="close" id="btnCancelar">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            </div>*@
+                    <div class="col-md-6" style="text-align:left">
+                        <h4 class="modal-title w-100" id="myModalLabel">@Lb["Tipo"]</h4>
+                    </div>
+                    <div class="col-md-6" style="text-align:right">
+                        <button type="button" class="close" id="btnCancelar">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>*@
             <div class="modal-body " id="tiposTareas">
 
             </div>
@@ -218,7 +222,7 @@
 
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title w-100" id="myModalLabel">@Lb["Estado"]</h4>
+                <h4 class="modal-title w-100" id="myModalLabel">@SharedLocalizer["Nuevo"] @SharedLocalizer["Estado"]</h4>
                 <button type="button" class="close" id="btnCancelarEstados">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -234,7 +238,7 @@
 
 <script>
 
-
+    var $anulado = $('#anulado');
     var tiposT = [];
     var estadosT = [];
     function btnCancelarTarea() {
@@ -359,7 +363,7 @@
              GetComentario("Tareas", @Model.Id);
              GetSubTareas();
          }
-         
+
          $(".moneda").inputmask({
              'alias': 'decimal',
              rightAlign: true,
@@ -748,7 +752,7 @@
     });
     $(document).ready(function () {
 
-        
+
 
         $("#esCobrado").click(function () {
         //valida que si cobrado habilita el campo
@@ -763,7 +767,7 @@
         $('.selectpicker').selectpicker();
         getTipos();
         getEstados();
-        
+
     });
 
     //Mostrar div con la opcion ver mas
@@ -797,7 +801,7 @@
 
                     var flag = false;
 
-                    
+
 
                     if ($('#estados').has('option').length > 0) {
                         flag = true;
@@ -823,7 +827,7 @@
 
                                 if (!flag) {
 
-                                    if (data[i].esTipoDefecto) 
+                                    if (data[i].esTipoDefecto)
                                         o.setAttribute("selected", "selected");
                                 }
                                 else {
@@ -855,7 +859,7 @@
                                 else{
 
                                     if (estadosT.length === data.length) {
-                                        
+
                                         if (parseInt(selected) === data[i].id)
                                             $(o).attr("selected", true);
                                     }
@@ -877,7 +881,7 @@
 
                     $('#estados').selectpicker();
 
-                    
+
 
                 },
                 error: function (err, scnd) {
@@ -1071,7 +1075,7 @@
                      cargarAlert("@Lb["NoEstados"]");
                  }
                  else if (data.estados && data.tipos) {
-                     $('#btnEditarTarea').attr('disabled', false); 
+                     $('#btnEditarTarea').attr('disabled', false);
                      $('#btnGuardarTarea').attr('disabled', false);
                  }
 
