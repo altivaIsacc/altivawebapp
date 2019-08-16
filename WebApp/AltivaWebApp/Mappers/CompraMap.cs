@@ -33,7 +33,7 @@ namespace AltivaWebApp.Mappers
 
         public TbPrCompra Update(CompraViewModel viewModel)
         {
-            return service.Update(ViewModelToDomainEdit(viewModel));
+            return service.Update(ViewModelToDomain(viewModel));
         }
 
         public TbPrCompraDetalle CreateCD(CompraViewModel viewModel)
@@ -122,8 +122,8 @@ namespace AltivaWebApp.Mappers
                 EnCola = false,
                 TipoCambioDolar = viewModel.TipoCambioDolar,
                 TipoCambioEuro = viewModel.TipoCambioEuro,
-
-                TbPrCompraDetalle = ViewModelToDomainCD(viewModel)
+                
+                TbPrCompraDetalle = viewModel.CompraDetalle != null ? ViewModelToDomainCD(viewModel) : null
             };
 
             if (viewModel.IdMoneda == 1)

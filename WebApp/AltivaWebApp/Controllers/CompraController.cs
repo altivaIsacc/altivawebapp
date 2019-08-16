@@ -96,17 +96,30 @@ namespace AltivaWebApp.Controllers
                         var c = map.Update(viewModel);
                         if (viewModel.CompraDetalle != null && viewModel.CompraDetalle.Count() > 0)
                         {
-                            var cd = map.CreateCD(viewModel);
-                            idCD = cd.Id;
+                            //editar linea
+                            if(viewModel.CompraDetalle[0].Id != 0)
+                            {
+                                idCD = viewModel.CompraDetalle[0].Id;
+
+                                if (!viewModel.Borrador)
+                                {
+                                    kardexMap.CreateKardexEliminarCDSingle((int)idCD);
+                                }
+
+                                var cd = map.UpdateCD(viewModel);
+
+                            }
+                            else
+                            {//agregar linea
+                                var cd = map.CreateCD(viewModel);
+                                idCD = cd.Id;                              
+                            }
+
                             if (!viewModel.Borrador)
                             {
-                                kardexMap.CreateKardexCDSingle((int)cd.Id);
-
-                                ///////////////////actualiza cola aprovacion
-                                //var cola = haciendaService.GetCAById(c.Id);
-                                //cola.MontoDoc = c.TotalBase;
-                                //haciendaService.UpdateCA(cola);
+                                kardexMap.CreateKardexCDSingle((int)idCD);
                             }
+
                         }
                         else
                             if (c.EnCola)
