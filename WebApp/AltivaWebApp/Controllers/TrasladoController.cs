@@ -169,6 +169,25 @@ namespace AltivaWebApp.Controllers
             }
         }
 
+        // POST: AjusteInventario/Delete/5
+        [HttpGet("Anular-Traslado/{id}")]
+        public ActionResult AnularTraslado(int id)
+        {
+            try
+            {
+                var ajuste = trasladoService.GetTrasladoById(id);
+                ajuste.Anulado = true;
+
+                trasladoService.Update(ajuste);
+                var res = true;
+               
+                return Json(new { success = res });
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
 
 
 
