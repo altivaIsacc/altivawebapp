@@ -11,7 +11,16 @@
 }
 
 @{
-    ViewData["Title"] = "CrearEditarAjuste";
+
+    if (Model.Id != 0)
+    {
+        ViewData["Title"] = SharedLocalizer["editarAjuste"];
+    }
+    else
+    {
+        ViewData["Title"] = SharedLocalizer["nuevoAjuste"];
+    }
+
 
     var usuario = ViewData["usuario"] as TbSeUsuario;
 
@@ -71,7 +80,7 @@ else
             @Html.HiddenFor(x => x.IdUsuario)
             @Html.HiddenFor(x => x.FechaCreacion)
 
-            <div class="form-group col-md-2 col-sm-6 col-xs-12">
+            <div class="form-group col-md-3 col-sm-6 col-xs-12">
 
                 <fieldset @estado2>
                     <div class="form-group">
@@ -84,22 +93,21 @@ else
                         </div>
                     </div>
                 </fieldset>
-
             </div>
 
-            <div class="form-group col-md-2 col-sm-6 col-xs-12">
+            <div class="form-group col-md-3 col-sm-6 col-xs-12">
                 <label asp-for="IdBodega" class="control-label">@SharedLocalizer["Bodega"]:</label>
                 <select class="form-control" asp-for="IdBodega" id="bodegas">
                     @*<option value="0">@SharedLocalizer["Seleccione"]</option>*@
                 </select>
             </div>
-            <div class="form-group col-md-5 col-sm-6 col-xs-12">
+            <div class="form-group col-md-6 col-sm-6 col-xs-12">
                 <label asp-for="Descripcion" class="control-label">@SharedLocalizer["Descripción"]:</label>
                 <textarea data-limit-rows="true" asp-for="Descripcion" id="descripcionAjuste" rows="6" maxlength="500" class="form-control"></textarea>
                 <span hidden class="text-danger" id="descripcionAjusteValid">@SharedLocalizer["descripcionValid"]</span>
             </div>
 
-            <div class="form-group col-md-3 col-sm-6 col-xs-12">
+            <div hidden class="form-group col-md-3 col-sm-6 col-xs-12">
                 <label class="control-label">@SharedLocalizer["Usuario"]:</label>
                 <input type="text" readonly class="form-control" value="@usuario.Nombre" />
             </div>
@@ -114,59 +122,63 @@ else
 
     <div class="row">
 
-        <form id="frmLinea">
-            <div class="form-group col-md-3 col-sm-3 col-xs-4">
-                <label id="lblItem" class="control-label">@Lb["Item"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
-                <input id="items" onkeyup="pasarSigCampo(event,'movimiento')" class="form-control autocomplete" autofocus type="text" />
-                @*<select id="items" onkeyup="pasarSigCampo(event,'movimiento')" class="form-control autocomplete" autocomplete="off" autofocus type="text">
+        <div class="form-group col-md-3 col-sm-3 col-xs-12">
+            <label id="lblItem" class="control-label">@Lb["Item"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+            <input id="items" onkeyup="pasarSigCampo(event,'movimiento')" class="form-control autocomplete" autofocus type="text" />
+            @*<select id="items" onkeyup="pasarSigCampo(event,'movimiento')" class="form-control autocomplete" autocomplete="off" autofocus type="text">
 
-                    </select>*@
-            </div>
+            </select>*@
+        </div>
 
-            <div class="form-group col-md-2 col-sm-2 col-xs-4">
-                <label class="control-label">@Lb["Movimiento"]:</label>
-                <select @estado2 class="form-control" id="movimiento" onchange="pasarSigCampo(event,'cantidad')">
-                    <option value="true">@SharedLocalizer["Entrada"]</option>
-                    <option value="false">@SharedLocalizer["Salida"]</option>
-                </select>
-            </div>
+        <div class="form-group col-md-2 col-sm-2 col-xs-6">
+            <label class="control-label">@Lb["Movimiento"]:</label>
+            <select @estado2 class="form-control" id="movimiento" onchange="pasarSigCampo(event,'cantidad')">
+                <option value="true">@SharedLocalizer["Entrada"]</option>
+                <option value="false">@SharedLocalizer["Salida"]</option>
+            </select>
+        </div>
 
-            <div class="form-group col-md-1 col-sm-1 col-xs-4">
-                <label class="control-label">@Lb["Cantidad"]:</label>
-                <input id="cantidad" onkeyup="pasarSigCampo(event,'costoPromedio'), calcularTotalMovientoLinea()" class="form-control numerico" value="1" type="text" />
-            </div>
-
-            <div class="form-group col-md-2 col-sm-2 col-xs-4">
-                <label class="control-label">@Lb["CostoPromedio"]:</label>
-                <input @estado2 id="costoPromedio" onkeyup="pasarSigCampo(event,'cuentaContable'), calcularTotalMovientoLinea()" class="form-control  moneda" type="text" />
-            </div>
-
-            <div class="form-group col-md-2 col-sm-2 col-xs-4">
-                <label class="control-label">@Lb["cuentaContable"]:</label>
-                <select @estado2 class="form-control selectItem" id="cuentaContable"></select>
-            </div>
-
-            <div class="form-group col-md-2 col-sm-2 col-xs-4">
-                <label class="control-label">@Lb["CuentaCosto"]:</label>
-                <select @estado2 class="form-control selectItem" id="cuentaCosto"></select>
-            </div>
-
-            <div class="form-group col-md-2 col-sm-2 col-xs-4">
-                <label class="control-label">@Lb["Total"]:</label>
-                <input type="text" class="form-control moneda" onkeyup="pasarSigCampo(event,'submitFrmAI')" readonly id="total" />
-            </div>
-
-            <div class="form-group col-md-1 col-sm-1 col-xs-1" style="padding-top: 2.3rem;">
-                <a onkeyup="pasarSigCampo(event,'items')" onclick="prepararLinea()" id="submitFrmAI" class="btn btn-success"><span><i class="fas fa-save"></i></span></a>
-            </div>
-
-            <div class="form-group col-md-2 col-sm-2 col-xs-6" style="padding-top: 2.5rem;">
-                <span style="padding-top: 2.3rem; font-size: 1.5rem">@Lb["Existencia"]: </span><span class="text-info" id="lblExistencia"></span>
-            </div>
-
-        </form>
+        <div class="form-group col-md-1 col-sm-1 col-xs-6">
+            <label class="control-label">@Lb["Cantidad"]:</label>
+            <input id="cantidad" onkeyup="pasarSigCampo(event,'costoPromedio'), calcularTotalMovientoLinea()" class="form-control numerico" value="1" type="text" />
 
 
+        </div>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-12">
+            <label class="control-label">@Lb["CostoPromedio"]:</label>
+            <input @estado2 id="costoPromedio" onkeyup="pasarSigCampo(event,'cuentaContable'), calcularTotalMovientoLinea()" class="form-control  moneda" type="text" />
+
+        </div>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-12">
+            <label class="control-label">@Lb["cuentaContable"]:</label>
+            <select @estado2 class="form-control selectItem" id="cuentaContable"></select>
+        </div>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-12">
+            <label class="control-label">@Lb["CuentaCosto"]:</label>
+            <select @estado2 class="form-control selectItem" id="cuentaCosto"></select>
+        </div>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-10">
+            <label class="control-label">@Lb["Total"]:</label>
+            <input type="text" class="form-control moneda" onkeyup="pasarSigCampo(event,'submitFrmAI')" readonly id="total" />
+        </div>
+
+        <div class="form-group col-md-1 col-sm-1 col-xs-2" style="padding-top: 2.3rem;">
+            <button onkeyup="pasarSigCampo(event,'items')" onclick="prepararLinea()" id="submitFrmAI" class="btn btn-success"><span><i class="fas fa-save"></i></span></button>
+        </div>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-12" style="padding-top: 2.5rem;">
+            <span style="padding-top: 2.3rem; font-size: 1.5rem">@Lb["Existencia"]: </span><span class="text-info" id="lblExistencia"></span>
+        </div>
+
+        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+            <p hidden id="cantidadValid" class="text-danger">@Lb["cantidadValid"].</p>
+            <p hidden id="costoValid" class="text-danger">@Lb["costoPromedioValidacion"].</p>
+            <p hidden id="cantidadExistenciaNuevaValid" class="text-danger">@Lb["cantidaMayorQueExistencias"].</p>
+        </div>
 
     </div>
 
@@ -202,29 +214,7 @@ else
                         </th>
                     </tr>
                 </thead>
-                <tbody>
-                    @*<tr class="lineaForm">
-                            <td><div style="display:inline-block; width:80%"><select @estado2 class="form-control" id="items"></select></div><div style="display:inline-block; width: 20%; padding-left: 0.1rem"><label id="lblItemInfo"></label></div></td>
-                            <td>
-                                <select @estado2 class="form-control" id="movimiento">
-                                    <option value="true">@SharedLocalizer["Entrada"]</option>
-                                    <option value="false">@SharedLocalizer["Salida"]</option>
-                                </select>
-                            </td>
-                            <td><input @estado2 id="cantidad" class="form-control numerico" type="text" min="1" value="1" /></td>
-                            <td><input @estado2 id="costoPromedio" class="form-control moneda" type="text" /></td>
-                            <td><input type="text" class="form-control moneda" readonly id="total" /></td>
-                            <td>
-                                <select @estado2 class="form-control selectItem" id="cuentaContable"></select>
-                            </td>
-                            <td>
-                                <select @estado2 class="form-control selectItem" id="cuentaCosto"></select>
-                            </td>
-                            <td>
-                                <button @estado2 class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button>
-                            </td>
-                        </tr>*@
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
     </div>
@@ -235,21 +225,17 @@ else
             <div class="form-group col-xs-12">
                 <label asp-for="TotalEntrada" class="control-label">@SharedLocalizer["Entrada"]</label>
                 <input readonly id="entradas" class="form-control currency" type="text" />
-                <span asp-validation-for="TotalEntrada" class="text-danger"></span>
             </div>
             <div class="form-group col-xs-12">
                 <label asp-for="TotalSalida" class="control-label">@SharedLocalizer["Salida"]</label>
                 <input readonly id="salidas" class="form-control currency" type="text" />
-                <span asp-validation-for="TotalSalida" class="text-danger"></span>
             </div>
             <div class="form-group col-xs-12">
                 <label asp-for="SaldoAjuste" class="control-label">@SharedLocalizer["Saldo"]</label>
                 <input readonly id="saldo" class="form-control currency" type="text" />
-                <span asp-validation-for="SaldoAjuste" class="text-danger"></span>
             </div>
         </form>
     </div>
-
 
 </div>
 
@@ -278,13 +264,13 @@ else
                     <div class="form-group col-md-6 col-sm-6 col-xs-12">
                         <label class="control-label">@Lb["Cantidad"]:</label>
                         <input id="cantidadEditar" class="form-control numerico" value="1" type="text" />
-                        <span hidden id="cantidadEditarValid" class="text-danger">@Lb["cantidadValid"]</span>
-                        <span hidden id="cantidadExistenciaValid" class="text-danger">@Lb["cantidaMayorQueExistencias"]</span>
+                        <span hidden id="cantidadEditarValid" class="text-danger">@Lb["cantidadValid"].</span>
+                        <span hidden id="cantidadExistenciaValid" class="text-danger">@Lb["cantidaMayorQueExistencias"].</span>
                     </div>
                     <div class="form-group col-md-6 col-sm-6 col-xs-12">
                         <label class="control-label">@Lb["Costo"]:</label>
                         <input id="costoEditar" class="form-control moneda" type="text" />
-                        <span hidden id="costoEditarValid" class="text-danger">@Lb["costoPromedioValidacion"]</span>
+                        <span hidden id="costoEditarValid" class="text-danger">@Lb["costoPromedioValidacion"].</span>
                     </div>
 
                     <div class="form-group col-md-12 col-sm-12 col-xs-12"></div>
@@ -517,7 +503,7 @@ else
             movimiento: $movimiento.val(),
             cantidad: parseFloat($cantidad.val()),
             costoPromedio: parseFloat($costoPromedio.val().replace(/,/g, "")),
-            totalMovimiento: $total.val().replace(/,/g, ""),
+            totalMovimiento: parseFloat($total.val().replace(/,/g, "")),
             idCuentaContable: $cuentaContable.val(),
             idCentroGastos: $cuentaCosto.val(),
             cuentaContable: $('#cuentaContable option:selected').text(),
@@ -541,7 +527,8 @@ else
         if (validarLinea(item)) {
             guardarLinea(item);
             limpiarLinea();
-            $items.focus();
+
+            setTimeout(function () { $('#items').focus(); }, 1);
         }
 
     }
@@ -571,7 +558,7 @@ else
 
             var model = {
 
-                id: 0,
+                id: item.id,
                 idAjuste: @Model.Id,
                 idInventario: item.idInventario,
                 descripcion: "n/a",
@@ -739,15 +726,26 @@ else
                 cargarAlert('@Lb["duplicacionValid"]');
                 return false;
             }
-
             if ($movimiento.val() === "false" && getItem(item.idInventario)[0].existenciaBodega < parseFloat($cantidad.val())) {
                 flag = false;
-                cargarAlert('@SharedLocalizer["cantidaMayorQueExistencias"]');
+                $('#cantidadExistenciaNuevaValid').prop('hidden', false);
             }
+            else
+                $('#cantidadExistenciaNuevaValid').prop('hidden', true);
 
             if (parseFloat($costoPromedio.val().replace(/,/g, "")) <= 0) {
                 flag = false;
-                cargarAlert('@SharedLocalizer["costoPromedioValidacion"]');
+                $('#costoValid').prop('hidden', false);
+            }
+            else {
+                $('#costoValid').prop('hidden', true);
+            }
+            if (parseFloat($cantidad.val().replace(/,/g, "")) <= 0) {
+                flag = false;
+                $('#cantidadValid').prop('hidden', false);
+            }
+            else {
+                $('#cantidadValid').prop('hidden', true);
             }
         }
         else {
@@ -806,12 +804,15 @@ else
         salidas = 0;
 
 
+
         for (var i = 0; i < lineas.length; i++) {
-            if (lineas[i].movimiento === "true")
+            if (lineas[i].movimiento.toString() === "true")
                 entradas += parseFloat(lineas[i].totalMovimiento);
             else
                 salidas += parseFloat(lineas[i].totalMovimiento);
         }
+
+        console.log(lineas);
 
         $entradas.val(entradas);
         $salidas.val(salidas);
@@ -901,7 +902,6 @@ else
         });
 
     }
-
 
     function getItemPorCodigo(codigo) {
         for (var i = 0; i < arrayItems.length; i++) {
@@ -1036,6 +1036,16 @@ else
 
     function guardarAjuste() {
 
+        console.log(lineasCrOrUp);
+
+        if (lineasCrOrUp.length > 0) {
+            for (var i = 0; i < lineasCrOrUp.length; i++) {
+                lineasCrOrUp[i].totalMovimiento = lineasCrOrUp[i].totalMovimiento.toString().replace(/,/g, "").replace(".", ",");
+                lineasCrOrUp[i].costoPromedio = lineasCrOrUp[i].costoPromedio.toString().replace(/,/g, "").replace(".", ",");
+            }
+        }
+
+
         $.ajax({
             type: "POST",
             headers: {
@@ -1146,13 +1156,14 @@ else
         var ajusteModel = {
             id: @Model.Id,
             anulada: '@Model.Anulada',
-            totalEntrada: entradas,
-            totalSalida: salidas,
-            saldoAjuste: saldo,
+            totalEntrada: entradas.toString().replace(".", ","),
+            totalSalida: salidas.toString().replace(".", ","),
+            saldoAjuste: saldo.toString().replace(".", ","),
             idUsuario: @Model.IdUsuario,
             idBodega: $('#bodegas').val(),
             descripcion: $('#descripcionAjuste').val(),
             fechaDocumento: $('#fecha').val(),
+            fechaCreacion: $('#FechaCreacion').val(),
             ajusteInventario: null
         };
 

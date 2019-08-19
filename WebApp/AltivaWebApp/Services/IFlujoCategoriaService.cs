@@ -14,7 +14,7 @@ namespace AltivaWebApp.Services
         TbBaFlujoCategoria Update(TbBaFlujoCategoria domain);
         IList<TbBaFlujoCategoria> GetAllFlujoCategoria();
         TbBaFlujoCategoria GetFlujoCategoriaById(int id);
-        TbBaFlujoCategoria GetFlujoCategoriaByDesc(string desc);//valida existencia
+        TbBaFlujoCategoria GetFlujoCategoriaByDesc(string cod, int idTipo);//valida existencia
        
 
     }

@@ -1,5 +1,4 @@
-﻿
-using AltivaWebApp.Domains;
+﻿using AltivaWebApp.Domains;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
 using System;

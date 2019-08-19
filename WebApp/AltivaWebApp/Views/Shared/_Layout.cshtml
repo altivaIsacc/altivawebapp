@@ -70,6 +70,7 @@
                         <div class="profile_info">
                             <span data-translate="perfil_info">Bienvenido,</span>
                             <h2>@Context.Session.GetString("nombreUsuario")</h2>
+                            <p>v.Alfa 14.08.2019.1</p>
                         </div>
                     </div>
                     <!-- /menu profile quick info -->
@@ -119,13 +120,17 @@
                                                 <li><a asp-controller="Hacienda" asp-action="ListarColaAprobacion"><span>@SharedLocalizer["ColaAprobacion"]</span></a></li>
                                             </ul>
                                         </li>
+
+
                                         <li><a asp-controller="Departamento" asp-action="ListarDepartamentos"><span>@SharedLocalizer["Departamentos"]</span></a></li>
                                         <li><a asp-controller="Toma" asp-action="ListarTomas"><span>@SharedLocalizer["Toma"] @SharedLocalizer["Física"]</span></a></li>
                                         <li><a asp-controller="Precios" asp-action="ListarPrecios"><span>@SharedLocalizer["TiposPrecio"]</span></a></li>
-
-
+                                        <!--Nombre del controlador, nombre de la vista-->
+                                        <li><a asp-controller="Traslado" asp-action="ListarTraslados"><span>@SharedLocalizer["Traslado"]</span></a></li>
                                     </ul>
-                                </li>                             
+                                </li>
+
+                                                           
 
                                 <li>
                                     <a><i class="fa fa-list-alt"></i><span>@SharedLocalizer["Contacto"]</span><span class="fa fa-chevron-down"></span></a>
@@ -181,7 +186,7 @@
                                     <a><i class="fas fa-bank"></i><span>&nbsp; &nbsp; @SharedLocalizer["Bancos"]</span><span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu">
                                         <!--Nombre del controlador, nombre de la vista-->
-                                        <li><a asp-controller="FlujoCategoria" asp-action="ListarCategorias">Categorias</a></li>
+                                        <li><a href="@Url.Action("ListarCategorias", "FlujoCategoria",new { id = 0 })">@SharedLocalizer["Categorias"]</a></li>
                                     </ul>
 
                                 </li>
@@ -344,6 +349,10 @@
     <script src="~/js/bootbox.locales.min.js"></script>
 
 
+    <!--autocomplete-->
+    <script src="~/lib/vendors/autocomplete/dist/latest/bootstrap-autocomplete.min.js"></script>
+
+
     <!----------------------jsPDF------------->
     <script src="~/lib/vendors/jsPDF/jspdf.min.js"></script>
     <script src="~/lib/vendors/jsPDF/jsPdf_Plugins.js"></script>
@@ -400,6 +409,7 @@
 
                 var url = '@Url.Action("DetallesEmpresa", "GrupoEmpresarial", new { nombre = "__nombre__" })';
                 window.location.href = url.replace('__nombre__', empresa);
+
             });
 
             if (localStorage.getItem('idioma') != null) {
@@ -409,6 +419,8 @@
             ////INICLIALIZA SELECT2
             $.fn.select2.defaults.set("theme", "bootstrap");
 
+
+            //////////////////////////////////////////////idioma//////////////////////////////////////////
             $('#english').click(function () {
                 $("[data-translate]").jqTranslate('/../idiomas/altiva', { defaultLang: 'es', forceLang: 'en', asyncLoad: false });
                 localStorage.setItem('idioma', 'en');
@@ -421,7 +433,10 @@
             $('.btnIdioma').click(function () {
                 var idiomaActual = localStorage.getItem('idioma');
                 var url = window.location.pathname;
-                guardarConfigUsuario(1);
+
+                var urlPost = '@Url.Action("CambiarConfig", "ManejoUsuarios")';
+
+                guardarConfigUsuario(@User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value, urlPost);
 
                 if (idiomaActual === 'en')
                     url = url.replace("es-CR", 'en-US');
@@ -430,6 +445,9 @@
 
                 window.location.pathname = url;
             });
+
+
+            /////////////////////////////////////////////////////fin idioma/////////////////////////////////////////////////////
 
             bootbox.setDefaults({
                 locale: localStorage.getItem('idioma')
