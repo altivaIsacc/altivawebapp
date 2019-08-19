@@ -33,19 +33,18 @@
                         <option value="6">@lb["GASTO"]</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>
-                        @lb["Movimientos"] <input asp-for="Movimiento" />
 
-                    </label>
-                    <span hidden id="MovimientoValid" class="text-danger">@lb["NoPermiteSerMovimiento"]</span>
-                </div>
-                <input type="number" min="@ViewBag.Min" max="@ViewBag.Max" class="form-control" placeholder="@lb["Numero"]" id="Numero" />
+                <input type="hidden" class="form-control" id="Ini" value="@ViewBag.InicioPadre" />
+                <input type="hidden" class="form-control" id="Fin" value="@ViewBag.RellenoPosterior" />
+
                 <input type="hidden" class="form-control" placeholder="@lb["Numero"]" id="Nivel" asp-for="Nivel" />
 
+
                 <div class="form-group">
+
                     <label asp-for="CuentaContable" class="control-label"><span class="text-danger"></span>@lb["CuentaContable"]:</label>
-                    <input disabled asp-for="CuentaContable" id="CuentaContableInput" class="form-control" required maxlength="255" placeholder=@ViewBag.Formato data-mask=@ViewBag.Formato />
+                    <input type="number" placeholder=@ViewBag.Espacios data-mask=@ViewBag.Espacios value="@ViewBag.Numero" min="@ViewBag.Min" max="@ViewBag.Max" class="form-control" id="Numero" />
+                    <input asp-for="CuentaContable" id="CuentaContableInput" class="form-control" required maxlength="255" placeholder=@ViewBag.Formato data-mask=@ViewBag.Formato />
                     <span hidden id="duplicacionCuentaValid" class="text-danger">@lb["repetidoValid"]</span>
                     <span hidden id="nombreCuentaValid" class="text-danger">@lb["CuentaValid"]</span>
                 </div>
@@ -59,6 +58,13 @@
                 </div>
                 <div id="cuentasPadre">
                     <div class="form-group">
+                        <label>
+                            @lb["Movimientos"] <input asp-for="Movimiento" />
+
+                        </label>
+                        <span hidden id="MovimientoValid" class="text-danger">@lb["NoPermiteSerMovimiento"]</span>
+                    </div>
+                    <div class="form-group">
                         <label asp-for="IdCuentaContablePadre" class="control-label"><span class="text-danger"></span>@lb["IdPadre"]:</label>
                         <input asp-for="IdCuentaContablePadre" class="form-control" type="number" />
                     </div>
@@ -71,33 +77,38 @@
                         <input asp-for="DescCuentaPadre" class="form-control" maxlength="250" />
                         <span asp-validation-for="DescCuentaPadre" class="text-danger"></span>
                     </div>
+                    <div class="form-group">
+                        <label>
+                            @lb["Evaluacion"] <input asp-for="Evaluacion" Id ="Evaluacion" onchange="activarEvaluacion()"/>
+                        </label>
+
+                    </div>
+                    <div id="EvaluacionDiv">
+                        <div class="form-group">
+                            <label asp-for="IdMonedaEvaluacion" class="control-label">@lb["MonedaEvaluacion"]:</label>
+                            <select asp-for="IdMonedaEvaluacion" class="form-control">
+                                <option value="1">@lb["BASE"]</option>
+                                <option value="2">@lb["DOLAR"]</option>
+                                <option value="3">@lb["EURO"]</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="IdTipoConversion" class="control-label">@lb["Conversion"]:</label>
+                            <select asp-for="IdTipoConversion" class="form-control">
+                                <option value="1">@lb["HISTORICO"]</option>
+                                <option value="2">@lb["CONVERSION"]</option>
+                            </select>
+                        </div>
+                    </div>
+                  
+
                 </div>
 
                 <div class="form-group">
                     <label asp-for="Notas" class="control-label">@lb["Notas"]:</label>
                     <textarea cols="40" rows="5" asp-for="Notas" class="form-control" maxlength="80000"></textarea>
                 </div>
-                <div class="form-group">
-                    <label>
-                        @lb["Evaluacion"] <input asp-for="Evaluacion" />
-                    </label>
-
-                </div>
-                <div class="form-group">
-                    <label asp-for="IdMonedaEvaluacion" class="control-label">@lb["MonedaEvaluacion"]:</label>
-                    <select asp-for="IdMonedaEvaluacion" class="form-control">
-                        <option value="1">@lb["BASE"]</option>
-                        <option value="2">@lb["DOLAR"]</option>
-                        <option value="3">@lb["EURO"]</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label asp-for="IdTipoConversion" class="control-label">@lb["Conversion"]:</label>
-                    <select asp-for="IdTipoConversion" class="form-control">
-                        <option value="1">@lb["HISTORICO"]</option>
-                        <option value="2">@lb["CONVERSION"]</option>
-                    </select>
-                </div>
+              
                 <div class="form-group">
                     <label>
                         @lb["Inactivo"] <input asp-for="Inactivo" />
@@ -153,23 +164,21 @@
 
     $(function () {
         $("#Numero").on("change", function () {
-            definirEjemplo();
+            definirCuentaContable();
         });
     });
-    function definirEjemplo() {
+    function definirCuentaContable() {
         var numero = document.getElementById('Numero').value;
-        var padre = document.getElementById('CuentaContablePadre').value;
         var ejemplo = rellenarCeros(document.getElementById('Nivel').value, numero.length) + numero;
+        var Ini = document.getElementById('Ini').value;
+        var Fin = document.getElementById('Fin').value;
+        document.getElementById("CuentaContableInput").value = Ini + ejemplo + Fin;
 
-        document.getElementById("CuentaContableInput").value = ejemplo;
-        if 
+
     }
     function rellenarCeros(n, cant) {
-        var ceros = "0";
+        var ceros = "";
         n = n - cant;
-        console.log(n);
-        console.log(cant);
-        console.log(n);
         if (n <= 0) {
             return "";
         }
@@ -180,10 +189,11 @@
 
         return ceros;
     }
-    definirEjemplo();
+    definirCuentaContable();
     function esPrimaria() {
         var numero = document.getElementById('Numero').value;
-        if (numero = 1) {
+        var nivel = document.getElementById('Nivel').value;
+        if (nivel <= 1) {
             muestra_oculta('cuentasPadre');
         }
 
@@ -195,8 +205,15 @@
             el.style.display = (el.style.display == 'none') ? 'block' : 'none'; //damos un atributo display:none que oculta el div
         }
     }
-    window.onload = function () {/*hace que se cargue la función lo que predetermina que div estará oculto hasta llamar a la función nuevamente*/
-        muestra_oculta('contenido');/* "contenido_a_mostrar" es el nombre que le dimos al DIV */
+    function activarEvaluacion() {
+        var Evaluacion = document.getElementById('Evaluacion').value;
+        if (Evaluacion == '0') {
+            muestra_oculta('EvaluacionDiv');
+        }
     }
+    activarEvaluacion();
+//window.onload = function () {/*hace que se cargue la función lo que predetermina que div estará oculto hasta llamar a la función nuevamente*/
+//    muestra_oculta('cuentasPadre');/* "contenido_a_mostrar" es el nombre que le dimos al DIV */
+//}
 </script>
 

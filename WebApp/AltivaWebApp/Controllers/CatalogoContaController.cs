@@ -36,19 +36,17 @@ namespace AltivaWebApp.Controllers
             ViewBag.Error = false;
             ConfiguracionContable c = bd.ConfiguracionContable.FirstOrDefault();
             ViewBag.Formato = c.Ejemplo;
+            ViewBag.InicioPadre = "0";
+            ViewBag.Espacios = "0";
             ViewBag.Min = 1;
             ViewBag.Max = 6;
             ViewBag.Ceros = 1;
+            ViewBag.RellenoPosterior = "";
 
         }
-        public ActionResult nItem(long idP)
+        private void iniViewBagPadre(CatalogoContable padre, ViewModels.CatalogoContableViewModel dato)
         {
-            initViewBag();
-            AltivaWebApp.ViewModels.CatalogoContableViewModel dato;
-            dato = new AltivaWebApp.ViewModels.CatalogoContableViewModel();
-            AltivaWebApp.DomainsConta.CatalogoContable padre;
 
-            padre = service.GetCatalogoContableById(idP);
             if (padre != null)
             {
 
@@ -57,18 +55,44 @@ namespace AltivaWebApp.Controllers
                 dato.CuentaContablePadre = padre.CuentaContablePadre;
                 dato.DescCuentaPadre = padre.DescCuentaPadre;
                 dato.IdCuentaContablePadre = padre.IdCuentaContable;
+                dato.IdTipoCuentaContable = padre.IdTipoCuentaContable;
                 ViewBag.Min = 1;
                 ViewBag.Max = MaxHija(padre);
-                ViewBag.Espacios = EspaciosNivel(dato.Nivel);
+                ViewBag.InicioPadre = IniPadre(padre);
+                ViewBag.Espacios = digitosDisponibles(EspaciosNivel(dato.Nivel), "0");
+                ViewBag.RellenoPosterior = RellenoPadre(dato.Nivel, padre.CuentaContablePadre);
+                ViewBag.Numero = dato.CuentaContable.Substring(IniPadre(padre).Length + 1, digitosDisponibles(EspaciosNivel(dato.Nivel), "0").Length);
             }
             else
             {
                 dato.Nivel = 1;
                 ViewBag.Min = 1;
                 ViewBag.Max = 6;
-                ViewBag.Espacios = 1;
+                ViewBag.InicioPadre = "";
+                ViewBag.Espacios = digitosDisponibles(EspaciosNivel(dato.Nivel), "0");
+                ViewBag.RellenoPosterior = RellenoPadre(1, "0");
+                if (dato.CuentaContable != null)
+                {
+                    ViewBag.Numero = dato.CuentaContable.ElementAt(0);
+
+                }
+                else
+                {
+                    ViewBag.Numero = 1;
+                }
+
+
 
             }
+        }
+        public ActionResult nItem(long idP)
+        {
+            initViewBag();
+            AltivaWebApp.ViewModels.CatalogoContableViewModel dato;
+            dato = new AltivaWebApp.ViewModels.CatalogoContableViewModel();
+            AltivaWebApp.DomainsConta.CatalogoContable padre;
+            padre = service.GetCatalogoContableById(idP);
+            iniViewBagPadre(padre, dato);
             return View("../CatalogoConta/u", dato);
         }
         public ActionResult eItem(long id)
@@ -76,8 +100,50 @@ namespace AltivaWebApp.Controllers
             initViewBag();
             AltivaWebApp.ViewModels.CatalogoContableViewModel dato;
             dato = map.DomainToViewModel(service.GetCatalogoContableById(id));
+            AltivaWebApp.DomainsConta.CatalogoContable padre;
+            padre = service.GetCatalogoContableById(dato.IdCuentaContablePadre);
+            iniViewBagPadre(padre, dato);
 
             return View("../CatalogoConta/u", dato);
+        }
+
+        private string IniPadre(CatalogoContable _padre)
+        {
+            string Ini = "";
+          
+            for (int i = 0; i < _padre.Nivel; i++)
+            {
+                Ini = Ini + digitosDisponibles(EspaciosNivel(i), "0");
+
+            }
+            Ini = _padre.CuentaContable.Substring(0, Ini.Length);
+
+            return Ini + '-';
+
+        }
+        private string RellenoPadre(int _NivelPadre, string CuentaPadre)
+        {
+            ConfiguracionContable _config = bd.ConfiguracionContable.FirstOrDefault();
+            string Fin = "";
+            if (_NivelPadre == _config.TamanoCuenta)
+            {
+                return Fin;
+            }
+
+            for (int i = _NivelPadre + 1; i <= _config.TamanoCuenta; i++)
+            {
+                Fin = Fin + "-" + digitosDisponibles(EspaciosNivel(i), "0");
+
+            }
+            if (_NivelPadre > 2)
+            {
+
+                Fin = CuentaPadre.Substring(0, Fin.Length);
+            }
+
+
+            return Fin;
+
         }
         private short Nivel(CatalogoContable _p)
         {
@@ -93,68 +159,69 @@ namespace AltivaWebApp.Controllers
 
                 return 1;
             }
-            if (p.Nivel == 2)
+            if (n == 2)
             {
 
                 return c.Nivel2;
             }
-            if (p.Nivel == 3)
+            if (n == 3)
             {
 
                 return c.Nivel3;
             }
-            if (p.Nivel == 4)
+            if (n == 4)
             {
 
                 return c.Nivel4;
             }
-            if (p.Nivel == 5)
+            if (n == 5)
             {
 
                 return c.Nivel5;
             }
-            if (p.Nivel == 5)
+            if (n == 5)
             {
 
                 return c.Nivel5;
             }
-            if (p.Nivel == 6)
+            if (n == 6)
             {
 
                 return c.Nivel6;
             }
-            if (p.Nivel == 7)
+            if (n == 7)
             {
 
                 return c.Nivel7;
             }
-            if (p.Nivel == 8)
+            if (n == 8)
             {
                 return c.Nivel8;
             }
             return 1;
         }
-        private int MaxHija(CatalogoContable _p)
-        {                     
-            if (p.Nivel == 1)
+        private string MaxHija(CatalogoContable _p)
+        {
+            if (_p.Nivel == 1)
             {
 
-                return 6;
+                return "6";
             }
-            else {
-                return digitosDisponibles(EspaciosNivel(p.Nivel));
+            else
+            {
+                return digitosDisponibles(EspaciosNivel(_p.Nivel), "9");
             }
         }
-        private int digitosDisponibles(int cant)
+        private string digitosDisponibles(int cant, string caracter)
         {
             string nueves = "";
 
             for (int i = 0; i < cant; i++)
             {
-                nueves = nueves + "9";
+                nueves = nueves + caracter;
 
             }
-            return int.Parse(nueves);
+            return nueves;
         }
         [BindProperty]
         public CatalogoContable p { get; set; }
@@ -198,6 +265,9 @@ namespace AltivaWebApp.Controllers
             if (ViewBag.Error)
             {
                 var dato = map.DomainToViewModel(p);
+                AltivaWebApp.DomainsConta.CatalogoContable padre;
+                padre = service.GetCatalogoContableById(dato.IdCuentaContablePadre);
+                iniViewBagPadre(padre, dato);
                 return View("../CatalogoConta/u", dato);
             }
 
@@ -208,9 +278,6 @@ namespace AltivaWebApp.Controllers
                 _Cambios = new CatalogoContable();
                 bd.CatalogoContable.Add(_Cambios);
             }
-
-
-
 
             _Cambios.CuentaContable = p.CuentaContable;
             _Cambios.Descripcion = p.Descripcion;
