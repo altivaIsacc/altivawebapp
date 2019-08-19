@@ -162,7 +162,7 @@ else
         </div>
         <div class="form-group col-md-1 col-sm-2 col-xs-6">
             <label for="iva" class="control-label">@Lb["IVA"]:</label>
-            <input onkeyup="pasarSigCampo(event,'submitFrmCD')" class="form-control porcentaje" id="iva" type="text" />
+            <input readonly onkeyup="pasarSigCampo(event,'submitFrmCD')" class="form-control porcentaje" id="iva" type="text" />
         </div>
 
         <div class="form-group col-md-2 col-sm-2 col-xs-6">
@@ -279,6 +279,69 @@ else
     </div>
 </div>
 
+
+
+<!------------------------------------------modal para editar----------------------------------------------------------->
+
+<div class="modal fade" id="lineaModal" tabindex="-1" role="dialog" aria-labelledby="lineaModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header row">
+                <div class="col-md-10 col-sm-10 col-xs-10" style="text-align:left">
+                    <h4 class="modal-title" id="lineaModalLabel">@Lb["Editar"] @Lb["Línea"]</h4>
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2" style="text-align:right">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body row">
+
+                <div hidden class="form-group col-md-2 col-sm-2 col-xs-12">
+                    <input readonly id="idLinea" class="form-control" type="number" />
+                </div>
+
+                <form>
+
+                    <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                        <label class="control-label">@Lb["Cantidad"]:</label>
+                        <input id="cantidadEditar" class="form-control numerico" value="1" type="text" />
+                        <span hidden id="cantidadEditarValid" class="text-danger">@Lb["cantidadValid"].</span>
+                    </div>
+                    <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                        <label class="control-label">@Lb["Precio"]:</label>
+                        <input id="precioEditar" class="form-control moneda" type="text" />
+                        <span hidden id="precioEditarValid" class="text-danger">@Lb["precioValidacion"].</span>
+                    </div>
+
+                    <div class="form-group col-md-12 col-sm-12 col-xs-12"></div>
+
+                    <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                        <label class="control-label">@Lb["Descuento"]:</label>
+                        <input id="descuentoEditar" class="form-control porcentaje" type="text" />
+                    </div>
+
+                    <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                        <label class="control-label">@Lb["Subtotal"]:</label>
+                        <input id="subtotalEditar" class="form-control moneda" type="text" />
+                    </div>
+
+                    <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                        <label class="control-label">@Lb["Bodega"]:</label>
+                        <select class="form-control selectItem" id="bodegaEditar"></select>
+                    </div>
+
+                </form>
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <button type="button" onclick="editarLinea()" class="btn btn-success">@Lb["Guardar"]</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <!-- Modal -->
 <div class="modal fade" id="cargarXmlModal" tabindex="-1" role="dialog" aria-labelledby="xmlModalLabel" aria-hidden="true">
@@ -625,28 +688,31 @@ else
     }
     function crearModeloDetalle(model) {
 
-        for (var i = 0; i < model.length; i++) {
-            model[i].cantidad = model[i].cantidad.toString().replace(".", ",");
-            model[i].precioUnitario = model[i].precioUnitario.toString().replace(".", ",");
-            model[i].subTotalGravado = model[i].subTotalGravado.toString().replace(".", ",");
-            model[i].subTotalExcento = model[i].subTotalExcento.toString().replace(".", ",");
-            model[i].subTotalGravadoNeto = model[i].subTotalGravadoNeto.toString().replace(".", ",");
-            model[i].subTotalExcentoNeto = model[i].subTotalExcentoNeto.toString().replace(".", ",");
-            model[i].porcIva = model[i].porcIva.toString().replace(".", ",");
-            model[i].totalIva = model[i].totalIva.toString().replace(".", ",");
-            model[i].porcFa = model[i].porcFa.toString().replace(".", ",");
-            model[i].totalFa = model[i].totalFa.toString().replace(".", ",");
-            model[i].porcDescuento = model[i].porcDescuento.toString().replace(".", ",");
-            model[i].totalDescuento = model[i].totalDescuento.toString().replace(".", ",");
-            model[i].total = model[i].total.toString().replace(".", ",");
+        var newLineas = JSON.parse(JSON.stringify(model));
+
+        for (var i = 0; i < newLineas.length; i++) {
+
+            newLineas[i].cantidad = newLineas[i].cantidad.toString().replace(".", ",");
+            newLineas[i].precioUnitario = newLineas[i].precioUnitario.toString().replace(".", ",");
+            newLineas[i].subTotalGravado = newLineas[i].subTotalGravado.toString().replace(".", ",");
+            newLineas[i].subTotalExcento = newLineas[i].subTotalExcento.toString().replace(".", ",");
+            newLineas[i].subTotalGravadoNeto = newLineas[i].subTotalGravadoNeto.toString().replace(".", ",");
+            newLineas[i].subTotalExcentoNeto = newLineas[i].subTotalExcentoNeto.toString().replace(".", ",");
+            newLineas[i].porcIva = newLineas[i].porcIva.toString().replace(".", ",");
+            newLineas[i].totalIva = newLineas[i].totalIva.toString().replace(".", ",");
+            newLineas[i].porcFa = newLineas[i].porcFa.toString().replace(".", ",");
+            newLineas[i].totalFa = newLineas[i].totalFa.toString().replace(".", ",");
+            newLineas[i].porcDescuento = newLineas[i].porcDescuento.toString().replace(".", ",");
+            newLineas[i].totalDescuento = newLineas[i].totalDescuento.toString().replace(".", ",");
+            newLineas[i].total = newLineas[i].total.toString().replace(".", ",");
         }
 
-        return model;
+        return newLineas;
     }
 
 
     function cargarLineas(data) {
-
+        
         for (var i = 0; i < data.length; i++) {
 
             var item = getItem(data[i].idInventario);
@@ -691,10 +757,8 @@ else
         if (validarForm() && validarLinea(item)) {
             guardarLinea(item);
             calcularTotales();
-            guardarCompra(false);
             limpiarLinea();
-
-            setTimeout(function () { $('#items').focus(); }, 1);
+            guardarCompra(false);
         }
 
     }
@@ -738,7 +802,7 @@ else
         var pos = null;
 
         for (var i = 0; i < lineas.length; i++) {
-            if (linea.idInventario === lineas[i].idInventario && linea.precioUnitario === lineas[i].precioUnitario && linea.porcDescuento === lineas[i].porcDescuento && linea.idBodega == lineas[i].idBodega) {
+            if (linea.idInventario == lineas[i].idInventario && linea.precioUnitario == lineas[i].precioUnitario && linea.porcDescuento == lineas[i].porcDescuento && linea.idBodega == lineas[i].idBodega) {
                 pos = i;
                 break;
             }
@@ -760,10 +824,8 @@ else
             lineasAgregadas.push(linea);
             lineas.push(linea);
         }
-            
 
-
-        
+        console.log(lineas);
         
        
     }
@@ -777,6 +839,26 @@ else
 
         
         cargarTabla(lineas);
+
+    }
+
+
+    function modalEditarLinea(key) {
+
+        $('#cantidadEditarValid').prop('hidden', true);
+        $('#precioEditarValid').prop('hidden', true);
+
+        var linea = lineas[key];
+
+
+
+        $('#idLinea').val(key);
+        $('#cantidadEditar').val(linea.cantidad);
+        $('#precioEditar').val(linea.precioUnitario);
+        $('#descuentoEditar').val(linea.porcDescuento);
+        $('#bodegaEditar').val(linea.idBodega);
+        $('#subtotalEditar').val(linea.subTotalExcento + linea.subTotalGravado);
+        $('#lineaModal').modal('show');
 
     }
 
@@ -804,20 +886,6 @@ else
 
     }
 
-    function editarCompraDetalle() {
-        var key = $key.val();
-
-        console.log(lineas[key]);
-
-        $('#editarLineaModal').modal('hide');
-        lineas[key].cantidad = parseFloat($cantidadEditar.val());
-        lineas[key].precioUnitario = parseFloat($precioEditar.val());
-        lineas[key].idBodega = $bodegaEditar.val();
-
-        console.log(lineas[key]);
-
-
-    }
 
     function cargarTabla(data) {
 
@@ -1359,6 +1427,9 @@ else
                      if (data[i].almacenamiento) {
                          var o = new Option(data[i].nombre, data[i].id);
                          $(".bodegas").append(o);
+
+                         var o2 = new Option(data[i].nombre, data[i].id);
+                         $("#bodegaEditar").append(o2);
                      }
 
                  }
@@ -1487,9 +1558,6 @@ else
     }
 
     function guardarCompra(salir) {
-        @*if (lineas.length <= 0) {
-            cargarAlert('@SharedLocalizer["compraSinDetalle"]');
-        } else*@
 
         var model = crearModelo();
 
@@ -1511,19 +1579,25 @@ else
                     if (salir)
                         window.location.href = "@Url.Action("ListarCompras")";
                     else {
-                        lineas[lineas.length - 1].id = data.idCD;
-                        lineasAgregadas = [];
-                        cargarTabla(lineas);
+                      
                         if (@Model.Id === 0) {
                             var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
                             window.location.href = url.replace("__id__", data.idCompra);
+                        } else {
+                            if (lineasAgregadas[0].id == 0)
+                                lineas[lineas.length - 1].id = data.idCD;
+
+                            lineasAgregadas = [];
+                            cargarTabla(lineas);
+
+                            setTimeout(function () { $('#items').focus(); }, 1);
                         }
                     }
 
                 }
                 else {
                     cargarAlert("@SharedLocalizer["numCompraRepitida"]");
-                    eliminarLinea(lineas.length -1);
+                    //eliminarLinea(lineas.length -1);
                 }
 
 
