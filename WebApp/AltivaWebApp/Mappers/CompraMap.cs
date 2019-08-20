@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace AltivaWebApp.Mappers
 {
-    public class CompraMap: ICompraMap
+    public class CompraMap : ICompraMap
     {
         private readonly ICompraService service;
         private readonly IInventarioService inventarioService;
@@ -27,7 +27,7 @@ namespace AltivaWebApp.Mappers
             if (cd != null)
                 if (!service.ExisteRelacionInventarioBodega(cd.IdInventario, cd.IdBodega))
                     inventarioService.CrearRelacionInventarioBodega((int)cd.IdInventario, (int)cd.IdBodega);
-                
+
             return compra;
         }
 
@@ -38,12 +38,25 @@ namespace AltivaWebApp.Mappers
 
         public TbPrCompraDetalle CreateCD(CompraViewModel viewModel)
         {
-            return service.SaveCompraDetalle(ViewModelToDomainCD(viewModel)[0]);
+            var cd = service.SaveCompraDetalle(ViewModelToDomainCD(viewModel)[0]);
+
+            if (cd != null)
+                if (!service.ExisteRelacionInventarioBodega(cd.IdInventario, cd.IdBodega))
+                    inventarioService.CrearRelacionInventarioBodega((int)cd.IdInventario, (int)cd.IdBodega);
+
+            return cd;
         }
 
-        public bool UpdateCD(CompraViewModel viewModel)
+        public IList<TbPrCompraDetalle> UpdateCD(CompraViewModel viewModel)
         {
-            return service.UpdateCompraDetalle(ViewModelToDomainCD(viewModel));
+            var cds = service.UpdateCompraDetalle(ViewModelToDomainCD(viewModel));
+            var cd = cds.First();
+
+            if (cd != null)
+                if (!service.ExisteRelacionInventarioBodega(cd.IdInventario, cd.IdBodega))
+                    inventarioService.CrearRelacionInventarioBodega((int)cd.IdInventario, (int)cd.IdBodega);
+
+            return cds;
         }
 
         public CompraViewModel DomainToViewModel(TbPrCompra domain)
@@ -63,7 +76,7 @@ namespace AltivaWebApp.Mappers
                 FechaCreacion = domain.FechaCreacion,
                 TipoDocumento = domain.TipoDocumento,
                 EnCola = domain.EnCola
-                
+
             };
 
             if (domain.IdMoneda == 1)
@@ -122,7 +135,7 @@ namespace AltivaWebApp.Mappers
                 EnCola = false,
                 TipoCambioDolar = viewModel.TipoCambioDolar,
                 TipoCambioEuro = viewModel.TipoCambioEuro,
-                
+
                 TbPrCompraDetalle = viewModel.CompraDetalle != null ? ViewModelToDomainCD(viewModel) : null
             };
 
@@ -240,10 +253,10 @@ namespace AltivaWebApp.Mappers
 
         public TbPrCompra ViewModelToDomainEdit(CompraViewModel viewModel)
         {
-            
+
             var domain = service.GetCompraById((int)viewModel.Id);
-            
-            
+
+
             domain.IdContacto = viewModel.IdProveedor;
             domain.IdUsuario = viewModel.IdUsuario;
             domain.Anulado = false;
@@ -253,9 +266,9 @@ namespace AltivaWebApp.Mappers
             domain.TipoDocumento = viewModel.TipoDocumento;
             domain.NumeroDocumento = viewModel.NumeroDocumento;
             domain.Borrador = viewModel.Borrador;
-            
 
-            if(domain.TipoCambioDolar != viewModel.TipoCambioDolar || domain.TipoCambioEuro != viewModel.TipoCambioEuro)
+
+            if (domain.TipoCambioDolar != viewModel.TipoCambioDolar || domain.TipoCambioEuro != viewModel.TipoCambioEuro)
             {
                 domain.TipoCambioDolar = viewModel.TipoCambioDolar;
                 domain.TipoCambioEuro = viewModel.TipoCambioEuro;
@@ -421,10 +434,10 @@ namespace AltivaWebApp.Mappers
 
             service.UpdateCompraDetalle(detalles);
 
-            
+
 
         }
-    
+
 
         public IList<TbPrCompraDetalle> ViewModelToDomainCD(CompraViewModel viewModel)
         {
@@ -447,9 +460,9 @@ namespace AltivaWebApp.Mappers
                 IdCompra = viewModel.IdCompra,
                 PorcFa = viewModel.PorcFa,
                 PorcDescuento = viewModel.PorcDescuento,
-                IdBodega = viewModel.IdBodega,               
+                IdBodega = viewModel.IdBodega,
                 PorcIva = viewModel.PorcIva
-                
+
             };
 
             float dolar = (float)compra.TipoCambioDolar;
