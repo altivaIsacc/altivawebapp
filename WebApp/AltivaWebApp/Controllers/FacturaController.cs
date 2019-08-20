@@ -181,8 +181,9 @@ namespace AltivaWebApp.Controllers
                 }
                 return Json(new { success = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -194,8 +195,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(service.GetAllFacturas());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -207,8 +209,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(service.GetFacturaDetalleById(id));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }

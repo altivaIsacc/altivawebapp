@@ -76,8 +76,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -92,8 +93,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(service.GetAll());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }

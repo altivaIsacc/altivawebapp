@@ -36,8 +36,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbPrRequisicionDetalle.Where(r => r.IdRequisicionNavigation.Id == id).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -52,8 +53,9 @@ namespace AltivaWebApp.Repositories
 
                 return domain;
             }
-            catch (Exception)
-            {               
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -65,8 +67,9 @@ namespace AltivaWebApp.Repositories
                 context.TbPrRequisicionDetalle.UpdateRange(domain);
                 context.SaveChanges();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -88,8 +91,9 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }

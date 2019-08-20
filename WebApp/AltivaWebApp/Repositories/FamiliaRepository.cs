@@ -41,8 +41,9 @@ namespace AltivaWebApp.Repositories
                 context.TbPrFamilia.UpdateRange(subFamilias);
                 context.SaveChanges();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }

@@ -63,8 +63,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(contactoService.GetAll());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -76,8 +77,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(contactoService.GetAllClientes());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -171,8 +173,9 @@ namespace AltivaWebApp.Controllers
 
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -191,8 +194,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -208,8 +212,9 @@ namespace AltivaWebApp.Controllers
                 var campos = cpService.GetAll(idContacto);
                 return Json(campos);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -226,8 +231,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(contactoService.GetCondicionesByIdContacto(idContacto));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
 
@@ -281,8 +287,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -296,8 +303,9 @@ namespace AltivaWebApp.Controllers
                 contactoService.DeleteCuentasBancarias(contactoService.GetCuentaById(idCuenta));
                 return Json(new { success = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -326,8 +334,9 @@ namespace AltivaWebApp.Controllers
                 contactoService.EliminarRelacion(idRelacion);
                 return Json(new { success = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -375,8 +384,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true });
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -410,8 +420,9 @@ namespace AltivaWebApp.Controllers
                 var prov = contactoService.GetAllProveedores().OrderBy(p => p.Nombre ?? p.NombreJuridico);
                 return Ok(prov);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
 

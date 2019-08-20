@@ -186,8 +186,9 @@ namespace AltivaWebApp.Controllers
                 var modulo = moduloMap.Update(model);
                 return Json(new { success = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 //throw;
             }
@@ -220,8 +221,9 @@ namespace AltivaWebApp.Controllers
                 var flag = moduloPerfilMap.Delete(model);
                 return Json(new { success = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 //return Json(new { success = false });
                 throw;
             }
@@ -257,8 +259,9 @@ namespace AltivaWebApp.Controllers
                 return Json(new { success = true, id = perfil.Id });
 
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -280,8 +283,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true, id = perfil.Id });
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
