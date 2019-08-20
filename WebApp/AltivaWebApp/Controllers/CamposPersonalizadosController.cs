@@ -81,8 +81,9 @@ namespace AltivaWebApp.Controllers
                 return new JsonResult(vd);
          
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return new JsonResult(1);
             }
         }
@@ -111,8 +112,9 @@ namespace AltivaWebApp.Controllers
                 contactoMap = this.IcontactoMap.UpdateCP(model1);
                 return new JsonResult(true);
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return View();
             }
         }

@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
 using Microsoft.AspNetCore.Hosting;
+using System;
 
 namespace AltivaWebApp.Controllers
 {
@@ -39,8 +40,9 @@ namespace AltivaWebApp.Controllers
 
                 
             }
-            catch
-            {                
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return RedirectToAction("Index", new { estado = "error" });
             }
             

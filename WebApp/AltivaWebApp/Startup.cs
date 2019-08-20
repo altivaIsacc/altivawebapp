@@ -42,11 +42,12 @@ namespace AltivaWebApp
 
             DependencyInjectionConfig.AddScope(services);
 
+            string ruta = Path.Combine(entorno.WebRootPath, "altivalog");
 
+            AltivaLog.Log llog =new AltivaLog.Log(ruta);
             services.AddDbContext<EmpresasContext>();
             services.AddDbContext<GrupoEmpresarialContext>();
-
-
+        
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.  

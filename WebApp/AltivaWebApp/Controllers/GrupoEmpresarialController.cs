@@ -91,8 +91,9 @@ namespace AltivaWebApp.Controllers
                         return View(model);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    AltivaLog.Log.Insertar(ex.ToString(), "Error");
                     return RedirectToAction("ListarEmpresas");
                 }
             }
@@ -172,8 +173,9 @@ namespace AltivaWebApp.Controllers
                 }
 
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 var deleted = service.EliminarEmpresa(result);
                 //throw;
                 return BadRequest(new { success = _sharedLocalizer["errorGeneral"].ToString() });
@@ -210,8 +212,9 @@ namespace AltivaWebApp.Controllers
                 return Json(new { success = true });
                 //return RedirectToAction("DetallesEmpresa", "GrupoEmpresarial", new { nombre = empresa.Nombre });
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest(new { success = _sharedLocalizer["errorGeneral"].ToString() });
               
             }
@@ -235,8 +238,9 @@ namespace AltivaWebApp.Controllers
                 
                 return Json(new { success = true });
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -256,8 +260,9 @@ namespace AltivaWebApp.Controllers
                 var res = service.Update(empresa);
                 return Json(new { success = true });
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }

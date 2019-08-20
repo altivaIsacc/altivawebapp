@@ -29,7 +29,7 @@ namespace AltivaWebApp.Controllers
         readonly IPreciosService preciosService;
         readonly IPrecioCatalogoService precioCatalogoService;
         private readonly IStringLocalizer<SharedResources> _sharedLocalizer;
-        readonly IHostingEnvironment hostingEnvironment;
+        readonly IHostingEnvironment hostingEnvironment;        
         public InventarioController(IStringLocalizer<SharedResources> sharedLocalizer, IHostingEnvironment hostingEnvironment, IMonedaService monedaService, IFamiliaService familiaService,IFamiliaOnlineService familiaOnlineService, IUnidadService unidadService, IBodegaService bodegaService, IInventarioService service, IInventarioMap map, IPreciosService preciosService, IPrecioCatalogoService precioCatalogoService)
         {
             this.service = service;
@@ -73,8 +73,10 @@ namespace AltivaWebApp.Controllers
                 ViewData["items"] = items;
                 return PartialView(service.GetInventarioById(id));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                
                 return BadRequest();
                 //throw;
             }
@@ -88,8 +90,9 @@ namespace AltivaWebApp.Controllers
             {
                 return PartialView(service.GetInventarioImagenById(id));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 //throw;
             }
@@ -103,8 +106,9 @@ namespace AltivaWebApp.Controllers
             {
                 return PartialView(service.GetInventarioCaracteristicaById(id));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 //throw;
             }
@@ -204,8 +208,9 @@ namespace AltivaWebApp.Controllers
                 return Json(new { id = idInventario, codigo = codigoInventario });
             }
             
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -242,8 +247,9 @@ namespace AltivaWebApp.Controllers
                 
                 return Json(new { success = true });
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 //throw;
                 return BadRequest();
             }
@@ -265,8 +271,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json( new { success = res, existe = existeEquivalencia });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -281,8 +288,9 @@ namespace AltivaWebApp.Controllers
                 var res = service.DeleteEquivalencia(id);
                 return Json(new { success = res });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -297,8 +305,9 @@ namespace AltivaWebApp.Controllers
                 var res = service.DeleteCaracteristica(id);
                 return Json(new { success = res });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -313,8 +322,9 @@ namespace AltivaWebApp.Controllers
                 var res = service.DeleteImagen(id);
                 return Json(new { success = res });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -334,8 +344,9 @@ namespace AltivaWebApp.Controllers
                 var res = service.Update(item);
                 return Ok(res);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 //throw;
             }
@@ -349,8 +360,9 @@ namespace AltivaWebApp.Controllers
                 var res = service.EliminarInventarioBodega(id);
                 return Ok();
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -365,8 +377,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(service.GetInventarioFacturable());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
             
@@ -380,8 +393,9 @@ namespace AltivaWebApp.Controllers
                 var inventario = service.GetAllByCoincidence(word);
                 return Ok(inventario);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
 
@@ -418,8 +432,9 @@ namespace AltivaWebApp.Controllers
 
                 return Ok(familias);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }  
         }
@@ -441,8 +456,9 @@ namespace AltivaWebApp.Controllers
 
                 return Ok(familias);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 return BadRequest();
             }
@@ -457,8 +473,9 @@ namespace AltivaWebApp.Controllers
                 
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -475,8 +492,9 @@ namespace AltivaWebApp.Controllers
 
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
