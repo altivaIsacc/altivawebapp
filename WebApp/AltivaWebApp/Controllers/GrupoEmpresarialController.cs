@@ -46,22 +46,6 @@ namespace AltivaWebApp.Controllers
             var user = userService.GetUsuarioConEmpresas(userCode);
 
 
-            var uc = user.TbSeUsuarioConfiguraion.FirstOrDefault();
-            if (uc != null)
-            {
-                ViewBag.tema = uc.Tema;
-                ViewBag.idioma = uc.Idioma;
-                ViewBag.avatar = user.Avatar;
-            }
-            else
-            {
-                ViewBag.tema = "TemaCombinado";
-                ViewBag.idioma = "es";
-                ViewBag.avatar = user.Avatar;
-
-            }
-
-            
            ViewData["grupoEmpresas"] = service.GetGE();
 
 

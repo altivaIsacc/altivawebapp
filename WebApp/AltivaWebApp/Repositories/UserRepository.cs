@@ -10,10 +10,10 @@ using System.Linq;
 
 namespace AltivaWebApp.Repositories
 {
-    public class UserRepository: BaseRepositoryGE<TbSeUsuario>, IUserRepository
+    public class UserRepository : BaseRepositoryGE<TbSeUsuario>, IUserRepository
 
     {
-       
+
         public UserRepository(GrupoEmpresarialContext context)
              : base(context)
         {
@@ -26,7 +26,7 @@ namespace AltivaWebApp.Repositories
 
         }
 
-        
+
 
         public bool ExisteUsuarioPorCodigo(string codigo)
         {
@@ -45,13 +45,18 @@ namespace AltivaWebApp.Repositories
             // return context.TbSeUsuario.
         }
 
+        public TbSeUsuario GetUsuarioConConfig(string usuario)
+        {
+            return context.TbSeUsuario.Include(u => u.TbSePerfilUsuario).ThenInclude(p => p.IdPerfilNavigation).Include(u => u.TbSeUsuarioConfiguraion).FirstOrDefault(u => u.Codigo == usuario || u.Correo == usuario);
+        }
+
 
         public TbSeUsuario GetUsuarioConEmpresas(string usuario)
         {
             return context.TbSeUsuario.Include(c => c.TbSeUsuarioConfiguraion).Include(ge => ge.TbGeGrupoEmpresarial)
                 .Include(em => em.TbSeEmpresaUsuario)
                 .ThenInclude(em => em.IdEmpresaNavigation)
-                .FirstOrDefault(u => u.Correo == usuario || u.Codigo == usuario );
+                .FirstOrDefault(u => u.Correo == usuario || u.Codigo == usuario);
             // return context.TbSeUsuario.
         }
 
@@ -106,7 +111,7 @@ namespace AltivaWebApp.Repositories
                 {
                     model.Idioma = domain.Idioma;
                     model.Tema = domain.Tema;
-                    context.Update(model);                   
+                    context.Update(model);
                 }
                 else
                 {
@@ -146,8 +151,17 @@ namespace AltivaWebApp.Repositories
         public TbSeUsuario SaveUser(TbSeUsuario domain)
         {
 
-            var userIdentity = new TbSeUsuario { Codigo = domain.Codigo, Nombre = domain.Nombre, Estado = domain.Estado, Iniciales = domain.Iniciales,
-                                                Contrasena = domain.Contrasena, FechaMod = DateTime.Now, IdUsuario = domain.IdUsuario, Correo = domain.Correo };
+            var userIdentity = new TbSeUsuario
+            {
+                Codigo = domain.Codigo,
+                Nombre = domain.Nombre,
+                Estado = domain.Estado,
+                Iniciales = domain.Iniciales,
+                Contrasena = domain.Contrasena,
+                FechaMod = DateTime.Now,
+                IdUsuario = domain.IdUsuario,
+                Correo = domain.Correo
+            };
 
             var result = context.TbSeUsuario.Add(userIdentity);
 
@@ -156,7 +170,7 @@ namespace AltivaWebApp.Repositories
 
             else
             {
-               
+
                 base.context.SaveChanges();
 
                 return userIdentity;
@@ -182,8 +196,8 @@ namespace AltivaWebApp.Repositories
                 return false;
                 throw;
             }
-            
-        } 
+
+        }
 
         public TbSePerfilUsuario GetPerfilUsuario(PerfilUsuarioViewModel model)
         {
@@ -241,7 +255,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbSePerfilModulo.Where(u=>u.Opcion1==true).ToList();
+                return context.TbSePerfilModulo.Where(u => u.Opcion1 == true).ToList();
 
             }
             catch (Exception ex)
@@ -290,8 +304,9 @@ namespace AltivaWebApp.Repositories
 
         public IList<TbSeUsuario> GetAllConEmpresas()
         {
-            return context.TbSeUsuario.Include(u => u.TbSeEmpresaUsuario).Select(u => 
-                new TbSeUsuario {
+            return context.TbSeUsuario.Include(u => u.TbSeEmpresaUsuario).Select(u =>
+                new TbSeUsuario
+                {
                     Avatar = u.Avatar,
                     Codigo = u.Codigo,
                     Contrasena = u.Contrasena,
@@ -302,7 +317,8 @@ namespace AltivaWebApp.Repositories
                     IdUsuario = u.IdUsuario,
                     Iniciales = u.Iniciales,
                     Nombre = u.Nombre,
-                    TbSeEmpresaUsuario = u.TbSeEmpresaUsuario.Select(e => new TbSeEmpresaUsuario {
+                    TbSeEmpresaUsuario = u.TbSeEmpresaUsuario.Select(e => new TbSeEmpresaUsuario
+                    {
                         IdEmpresa = e.IdEmpresa,
                         Estado = e.Estado,
                         Id = e.Id,

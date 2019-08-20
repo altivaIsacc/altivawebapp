@@ -28,20 +28,26 @@
     </div>
 
 <br />
-
 <div class="row">
-    <div class="col-md-6 col-xs-12 table-responsive">
+    <div class=" col-md-10 table-responsive">
         <table class="table table-bordered" id="tblPrecios">
             <thead>
                 <tr>
+                    <th hidden>
+                      
+                    </th>
+
                     <th>
-                        @SharedLocalizer["Fecha"]
+                        @SharedLocalizer["fechaCreacion"]
                     </th>
                     <th>
                         @SharedLocalizer["nombre"]
                     </th>
                     <th>
                         @SharedLocalizer["Descripción"]
+                    </th>
+                    <th hidden>
+                        @SharedLocalizer["Anulado"]
                     </th>
                     <th>
                         @SharedLocalizer["Acción"]
@@ -55,13 +61,14 @@
 
 
 
+
 <script>
 
     var precios= [];
 
     $(document).ready(function () {
 
-                getPrecios(1);
+        getPrecios(1);
     });
 
     function getPrecios(pos) {
@@ -73,7 +80,7 @@
             dataType: "json",
             url: '@Url.Action("GetPrecios", "Precios")',
             success: function (data) {
-
+                console.log(data);
                 precios = data;
                 filtroAnuladas();
             },
@@ -107,12 +114,10 @@
 
     function anularPrecio(id, key) {
 
-
         var msj = "@SharedLocalizer["confirmAnularTPrecio"]";
-
         if (key) {
-            
-            msj = "@SharedLocalizer["confirmHabilitarTPrecio"]";
+             msj = "@SharedLocalizer["confirmHabilitarTPrecio"]";
+                    
         } 
             
         
@@ -128,7 +133,6 @@
     }
 
     function cargarDatos(data) {
-
         $("#tblPrecios> tbody").remove();
         $('#tblPrecios').append('<tbody></tbody>');
 
@@ -136,26 +140,34 @@
         var colorFila = "";
         var disabled = "";
         var anularIcon = '<i class="fas fa-trash"></i>';
+       
+   
         for (var i = 0; i < data.length; i++) {
-
+             var anulado = '@SharedLocalizer["No"]';
             if (data[i].anulado) {
                 colorFila = "color: #808080";
                 disabled = "disabled";
                 anularIcon = '<i class="fas fa-trash-restore"></i>';
+                anulado ='@SharedLocalizer["Si"]';
             }
 
 
+         
+
             var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
-                    + '<td><p style="padding-top:1rem;">' + recuperarFecha(data[i].fecha) + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].nombre + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].descripcion + '</p></td>'
-                + '<td>  <button ' + disabled + ' value="' + data[i].id + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="anularPrecio(value, ' + data.anulado + ')" class="btn btn-link btnEditar">' + anularIcon + '</button>';
-                $('#tblPrecios > tbody').append(body);
+               + '<td hidden>' + contadorFila + '</td>'
+                 + '<td>' + recuperarFecha(data[i].fecha) + '</td>'
+                 + '<td>' + data[i].nombre + '</td>'
+                 + '<td style="padding-right:30%;">' + data[i].descripcion + '</td>'
+                 + '<td hidden>' + anulado +' </td>'
+                 + '<td >  <button ' + disabled + ' value="' + data[i].id + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="anularPrecio(value, ' + data[i].anulado + ')" class="btn btn-link btnEditar">' + anularIcon + '</button></td></tr>';
+
+            $('#tblPrecios > tbody').append(body);
                 contadorFila++;
 
         }
 
-
+      
 
         inicializarTabla();
 
@@ -195,7 +207,7 @@
                     titleAttr: 'Copy',
                     title: '@SharedLocalizer["TiposPrecio"]',
                     exportOptions: {
-                        columns: [0, 1, 2]
+                        columns: [0, 1, 2, 3]
                     }
 
                 },
@@ -205,7 +217,7 @@
                     titleAttr: 'Excel',
                     title: '@SharedLocalizer["TiposPrecio"]',
                     exportOptions: {
-                        columns: [0, 1, 2]
+                        columns: [0, 1, 2, 3]
                     }
 
                 },
@@ -216,7 +228,7 @@
                     titleAttr: 'PDF',
                     title: '@SharedLocalizer["TiposPrecio"]',
                     exportOptions: {
-                        columns: [0, 1, 2]
+                        columns: [0, 1, 2, 3]
                     }
                 }
             ]
@@ -226,13 +238,13 @@
 
     $("#filtroBuscarNombre").on("keyup", function () {
         tblCompras
-            .columns(1)
+            .columns(2)
             .search(this.value)
             .draw();
     });
      $("#filtroBuscarDes").on("keyup", function () {
         tblCompras
-            .columns(2)
+            .columns(3)
             .search(this.value)
             .draw();
     });
@@ -264,13 +276,25 @@
     }
 
     function recuperarFecha(_fecha) {
-
-
+       
         var f = new Date(_fecha);
 
         return f.toLocaleString();
 
     }
+     //function concatenarFecha(_fecha) {
+     //   var miFechaActual = new Date(_fecha);
+     //  var ano = miFechaActual.getFullYear();
+     //  var Rdia = ( miFechaActual.getDate() / 30) / 12;
+     //  var Rhora = (( miFechaActual.getHours() / 24) / 30) / 12;
+     //    var Rmes = (parseInt(miFechaActual.getMonth()) + 1) / 12;
+     //    var Rmin = (((miFechaActual.getMinutes() / 60) / 24) / 30) / 12;
+     //    var Resultado = parseFloat((Rmin + Rmes + Rdia + Rhora + ano) .toFixed(4));
+     //   console.log(Resultado);
+        
+
+     //   return Resultado;
+     // }
 
 
 

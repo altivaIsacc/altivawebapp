@@ -1,27 +1,28 @@
-﻿@{
+﻿@inject IStringLocalizer<SharedResources> Lb
+@{
     ViewData["Title"] = "Home Page";
     Layout = "_HomeLayout";
 
 }
 <div class="col-md-12">
-  
+
 </div>
 
 <hr />
 
 <div class="row">
     <div class="col-md-12">
-        <h6 data-translate="indexNombreGrupo">Digite el nombre del grupo empresarial</h6>
+        <h6>@Lb["digiteNombreE"]</h6>
     </div>
     <div class="col-md-6 col-sm-6 col-xs-12">
         @if (ViewBag.error == 1)
         {
-            <span class="text-danger">Nombre de Grupo Empresas Inválido.</span>
+            <span class="text-danger"> @Lb["grupoInvalid"]</span>
         }
         <div class="input-group">
-            <input data-translate="indexInputNombreGrupo" type="text" id="txt_grupo" class="form-control" placeholder="Nombre del grupo empresarial">
+            <input type="text" id="txt_grupo" class="form-control" placeholder="@Lb["nombreGrupo"]">
             <div class="input-group-append">
-                <button data-translate="indexBtnIrGE" id="ir" class="btn btn-outline-primary">Ir</button>
+                <button id="ir" class="btn btn-outline-primary">@Lb["Ir"]</button>
             </div>
         </div>
     </div>
@@ -32,9 +33,9 @@
 
     $(document).ready(function () {
 
-        cambioIdioma(localStorage.getItem('idioma'));
+        cambioIdioma();
 
-        $('input[type="text"]')[0].focus(); 
+        $('input[type="text"]')[0].focus();
 
         $('#ir').attr("disabled", true);
 
@@ -59,24 +60,16 @@
         function setUrl() {
 
             var grupo = $('#txt_grupo').val();
-            var url = '@Url.Action("Login", new { grupo = "__grupo__"})';
-
-            var idiomaActual = localStorage.getItem("idioma");
-            if (idiomaActual === 'en')
-                url = url.replace("es-CR", 'en-US');
-            else if (idiomaActual === 'es')
-                url = url.replace("en-US", 'es-CR');
-            else
-                url = url.replace("en-US", 'es-CR');
+            var url = setIdiomaUrl('@Url.Action("ValidarGrupo", new { grupo = "__grupo__" })');
 
             window.location.href = url.replace('__grupo__', grupo);
         }
 
-        
+
 
     });
 
-    
+
 </script>
 
 
