@@ -251,14 +251,14 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbPrInventarioBodega.Any(i => i.IdInventario == idInventario && i.IdBodega == idBodega);
         }
-        public bool UpdateCompraDetalle(IList<TbPrCompraDetalle> domain)
+        public IList<TbPrCompraDetalle> UpdateCompraDetalle(IList<TbPrCompraDetalle> domain)
         {
             try
             {
                 context.TbPrCompraDetalle.UpdateRange(domain);
                 context.SaveChanges();
 
-                return true;
+                return domain;
             }
             catch (Exception ex)
             {

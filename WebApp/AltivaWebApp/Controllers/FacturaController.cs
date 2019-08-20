@@ -92,12 +92,6 @@ namespace AltivaWebApp.Controllers
 
             if (rep.Report.Prepare())
             {
-                // Set PDF export props
-                //FastReport.Export.PdfSimple.PDFSimpleExport pdfExport = new FastReport.Export.PdfSimple.PDFSimpleExport();
-                //pdfExport.ShowProgress = false;
-                //pdfExport.Subject = "Subject";
-                //pdfExport.Title = "ticket_" + idFactura;
-
                 FastReport.Export.Image.ImageExport imgExport = new FastReport.Export.Image.ImageExport();
                 //imgExport.ShowProgress = false;
                 imgExport.ImageFormat = FastReport.Export.Image.ImageExportFormat.Jpeg;
@@ -110,8 +104,6 @@ namespace AltivaWebApp.Controllers
                 imgExport.Dispose();
                 strm.Position = 0;
 
-                // return stream in browser
-                //"application/pdf"
                 return File(strm, "image/jpeg", "report.pdf");
             }
             else

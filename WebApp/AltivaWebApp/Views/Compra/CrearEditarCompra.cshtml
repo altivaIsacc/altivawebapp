@@ -10,6 +10,16 @@
 }
 
 @{
+
+    if (Model.Id != 0)
+    {
+        ViewData["Title"] = Lb["editarCompra"];
+    }
+    else
+    {
+        ViewData["Title"] = Lb["nuevaCompra"];
+    }
+
     var monedas = ViewData["monedas"] as IList<TbSeMoneda>;
     var estado = "";
     var estado2 = "";
@@ -148,7 +158,7 @@ else
             <label for="item" class="control-label">@Lb["Item"]: <span style="font-size:1.1rem" class="text-info"><a id="descripcion"></a></span></label>
             <input onkeyup="pasarSigCampo(event,'cantidad')" class="form-control autocomplete" autofocus id="item" type="text" />
         </div>
-        <div class="form-group col-md-1 col-sm-2 col-xs-6">
+        <div class="form-group col-md-2 col-sm-2 col-xs-6">
             <label for="cantidad" class="control-label">@Lb["Cantidad"]:</label>
             <input onkeyup="pasarSigCampo(event,'precio')" class="form-control numerico" id="cantidad" type="text" autocomplete="off" />
         </div>
@@ -162,12 +172,12 @@ else
         </div>
         <div class="form-group col-md-1 col-sm-2 col-xs-6">
             <label for="iva" class="control-label">@Lb["IVA"]:</label>
-            <input readonly onkeyup="pasarSigCampo(event,'submitFrmCD')" class="form-control porcentaje" id="iva" type="text" />
+            <input readonly onkeyup="pasarSigCampo(event,'subtotalLinea')" class="form-control porcentaje" id="iva" type="text" />
         </div>
 
         <div class="form-group col-md-2 col-sm-2 col-xs-6">
             <label for="subtotalLinea" class="control-label">@Lb["Subtotal"]:</label>
-            <input class="form-control moneda" readonly id="subtotalLinea" type="text" />
+            <input onkeyup="pasarSigCampo(event,'submitFrmCD')" class="form-control moneda" readonly id="subtotalLinea" type="text" />
         </div>
 
         <div class="form-group col-md-2 col-sm-2 col-xs-6">
@@ -306,13 +316,13 @@ else
 
                     <div class="form-group col-md-6 col-sm-6 col-xs-12">
                         <label class="control-label">@Lb["Cantidad"]:</label>
-                        <input id="cantidadEditar" class="form-control numerico" value="1" type="text" />
+                        <input onkeyup="calcularSubtotalEditar()" id="cantidadEditar" class="form-control numerico" value="1" type="text" />
                         <span hidden id="cantidadEditarValid" class="text-danger">@Lb["cantidadValid"].</span>
                     </div>
                     <div class="form-group col-md-6 col-sm-6 col-xs-12">
                         <label class="control-label">@Lb["Precio"]:</label>
-                        <input id="precioEditar" class="form-control moneda" type="text" />
-                        <span hidden id="precioEditarValid" class="text-danger">@Lb["precioValidacion"].</span>
+                        <input onkeyup="calcularSubtotalEditar()" id="precioEditar" class="form-control moneda" type="text" />
+                        <span hidden id="precioEditarValid" class="text-danger">@Lb["precioValid"].</span>
                     </div>
 
                     <div class="form-group col-md-12 col-sm-12 col-xs-12"></div>
@@ -324,7 +334,7 @@ else
 
                     <div class="form-group col-md-6 col-sm-6 col-xs-12">
                         <label class="control-label">@Lb["Subtotal"]:</label>
-                        <input id="subtotalEditar" class="form-control moneda" type="text" />
+                        <input readonly id="subtotalEditar" class="form-control moneda" type="text" />
                     </div>
 
                     <div class="form-group col-md-6 col-sm-6 col-xs-12">
@@ -422,7 +432,7 @@ else
     var compraDetalleBD = [];
     var lineas = [];
     var items = [];
-    var lineasAgregadas = [];
+    var lineasCrOrUp = [];
     var lineasEliminadas = [];
     var bodegas = [];
     var proveedores = [];
@@ -460,6 +470,8 @@ else
         $(".porcentaje").inputmask({
             'alias': 'percentage',
             rightAlign: false,
+            min: 0,
+            max: 100
         });
 
          if('@Model.Anulado' === 'True')
@@ -471,6 +483,7 @@ else
         $(".numerico").inputmask({
             'alias': 'decimal',
             rightAlign: false,
+            min: 0
         });
 
          getMonedas();
@@ -479,21 +492,6 @@ else
 
 
          $('.selectItems').select2({ width: null, language: localStorage.getItem("idioma") });
-
-
-
-        //$('#item').on('change.select2', function () {
-
-        //    var itemInfo = getItem($(this).val());
-
-        //    $descripcion.text(itemInfo.descripcion);
-        //    $precio.val(getPrecioAlCambio(itemInfo));
-        //    $cantidad.val(itemInfo.cantidadUnidad);
-        //    $unidad.text(itemInfo.idUnidadMedidaNavigation.abreviatura);
-        //    $iva.val(itemInfo.impuestoVenta);
-        //    setSubTotalLinea();
-        //});
-
 
     });
 
@@ -515,6 +513,13 @@ else
         setSubTotalLinea();
 
     });
+
+    function calcularSubtotalEditar(){
+
+        var res = parseFloat($('#precioEditar').inputmask('unmaskedvalue')) * parseFloat($('#cantidadEditar').inputmask('unmaskedvalue'));
+
+        $('#subtotalEditar').val(res);
+    }
 
     $descuento.on('keyup, change, focusout', function () {
 
@@ -571,7 +576,7 @@ else
 
         if (validarForm()) {
 
-            //guardarLinea();
+            
             if (lineas.length <= 0) {
                 $('#sinDetalleValid').prop('hidden', false);
                 flag = false;
@@ -588,9 +593,6 @@ else
                             guardarCompraBorrador();
                         else
                             guardarCompra(true);
-
-
-
                     });
                 }
 
@@ -601,11 +603,9 @@ else
                     else
                         guardarCompra(true);
 
-
                 }
 
             }
-
 
         }
 
@@ -657,6 +657,33 @@ else
 
     }
 
+    function validarLineaEditar() {
+
+        var flag = true;
+
+        console.log($('#precioEditar').inputmask('unmaskedvalue'));
+
+        if (parseFloat($('#precioEditar').inputmask('unmaskedvalue')) <= 0 || $('#precioEditar').inputmask('unmaskedvalue') === null) {
+            flag = false;
+            $('#precioEditarValid').prop('hidden', false);
+        }
+        else {
+            $('#precioEditarValid').prop('hidden', true);
+        }
+        
+        if (parseFloat($('#cantidadEditar').inputmask('unmaskedvalue')) <= 0) {
+            flag = false;
+            $('#cantidadEditarValid').prop('hidden', false);        
+        }
+        else {
+            $('#cantidadEditarValid').prop('hidden', true);
+        }
+
+
+        return flag;
+
+    }
+
     function crearModelo() {
 
 
@@ -680,12 +707,13 @@ else
             tipoCambioDolar: $('#dolar').inputmask('unmaskedvalue').replace(".", ","),
             tipoCambioEuro: $('#euro').inputmask('unmaskedvalue').replace(".", ","),
             enCola: false,
-            compraDetalle: crearModeloDetalle(lineasAgregadas)
+            compraDetalle: crearModeloDetalle(lineasCrOrUp)
 
         };
 
         return ordenModel;
     }
+
     function crearModeloDetalle(model) {
 
         var newLineas = JSON.parse(JSON.stringify(model));
@@ -705,6 +733,7 @@ else
             newLineas[i].porcDescuento = newLineas[i].porcDescuento.toString().replace(".", ",");
             newLineas[i].totalDescuento = newLineas[i].totalDescuento.toString().replace(".", ",");
             newLineas[i].total = newLineas[i].total.toString().replace(".", ",");
+
         }
 
         return newLineas;
@@ -756,7 +785,7 @@ else
 
         if (validarForm() && validarLinea(item)) {
             guardarLinea(item);
-            calcularTotales();
+            //calcularTotales();
             limpiarLinea();
             guardarCompra(false);
         }
@@ -791,7 +820,7 @@ else
             bodega: getBodegaItem($bodega.val()).nombre
         };
 
-        lineasAgregadas = [];
+        lineasCrOrUp = [];
 
         existeLinea(model);
         
@@ -818,10 +847,10 @@ else
             lineas[pos].totalDescuento += linea.totalDescuento;
             lineas[pos].total += linea.total;
 
-            lineasAgregadas.push(lineas[pos]);
+            lineasCrOrUp.push(lineas[pos]);
         }
         else {
-            lineasAgregadas.push(linea);
+            lineasCrOrUp.push(linea);
             lineas.push(linea);
         }
 
@@ -834,7 +863,7 @@ else
 
     function eliminarLinea(key) {
 
-        lineasAgregadas.splice($.inArray(lineas[key], lineasAgregadas), 1);
+        lineasCrOrUp.splice($.inArray(lineas[key], lineasCrOrUp), 1);
         lineas.splice(key, 1);
 
         
@@ -862,30 +891,41 @@ else
 
     }
 
-    function editarLinea(key, idDetalle) {
+
+    function editarLinea() {
+
+        if (!validarLineaEditar())
+            return;
 
 
-        //$('#editarLineaModal').modal('show');
+        var key = parseInt($('#idLinea').val());
 
-        var detalle = lineas[key];
+        lineas[key].porcDescuento = parseFloat($('#descuentoEditar').inputmask('unmaskedvalue'));
+        lineas[key].precioUnitario = parseFloat($('#precioEditar').inputmask('unmaskedvalue'));
+        lineas[key].cantidad = parseFloat($('#cantidadEditar').inputmask('unmaskedvalue'));
+        lineas[key].idBodega = $('#bodegaEditar').val();
+
+        var subTotal = lineas[key].cantidad * lineas[key].precioUnitario;
+        var descuento = subTotal * (lineas[key].porcDescuento / 100);
+
+        var imp = lineas[key].porcIva;
+        lineas[key].totalDescuento = descuento;
+        lineas[key].totalIva = (subTotal - descuento) * (imp / 100);
+        lineas[key].subTotalGravado = imp > 0 ? subTotal : 0;
+        lineas[key].subTotalGravadoNeto = imp > 0 ? subTotal - descuento : 0;
+        lineas[key].subTotalExcento = imp === 0 ? subTotal : 0;
+        lineas[key].subTotalExcentoNeto = imp === 0 ? subTotal - descuento : 0;
+        lineas[key].total = (subTotal - descuento) + lineas[key].totalIva;
 
 
-        $item.val(detalle.idInventario);
-        $('.selectItems').trigger('change.select2');
-        $bodega.val(detalle.idBodega);
-        $cantidad.val(detalle.cantidad);
-        $precio.val(detalle.precioUnitario);
-        $descuento.val(detalle.porcDescuento);
-        $iva.val(detalle.porcIva);
+        
+        lineasCrOrUp = [];
+        lineasCrOrUp.push(lineas[key]);
 
-        $precio.trigger("focusout");
-
-        eliminarDetalleDB(key, idDetalle);
-
-
-
+        guardarCompra(false);
+        $('#lineaModal').modal('hide');
     }
-
+    
 
     function cargarTabla(data) {
 
@@ -912,7 +952,7 @@ else
                 + '<td>' + data[i].porcIva + '%</td>'
                 + '<td style="text-align: right">' + darFomatoMoneda(subtotal) + '</td>'
                 + '<td >' + data[i].bodega + ' </td>'
-                + '<td> <a href="#" style="font-size:1.8rem;" onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-edit"></i></a>&nbsp;&nbsp; <a href="#" style="font-size:1.8rem;" value="' + contadorFila + '" onclick="eliminarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-trash"></i></a></td></tr>';
+                + '<td> <a href="#" style="font-size:1.8rem;" onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-edit"></i></a>&nbsp;&nbsp; <a href="#" style="font-size:1.8rem;" value="' + contadorFila + '" onclick="elimarCompraDetalle(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-trash"></i></a></td></tr>';
             $('#tblCD > tbody').append(body);
 
             contadorFila++;
@@ -1231,29 +1271,29 @@ else
             lineas[i].total = (lineas[i].subTotalExcentoNeto + lineas[i].subTotalGravadoNeto) + lineas[i].totalIva;
         }
 
-        //if (lineasAgregadas.length > 0)
-        //    for (var i = 0; i < lineasAgregadas.length; i++) {
+        //if (lineasCrOrUp.length > 0)
+        //    for (var i = 0; i < lineasCrOrUp.length; i++) {
 
-        //        lineasAgregadas[i].precioUnitario = getPrecioAlCambioLocal(lineasAgregadas[i]);
-        //        lineasAgregadas[i].idMonedaCD = parseInt($('.tipoMoneda').val());
-        //        subtotal = lineasAgregadas[i].precioUnitario * lineasAgregadas[i].cantidad;
-        //        lineasAgregadas[i].totalDescuento = (lineasAgregadas[i].porcDescuento / 100) * subtotal;
+        //        lineasCrOrUp[i].precioUnitario = getPrecioAlCambioLocal(lineasCrOrUp[i]);
+        //        lineasCrOrUp[i].idMonedaCD = parseInt($('.tipoMoneda').val());
+        //        subtotal = lineasCrOrUp[i].precioUnitario * lineasCrOrUp[i].cantidad;
+        //        lineasCrOrUp[i].totalDescuento = (lineasCrOrUp[i].porcDescuento / 100) * subtotal;
 
-        //        if (lineasAgregadas[i].porcIva > 0) {
-        //            lineasAgregadas[i].subTotalExcento = 0;
-        //            lineasAgregadas[i].subTotalGravado = subtotal;
-        //            lineasAgregadas[i].subTotalExcentoNeto = 0;
-        //            lineasAgregadas[i].subTotalGravadoNeto = subtotal - lineas[i].totalDescuento;
+        //        if (lineasCrOrUp[i].porcIva > 0) {
+        //            lineasCrOrUp[i].subTotalExcento = 0;
+        //            lineasCrOrUp[i].subTotalGravado = subtotal;
+        //            lineasCrOrUp[i].subTotalExcentoNeto = 0;
+        //            lineasCrOrUp[i].subTotalGravadoNeto = subtotal - lineas[i].totalDescuento;
         //        }
         //        else {
-        //            lineasAgregadas[i].subTotalExcento = subtotal;
-        //            lineasAgregadas[i].subTotalGrabado = 0;
-        //            lineasAgregadas[i].subTotalExcentoNeto = subtotal - lineas[i].totalDescuento;
-        //            lineasAgregadas[i].subTotalGravadoNeto = 0;
+        //            lineasCrOrUp[i].subTotalExcento = subtotal;
+        //            lineasCrOrUp[i].subTotalGrabado = 0;
+        //            lineasCrOrUp[i].subTotalExcentoNeto = subtotal - lineas[i].totalDescuento;
+        //            lineasCrOrUp[i].subTotalGravadoNeto = 0;
         //        }
 
-        //        lineasAgregadas[i].totalIva = (lineasAgregadas[i].porcIva / 100) * (lineasAgregadas[i].subTotalExcentoNeto + lineasAgregadas[i].subTotalGravadoNeto);
-        //        lineas[i].total = (lineasAgregadas[i].subTotalExcentoNeto + lineasAgregadas[i].subTotalGravadoNeto) + lineasAgregadas[i].totalIva;
+        //        lineasCrOrUp[i].totalIva = (lineasCrOrUp[i].porcIva / 100) * (lineasCrOrUp[i].subTotalExcentoNeto + lineasCrOrUp[i].subTotalGravadoNeto);
+        //        lineas[i].total = (lineasCrOrUp[i].subTotalExcentoNeto + lineasCrOrUp[i].subTotalGravadoNeto) + lineasCrOrUp[i].totalIva;
         //    }
 
         //$('#item').trigger('change.select2');
@@ -1561,7 +1601,7 @@ else
 
         var model = crearModelo();
 
-        if (lineasAgregadas.length === 0)
+        if (lineasCrOrUp.length === 0)
             model.enCola = $('#enCola').prop('checked');
 
         $.ajax({
@@ -1584,13 +1624,13 @@ else
                             var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
                             window.location.href = url.replace("__id__", data.idCompra);
                         } else {
-                            if (lineasAgregadas[0].id == 0)
+                            if (lineasCrOrUp[0].id == 0)
                                 lineas[lineas.length - 1].id = data.idCD;
 
-                            lineasAgregadas = [];
+                            lineasCrOrUp = [];
                             cargarTabla(lineas);
 
-                            setTimeout(function () { $('#items').focus(); }, 1);
+                            setTimeout(function () { $('#item').focus(); }, 1);
                         }
                     }
 
@@ -1661,8 +1701,10 @@ else
                         url: '@Url.Action("EliminarCompraDetalle")',
                         data: { idCD: idLinea },
                         success: function (data) {
-                            if (data.success)
+                            if (data.success) {
                                 eliminarLinea(_id);
+                                guardarCompra(false);
+                            }
                             else
                                 cargarAlert("@SharedLocalizer["anulacionInvalida"]");
                         },
@@ -1969,11 +2011,15 @@ else
 
     function crearModeloDetalleXML(array) {
         console.log(array);
+
+        var item = getItemPorCodigo(array.Codigo.Codigo["#text"]);
+
         var model = {
             id: 0,
             idCompra: 0,
-            idInventario: getItemPorCodigo(array.Codigo.Codigo["#text"]).idInventario,
-            //nombreInventario: $descripcion.val(),
+            idInventario: item.idInventario,
+            nombreItem: item.descripcion,
+            cosigoItem: item.codigo,
             idMonedaCD: parseInt($('.tipoMoneda').val()),
             cantidad: parseFloat(array.Cantidad["#text"]),
             precioUnitario: parseFloat(array.PrecioUnitario["#text"]),
@@ -1993,9 +2039,9 @@ else
             bodega: $('#bodega option:selected').text()
         };
 
-        //lineasAgregadas = [];
+        //lineasCrOrUp = [];
 
-        lineasAgregadas.push(model);
+        lineasCrOrUp.push(model);
 
         console.log(model);
         lineas.push(model);
