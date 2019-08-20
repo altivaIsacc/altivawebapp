@@ -21,8 +21,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbPrOrden.Include(o => o.IdProveedorNavigation).Include(o => o.TbPrOrdenDetalle).ThenInclude(od => od.IdInventarioNavigation).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -35,8 +36,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbPrOrden.Include(o => o.IdProveedorNavigation).FirstOrDefault(o => o.Id == id);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
             
@@ -60,8 +62,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbPrOrdenDetalle.Where(o => o.IdOrdenNavigation.Id == id).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -76,8 +79,9 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -92,8 +96,9 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -121,8 +126,9 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }

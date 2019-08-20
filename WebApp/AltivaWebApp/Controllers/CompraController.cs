@@ -145,8 +145,9 @@ namespace AltivaWebApp.Controllers
                 }
 
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
                 //return BadRequest();
             }
@@ -167,8 +168,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = res });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
                 //return BadRequest();
             }
@@ -193,9 +195,9 @@ namespace AltivaWebApp.Controllers
                     return Json(new { succes = false });
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //throw;
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -215,9 +217,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = res });
             }
-            catch
+            catch (Exception ex)
             {
-                //throw;
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -252,8 +254,9 @@ namespace AltivaWebApp.Controllers
                     return Ok();
 
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
                 //return BadRequest();
             }
@@ -267,8 +270,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(service.GetAllCompraDetalleByCompraId(id));
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -280,8 +284,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(bodegaService.GetAllActivas());
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
