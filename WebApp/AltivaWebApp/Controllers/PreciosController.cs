@@ -102,7 +102,7 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                return Ok(service.GetAll());
+                return Ok(service.GetPreciosWithReqs());
             }
             catch (Exception)
             {

@@ -22,7 +22,8 @@ namespace AltivaWebApp.Repositories
 
         public IList<TbPrPrecios> GetPreciosWithReqs()
         {
-            return context.TbPrPrecios.ToList();
+            var consulta = (from d in context.TbPrPrecios orderby d.Fecha descending select d).ToList();
+             return consulta;
         }
 
         public IList<TbPrPrecios> GetPreciosSinAnular()

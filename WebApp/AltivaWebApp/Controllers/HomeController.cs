@@ -23,8 +23,8 @@ namespace AltivaWebApp.Controllers
             return View();
         }
 
-        [Route("Login")]
-        public IActionResult Login(string grupo)
+        [Route("ValidarGrupo")]
+        public IActionResult ValidarGrupo(string grupo)
        {
 
             StringFactory.SetStringGE(HttpContext.Session, grupo);
@@ -34,7 +34,7 @@ namespace AltivaWebApp.Controllers
                 {
                     conn.Open();
                     conn.Close();
-                    return RedirectToAction("Login", "Cuenta", new { grupo = grupo });
+                    return RedirectToAction("Login", "Cuenta");
                 }
 
                 

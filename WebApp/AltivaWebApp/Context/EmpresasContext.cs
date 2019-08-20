@@ -4448,7 +4448,7 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.NombreInventario)
                     .IsRequired()
-                    .HasMaxLength(50);
+                    .HasMaxLength(150);
 
                 entity.Property(e => e.PorcIs).HasColumnName("PorcIS");
 

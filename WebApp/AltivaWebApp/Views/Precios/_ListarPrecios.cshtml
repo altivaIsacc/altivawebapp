@@ -28,20 +28,22 @@
     </div>
 
 <br />
-
 <div class="row">
-    <div class="col-md-6 col-xs-12 table-responsive">
-        <table class="table table-bordered " id="tblPrecios">
+    <div class=" col-md-10 table-responsive">
+        <table class="table table-bordered" id="tblPrecios">
             <thead>
                 <tr>
                     <th>
-                        @SharedLocalizer["Fecha"]
+                        @SharedLocalizer["fechaCreacion"]
                     </th>
                     <th>
                         @SharedLocalizer["nombre"]
                     </th>
                     <th>
                         @SharedLocalizer["Descripción"]
+                    </th>
+                    <th hidden>
+                        @SharedLocalizer["Anulado"]
                     </th>
                     <th>
                         @SharedLocalizer["Acción"]
@@ -55,6 +57,7 @@
 
 
 
+
 <script>
 
     var precios= [];
@@ -62,6 +65,8 @@
     $(document).ready(function () {
 
         getPrecios(1);
+       
+
      
     });
 
@@ -74,7 +79,7 @@
             dataType: "json",
             url: '@Url.Action("GetPrecios", "Precios")',
             success: function (data) {
-
+                console.log(data);
                 precios = data;
                 filtroAnuladas();
             },
@@ -135,23 +140,26 @@
         var colorFila = "";
         var disabled = "";
         var anularIcon = '<i class="fas fa-trash"></i>';
-           $('#tblPrecios').DataTable( {
-        "order": [[ 3, "asc" ]]
-    } );
+       
+   
         for (var i = 0; i < data.length; i++) {
-
+             var anulado = '@SharedLocalizer["No"]';
             if (data[i].anulado) {
                 colorFila = "color: #808080";
                 disabled = "disabled";
                 anularIcon = '<i class="fas fa-trash-restore"></i>';
+                anulado ='@SharedLocalizer["Si"]';
             }
 
 
-            var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
-                    + '<td><p style="padding-top:1rem;">' + recuperarFecha(data[i].fecha) + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].nombre + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].descripcion + '</p></td>'
-                + '<td>  <button ' + disabled + ' value="' + data[i].id + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="anularPrecio(value, ' + data[i].anulado + ')" class="btn btn-link btnEditar">' + anularIcon + '</button>';
+          
+
+             var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
+                 + '<td><a></a>' + recuperarFecha(data[i].fecha) + '</td>'
+                 + '<td>' + data[i].nombre + '</td>'
+                 + '<td style="padding-right:30%;">' + data[i].descripcion + '</td>'
+                 + '<td hidden>' + anulado +' </td>'
+                 + '<td >  <button ' + disabled + ' value="' + data[i].id + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="anularPrecio(value, ' + data[i].anulado + ')" class="btn btn-link btnEditar">' + anularIcon + '</button></td></tr>';
                 $('#tblPrecios > tbody').append(body);
                 contadorFila++;
 
@@ -197,7 +205,7 @@
                     titleAttr: 'Copy',
                     title: '@SharedLocalizer["TiposPrecio"]',
                     exportOptions: {
-                        columns: [0, 1, 2]
+                        columns: [0, 1, 2, 3]
                     }
 
                 },
@@ -207,7 +215,7 @@
                     titleAttr: 'Excel',
                     title: '@SharedLocalizer["TiposPrecio"]',
                     exportOptions: {
-                        columns: [0, 1, 2]
+                        columns: [0, 1, 2, 3]
                     }
 
                 },
@@ -218,7 +226,7 @@
                     titleAttr: 'PDF',
                     title: '@SharedLocalizer["TiposPrecio"]',
                     exportOptions: {
-                        columns: [0, 1, 2]
+                        columns: [0, 1, 2, 3]
                     }
                 }
             ]
@@ -266,6 +274,14 @@
     }
 
     function recuperarFecha(_fecha) {
+
+
+        var f = new Date(_fecha);
+
+        return f.toLocaleString();
+
+        }
+     function recuperarFecha(_fecha) {
 
 
         var f = new Date(_fecha);
