@@ -76,8 +76,9 @@ namespace AltivaWebApp.Controllers
             {
                 Ok(map.UpdateConfig(model));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 BadRequest();
             }
 
@@ -95,8 +96,9 @@ namespace AltivaWebApp.Controllers
                 else
                     return Json(new { success = false });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -119,8 +121,9 @@ namespace AltivaWebApp.Controllers
                 DescUserService.Delete(descuento);
                 return Json(new { data = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return Json(new { data = false });
                 throw;
             }
@@ -134,8 +137,9 @@ namespace AltivaWebApp.Controllers
                 var descuento = DescUserService.GetDescuentoUsuarioById(id);
                 return Json(descuento);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 BadRequest();
                 throw;
             }
@@ -149,8 +153,9 @@ namespace AltivaWebApp.Controllers
                 var usr = DescUserService.GetUsuarioSInDesc((int)HttpContext.Session.GetInt32("idEmpresa"));
                 return Ok(usr);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -164,8 +169,9 @@ namespace AltivaWebApp.Controllers
                 usr.TbSePerfilUsuario = null;
                 return Ok(usr);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -184,8 +190,9 @@ namespace AltivaWebApp.Controllers
                 else
                     return Json(new { success = false });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -200,8 +207,9 @@ namespace AltivaWebApp.Controllers
                 DescUserServiceRango.Delete(descuento);
                 return Json(new { data = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return Json(new { data = false });
                 throw;
             }
@@ -216,8 +224,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(descuento);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 BadRequest();
                 throw;
             }
@@ -239,8 +248,9 @@ namespace AltivaWebApp.Controllers
                 var usr = DescUserServiceRango.GetUsuarioSInDescRango((int)HttpContext.Session.GetInt32("idEmpresa"));
                 return Ok(usr);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -257,8 +267,9 @@ namespace AltivaWebApp.Controllers
                 else
                     return Json(new { success = false });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -281,8 +292,9 @@ namespace AltivaWebApp.Controllers
                 DescUserClaveService.Delete(descuento);
                 return Json(new { data = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return Json(new { data = false });
                 throw;
             }
@@ -297,8 +309,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(descuento);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 BadRequest();
                 throw;
             }
@@ -312,8 +325,9 @@ namespace AltivaWebApp.Controllers
                 var usr = DescUserClaveService.GetUsuarioSInDescClave((int)HttpContext.Session.GetInt32("idEmpresa"));
                 return Ok(usr);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -331,8 +345,9 @@ namespace AltivaWebApp.Controllers
                 else
                     return Json(new { success = false });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -347,8 +362,9 @@ namespace AltivaWebApp.Controllers
                 promoProdService.Delete(promocion);
                 return Json(new { data = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return Json(new { data = false });
                 throw;
             }
@@ -363,8 +379,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(promocion);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 BadRequest();
                 throw;
             }

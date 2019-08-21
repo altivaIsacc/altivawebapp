@@ -60,7 +60,6 @@ namespace AltivaWebApp.Controllers
             {
                 if (viewModel.IdCaja != 0)
                 {
-
                     var orden = _Map.Update(viewModel);
                     if (viewModel.IdCaja!= 0 && viewModel.TbFaCajaAperturaDenominacion.Count() > 0)
                     {
@@ -96,14 +95,15 @@ namespace AltivaWebApp.Controllers
                 }
 
             }
-            catch
+            catch(Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
                 //return BadRequest();
             }
         }
 
-        public IActionResult ListarCajas(int id)
+        public IActionResult ListarCajas()
         {
             return View();
         }
@@ -120,6 +120,7 @@ namespace AltivaWebApp.Controllers
             }
             catch(Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -132,8 +133,9 @@ namespace AltivaWebApp.Controllers
                 var detalles = _Service.GetAllCajaAperturaDenominacionByIdCaja(id);
                 return Ok(_Service.GetAllCajaAperturaDenominacionByIdCaja(id));
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -147,8 +149,9 @@ namespace AltivaWebApp.Controllers
                 var detalles = _Service.GetAllCajaArqueoDenominacionByIdCaja(id);
                 return Ok(_Service.GetAllCajaArqueoDenominacionByIdCaja(id));
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -161,8 +164,9 @@ namespace AltivaWebApp.Controllers
                 var detalles = _Service.GetAllCajaArqueoByIdCaja(id);
                 return Ok(_Service.GetAllCajaArqueoByIdCaja(id));
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -175,8 +179,9 @@ namespace AltivaWebApp.Controllers
                 var detalles = _Service.GetAllCajaCierreByIdCaja(id);
                 return Ok(_Service.GetAllCajaCierreByIdCaja(id));
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -193,6 +198,7 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }

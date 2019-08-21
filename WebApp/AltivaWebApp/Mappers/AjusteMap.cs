@@ -23,7 +23,7 @@ namespace AltivaWebApp.Mappers
 
         public TbPrAjuste Update(AjusteViewModel viewModel)
         {
-            return service.Update(ViewModelToDomainEditar(viewModel));
+            return service.Update(ViewModelToDomain(viewModel));
         }
 
         public IList<TbPrAjusteInventario> CreateOrUpdateAI(IList<AjusteInventarioViewModel> crOrup)
@@ -53,7 +53,7 @@ namespace AltivaWebApp.Mappers
         {
             var domain = new TbPrAjuste
             {
-                //Id = viewModel.Id,
+                Id = viewModel.Id,
                 Anulada = viewModel.Anulada,
                 IdBodega = viewModel.IdBodega,
                 FechaDocumento = viewModel.FechaDocumento,
@@ -62,7 +62,8 @@ namespace AltivaWebApp.Mappers
                 TotalEntrada = viewModel.TotalEntrada,
                 TotalSalida = viewModel.TotalSalida,
                 TbPrAjusteInventario = AIViewModelToDomain(viewModel.AjusteInventario),
-                Descripcion = viewModel.Descripcion
+                Descripcion = viewModel.Descripcion,
+                //FechaCreacion = viewModel.FechaCreacion
             };
 
             if (viewModel.Id < 1)
@@ -73,6 +74,7 @@ namespace AltivaWebApp.Mappers
 
             return domain;
         }
+
         public TbPrAjuste ViewModelToDomainEditar(AjusteViewModel viewModel)
         {
             var ajuste = service.GetAjusteById((int)viewModel.Id);
@@ -105,7 +107,8 @@ namespace AltivaWebApp.Mappers
                 IdCuentaContable = viewModel.IdCuentaContable,
                 IdInventario = viewModel.IdInventario,
                 Movimiento = viewModel.Movimiento,
-                TotalMovimiento = viewModel.TotalMovimiento
+                TotalMovimiento = viewModel.TotalMovimiento,
+                Id = viewModel.Id
             };
         }
 

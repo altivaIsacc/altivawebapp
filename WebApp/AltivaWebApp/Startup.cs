@@ -1,4 +1,4 @@
-using AltivaWebApp.App_Start;﻿
+using AltivaWebApp.App_Start;
 using AltivaWebApp.Context;
 using AltivaWebApp.Filter;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -14,6 +14,9 @@ using System;
 using AltivaWebApp.Helpers;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
+using System.Collections.Generic;
 
 namespace AltivaWebApp
 {
@@ -23,14 +26,14 @@ namespace AltivaWebApp
         public IConfiguration Configuration { get; set; }
         public static IHostingEnvironment entorno { get; set; }
         public Startup(IHostingEnvironment env)
-            {
+        {
             entorno = env;
             var builder = new ConfigurationBuilder()
                .SetBasePath(entorno.ContentRootPath)
                .AddJsonFile("appsettings.json");
             Configuration = builder.Build();
-        }  
-          
+        }
+
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -38,18 +41,20 @@ namespace AltivaWebApp
 
 
             DependencyInjectionConfig.AddScope(services);
-            services.AddDbContext<BaseConta>();
+
+            string ruta = Path.Combine(entorno.WebRootPath, "altivalog");
+
+            AltivaLog.Log llog =new AltivaLog.Log(ruta);
             services.AddDbContext<EmpresasContext>();
+            services.AddDbContext<BaseConta>();
             services.AddDbContext<GrupoEmpresarialContext>();
-         
-
-
+        
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.  
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
-                
+
             });
 
 
@@ -62,7 +67,7 @@ namespace AltivaWebApp
                     });
 
             services.AddAntiforgery(o => o.HeaderName = "XSRF-TOKEN");
-           
+
 
             services.AddSession(options =>
             {
@@ -73,12 +78,42 @@ namespace AltivaWebApp
                 options.Cookie.IsEssential = true;
             });
 
-            var supportedCultures = new[] { "es-CR", "en-US" };
-            var localizationOptions = new RequestLocalizationOptions();
-            localizationOptions.AddSupportedCultures(supportedCultures)
-                .AddSupportedUICultures(supportedCultures)
-                .SetDefaultCulture(supportedCultures[0])
-                .RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider() { Options = localizationOptions });
+            //var supportedCultures = new[] { "es-CR", "en-US" };
+
+            var defaultDateCulture = "es-CR";
+            var cr = new CultureInfo(defaultDateCulture);
+            cr.NumberFormat.NumberDecimalSeparator = ",";
+            cr.NumberFormat.CurrencyDecimalSeparator = ",";
+
+            var us = new CultureInfo("en-US");
+            us.NumberFormat.NumberDecimalSeparator = ",";
+            us.NumberFormat.CurrencyDecimalSeparator = ",";
+
+
+            var localizationOptions = new RequestLocalizationOptions
+                {
+                DefaultRequestCulture = new RequestCulture(cr),
+                SupportedCultures = new List<CultureInfo>
+                {
+                    cr,
+                    us
+                },
+                SupportedUICultures = new List<CultureInfo>
+                {
+                    cr,
+                    us
+                }
+            };
+
+            localizationOptions
+               .RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider() { Options = localizationOptions });
+
+            //localizationOptions.AddSupportedCultures(supportedCultures)
+            //    .AddSupportedUICultures(supportedCultures)
+            //    .SetDefaultCulture(supportedCultures[0])
+            //    .RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider() { Options = localizationOptions });
+
+
             services.AddSingleton(localizationOptions);
             services.AddLocalization(opt => opt.ResourcesPath = "Resources");
 
@@ -112,6 +147,33 @@ namespace AltivaWebApp
                 app.UseHsts();
             }
 
+            //var supportedCultures = new[] { "es-CR", "en-US" };
+            var cultureInfo = new CultureInfo("es-CR");
+            cultureInfo.NumberFormat.NumberDecimalSeparator = ".";
+            cultureInfo.NumberFormat.NumberGroupSeparator = ",";
+
+            var cultureInfo2 = new CultureInfo("en-US");
+            cultureInfo2.NumberFormat.NumberDecimalSeparator = ".";
+            cultureInfo2.NumberFormat.NumberGroupSeparator = ",";
+
+
+            //CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+            //CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+
+            // Configure the Localization middleware
+            app.UseRequestLocalization(new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture(cultureInfo),
+                SupportedCultures = new List<CultureInfo>
+                {
+                    cultureInfo2,
+                },
+                SupportedUICultures = new List<CultureInfo>
+                {
+                    cultureInfo2,
+                }
+            });
+
             FastReport.Utils.RegisteredObjects.AddConnection(typeof(MsSqlDataConnection));
 
             app.UseHttpsRedirection();
@@ -134,6 +196,7 @@ namespace AltivaWebApp
 
             app.UseMvc(routes =>
             {
+
                 routes.MapRoute(
                     name: "default",
                     template: "{culture:regex(^[a-z]{{2}}(\\-[A-Z]{{2}})?$)}/{controller=home}/{action=index}"

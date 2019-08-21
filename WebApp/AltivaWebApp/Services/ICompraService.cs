@@ -17,7 +17,7 @@ namespace AltivaWebApp.Services
         IList<TbPrCompraDetalle> GetAllCompraDetalleByCompraId(int id);
         TbPrCompraDetalle SaveCompraDetalle(TbPrCompraDetalle domain);
         bool DeleteCompraDetalle(TbPrCompraDetalle domain);
-        bool UpdateCompraDetalle(IList<TbPrCompraDetalle> domain);
+        IList<TbPrCompraDetalle> UpdateCompraDetalle(IList<TbPrCompraDetalle> domain);
         bool ExisteDocumento(string numDoc, string tipo, int idProveedor);
         TbPrCompra GetCompraByDocumento(string nDoc, string tipoDoc, long idProveedor);
         TbPrCompraDetalle GetCompraDetalleById(long id);

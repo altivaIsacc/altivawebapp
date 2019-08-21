@@ -45,7 +45,7 @@ namespace AltivaWebApp.Mappers
 
             domain.Descripcion = viewModel.Descripcion;
             domain.Nombre = viewModel.Nombre;
-            domain.Fecha = DateTime.Now;
+           
 
             return domain;
         }

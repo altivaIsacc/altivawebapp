@@ -20,110 +20,116 @@ namespace AltivaWebApp.Controllers
     [Route("{culture}/Cuenta")]
     public class CuentaController : Controller
     {
-        
+
         IUserMap userMap;
         IUserService userservice;
-        IPerfilService perfilService;      
+        IPerfilService perfilService;
 
 
 
         public CuentaController(IPerfilService perfilService, IUserMap map, IUserService userservice)
         {
             this.userMap = map;
-            this.userservice = userservice;           
+            this.userservice = userservice;
             this.perfilService = perfilService;
         }
         // GET: Cuenta
-        [HttpGet("Login/{grupo?}")]
+        [HttpGet("Login")]
         public ActionResult Login()
-        {        
+        {
             return View();
         }
 
 
 
         // POST: Cuenta/Create
-        [HttpPost("Login/{grupo?}")]
-        [ValidateAntiForgeryToken]
-        public ActionResult Login(LoginViewModel model)
+        [HttpPost("LoginPost")]
+        public ActionResult LoginPost(LoginViewModel model)
         {
-            if (!ModelState.IsValid)
+
+
+            try
             {
-                return View();
-            }
-            
-            //var user = userservice.GetSingleUserByCorreo( model);
-            ClaimsIdentity identity = null;
-            bool isAuthenticated = false;
+                ClaimsIdentity identity = null;
+                bool isAuthenticated = false;
+
+                var user = userservice.GetUsuarioConConfig(model.usuario);
 
 
 
-            var user = userservice.GetUsuarioConEmpresas(model.usuario);           
-
-
-
-            if (user != null)
-            {
-                if(user.Estado != "INACTIVO")
-                if (user.Contrasena == model.contrasena)
+                if (user != null)
                 {
+                    if (user.Estado != "INACTIVO")
+                        if (user.Contrasena == model.contrasena)
+                        {
 
-                    var claims = new List<Claim>();
-                    claims.Add(new Claim(ClaimTypes.Name, user.Codigo));
-                    claims.Add(new Claim(ClaimTypes.Email, user.Correo));
-                    claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+                            var claims = new List<Claim>();
+                            claims.Add(new Claim(ClaimTypes.Name, user.Codigo));
+                            claims.Add(new Claim(ClaimTypes.Email, user.Correo));
+                            claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
 
-                    var roles = userservice.GetPerfiles(unchecked((int)user.Id));
+                            //var roles = userservice.GetPerfiles(unchecked((int)user.Id));
 
 
-                    foreach (var p in roles)
+                            foreach (var p in user.TbSePerfilUsuario)
+                            {
+                                claims.Add(new Claim(ClaimTypes.Role, p.IdPerfilNavigation.Nombre));
+                            }
+
+                            identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                            isAuthenticated = true;
+
+                        }
+
+                        else
+                        {
+                            // ModelState.AddModelError(string.Empty, "Credenciales inválidas");
+                            return Json(new { success = false, credentials = false });
+                        }
+                    else
+                        return Json(new { success = false, active = false });
+
+                }
+
+
+                else
+                {
+                    return Json(new { success = false, credentials = false });
+                }
+
+                if (isAuthenticated)
+                {
+                    var principal = new ClaimsPrincipal(identity);
+
+                    var props = new AuthenticationProperties();
+                    props.IsPersistent = model.recuerdame;
+
+                    Sesion.Sesion.SetNombreUsuario(HttpContext.Session, user.Nombre);
+                    Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
+                    HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, props).Wait();
+
+                    var uc = user.TbSeUsuarioConfiguraion.FirstOrDefault();
+                    if (uc != null)
                     {
-                        claims.Add(new Claim(ClaimTypes.Role, p.Nombre));
+                        uc.Tema = "TemaCombinado";
+                        uc.Idioma = "es";
                     }
+                    uc.IdUsuarioNavigation = null;
 
-                    identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                    isAuthenticated = true;
-                    
+                    return Json(new { success = true, userConfig = uc, avatar = user.Avatar });
                 }
-                    //return View("MiCuenta", user);
-                //return RedirectToAction("cuenta/micuenta/" + user.Id);
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Credenciales inválidas");
-                }
-                else
-                    ModelState.AddModelError(string.Empty, "Cuenta de usuario INACTIVA");
 
+
+
+                return Json(new { success = false });
             }
-
-
-            else
+            catch (Exception Ex)
             {
-                ModelState.AddModelError(string.Empty, "No existe un usuario con esas credenciales");
+                AltivaLog.Log.Insertar(Ex.ToString(), "Error");
+                throw;
             }
-
-            if (isAuthenticated)
-            {
-                var principal = new ClaimsPrincipal(identity);
-
-                var props = new AuthenticationProperties();
-                props.IsPersistent = model.recuerdame;
-
-                //HttpContext.Session.SetString("nombreUsuario", user.Nombre);
-             
-                Sesion.Sesion.SetNombreUsuario(HttpContext.Session, user.Nombre);
-                Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
-                //Sesion.Sesion.SetIdioma(HttpContext.Session, user.TbSeUsuarioConfiguraion.First().Idioma);
-                HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, props).Wait();
-
-                return RedirectToAction("ListarEmpresas", "GrupoEmpresarial");
-                //return View("MiCuenta", user);
-            }
-
-
-
-            return View();
+           
 
         }
 
@@ -144,7 +150,7 @@ namespace AltivaWebApp.Controllers
             if (!ModelState.IsValid)
             {
                 // return View();
-                return Json( new { data = false });
+                return Json(new { data = false });
             }
             var user = userservice.GetUsuarioConPerfiles(model.correo);
 
@@ -162,6 +168,6 @@ namespace AltivaWebApp.Controllers
 
 
         }
-        
+
     }
 }

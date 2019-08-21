@@ -620,15 +620,26 @@ else
     }
     function guardarLineaAutomatico(data) {
         
+        var cero = true;
         for (var i = 0; i < data.length; i++) {
             $('#item').val(data[i].idInventario);
             $('#item').trigger('change.select2');
             $cantidad.val(data[i].etotal);
             setSubTotalLinea();
-            guardarLinea();
+            if ($precio.val() != 0) {
+                cero = false;
+                guardarLinea();
+            }
+            
            $cantidad.val(1);
 
         }
+        if (cero) 
+          cargarAlert('@SharedLocalizer["AlertPreciosCero"]');
+
+        
+
+
      
             
     }
@@ -707,18 +718,21 @@ else
     }
     
     function validarCompraAutomatica() {
+      
         if (lineas.length != 0) {
             bootbox.confirm("@SharedLocalizer["confirmCompraAutomatica"]", function (resultado) {
                 if (resultado) {
                     lineas = [];
                     lineasAgregadas = [];
-                     cargarTabla(lineas);
+                    cargarTabla(lineas);
+                 
                     generarCompraAutomatica();
                 }
 
             });
         }
         else {
+                
             generarCompraAutomatica();
         }
     }
@@ -736,12 +750,7 @@ else
             url: url,
             dataType:'json',
                 success: function (data) {
-                   
             guardarLineaAutomatico(data);
-               
-              
-
-                
             }
         
             });
@@ -752,7 +761,7 @@ else
 
     }
 
-    
+    /*El precio de los items debe ser mayor a cero*/
 
    /* function modificarLinea(id) {
        var pos = id - 1;
@@ -964,7 +973,7 @@ else
     }
 
     function guardarOrden() {
-
+        console.log(crearModelo());
         //crearModelo();
 
         $.ajax({

@@ -28,7 +28,6 @@ namespace AltivaWebApp.Controllers
         [Route("Lista-Bodegas/{estado?}/{err?}")]
         public ActionResult ListarBodegas(string estado, string err)
         {
-
             var bodegas = new List<TbPrBodega>();
             if (estado == null)
             {
@@ -101,9 +100,9 @@ namespace AltivaWebApp.Controllers
 
 
             }
-            catch
+            catch (Exception ex)
             {
-                //throw;
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -150,9 +149,9 @@ namespace AltivaWebApp.Controllers
                 else
                     return RedirectToAction(nameof(ListarBodegas), new { estado = "Inactivas" });
             }
-            catch
+            catch (Exception ex)
             {
-                ///poner mensasje de error
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return RedirectToAction(nameof(ListarBodegas), new { err = "err" });
             }
         }

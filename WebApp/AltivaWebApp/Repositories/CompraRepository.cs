@@ -21,8 +21,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbCpCategoriaGasto.ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -49,7 +50,7 @@ namespace AltivaWebApp.Repositories
                     Borrador = c.Borrador,
                     Anulado = c.Anulado,
                     EnCola = c.EnCola
-                    
+
 
                 }).ToList();
 
@@ -70,9 +71,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbPrCompra.Include(c => c.IdContactoNavigation).AsNoTracking().Include(c => c.TbPrCompraDetalle).ThenInclude(cd => cd.IdInventarioNavigation).AsNoTracking().ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -95,9 +96,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbPrCompra.AsNoTracking().Include(c => c.TbPrCompraDetalle).ThenInclude(cd => cd.IdInventarioNavigation).ThenInclude(i => i.TbPrInventarioBodega).FirstOrDefault(c => c.Id == id);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -108,9 +109,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbPrCompra.AsNoTracking().FirstOrDefault(c => c.Id == id);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -121,9 +122,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbPrCompra.AsNoTracking().FirstOrDefault(c => c.NumeroDocumento == nDoc && c.TipoDocumento == tipoDoc && c.IdContacto == idProveedor);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -134,9 +135,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbPrCompraDetalle.Where(c => c.IdCompraNavigation.Id == id).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -146,9 +147,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbCpComprasDetalleServicio.Where(c => c.IdCompraNavigation.Id == id).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -159,9 +160,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbPrCompraDetalle.AsNoTracking().Include(c => c.IdCompraNavigation).Include(i => i.IdInventarioNavigation).ThenInclude(b => b.TbPrInventarioBodega).FirstOrDefault(c => c.Id == id);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -171,9 +172,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbCpComprasDetalleServicio.Include(c => c.IdCompraNavigation).FirstOrDefault(c => c.IdCompraDetalle == id);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -186,8 +187,9 @@ namespace AltivaWebApp.Repositories
                 return domain;
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -220,8 +222,9 @@ namespace AltivaWebApp.Repositories
 
                 return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -235,8 +238,9 @@ namespace AltivaWebApp.Repositories
 
                 return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -245,17 +249,18 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbPrInventarioBodega.Any(i => i.IdInventario == idInventario && i.IdBodega == idBodega);
         }
-        public bool UpdateCompraDetalle(IList<TbPrCompraDetalle> domain)
+        public IList<TbPrCompraDetalle> UpdateCompraDetalle(IList<TbPrCompraDetalle> domain)
         {
             try
             {
                 context.TbPrCompraDetalle.UpdateRange(domain);
                 context.SaveChanges();
 
-                return true;
+                return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -269,9 +274,9 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -286,9 +291,9 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -301,9 +306,9 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }

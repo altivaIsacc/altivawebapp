@@ -30,6 +30,7 @@ namespace AltivaWebApp.Mappers
 
             return compra;
         }
+        
         public TbPrCompra CreateGasto(CompraServicioViewModel viewModel)
         {
             var compra = service.Save(ViewModelToDomainGasto(viewModel));
@@ -40,7 +41,7 @@ namespace AltivaWebApp.Mappers
 
         public TbPrCompra Update(CompraViewModel viewModel)
         {
-            return service.Update(ViewModelToDomainEdit(viewModel));
+            return service.Update(ViewModelToDomain(viewModel));
         }
         public TbPrCompra UpdateGasto(CompraServicioViewModel viewModel)
         {
@@ -48,7 +49,13 @@ namespace AltivaWebApp.Mappers
         }
         public TbPrCompraDetalle CreateCD(CompraViewModel viewModel)
         {
-            return service.SaveCompraDetalle(ViewModelToDomainCD(viewModel)[0]);
+            var cd = service.SaveCompraDetalle(ViewModelToDomainCD(viewModel)[0]);
+
+            if (cd != null)
+                if (!service.ExisteRelacionInventarioBodega(cd.IdInventario, cd.IdBodega))
+                    inventarioService.CrearRelacionInventarioBodega((int)cd.IdInventario, (int)cd.IdBodega);
+
+            return cd;
         }
        
         public TbCpComprasDetalleServicio CreateCDS(CompraServicioViewModel viewModel)
@@ -56,9 +63,17 @@ namespace AltivaWebApp.Mappers
             return service.SaveComprasDetalleServicio(ViewModelToDomainCDS(viewModel)[0]);
 
         }
-        public bool UpdateCD(CompraViewModel viewModel)
+     
+        public IList<TbPrCompraDetalle> UpdateCD(CompraViewModel viewModel)
         {
-            return service.UpdateCompraDetalle(ViewModelToDomainCD(viewModel));
+            var cds = service.UpdateCompraDetalle(ViewModelToDomainCD(viewModel));
+            var cd = cds.First();
+
+            if (cd != null)
+                if (!service.ExisteRelacionInventarioBodega(cd.IdInventario, cd.IdBodega))
+                    inventarioService.CrearRelacionInventarioBodega((int)cd.IdInventario, (int)cd.IdBodega);
+
+            return cds;
         }
         public bool UpdateCDS(CompraServicioViewModel viewModel)
         {
@@ -330,7 +345,7 @@ namespace AltivaWebApp.Mappers
                 TipoCambioDolar = viewModel.TipoCambioDolar,
                 TipoCambioEuro = viewModel.TipoCambioEuro,
 
-                TbPrCompraDetalle = ViewModelToDomainCD(viewModel)
+                TbPrCompraDetalle = viewModel.CompraDetalle != null ? ViewModelToDomainCD(viewModel) : null
             };
 
             if (viewModel.IdMoneda == 1)

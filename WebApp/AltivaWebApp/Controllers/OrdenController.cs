@@ -48,9 +48,9 @@ namespace AltivaWebApp.Controllers
                 return Ok(ca);
                 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //return BadRequest();
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
             
@@ -66,6 +66,8 @@ namespace AltivaWebApp.Controllers
 
             var tipoCambio = monedaService.GetAll(); 
             var model = new OrdenViewModel();
+            model.Fecha = DateTime.Now;
+            
             model.TipoCambioDolar = tipoCambio.FirstOrDefault(m => m.Codigo == 2).ValorCompra;
             model.TipoCambioEuro = tipoCambio.FirstOrDefault(m => m.Codigo == 3).ValorCompra;
 
@@ -111,10 +113,10 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true });
             }
-            catch
+            catch (Exception ex)
             {
-                //return BadRequest();
-                throw;
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return BadRequest();
             }
         }
 
@@ -133,8 +135,9 @@ namespace AltivaWebApp.Controllers
                 orden  = service.Update(orden);
                 return Json(new { success = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -150,8 +153,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true });
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -165,8 +169,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true });
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -195,10 +200,10 @@ namespace AltivaWebApp.Controllers
 
                 return Ok(ordenes);
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
-                //return BadRequest();
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return BadRequest();
             }
         }
 
@@ -208,19 +213,11 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var orden = service.GetAllOrdenDetalleByOrdenId(id);
-
-                //orden.IdProveedorNavigation = null;
-
-                //foreach (var item in orden.TbPrOrdenDetalle)
-                //{
-                //    item.IdOrdenNavigation = null;
-                //    item.IdInventarioNavigation.TbPrOrdenDetalle = null;
-
-                //}
                 return Ok(orden);
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }

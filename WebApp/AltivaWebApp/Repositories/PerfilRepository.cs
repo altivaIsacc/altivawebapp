@@ -36,8 +36,9 @@ namespace AltivaWebApp.Repositories
                 else
                     return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return false;
                 throw;
             }

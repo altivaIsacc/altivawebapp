@@ -104,8 +104,9 @@ namespace AltivaWebApp.Controllers
                 return Json(new { success = true, categoria = categoria });
             }
 
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
                 //return BadRequest();
             }
@@ -126,8 +127,9 @@ namespace AltivaWebApp.Controllers
 
                 return Ok(categoria);
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
