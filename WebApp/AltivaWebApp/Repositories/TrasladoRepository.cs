@@ -32,9 +32,11 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbPrTraslado.FirstOrDefault(d => d.IdTraslado == id);//se trae el traslado en especifico
-               
-               
+                context.TbPrTrasladoInventario.AddRange(domain);
+                context.SaveChanges();
+                return true;
+
+
             }
             catch (Exception ex)
             {
