@@ -260,6 +260,7 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -273,6 +274,7 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -358,144 +360,7 @@ namespace AltivaWebApp.Repositories
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
-        }
-
-
-        /*public User Save(User domain)
-
-        {
-
-            try
-
-            {
-
-                var us = InsertUser<User>(domain);
-                var us = domain;
-
-                return us;
-
-            }
-
-            catch (Exception ex)
-
-            {
-
-                //ErrorManager.ErrorHandler.HandleError(ex);
-
-                throw ex;
-
-            }
-
-        }
-        */
-        //public TbSeUsuario UpdateUsuario(TbSeUsuario domain)
-
-        //{
-        //    //var result = context.TbSeUsuario.
-        //    try
-
-        //    {
-
-        //        var userIdentity = new TbSeUsuario
-        //        {
-        //            //Codigo = domain.Codigo,
-        //            Nombre = domain.Nombre,
-        //            Estado = domain.Estado,
-        //            Iniciales = domain.Iniciales,
-        //            Contraseña = domain.Contraseña,
-        //            FechaMod = DateTime.Now,
-        //            Correo = domain.Correo,
-        //            Avatar = domain.Avatar
-
-        //        };
-
-        //        base.context.TbSeUsuario.Update(userIdentity);
-        //        base.context.SaveChanges();
-
-        //        return userIdentity;
-
-        //    }
-
-        //    catch (Exception ex)
-
-        //    {
-
-        //        //ErrorManager.ErrorHandler.HandleError(ex);
-
-        //        throw ex;
-
-        //    }
-
-        //}
-        /*
-        public bool Delete(int id)
-
-        {
-
-            try
-
-            {
-
-                User user = context.UsersDB.Where(x => x.Id.Equals(id)).FirstOrDefault();
-
-
-
-                if (user != null)
-
-                {
-
-                    //Delete<User>(user);
-
-                    return true;
-
-                }
-
-                else
-
-                {
-
-                    return false;
-
-                }
-           
-
-            }
-
-            catch (Exception ex)
-
-            {
-
-                //ErrorManager.ErrorHandler.HandleError(ex);
-
-                throw ex;
-
-            }
-
-        }
-
-        public List<User> GetAll()
-
-        {
-
-            try
-
-            {
-
-                return context.UsersDB.OrderBy(x => x.Name).ToList();
-
-            }
-
-            catch (Exception ex)
-
-            {
-
-                //ErrorManager.ErrorHandler.HandleError(ex);
-
-                throw ex;
-
-            }
-
-        }*/
+        }   
 
     }
 }

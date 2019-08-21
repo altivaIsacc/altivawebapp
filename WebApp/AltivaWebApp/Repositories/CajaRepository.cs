@@ -27,8 +27,9 @@ namespace AltivaWebApp.Repositories
 
                 return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -53,7 +54,7 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -71,7 +72,7 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -89,7 +90,7 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -107,7 +108,7 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -121,6 +122,7 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -131,9 +133,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbFaCaja.Include(a => a.IdCaja).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -144,8 +146,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbFaCajaAperturaDenominacion.Where(c => c.IdCajaNavigation.IdCaja == id).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -157,8 +160,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbFaCajaArqueoDenominacion.Where(c => c.IdCajaNavigation.IdCaja == id).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -170,8 +174,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbFaCajaArqueo.Where(c => c.IdCajaNavigation.IdCaja == id).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -183,9 +188,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbFaCajaCierre.Where(c => c.IdCajaNavigation.IdCaja == id).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -196,8 +201,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbFaCaja.FirstOrDefault(c => c.IdCaja == id);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }

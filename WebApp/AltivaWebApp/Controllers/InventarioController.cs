@@ -75,10 +75,8 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception ex)
             {
-                AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");                
                 return BadRequest();
-                //throw;
             }
             
         }
@@ -94,7 +92,6 @@ namespace AltivaWebApp.Controllers
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
-                //throw;
             }
         }
 
@@ -110,7 +107,6 @@ namespace AltivaWebApp.Controllers
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
-                //throw;
             }
 
         }
@@ -230,8 +226,9 @@ namespace AltivaWebApp.Controllers
                 return Json(new { success = true });
 
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
 
             }
@@ -250,7 +247,6 @@ namespace AltivaWebApp.Controllers
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                //throw;
                 return BadRequest();
             }
         }
@@ -348,7 +344,6 @@ namespace AltivaWebApp.Controllers
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
-                //throw;
             }
         }
 

@@ -116,8 +116,7 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception ex)
             {
-                AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");                
                 return Json(new { data = false }); ;
             }
         }
@@ -170,7 +169,6 @@ namespace AltivaWebApp.Controllers
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-
                 return BadRequest();
             }
             

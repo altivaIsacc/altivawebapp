@@ -21,8 +21,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbCpCategoriaGasto.ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -49,7 +50,7 @@ namespace AltivaWebApp.Repositories
                     Borrador = c.Borrador,
                     Anulado = c.Anulado,
                     EnCola = c.EnCola
-                    
+
 
                 }).ToList();
 
@@ -73,7 +74,6 @@ namespace AltivaWebApp.Repositories
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-
                 throw;
             }
         }
@@ -112,7 +112,6 @@ namespace AltivaWebApp.Repositories
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-
                 throw;
             }
         }
@@ -126,7 +125,6 @@ namespace AltivaWebApp.Repositories
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-
                 throw;
             }
         }
@@ -140,7 +138,6 @@ namespace AltivaWebApp.Repositories
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-
                 throw;
             }
         }
@@ -150,9 +147,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbCpComprasDetalleServicio.Where(c => c.IdCompraNavigation.Id == id).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -166,7 +163,6 @@ namespace AltivaWebApp.Repositories
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-
                 throw;
             }
         }
@@ -176,9 +172,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbCpComprasDetalleServicio.Include(c => c.IdCompraNavigation).FirstOrDefault(c => c.IdCompraDetalle == id);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -191,8 +187,9 @@ namespace AltivaWebApp.Repositories
                 return domain;
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -241,8 +238,9 @@ namespace AltivaWebApp.Repositories
 
                 return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -276,9 +274,9 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -296,7 +294,6 @@ namespace AltivaWebApp.Repositories
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-
                 throw;
             }
         }
@@ -309,9 +306,9 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }

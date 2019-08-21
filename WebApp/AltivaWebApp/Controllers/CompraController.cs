@@ -147,8 +147,7 @@ namespace AltivaWebApp.Controllers
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                throw;
-                //return BadRequest();
+                throw;                
             }
         }
 
@@ -171,7 +170,7 @@ namespace AltivaWebApp.Controllers
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
-                //return BadRequest();
+             
             }
         }
 
@@ -257,7 +256,6 @@ namespace AltivaWebApp.Controllers
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
-                //return BadRequest();
             }
         }
 

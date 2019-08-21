@@ -90,8 +90,9 @@ namespace AltivaWebApp.Mappers
 
                 return caja;
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
 
@@ -130,6 +131,7 @@ namespace AltivaWebApp.Mappers
             }
             catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Advertencia");
                 var msj = ex.Message;
                 return domain;
             }

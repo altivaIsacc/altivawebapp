@@ -54,8 +54,9 @@ namespace AltivaWebApp.Controllers
                
                 return Ok(gastos);
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -131,10 +132,10 @@ namespace AltivaWebApp.Controllers
                 }
 
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
-                //return BadRequest();
             }
         }
 
@@ -146,8 +147,9 @@ namespace AltivaWebApp.Controllers
                 var prov = service.GetAllCategoriaGasto();
                 return Ok(prov);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
 
@@ -171,8 +173,9 @@ namespace AltivaWebApp.Controllers
                 return Ok(service.GetAllComprasDetalleServicioByCompraId(id));
                 
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -194,9 +197,9 @@ namespace AltivaWebApp.Controllers
                     return Json(new { succes = false });
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //throw;
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -213,8 +216,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -230,8 +234,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = res });
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }

@@ -24,18 +24,11 @@ namespace AltivaWebApp.Repositories
 
         //si
         public TbPrTraslado GetTrasladoById(long id)
-        {
-            //try
-            //{
-                return context.TbPrTraslado.FirstOrDefault(d => d.IdTraslado == id);//se cambio Id por IdTraslado
-            //}
-            //catch (Exception)
-            //{
-            //    throw;
-            //}
+        {          
+                return context.TbPrTraslado.FirstOrDefault(d => d.IdTraslado == id);//se cambio Id por IdTraslado         
         }
 
-        //si
+      
         public bool SaveTrasladoInventario(IList<TbPrTrasladoInventario> domain)
         {
             try
@@ -44,8 +37,9 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -59,8 +53,9 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -73,8 +68,9 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }

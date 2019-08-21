@@ -157,8 +157,7 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Mensajes")]
         public ActionResult Index()
         {
-
-            List<TbSeUsuario> usuariosAsociados = new List<TbSeUsuario>();
+            _ = new List<TbSeUsuario>();
 
             ViewData["usuarios"] = this.IUserService.GetSingleUser(74);
 
@@ -168,22 +167,22 @@ namespace AltivaWebApp.Controllers
         [Route("BuscarNombre/{idUsuario}")]
         public JsonResult BuscarNombre(int idUsuario)
         {
-            List<MensajeRecibidoViewModel> nombreReceptor = new List<MensajeRecibidoViewModel>();
-            nombreReceptor = this.ImensajeService.BuscarNombre(idUsuario);
+            _ = new List<MensajeRecibidoViewModel>();
+            List<MensajeRecibidoViewModel> nombreReceptor = ImensajeService.BuscarNombre(idUsuario);
             return new JsonResult(nombreReceptor);
         }
         [Route("VerMensaje/{idMensaje}")]
         public JsonResult VerMensaje(int idMensaje)
         {
-            List<MensajeRecibidoViewModel> ms = new List<MensajeRecibidoViewModel>();
-            ms = this.ImensajeService.Ver(idMensaje);
+            _ = new List<MensajeRecibidoViewModel>();
+            List<MensajeRecibidoViewModel> ms = ImensajeService.Ver(idMensaje);
             return new JsonResult(ms);
         }
 
         public ActionResult GetComentarios(int valor)
         {
-            List<MensajeRecibidoViewModel> ms = new List<MensajeRecibidoViewModel>();
-            ms = this.ImensajeService.VerComentarios(valor);
+            _ = new List<MensajeRecibidoViewModel>();
+            List<MensajeRecibidoViewModel> ms = ImensajeService.VerComentarios(valor);
             return new JsonResult(ms);
         }
         [Route("Eliminar/{idMensaje}")]
@@ -212,8 +211,8 @@ namespace AltivaWebApp.Controllers
          [Route("NoLeidos/{pMensaje}")]
         public JsonResult NoLeidos(int pMensaje)
         {
-            TbSeMensajeReceptor re = new TbSeMensajeReceptor();
-            re = this.IMensajeReceptorMap.NoLeido(pMensaje);
+            _ = new TbSeMensajeReceptor();
+            TbSeMensajeReceptor re = IMensajeReceptorMap.NoLeido(pMensaje);
             this.IMensajeReceptorService.Update(re);
             return Json(new { id = 1 });
 
@@ -369,6 +368,7 @@ namespace AltivaWebApp.Controllers
             {
                 // Extract some information from this exception, and then 
                 // throw it to the parent method.
+                AltivaLog.Log.Insertar(e.ToString(), "Error");
                 if (e.Source != null)
                     Console.WriteLine("IOException source: {0}", e.Source);
                 throw;

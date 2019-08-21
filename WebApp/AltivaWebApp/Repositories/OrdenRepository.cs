@@ -54,8 +54,9 @@ namespace AltivaWebApp.Repositories
                 return model;
 
             }
-            catch(Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
 
             }
@@ -71,26 +72,14 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbPrOrden.Include(o => o.IdProveedorNavigation).FirstOrDefault(o => o.Id == id);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
 
         }
 
-
-        //public TbPrOrden GetAllOrdenDetalleByOrdenId(int id)
-        //{
-        //    try
-        //    {
-        //        return context.TbPrOrden.Include(o => o.TbPrOrdenDetalle).ThenInclude(od => od.IdInventarioNavigation).FirstOrDefault(o => o.Id == id);
-        //    }
-        //    catch (Exception)
-        //    {
-
-        //        throw;
-        //    }
-        //}
         public IList<TbPrOrdenDetalle> GetAllOrdenDetalleByOrdenId(int id)
         {
             try

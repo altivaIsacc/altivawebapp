@@ -43,8 +43,9 @@ namespace AltivaWebApp.Controllers
 
                 return Ok(precioCat);
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -57,8 +58,9 @@ namespace AltivaWebApp.Controllers
 
                 return Ok(precioCat);
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
 
