@@ -22,8 +22,9 @@ namespace AltivaWebApp.Repositories
                 return context.TbFaCotizacion.Include(a => a.IdClienteNavigation).ToList();
                                 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -34,9 +35,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbFaCotizacionDetalle.Where(c => c.IdCotizacionNavigation.IdCotizacion == id).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -47,8 +48,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbFaCotizacion.FirstOrDefault(c => c.IdCotizacion == id);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -61,9 +63,9 @@ namespace AltivaWebApp.Repositories
                 return context.TbFaCotizacion
                                     .Include(a => a.IdClienteNavigation).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -79,8 +81,9 @@ namespace AltivaWebApp.Repositories
 
                 return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -98,7 +101,7 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -114,7 +117,7 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -128,7 +131,7 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }

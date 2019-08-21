@@ -37,7 +37,15 @@ namespace AltivaWebApp.Repositories
 
         public IList<TbCrContacto> GetAllClientes()
         {
-            return context.TbCrContacto.Where(u => u.Cliente == true).ToList();
+            try
+            {
+                return context.TbCrContacto.Where(c => c.Proveedor == true).ToList();
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+            }
         }
 
         public IList<TbCrContacto> GetAllProveedores()
@@ -46,8 +54,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbCrContacto.Where(c => c.Proveedor == true).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -72,8 +81,9 @@ namespace AltivaWebApp.Repositories
                 con = context.TbCrContacto.Where(i => i.Correo == correo).FirstOrDefault();
                 return con;
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
 
@@ -147,8 +157,9 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }

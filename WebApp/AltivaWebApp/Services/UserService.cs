@@ -43,6 +43,11 @@ namespace AltivaWebApp.Services
 
         }
 
+        public TbSeUsuario GetUsuarioConConfig(string usuario)
+        {
+            return repository.GetUsuarioConConfig(usuario);
+        }
+
         public IList<TbSePerfilModulo> GetAllPerfilModulo()
         {
             return repository.GetAllPerfilModulo();

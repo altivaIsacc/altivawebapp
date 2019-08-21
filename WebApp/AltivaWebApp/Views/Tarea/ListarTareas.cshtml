@@ -1,5 +1,5 @@
 ﻿@model AltivaWebApp.Domains.TbFdConfiguracionFiltros
-
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject IStringLocalizer<SharedResources> Lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
@@ -123,63 +123,61 @@
         </div>
     </div>
 </div>
+<div class="table-responsive">
+    <table class="table TablaTareas table-bordered"  style="width:100%" id="TablaTareas">
+        <thead>
+            <tr>
 
-<div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
-        <div class="table-responsive">
-            <table class="table TablaTareas table-bordered" style="min-width: 1200px" id="TablaTareas">
-                <thead>
-                    <tr>
-                        <th>Prioridad</th>
-                        <th>
-                            Título
-                        </th>
-                        <th>
-                            Tipo Tarea
-                        </th>
-                        <th>
-                            Estado Tarea
-                        </th>
-                        <th>
-                            Contacto
-                        </th>
-                        <th>
-                            Fecha Límite
-                        </th>
-                        <th hidden>
-                            Asignado
-                        </th>
-                        <th hidden>
-                            Descripción
-                        </th>
-                        <th hidden>
-                            Dias Estimados
-                        </th>
-                        <th hidden>
-                            Dias Reales
-                        </th>
-                        <th hidden>
-                            Costo Estimado
-                        </th>
-                        <th hidden>
-                            Costo Real
-                        </th>
+                <th style="width:10%">
+                    <span>Prioridad</span>
+                </th>
+                <th style="width:10%">
+                    <span>Título</span>
+                </th>
+                <th style="width:20%">
+                    <span> Tipo Tarea</span>
+                </th>
+                <th style="width:5%">
+                    <span> Estado Tarea</span>
+                </th>
+                <th style="width:15%">
+                    <span> Contacto</span>
+                </th>
+                <th style="width:8%">
+                    <span>   Fecha Límite</span>
+                </th>
+                <th hidden>
+                    Asignado
+                </th>
+                <th hidden>
+                    Descripción
+                </th>
+                <th hidden>
+                    Dias Estimados
+                </th>
+                <th hidden>
+                    Dias Reales
+                </th>
+                <th hidden>
+                    Costo Estimado
+                </th>
+                <th hidden>
+                    Costo Real
+                </th>
+                <th style="width:8%">
+                    <span> Fecha Inicio</span>
+                </th>
+                <th style="width:8%">
+                    <span>  Fecha Final</span>
+                </th>
 
-                        <th>
-                            Fecha Inicio
-                        </th>
-                        <th>
-                            Fecha Final
-                        </th>
-
-
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
+                <th style="width:12%">
+                    <span>@SharedLocalizer["Acción"]</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 </div>
 
 <script src="~/js/comentario.js"></script>
@@ -209,7 +207,7 @@
 </div>
 
 <script>
-
+    
     var tareas = [];
     var TareasMostrar = [];
     var hasta;
@@ -288,84 +286,8 @@
             return false;
         }
     });
-    //cargar datos de las tareas..
-    function cargarDatos(data) {
-
-        console.log(data);
-
-        var contadorFila = 0;
-        var fecha1 = ""
-        var fecha = "";
-        var dt = null;
-        $("#TablaTareas > tbody").remove();
-        $('table').append('<tbody></tbody>');
-         dt = new Date();
-         fecha = +dt.getDate() + "/" + (dt.getMonth()+1) + "/" + dt.getFullYear()+" "+ 0 +0+":"+0+0+":"+0+0;
-         fecha1 = +dt.getDate()+"/"+(dt.getMonth()+1)+"/"+dt.getFullYear();
-        var color = "";
-        var icono = "";
-        var icono2 = "";
-        var nombre = "";
-        for (var i = 0; i < data.length; i++) {
-
-            if (data[i].idContacto !== 0) {
-                if (data[i].idContactoNavigation.persona == true) {
-                    nombre = data[i].idContactoNavigation.nombre + " " + data[i].idContactoNavigation.apellidos;
-                } else {
-                    nombre = data[i].idContactoNavigation.nombreComercial;
-                }
-            }
-            else
-                nombre = "";
-            
-            if (data[i].posicion == 1) {
-
-                icono = "";
-            } else {
-                icono = "<i class='fas fa-chevron-up'></i>";
-            }
-            if (recuperarFecha(data[i].fechaLimite) > fecha) {
-
-                color = "";
-            } else
-                if (recuperarFecha(data[i].fechaLimite) < fecha) {
-
-                    color = "#dc4a46";
-                }
-                else
-
-                    if (recuperarFechaSinHora(data[i].fechaLimite) == fecha1) {
-
-                        color = "#f3da0b";
-                    }
-            if (data[i].posicion == data.length) {
-                icono2 = "";
-            } else {
-                icono2 = "<i class='fas fa-chevron-down'>";
-            }
-
-                var body = '<tr class="fila' + contadorFila + ' filas">'
-                    + '<td><button class="btn btn-link dark" onclick="darPrioridad(' + data[i].id + ')">' + icono + '</button><button class="btn btn-link dark" onclick="quitarPrioridad(' + data[i].id + ')">' + icono2 + '</i></button></td>'
-                    + '<td>' + data[i].titulo + '</td>'
-                    + '<td ><img style="width:2rem; height: 2rem; border-radius: 1rem; background: ' + data[i].idTipoNavigation.color + ';"><span>  ' + data[i].idTipoNavigation.titulo + '</span></td>'
-                    + '<td ><img style="width:2rem; height: 2rem; border-radius: 1rem; background: ' + data[i].idEstadoNavigation.color + ';"><span>' + data[i].idEstadoNavigation.titulo + '</span></td>'
-                    + '<td>' + nombre + '</td>'
-                    + '<td bgColor=' + color + '>' + recuperarFecha(data[i].fechaLimite) + '</td>'
-                    + '<td hidden>' + data[i].idUsuario + ' </td>'
-                    + '<td hidden>' + data[i].descripcion + '</td>'
-                    + '<td hidden>' + data[i].diasEstimados + '</td>'
-                    + '<td hidden>' + data[i].diasReales + '</td>'
-                    + '<td hidden>' + data[i].costoEstimado + '</td>'
-                    + '<td hidden>' + data[i].costoReal + '</td>'
-                    + '<td >' + recuperarFecha(data[i].fechaInicio) + '</td>'
-                    + '<td >' + recuperarFecha(data[i].fechaFinal) + '</td>'
-
-                    + '<td>  <button value="' + data[i].id + '" onclick="editarTarea(' + data[i].id + ')" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="Eliminar(' + data[i].id + ')" class="btn btn-link"> <i class="fas fa-trash"></i></button></td></tr>';
-                $('#TablaTareas > tbody').append(body);
-                contadorFila++;
-            }
-
-        $('#TablaTareas').DataTable().destroy();
+    function inicializarTabla() {
+         $('#TablaTareas').DataTable().destroy();
 
         TablaTareas = $('#TablaTareas').DataTable({
             "info": false,
@@ -423,6 +345,85 @@
                 }
             ]
         });
+    }
+    //cargar datos de las tareas..
+    function cargarDatos(data) {
+
+        console.log(data);
+
+        var contadorFila = 0;
+        var fecha1 = ""
+        var fecha = "";
+        var dt = null;
+        $("#TablaTareas > tbody").remove();
+        $('table').append('<tbody></tbody>');
+         dt = new Date();
+         fecha = +dt.getDate() + "/" + (dt.getMonth()+1) + "/" + dt.getFullYear()+" "+ 0 +0+":"+0+0+":"+0+0;
+         fecha1 = +dt.getDate()+"/"+(dt.getMonth()+1)+"/"+dt.getFullYear();
+        var color = "";
+        var icono = "";
+        var icono2 = "";
+        var nombre = "";
+        for (var i = 0; i < data.length; i++) {
+
+            if (data[i].idContacto !== 0) {
+                if (data[i].idContactoNavigation.persona == true) {
+                    nombre = data[i].idContactoNavigation.nombre + " " + data[i].idContactoNavigation.apellidos;
+                } else {
+                    nombre = data[i].idContactoNavigation.nombreComercial;
+                }
+            }
+            else
+                nombre = "";
+
+            if (data[i].posicion == 1) {
+
+                icono = "";
+            } else {
+                icono = "<i class='fas fa-chevron-up'></i>";
+            }
+            if (recuperarFecha(data[i].fechaLimite) > fecha) {
+
+                color = "";
+            } else
+                if (recuperarFecha(data[i].fechaLimite) < fecha) {
+
+                    color = "#dc4a46";
+                }
+                else
+
+                    if (recuperarFechaSinHora(data[i].fechaLimite) == fecha1) {
+
+                        color = "#f3da0b";
+                    }
+            if (data[i].posicion == data.length) {
+                icono2 = "";
+            } else {
+                icono2 = "<i class='fas fa-chevron-down'>";
+            }
+
+                var body = '<tr class="fila' + contadorFila + ' filas">'
+                    + '<td><button class="btn btn-link dark" onclick="darPrioridad(' + data[i].id + ')">' + icono + '</button><button class="btn btn-link dark" onclick="quitarPrioridad(' + data[i].id + ')">' + icono2 + '</i></button></td>'
+                    + '<td>' + data[i].titulo + '</td>'
+                    + '<td ><img style="width:2rem; height: 2rem; border-radius: 1rem; background: ' + data[i].idTipoNavigation.color + ';"><span>  ' + data[i].idTipoNavigation.titulo + '</span></td>'
+                    + '<td ><img style="width:2rem; height: 2rem; border-radius: 1rem; background: ' + data[i].idEstadoNavigation.color + ';"><span>' + data[i].idEstadoNavigation.titulo + '</span></td>'
+                    + '<td>' + nombre + '</td>'
+                    + '<td bgColor=' + color + '>' + recuperarFecha(data[i].fechaLimite) + '</td>'
+                    + '<td hidden>' + data[i].idUsuario + ' </td>'
+                    + '<td hidden>' + data[i].descripcion + '</td>'
+                    + '<td hidden>' + data[i].diasEstimados + '</td>'
+                    + '<td hidden>' + data[i].diasReales + '</td>'
+                    + '<td hidden>' + data[i].costoEstimado + '</td>'
+                    + '<td hidden>' + data[i].costoReal + '</td>'
+                    + '<td >' + recuperarFecha(data[i].fechaInicio) + '</td>'
+                    + '<td >' + recuperarFecha(data[i].fechaFinal) + '</td>'
+
+                    + '<td>  <button value="' + data[i].id + '" onclick="editarTarea(' + data[i].id + ')" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="Eliminar(' + data[i].id + ')" class="btn btn-link"> <i class="fas fa-trash"></i></button></td></tr>';
+                $('#TablaTareas > tbody').append(body);
+                contadorFila++;
+            }
+
+        inicializarTabla();
 
     }
     //eliminar tarea..
@@ -718,7 +719,7 @@
     }
     $(document).ready(function () {
 
-        
+
 
         $('#filtroFecha').daterangepicker({
             opens: 'left',
@@ -769,7 +770,7 @@
     });
 
 
-    
+
 
 
     //cargar tabla

@@ -65,9 +65,9 @@ namespace AltivaWebApp.Controllers
                 domain2.Estado = contactoMap.Estado;
                 return PartialView("_CrearEditar", domain2);
             }
-            catch
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
             }
 
             return new JsonResult(true);

@@ -27,8 +27,9 @@ namespace AltivaWebApp.Repositories
 
                 return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -42,8 +43,9 @@ namespace AltivaWebApp.Repositories
 
                 return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -81,8 +83,9 @@ namespace AltivaWebApp.Repositories
                     })
                     .Where(m => m.CodigoMoneda == codigo).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -112,8 +115,9 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
                 return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -152,8 +156,9 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
                 return historial;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -181,8 +186,9 @@ namespace AltivaWebApp.Repositories
 
                 return historial;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
             

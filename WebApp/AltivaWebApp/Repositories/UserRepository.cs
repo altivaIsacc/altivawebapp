@@ -10,10 +10,10 @@ using System.Linq;
 
 namespace AltivaWebApp.Repositories
 {
-    public class UserRepository: BaseRepositoryGE<TbSeUsuario>, IUserRepository
+    public class UserRepository : BaseRepositoryGE<TbSeUsuario>, IUserRepository
 
     {
-       
+
         public UserRepository(GrupoEmpresarialContext context)
              : base(context)
         {
@@ -26,7 +26,7 @@ namespace AltivaWebApp.Repositories
 
         }
 
-        
+
 
         public bool ExisteUsuarioPorCodigo(string codigo)
         {
@@ -45,13 +45,18 @@ namespace AltivaWebApp.Repositories
             // return context.TbSeUsuario.
         }
 
+        public TbSeUsuario GetUsuarioConConfig(string usuario)
+        {
+            return context.TbSeUsuario.Include(u => u.TbSePerfilUsuario).ThenInclude(p => p.IdPerfilNavigation).Include(u => u.TbSeUsuarioConfiguraion).FirstOrDefault(u => u.Codigo == usuario || u.Correo == usuario);
+        }
+
 
         public TbSeUsuario GetUsuarioConEmpresas(string usuario)
         {
             return context.TbSeUsuario.Include(c => c.TbSeUsuarioConfiguraion).Include(ge => ge.TbGeGrupoEmpresarial)
                 .Include(em => em.TbSeEmpresaUsuario)
                 .ThenInclude(em => em.IdEmpresaNavigation)
-                .FirstOrDefault(u => u.Correo == usuario || u.Codigo == usuario );
+                .FirstOrDefault(u => u.Correo == usuario || u.Codigo == usuario);
             // return context.TbSeUsuario.
         }
 
@@ -89,8 +94,9 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
                 return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return null;
                 throw;
             }
@@ -105,7 +111,7 @@ namespace AltivaWebApp.Repositories
                 {
                     model.Idioma = domain.Idioma;
                     model.Tema = domain.Tema;
-                    context.Update(model);                   
+                    context.Update(model);
                 }
                 else
                 {
@@ -115,8 +121,9 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
                 return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -132,8 +139,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbSeUsuarioConfiguraion.FirstOrDefault(uc => uc.IdUsuario == idUsuario);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
 
@@ -143,8 +151,17 @@ namespace AltivaWebApp.Repositories
         public TbSeUsuario SaveUser(TbSeUsuario domain)
         {
 
-            var userIdentity = new TbSeUsuario { Codigo = domain.Codigo, Nombre = domain.Nombre, Estado = domain.Estado, Iniciales = domain.Iniciales,
-                                                Contrasena = domain.Contrasena, FechaMod = DateTime.Now, IdUsuario = domain.IdUsuario, Correo = domain.Correo };
+            var userIdentity = new TbSeUsuario
+            {
+                Codigo = domain.Codigo,
+                Nombre = domain.Nombre,
+                Estado = domain.Estado,
+                Iniciales = domain.Iniciales,
+                Contrasena = domain.Contrasena,
+                FechaMod = DateTime.Now,
+                IdUsuario = domain.IdUsuario,
+                Correo = domain.Correo
+            };
 
             var result = context.TbSeUsuario.Add(userIdentity);
 
@@ -153,7 +170,7 @@ namespace AltivaWebApp.Repositories
 
             else
             {
-               
+
                 base.context.SaveChanges();
 
                 return userIdentity;
@@ -173,13 +190,14 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return false;
                 throw;
             }
-            
-        } 
+
+        }
 
         public TbSePerfilUsuario GetPerfilUsuario(PerfilUsuarioViewModel model)
         {
@@ -196,9 +214,9 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //return false;
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
 
             }
@@ -237,11 +255,12 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbSePerfilModulo.Where(u=>u.Opcion1==true).ToList();
+                return context.TbSePerfilModulo.Where(u => u.Opcion1 == true).ToList();
 
             }
             catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -255,6 +274,7 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -286,8 +306,9 @@ namespace AltivaWebApp.Repositories
 
         public IList<TbSeUsuario> GetAllConEmpresas()
         {
-            return context.TbSeUsuario.Include(u => u.TbSeEmpresaUsuario).Select(u => 
-                new TbSeUsuario {
+            return context.TbSeUsuario.Include(u => u.TbSeEmpresaUsuario).Select(u =>
+                new TbSeUsuario
+                {
                     Avatar = u.Avatar,
                     Codigo = u.Codigo,
                     Contrasena = u.Contrasena,
@@ -298,7 +319,8 @@ namespace AltivaWebApp.Repositories
                     IdUsuario = u.IdUsuario,
                     Iniciales = u.Iniciales,
                     Nombre = u.Nombre,
-                    TbSeEmpresaUsuario = u.TbSeEmpresaUsuario.Select(e => new TbSeEmpresaUsuario {
+                    TbSeEmpresaUsuario = u.TbSeEmpresaUsuario.Select(e => new TbSeEmpresaUsuario
+                    {
                         IdEmpresa = e.IdEmpresa,
                         Estado = e.Estado,
                         Id = e.Id,
@@ -317,8 +339,9 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -332,149 +355,12 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
-        }
-
-
-        /*public User Save(User domain)
-
-        {
-
-            try
-
-            {
-
-                var us = InsertUser<User>(domain);
-                var us = domain;
-
-                return us;
-
-            }
-
-            catch (Exception ex)
-
-            {
-
-                //ErrorManager.ErrorHandler.HandleError(ex);
-
-                throw ex;
-
-            }
-
-        }
-        */
-        //public TbSeUsuario UpdateUsuario(TbSeUsuario domain)
-
-        //{
-        //    //var result = context.TbSeUsuario.
-        //    try
-
-        //    {
-
-        //        var userIdentity = new TbSeUsuario
-        //        {
-        //            //Codigo = domain.Codigo,
-        //            Nombre = domain.Nombre,
-        //            Estado = domain.Estado,
-        //            Iniciales = domain.Iniciales,
-        //            Contraseña = domain.Contraseña,
-        //            FechaMod = DateTime.Now,
-        //            Correo = domain.Correo,
-        //            Avatar = domain.Avatar
-
-        //        };
-
-        //        base.context.TbSeUsuario.Update(userIdentity);
-        //        base.context.SaveChanges();
-
-        //        return userIdentity;
-
-        //    }
-
-        //    catch (Exception ex)
-
-        //    {
-
-        //        //ErrorManager.ErrorHandler.HandleError(ex);
-
-        //        throw ex;
-
-        //    }
-
-        //}
-        /*
-        public bool Delete(int id)
-
-        {
-
-            try
-
-            {
-
-                User user = context.UsersDB.Where(x => x.Id.Equals(id)).FirstOrDefault();
-
-
-
-                if (user != null)
-
-                {
-
-                    //Delete<User>(user);
-
-                    return true;
-
-                }
-
-                else
-
-                {
-
-                    return false;
-
-                }
-           
-
-            }
-
-            catch (Exception ex)
-
-            {
-
-                //ErrorManager.ErrorHandler.HandleError(ex);
-
-                throw ex;
-
-            }
-
-        }
-
-        public List<User> GetAll()
-
-        {
-
-            try
-
-            {
-
-                return context.UsersDB.OrderBy(x => x.Name).ToList();
-
-            }
-
-            catch (Exception ex)
-
-            {
-
-                //ErrorManager.ErrorHandler.HandleError(ex);
-
-                throw ex;
-
-            }
-
-        }*/
+        }   
 
     }
 }

@@ -16,6 +16,9 @@ namespace AltivaWebApp.Services
         IList<TbSeUsuario> GetAll();
        
         TbSeUsuario GetSingleUser(int id);
+
+        TbSeUsuario GetUsuarioConConfig(string usuario);
+
         TbSeUsuario GetUsuarioConPerfiles(string usuario);
         TbSeUsuario GetUsuarioConEmpresas(string usuario);
         IEnumerable<TbSePerfil> GetPerfiles(int id);

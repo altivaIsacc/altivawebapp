@@ -47,8 +47,9 @@ namespace AltivaWebApp.Repositories
                 context.UpdateRange(inventarioBodega);
                 context.SaveChanges();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }

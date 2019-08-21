@@ -3,6 +3,7 @@ using AltivaWebApp.Domains;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -46,8 +47,9 @@ namespace AltivaWebApp.Repositories
                                 .ThenInclude(a => a.IdCuentaContableNavigation).AsNoTracking()
                                 .FirstOrDefault(a => a.Id == id);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -95,11 +97,12 @@ namespace AltivaWebApp.Repositories
                         TotalEntrada = a.TotalEntrada,
                         TotalSalida = a.TotalSalida
 
-                    }).FirstOrDefault(a => a.Id == id);
+                    }).AsNoTracking().FirstOrDefault(a => a.Id == id);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -127,8 +130,9 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
                 return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -138,12 +142,13 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                context.TbPrAjusteInventario.RemoveRange(context.TbPrAjusteInventario.Where(r => domain.Any(id => id == r.Id)));
+                context.TbPrAjusteInventario.RemoveRange(context.TbPrAjusteInventario.Where(d => domain.Contains(d.Id)));
                 context.SaveChanges();
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }

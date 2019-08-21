@@ -119,8 +119,9 @@ namespace AltivaWebApp.Controllers
                 bool flag = this.ITipoTareaService.Delete(idTipo);
                 return Json(new { success = flag });
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
 

@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<AltivaWebApp.Domains.TbFdTarea>
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -11,9 +12,10 @@
     <div id="tareas">
 
         <div class="row">
-            <div class="col-md-12">
-                <div class="form-group col-md-2">
-                    <button class="btn btn-default btnAtras">Atrás</button>
+            <div class="col-md-3 col-sm-3 col-xs-3"><h3>@SharedLocalizer["reportRendimiento"]</h3></div>
+            <div class="col-md-9 col-sm-9 col-xs-9">
+                <div class="form-group col-md-2" style="padding-top:0.5rem">
+                    <a href="@Url.Action("ListarTareas")" class="btn btn-default">Atrás</a>
                 </div>
             </div>
         </div>
@@ -87,7 +89,7 @@
                             <div class="controls">
                                 <div class="input-prepend input-group">
                                     <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
-                                    <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control"  />
+                                    <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" />
                                 </div>
                             </div>
                         </div>
@@ -149,30 +151,31 @@
         cargarFiltros();
 
     });
+
     function cargarFiltros() {
 
 
 
-     
+
         TareasMostrar = JSON.parse(JSON.stringify(reportes));
-      
-       
+
+
             TareasMostrar = filtroContacto(TareasMostrar);
             TareasMostrar = FistroAsignados(TareasMostrar);
             TareasMostrar = filtroEstado(TareasMostrar);
             TareasMostrar = filtroTipos(TareasMostrar);
            // TareasMostrar = filtroFecha(desde, hasta);
-        
-          
-        
+
+
+
         if (TareasMostrar.length > 0) {
             total = 0;
             promedio = 0;
-           
+
                 for (var i = 0; i < TareasMostrar.length; i++) {
-                 
+
                     if (recuperarFecha(TareasMostrar[i].fechaLimite) > '@ViewBag.fecha') {
-                      
+
                         total++;
                     }
                     promedio = ((total * 100) / TareasMostrar.length)
@@ -182,11 +185,11 @@
             } else {
                 $('#rendimiento').val(0);
             }
-        cargarDatos(TareasMostrar); 
+        cargarDatos(TareasMostrar);
 
     }
     function filtroEstado(TareasMostrar) {
-    
+
 
         var IdEstado = parseInt($('#filtroEstados').val());
 
@@ -202,7 +205,7 @@
                 var estados = TareasMostrar[i].idEstadoNavigation;
                 ;
                 if (estados.id === IdEstado) {
-               
+
                     EstadosFiltrado.push(TareasMostrar[i]);
 
 
@@ -272,9 +275,9 @@
                     arrayTareas.splice(i, 1);
             }
             return arrayTareas;
-         
+
         }
-           
+
 
     }
     function FistroAsignados(TareasMostrar) {
@@ -316,7 +319,7 @@
 
         var TareasFiltrado = [];
 
-     
+
         if (IdContacto === 0) {
             return TareasMostrar;
         }
@@ -325,7 +328,7 @@
             for (var i = 0; i < TareasMostrar.length; i++) {
 
                 if (TareasMostrar[i].idContacto === IdContacto) {
-                   
+
                     TareasFiltrado.push(TareasMostrar[i]);
 
                 }
@@ -343,10 +346,10 @@
 
  $(document).ready(function () {
      cargarTabla();
-     
+
         $('#filtroFecha').daterangepicker({
             opens: 'left',
-            
+
 
             "locale": {
                 format: "DD/MM/YYYY",
@@ -452,7 +455,7 @@
 
                         color = "#f3da0b";
                     }
-          
+
             var body = '<tr class="fila' + contadorFila + ' filas">'
                 + '<td>' + data[i].titulo + '</td>'
                 + '<td>' + data[i].idUsuario + ' </td>'
@@ -468,7 +471,7 @@
         $('#TablaTareas').DataTable().destroy();
 
         TablaTareas = $('#TablaTareas').DataTable({
-          
+
             "pageLength": 4,
             "ordering": false,
             scrollX: '50rem',
@@ -495,7 +498,7 @@
         });
     }
     //cargar datos:
-   
+
 
     function recuperarFecha(_fecha) {
 

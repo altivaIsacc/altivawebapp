@@ -29,9 +29,9 @@ namespace AltivaWebApp.Context
 
             var user = conf["serverUser"];
 
-            StringGE = "Data source=" + server + ";" + "Initial Catalog=" + "GE_" + grupo + ";" + "User Id=" +user + ";Password=" + pass + ";";
+            StringGE = "CURRENT LANGUAGE=SPANISH; Data source=" + server + ";" + "Initial Catalog=" + "GE_" + grupo + ";" + "User Id=" +user + ";Password=" + pass + ";";
 
-            session.SetString(_StringGE, "Data source=" + server + ";" + "Initial Catalog=" + "GE_" + grupo + ";" + "User Id=" + user + ";Password=" + pass + ";");
+            session.SetString(_StringGE, "CURRENT LANGUAGE=SPANISH; Data source=" + server + ";" + "Initial Catalog=" + "GE_" + grupo + ";" + "User Id=" + user + ";Password=" + pass + ";");
         }
 
 
@@ -47,9 +47,9 @@ namespace AltivaWebApp.Context
 
             var user = conf["serverUser"];
 
-            StringEmpresas = "Data source=" + server + ";" + "Initial Catalog=" + empresa + ";" + "User Id=" + user + ";Password=" + pass + ";";
+            StringEmpresas = "CURRENT LANGUAGE=SPANISH; Data source=" + server + ";" + "Initial Catalog=" + empresa + ";" + "User Id=" + user + ";Password=" + pass + ";";
 
-            session.SetString(_StringEmpresas, "Data source=" + server + ";" + "Initial Catalog=" + empresa + ";" + "User Id=" + user + ";Password=" + pass + ";");
+            session.SetString(_StringEmpresas, "CURRENT LANGUAGE=SPANISH; Data source=" + server + ";" + "Initial Catalog=" + empresa + ";" + "User Id=" + user + ";Password=" + pass + ";");
 
         }
        

@@ -37,11 +37,8 @@ namespace AltivaWebApp.Repositories
 
             }
             catch (Exception ex)
-
             {
-
-                //ErrorManager.ErrorHandler.HandleError(ex);
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw ex;
 
             }
@@ -58,9 +55,9 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
                 return entity;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-               
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
             
@@ -80,11 +77,10 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //return false;
-                throw;
-               
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;               
             }
             
         }
