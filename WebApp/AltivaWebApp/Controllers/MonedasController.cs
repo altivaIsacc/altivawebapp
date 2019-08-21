@@ -46,9 +46,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -65,10 +65,10 @@ namespace AltivaWebApp.Controllers
 
                 return Ok(moneda);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
-                //return BadRequest();
             }
         }
 
@@ -84,10 +84,10 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
-                //return BadRequest();
             }
         }
 
@@ -106,8 +106,9 @@ namespace AltivaWebApp.Controllers
                 var historial = service.GetAllHMPorMoneda(cod).OrderByDescending(m => m.Fecha);
                 return Ok(historial);
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -132,9 +133,9 @@ namespace AltivaWebApp.Controllers
                 }
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //return BadRequest();
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
 
@@ -147,8 +148,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(service.GetAll());
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }

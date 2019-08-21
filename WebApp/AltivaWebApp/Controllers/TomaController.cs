@@ -71,8 +71,9 @@ namespace AltivaWebApp.Controllers
                 return Json(new { success = true, idToma = toma.Id });
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                 throw;
             }
@@ -94,9 +95,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true, idAjuste = ajuste.Id });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //return BadRequest();
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -143,9 +144,9 @@ namespace AltivaWebApp.Controllers
                 var res = service.CombinarTomas(id, tomas);
                 return Json(new { success = true, id = res.Id });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -163,8 +164,9 @@ namespace AltivaWebApp.Controllers
                 return Json(new { success = true });
                 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -186,10 +188,10 @@ namespace AltivaWebApp.Controllers
 
                 return Ok(dt);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
-                // throw;
             }
         }
 
@@ -202,8 +204,9 @@ namespace AltivaWebApp.Controllers
                 var tomas = service.GetAllTomaConBodega();
                 return Ok(tomas);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -236,9 +239,9 @@ namespace AltivaWebApp.Controllers
                 return Json(new {tomas = tomas, esInicial = service.ExisteTomaInicial((int)toma.IdBodega) });
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //return BadRequest();
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }

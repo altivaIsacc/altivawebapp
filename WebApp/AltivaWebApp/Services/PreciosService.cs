@@ -21,9 +21,9 @@ namespace AltivaWebApp.Services
             return reposistory.GetAll(); ;
         }
 
-        public TbPrPrecios GetPreciosByDesc(string desc)
+        public TbPrPrecios GetPreciosByDesc(int Id)
         {
-            return reposistory.GetPreciosByDesc(desc);
+            return reposistory.GetPreciosByDesc(Id);
         }
 
         public TbPrPrecios GetPreciosById(int id)

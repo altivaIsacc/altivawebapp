@@ -16,23 +16,29 @@ namespace AltivaWebApp.Repositories
 
         }
 
-        //si
+        
         public IList<TbPrTraslado> GetAllTraslado()
         {
             return context.TbPrTraslado.Include(a => a.IdBodegaDestinoNavigation).Include(a => a.IdBodegaOrigenNavigation).ToList();
         }
 
-        //si
         public TbPrTraslado GetTrasladoById(long id)
+        {          
+                return context.TbPrTraslado.FirstOrDefault(d => d.IdTraslado == id);//se cambio Id por IdTraslado         
+        }
+
+      
+        public bool SaveTrasladoInventario(IList<TbPrTrasladoInventario> domain)
         {
             try
             {
                 return context.TbPrTraslado.FirstOrDefault(d => d.IdTraslado == id);//se trae el traslado en especifico
-                //return context.TbPrTraslado.Include(a => a.TbPrTrasladoInventario).FirstOrDefault(d => d.IdTraslado == id);//las dos tablas
+               
                
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -60,6 +66,7 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
 
@@ -73,16 +80,12 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
-
-
-
-
-
 
 
         public IList<TbPrTraslado> GetTrasladosSinAnular()

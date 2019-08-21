@@ -15,6 +15,7 @@ namespace AltivaWebApp
         public static void Main(string[] args)
         {
             CreateWebHostBuilder(args).Build().Run();
+            
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
@@ -22,5 +23,7 @@ namespace AltivaWebApp
                 //.UseWebRoot("C:\\AltivaWebApp\\wwwroot")
                 .UseStartup<Startup>()
                 .UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
+  
+
     }
 }

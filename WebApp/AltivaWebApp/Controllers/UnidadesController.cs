@@ -79,8 +79,9 @@ namespace AltivaWebApp.Controllers
                 bitacoraMap.CrearBitacora(int.Parse(idUsuario), mensaje, (int)unidad.Id, "Unidad");
                 return Json(new { id = unidad.Id, nombre = unidad.Nombre, abreviatura = unidad.Abreviatura });
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return Json(new { data = false });
             }
         }
@@ -101,9 +102,9 @@ namespace AltivaWebApp.Controllers
                 bitacoraMap.CrearBitacora(int.Parse(idUsuario), mensaje, (int)unidad.Id, "Unidad");
                 return Json(new { data = true });
             }
-            catch
+            catch (Exception ex)
             {
-                //throw;
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return Json(new { data = false });
             }
         }
@@ -139,8 +140,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { data = true });
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return Json(new { data = false });
             }
         }
@@ -167,8 +169,9 @@ namespace AltivaWebApp.Controllers
                     return Json(new { data = false });
 
             }
-            catch
+            catch(Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return Json(new { data = false });
             }
         }

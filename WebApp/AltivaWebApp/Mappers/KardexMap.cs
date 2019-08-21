@@ -228,8 +228,9 @@ namespace AltivaWebApp.Mappers
                 service.SaveAll(kardex);
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return true;
                 throw;
             }
@@ -272,8 +273,9 @@ namespace AltivaWebApp.Mappers
                 service.Save(k);
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return true;
                 throw;
             }
@@ -330,8 +332,9 @@ namespace AltivaWebApp.Mappers
                 service.SaveAll(kardex);
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return true;
                 throw;
             }
@@ -383,8 +386,9 @@ namespace AltivaWebApp.Mappers
                 service.Save(k);
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return true;
                 throw;
             }
@@ -457,8 +461,9 @@ namespace AltivaWebApp.Mappers
                 service.SaveAll(kardex);
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return true;
                 throw;
             }

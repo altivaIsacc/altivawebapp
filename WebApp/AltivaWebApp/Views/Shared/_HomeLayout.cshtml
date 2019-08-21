@@ -26,8 +26,8 @@
                             Idioma
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a data-translate="homeIdiomaEpanol" class="dropdown-item" id="english">EN</a>
-                            <a data-translate="homeIdiomaIngles" class="dropdown-item" id="spanish">ES</a>
+                            <button value="en" data-translate="homeIdiomaEpanol" class="dropdown-item btnIdioma" id="english">EN</button>
+                            <button value="es" data-translate="homeIdiomaIngles" class="dropdown-item btnIdioma" id="spanish">ES</button>
                         </div>
                     </li>
                 </ul>
@@ -52,8 +52,11 @@
             if (localStorage.getItem('idioma') != null) {
                 $("[data-translate]").jqTranslate('/../idiomas/altiva', { forceLang: localStorage.getItem('idioma'), asyncLoad: false });
             }
+            
         }
         $(document).ready(function () {
+
+            
 
 
             $('#english').click(function () {
@@ -75,9 +78,12 @@
                     var url = '@Url.Action("Login", new { grupo = "__grupo__"})';
                     window.location.href = url.replace('__grupo__', grupo);
 
-                });
+            });
+
+            
         });
 
+        
 
         function cargarAlert(mensaje) {
             bootbox.alert({
@@ -125,7 +131,42 @@
 
         });
 
+
+        $('.btnIdioma').click(function () {
+            
+            cambioIdioma(this.value);
+            window.location.href = window.location.href;
+        });
+
+        function cambioIdioma() {
+
+            var url = setIdiomaUrl(window.location.href);
+
+           
+            history.pushState(null, "", url);
+
+        }
+
+
+    function setIdiomaUrl(url) {
+
+        var idiomaActual = localStorage.getItem('idioma');
+
+        if (idiomaActual === 'en')
+             url = url.replace("es-CR", 'en-US');
+        else if (idiomaActual === 'es')
+             url = url.replace("en-US", 'es-CR');
+        else
+            url = url.replace("en-US", 'es-CR');
+
+
+        return url;
+
+    }
+
     </script>
+
+
 
 
     <script src="~/lib/translator/jqueryTranslator.js"></script>

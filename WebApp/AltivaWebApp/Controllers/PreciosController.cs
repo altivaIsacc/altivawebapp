@@ -60,11 +60,11 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var existePre = service.GetPreciosByDesc(viewModel.Descripcion);
+                var existePre = service.GetPreciosByDesc(viewModel.Id);
                 var Precios = new TbPrPrecios();
                 if (viewModel.Id != 0)
                 {
-                    if (existePre == null || existePre.Id == viewModel.Id)
+                    if (existePre.Id == viewModel.Id)
                     {
                         Precios = map.Update(viewModel);
                     }
@@ -90,9 +90,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true, precios =Precios});
             }
-            catch
+            catch (Exception ex)
             {
-                //return BadRequest();
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -102,10 +102,11 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                return Ok(service.GetAll());
+                return Ok(service.GetPreciosWithReqs());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -123,9 +124,10 @@ namespace AltivaWebApp.Controllers
                 precio = service.Update(precio);
                 return Ok(precio);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //return BadRequest();
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+               
                 throw;
             }
         }

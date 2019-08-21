@@ -13,7 +13,7 @@ namespace AltivaWebApp.Services
         IList<TbPrPrecios> GetAll();
         TbPrPrecios GetPreciosById(int id);
         IList<TbPrPrecios> GetPreciosSinAnular();
-        TbPrPrecios GetPreciosByDesc(string desc);
+        TbPrPrecios GetPreciosByDesc(int Id);
         IList<TbPrPrecios> GetPreciosWithReqs();
     }
 }

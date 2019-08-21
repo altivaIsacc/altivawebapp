@@ -205,7 +205,7 @@ namespace AltivaWebApp.Mappers
             domain.Fecha = viewModel.Fecha;
             domain.TipoCambioDolar = viewModel.TipoCambioDolar;
             domain.TipoCambioEuro = viewModel.TipoCambioEuro;
-
+          
             var moneda = monedaService.GetAll();
 
             if (viewModel.IdMoneda == 1)

@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
 using Microsoft.AspNetCore.Hosting;
+using System;
 
 namespace AltivaWebApp.Controllers
 {
@@ -23,8 +24,8 @@ namespace AltivaWebApp.Controllers
             return View();
         }
 
-        [Route("Login")]
-        public IActionResult Login(string grupo)
+        [Route("ValidarGrupo")]
+        public IActionResult ValidarGrupo(string grupo)
        {
 
             StringFactory.SetStringGE(HttpContext.Session, grupo);
@@ -34,13 +35,14 @@ namespace AltivaWebApp.Controllers
                 {
                     conn.Open();
                     conn.Close();
-                    return RedirectToAction("Login", "Cuenta", new { grupo = grupo });
+                    return RedirectToAction("Login", "Cuenta");
                 }
 
                 
             }
-            catch
-            {                
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return RedirectToAction("Index", new { estado = "error" });
             }
             

@@ -58,8 +58,9 @@ namespace AltivaWebApp.Mappers
                 var Denominacion = _Service.Save(ViewModelToDomain(viewModel));           
                 return Denominacion;
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
 
@@ -91,6 +92,7 @@ namespace AltivaWebApp.Mappers
             }
             catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 var msj = ex.Message;
                 return domain;
             }

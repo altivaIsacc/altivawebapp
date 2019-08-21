@@ -10,7 +10,7 @@ namespace AltivaWebApp.Services
     public class DescuentoProductoService: IDescuentoProductoService
     {
         readonly IDescuentoProductoRepository repository;
-        readonly IUserRepository repositoryUser;
+       
         public DescuentoProductoService( IDescuentoProductoRepository repository)
         {
             this.repository = repository;
