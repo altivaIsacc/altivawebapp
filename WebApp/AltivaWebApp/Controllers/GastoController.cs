@@ -103,7 +103,7 @@ namespace AltivaWebApp.Controllers
                             if (model2.Count() > 0)
                             {
                                 viewModel.ComprasDetalleServicio = model2;
-                                var cds = map.UpdateCDS(viewModel);
+                                //var cds = map.UpdateCDS(viewModel);
 
                             }
                         }
