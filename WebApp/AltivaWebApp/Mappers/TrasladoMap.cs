@@ -42,8 +42,8 @@ namespace AltivaWebApp.Mappers
             traslado.IdBodegaOrigen = viewModel.IdBodegaOrigen;
             traslado.IdBodegaDestino = viewModel.IdBodegaDestino;
             traslado.Fecha = viewModel.Fecha;
-            traslado.FechaCreacion = viewModel.FechaCreacion;
-            traslado.Anulado = viewModel.Anulado;
+            //traslado.FechaCreacion = viewModel.FechaCreacion;
+            //traslado.Anulado = viewModel.Anulado;
             traslado.CostoTraslado = viewModel.CostoTraslado;
             traslado.Comentario = viewModel.Comentario;
            

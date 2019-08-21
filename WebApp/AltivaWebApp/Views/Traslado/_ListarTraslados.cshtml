@@ -103,12 +103,15 @@
     var hasta;
     var desde;
 
+    var monedas = [];//array monedas trae los simbolos
+
 
     $(document).ready(function () {
 
 
         getUsuarios();
         getTraslados();
+        getMonedas(); //falta
 
         $('#filtroFecha').attr('disabled', true);
 
@@ -318,7 +321,7 @@
                 + '<td><p style="padding-top:1rem">' + data[i].idBodegaDestinoNavigation.nombre + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fecha) + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + anulado + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].costoTraslado + '</p></td>'
+                + '<td><p style="padding-top:1rem" class="colon">' + data[i].costoTraslado + '</p></td>'
                 + '<td>  <button value="' + data[i].idTraslado + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i>';
 
             $('#tblTraslado > tbody').append(body);
@@ -326,9 +329,40 @@
 
         }
 
+        //inicializa formato
+        $(".colon").inputmask('currency', {
+            prefix: monedas[0].simbolo + " ",
+            rightAlign: true
+        });
+
         inicializarTabla();
 
     }
+
+
+    // para 
+     function getMonedas() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+
+                 monedas = data; //array monedas trae los simbolos
+                // console.log(monedas);
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+
+
 
 
     function inicializarTabla() {

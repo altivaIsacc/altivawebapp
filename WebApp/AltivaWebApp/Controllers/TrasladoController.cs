@@ -93,17 +93,29 @@ namespace AltivaWebApp.Controllers
 
 
         [HttpPost("CrearEditar-Traslado")]
-        public ActionResult CrearEditarTraslado(TrasladoViewModel traslado, IList<TrasladoInventarioViewModel> inventarioTraslado)
+        public ActionResult CrearEditarTraslado(TrasladoViewModel traslado, IList<TrasladoInventarioViewModel> inventarioTraslado, IList<long> eliminados)
         {
 
-         
+
             try
             {
-           
+
                 if (traslado.IdTraslado != 0)
                 {
-                    traslado.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
-                    //traslado = trasladoMap.Update(viewModel);
+
+                    var respTraslado = trasladoMap.Update(traslado);
+
+                    if (inventarioTraslado.Count() > 0)
+                    {
+                        foreach (var item in inventarioTraslado)
+                        {
+                            item.IdTraslado = respTraslado.IdTraslado;
+                        }
+
+                        var ajusteInventario = trasladoMap.CreateOrUpdateAI(inventarioTraslado);
+
+                        trasladoService.DeleteTrasladoInventario(eliminados);
+                    }
                 }
                 else
                 {
@@ -111,16 +123,15 @@ namespace AltivaWebApp.Controllers
                     traslado.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     traslado.FechaCreacion = DateTime.Now;
                     traslado.Anulado = false;//cambiar luego
-                                             
+
                     var respTraslado = trasladoMap.Create(traslado);
 
                     foreach (var item in inventarioTraslado)
                     {
                         item.IdTraslado = respTraslado.IdTraslado;
                     }
-
                     respTraslado.TbPrTrasladoInventario = trasladoMap.CreateOrUpdateAI(inventarioTraslado);
-                  
+
                 }
                 return Json(new { success = true });
             }
@@ -137,9 +148,9 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-             
+
                 var trasladoInventario = trasladoInventarioService.GetTrasladoInventarioById(id);
-                
+
                 return Ok(trasladoInventario);
             }
             catch
@@ -155,7 +166,7 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var traslado = trasladoService.GetTrasladoById(id);
-               
+
                 //foreach (var item in traslado.TbPrTrasladoInventario)
                 //{
                 //    item.IdInventarioNavigation = null;
@@ -175,13 +186,23 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var ajuste = trasladoService.GetTrasladoById(id);
-                ajuste.Anulado = true;
+                var traslado = trasladoService.GetTrasladoById(id);
+                var anulado = traslado.Anulado;
 
-                trasladoService.Update(ajuste);
-                var res = true;
-               
-                return Json(new { success = res });
+                if (anulado == false)
+                {
+
+                    traslado.Anulado = true;
+                    trasladoService.Update(traslado);
+                    var res = true;
+                    return Json(new { success = res });
+                }
+                else
+                {
+                    var res = false;
+                    return Json(new { success = res });
+                }
+
             }
             catch
             {
