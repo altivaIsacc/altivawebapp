@@ -49,7 +49,7 @@
 
     <div class="form-group col-md-6 col-sm-6 col-xs-12">
         <label>Color:</label>
-        <input type="text" class=" form-control colorpicker" id="Color2" asp-for="Color" />
+        <input type="text" class=" form-control colorpicker" value="#f6faf9" id="Color2" asp-for="Color" />
         <div id="AlertColor"> </div>
     </div>
     <div class="form-group col-md-12 col-sm-12 col-md-12">
@@ -102,11 +102,14 @@
     function btnCancelar() {
         $('#sideModalTR').modal('hide');
     }
-
+    $('#Color2').on('keyup', function () {
+          if ($(this).val() === "")
+            $(this).val(f6faf9);
+    });
     //inicializacion del campo color
     $('.colorpicker').colorpicker();
     $(document).ready(function () {
-
+    
             if ($('#controlaFecha').prop('checked')) {
 
                 $('.collapseTiposTareas').collapse('toggle');
@@ -124,6 +127,7 @@
             });
                  //metodo para ingresar
         $('#GuardarTipo').on('click', function () {
+          
             if (validarCampos() == true) {
                 var controlaFecha;
                 var porDefecto;
@@ -144,7 +148,10 @@
                     activo = true;
                 } else {
                     activo = false;
-                    $('#Color').val('#858585');
+                    $('#Color2').val('#858585');
+                }
+                if ($('#Color2').val().replace(/ /g, "") == "") {
+                      $('#Color2').val('#ffffff');
                 }
                 TipoTareaViewModel = {
                     id: null,
@@ -168,13 +175,13 @@
                     data: { domain: TipoTareaViewModel },
                     success: function (data) {
                         if (data.titulo == true) {
-                            $('#AlertTitulo').empty();
-                            $('#AlertTitulo').append('<span class="text-danger">@Lb["colorRepetido"]</span>');
+                            $('#AlertTitulo2').empty();
+                            $('#AlertTitulo2').append('<span class="text-danger">@Lb["errorDuplicacion"]</span>');
                             return false;
                         }
                         if (data.color == true) {
                             $('#AlertColor').empty();
-                            $('#AlertColor').append('<span class="text-danger">Este color no puede ser seleccionado.</span>');
+                            $('#AlertColor').append('<span class="text-danger">@Lb["colorRepetido"]</span>');
                             return false;
                         }
                         if (data.defecto == true) {
@@ -212,10 +219,12 @@
     //editar tipos de tareas..
     $('#EditarTipoTarea').on('click', function () {
         if (validarCampos() == true) {
-
             if (!$('#controlaFecha').prop('checked')) {
                 $('#fechaLimite').val(0);
             }
+            if ($('#Color2').val().replace(/ /g, "") == "") {
+                      $('#Color2').val('#ffffff');
+             }
 
             TipoTareaViewModel = {
                 id: $('#Id2').val(),
@@ -240,12 +249,12 @@
                 success: function (data) {
                     if (data.titulo == true) {
                         $('#AlertTitulo2').empty();
-                        $('#AlertTitulo2').append('<span class="text-danger">El título no se puede repetir.</span>');
+                        $('#AlertTitulo2').append('<span class="text-danger">@Lb["errorDuplicacion"]</span>');
                         return false;
                     }
                     if (data.color == true) {
                         $('#AlertColor').empty();
-                        $('#AlertColor').append('<span class="text-danger">Este color no puede ser repetir.</span>');
+                        $('#AlertColor').append('<span class="text-danger">@Lb["colorRepetido"]</span>');
                         return false;
                     }
                     if (data.defecto == true) {
@@ -282,19 +291,26 @@
 
 
     function validarCampos() {
-       
+        
         var titulo = $('#Titulo2').val();
      for (var i = 0; i < arreglo.length; i++) {
          if (titulo === arreglo[i].titulo) {
-             $('#AlertTitulo2').append('<span class="text-danger">El título es requerido.</span>');
+             $('#AlertTitulo2').append('<span class="text-danger">@Lb["tituloRequired"]</span>');
              return false;
          }
         }
         if ($('#Titulo2').val() == "") {
             $('#AlertTitulo2').empty();
-            $('#AlertTitulo2').append('<span class="text-danger">El título es requerido.</span>');
+            $('#AlertTitulo2').append('<span class="text-danger">@Lb["tituloRequired"]</span>');
             return false;
         }
+        if ($('#Titulo2').val().length > 100) {
+              $('#AlertTitulo2').empty();
+            $('#AlertTitulo2').append('<span class="text-danger">@Lb["tituloToLong"]</span>');
+            return false;
+        }
+          
+        
 
         if ($('#activo').prop('checked')) {
             if ($('#Color').val() == '#858585') {
