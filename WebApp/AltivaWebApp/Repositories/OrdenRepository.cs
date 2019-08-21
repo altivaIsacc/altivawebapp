@@ -1,5 +1,6 @@
 ﻿using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
+using AltivaWebApp.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -43,19 +44,42 @@ namespace AltivaWebApp.Repositories
             }
             
         }
+        public IList<CompraAutomaticoViewModel> compraProveedor(int idProveedor)
+        {
+            try {
 
-        //public TbPrOrden GetAllOrdenDetalleByOrdenId(int id)
-        //{
-        //    try
-        //    {
-        //        return context.TbPrOrden.Include(o => o.TbPrOrdenDetalle).ThenInclude(od => od.IdInventarioNavigation).FirstOrDefault(o => o.Id == id);
-        //    }
-        //    catch (Exception)
-        //    {
+                var model = context.CompraAutomatico
+          .FromSql($"EXECUTE dbo.pr_PR_GeneraCompraAutomatica {idProveedor}")
+          .ToList();
+                return model;
 
-        //        throw;
-        //    }
-        //}
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+
+            }
+
+
+
+
+        }
+
+        public TbPrOrden GetComprasById(int id)
+        {
+            try
+            {
+                return context.TbPrOrden.Include(o => o.IdProveedorNavigation).FirstOrDefault(o => o.Id == id);
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+            }
+
+        }
+
         public IList<TbPrOrdenDetalle> GetAllOrdenDetalleByOrdenId(int id)
         {
             try

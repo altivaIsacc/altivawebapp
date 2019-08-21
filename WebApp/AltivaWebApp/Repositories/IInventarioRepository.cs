@@ -8,7 +8,11 @@ namespace AltivaWebApp.Repositories
 {
     public interface IInventarioRepository
     {
+        TbPrInventarioBodega UpdateIBodega(TbPrInventarioBodega domain);//
+        IList<TbPrInventario> GetAllByCoincidence(string word);
+        IList<TbPrInventario> GetInventarioFacturable();
         TbPrInventario GetInventarioById(int id);
+        TbPrInventarioBodega GetInventarioBodegaById(int id);
         TbPrInventario GetInventarioByCodigo(string codigo);
         IList<TbPrImagenInventario> GetInventarioImagenByCodigo(int id);
         TbPrInventario Save(TbPrInventario domain);
@@ -29,7 +33,5 @@ namespace AltivaWebApp.Repositories
         bool DeleteCaracteristica(int id);
         bool DeleteImagen(int id);
         void CrearRelacionInventarioBodega(int idInventario, int idBodega);
-        IList<TbPrInventario> GetInventarioFacturable();
-        IList<TbPrInventario> GetAllByCoincidence(string word);
     }
 }

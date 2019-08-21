@@ -1,0 +1,127 @@
+﻿@model AltivaWebApp.ViewModels.PrecioCatalogoViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+<div class="row">
+    <div class="col-md-3"><h3>@SharedLocalizer["PrecioCatalogo"]</h3></div>
+
+</div>
+<hr />
+
+<div class="row">
+    <div class="col-md-12"><label>@SharedLocalizer["TiposPrecio"]:</label></div>
+    <div class="col-md-2">
+        <select id="precios" class="form-control search-key "></select>
+    </div>
+    <div class="col-md-6">
+        <button class="btn btn-primary" id="cambiarU"><span>@SharedLocalizer["cambiarUtilidad"]</span></button>
+
+
+    </div>
+</div>
+
+<div class="row">
+    
+        <hr />
+        <div id="listaPrecioCatalogo"></div>
+    
+</div>
+<div class="row">
+
+    <div class="col-md-2">
+        <input type="checkbox" id="marcar" /><span>@SharedLocalizer["SelectTodos"]</span>
+
+    </div>
+
+    <div class="col-md-2 col-sm-4 col-xs-4" style="padding-top:0.4rem">
+        <label for="filtroFamilia">@SharedLocalizer["Familia"]:</label>
+        <select id="filtroFamilia" class="form-control search-key selectFiltro">
+            <option value="0" selected>Todos</option>
+        </select>
+    </div>
+    <div class="col-md-2 col-sm-4 col-xs-4" style="padding-top:0.4rem">
+        <label for="filtroSubFamilias">@SharedLocalizer["Sub-Familia"]:</label>
+        <select id="filtroSubFamilias" class="form-control search-key selectFiltro">
+            <option id="seleccione" value="0" selected>@SharedLocalizer["Todos"]</option>
+        </select>
+    </div>
+</div>
+
+
+
+
+        <button class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+        <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
+   
+<div>
+    <br />
+    <!-- Modal Editar -->
+    <div class="modal fade" id="modalCambiarU" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-md-6"> <h5 data-translate="editarOrden" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["PrecioCatalogo"]</h5></div>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="editar">
+
+                    <div class="row">
+
+                        <div class="form-group col-sm-7">
+                            <label class="control-label">@SharedLocalizer["UtilidadDeseada"]</label>
+                            <input id="editUtilidad" class="form-control porc" />
+                        </div>
+
+                        <div class="form-group col-sm-7">
+
+                            <button id="btnEditOrden" onclick="cambiarUtilidad()" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
+
+                            <button class="btn btn-default" data-dismiss="modal"><span>@SharedLocalizer["Cancelar"]</span></button>
+
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+     $(document).ready(function () {
+
+
+        getlistarPartial();
+
+     });
+     function getlistarPartial()
+    {
+        var url = "@Url.Action("_ListarPrecioCatalogo", "PrecioCatalogo")";
+
+
+         $.ajax({
+            type: "GET",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            url: url,
+
+            success: function (data) {
+                $('#listaPrecioCatalogo').html(data);
+             },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+    }
+
+
+</script>

@@ -7,6 +7,8 @@ namespace AltivaWebApp.Domains
     {
         public TbPrCompra()
         {
+            TbCpComprasDetalleServicio = new HashSet<TbCpComprasDetalleServicio>();
+
             TbPrCompraDetalle = new HashSet<TbPrCompraDetalle>();
         }
 
@@ -50,5 +52,7 @@ namespace AltivaWebApp.Domains
 
         public virtual TbCrContacto IdContactoNavigation { get; set; }
         public virtual ICollection<TbPrCompraDetalle> TbPrCompraDetalle { get; set; }
+        public virtual ICollection<TbCpComprasDetalleServicio> TbCpComprasDetalleServicio { get; set; }
+
     }
 }

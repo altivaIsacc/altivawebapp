@@ -1,0 +1,112 @@
+﻿@model AltivaWebApp.ViewModels.BitacoraViewModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+
+    var module = new List<TbSeUsuario>();
+
+    module = ViewData["usuarios"] as List<TbSeUsuario>;
+    var module1 = new List<BitacoraViewModel>();
+
+    module1 = ViewData["bitacora"] as List<BitacoraViewModel>;
+}
+<link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.dataTables.min.css" rel="stylesheet" />
+<div class="panel panel-default col-sm-9 col-lg-12">
+    <div class="panel-heading"><h4 style="text-align:center;">Bitacora Centralizada</h4></div>
+    <div class="panel-body">
+        <h3>Busqueda por Nombre</h3>
+        <table class="table table-bordered" id="tablita" style="width:100%">
+            <thead id="head" >
+                <tr>
+                    <th><span data-translate="nombre">Nombre</span></th>
+                    <th><span data-translate="descripcion">Descripcion</span></th>
+                    <th><span data-translate="fecha">Fecha</span></th>
+                    <th>Usuario</th>
+                    <th>Referencia</th>
+
+                </tr>
+                
+            </thead>
+            <tbody id="body">
+                @foreach (var j in module1)
+                {
+                <tr>
+                    <td>@j.nombre</td>
+                    <td>@j.Descripcion</td>
+                    <td>@j.Fecha</td>
+                    <td>@j.nombreUsuario</td>
+                    <td>@j.TipoReferencia</td>
+                </tr>
+                }
+
+            </tbody>
+        </table>
+        <a class="btn btn-default" asp-action="Index" asp-controller="Bitacora">Atras</a>
+
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.flash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.print.min.js"></script>
+<script>
+
+
+    $('#tablita').DataTable({
+        dom: 'Bfrtip',
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "<a class='btn btn-link '><i class='fas fa-search ' style='font-size:2rem;'></i></a>",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        buttons: [
+            {
+                extend: 'copyHtml5',
+                text: '<i class="fas fa-copy  btn-sm  " ></i>',
+                titleAttr: 'Copy'
+            },
+            {
+                extend: 'excelHtml5',
+                text: '<i class="fas fa-file-excel  btn-sm  "></i>',
+                titleAttr: 'Excel'
+            },
+
+            {
+                extend: 'pdfHtml5',
+                text: '<i class="fas fa-file-pdf  btn-sm  "></i>',
+                titleAttr: 'PDF'
+            }
+        ]
+
+    });
+
+
+
+</script>

@@ -190,7 +190,6 @@ namespace AltivaWebApp.Controllers
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
-                //throw;
             }
             
         }
@@ -224,7 +223,6 @@ namespace AltivaWebApp.Controllers
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                //return Json(new { success = false });
                 throw;
             }
             

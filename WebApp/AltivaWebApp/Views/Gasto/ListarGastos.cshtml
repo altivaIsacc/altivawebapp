@@ -1,0 +1,496 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@{
+    var date = DateTime.Now;
+}
+<div class="row">
+    <div class="col-md-2">
+        <h3>@SharedLocalizer["Gastos"]</h3>
+    </div>
+    <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
+        <p>
+            <a asp-action="CrearGasto" class="btn btn-primary"><span>@SharedLocalizer["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+        </p>
+    </div>
+</div>
+
+
+
+<div class="row">
+
+    <div class="col-md-2" style="margin-top: 0.2rem">
+        <label>@SharedLocalizer["buscarPorNumero"]:</label>
+        <input type="text" id="filtroBuscarNum" class="form-control" placeholder="@SharedLocalizer["Número"]" />
+    </div>
+
+    <div class="col-md-2">
+        <label style="padding-top: 0.2rem">@SharedLocalizer["buscarPorProveedor"]:</label>
+        <input type="text" id="filtroBuscarPro" class="form-control" placeholder="@SharedLocalizer["Proveedor"]" />
+    </div>
+
+    <div class="col-md-3">
+
+        <label class="control-label">
+            <input type="checkbox" id="habilitaFiltroFecha"> @SharedLocalizer["FiltroFecha"]
+        </label>
+        <form id="frmFecha" class="form-horizontal">
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="input-prepend input-group">
+                            <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="@date.Date - @date.Date" />
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+
+    </div>
+    <div class="col-md-2 checkbox">
+        <label class="control-label">
+            <input type="checkbox" id="estado"> @SharedLocalizer["VerAnuladas"]
+        </label>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 table-responsive">
+        <table class="table table-bordered" id="tblCompras">
+            <thead>
+                <tr>
+                    <th>@SharedLocalizer["Número"]</th>
+                    <th>@SharedLocalizer["Tipo"]</th>
+                    <th>@SharedLocalizer["Fecha"]</th>
+                    <th>@SharedLocalizer["Proveedor"]</th>
+                    <th>@SharedLocalizer["Moneda"]</th>
+                    <th>@SharedLocalizer["Total"]</th>
+                    <th>@SharedLocalizer["Acción"]</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<input readonly hidden id="monedaFormater" />
+
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>
+
+
+
+
+   
+
+            <script>
+    var compras = [];
+    var comprasFiltrado = [];
+    var tblCompras;
+    var hasta;
+    var desde;
+
+
+    $(document).ready(function () {
+
+        getCompras();
+
+        $('#filtroFecha').attr('disabled', true);
+
+        $('#filtroFecha').daterangepicker({
+            opens: 'left',
+
+            "locale": {
+                format: "@SharedLocalizer["formatoFecha"]",
+                "separator": " - ",
+                "applyLabel": "@SharedLocalizer["Aplicar"]",
+                "cancelLabel": "@SharedLocalizer["Cancelar"]",
+                "fromLabel": "@SharedLocalizer["DE"]",
+                "toLabel": "@SharedLocalizer["Hasta"]",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "@SharedLocalizer["Dom"]",
+                    "@SharedLocalizer["Lun"]",
+                    "@SharedLocalizer["Mar"]",
+                    "@SharedLocalizer["Mie"]",
+                    "@SharedLocalizer["Jue"]",
+                    "@SharedLocalizer["Vie"]",
+                    "@SharedLocalizer["Sáb"]"
+                ],
+                "monthNames": [
+                    "@SharedLocalizer["Enero"]",
+                    "@SharedLocalizer["Febrero"]",
+                    "@SharedLocalizer["Marzo"]",
+                    "@SharedLocalizer["Abril"]",
+                    "@SharedLocalizer["Mayo"]",
+                    "@SharedLocalizer["Junio"]",
+                    "@SharedLocalizer["Julio"]",
+                    "@SharedLocalizer["Agosto"]",
+                    "@SharedLocalizer["Septiembre"]",
+                    "@SharedLocalizer["Octubre"]",
+                    "@SharedLocalizer["Noviembre"]",
+                    "@SharedLocalizer["Diciembre"]"
+                ],
+                "firstDay": 1
+            }
+        },
+        function (start, end, label) {
+
+            desde = start.format('YYYY-MM-DD');
+            hasta = end.format('YYYY-MM-DD');
+            cargarFiltros();
+
+            });
+
+    });
+
+
+    function darFormato(idMoneda) {
+
+        if (idMoneda === 1)
+            return "colon";
+        else if (idMoneda === 2)
+            return "dolar"
+        else if (idMoneda === 3)
+            return "euro"
+
+    }
+
+
+                function getCompras() {
+         $(document).ready(function () {
+          //get Gastos
+        $.ajax({
+            type: "get",
+
+            dataType: "json",
+            url: '@Url.Action("Get-Gastos", "Gasto")',
+            success: function (data) {
+             console.log(data);
+                compras = JSON.parse(JSON.stringify(data));
+                cargarFiltros();
+            },
+            error: function (err, scnd) {
+            console.log(err.statusText);
+            }
+            });
+
+
+            });
+   
+    }
+
+    function cargarDatos(data) {
+        var colorFila = "";
+        var colorAnulada = "color: #5a0b0a";
+        var colorBorrador = "color: #A9A9A9";
+        var contadorFila = 0;
+        $("#tblCompras > tbody").remove();
+        $('#tblCompras').append('<tbody></tbody>');
+
+        for (var i = 0; i < data.length; i++) {
+
+            if (data[i].anulado)
+                colorFila = "color: #5a0b0a";
+            else if (data[i].borrador)
+                colorFila = "color: #808080";
+            else
+                colorFila = "color: #2A3F54";
+
+            //<input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].precio + '"/>
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td><p style="padding-top:1rem; ' + colorFila +'">' + data[i].numeroDocumento + '</p></td>'
+                + '<td><p style="padding-top:1rem; ' + colorFila + '">' + getTipo(data[i].tipoDocumento) + '</p></td>'
+                + '<td><p style="padding-top:1rem; ' + colorFila +'">' + recuperarFecha(data[i].fechaDocumento) + '</p></td>'
+                + '<td><p style="padding-top:1rem; ' + colorFila + '">' + getNombreContacto(data[i].idContactoNavigation) + '</p></td>'
+                + '<td><p style="padding-top:1rem; ' + colorFila + '">' + recuperarMoneda(data[i].idMoneda) + '</p></td>'
+                + '<td style="text-align:right"><p style="padding-top:1rem; ' + colorFila + '">' + formatoMoneda(data[i].idMoneda, recuperarTotal(data[i])) + '</p></td>'
+                //+ '<td class="col-md-2"><input style="padding-top:1rem; border:0; background-color : #F7F7F7; ' + colorFila +'" class="' + darFormato(data[i].idMoneda) + '" value="' + recuperarTotal(data[i]) + '"/></td>'
+                + '<td>  <button value="' + data[i].id + '" onclick="editarGasto(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+            $('#tblCompras > tbody').append(body);
+            contadorFila++;
+        }
+
+
+
+        inicializarTabla();
+
+    }
+
+    function getNombreContacto(data) {
+
+        if (data.empresa)
+            return data.nombreJuridico;
+        else
+            return data.nombre + ' ' + data.apellidos;
+
+    }
+
+    function getTipo(cod) {
+        if (cod === "1")
+            return "@SharedLocalizer["Contado"]";
+        else if (cod === "2")
+            return "@SharedLocalizer["Crédito"]";
+        else if (cod === "3")
+            return "@SharedLocalizer["Consignación"]";
+    }
+
+    function formatoMoneda(moneda, value) {
+        $('#monedaFormater').addClass(darFormato(moneda));
+
+
+        //inicializa formato
+        $(".colon").inputmask('currency', {
+            prefix: "₡",
+            rightAlign: true
+        });
+        $(".dolar").inputmask('currency', {
+            prefix: "$",
+            rightAlign: true
+        });
+        $(".euro").inputmask('currency', {
+            prefix: "€",
+            rightAlign: true
+        });
+
+
+
+        $('#monedaFormater').val(value);
+
+        return $('#monedaFormater').val();
+    }
+
+
+
+    function inicializarTabla() {
+
+        $('#tblCompras').DataTable().destroy();
+
+        tblCompras = $('#tblCompras').DataTable({
+            "info": false,
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@SharedLocalizer["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                "paginate": {
+                    "first": "@SharedLocalizer["Primero"]",
+                    "last": "@SharedLocalizer["Último"]",
+                    "next": "@SharedLocalizer["Sguiente"]",
+                    "previous": "@SharedLocalizer["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   "></i>',
+                    titleAttr: 'Copy',
+                    title: '@SharedLocalizer["Gastos"]',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5]
+                    }
+
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: '@SharedLocalizer["Gastos"]',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5]
+                    }
+
+                },
+
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: '@SharedLocalizer["Gastos"]',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5]
+                    }
+                }
+            ]
+        });
+
+        //$(".dataTables_searching").hide();
+    }
+
+    function recuperarFecha(_fecha) {
+
+
+        var f = new Date(_fecha);
+        return f.toLocaleString();
+
+    }
+
+    function recuperarEstado(estado) {
+        if (estado)
+            return "@SharedLocalizer["Si"]"
+        else
+            return "@SharedLocalizer["No"]";
+    }
+
+    function recuperarMoneda(cod) {
+        if (cod === 1)
+            return "@SharedLocalizer["CRC"]";
+        else if (cod === 2)
+            return "@SharedLocalizer["USD"]";
+        else if (cod === 3)
+            return "@SharedLocalizer["EUR"]";
+    }
+
+    function recuperarTotal(data) {
+        if (data.idMoneda === 1)
+            return data.totalBase;
+        else if (data.idMoneda === 2)
+            return data.totalDolar;
+        else if (data.idMoneda === 3)
+            return data.totalEuro;
+    }
+
+
+    /////////////////////filtros//////////////////
+
+
+    $("#filtroBuscarPro").on("keyup", function () {
+        tblCompras
+            .columns(3)
+            .search(this.value)
+            .draw();
+    });
+    $("#filtroBuscarNum").on("keyup", function () {
+        tblCompras
+            .columns(0)
+            .search(this.value)
+            .draw();
+    });
+
+    $("#filtroItem").on("keyup", function () {
+        cargarFiltros();
+    });
+
+    $('#habilitaFiltroFecha').change(function () {
+
+        if (!$(this).prop('checked')) {
+            cargarFiltros();
+            $('#filtroFecha').attr('disabled', true);
+        }
+
+        else {
+            $('#filtroFecha').attr('disabled', false);
+            cargarFiltros();
+        }
+
+    });
+
+    $('#estado').change(function () {
+
+        cargarFiltros();
+
+    });
+
+
+    function cargarFiltros() {
+
+        comprasFiltrado = compras;//JSON.parse(JSON.stringify(ordenes));
+
+        comprasFiltrado = filtroAnuladas(comprasFiltrado);
+
+        comprasFiltrado = filtroFecha(comprasFiltrado, desde, hasta);
+
+        cargarDatos(comprasFiltrado);
+
+    }
+
+
+    function filtroFecha(array, _desde, _hasta) {
+
+
+        var arrayCompras = [];
+
+        if ($('#habilitaFiltroFecha').prop('checked')) {
+
+            var desdeLocal = new Date(_desde).getTime();
+            var hastaLocal = new Date(_hasta).getTime();
+
+            for (var i = 0; i < array.length; i++) {
+
+                var documento = new Date(array[i].fechaDocumento.substring(0, 10)).getTime();
+
+                if (documento >= desdeLocal && documento <= hastaLocal)
+                    arrayCompras.push(compras[i]);
+
+            }
+            return arrayCompras;
+        }
+        else
+            return array;
+
+
+    }
+
+
+
+    function filtroAnuladas(array) {
+
+        var arrayCompras = [];//JSON.parse(JSON.stringify(ordenFiltrado));
+
+        if ($('#estado').prop('checked')) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].anulado)
+                     arrayCompras.push(array[i]);                    
+            }
+
+        }
+        else
+            for (var i = 0; i < array.length; i++) {
+                if (!array[i].anulado)
+                    arrayCompras.push(array[i]);
+            }
+        return arrayCompras;
+
+    }
+
+    function editarGasto(value) {
+        var url = '@Url.Action("EditarGasto", new { id = "__id__"})';
+        window.location.href = url.replace("__id__", value);
+    }
+
+            </script>
+
+
+
+
+
+
+
+
+
+
+
+
+

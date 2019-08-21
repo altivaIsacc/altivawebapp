@@ -35,7 +35,7 @@ namespace AltivaWebApp.Repositories
             return context.TbCrContacto.Where(u => u.Persona == true).ToList();
         }
 
-        public IList<TbCrContacto> GetAllProveedores()
+        public IList<TbCrContacto> GetAllClientes()
         {
             try
             {
@@ -44,16 +44,15 @@ namespace AltivaWebApp.Repositories
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-
                 throw;
             }
         }
 
-        public IList<TbCrContacto> GetAllClientes()
+        public IList<TbCrContacto> GetAllProveedores()
         {
             try
             {
-                return context.TbCrContacto.Where(c => c.Cliente == true).ToList();
+                return context.TbCrContacto.Where(c => c.Proveedor == true).ToList();
             }
             catch (Exception ex)
             {
@@ -175,6 +174,11 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbCeProvincias.ToList();
 
+        }
+
+        public ContactoViewModel GetByEdit(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

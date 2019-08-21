@@ -11,6 +11,7 @@
 
 @{
     var date = DateTime.Now;
+
 }
 
 
@@ -36,7 +37,7 @@
 
     <div class="col-md-2">
         <label style="padding-top: 0.2rem">@SharedLocalizer["buscarItem"]:</label>
-        <input type="text" id="filtroItem" class="form-control" placeholder="@SharedLocalizer["Código"]"/>
+        <input type="text" id="filtroItem" class="form-control" placeholder="@SharedLocalizer["Código"]" />
     </div>
 
     <div class="col-md-3">
@@ -110,17 +111,11 @@
     var tblOrdenes;
     var hasta;
     var desde;
-
-
     $(document).ready(function () {
-
         getOrdenes();
-
         $('#filtroFecha').attr('disabled', true);
-
         $('#filtroFecha').daterangepicker({
             opens: 'left',
-
             "locale": {
                 format: "@SharedLocalizer["DD/MM/YYYY"]",
                 "separator": " - ",
@@ -156,30 +151,20 @@
             }
         },
         function (start, end, label) {
-
             desde = start.format('YYYY-MM-DD');
             hasta = end.format('YYYY-MM-DD');
             cargarFiltros();
-
-            });     
-
-        
+            });
 
     });
-
-
-    function darFormato(idMoneda) {      
-
+    function darFormato(idMoneda) {
         if (idMoneda === 1)
             return "colon";
         else if (idMoneda === 2)
             return "dolar"
         else if (idMoneda === 3)
             return "euro"
-
     }
-
-
     function getOrdenes() {
             ///get ordenes
         $.ajax({
@@ -192,6 +177,7 @@
             success: function (data) {
                 console.log(data);
                 ordenes = JSON.parse(JSON.stringify(data));
+
                 cargarDatos(data);
             },
             error: function (err, scnd) {
@@ -201,20 +187,23 @@
         });
     }
 
+    function getProveedorByPos(pos, model)
+    {
+        if (model[pos].idProveedorNavigation.persona)
+            return   model[pos].idProveedorNavigation.nombre + model[pos].idProveedorNavigation.apellidos;
+        else
+           return model[pos].idProveedorNavigation.nombreJuridico;
+    }
     function cargarDatos(data) {
-
-
         var contadorFila = 0;
         $("#tblOrdenes > tbody").remove();
         $('#tblOrdenes').append('<tbody></tbody>');
-
         for (var i = 0; i < data.length; i++) {
-
             //<input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].precio + '"/>
             var body = '<tr class="fila' + contadorFila + ' filas">'
                 + '<td><p style="padding-top:1rem">' + data[i].id + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fecha) + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].idProveedorNavigation.nombre + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + getProveedorByPos(i, data) + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + recuperarMoneda(data[i].idMoneda) + '</p></td>'
                 + '<td class="col-md-2"><input style="padding-top:1rem; border:0; background-color : #F7F7F7" class="' + darFormato(data[i].idMoneda) + '" value="' + recuperarTotal(data[i]) + '"/></td>'
                 + '<td><p style="padding-top:1rem">' + recuperarEstado(data[i].anulado) + '</p></td>'
@@ -222,7 +211,6 @@
             $('#tblOrdenes > tbody').append(body);
             contadorFila++;
         }
-
         ///inicializa formato
         $(".colon").inputmask('currency', {
             prefix: "₡",
@@ -236,20 +224,13 @@
             prefix: "€",
             rightAlign: true
         });
-
         inicializarTabla();
-
     }
 
-    
-
     function inicializarTabla() {
-
         $('#tblOrdenes').DataTable().destroy();
-
         tblOrdenes = $('#tblOrdenes').DataTable({
             "info": false,
-
             language: {
                 "decimal": "",
                 "emptyTable": "@SharedLocalizer["NoDatos"]",
@@ -279,7 +260,7 @@
                     exportOptions: {
                         columns: [0, 1, 3, 4, 5]
                     }
-                   
+
                 },
                 {
                     extend: 'excelHtml5',
@@ -289,9 +270,8 @@
                     exportOptions: {
                         columns: [0, 1, 3, 4, 5]
                     }
-                    
-                },
 
+                },
                 {
                     extend: 'pdfHtml5',
                     text: '<i class="fas fa-file-pdf   "></i>',
@@ -303,25 +283,18 @@
                 }
             ]
         });
-
         $(".dataTables_searching").hide();
     }
-
     function recuperarFecha(_fecha) {
-
-
         var f = new Date(_fecha);
         return f.toLocaleString();
-
     }
-
     function recuperarEstado(estado) {
         if (estado)
             return "@SharedLocalizer["Si"]"
         else
             return "@SharedLocalizer["No"]";
     }
-
     function recuperarMoneda(cod) {
         if (cod === 1)
             return "@SharedLocalizer["CRC"]";
@@ -330,7 +303,6 @@
         else if (cod === 3)
             return "@SharedLocalizer["EUR"]";
     }
-
     function recuperarTotal(data) {
         if (data.idMoneda === 1)
             return data.totalBase;
@@ -339,88 +311,54 @@
         else if (data.idMoneda === 3)
             return data.totalEuro;
     }
-
-
     /////////////////////filtros//////////////////
-
-
     $("#filtroBuscar").on("keyup", function () {
         tblOrdenes
             .columns(2)
             .search(this.value)
             .draw();
     });
-
     $("#filtroItem").on("keyup", function () {
         cargarFiltros();
     });
-
     $('#habilitaFiltroFecha').change(function () {
-
         if (!$(this).prop('checked')) {
             cargarFiltros();
             $('#filtroFecha').attr('disabled', true);
         }
-
         else {
             $('#filtroFecha').attr('disabled', false);
             cargarFiltros();
         }
-
     });
-
-
     function cargarFiltros() {
-
         ordenFiltrado = ordenes;//JSON.parse(JSON.stringify(ordenes));
-
         ordenFiltrado = filtroItem(ordenFiltrado);
-
-        
 
         ordenFiltrado = filtroFecha(ordenFiltrado, desde, hasta);
 
-        
-
         cargarDatos(ordenFiltrado);
-
     }
-
-
     function filtroFecha(array, _desde, _hasta) {
-      
 
         var arrayOrdenes = [];
-
         if ($('#habilitaFiltroFecha').prop('checked')) {
-
             var desdeLocal = new Date(_desde).getTime();
             var hastaLocal = new Date(_hasta).getTime();
-
             for (var i = 0; i < array.length; i++) {
-
                 var documento = new Date(array[i].fecha.substring(0, 10)).getTime();
-
                 if (documento >= desdeLocal && documento <= hastaLocal)
                     arrayOrdenes.push(ordenes[i]);
-
             }
             return arrayOrdenes;
         }
         else
             return array;
-            
 
     }
-
-
-
     function filtroItem(array) {
-
         var arrayOrdenes = [];//JSON.parse(JSON.stringify(ordenFiltrado));
         var keyword = $("#filtroItem").val();
-
-        
 
         if (keyword.replace(/ /g, "") != "") {
             for (var i = 0; i < array.length; i++) {
@@ -431,20 +369,15 @@
                     }
                 }
             }
-
             return arrayOrdenes;
         }
         else
             return array;
-            
 
-            
+
     }
-
     function editarOrden(value) {
         var url = '@Url.Action("EditarOrden", new { id = "__id__"})';
         window.location.href = url.replace("__id__", value);
     }
-
 </script>
-   

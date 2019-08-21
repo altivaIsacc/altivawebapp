@@ -107,7 +107,6 @@ namespace AltivaWebApp.Controllers
                             map.UpdateCD(viewModel);
                             viewModel.CompraDetalle = null;
                         }
-
                         var c = map.Update(viewModel);
 
                         if (viewModel.CompraDetalle != null)
@@ -148,8 +147,7 @@ namespace AltivaWebApp.Controllers
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                throw;
-                //return BadRequest();
+                throw;                
             }
         }
 
@@ -172,7 +170,7 @@ namespace AltivaWebApp.Controllers
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
-                //return BadRequest();
+             
             }
         }
 
@@ -258,7 +256,6 @@ namespace AltivaWebApp.Controllers
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
-                //return BadRequest();
             }
         }
 

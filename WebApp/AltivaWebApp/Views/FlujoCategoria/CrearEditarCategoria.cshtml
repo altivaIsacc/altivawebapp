@@ -1,0 +1,540 @@
+﻿@model AltivaWebApp.ViewModels.FlujoCategoriaViewModel
+@inject IStringLocalizer<SharedResources> SL
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+    var usuario = ViewData["usuario"] as TbSeUsuario;
+}
+
+
+@if (Model.IdCategoriaFlujo != 0)
+{
+    var array = Model;
+
+
+    ViewData["Title"] = @SL["editarCategoriaFlujo"];
+    <div class="row">
+        <div class="col-md-4"><h3>@SL["editarCategoriaFlujo"]</h3></div>
+    </div>
+
+}
+else
+{
+    ViewData["Title"] = @SL["nuevaCategoriaDeFlujo"];
+    <div class="row">
+        <div class="col-md-4">  <h3>@SL["nuevaCategoriaDeFlujo"]</h3></div>
+
+    </div>
+
+}
+
+<hr />
+<div class="row">
+    <form class="frmFlujo col-md-4 col-sm-4 col-xs-12">
+
+        <div class="form-group">
+            <label data-translate="IdCategoriaFlujo" asp-for="IdCategoriaFlujo" class="control-label">@SL["Id"]:</label>
+            <input readonly asp-for="IdCategoriaFlujo" size="1" id="IdCategoriaFlujo" class="form-control currency" type="text" />
+            <span asp-validation-for="IdCategoriaFlujo" class="text-danger"></span>
+        </div>
+
+
+        <div class="form-group">
+            <label data-translate="IdTipoFlujo" asp-for="IdTipoFlujo" class="control-label">@SL["tipo"]:</label>
+            <select asp-for="IdTipoFlujo" id="IdTipoFlujo" class="form-control" autofocus="autofocus">
+                <option value="">@SL["seleccione"]</option>
+                <option value="1">@SL["bancario"]</option>
+                <option value="2">@SL["Efectivo"]</option>
+                <option value="3">@SL["canje"]</option>
+
+            </select>
+            <span hidden id="idTipoFlujoValid" class="text-danger">@SL["tipoValid"].</span>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label">@SL["Nombre"]:</label>
+            <input asp-for="Nombre" type="text" class="form-control" />
+            <span hidden id="nombreValid" class="text-danger">@SL["nombreValid"].</span>
+        </div>
+
+        <div>
+            <label class="control-label">@SL["Código"]:</label>
+            <input asp-for="Codigo" id="Codigo" type="text" class="form-control" placeholder="@SL["escribaCodigoAqui"]." />
+            <span hidden id="codigoValid" class="text-danger">@SL["codigoValid"].</span>
+            <span hidden id="codigoExiste" class="text-danger">@SL["datosExiste"].</span>
+        </div>
+
+
+        <div>
+            <label data-translate="Estado" asp-for="Estado" id="LvlEstado" class="control-label">@SL["Estado"]:</label>
+            <select asp-for="Estado" id="Estado" class="form-control">
+                <option value="1">@SL["activo"]</option>
+                <option value="0">@SL["inactivo"]</option>
+
+            </select>
+            <span hidden id="estado" class="text-danger">@SL["estado"].</span>
+        </div>
+
+
+        <div>
+
+            <label data-translate="FechaCreacion" asp-for="FechaCreacion" id="LvlFechaCreacion" class="control-label">@SL["fechaCreacion"]:</label>
+            <input asp-for="FechaCreacion" id="FechaCreacion" class="form-control" format="DD MMMM YYYY hh:min:ss" />
+            <input readonly id="FechaCreacion2" class="form-control" />
+
+        </div>
+
+        <div>
+
+            <label data-translate="IdUsuario" asp-for="IdUsuario" id="LvlIdUsuario" class="control-label">@SL["nombreUsuario"]:</label>
+            <input type="hidden" asp-for="IdUsuario" id="IdUsuario" class="form-control" />
+            <input readonly id="IdUsuario2" class="form-control" />
+
+        </div>
+
+
+    </form>
+</div>
+    <br>
+
+    <div class="form-group">
+
+        <button class="btn btn-success btnAccion" onclick="guardarCambios()" id="btnGuardar">@SL["Guardar"] <i class="fas fa-save"></i></button>
+
+        <a onclick="cancelar()" class="btn btn-default">@SL["Cancelar"]</a>
+
+    </div>
+
+    <script>
+
+
+    var Usuarios = [];
+    var idUsu = $('#IdUsuario').val();
+
+
+    $(document).ready(function () {
+
+
+        if (@Model.IdCategoriaFlujo != 0) {
+
+            habilitarCampos();
+
+
+          } else {
+
+            deshabilitarCampos();
+
+          }
+
+        getUsuarios();
+       // cargarFormulario();
+
+    });
+
+        //no se esta utilizando
+     function cargarFormulario(data) {
+
+        console.log(data);
+        var Nombre = "";
+        var Codigo = "";
+
+        Nombre = "@Model.Nombre";
+         $("#Nombre").val(Nombre.trim());
+        Codigo = "@Model.Codigo";
+         $("#Codigo").val(Codigo.trim());
+
+
+
+    }
+
+
+     function guardarCambios() {
+
+              if (validarCampos() === false) {
+
+                     } else {
+
+                  if (@Model.IdCategoriaFlujo != 0) {
+
+                               editarFlujoCategoria();
+                         } else {
+                               guardaRFlujoCategoria();
+                         }
+
+                     }
+    }
+
+    function deshabilitarCampos() {
+
+        $("#Estado").hide();
+        $("#FechaCreacion2").hide();
+        $("#FechaCreacion").hide();
+        $("#IdUsuario").hide();
+        $("#LvlEstado").hide();
+        $("#LvlFechaCreacion").hide();
+        $("#LvlIdUsuario").hide();
+        $("#IdUsuario2").hide();
+
+    }
+
+    function habilitarCampos() {
+
+        $("#Estado").show();
+        $("#FechaCreacion").hide();
+        $("#IdUsuario").show();
+        $("#LvlEstado").show();
+        $("#LvlFechaCreacion").show();
+        $("#LvlNombreUsuario").show();
+        $("#LvlIdUsuario").show();
+        $("#IdUsuario2").show();
+
+
+    }
+
+    function deshabiltarBoton() {
+        $("#btnGuardar").prop("disabled", true); // va a Bloquear el boton
+
+    }
+
+    function habilitarBoton() {
+        $("#btnGuardar").prop("disabled",false ); // va a desbloquear el boton
+
+    }
+
+
+
+    function validarCampos() {
+
+
+
+        if ($('#IdTipoFlujo').val().trim() === '' && $('#Nombre').val().trim() === '' && $('#Codigo').val().trim() === '') {
+
+            $('#idTipoFlujoValid').attr('hidden', false);
+            $('#nombreValid').attr('hidden', false);
+            $('#codigoValid').attr('hidden', false);
+            $('#codigoExiste').attr('hidden', true);
+
+            return false;
+
+        }
+
+        if ($('#IdTipoFlujo').val().trim() != '' && $('#Nombre').val().trim() === '' && $('#Codigo').val().trim() === '') {
+
+            $('#idTipoFlujoValid').attr('hidden', true);
+            $('#nombreValid').attr('hidden', false);
+            $('#codigoValid').attr('hidden', false);
+            $('#codigoExiste').attr('hidden', true);
+
+            return false;
+
+        }
+
+        if ($('#IdTipoFlujo').val().trim() != '' && $('#Nombre').val().trim() != '' && $('#Codigo').val().trim() === '') {
+
+            $('#idTipoFlujoValid').attr('hidden', true);
+            $('#nombreValid').attr('hidden', true);
+            $('#codigoValid').attr('hidden', false);
+            $('#codigoExiste').attr('hidden', true);
+
+            return false;
+
+        }
+
+        if ($('#IdTipoFlujo').val().trim() != '' && $('#Nombre').val().trim() != '' && $('#Codigo').val().trim() != '') {
+
+            $('#idTipoFlujoValid').attr('hidden', true);
+            $('#nombreValid').attr('hidden', true);
+            $('#codigoValid').attr('hidden', true);
+
+            return true;
+
+        }
+
+        if ($('#IdTipoFlujo').val().trim() != '' && $('#Nombre').val().trim() === '' && $('#Codigo').val().trim() != '') {
+
+            $('#idTipoFlujoValid').attr('hidden', true);
+            $('#nombreValid').attr('hidden', false);
+            $('#codigoValid').attr('hidden', true);
+
+            return false;
+
+        }
+
+        if ($('#IdTipoFlujo').val().trim() === '' && $('#Nombre').val().trim() != '' && $('#Codigo').val().trim() === '') {
+
+            $('#idTipoFlujoValid').attr('hidden', false);
+            $('#nombreValid').attr('hidden', true);
+            $('#codigoValid').attr('hidden', false);
+            $('#codigoExiste').attr('hidden', true);
+
+
+            return false;
+
+        }
+
+        if ($('#IdTipoFlujo').val().trim() === '' && $('#Nombre').val().trim() === '' && $('#Codigo').val().trim() != '') {
+
+            $('#idTipoFlujoValid').attr('hidden', false);
+            $('#nombreValid').attr('hidden', false);
+            $('#codigoValid').attr('hidden', true);
+
+            return false;
+
+        }
+
+        if ($('#IdTipoFlujo').val().trim() === '' && $('#Nombre').val().trim() != '' && $('#Codigo').val().trim() != '') {
+
+            $('#idTipoFlujoValid').attr('hidden', false);
+            $('#nombreValid').attr('hidden', true);
+            $('#codigoValid').attr('hidden', true);
+
+            return false;
+
+        }
+
+        if ($('#IdTipoFlujo').val().trim() === '') {
+
+            $('#idTipoFlujoValid').attr('hidden', false);
+
+            return false;
+
+        }
+
+        if ($('#Nombre').val().trim()  === "") {
+
+            $('#nombreValid').attr('hidden', false);
+
+            return false;
+
+        }
+
+        if ($('#Codigo').val().trim()  === "") {
+
+            $('#codigoValid').attr('hidden', false);
+            return false;
+
+        }
+
+
+
+
+      }
+
+
+
+
+    function guardaRFlujoCategoria() {
+
+        $.ajax({
+              type: "POST",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+
+                dataType: "json",
+                url: '@Url.Action("CrearEditarCategoria", "FlujoCategoria")',// (nombre del metodo, nombre del controlador)
+                data: crearModelo(),
+            success: function (data) {
+
+                if (data.success) {
+
+                    window.location.href = "@Url.Action("ListarCategorias", "FlujoCategoria")";
+                    $('#codigoExiste').attr('hidden', true);
+                }
+                else {
+                     cargarAlert("@SL["errorDuplicacion"]");
+                    $('#codigoExiste').attr('hidden', false);
+
+                }
+
+            },
+           error: function (err, scnd) {
+                var msj = '@SL["errorGeneral"]';
+                  cargarAlert(msj);
+                  console.log(err.statusText);
+              }
+        });
+
+
+
+
+    }
+
+
+      function crearModelo() {
+
+          var FlujoCategoriaModel = {
+
+              idTipoFlujo: $('#IdTipoFlujo').val(),
+              nombre: $('#Nombre').val(),
+              codigo: $('#Codigo').val()
+
+        };
+
+          return FlujoCategoriaModel;
+    }
+
+
+    function editarFlujoCategoria() {
+
+
+           $.ajax({
+              type: "POST",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("CrearEditarCategoria", "FlujoCategoria")',// (nombre del metodo, nombre del controlador)
+               data: crearModeloEditar(),
+
+               success: function (data) {
+
+                   if (data.success) {
+
+                        if (@Model.IdCategoriaFlujo != 0)
+                            window.location.href = "@Url.Action("ListarCategorias", "FlujoCategoria", new {id = "__id__"})".replace("__id__", $('#IdCategoriaFlujo').val());
+                        else
+                            window.location.href = "@Url.Action("ListarCategorias", "FlujoCategoria")";
+
+                        }
+                        else {
+                        cargarAlert("@SL["errorDuplicacion"]");
+                        $('#codigoExiste').attr('hidden', false);
+                        }
+
+               },
+           error: function (err, scnd) {
+                var msj = '@SL["errorGeneral"]';
+                  cargarAlert(msj);
+                  console.log(err.statusText);
+              }
+        });
+
+
+
+
+
+    }
+
+
+    function crearModeloEditar() {
+
+             var FlujoCategoriaModel = {
+
+              idCategoriaFlujo: @Model.IdCategoriaFlujo,
+              idUsuario:  @Model.IdUsuario,
+              idTipoFlujo: $('#IdTipoFlujo').val(),
+              nombre: $('#Nombre').val(),
+              codigo: $('#Codigo').val(),
+              estado: $('#Estado').val(),
+            };
+
+              return FlujoCategoriaModel;
+
+    }
+
+     function cancelar() {
+        var msj = "@SL["confirmCancelar"]";
+
+        bootbox.confirm(msj, function (result) {
+
+            if (result)
+
+                $('#codigoExiste').attr('hidden', true);
+                window.location.href = "@Url.Action("ListarCategorias", "FlujoCategoria",new { id = 0 })";
+
+        });
+    }
+
+     function getUsuarios() {
+         $.ajax({
+             type: "get",
+             headers: {
+                 "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+             },
+             dataType: "json",
+             url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
+             success: function (data) {
+
+                 obtenerUsuario(data);
+                 var _fecha = $("#FechaCreacion").val();
+                 var resp = recuperarFecha(_fecha);
+                 $("#FechaCreacion2").val(resp);
+
+             },
+             error: function (err, scnd) {
+                 var msj = '@SL["errorGeneral"]';
+                  cargarAlert(msj);
+                  console.log(err.statusText);
+             }
+         });
+   }
+
+        function obtenerUsuario(data) {
+                var nombre = "";
+                Usuarios = data;
+
+            for (var i = 0; i < Usuarios.length; i++) {
+
+                if (parseInt(Usuarios[i].id) == parseInt(idUsu)) {
+
+                    nombre = Usuarios[i].nombre;
+                    //console.log(nombre);
+
+                }
+            }
+            $("#IdUsuario2").val(nombre);
+
+    }
+
+
+    function recuperarFecha(_fecha) {
+
+        var hora = "";
+        var formatoFecha = "";
+        var am = "AM";
+        var pm = "PM";
+        var md = "MD";
+        var f = new Date(_fecha);
+
+       // alert("Día: " + f.getDate() + "\nMes: " + (f.getMonth() + 1) + "\nAño: " + f.getFullYear() + "Hora: " + f.getHours() + "\nMinuto: " + f.getMinutes() + "\nSegundo: " + f.getSeconds() + "\nMilisegundo: " + f.getMilliseconds());
+
+        hora = f.getHours();
+
+        if (hora <= 11) {
+
+            formatoFecha = (f.getDate() + "\n/" + (f.getMonth() + 1) + "\n/" + f.getFullYear() + "\n   " + f.getHours() + "\n:" + f.getMinutes() + "\n:" + f.getSeconds() + "\n " + am);
+            return formatoFecha;
+
+        } else if (hora <= 12) {
+
+            formatoFecha = (f.getDate() + "\n/" + (f.getMonth() + 1) + "\n/" + f.getFullYear() + "\n   " + f.getHours() + "\n:" + f.getMinutes() + "\n:" + f.getSeconds() + "\n " + md);
+            return formatoFecha;
+
+        }else if (hora >= 13) {
+
+            formatoFecha = (f.getDate() + "\n/" + (f.getMonth() + 1) + "\n/" + f.getFullYear() + "\n   " + f.getHours() + "\n:" + f.getMinutes() + "\n:" + f.getSeconds() + "\n " + pm);
+            return formatoFecha;
+        }
+
+
+    }
+
+
+
+
+
+
+    </script>
+
+
+
+
+
+

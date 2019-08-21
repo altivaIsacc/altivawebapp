@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using AltivaWebApp.ViewModels;
 namespace AltivaWebApp.Repositories
 {
     public interface IOrdenRepository
     {
+        IList<CompraAutomaticoViewModel> compraProveedor(int idProveedor);
         TbPrOrden Save(TbPrOrden domain);
         TbPrOrden Update(TbPrOrden domain);
         bool Delete(TbPrOrden domain);

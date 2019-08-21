@@ -224,7 +224,6 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-
                 var ai = service.GetAjusteById((int)viewModel.FirstOrDefault().IdAjuste);
 
                 service.SaveOrUpdateAjusteInventario(map.AIViewModelToDomain(viewModel).ToList());
@@ -264,7 +263,6 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
-
 
         ////get auxiliares
 
@@ -320,6 +318,9 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+
+
+        // ocupo este
         [HttpGet("Get-BodegaInventario")]
         public ActionResult GetBodegaInventario()
         {

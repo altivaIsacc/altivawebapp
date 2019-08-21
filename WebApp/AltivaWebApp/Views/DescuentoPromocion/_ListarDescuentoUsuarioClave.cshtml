@@ -1,0 +1,153 @@
+﻿@model IEnumerable<AltivaWebApp.Domains.TbFaDescuentoUsuarioClave>
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+
+    var usuarios = ViewData["usuarios"] as IList<TbSeUsuario>;
+
+}
+
+
+
+
+<div class="row text-center">
+
+    <div class="col-md-12 table-responsive" style="height: 400px; overflow:scroll;">
+
+
+        <table id="descuentoUsuarios" class=" table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th hidden>
+                        ID
+                    </th>
+
+                    <th width="125px">
+                        <span data-translate="codigo"><center>Usuario</center></span>
+                    </th>
+
+                    <th width="25px">
+                        <span data-translate="nombre"><center>Descuento</center> </span>
+                    </th>
+
+                    <th>
+                        <span data-translate="estado"><center>Nota</center></span>
+                    </th>
+
+                    <th width="115px">
+                        <span data-translate="accion"><center>Accion</center></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="modelo">
+                        <td hidden>
+                            @Html.DisplayFor(modelItem => item.IdDescuentoUsuario)
+                        </td>
+
+                        <td style="padding-top: 2rem">
+
+                            @{
+                                    var nombre = usuarios.FirstOrDefault(u => u.Id == item.IdUsuario).Nombre;
+                                    var id = usuarios.FirstOrDefault(u => u.Id == item.IdUsuario).Codigo;
+                                }
+                                <a href="@Url.Action("CuentaUsuario", "ManejoUsuarios", new { codigo =  id})">@nombre</a>
+
+                            @*@Html.DisplayFor(modelItem => item.IdUsuario)*@
+                        </td>
+
+                        <td style="padding-top: 2rem">
+                            @Html.DisplayFor(modelItem => item.MaxDescuento) %
+                        </td>
+
+                        <td style="padding-top: 2rem" class="estado">
+                            @Html.DisplayFor(modelItem => item.Nota)
+                        </td>
+
+                        <td style="padding-top: 2rem">
+                            <button class="btn btn-link editarDescuentoUsuarioClave" value="@item.IdDescuentoUsuario"><span><i class="fas fa-edit"></i></span></button>
+                            <button class="btn btn-link eliminarDescuentoUsuarioClave" value="@item.IdDescuentoUsuario"><span><i class="fas fa-trash"></i></span></button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+                       $('.editarDescuentoUsuarioClave').on('click', function () {
+                        var _id = $(this).val();
+                        $('.selUsuarios').select2();
+
+                $.ajax({
+                    type: "GET",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    url: '@Url.Action("ObtenerDescuentoUsuarioClave", "DescuentoPromocion")',
+                    data: {id: _id},
+
+                    success: function (data) {
+
+                        obtenerUserConDescClave(data.idUsuario);
+                        $('#txtIdUsuarioDescClave').val(data.idDescuentoUsuario);
+
+                       // $("#asignado option[value='" + data.idUsuario + "']").prop("selected", true);
+                        //$("#asignadoClave").val(data.idUsuario);
+                        $('#asignadoClave').trigger('change.select2').prop('disabled', 'disabled');
+                        $("#txtMaxDescClave").val(data.maxDescuento);
+                        $("#txtClaveDescClave").val(data.clave);
+                        $("#txtNotaDescClave").val(data.nota);
+                        $('#modalAgregarMaximoDescClave').modal("show");
+
+                    },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+                });
+           });
+                   $('.eliminarDescuentoUsuarioClave').on('click', function () {
+               var _id = $(this).val();
+
+                $.ajax({
+                    type: "GET",
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                   // url: 'Eliminar-Descuento/' + $(this).val(),
+                    url: '@Url.Action("EliminarDescuentoClave", "DescuentoPromocion")',
+                    data: {id: _id},
+
+                    success: function (data) {
+                        if (data.data) {
+                           getDescuentoUsuarioClave()
+                        }
+                        else
+                            alert("Error al procesar la operacion");
+                    },
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
+                    }
+
+                });
+        });
+    });
+
+</script>
+
+
+

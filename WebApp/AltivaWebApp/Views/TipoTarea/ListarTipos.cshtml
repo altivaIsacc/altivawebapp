@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<AltivaWebApp.Domains.TbFdTareaTipo>
 @inject IStringLocalizer<SharedResources> Lb
 @{
-    ViewData["Title"] = "Listar Tipos";
+    ViewData["Title"] = Lb["Tipos de Tareas"];
 }
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
@@ -11,19 +11,31 @@
     }
 }
 
-<div class="row">
-    <div class="col-md-2">
-        <h3>Tipos de tarea:</h3>
-    </div>
-    <div class="col-md-6" style="margin-left:1rem; padding-top:0.7rem">
+<div class="col-md-6">
+    <table>
+        <tr>
+            <td>
+                <h3>@Lb["Tipo de Tarea"]</h3>
+            </td>
+            <td>
+                <div style="margin-left:1rem; padding-top:0.7rem">
+                    <button onclick="crearTipos()" class=" btn btn-primary "><span>@Lb["Agregar"]<i class="fas fa-plus-circle "></i></span></button>
+                </div>
 
-        <button onclick="crearTipos()" class=" btn btn-primary "><span> Agregar <i class="fas fa-plus-circle "></i></span></button>
-    </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button hidden class="btn btn-dark" id="inactivos" onclick="VerInactivos()"><span>@Lb["VerInactivos"]</span></button>
+
+                <button class="btn btn-dark" style="display: none;" id="activos" onclick="verActivos()"><span>@Lb["VerActivos"]</span></button>
+
+            </td>
+        </tr>
+
+    </table>
 </div>
 
-<button class="btn btn-dark" id="inactivos" onclick="VerInactivos()"><span data-translate="verInactivos"> Ver Inactivos</span></button>
-
-<button class="btn btn-dark" style="display: none;" id="activos" onclick="verActivos()"><span data-translate="verInactivos">Ver Activos</span></button>
 
 
 <div id="cargarTablaTipos">
@@ -38,10 +50,6 @@
 
         <div class="modal-content">
             <div class="modal-header" id="head">
-
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
             <div class="modal-body" id="tiposTareas">
 
@@ -54,6 +62,7 @@
 
 
 <script>
+    var arreglo = [];
         function verActivos() {
             $("#inactivos").css("display", "block");
             $("#activos").css("display", "none");
@@ -107,6 +116,8 @@
                 url: '@Url.Action("ListarTiposTareas", "TipoTarea")',
 
                 success: function (data) {
+                   // arreglo = data;
+
                     $('#cargarTablaTipos').html(data);
                 },
 

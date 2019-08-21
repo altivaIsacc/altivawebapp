@@ -26,8 +26,11 @@ namespace AltivaWebApp.Controllers
         readonly IFamiliaService familiaService;
         readonly IFamiliaOnlineService familiaOnlineService;
         readonly IMonedaService monedaService;
-                readonly IHostingEnvironment hostingEnvironment;
-        public InventarioController(IStringLocalizer<SharedResources> sharedLocalizer, IHostingEnvironment hostingEnvironment, IMonedaService monedaService, IFamiliaService familiaService,IFamiliaOnlineService familiaOnlineService, IUnidadService unidadService, IBodegaService bodegaService, IInventarioService service, IInventarioMap map)
+        readonly IPreciosService preciosService;
+        readonly IPrecioCatalogoService precioCatalogoService;
+        private readonly IStringLocalizer<SharedResources> _sharedLocalizer;
+        readonly IHostingEnvironment hostingEnvironment;        
+        public InventarioController(IStringLocalizer<SharedResources> sharedLocalizer, IHostingEnvironment hostingEnvironment, IMonedaService monedaService, IFamiliaService familiaService,IFamiliaOnlineService familiaOnlineService, IUnidadService unidadService, IBodegaService bodegaService, IInventarioService service, IInventarioMap map, IPreciosService preciosService, IPrecioCatalogoService precioCatalogoService)
         {
             this.service = service;
             this.map = map;
@@ -37,6 +40,8 @@ namespace AltivaWebApp.Controllers
             this.familiaOnlineService = familiaOnlineService;
             this.monedaService = monedaService;
             this.hostingEnvironment = hostingEnvironment;
+            this.preciosService = preciosService;
+            this.precioCatalogoService = precioCatalogoService;
         }
 
 
@@ -46,6 +51,7 @@ namespace AltivaWebApp.Controllers
         {
             ViewBag.cod = cod;
             ViewData["bodegas"] = bodegaService.GetAllActivas();
+            var algo= bodegaService.GetAllActivas(); 
             return View();
         }
 
@@ -69,10 +75,8 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception ex)
             {
-                AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");                
                 return BadRequest();
-                //throw;
             }
             
         }
@@ -88,7 +92,6 @@ namespace AltivaWebApp.Controllers
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
-                //throw;
             }
         }
 
@@ -104,7 +107,6 @@ namespace AltivaWebApp.Controllers
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
-                //throw;
             }
 
         }
@@ -170,7 +172,9 @@ namespace AltivaWebApp.Controllers
                         var idUser = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                         model.IdUsuario = int.Parse(idUser);
                         inventario = map.Create(model);
-                        idInventario = (int) inventario.IdInventario;
+                        var precios = preciosService.GetAll();
+                        precioCatalogoService.SaveFromInventario(idInventario);
+
                     }
                 }
                 else
@@ -206,6 +210,29 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+        [HttpGet("Editar-BodegaInventario/{id?}")]
+        public ActionResult EditarBodegaIventario(int id)
+        {
+                ViewBag.id = id;
+                var inventario = map.DomainToViewModelIBodega(service.GetInventarioBodegaById(id));
+                return PartialView("_EditarBodega", inventario);
+         }
+        [HttpPost("Editar-BodegaInventario/{id?}")]
+        public ActionResult EditarIventarioBodega(InventarioBodegaViewModel inventarioBodega)
+        {
+            try
+            {
+                map.UpdateIBodega(inventarioBodega);
+                return Json(new { success = true });
+
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return BadRequest();
+
+            }
+        }
 
         [HttpPost("CrearEditar-InventarioBodega/{id}")]
         public ActionResult CrearInventarioBodega(int id, IList<InventarioBodegaViewModel> inventarioBodega)
@@ -214,13 +241,12 @@ namespace AltivaWebApp.Controllers
             {
                 
                 map.CreateInventarioBodega(id, inventarioBodega);
-
+                
                 return Json(new { success = true });
             }
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                //throw;
                 return BadRequest();
             }
         }
@@ -318,7 +344,6 @@ namespace AltivaWebApp.Controllers
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
-                //throw;
             }
         }
 

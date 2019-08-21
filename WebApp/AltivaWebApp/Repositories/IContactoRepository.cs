@@ -11,6 +11,8 @@ public interface IContactoRepository
     {
         IList<TbCrContacto> GetAll();
         IList<TbCrContacto> GetAllPersonas();
+        IList<TbCrContacto> GetAllClientes();
+        ContactoViewModel GetByEdit(int id);
         IList<TbCrContacto> GetAllEmpresas();
         TbCrContacto Save(TbCrContacto domain);
         TbCrContacto Update(TbCrContacto domain);
@@ -23,8 +25,7 @@ public interface IContactoRepository
         IList<TbCrContactoRelacion> GetContactosRelacion(int id);
         IList<TbCrContacto> GetAllProveedores();
         IList<TbCeDistrito> GetDistrito(int idCanton,int idProvincia);
-        bool EliminarRelacion(int idRelacion);
-        IList<TbCrContacto> GetAllClientes();
+        bool EliminarRelacion(int idRelacion);  
 
 
     }

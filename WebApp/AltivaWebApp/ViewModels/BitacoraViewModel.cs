@@ -17,5 +17,6 @@ namespace AltivaWebApp.ViewModels
         public string TipoReferencia { get; set; }
         public DateTime Fecha1 { get; set; }
         public DateTime Fecha2 { get; set; }
+     
     }
 }

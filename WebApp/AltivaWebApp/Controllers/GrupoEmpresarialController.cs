@@ -46,22 +46,6 @@ namespace AltivaWebApp.Controllers
             var user = userService.GetUsuarioConEmpresas(userCode);
 
 
-            var uc = user.TbSeUsuarioConfiguraion.FirstOrDefault();
-            if (uc != null)
-            {
-                ViewBag.tema = uc.Tema;
-                ViewBag.idioma = uc.Idioma;
-                ViewBag.avatar = user.Avatar;
-            }
-            else
-            {
-                ViewBag.tema = "TemaCombinado";
-                ViewBag.idioma = "es";
-                ViewBag.avatar = user.Avatar;
-
-            }
-
-            
            ViewData["grupoEmpresas"] = service.GetGE();
 
 
@@ -177,7 +161,6 @@ namespace AltivaWebApp.Controllers
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 var deleted = service.EliminarEmpresa(result);
-                //throw;
                 return BadRequest(new { success = _sharedLocalizer["errorGeneral"].ToString() });
             }
         }

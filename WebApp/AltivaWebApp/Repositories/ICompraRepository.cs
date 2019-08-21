@@ -8,6 +8,8 @@ namespace AltivaWebApp.Repositories
 {
     public interface ICompraRepository
     {
+        TbPrCompra SaveServicio(TbPrCompra domain);
+        IList<TbCpCategoriaGasto> GetAllCategoriaGasto();
         TbPrCompra Save(TbPrCompra domain);
         TbPrCompra Update(TbPrCompra domain);
         bool Delete(TbPrCompra domain);
@@ -23,5 +25,13 @@ namespace AltivaWebApp.Repositories
         bool ExisteRelacionInventarioBodega(long idInventario, long idBodega);
         long IdUltimoDocumento();
         TbPrCompra GetCompraByIdWithoutD(int id);
+
+        IList<TbCpComprasDetalleServicio> GetAllComprasDetalleServicioByCompraId(int id);
+        TbCpComprasDetalleServicio GetComprasDetalleServicioById(long id);
+        TbCpComprasDetalleServicio SaveComprasDetalleServicio(TbCpComprasDetalleServicio domain);
+        bool UpdateComprasDetalleServicio(IList<TbCpComprasDetalleServicio> domain);
+        bool DeleteComprasDetalleServicio(TbCpComprasDetalleServicio domain);
+        IList<TbPrCompra> GetAllGastos();
+
     }
 }

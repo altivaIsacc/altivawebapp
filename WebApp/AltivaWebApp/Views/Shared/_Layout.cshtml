@@ -12,7 +12,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - AltivaWebApp</title>
+    <title>@ViewData["Title"] - Altiva Génesis</title>
 
 
     <script src="~/lib/jquery/dist/jquery.js"></script>
@@ -30,6 +30,8 @@
     <link href="~/css/AltivaEstilos.css" rel="stylesheet">
     <link href="~/css/TemaClaro.css" rel="stylesheet">
     <link id="tema" href="~/css/TemaCombinado.css" rel="stylesheet">
+   
+
 
     <!-- bootstrap-daterangepicker -->
     <link href="~/lib/vendors/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
@@ -77,6 +79,7 @@
                         <div class="profile_info">
                             <span data-translate="perfil_info">Bienvenido,</span>
                             <h2>@Context.Session.GetString("nombreUsuario")</h2>
+                            <p>v.Alfa 20.08.2019.1</p>
                         </div>
                     </div>
                     <!-- /menu profile quick info -->
@@ -114,6 +117,7 @@
                                         </li>
                                         <!--   <li><a asp-controller="Familia" asp-action="ListarFamilias"><span data-translate="familias">Familias</span></a></li>  -->
                                         <li><a asp-controller="Inventario" asp-action="ListarInventario"><span data-translate="catalogo">Catálogo</span></a></li>
+                                        <li><a asp-controller="PrecioCatalogo" asp-action="ListarPrecioCatalogo"><span>@SharedLocalizer["PrecioCatalogo"]</span></a></li>
                                         <li><a asp-controller="AjusteInventario" asp-action="ListarAjustes"><span>@SharedLocalizer["AjusteManual"]</span></a></li>
                                         <li><a asp-controller="Orden" asp-action="ListarOrdenes"><span>@SharedLocalizer["OrdenesCompra"]</span></a></li>
                                         <li><a asp-controller="Compra" asp-action="ListarCompras"><span>@SharedLocalizer["Compras"]</span></a></li>
@@ -125,11 +129,17 @@
                                                 <li><a asp-controller="Hacienda" asp-action="ListarColaAprobacion"><span>@SharedLocalizer["ColaAprobacion"]</span></a></li>
                                             </ul>
                                         </li>
+
+
                                         <li><a asp-controller="Departamento" asp-action="ListarDepartamentos"><span>@SharedLocalizer["Departamentos"]</span></a></li>
                                         <li><a asp-controller="Toma" asp-action="ListarTomas"><span>@SharedLocalizer["Toma"] @SharedLocalizer["Física"]</span></a></li>
-
+                                        <li><a asp-controller="Precios" asp-action="ListarPrecios"><span>@SharedLocalizer["TiposPrecio"]</span></a></li>
+                                        <!--Nombre del controlador, nombre de la vista-->
+                                        <li><a asp-controller="Traslado" asp-action="ListarTraslados"><span>@SharedLocalizer["Traslado"]</span></a></li>
                                     </ul>
                                 </li>
+
+
 
                                 <li>
                                     <a><i class="fa fa-list-alt"></i><span>@SharedLocalizer["Contacto"]</span><span class="fa fa-chevron-down"></span></a>
@@ -160,14 +170,34 @@
                                 <li>
                                     <a><i class="fa fa-cc"></i><span>@SharedLocalizer["Ventas"]</span><span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu">
-                                        <li><a asp-controller="Factura" asp-action="ListarFacturas">@SharedLocalizer["Factura"]</a></li>
+                                        @* <li><a asp-controller="Factura" asp-action="ListarFacturas">@SharedLocalizer["Factura"]</a></li>*@
+                                        <li><a asp-controller="CotizacionProducto" asp-action="ListarCotizacionProducto">@SharedLocalizer["Cotizaciones"]</a></li>
+                                        <li><a asp-controller="Caja" asp-action="ListarCajas">@SharedLocalizer["Cajas"]</a></li>
+                                        <li><a asp-controller="DescuentoPromocion" asp-action="Index"><span data-translate="Descuentos / Promociones">Descuentos / Promociones</span></a></li>
+                                        <li>
+                                            <a>@SharedLocalizer["Configuracion"]<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu">
+                                                <li><a asp-action="CrearDenominacion" asp-controller="Denominaciones">@SharedLocalizer["Denominaciones"]</a></li>
+                                            </ul>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li>
                                     <a><i class="fa fa-cc"></i><span>@SharedLocalizer["CuentasPorPagar"]</span><span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu">
                                         <li><a asp-controller="CategoriaGasto" asp-action="ListarCategorias">@SharedLocalizer["CategoriaGastos"]</a></li>
+                                        <li><a asp-controller="Gasto" asp-action="ListarGastos">@SharedLocalizer["Gastos"]</a></li>
                                     </ul>
+                                </li>
+
+                                <!--Agregado lenin-->
+                                <li>
+                                    <a><i class="fas fa-bank"></i><span>&nbsp; &nbsp; @SharedLocalizer["Bancos"]</span><span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <!--Nombre del controlador, nombre de la vista-->
+                                        <li><a href="@Url.Action("ListarCategorias", "FlujoCategoria",new { id = 0 })">@SharedLocalizer["Categorias"]</a></li>
+                                    </ul>
+
                                 </li>
                             </ul>
                         </div>
@@ -221,19 +251,10 @@
             </div>
 
             <!--final del menu-->
-
             <div class="right_col" role="main">
                 @RenderBody()
             </div>
-            <!-- /page content -->
-            <!-- footer content -->
-            <footer>
-                <div class="pull-right">
-                    <span data-translate="layoutFTitulo">Creado por </span><a href="http://altivasoluciones.com/"> Altiva Soluciones</a>
-                </div>
-                <div class="clearfix"></div>
-            </footer>
-            <!-- /footer content -->
+
         </div>
     </div>
 
@@ -310,6 +331,10 @@
     <script src="~/lib/vendors/pdfmake/build/vfs_fonts.js"></script>
 
 
+
+
+ 
+
     <!-- The Modal -->
     <div class="modal fade" id="ModalAlert">
         <div class="modal-dialog modal-dialog-centered">
@@ -340,6 +365,10 @@
 
     <script src="~/js/bootbox.min.js"></script>
     <script src="~/js/bootbox.locales.min.js"></script>
+
+
+    <!--autocomplete-->
+    <script src="~/lib/vendors/autocomplete/dist/latest/bootstrap-autocomplete.min.js"></script>
 
 
     <!----------------------jsPDF------------->

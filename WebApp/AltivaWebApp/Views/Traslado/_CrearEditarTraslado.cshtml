@@ -1,0 +1,1090 @@
+﻿@model AltivaWebApp.ViewModels.TrasladoViewModel
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+    var titulo = "";
+
+    @if (Model.IdTraslado != 0)
+    {
+
+        titulo = @SharedLocalizer["editarTraslado"];
+
+    }
+    else
+    {
+        titulo = @SharedLocalizer["nuevoTraslado"];
+    }
+
+}
+
+
+
+<div class="row">
+    <h5 class="col-md-11 col-sm-11 col-xs-11" id="trasladoModallabel">@titulo</h5>
+    <div class="col-md-1">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+<hr />
+
+<div class="row">   
+        <div class="form-row">
+            <input asp-for="IdTraslado" class="form-control" id="IdTraslado" size="5" type="hidden" />
+            <span hidden id="IdTrasladoValid" class="text-danger">@SharedLocalizer["IdTrasladoValid"]</span>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-4 col-sm-4 col-xs-4 ">
+                <label class="control-label">@SharedLocalizer["BodegaOrigen"]:</label>
+                <select id="IdBodegaOrigen" class="form-control" onChange="validarBodegaOrigenSeleccionada(value)" autofocus="autofocus">
+                    <option id="option" value="">@SharedLocalizer["seleccione"]</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 col-sm-4 col-xs-4 ">
+                <div class="row">
+                    <fieldset>
+                        <div class="form-group">
+                            <label>@SharedLocalizer["Fecha"]:</label>
+                            <div class='input-group date' id='fechaPicker'>
+                                <input type='text' class="form-control" id="fecha" min="2019-01-01" max="2019-01-01" required />
+                                <span class="input-group-addon">
+                                    <span class="fas fa-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-sm-4 col-xs-4 ">
+                <label class="control-label">@SharedLocalizer["BodegaDestino"]:</label>
+                <select id="IdBodegaDestino" class="form-control" onChange="validarBodegaDestinoSeleccionada(value)">
+                    <!-- class="selectpicker form-control selectFiltro" data-live-search="true"   onChange="validarBodegaDestinoSeleccionada()"-->
+                    <!--<option value="">@SharedLocalizer["seleccione"]</option> -->
+                </select>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-10 col-sm-10 col-xs-10">
+                <div class="input-group">
+                    <div class="input-group">
+                        <span id="errorExistenciaArticulo" class="text-danger">@SharedLocalizer["Este articulo no existe"] </span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <button class="btn btn-success" id="BuscarInventarioBodega" onclick="mostrarModalInventarioBodega()">@SharedLocalizer["Buscar Inventario Bodega"]</button>
+                        </span>
+                        <input type="text" id="BuscarCodigoInventarioBodega" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-2 col-xs-2">
+                <div class="text-right" id="Anular">
+                    <br>
+                    <button class="btn btn-danger btn-sm" onclick="anular()">@SharedLocalizer["Anular"]</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 table-responsive">
+                <table class="table table-bordered" id="tablaTrasladoInventario">
+                    <thead>
+                        <tr>
+                            <th>
+                                @SharedLocalizer["Codigo"]
+                            </th>
+                            <th>
+                                @SharedLocalizer["descripcion"]
+                            </th>
+                            <th>
+                                @SharedLocalizer["Cantidad"]
+                            </th>
+                            <th>
+                                @SharedLocalizer["ExistenciaB"]
+                            </th>
+                            <th>
+                                @SharedLocalizer["PrecioU"]
+                            </th>
+                            <th>
+                                @SharedLocalizer["CostoTotal"]
+                            </th>
+                            <th>
+                                @SharedLocalizer["accion"]
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <br>
+
+        <div class="row">
+            <div class="col-md-6 col-sm-6 col-xs-6">
+                <div class="input-group">
+                    <label class="control-label">@SharedLocalizer["Comentario"]:</label>
+                    <textarea id="Comentario" rows="3" class="form-control" style="resize:none;"></textarea>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-6">
+                <div class="text-right">
+                    <label class="control-label">@SharedLocalizer["CostoTotal"]:</label>
+                    <input class="text-right" size="20" type="text" maxlength="50" value="0" id="CostoTraslado" />
+                </div>
+            </div>
+        </div>
+
+
+        <div class="form-row" id="divTraslado">
+
+            <div class="input-group">
+                <label class="control-label">@SharedLocalizer["fechaCreacion"]:</label>
+                <input asp-for="FechaCreacion" size="12" type="text" maxlength="50" id="FechaCreacion" class="form-control" />
+            </div>
+
+            <div class="input-group">
+                <label class="control-label">@SharedLocalizer["Usuario"]:</label>
+                <input asp-for="IdUsuario" size="22" type="text" maxlength="50" id="Usuario" class="form-control" />
+            </div>
+
+        </div>
+        <br>
+
+        <button class="btn btn-success" onclick="guardarTraslado()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+        <button class="btn btn-default" data-dismiss="modal">@SharedLocalizer["Cancelar"]</button>
+
+    </div>
+
+
+
+
+    <!--  modal -->
+    <div class="row">
+        <div class="modal fade bd-example-modal-lg" id="modalInventarioBodega" tabindex="-1" role="dialog" aria-labelledby="InventarioBodegaModallabel" aria-hidden="true" data-backdrop="static">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Inventario Bodega</h5>
+                        <span id="error" class="text-danger">@SharedLocalizer["Este articulo ya a sido agregado"] </span>
+
+                        <button type="button" class="close" aria-label="Close" onclick="ocultarModalInventarioBodega()">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+
+
+                    <div class="modal-body">
+
+
+                        <div class="row">
+                            <div class="col-md-6 ">
+                                <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-success">@SharedLocalizer["Buscar"] </button>
+                                    </span>
+                                    <input type="text" id="filtroBuscarInventarioBodega" autofocus="autofocus" class="form-control" maxlength="50" placeholder="@SharedLocalizer["buscarNombre"].">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 table-responsive">
+                                <table class="table table-bordered" id="tblInventarioBodega">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                @SharedLocalizer["id"]
+                                            </th>
+
+                                            <th>
+                                                @SharedLocalizer["Codigo"]
+                                            </th>
+
+                                            <th>
+                                                @SharedLocalizer["Descripcion"]
+                                            </th>
+
+                                            <th>
+                                                @SharedLocalizer["ExistenciaB"]
+                                            </th>
+
+                                            <th>
+                                                @SharedLocalizer["PrecioU"]
+                                            </th>
+
+                                            <th>
+                                                @SharedLocalizer["Elegir"]
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!--
+                       <div class="modal-footer">
+                           <button class="btn btn-success" onclick="guardarInventarioBodega() ">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+                           <button class="btn btn-default" onclick="ocultarModalInventarioBodega()">@SharedLocalizer["Cancelar"]</button>
+                       </div>
+                    -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+
+    var arrayBodegas = [];//uti
+    var arrayInventarioBodegas = [];//uti
+    var arrayInventario = [];//uti
+    var arrayArticuloPorBodegaOrigenSeleccionada = [];
+    var arrayTablaTraslado = [];
+
+    //envio al controlador
+    var arrayTraslado = [];
+    var arrayTrasladoInventario = [];
+    var fecha = $('#fecha');
+
+
+    $(document).ready(function () {
+
+        validarGuardarEditar();
+        getBodegasInventario();
+
+        $('#fechaPicker').datetimepicker({
+            defaultDate: new Date(),
+            locale: localStorage.getItem("idioma")
+        });
+
+
+
+    });
+
+    function controlarEnter() {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            enter();
+        }
+    }
+
+    fecha.on('keyup', function () {
+        $('#fechaPicker').datetimepicker('defaultDate', new Date());
+    });
+
+
+
+    function validarGuardarEditar(){
+
+
+        if (validarModal() == true) {
+            //alert('entro a guardar');
+            ocultarCampos();
+
+        } else {
+           // alert('entro a editar');
+            mostrarCampos();
+
+
+        }
+
+    }
+
+
+    function validarModal() {
+
+        var idTraslado = $("#IdTraslado").val();
+
+        if (idTraslado == 0) {
+
+            return true;
+
+        } else {
+
+            return false;
+        }
+
+    }
+
+    function ocultarCampos() {
+        $('#divTraslado').hide();
+        $('#BuscarInventarioBodega').prop("disabled", true);
+        $('#CostoTraslado').prop("disabled", true);
+        $('#errorExistenciaArticulo').hide(); //el mensaje del error se muestre
+        $('#IdBodegaDestino').prop("disabled", true);
+
+
+
+        //$('#divFiltroFecha').hide();
+        //$('#divFiltroAnuladas').hide();
+
+    }
+    function mostrarCampos() {
+        $('#divTraslado').show();
+    }
+
+
+
+     function getBodegasInventario() {
+
+          $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetBodegaInventario", "AjusteInventario")',
+              success: function (data) {
+                 // console.log(data);
+                  arrayBodegas = data;
+
+                  obtenerTablaInventarioBodega();
+                  obtenerTablaInventario();
+                  cargarBodegasOrigen();
+                 // cargarBodegasDestino();
+                  cargarDatosTraslado(arrayTablaTraslado);//para que muestre la tabla vacia
+
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+
+    function obtenerTablaInventarioBodega() {
+        for (var i = 0; i < arrayBodegas.length; i++) {
+            if (arrayBodegas[i].tbPrInventarioBodega.length != 0) {
+                arrayInventarioBodegas.push(arrayBodegas[i].tbPrInventarioBodega);
+            }
+        }
+       // console.log(arrayInventarioBodegas);
+    }
+
+    function obtenerTablaInventario() {
+        var auxArrayInventarioBodegas  = [];
+        for (var i = 0; i < arrayBodegas.length; i++) {
+            auxArrayInventarioBodegas = arrayBodegas[i].tbPrInventarioBodega;
+            for (var j = 0; j < auxArrayInventarioBodegas.length; j++) {
+                arrayInventario.push(auxArrayInventarioBodegas[j].idInventarioNavigation);
+            }
+        }
+       // console.log(arrayInventario);
+    }
+
+
+    function cargarBodegasOrigen() {
+
+        for (var i = 0; i < arrayBodegas.length; i++) {
+            if (arrayBodegas[i].tbPrInventarioBodega.length != 0) {
+                var o = new Option(arrayBodegas[i].nombre, arrayBodegas[i].id);
+                $("#IdBodegaOrigen").append(o);
+            }
+        }
+    }
+
+    var array = [];
+
+    function cargarBodegasDestino(idBodegaOrigenSeleccionada) {
+        //console.log(arrayBodegas);
+
+        if (idBodegaOrigenSeleccionada != "") {
+            array = [];
+            for (var i = 0; i < arrayBodegas.length; i++) {
+                var model = {
+                    id: arrayBodegas[i].id,
+                    nombre: arrayBodegas[i].nombre,
+                };
+                // console.log(model);
+                array.push(model); //pasar jason al array global
+            }
+            //console.log(array);
+
+            cargarSelectBodegaDestino(idBodegaOrigenSeleccionada);
+
+        } else {
+
+            var o = "Seleccione";
+
+            $("#IdBodegaDestino").html("")
+           //$("#IdBodegaDestino").attr("", "Seleccione")
+           // $("#IdBodegaDestino").val("");
+           // $("#IdBodegaDestino option[value='option']").prop('Seleccione', true);
+           // $('s option[value="0"]').attr("selected", true);
+        }
+    }
+
+
+
+    function cargarSelectBodegaDestino(idBodegaOrigenSeleccionada) {
+       // console.log(idBodegaOrigenSeleccionada);
+       // console.log(array);
+
+        document.getElementById('IdBodegaDestino').options.length = 0;
+
+        for (var i = 0; i < array.length; i++) {
+            if (array[i].id == idBodegaOrigenSeleccionada) {
+                var pos = i;
+                //console.log(pos);
+                array.splice(pos, 1);
+
+            }
+            var o = new Option(array[i].nombre, array[i].id);
+            $("#IdBodegaDestino").append(o);
+        }
+
+         //console.log(array);
+    }
+
+
+
+
+    function limpiarSelect() {
+        //console.log();
+        var select = document.getElementById('IdBodegaDestino');
+        //console.log(select);
+        while (select.length > 0) {
+            select.remove(1);
+        }
+    }
+
+
+
+    function validarBodegaOrigenSeleccionada(value) {
+
+
+        cargarBodegasDestino(value);
+
+        if (value == "") {
+            $('#BuscarInventarioBodega').prop("disabled", true);
+            $('#IdBodegaDestino').prop("disabled", true);
+
+
+        } else {
+            $('#IdBodegaDestino').prop("disabled", false);
+            obtenerBodega(value);
+            cargarDatosInventarioBodega();
+        }
+    }
+
+    function validarBodegaDestinoSeleccionada(value){
+
+        if (value == "") {
+            $('#BuscarInventarioBodega').prop("disabled", true);
+
+        } else {
+            $('#BuscarInventarioBodega').prop("disabled", false);
+        }
+
+    }
+
+
+    function mostrarModalInventarioBodega() {
+
+        $('#error').hide(); //el mensaje del error se oculte
+        var value = $('#BuscarCodigoInventarioBodega').val();
+
+        if (value != 0) {
+            //seguir flujo aca
+            buscarArticuloInventarioBodega(value);
+
+        } else {
+            $('#modalInventarioBodega').modal('show');
+        }
+
+    }
+
+
+    function buscarArticuloInventarioBodega(value) {
+
+        var existeInventarioBodega = "";
+        var existeTraslado = "";
+
+        existeInventarioBodega = validarExistenciaInventarioBodega(arrayArticuloPorBodegaOrigenSeleccionada, value);
+        existeTraslado = validarExistenciaTablaTraslado(arrayTablaTraslado, value);
+        //console.log(existeInventarioBodega );
+        //console.log(existeTraslado);
+
+        if (existeInventarioBodega == true) {
+            //console.log('existe');
+            if (existeTraslado == true) {
+
+                cargarAlert("@SharedLocalizer["Este articulo ya se encuentra listado"]");
+
+            } else {
+
+                agregarArticuloTablaTraslado(value);
+                $('#BuscarCodigoInventarioBodega').val("");
+                $('#IdBodegaOrigen').prop("disabled", true);
+                $('#IdBodegaDestino').prop("disabled", true);
+
+            }
+
+        } else {
+
+            //console.log('no existe');
+            //$('#errorExistenciaArticulo').show(); //el mensaje del error se muestre
+            cargarAlert("@SharedLocalizer["Este articulo no existe"]");
+
+        }
+
+    }
+
+
+
+    function validarExistenciaInventarioBodega(array, value) {
+        //console.log(array);
+        var respuesta = false;
+        for (var i = 0; i < array.length; i++) {
+            if (array[i].codigo == value || array[i].descripcion == value) {
+                respuesta = true;
+                break;
+            }
+        }
+        return respuesta;
+    }
+
+    function validarExistenciaTablaTraslado(array, value) {
+        //console.log(array);
+        var respuesta = false;
+        for (var i = 0; i < array.length; i++) {
+            if (array[i].codigoArticulo == value || array[i].descripcion == value) {
+                respuesta = true;
+                break;
+            }
+        }
+        return respuesta;
+    }
+
+    function agregarArticuloTablaTraslado(value) {
+
+        //console.log(value);
+
+        for (var i = 0; i < arrayArticuloPorBodegaOrigenSeleccionada.length; i++) {
+
+            if (arrayArticuloPorBodegaOrigenSeleccionada[i].codigo == value || arrayArticuloPorBodegaOrigenSeleccionada[i].descripcion == value ) {
+
+                var objEncontrado = {
+                    id: 0,
+                    idTraslado: @Model.IdTraslado,
+                    idInventario: arrayArticuloPorBodegaOrigenSeleccionada[i].idInventario,
+                    codigoArticulo: arrayArticuloPorBodegaOrigenSeleccionada[i].codigo,
+                    descripcion: arrayArticuloPorBodegaOrigenSeleccionada[i].descripcion,
+                    cantidad: 1,
+                    precioUnitario: arrayArticuloPorBodegaOrigenSeleccionada[i].costoPromedioBodega,
+                    costoTotal: arrayArticuloPorBodegaOrigenSeleccionada[i].costoPromedioBodega,
+                    existenciaBodega: arrayArticuloPorBodegaOrigenSeleccionada[i].existenciaBodega
+
+                };
+            }
+        }
+        //console.log(objEncontrado);
+
+        arrayTablaTraslado.push(objEncontrado);
+        //console.log(arrayTablaTraslado);
+        cargarDatosTraslado(arrayTablaTraslado);
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+    function ocultarModalInventarioBodega() {
+        $('#modalInventarioBodega').modal('hide');
+
+        //si selecciono algo el array estara lleno
+        if (arrayTablaTraslado.length == 0) {
+            $('#IdBodegaOrigen').prop("disabled", false);
+            $('#IdBodegaDestino').prop("disabled", false);
+            //console.log('entro desBloqueo');
+            } else {
+                $('#IdBodegaOrigen').prop("disabled", true);
+                $('#IdBodegaDestino').prop("disabled", true);
+                //console.log('entro Bloqueo');
+            }
+    }
+
+    function obtenerBodega(value) {
+        for (var i = 0; i < arrayBodegas.length; i++) {
+            if (value == arrayBodegas[i].id) {
+                obtenerArticulosPorBodega(arrayBodegas[i].tbPrInventarioBodega);
+                break;
+            }
+        }
+    }
+
+    function obtenerArticulosPorBodega(array) {
+        var ib = array;
+        arrayArticuloPorBodegaOrigenSeleccionada = [];//limpie en caso de cambiar de bodega en el select
+        for (var i = 0; i < ib.length; i++) {
+            var model = {
+                idInventario: ib[i].idInventarioNavigation.idInventario,
+                codigo: ib[i].idInventarioNavigation.codigo,
+                descripcion: ib[i].idInventarioNavigation.descripcion,
+                existenciaBodega: ib[i].existenciaBodega,
+                costoPromedioBodega: ib[i].costoPromedioBodega,
+                idInventarioBodega: ib[i].id
+            };
+            // console.log(model);
+            arrayArticuloPorBodegaOrigenSeleccionada.push(model); //pasar jason al array global
+        }
+    }
+
+
+
+
+    function cargarDatosInventarioBodega() {
+
+       // console.log(arrayArticuloPorBodegaOrigenSeleccionada);
+
+        var contadorFila = 0;
+        $("#tblInventarioBodega > tbody").remove();
+        $('#tblInventarioBodega').append('<tbody></tbody>');
+
+        for (var i = 0; i < arrayArticuloPorBodegaOrigenSeleccionada.length; i++) {
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td id="idInventario"><p style="padding-top:1rem">' + arrayArticuloPorBodegaOrigenSeleccionada[i].idInventario + '</p></td>'
+                + '<td id="codigo" ><p style="padding-top:1rem">' + arrayArticuloPorBodegaOrigenSeleccionada[i].codigo + '</p></td>'
+                + '<td id="descripcion" ><p style="padding-top:1rem">' + arrayArticuloPorBodegaOrigenSeleccionada[i].descripcion + '</p></td>'
+                + '<td id="existenciaBodega" ><p style="padding-top:1rem">' + arrayArticuloPorBodegaOrigenSeleccionada[i].existenciaBodega + '</p></td>'
+                + '<td id="costoPromedioBodega" ><p style="padding-top:1rem">' + arrayArticuloPorBodegaOrigenSeleccionada[i].costoPromedioBodega + '</p></td>'
+                + '<td>  <button value="' + contadorFila  + '" onclick="capturar(value)" class="btn btn-link btnEditar"><i class="fas fa-plus"></i>';
+
+            $('#tblInventarioBodega > tbody').append(body);
+            contadorFila++;
+        }
+        inicializarTablaInventarioBodega();
+    }
+
+
+
+
+
+    function inicializarTablaInventarioBodega() {
+        $('#tblInventarioBodega').DataTable().destroy();
+
+        tblInventarioBodega = $('#tblInventarioBodega').DataTable({
+            //scrollY: '50rem',
+            //scrollX: '50rem',
+            "info": false,
+            "iDisplayLength": 5,//Paginación
+            "order": [[0, "desc"]],
+            paging: true,
+           // dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@SharedLocalizer["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                 "paginate": {
+                    "first": "@SharedLocalizer["Primero"]",
+                    "last": "@SharedLocalizer["Último"]",
+                    "next": "@SharedLocalizer["Sguiente"]",
+                    "previous": "@SharedLocalizer["Anterior"]"
+                }
+            },
+        });
+        $(".dataTables_searching").hide();
+    }
+
+
+    $("#filtroBuscarInventarioBodega").on("keyup", function () {
+        buscarPorNombre(this.value)
+    });
+
+
+
+
+    function buscarPorNombre(nombre) {
+        tblInventarioBodega
+            .columns(2)
+            .search(nombre)
+            .draw();
+    }
+
+
+
+
+
+    function capturar(pos) {
+
+        var obj = "";
+
+        obj = arrayArticuloPorBodegaOrigenSeleccionada[pos];
+        //console.log(obj);
+
+        var model = {
+            id: 0,
+            idTraslado: @Model.IdTraslado,
+            idInventario: obj.idInventario,
+          //idInventarioBodega: obj.idInventarioBodega,
+            codigoArticulo: obj.codigo,
+            descripcion: obj.descripcion,
+            cantidad: 1,
+            precioUnitario: obj.costoPromedioBodega,
+            costoTotal: obj.costoPromedioBodega,
+            existenciaBodega: obj.existenciaBodega
+        };
+
+
+        if (!existeItem(arrayTablaTraslado, model.idInventario)) {
+            arrayTablaTraslado.push(model);
+            cargarDatosTraslado(arrayTablaTraslado);
+            ocultarModalInventarioBodega();//oculta el modal y bloquea los input
+
+
+        } else
+            $('#error').show(); //el mensaje del error se muestre
+
+    }
+
+
+
+
+    function existeItem(array, idInventario) {
+
+        var flag = false;
+
+        for (var i = 0; i < array.length; i++) {
+            if (array[i].idInventario == idInventario) {
+                flag = true;
+                break;
+            }
+        }
+
+        return flag;
+
+    }
+
+
+
+    function cargarDatosTraslado(arrayTablaTraslado) {
+
+        //console.log(arrayTablaTraslado);
+        calcularCostoTraslado();
+
+        var contadorFila = 0;
+        $("#tablaTrasladoInventario > tbody").remove();
+        $('#tablaTrasladoInventario').append('<tbody></tbody>');
+
+        for (var i = 0; i < arrayTablaTraslado.length; i++) {
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+
+                + '<td><p style="padding-top:1rem">' + arrayTablaTraslado[i].codigoArticulo + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + arrayTablaTraslado[i].descripcion + '</p></td>'
+                + '<td> <input type="number" id="' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].cantidad +'" onChange="calcular(value,' + contadorFila +')"  min="1" pattern="^[0-9]+" onKeyPress="return soloNumeros(event)" readonly /></td>'
+                + '<td><p style="padding-top:1rem">' + arrayTablaTraslado[i].existenciaBodega + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + arrayTablaTraslado[i].precioUnitario + '</p></td>'
+                + '<td> <input type="text" id="txtCosto' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '" readonly placeholder="@SharedLocalizer["costoTotal"]."/></td>'
+                + '<td>  <button value="' + contadorFila + '" onclick="editar(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + contadorFila + '" onclick="eliminar(value)" class="btn btn-link btnEditar"><i class="fas fa-trash"></i></button>';
+
+
+            $('#tablaTrasladoInventario > tbody').append(body);
+            contadorFila++;
+        }
+        inicializarTablaTraslado();
+
+
+    }
+
+
+    function inicializarTablaTraslado() {
+
+        $('#tablaTrasladoInventario').DataTable().destroy();
+        tablaTrasladoInventario = $('#tablaTrasladoInventario').DataTable({
+            //scrollY: '50rem',
+            //scrollX: '50rem',
+            "info": false,
+            "iDisplayLength": 3,//Paginación
+            "order": [[0, "desc"]],
+            paging: true,
+           // dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@SharedLocalizer["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                "paginate": {
+                    "first": "@SharedLocalizer["Primero"]",
+                    "last": "@SharedLocalizer["Último"]",
+                    "next": "@SharedLocalizer["Sguiente"]",
+                    "previous": "@SharedLocalizer["Anterior"]"
+                }
+            },
+        });
+
+        $(".dataTables_searching").hide();
+
+    }
+
+
+
+    function soloNumeros(e) {
+        var key = window.Event ? e.which : e.keyCode
+        return (key >= 48 && key <= 57)
+    }
+
+
+
+    function editar(pos) {
+        desbloquearCantidad(pos);
+    }
+
+
+    function desbloquearCantidad(pos) {
+        $('#' + pos).prop("readonly", false);
+
+    }
+
+    function calcular(cantidad,pos) {
+        //console.log(cantidad);
+
+        var costo = 0;
+        var precioUnitario = 0;
+        var idInventario = 0;
+
+        if (cantidad > arrayTablaTraslado[pos].existenciaBodega) { // si la cantidad dijitada es mayor que la que se encuentra en esa bodega
+
+            cargarAlert("@SharedLocalizer["la cantidad dijitada supera a lo encontrado en bodega"]");
+
+            $('#' + pos).val(1);
+            $('#' + pos).prop("readonly", true);
+            precioUnitario = arrayTablaTraslado[pos].precioUnitario;
+            costo = precioUnitario * 1;
+            $('#txtCosto' + pos).val(costo);
+            calcularCostoTotal(1, pos);
+
+
+        } else if (cantidad == 0) {
+
+            $('#' + pos).val(1);
+            $('#' + pos).prop("readonly", true);
+            precioUnitario = arrayTablaTraslado[pos].precioUnitario;
+            costo = precioUnitario * 1;
+            $('#txtCosto' + pos).val(costo);
+            calcularCostoTotal(1, pos);
+
+        } else {
+
+
+            precioUnitario = arrayTablaTraslado[pos].precioUnitario;
+            costo = precioUnitario * cantidad;
+            $('#txtCosto' + pos).val(costo);
+            $('#' + pos).prop("readonly", true);
+            calcularCostoTotal(cantidad, pos);
+
+        }
+
+    }
+
+   //calcula con forme los item se van agregando
+    function calcularCostoTraslado() {
+
+        var sumatoria = 0;
+
+        for (var i = 0; i < arrayTablaTraslado.length; i++) {
+            sumatoria += parseInt(arrayTablaTraslado[i].costoTotal);
+        }
+        //console.log(sumatoria);
+        $("#CostoTraslado").val("");
+        $("#CostoTraslado").val(sumatoria);
+
+    }
+
+  //los item ya han sido agregados por lo tanto calcula conforme los item van siendo editados en su campo cantidad
+    function calcularCostoTotal(cantidad, pos) {
+
+       // console.log(cantidad);
+       // console.log(pos);
+
+        var nuevoPrecioUnitario = 0;
+
+        nuevoPrecioUnitario = $('#txtCosto' + pos).val();
+       // console.log(nuevoPrecioUnitario);//18600
+        for (var i = 0; i < arrayTablaTraslado.length; i++) {
+             arrayTablaTraslado[pos].cantidad = parseInt(cantidad);
+             arrayTablaTraslado[pos].costoTotal = parseInt(nuevoPrecioUnitario);
+
+        }
+
+        //console.log(arrayTablaTraslado);
+        calcularCostoTraslado();
+
+    }
+
+
+
+    function eliminar(pos) {
+
+        var costoTotal = 0;
+        var elementoEliminado = arrayTablaTraslado.splice(pos, 1);//posicion y cantidad
+        for (var i = 0; i < elementoEliminado.length; i++) {
+            costoTotal = elementoEliminado[i].costoTotal;
+        }
+       //console.log(costoTotal);
+       //console.log(arrayTablaTraslado);
+        cargarDatosTraslado(arrayTablaTraslado);
+        calcularCostoTraslado();
+        bloquearCampos();
+
+    }
+
+    function bloquearCampos() {
+
+        if (arrayTablaTraslado.length == 0) {
+
+            $('#IdBodegaOrigen').val("");
+            $('#IdBodegaDestino').val("");
+            $('#IdBodegaOrigen').prop("disabled", false);
+            $('#IdBodegaDestino').prop("disabled", true);
+            $('#BuscarInventarioBodega').prop("disabled", true);
+
+        }
+
+
+    }
+
+
+
+
+   function guardarTraslado() {
+
+
+       $.ajax({
+           type: "POST",
+           headers: {
+               "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+           },
+           dataType: "json",
+           url: '@Url.Action("CrearEditarTraslado", "Traslado")',
+           data: { traslado: crearModelo(), inventarioTraslado: arrayTablaTraslado },
+            success: function (data) {
+
+                if (data.success) {
+
+                        console.log(data);
+                       // $('#modalTraslado').modal('hide'); //ocultar modal
+                    }
+                    else
+                    cargarAlert("@SharedLocalizer["errorDuplicacion"]");
+
+               },
+           error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+              }
+       });
+
+   }
+
+
+   function crearModelo() {
+
+       $('#modalTraslado').modal('hide'); //ocultar modal
+       //console.log(arrayTablaTraslado);
+
+       var idBodegaOrigen = 0;
+       var idBodegaDestino = 0;
+       var fecha = "";
+       var anulado = 0;
+       var costoTraslado = 0;
+       var comentario = "";
+
+       idBodegaOrigen = $("#IdBodegaOrigen").val();
+       idBodegaDestino = $("#IdBodegaDestino").val();
+       fecha = $("#fecha").val();
+       anulado = validarAnular();
+       costoTraslado = $("#CostoTraslado").val();
+       comentario = $("#Comentario ").val();
+
+       var modelTraslado = {
+
+               idTraslado: @Model.IdTraslado,
+               idUsuario:@Model.IdUsuario,
+               idBodegaOrigen: idBodegaOrigen,
+               idBodegaDestino: idBodegaDestino,
+               fecha: fecha,
+              // fechaCreacion: fecha,
+               anulado: anulado,
+               costoTraslado: costoTraslado,
+               comentario: comentario
+       };
+
+       console.log(arrayTablaTraslado);//lo que va para la tabla traslado
+       console.log(modelTraslado);
+       //console.log(fecha);
+       //console.log(anulado);
+       return modelTraslado;
+   }
+
+   function validarAnular() {
+        var resp = 0;
+       if ($('#Anular').prop('checked')) {
+           resp = 1;
+           return resp;
+       } else {
+           resp = 0;
+           return resp;
+       }
+    }
+
+
+
+
+
+
+
+
+
+
+
+    </script>
+
+
+
+
+

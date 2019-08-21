@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using AltivaWebApp.ViewModels;
 namespace AltivaWebApp.Services
 {
     public class OrdenService: IOrdenService
@@ -40,6 +40,11 @@ namespace AltivaWebApp.Services
         //{
         //    return repository.GetAllOrdenDetalleByOrdenId(id);
         //}
+        public IList<CompraAutomaticoViewModel> compraProveedor(int id)
+        {
+            return repository.compraProveedor(id);
+        }
+
         public IList<TbPrOrdenDetalle> GetAllOrdenDetalleByOrdenId(int id)
         {
             return repository.GetAllOrdenDetalleByOrdenId(id);

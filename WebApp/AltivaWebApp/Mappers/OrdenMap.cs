@@ -13,17 +13,18 @@ namespace AltivaWebApp.Mappers
     {
         private readonly IOrdenService service;
         private readonly IMonedaService monedaService;
+
         public OrdenMap(IOrdenService service, IMonedaService monedaService)
         {
             this.service = service;
             this.monedaService = monedaService;
         }
 
-
         public TbPrOrden Create(OrdenViewModel viewModel)
         {
             return service.Save(ViewModelToDomain(viewModel));
         }
+
         public TbPrOrden Update(OrdenViewModel viewModel)
         {
             return service.Update(ViewModelToDomainEdit(viewModel));
@@ -204,7 +205,7 @@ namespace AltivaWebApp.Mappers
             domain.Fecha = viewModel.Fecha;
             domain.TipoCambioDolar = viewModel.TipoCambioDolar;
             domain.TipoCambioEuro = viewModel.TipoCambioEuro;
-
+          
             var moneda = monedaService.GetAll();
 
             if (viewModel.IdMoneda == 1)

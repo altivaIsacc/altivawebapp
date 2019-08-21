@@ -9,6 +9,7 @@ namespace AltivaWebApp.Services
     public interface IContactoService
     {
         IList<TbCrContacto> GetAllPersonas();
+        IList<TbCrContacto> GetAllClientes();
         IList<TbCrContacto> GetAllEmpresas();
         TbCrContacto GetByIdContacto(long domain);
         TbCrContacto Update(TbCrContacto domain);
@@ -35,7 +36,7 @@ namespace AltivaWebApp.Services
         IList<TbCrContacto> GetAllProveedores();
         bool EliminarRelacion(int idRelacion);
         TbCrContactoRelacion GetRelacionById(int id);
-        TbCrContactoRelacion GetByIdPadreAndIdHijo(int idPadre, int idHijo);
-        IList<TbCrContacto> GetAllClientes();
+        TbCrContactoRelacion GetByIdPadreAndIdHijo(int idPadre, int idHijo);      
+
     }
 }

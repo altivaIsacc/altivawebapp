@@ -1,0 +1,309 @@
+﻿@model IEnumerable<AltivaWebApp.Domains.TbPrPrecios>
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+    <div class="row">
+
+        <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
+            <label>@SharedLocalizer["buscarPorNombre"]:</label>
+            <input type="text" id="filtroBuscarNombre" class="form-control" placeholder="@SharedLocalizer["nombre"]" />
+        </div>
+        <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
+            <label>@SharedLocalizer["buscarPorDescripcion"]:</label>
+            <input type="text" id="filtroBuscarDes" class="form-control" placeholder="@SharedLocalizer["Descripción"]" />
+        </div>
+
+        <div class="col-md-3 col-sm-4 col-xs-12 checkbox" style="padding-top:1.5rem">
+            <label class="control-label">
+                <input type="checkbox" id="estado" onchange="filtroAnuladas()"> @SharedLocalizer["VerAnulados"]
+            </label>
+        </div>
+
+    </div>
+
+<br />
+<div class="row">
+    <div class=" col-md-10 table-responsive">
+        <table class="table table-bordered" id="tblPrecios">
+            <thead>
+                <tr>
+                    <th hidden>
+                      
+                    </th>
+
+                    <th>
+                        @SharedLocalizer["fechaCreacion"]
+                    </th>
+                    <th>
+                        @SharedLocalizer["nombre"]
+                    </th>
+                    <th>
+                        @SharedLocalizer["Descripción"]
+                    </th>
+                    <th hidden>
+                        @SharedLocalizer["Anulado"]
+                    </th>
+                    <th>
+                        @SharedLocalizer["Acción"]
+                    </th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+<script>
+
+    var precios= [];
+
+    $(document).ready(function () {
+
+        getPrecios(1);
+    });
+
+    function getPrecios(pos) {
+        $.ajax({
+            type: "get",
+            headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetPrecios", "Precios")',
+            success: function (data) {
+                console.log(data);
+                precios = data;
+                filtroAnuladas();
+            },
+            error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+
+
+    function anularPrecioDirect(id) {
+        $.ajax({
+            type: "post",
+            headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("AnularPrecio", "Precios")',
+            data: { id: id },
+            success: function (data) {
+                getPrecios();
+            },
+            error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+    function anularPrecio(id, key) {
+
+        var msj = "@SharedLocalizer["confirmAnularTPrecio"]";
+        if (key) {
+             msj = "@SharedLocalizer["confirmHabilitarTPrecio"]";
+                    
+        } 
+            
+        
+
+        bootbox.confirm(msj, function (result) {
+
+            if (result) {
+
+                anularPrecioDirect(id);
+            }
+
+        });
+    }
+
+    function cargarDatos(data) {
+        $("#tblPrecios> tbody").remove();
+        $('#tblPrecios').append('<tbody></tbody>');
+
+        var contadorFila = 0;
+        var colorFila = "";
+        var disabled = "";
+        var anularIcon = '<i class="fas fa-trash"></i>';
+       
+   
+        for (var i = 0; i < data.length; i++) {
+             var anulado = '@SharedLocalizer["No"]';
+            if (data[i].anulado) {
+                colorFila = "color: #808080";
+                disabled = "disabled";
+                anularIcon = '<i class="fas fa-trash-restore"></i>';
+                anulado ='@SharedLocalizer["Si"]';
+            }
+
+
+         
+
+            var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
+               + '<td hidden>' + contadorFila + '</td>'
+                 + '<td>' + recuperarFecha(data[i].fecha) + '</td>'
+                 + '<td>' + data[i].nombre + '</td>'
+                 + '<td style="padding-right:30%;">' + data[i].descripcion + '</td>'
+                 + '<td hidden>' + anulado +' </td>'
+                 + '<td >  <button ' + disabled + ' value="' + data[i].id + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="anularPrecio(value, ' + data[i].anulado + ')" class="btn btn-link btnEditar">' + anularIcon + '</button></td></tr>';
+
+            $('#tblPrecios > tbody').append(body);
+                contadorFila++;
+
+        }
+
+      
+
+        inicializarTabla();
+
+    }
+
+    function inicializarTabla() {
+
+        $('#tblPrecios').DataTable().destroy();
+
+        tblCompras = $('#tblPrecios').DataTable({
+            "info": false,
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@SharedLocalizer["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@SharedLocalizer["sinResultados"]",
+                "paginate": {
+                    "first": "@SharedLocalizer["Primero"]",
+                    "last": "@SharedLocalizer["Último"]",
+                    "next": "@SharedLocalizer["Sguiente"]",
+                    "previous": "@SharedLocalizer["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   "></i>',
+                    titleAttr: 'Copy',
+                    title: '@SharedLocalizer["TiposPrecio"]',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3]
+                    }
+
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: '@SharedLocalizer["TiposPrecio"]',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3]
+                    }
+
+                },
+
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: '@SharedLocalizer["TiposPrecio"]',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3]
+                    }
+                }
+            ]
+        });
+
+    }
+
+    $("#filtroBuscarNombre").on("keyup", function () {
+        tblCompras
+            .columns(2)
+            .search(this.value)
+            .draw();
+    });
+     $("#filtroBuscarDes").on("keyup", function () {
+        tblCompras
+            .columns(3)
+            .search(this.value)
+            .draw();
+    });
+
+    function filtroAnuladas() {
+
+        var array = precios;
+
+
+
+        var arrayCompras = [];//JSON.parse(JSON.stringify(ordenFiltrado));
+
+        if ($('#estado').prop('checked')) {
+
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].anulado)
+                    arrayCompras.push(array[i]);
+            }
+
+        }
+        else
+            for (var i = 0; i < array.length; i++) {
+                if (!array[i].anulado)
+                    arrayCompras.push(array[i]);
+            }
+
+        cargarDatos(arrayCompras);
+
+    }
+
+    function recuperarFecha(_fecha) {
+       
+        var f = new Date(_fecha);
+
+        return f.toLocaleString();
+
+    }
+     //function concatenarFecha(_fecha) {
+     //   var miFechaActual = new Date(_fecha);
+     //  var ano = miFechaActual.getFullYear();
+     //  var Rdia = ( miFechaActual.getDate() / 30) / 12;
+     //  var Rhora = (( miFechaActual.getHours() / 24) / 30) / 12;
+     //    var Rmes = (parseInt(miFechaActual.getMonth()) + 1) / 12;
+     //    var Rmin = (((miFechaActual.getMinutes() / 60) / 24) / 30) / 12;
+     //    var Resultado = parseFloat((Rmin + Rmes + Rdia + Rhora + ano) .toFixed(4));
+     //   console.log(Resultado);
+        
+
+     //   return Resultado;
+     // }
+
+
+
+
+</script>
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>
