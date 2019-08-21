@@ -82,8 +82,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true, departamento = departamento });
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -101,8 +102,9 @@ namespace AltivaWebApp.Controllers
                 departamento = service.Update(departamento);
                 return Ok(departamento);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -115,8 +117,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(service.GetDepartamentoById(id));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -129,8 +132,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(service.GetAll());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -153,8 +157,9 @@ namespace AltivaWebApp.Controllers
 
                 return Ok(depa);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -167,8 +172,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(service.GetDepartamentosSinAnular());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }

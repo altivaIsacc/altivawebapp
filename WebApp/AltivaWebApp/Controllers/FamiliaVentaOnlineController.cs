@@ -114,9 +114,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true, familia = familia, edita = edita });
             }
-            catch
+            catch (Exception ex)
             {
-                //throw;
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return Json(new { data = false }); ;
             }
         }
@@ -140,8 +140,9 @@ namespace AltivaWebApp.Controllers
 
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return Json(new { data = false });
                 throw;
             }

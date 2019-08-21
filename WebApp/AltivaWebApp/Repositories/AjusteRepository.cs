@@ -47,8 +47,9 @@ namespace AltivaWebApp.Repositories
                                 .ThenInclude(a => a.IdCuentaContableNavigation).AsNoTracking()
                                 .FirstOrDefault(a => a.Id == id);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -99,8 +100,9 @@ namespace AltivaWebApp.Repositories
                     }).AsNoTracking().FirstOrDefault(a => a.Id == id);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -128,8 +130,9 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
                 return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -143,8 +146,9 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }

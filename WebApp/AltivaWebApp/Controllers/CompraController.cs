@@ -93,23 +93,32 @@ namespace AltivaWebApp.Controllers
                     if (compra == null || compra.Id == viewModel.Id)
                     {
                         long idCD = 0;
-                        var c = map.Update(viewModel);
-                        if (viewModel.CompraDetalle != null && viewModel.CompraDetalle.Count() > 0)
+
+
+                        if (viewModel.CompraDetalle != null && viewModel.CompraDetalle[0].Id != 0)
                         {
-                            var cd = map.CreateCD(viewModel);
-                            idCD = cd.Id;
+                            idCD = viewModel.CompraDetalle[0].Id;
+                            
                             if (!viewModel.Borrador)
                             {
-                                kardexMap.CreateKardexCDSingle((int)cd.Id);
-
-                                ///////////////////actualiza cola aprovacion
-                                //var cola = haciendaService.GetCAById(c.Id);
-                                //cola.MontoDoc = c.TotalBase;
-                                //haciendaService.UpdateCA(cola);
+                                kardexMap.CreateKardexEliminarCDSingle((int)idCD);
                             }
+
+                            map.UpdateCD(viewModel);
+                            viewModel.CompraDetalle = null;
                         }
-                        else
-                            if (c.EnCola)
+                        var c = map.Update(viewModel);
+
+                        if (viewModel.CompraDetalle != null)
+                            idCD = c.TbPrCompraDetalle.FirstOrDefault().Id;
+
+                        
+                        if (!viewModel.Borrador && idCD != 0)
+                        {
+                            kardexMap.CreateKardexCDSingle((int)idCD);
+                        }
+
+                        if (c.EnCola)
                             haciendaMap.CreateCACompra(compra);
 
                         return Json(new { success = true, idCD = idCD });
@@ -135,8 +144,9 @@ namespace AltivaWebApp.Controllers
                 }
 
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
                 //return BadRequest();
             }
@@ -157,8 +167,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = res });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
                 //return BadRequest();
             }
@@ -183,44 +194,13 @@ namespace AltivaWebApp.Controllers
                     return Json(new { succes = false });
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //throw;
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
 
-
-        [HttpPost("Crear-CompraDetalle")]
-        public ActionResult CrearCompraDetalle(CompraViewModel viewModel)
-        {
-            try
-            {
-                var res = map.CreateCD(viewModel);
-
-                return Json(new { success = true });
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
-
-        //POST: Orden/Create
-        [HttpPost("Editar-CompraDetalle")]
-        public ActionResult EditarCompraDetalle(CompraViewModel viewModel)
-        {
-            try
-            {
-                var res = map.CreateCD(viewModel);
-
-                return Json(new { success = true });
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
 
         [HttpPost("Eliminar-CompraDetalle")]
         public ActionResult EliminarCompraDetalle(int idCD)
@@ -236,8 +216,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = res });
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -265,15 +246,16 @@ namespace AltivaWebApp.Controllers
                         }
                     }
 
-                    return Ok(compras);
+                    return Ok(compras.OrderByDescending(c => c.FechaCreacion));
                 }
 
                 else
                     return Ok();
 
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
                 //return BadRequest();
             }
@@ -287,8 +269,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(service.GetAllCompraDetalleByCompraId(id));
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -300,8 +283,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(bodegaService.GetAllActivas());
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }

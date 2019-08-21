@@ -165,8 +165,9 @@ namespace AltivaWebApp.Controllers
                     var estadoTarea = this.IEstadoMapper.Save(domain);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
 
@@ -188,8 +189,9 @@ namespace AltivaWebApp.Controllers
 
 
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return new JsonResult(false);
             }
 

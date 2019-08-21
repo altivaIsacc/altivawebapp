@@ -31,8 +31,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(service.GetAllCASinAnular());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
