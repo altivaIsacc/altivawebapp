@@ -79,7 +79,7 @@ namespace AltivaWebApp.Mappers
                 k.IdUsuario = domain.IdUsuario;
                 k.Observaciones = domain.Descripcion;
                 k.PrecioPromedio = 0;//item.CostoPromedio;
-                k.PrecioUnit = item.IdInventarioNavigation.UltimoPrecioCompra;
+                k.PrecioUnit = item.CostoPromedio;
                 k.SaldoFinal = item.CostoPromedio * existenciaB;
                 k.TipoDocumento = "AM";
 
@@ -144,7 +144,7 @@ namespace AltivaWebApp.Mappers
                 k.IdUsuario = domain.IdUsuario;
                 k.Observaciones = domain.Descripcion;
                 k.PrecioPromedio = 0;
-                k.PrecioUnit = item.IdInventarioNavigation.UltimoPrecioCompra;
+                k.PrecioUnit = item.CostoPromedio;
                 k.SaldoFinal = 0;//item.CostoPromedio * existenciaB,
                 k.TipoDocumento = "AM";
 
