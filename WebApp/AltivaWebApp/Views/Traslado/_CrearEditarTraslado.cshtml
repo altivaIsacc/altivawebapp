@@ -27,7 +27,7 @@
 
 
 <div class="row">
-     <h5 class="col-md-11 col-sm-11 col-xs-11" id="trasladoModallabel">@titulo</h5>
+    <h5 class="col-md-11 col-sm-11 col-xs-11" id="trasladoModallabel">@titulo</h5>
     <div class="col-md-1">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
@@ -36,10 +36,9 @@
 </div>
 <hr />
 
-<div class="row" style="height:500px; overflow:auto;">
-   
+<div class="row">
     <div class="form-row">
-        <input asp-for="IdTraslado" class="form-control" id="IdTraslado" size="5" type="hidden" />
+        <input type="hidden" asp-for="IdTraslado" class="form-control" id="IdTraslado" size="5" /> <!--   type="hidden"   -->
         <span hidden id="IdTrasladoValid" class="text-danger">@SharedLocalizer["IdTrasladoValid"]</span>
     </div>
 
@@ -70,9 +69,9 @@
 
         <div class="col-md-4 col-sm-4 col-xs-4 ">
             <label class="control-label">@SharedLocalizer["BodegaDestino"]:</label>
-            <select id="IdBodegaDestino" class="form-control" onChange="validarBodegaDestinoSeleccionada(value)">
+            <select id="IdBodegaDestino" class="form-control">
                 <!-- class="selectpicker form-control selectFiltro" data-live-search="true"   onChange="validarBodegaDestinoSeleccionada()"-->
-                <!--<option value="">@SharedLocalizer["seleccione"]</option> -->
+                <option id="option" value="">@SharedLocalizer["seleccione"]</option>
             </select>
         </div>
 
@@ -86,27 +85,47 @@
                 </div>
                 <div class="input-group">
                     <span class="input-group-btn">
-                        <button class="btn btn-success" id="BuscarInventarioBodega" onclick="mostrarModalInventarioBodega()">@SharedLocalizer["Buscar Inventario Bodega"]</button>
+                        <button class="btn btn-success" id="BuscarInventarioBodega" onclick="mostrarModalInventarioBodega()">@SharedLocalizer["buscarInventarioBodega"]</button>
                     </span>
                     <input type="text" id="BuscarCodigoInventarioBodega" class="form-control">
                 </div>
             </div>
         </div>
+
         <div class="col-md-2 col-sm-2 col-xs-2">
-            <div class="text-right" id="Anular">
-                <br>
-                <button class="btn btn-danger btn-sm" onclick="anular()">@SharedLocalizer["Anular"]</button>
+            <div class="text-right">
+
+                <div class="row">
+
+                    <div class="col-md-6 col-sm-6 col-xs-6">
+                        <div class="input-group">
+                            <br>
+                            <button class="btn btn-danger btn-sm" id="Anular" onclick="anularTraslado()">@SharedLocalizer["Anular"]</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6 col-xs-6">
+                            <div class="input-group">
+                                <br>
+                                <button class="btn btn-primary btn-sm" id="Pdf" onclick="crearPdf()">@SharedLocalizer["PDF"]</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
+
+
     </div>
 
     <div class="row">
         <div class="col-md-12 table-responsive">
-            <table class="table table-bordered" id="tablaTrasladoInventario" style="height:400px">
+            <table class="table table-bordered" id="tablaTrasladoInventario">
                 <thead>
                     <tr>
                         <th>
-                            @SharedLocalizer["Codigo"]
+                            @SharedLocalizer["CodigoArticulo"]
                         </th>
                         <th>
                             @SharedLocalizer["descripcion"]
@@ -114,15 +133,14 @@
                         <th>
                             @SharedLocalizer["Cantidad"]
                         </th>
+
                         <th>
-                            @SharedLocalizer["ExistenciaB"]
-                        </th>
-                        <th>
-                            @SharedLocalizer["PrecioU"]
+                            @SharedLocalizer["PrecioUnitario"]
                         </th>
                         <th>
                             @SharedLocalizer["CostoTotal"]
                         </th>
+
                         <th>
                             @SharedLocalizer["accion"]
                         </th>
@@ -139,13 +157,14 @@
         <div class="col-md-6 col-sm-6 col-xs-6">
             <div class="input-group">
                 <label class="control-label">@SharedLocalizer["Comentario"]:</label>
-                <textarea id="Comentario" rows="3" class="form-control" style="resize:none;"></textarea>
+                <textarea asp-for="Comentario" id="Comentario" rows="3" class="form-control" style="resize:none;"></textarea>
             </div>
         </div>
         <div class="col-md-6 col-sm-6 col-xs-6">
             <div class="text-right">
                 <label class="control-label">@SharedLocalizer["CostoTotal"]:</label>
-                <input class="text-right" size="20" type="text" maxlength="50" value="0" id="CostoTraslado" />
+                <input class="text-right colon" size="20" type="text" maxlength="50" id="CostoTraslado" />
+                <input class="text-right" size="20" type="text" maxlength="50" id="txtCostoTraslado" />
             </div>
         </div>
     </div>
@@ -155,17 +174,17 @@
 
         <div class="input-group">
             <label class="control-label">@SharedLocalizer["fechaCreacion"]:</label>
-            <input asp-for="FechaCreacion" size="12" type="text" maxlength="50" id="FechaCreacion" class="form-control" />
+            <input readonly asp-for="FechaCreacion" size="12" type="text" maxlength="50" id="FechaCreacion" class="form-control" />
         </div>
 
         <div class="input-group">
-            <label class="control-label">@SharedLocalizer["Usuario"]:</label>
-            <input asp-for="IdUsuario" size="22" type="text" maxlength="50" id="Usuario" class="form-control" />
+            <label class="control-label">@SharedLocalizer["nombreUsuario"]:</label>
+            <input type="hidden" asp-for="IdUsuario" maxlength="50" id="IdUsuario" class="form-control" />
+            <input readonly id="IdUsuario2" size="14" class="form-control" />
         </div>
 
     </div>
-    
-</div>
+    <br>
 
     <button class="btn btn-success" onclick="guardarTraslado()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
     <button class="btn btn-default" data-dismiss="modal">@SharedLocalizer["Cancelar"]</button>
@@ -272,7 +291,7 @@
 
     $(document).ready(function () {
 
-      
+
         validarGuardarEditar();
         getBodegasInventario();
         getUsuarios();
@@ -701,7 +720,7 @@
             contadorFila++;
         }
 
-        //inicializa formato de la moneda tambien aca 
+        //inicializa formato de la moneda tambien aca
         $(".colon").inputmask('currency', {
             prefix: monedas[0].simbolo + " ",
             rightAlign: true
@@ -820,16 +839,16 @@
             var body = '<tr class="fila' + contadorFila + ' filas">'
                 + '<td><p style="padding-top:1rem">' + arrayTablaTraslado[i].codigoArticulo + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + arrayTablaTraslado[i].descripcion + '</p></td>'
-                + '<td> <input type="number" id="' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].cantidad + '" onChange="calcular(value,' + contadorFila + ', ' + arrayTablaTraslado[i].idInventario +' )"  min="1" pattern="^[0-9]+" onKeyPress="return soloNumeros(event)" readonly /></td>'                          
+                + '<td> <input type="number" id="' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].cantidad + '" onChange="calcular(value,' + contadorFila + ', ' + arrayTablaTraslado[i].idInventario +' )"  min="1" pattern="^[0-9]+" onKeyPress="return soloNumeros(event)" readonly /></td>'
                 + '<td><p style="padding-top:1rem" class="colon">' + arrayTablaTraslado[i].precioUnitario + '</p></td>'
                 //mostrando por la clase colon
-                + '<td> <input type="text"  id="txtCosto2' + contadorFila + '" class="form-control colon" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '" readonly placeholder="@SharedLocalizer["costoTotal"]."/>  <input type="hidden" id="txtCosto' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '"/>    </td>'       
+                + '<td> <input type="text"  id="txtCosto2' + contadorFila + '" class="form-control colon" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '" readonly placeholder="@SharedLocalizer["costoTotal"]."/>  <input type="hidden" id="txtCosto' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '"/>    </td>'
                 + '<td>  <button value="' + contadorFila + '" onclick="editar(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + contadorFila + '" onclick="eliminar(value)" class="btn btn-link btnEditar"><i class="fas fa-trash"></i></button>';
             $('#tablaTrasladoInventario > tbody').append(body);
             contadorFila++;
         }
 
-        //inicializa formato de la moneda tambien aca 
+        //inicializa formato de la moneda tambien aca
         $(".colon").inputmask('currency', {
             prefix: monedas[0].simbolo + " ",
             rightAlign: true
@@ -943,15 +962,15 @@
 
         } else {
             // console.log("entro a editar");
-            
+
                  for (var j = 0; j < arrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
 
                      if (arrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == id) {
-                       
+
                          var existenciaBodega = arrayArticuloPorBodegaOrigenSeleccionada[j].existenciaBodega;
                         // console.log(existenciaBodega);
 
-                         if (cantidad > existenciaBodega) {                       
+                         if (cantidad > existenciaBodega) {
                                cargarAlert("@SharedLocalizer["ExistenciaSuperada"]");
                              $('#' + pos).val(1);
                              $('#' + pos).prop("readonly", true);
@@ -960,7 +979,7 @@
                              $('#txtCosto2' + pos).val(costo);
                              $('#txtCosto' + pos).val(costo);
                              calcularCostoTotal(1, pos);
-                         } else if (cantidad == 0) {                         
+                         } else if (cantidad == 0) {
                              $('#' + pos).val(1);//ponga 1 por defecto
                              $('#' + pos).prop("readonly", true);//y lo bloquee
                              precioUnitario = arrayTablaTraslado[pos].precioUnitario;
@@ -968,7 +987,7 @@
                              $('#txtCosto2' + pos).val(costo);
                              $('#txtCosto' + pos).val(costo);
                              calcularCostoTotal(1, pos);
-                         } else {                     
+                         } else {
                              precioUnitario = arrayTablaTraslado[pos].precioUnitario;
                              costo = precioUnitario * cantidad;
                              $('#txtCosto2' + pos).val(costo);
@@ -1059,7 +1078,7 @@
         arrayArticulosEliminados.push(num);
 
         console.log(arrayArticulosEliminados);
-        
+
     }
 
 
@@ -1263,7 +1282,7 @@
                   }
             });
         }
-    
+
 
 
 
