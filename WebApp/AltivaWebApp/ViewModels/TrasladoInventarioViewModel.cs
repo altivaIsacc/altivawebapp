@@ -12,9 +12,8 @@ namespace AltivaWebApp.ViewModels
         public long IdInventario { get; set; }
         public string CodigoArticulo { get; set; }
         public string Descripcion { get; set; }
-        public double Cantidad { get; set; }
-        public double PrecioUnitario { get; set; }
-        public double CostoTotal { get; set; }
-
+        public float Cantidad { get; set; }
+        public float PrecioUnitario { get; set; }
+        public float CostoTotal { get; set; }
     }
 }

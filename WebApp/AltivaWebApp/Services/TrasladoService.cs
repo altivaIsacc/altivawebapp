@@ -11,31 +11,11 @@ namespace AltivaWebApp.Services
     {
         private readonly ITrasladoRepository repository;
 
-        public TrasladoService(ITrasladoRepository repository) {
+        public TrasladoService(ITrasladoRepository repository)
+        {
             this.repository = repository;
         }
 
-        public bool Delete(TbPrTraslado domain)
-        {
-            return repository.Delete(domain);
-        }
-
-        public void DeleteTrasladoInventario(IList<long> id)
-        {
-            repository.DeleteTrasladoInventario(id);
-        }
-
-        //si
-        public IList<TbPrTraslado> GetAllTraslado()
-        {
-            return repository.GetAllTraslado();
-        }
-
-        //si
-        public TbPrTraslado GetTrasladoById(long id)
-        {
-            return repository.GetTrasladoById(id);
-        }
 
         //si
         public TbPrTraslado Save(TbPrTraslado domain)
@@ -43,21 +23,34 @@ namespace AltivaWebApp.Services
             return repository.Save(domain);
         }
 
-        //si
-        public bool SaveTrasladoInventario(IList<TbPrTrasladoInventario> domain)
-        {
-            return repository.SaveTrasladoInventario(domain);
-        }
-
         public TbPrTraslado Update(TbPrTraslado domain)
         {
             return repository.Update(domain);
         }
 
-        //si
-        public bool UpdateTrasladoInventario(IList<TbPrTrasladoInventario> domain)
+        public bool Delete(TbPrTraslado domain)
         {
-            return repository.UpdateTrasladoInventario(domain);
+            return repository.Delete(domain);
+        }
+        //si
+        public IList<TbPrTraslado> GetAllTraslado()
+        {
+            return repository.GetAllTraslado();
+        }
+        //si
+        public TbPrTraslado GetTrasladoById(long id)
+        {
+            return repository.GetTrasladoById(id);
+        }
+
+        public void DeleteTrasladoInventario(IList<long> id)
+        {
+            repository.DeleteTrasladoInventario(id);
+        }
+
+        public IList<TbPrTrasladoInventario> SaveOrUpdateTrasladoInventario(IList<TbPrTrasladoInventario> domain)
+        {
+            return repository.SaveOrUpdateTrasladoInventario(domain);
         }
 
         public IList<TbPrTraslado> GetTrasladosSinAnular()

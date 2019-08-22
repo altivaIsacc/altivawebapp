@@ -24,10 +24,12 @@ namespace AltivaWebApp.Repositories
         }
 
 
-
-        public TbPrTrasladoInventario GetTrasladoInventarioById(long idTraslado)
+        //sirve
+        public IList<TbPrTrasladoInventario> GetTrasladoInventarioById(long idTraslado)
         {
-            return context.TbPrTrasladoInventario.FirstOrDefault(d => d.IdTraslado == idTraslado);//la forania de mi tabla por la que viene de la vista
+            //return context.TbPrTrasladoInventario.FirstOrDefault(d => d.IdTraslado == idTraslado);//la forania de mi tabla por la que viene de la vista
+            return context.TbPrTrasladoInventario.Where(f => f.IdTraslado == idTraslado).ToList();//trae los que coincidan con el idtraslado
+           
         }
 
         

@@ -5,11 +5,7 @@ namespace AltivaWebApp.Domains
 {
     public partial class TbPrInventarioBodega
     {
-        public TbPrInventarioBodega()
-        {
-            TbPrTrasladoInventario = new HashSet<TbPrTrasladoInventario>();
-        }
-
+       
         public long Id { get; set; }
         public long IdInventario { get; set; }
         public long IdBodega { get; set; }
@@ -23,6 +19,6 @@ namespace AltivaWebApp.Domains
 
         public virtual TbPrBodega IdBodegaNavigation { get; set; }
         public virtual TbPrInventario IdInventarioNavigation { get; set; }
-        public virtual ICollection<TbPrTrasladoInventario> TbPrTrasladoInventario { get; set; }
+
     }
 }
