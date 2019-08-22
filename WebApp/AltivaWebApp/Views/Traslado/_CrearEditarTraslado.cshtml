@@ -281,7 +281,7 @@
     var arrayArticuloPorBodegaOrigenSeleccionada = [];
     var arrayTablaTraslado = [];
     var arrayTablaTrasladoInventario = [];//si editar
-    var Usuarios = [];//uti
+  
     //envio al controlador
     var arrayTraslado = [];
     var arrayTrasladoInventario = [];
@@ -294,7 +294,7 @@
       
         validarGuardarEditar();
         getBodegasInventario();
-        getUsuarios();
+     
 
         if (@Model.IdTraslado != 0) {
 
@@ -354,6 +354,7 @@
             ocultarCampos();
         } else {
            // alert('entro a editar');
+            recuperarUsuario();
             mostrarOcultarCampos();
 
             getTraslado();
@@ -1106,6 +1107,7 @@
 
     function guardarTraslado() {
 
+
         if (validarSelectBodegaOrigen() == false) {
             if (validarTablaTraslado() == false) {
                     $.ajax({
@@ -1120,8 +1122,8 @@
                             if (data.success) {
                                 console.log(data);
                                 $('#modalTraslado').modal('hide'); //ocultar modal
-                                getTraslados();
-                                //limpiarArray();
+                                getTrasladosGeneral();
+                                limpiarArray();
                             }
                             else
                                 cargarAlert("@SharedLocalizer["errorDuplicacion"]");
@@ -1203,6 +1205,26 @@
         }
     }
 
+    function validarPreciosArticulos() {
+
+        var resp = false;
+
+        for (var i = 0; i < arrayTablaTraslado.length; i++) {
+
+            if (arrayTablaTraslado[i].precioUnitario == 0) {
+
+                 // console.log(arrayTablaTraslado);
+                console.log("que no guarde");
+                resp = true;
+                return resp;
+                break;
+
+            } 
+
+        }
+
+    }
+
 
 
 
@@ -1272,7 +1294,7 @@
                 success: function (data) {
 
                     arrayTablaTraslado = data;
-                    console.log(arrayTablaTraslado);
+                    //console.log(arrayTablaTraslado);
                     cargarDatosTraslado(arrayTablaTraslado);
                    //cargarLineas(data);
                 },
@@ -1344,85 +1366,66 @@
 
 
 
-
     }
 
 
+    function recuperarUsuario() {
 
+        //console.log("entro a recuperar el usuario");
+        var idUsu = $('#IdUsuario').val();
+        var nombre = "";
+        //console.log(Usuarios);
+       
 
+        for (var i = 0; i < Usuarios.length; i++) {
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    function getUsuarios() {
-         $.ajax({
-             type: "get",
-             headers: {
-                 "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-             },
-             dataType: "json",
-             url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
-             success: function (data) {
-                 //console.log(data)
-                 obtenerUsuario(data);
-
-             },
-             error: function (err, scnd) {
-                 var msj = '@SharedLocalizer["errorGeneral"]';
-                  cargarAlert(msj);
-                  console.log(err.statusText);
-             }
-         });
-    }
-
-
-
-
-        function obtenerUsuario(data) {
-            //console.log(data);
-            var idUsu = $('#IdUsuario').val();
-            var nombre = "";
-            Usuarios = data;
-            for (var i = 0; i < Usuarios.length; i++) {
-                if (parseInt(Usuarios[i].id) == parseInt(idUsu)) {
-                    nombre = Usuarios[i].nombre;
-                    //console.log(nombre);
-                }
+            if (Usuarios[i].id == idUsu) { // estan llegando los usuarios 1 ,2 y 3 seguidos por eso no los obtiene por que ha que recorrerlos
+                nombre = Usuarios[i].nombre;
             }
-            $("#IdUsuario2").val(nombre);
+
         }
+
+        $("#IdUsuario2").val(nombre);
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 </script>
 
