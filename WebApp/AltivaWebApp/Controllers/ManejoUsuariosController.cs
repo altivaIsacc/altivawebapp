@@ -12,6 +12,7 @@ using System.Security.Claims;
 using AltivaWebApp.GEDomain;
 using Microsoft.Extensions.Localization;
 using System.Net.Http;
+using System.Security.Principal;
 
 namespace AltivaWebApp.Controllers
 {
@@ -299,25 +300,31 @@ namespace AltivaWebApp.Controllers
 
             try
             {
-
-                var domain = userService.GetUsuarioConPerfiles(model.codigo);
+                
                 if (userService.ExisteUsuarioPorCodigo(model.codigo))
+                {
+                    var domain = userService.GetUsuarioConPerfiles(model.codigo);
                     if (domain.Id != model.id)
                     {
                         return Json(new { success = false });
                     }
-
-                var domain2 = userService.GetUsuarioConPerfiles(model.correo);
+                }
 
                 if (userService.ExisteUsuarioPorCorreo(model.correo))
+                {
+                    var domain2 = userService.GetUsuarioConPerfiles(model.correo);
                     if (domain2.Id != model.id)
                     {
                         return Json(new { success = false });
                     }
+                }
 
                 var user = userMap.Update(model);
                 if(user.Id.ToString() == User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value)
+                {
                     Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
+                }
+                    
                 i = user.Codigo;
                 return Json(new { success = true });
 

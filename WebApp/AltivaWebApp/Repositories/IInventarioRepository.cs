@@ -14,6 +14,7 @@ namespace AltivaWebApp.Repositories
         TbPrInventario GetInventarioById(int id);
         TbPrInventarioBodega GetInventarioBodegaById(int id);
         TbPrInventario GetInventarioByCodigo(string codigo);
+        long? ExisteInventarioCodigo(string codigo);
         IList<TbPrImagenInventario> GetInventarioImagenByCodigo(int id);
         TbPrInventario Save(TbPrInventario domain);
         TbPrInventario Update(TbPrInventario domain);

@@ -159,41 +159,38 @@ namespace AltivaWebApp.Controllers
             {
                 if (model.DescripcionVenta == null)
                     model.DescripcionVenta = model.Descripcion;
-                var inventario = new TbPrInventario();
 
-                var idInventario = 0;
-                var codigoInventario = "";
+                var inventario = new TbPrInventario();
 
                 if(id == 0)
                 {
-                    inventario = service.GetInventarioByCodigo(model.Codigo);
-                    if (inventario == null)
+                    long? existeInventario = service.ExisteInventarioCodigo(model.Codigo);
+                    if (existeInventario == 0)
                     {
                         var idUser = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                         model.IdUsuario = int.Parse(idUser);
                         inventario = map.Create(model);
                         var precios = preciosService.GetAll();
-                        precioCatalogoService.SaveFromInventario(idInventario);
+                        precioCatalogoService.SaveFromInventario((int)inventario.IdInventario);
 
                     }
                 }
                 else
                 {
-                    inventario = service.GetInventarioByCodigo(model.Codigo);
+                    
+
+                    var existeInventario = service.ExisteInventarioCodigo(model.Codigo);
                     var flag = true;
 
-                    if (inventario != null)
-                        if (inventario.IdInventario != id)
+                    if (existeInventario != 0)
+                        if (existeInventario != id)
                         {
                             flag = false;
-                            idInventario = 0;
                         }
                             
                     if (flag)
                     {
                         inventario = map.Update(id, model);
-                        idInventario = id;
-                        codigoInventario = inventario.Codigo;
                     }
 
 
@@ -201,7 +198,7 @@ namespace AltivaWebApp.Controllers
 
                 }
 
-                return Json(new { id = idInventario, codigo = codigoInventario });
+                return Json(new { id = inventario.IdInventario, codigo = inventario.Codigo });
             }
             
             catch (Exception ex)

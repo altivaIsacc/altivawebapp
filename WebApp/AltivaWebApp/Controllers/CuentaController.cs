@@ -124,7 +124,6 @@ namespace AltivaWebApp.Controllers
                 }
 
 
-
                 return Json(new { success = false });
             }
             catch (Exception Ex)

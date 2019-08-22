@@ -68,6 +68,16 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbPrInventario.FirstOrDefault(i => i.Codigo == codigo);
         }
+        
+        public long? ExisteInventarioCodigo(string codigo)
+        {
+            var idInventario = context.TbPrInventario.Select(i => new TbPrInventario { IdInventario = i.IdInventario, Codigo = i.Codigo }).FirstOrDefault(i => i.Codigo == codigo);
+            if (idInventario == null)
+                return 0;
+            else
+                return idInventario.IdInventario;
+            
+        }
 
         public IList<TbPrInventario> GetAllInventario()
         {

@@ -37,6 +37,11 @@ namespace AltivaWebApp.Services
             return repository.GetInventarioByCodigo(codigo);
         }
 
+        public long? ExisteInventarioCodigo(string codigo)
+        {
+            return repository.ExisteInventarioCodigo(codigo);
+        }
+
         public IList<TbPrImagenInventario> GetInventarioImagenById(int id)
         {
             return repository.GetInventarioImagenByCodigo(id);
