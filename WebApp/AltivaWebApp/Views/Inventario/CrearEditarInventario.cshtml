@@ -9,6 +9,18 @@
     }
 }
 @{
+
+
+    if (Model.IdInventario != 0)
+    {
+        ViewData["Title"] = SharedLocalizer["EditarItem"];
+    }
+    else
+    {
+        ViewData["Title"] = SharedLocalizer["NuevoItem"];
+    }
+
+
     var habilitaVentaDirecta = "";
     var habilitaVentaOnline = "";
 
@@ -43,12 +55,12 @@
 
 @if (ViewBag.accion == "1")
 {
-    <h3 data-translate="nuevoItem">Nuevo Item</h3>
+    <h3>@SharedLocalizer["NuevoItem"]</h3>
 }
 else
 {
 
-    <h3 data-translate="editarItem">Editar Item</h3>
+    <h3>@SharedLocalizer["EditarItem"]</h3>
 }
 <hr />
 <div class="row">
@@ -419,7 +431,7 @@ else
 
                         <br />
 
-                        <button id="nuevaCaracteristica" class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modalCaracteristicas"> @SharedLocalizer["Agregar"] @SharedLocalizer["Característica"]</button>
+                        <button id="nuevaCaracteristica" class="btn btn-success btn-sm" type="button" onclick="modalCaracteristica()"> @SharedLocalizer["Agregar"] @SharedLocalizer["Característica"]</button>
 
                         <br />
 
@@ -619,7 +631,7 @@ else
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="row modal-header">
-                    <div class="col-md-6"><h5 data-translate="nuevaImagen" class="modal-title" id="imagnesModallabel">@SharedLocalizer["Imagenes"]</h5></div>
+                    <div class="col-md-6"><h5 data-translate="nuevaImagen" class="modal-title" id="imagnesModallabel">@SharedLocalizer["Imágenes"]</h5></div>
                     <div class="col-md-6">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -631,13 +643,13 @@ else
                         <div class="form-group">
                             <div class="input-group input-group-sm mb-3">
                                 <div class="input-group-prepend custom-file">
-                                    <span class="input-group-text" id="inputGroup-sizing-sm">@SharedLocalizer["CargarImagen"]</span>
+                                    <span class="input-group-text" id="inputGroup-sizing-sm">@SharedLocalizer["CargarImagen"]:</span>
                                 </div>
                                 <input id="fileUploadOnline" type="file" multiple="multiple" name="files" accept="image/*" class="form-control custom-file-input">
                                 <span hidden id="tamanoArchivoOnline" class="text-danger">@SharedLocalizer["tamanoArchivo"]</span>
-                                <span hidden id="tipoArchivoOnline" class="text-danger">@SharedLocalizer["tipoArchivo"]</span>
-                                <span hidden id="imgValid" class="text-danger">@SharedLocalizer["fotoRequerido"]</span>
-                                <span hidden id="cantidadArchivoOnline" class="text-danger">@SharedLocalizer["cantidadArchivosValid"]</span>
+                                <span hidden id="tipoArchivoOnline" class="text-danger">@SharedLocalizer["tipoArchivo"].</span>
+                                <span hidden id="imgValid" class="text-danger">@SharedLocalizer["imagenRequerida"]</span>
+                                <span hidden id="cantidadArchivoOnline" class="text-danger">@SharedLocalizer["cantidadArchivosValid"].</span>
                             </div>
                         </div>
                     </form>
@@ -656,7 +668,7 @@ else
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="row modal-header">
-                    <div class="col-md-6"><h5 data-translate="nuevaCaracterisca" class="modal-title" id="caracteristicasModallabel">@SharedLocalizer["Caracterísitcas"]</h5></div>
+                    <div class="col-md-6"><h5 class="modal-title" id="caracteristicasModallabel">@SharedLocalizer["Caracterísitcas"]</h5></div>
                     <div class="col-md-6">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -665,28 +677,29 @@ else
 
                 </div>
                 <div class="row modal-body">
-                    <form>
-                        <div class="form-group col-md-6 col-sm-6 col-xs-12">
-                            <label data-translate="caracteristicasOnline" class="control-label">@SharedLocalizer["Descripción"]:</label>
-                            <input id="txtCaracteriscas" class="form-control" />
-                            <span hidden id="caracteristicasValid" data-translate="ValidacionCaracteristicas" class="text-danger"></span>
-                        </div>
-                    </form>
+
+                    <div class="form-group col-md-12 col-sm-12 col-xs-12">
+                        <label data-translate="caracteristicasOnline" class="control-label">@SharedLocalizer["Descripción"]:</label>
+                        <textarea maxlength="500" rows="4" id="txtCaracteriscas" class="form-control"></textarea>
+                        <span hidden id="caractericaRepetida">@SharedLocalizer["repetidoValid"]</span>
+                        <span hidden id="caracteristicasValid" class="text-danger">@SharedLocalizer["descripcionValid"]</span>
+                    </div>
+                    <div class="col-md-12 col-sm-12 col-xs-12"></div>
                     <div class="form-group col-md-6 col-sm-6 col-xs-12">
                         <button id="guardarCaracteristicas" onclick="guardarCaracteristica()" class="btn btn-sm btn-success">
                             <span>@SharedLocalizer["Guardar"]</span><span> <i class="fas fa-save"></i></span>
                         </button>
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
-</div>
-<input type="hidden" id="anulado" value="false" />
+    <input type="hidden" id="anulado" value="false" />
 
-<script src="~/js/comentario.js"></script>
+    <script src="~/js/comentario.js"></script>
 
-<script>
+    <script>
      var $anulado = $('#anulado');
     var contadorFila = 0;
     var inventarioBodega = [];
@@ -752,11 +765,6 @@ else
             $('#txtCaracteriscas').val('');
         });
 
-        $('#habilitaEdicion').on('mousedown',function (e) {
-
-
-
-        });
 
         $('#familias').change(function () {
 
@@ -860,7 +868,7 @@ else
             }
         });
 
-        
+
 
         $('#btnGuardar').click(function () {
 
@@ -977,7 +985,7 @@ else
 
     $('#fileUploadOnline').bind('change', function () {
 
-
+        var flag = true;
         var e = 0;
         for (var i = 0; i < this.files.length; i++) {
 
@@ -985,34 +993,36 @@ else
             if (!(/\.(jpg|png|gif)$/i).test(this.files[i].name)) {
                 $('#tipoArchivoOnline').attr('hidden', false);
                 $(this).val('');
+                flag = false;
             }
-            
+
         }
 
-        if (e > 6000000) {
+        if (e > 30000000) {
             $('#tamanoArchivoOnline').attr('hidden', false);
             $(this).val('');
+            flag = false;
         }
+        else
+            $('#tamanoArchivoOnline').attr('hidden', true);
 
-        
+
 
         if (this.files.length > 5) {
             $('#cantidadArchivoOnline').attr('hidden', false);
             $(this).val('');
+            flag = false;
         } else
             $('#cantidadArchivoOnline').attr('hidden', true);
 
+        if (flag) {
+            $('#tipoArchivoOnline').attr('hidden', true);
+            $('#guardarFoto').focus();
+        }
+
     });
 
-    //$('#fileUploadOnline').on('keyup', function (e) {
-    //    (e.keyCode) ? k = e.keyCode : k = e.which;
 
-    //    if (k == 13) {
-
-    //        guardarImagen();
-
-    //    }
-    //});
 
     function guardarImagen() {
 
@@ -1023,7 +1033,7 @@ else
         else
             $('#imgValid').prop('hidden', true);
 
-        
+
 
 
         var formData = new FormData();
@@ -1034,7 +1044,7 @@ else
             formData.append("files", files[i]);
         }
 
-           
+
         $.ajax({
             type: "post",
             url: '@Url.Action("CargarImagenesInventario", "Inventario", new{ id = Model.IdInventario })',
@@ -1049,14 +1059,15 @@ else
             },
             error: function (err) {
                 console.log(err.success);
-            }       
-        });         
+            }
+        });
 
     }
 
     function modalImagenes() {
 
         $('#fileUploadOnline').val('');
+        $('#tamanoArchivo').prop('hidden', true);
         $('#imgValid').prop('hidden', true);
         $('#cantidadArchivoOnline').attr('hidden', true);
         $('#tipoArchivoOnline').attr('hidden', true);
@@ -1558,35 +1569,59 @@ else
                     console.log(err.statusText);
                 }
             });
+    }
+
+    function modalCaracteristica() {
+
+        $('#txtCaracteriscas').val('');
+        setTimeout(function () { $('#txtCaracteriscas').focus(); }, 500);
+        $('#caracteristicasValid').prop('hidden', true);
+        $('#caractericaRepetida').prop('hidden', true);
+        $('#modalCaracteristicas').modal('show');
+        
+    }
+
+    function guardarCaracteristica() {
+        
+        var comentario = $('#txtCaracteriscas').val();
+
+        if (comentario.replace(/ /g, "") == "" || comentario.split("\n").join("") == "") {
+                $('#caracteristicasValid').prop('hidden', false);
+                return;
         }
+        else
+            $('#caracteristicasValid').prop('hidden', true);
 
+        
 
+        $.ajax({
+            type: "post",
+            url: '@Url.Action("CargarCaracteristicasInventario", new {id = Model.IdInventario })',
+            data: {
+                model: comentario
+            },
+            success: function (data) {
 
-
-
-        function guardarCaracteristica() {
-            //$('#frmComentario').serializeArray()
-            var comentario = $('#txtCaracteriscas').val();
-
-            $.ajax({
-                type: "post",
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                url: '@Url.Action("CargarCaracteristicasInventario", new {id = Model.IdInventario })',
-                data: {
-                    model: comentario
-                },
-                success: function (data) {
+                if (data.success) {
                     $('#modalCaracteristicas').modal('hide');
+                    $('#caractericaRepetida').prop('hidden', true);
                     getCaracteristicas();
-
-                },
-                error: function (err, scnd) {
-                    @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
-                    console.log(err.statusText);
                 }
-            });
-        }
+                else {
+                    $('#caractericaRepetida').prop('hidden', false);
+                } 
+
+            },
+            error: function (err, scnd) {
+                cargarAlert("@SharedLocalizer["errorGeneral"]");
+                console.log(err.statusText);
+            }
+        });
+            
+    }
+
+
+
+
 </script>
 

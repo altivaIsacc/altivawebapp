@@ -471,17 +471,23 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
 
-            return RedirectToAction("EditarInventario", new { id });
         }
 
         [HttpPost("CargarCaracteristicasInventario/{id}")]
-        public ActionResult CargarCaracteristicasInventario(int id, string model)
+        public ActionResult CargarCaracteristicasInventario(long id, string model)
         {
             try
             {
-                map.CreateCaracteristica(id, model);
-
-
+                if (!service.ExisteCaracteristica(id, model))
+                {
+                    map.CreateCaracteristica((int)id, model);
+                    return Json(new { success = true });
+                }
+                else
+                {
+                    return Json(new { success = false });
+                }
+                    
             }
             catch (Exception ex)
             {
@@ -490,7 +496,6 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
 
-            return RedirectToAction("EditarInventario", new { id });
         }
 
 

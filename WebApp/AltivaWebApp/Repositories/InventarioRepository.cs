@@ -79,6 +79,11 @@ namespace AltivaWebApp.Repositories
             
         }
 
+        public bool ExisteCaracteristica(long idInventario, string caracteristica )
+        {
+            return context.TbPrInventarioCaracteristica.Any(i => i.IdInventario == idInventario && i.Caracteristicas == caracteristica);
+        }
+
         public IList<TbPrInventario> GetAllInventario()
         {
             return context.TbPrInventario

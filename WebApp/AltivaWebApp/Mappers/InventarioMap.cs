@@ -77,8 +77,6 @@ namespace AltivaWebApp.Mappers
         public void CreateCaracteristica(int id, string caracteristica)
         {
             service.SaveCaracteristicaInventario(ViewModelToDomainNuevoCaracteristica(id, caracteristica));
-
-
         }
 
         public TbPrInventario Update(int id, InventarioViewModel viewModel)
