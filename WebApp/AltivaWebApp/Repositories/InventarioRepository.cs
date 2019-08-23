@@ -209,6 +209,8 @@ namespace AltivaWebApp.Repositories
             try
             {
                 var ib = context.TbPrInventarioBodega.FirstOrDefault(i => i.Id == id);
+                if (ib.ExistenciaBodega > 0)
+                    return false;
                 context.TbPrInventarioBodega.Remove(ib);
                 context.SaveChanges();
                 return true;

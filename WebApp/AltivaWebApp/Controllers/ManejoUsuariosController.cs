@@ -13,6 +13,8 @@ using AltivaWebApp.GEDomain;
 using Microsoft.Extensions.Localization;
 using System.Net.Http;
 using System.Security.Principal;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace AltivaWebApp.Controllers
 {
@@ -296,11 +298,10 @@ namespace AltivaWebApp.Controllers
         [HttpPost("Editar-Usuario/{id?}")]
         public ActionResult EditarUsuario(UsuarioViewModel model)
         {
-            string i = "";
+            bool enSesion = false;
 
             try
             {
-                
                 if (userService.ExisteUsuarioPorCodigo(model.codigo))
                 {
                     var domain = userService.GetUsuarioConPerfiles(model.codigo);
@@ -322,11 +323,12 @@ namespace AltivaWebApp.Controllers
                 var user = userMap.Update(model);
                 if(user.Id.ToString() == User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value)
                 {
-                    Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
+                    ReiniciarSesion(user);
+                    enSesion = true;
                 }
                     
-                i = user.Codigo;
-                return Json(new { success = true });
+                
+                return Json(new { success = true, enSesion = enSesion });
 
             }
             catch (Exception ex)
@@ -335,6 +337,45 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
 
+
+        }
+
+        private void ReiniciarSesion(TbSeUsuario user)
+        {
+            try
+            {
+
+                HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+                ClaimsIdentity identity = null;
+                var claims = new List<Claim>();
+                claims.Add(new Claim(ClaimTypes.Name, user.Codigo));
+                claims.Add(new Claim(ClaimTypes.Email, user.Correo));
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+
+
+                foreach (var p in user.TbSePerfilUsuario)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, p.IdPerfilNavigation.Nombre));
+                }
+
+                identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var principal = new ClaimsPrincipal(identity);
+
+                var props = new AuthenticationProperties();
+
+                Sesion.Sesion.SetNombreUsuario(HttpContext.Session, user.Nombre);
+                Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
+
+                HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, props).Wait();
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+            }
+           
 
         }
 

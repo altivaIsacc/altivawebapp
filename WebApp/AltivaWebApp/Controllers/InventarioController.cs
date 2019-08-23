@@ -51,11 +51,10 @@ namespace AltivaWebApp.Controllers
         {
             ViewBag.cod = cod;
             ViewData["bodegas"] = bodegaService.GetAllActivas();
-            var algo= bodegaService.GetAllActivas(); 
             return View();
         }
 
-        [HttpGet("Lista-Inventario/todo")]
+        [HttpGet("GetAllInventario")]
         public IActionResult GetAllInventario()
         {
             var catalogo = service.GetAllInventario();
@@ -344,13 +343,13 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        [HttpGet("EliminarInventarioBodega/{id}")]
+        [HttpPost("EliminarInventarioBodega")]
         public ActionResult EliminarInventarioBodega(int id)
         {
             try
             {
                 var res = service.EliminarInventarioBodega(id);
-                return Ok();
+                return Ok(res);
             }
             catch (Exception ex)
             {
@@ -462,7 +461,7 @@ namespace AltivaWebApp.Controllers
             try
             {
                 map.CreateImagen(id, files);
-                
+                return Json(new { success = true });
 
             }
             catch (Exception ex)
