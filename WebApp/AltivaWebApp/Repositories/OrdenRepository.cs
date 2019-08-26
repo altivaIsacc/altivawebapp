@@ -19,15 +19,9 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbCrContacto.Where(c => c.Proveedor == true ).ToList();
-
-               // var newList = provedor.OrderBy(provedor.NombreJuridico).ToList();
-                
-               /* var prov = (from c in context.TbCrContacto 
-                          orderby (c.Nombre ?? c.NombreComercial)
-                          where ( c.Proveedor == true )
-                          select c).ToList();
-                return prov;*/
+              var model = context.TbCrContacto.FromSql($"Select * From tb_CR_Contacto as c where c.Proveedor = 1 Order By LTRIM(Nombre + NombreComercial)") .ToList();
+              return model;
+              
             }
             catch (Exception ex)
             {
