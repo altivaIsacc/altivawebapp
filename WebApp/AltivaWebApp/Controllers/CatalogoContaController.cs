@@ -52,8 +52,8 @@ namespace AltivaWebApp.Controllers
 
                 dato.Nivel = Nivel(padre);
                 dato.CuentaContable = padre.CuentaContable;
-                dato.CuentaContablePadre = padre.CuentaContablePadre;
-                dato.DescCuentaPadre = padre.DescCuentaPadre;
+                dato.CuentaContablePadre = padre.CuentaContable;
+                dato.DescCuentaPadre = padre.Descripcion;
                 dato.IdCuentaContablePadre = padre.IdCuentaContable;
                 dato.IdTipoCuentaContable = padre.IdTipoCuentaContable;
                 ViewBag.Min = 1;
@@ -67,7 +67,7 @@ namespace AltivaWebApp.Controllers
             {
                 dato.Nivel = 1;
                 ViewBag.Min = 1;
-                ViewBag.Max = 6;
+                ViewBag.Max = 9;
                 ViewBag.InicioPadre = "";
                 ViewBag.Espacios = digitosDisponibles(EspaciosNivel(dato.Nivel), "0");
                 ViewBag.RellenoPosterior = RellenoPadre(1, "0");
