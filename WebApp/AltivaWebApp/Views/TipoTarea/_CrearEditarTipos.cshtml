@@ -16,14 +16,14 @@
 <button type="button" onclick="btnCancelar()" class="close" data-dismiss="modal" aria-label="Close">
     <span aria-hidden="true">&times;</span>
 </button>
-  @if (Model.Id != 0)
-        {
-            <h4 class="modal-title">@Lb["Editar"] @Lb["tipo"]</h4>
-        }
-        else
-        {
-            <h4 class="modal-title">@Lb["Nuevo"] @Lb["tipo"]</h4>
-        }
+@if (Model.Id != 0)
+{
+    <h4 class="modal-title">@Lb["Editar"] @Lb["tipo"]</h4>
+}
+else
+{
+    <h4 class="modal-title">@Lb["Nuevo"] @Lb["tipo"]</h4>
+}
 <hr />
 
 <div class="row">
@@ -34,33 +34,34 @@
     </div>
     <div class="form-group col-md-12 col-sm-12 col-xs-12">
         <label>@Lb["Título"]:</label>
-        <input type="text" class="form-control" asp-for="Titulo" id="Titulo2" />
+        <input type="text" class="form-control" maxlength="98" asp-for="Titulo" id="Titulo2" />
         <div id="AlertTitulo2"></div>
     </div>
 
 
     <div class="form-group col-md-6 col-sm-6 col-xs-12">
         <label>Color:</label>
-        <input type="text" class=" form-control colorpicker" value="#f6faf9" id="Color2" asp-for="Color" />
+        <input type="text" class="form-control jscolor" id="Color2" asp-for="Color">
+
         <div id="AlertColor"> </div>
     </div>
     <div class="form-group col-md-12 col-sm-12 col-md-12">
         <label>
-          Control @Lb["fechaLimite"] <input type="checkbox" id="controlaFecha" checked="@Model.ControlaFechaLimite" />
+            Control @Lb["fechaLimite"] <input type="checkbox" id="controlaFecha" checked="@Model.ControlaFechaLimite" />
         </label>
 
     </div>
     <div id="campoDiasLimite" class=" card card-body collapse collapseTiposTareas">
         <div class="form-group col-md-12 col-sm-12 col-xs-12">
             <label>
-               @Lb["Días"] @Lb["fechaLimite"] <input type="number" class=" form-control " id="DiasLimite" asp-for="DiasFechaLimite" />
+                @Lb["Días"] @Lb["fechaLimite"] <input type="number" class=" form-control " id="DiasLimite" asp-for="DiasFechaLimite" />
             </label>
         </div>
     </div>
 
     <div class="form-group col-md-12 col-sm-12 col-xs-12">
         <label>
-           @Lb["esPorDefecto"] <input type="checkbox" id="defecto" checked="@Model.EsTipoDefecto" />
+            @Lb["esPorDefecto"] <input type="checkbox" id="defecto" checked="@Model.EsTipoDefecto" />
         </label>
         <div id="AlertDefecto"></div>
 
@@ -90,18 +91,29 @@
     }
 
 </div>
+<script src="~/js/jscolor.js"></script>
+
 <script>
+
     function btnCancelar() {
         $('#sideModalTR').modal('hide');
+                window.location.href = "@Url.Action("ListarTipos", "TipoTarea")";
     }
-    $('#Color2').on('keyup', function () {
-          if ($(this).val() === "")
-            $(this).val(f6faf9);
-    });
+   
+
+
     //inicializacion del campo color
     $('.colorpicker').colorpicker();
     $(document).ready(function () {
-    
+     if ($('#Titulo2').val() == "") {
+
+         $("#Color2").val("#f6faf9");
+          $('#Color2').on('click', function () {
+          if ($(this).val() === "")
+            $(this).val("#f6faf9");
+    });
+
+        }
             if ($('#controlaFecha').prop('checked')) {
 
                 $('.collapseTiposTareas').collapse('toggle');
@@ -117,9 +129,9 @@
                 }
 
             });
+         });
                  //metodo para ingresar
         $('#GuardarTipo').on('click', function () {
-          
             if (validarCampos() == true) {
                 var controlaFecha;
                 var porDefecto;
@@ -143,7 +155,7 @@
                     $('#Color2').val('#858585');
                 }
                 if ($('#Color2').val().replace(/ /g, "") == "") {
-                      $('#Color2').val('#ffffff');
+                      $('#Color2').val('#f6faf9');
                 }
                 TipoTareaViewModel = {
                     id: null,
@@ -182,6 +194,8 @@
                             return false;
                         }
                         $('#sideModalTR').modal('hide');
+                         window.location.href = "@Url.Action("ListarTipos", "TipoTarea")";
+
                         $('#cargarTablaTipos').empty();
                         if ($("#activos").css("display") == "block") {
 
@@ -191,12 +205,14 @@
                         } else {
                             $("#inactivos").css("display", "block");
                             $("#activos").css("display", "none");
+                            
                             //cargarTablaTipoTareas();
 
 
                         }
 
                         return false;
+
                     },
 
                     error: function (err, scnd) {
@@ -206,8 +222,10 @@
                 });
 
             }
+
+            $("#Color2").val("");
         });
-        });
+
     //editar tipos de tareas..
     $('#EditarTipoTarea').on('click', function () {
         if (validarCampos() == true) {
@@ -215,7 +233,7 @@
                 $('#fechaLimite').val(0);
             }
             if ($('#Color2').val().replace(/ /g, "") == "") {
-                      $('#Color2').val('#ffffff');
+                      $('#Color2').val('#f6faf9');
              }
 
             TipoTareaViewModel = {
@@ -255,6 +273,7 @@
                         return false;
                     }
                     $('#sideModalTR').modal('hide');
+                                    window.location.href = "@Url.Action("ListarTipos", "TipoTarea")";
 
                     $('#cargarTablaTipos').empty();
                     if ($("#activos").css("display") == "block") {
@@ -283,7 +302,7 @@
 
 
     function validarCampos() {
-        
+
         var titulo = $('#Titulo2').val();
      for (var i = 0; i < arreglo.length; i++) {
          if (titulo === arreglo[i].titulo) {
@@ -301,8 +320,8 @@
             $('#AlertTitulo2').append('<span class="text-danger">@Lb["tituloToLong"]</span>');
             return false;
         }
-          
-        
+
+
 
         if ($('#activo').prop('checked')) {
             if ($('#Color').val() == '#858585') {
@@ -315,3 +334,4 @@
     }
 
 </script>
+

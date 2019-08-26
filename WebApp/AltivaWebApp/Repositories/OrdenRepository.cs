@@ -15,7 +15,27 @@ namespace AltivaWebApp.Repositories
         {
 
         }
+        public IList<TbCrContacto> GetAllProveedores()
+        {
+            try
+            {
+                return context.TbCrContacto.Where(c => c.Proveedor == true ).ToList();
 
+               // var newList = provedor.OrderBy(provedor.NombreJuridico).ToList();
+                
+               /* var prov = (from c in context.TbCrContacto 
+                          orderby (c.Nombre ?? c.NombreComercial)
+                          where ( c.Proveedor == true )
+                          select c).ToList();
+                return prov;*/
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+
+                throw;
+            }
+        }
         public IList<TbPrOrden> GetAllOrdenes()
         {
             try

@@ -206,13 +206,15 @@ else
     <div class="modal fade" id="modalEditarOrden" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
+               
                 <div class="modal-header">
-                    <div class="col-md-6"> <h5 data-translate="editarOrden" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["editarOrden"]</h5></div>
-                 </div>
-                <div class="modal-body" id="editar">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
+                    <div class="col-md-6"> <h5 data-translate="editarOrden" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["editarOrden"]</h5></div>
+                </div>
+                <div class="modal-body" id="editar">
+
                     <div class="row">
                         <input id="editId" type="hidden" class="form-control" />
                         <input id="editIva" type="hidden" class="form-control" />
@@ -238,9 +240,9 @@ else
 
                             <button class="btn btn-default" data-dismiss="modal"><span>@SharedLocalizer["Cancelar"]</span></button>
 
-                            </div>
                         </div>
                     </div>
+                </div>
             </div>
         </div>
     </div>
@@ -943,13 +945,20 @@ else
               url: '@Url.Action("GetProveedores", "Contacto")',
              success: function (data) {
                  proveedores = data;
-                 for (var i = 0; i < data.length; i++) {
+               
+
+                 proveedores.sort(function (a, b) {
+                     return compareStrings(a.nombreComercial, b.nombreComercial);
+                 });
+                  console.log(proveedores);
+
+                 for (var i = 0; i < proveedores.length; i++) {
                      var nombre = "";
-                     if (data[i].persona)
-                         nombre = data[i].nombre + ' ' + data[i].apellidos;
+                     if (proveedores[i].persona)
+                         nombre = proveedores[i].nombre + ' ' + proveedores[i].apellidos;
                      else
-                         nombre = data[i].nombreJuridico;
-                    var o = new Option(nombre, data[i].idContacto);
+                         nombre = proveedores[i].nombreJuridico;
+                    var o = new Option(nombre, proveedores[i].idContacto);
                     $("#proveedores").append(o);
                  }
                  if (@Model.Id != 0) {
@@ -965,7 +974,13 @@ else
               }
          });
     }
+     function compareStrings(a, b) {
+                  // Assuming you want case-insensitive comparison
+                    a = a.toLowerCase();
+                   b = b.toLowerCase();
 
+                  return (a < b) ? -1 : (a > b) ? 1 : 0;
+                }
     function guardarCambios() {
 
         if(validarForm())

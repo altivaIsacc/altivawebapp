@@ -38,6 +38,21 @@ namespace AltivaWebApp.Controllers
         {
             return View();
         }
+        [HttpGet("GetProveedores")]
+        public IActionResult GetProveedores()
+        {
+            try
+            {
+                var prov = service.GetAllProveedores();
+                return Ok(prov);
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return BadRequest();
+            }
+
+        }
 
         [HttpGet("GenerarCompraAutomatica/{idProveedor}")]
         public IActionResult GenerarCompraAutomatica(int idProveedor)
