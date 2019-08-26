@@ -77,31 +77,40 @@ namespace AltivaWebApp.Controllers
         [HttpPost("CrearTipo")]
         public JsonResult CrearTipo(TipoTareaViewModel domain)
         {
-            if (this.ITipoTareaService.GetByTitulo(domain.Titulo))
-            {
-                return Json(new { titulo = true });
-            }
-            else if (this.ITipoTareaService.GetByColor(domain.Color))
-            {
-                return Json(new { color = true });
-            }
-            else if (domain.EsTipoDefecto != false)
+            try
             {
 
-                if (this.ITipoTareaService.GetByDefecto(domain.EsTipoDefecto))
+                if (this.ITipoTareaService.GetByTitulo(domain.Titulo))
                 {
-                    return Json(new { defecto = true });
+                    return Json(new { titulo = true });
+                }
+                else if (domain.Color != "#ffffff")
+                {
+                    if (this.ITipoTareaService.GetByColor(domain.Color))
+                        return Json(new { color = true });
+                }
+                else if (domain.EsTipoDefecto != false)
+                {
+
+                    if (this.ITipoTareaService.GetByDefecto(domain.EsTipoDefecto))
+                    {
+                        return Json(new { defecto = true });
+                    }
+                    else
+                    {
+                        var tt = this.ITipoTareaMapper.Save(domain);
+                    }
                 }
                 else
                 {
                     var tt = this.ITipoTareaMapper.Save(domain);
                 }
+                return Json(new { titulo = false, color = false, defecto = false });
             }
-            else
+            catch
             {
-                var tt = this.ITipoTareaMapper.Save(domain);
+                throw;
             }
-            return Json(new { titulo = false, color = false, defecto = false });
         }
 
         [HttpGet("EditarTipo")]
@@ -131,6 +140,7 @@ namespace AltivaWebApp.Controllers
         [HttpPost("EditarTipoTarea")]
         public JsonResult EditarTipoTarea(TipoTareaViewModel domain)
         {
+          
             TbFdTareaTipo tt = new TbFdTareaTipo();
             TbFdTareaTipo titulo = new TbFdTareaTipo();
             TbFdTareaTipo color = new TbFdTareaTipo();
@@ -145,12 +155,15 @@ namespace AltivaWebApp.Controllers
                     return Json(new { titulo = true });
                 }
             }
-            if (this.ITipoTareaService.GetByColor(domain.Color))
+            if (domain.Color != "#ffffff")
             {
-                if (color.Id != domain.Id)
+                if (this.ITipoTareaService.GetByColor(domain.Color))
                 {
-                    return Json(new { color = true });
+                    if (color.Id != domain.Id)
+                    {
+                        return Json(new { color = true });
 
+                    }
                 }
             }
             if (this.ITipoTareaService.GetByDefecto(domain.EsTipoDefecto) == true)

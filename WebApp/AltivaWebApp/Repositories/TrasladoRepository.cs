@@ -14,15 +14,14 @@ namespace AltivaWebApp.Repositories
         public TrasladoRepository(EmpresasContext context) : base(context)
         {
 
-        }      
+        }
 
-        //si
+        
         public IList<TbPrTraslado> GetAllTraslado()
         {
             return context.TbPrTraslado.Include(a => a.IdBodegaDestinoNavigation).Include(a => a.IdBodegaOrigenNavigation).ToList();
         }
 
-        //si
         public TbPrTraslado GetTrasladoById(long id)
         {          
                 return context.TbPrTraslado.FirstOrDefault(d => d.IdTraslado == id);//se cambio Id por IdTraslado         
@@ -36,6 +35,8 @@ namespace AltivaWebApp.Repositories
                 context.TbPrTrasladoInventario.AddRange(domain);
                 context.SaveChanges();
                 return true;
+
+
             }
             catch (Exception ex)
             {
@@ -44,20 +45,33 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        //si
-        public bool UpdateTrasladoInventario(IList<TbPrTrasladoInventario> domain)
+
+        public IList<TbPrTrasladoInventario> SaveOrUpdateTrasladoInventario(IList<TbPrTrasladoInventario> domain)
         {
             try
             {
-                context.TbPrTrasladoInventario.UpdateRange(domain);
+                var actualizar = new List<TbPrTrasladoInventario>();
+                var crear = new List<TbPrTrasladoInventario>();
+
+                foreach (var item in domain)
+                {
+                    if (item.Id != 0)
+                        actualizar.Add(item);
+                    else
+                        crear.Add(item);
+                }
+                context.TbPrTrasladoInventario.AddRange(crear);
+                context.TbPrTrasladoInventario.UpdateRange(actualizar);
+
                 context.SaveChanges();
-                return true;
+                return domain;
             }
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
+
         }
 
         public void DeleteTrasladoInventario(IList<long> domain)
@@ -75,10 +89,12 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+
         public IList<TbPrTraslado> GetTrasladosSinAnular()
         {
             return context.TbPrTraslado.Where(d => d.Anulado == false).ToList();
         }
+  
 
     }
 }

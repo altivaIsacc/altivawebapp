@@ -44,7 +44,7 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public bool SaveFromInventario(int idInventario)
+        public bool SaveFromInventario(long idInventario)
         {
             try
             {
