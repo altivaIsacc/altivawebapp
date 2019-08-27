@@ -39,7 +39,6 @@ namespace AltivaWebApp.Repositories
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-
                 throw ex;
 
             }
@@ -59,7 +58,6 @@ namespace AltivaWebApp.Repositories
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-
                 throw;
             }
             
@@ -82,8 +80,7 @@ namespace AltivaWebApp.Repositories
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                throw;
-               
+                throw;               
             }
             
         }

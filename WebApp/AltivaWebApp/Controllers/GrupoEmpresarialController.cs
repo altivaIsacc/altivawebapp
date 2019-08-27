@@ -161,7 +161,6 @@ namespace AltivaWebApp.Controllers
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 var deleted = service.EliminarEmpresa(result);
-                //throw;
                 return BadRequest(new { success = _sharedLocalizer["errorGeneral"].ToString() });
             }
         }

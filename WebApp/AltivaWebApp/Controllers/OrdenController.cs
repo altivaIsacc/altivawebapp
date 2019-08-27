@@ -63,9 +63,9 @@ namespace AltivaWebApp.Controllers
                 return Ok(ca);
                 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //return BadRequest();
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
             
@@ -236,15 +236,6 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var orden = service.GetAllOrdenDetalleByOrdenId(id);
-
-                //orden.IdProveedorNavigation = null;
-
-                //foreach (var item in orden.TbPrOrdenDetalle)
-                //{
-                //    item.IdOrdenNavigation = null;
-                //    item.IdInventarioNavigation.TbPrOrdenDetalle = null;
-
-                //}
                 return Ok(orden);
             }
             catch (Exception ex)

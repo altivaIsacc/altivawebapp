@@ -39,9 +39,9 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
                 return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }

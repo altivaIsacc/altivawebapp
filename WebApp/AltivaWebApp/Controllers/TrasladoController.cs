@@ -83,7 +83,7 @@ namespace AltivaWebApp.Controllers
                 return Ok(traslado);
             }
             catch (Exception ex)
-            {
+            {   AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
             }
         }
@@ -93,42 +93,126 @@ namespace AltivaWebApp.Controllers
 
 
         [HttpPost("CrearEditar-Traslado")]
-        public ActionResult CrearEditarTraslado(TrasladoViewModel traslado, IList<TrasladoInventarioViewModel> inventarioTraslado)
+        public ActionResult CrearEditarTraslado(TrasladoViewModel traslado, IList<TrasladoInventarioViewModel> inventarioTraslado, IList<long> eliminados)
         {
 
-         
+
             try
             {
-           
+
                 if (traslado.IdTraslado != 0)
                 {
-                    traslado.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
-                    //traslado = trasladoMap.Update(viewModel);
+
+                    var respTraslado = trasladoMap.Update(traslado);
+
+                    if (inventarioTraslado.Count() > 0)
+                    {
+                        foreach (var item in inventarioTraslado)
+                        {
+                            item.IdTraslado = respTraslado.IdTraslado;
+                        }
+
+                        var ajusteInventario = trasladoMap.CreateOrUpdateAI(inventarioTraslado);
+
+                        trasladoService.DeleteTrasladoInventario(eliminados);
+                    }
                 }
                 else
                 {
-                    traslado.trasladoInventarioDetalle = inventarioTraslado;
+                    traslado.TrasladoInventarioDetalle = inventarioTraslado;
                     traslado.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     traslado.FechaCreacion = DateTime.Now;
-                    traslado.Anulado = true;//cambiar luego
-                                             
+                    traslado.Anulado = false;//cambiar luego
+
                     var respTraslado = trasladoMap.Create(traslado);
 
                     foreach (var item in inventarioTraslado)
                     {
                         item.IdTraslado = respTraslado.IdTraslado;
                     }
-
-                     trasladoMap.CreateOrUpdateTD(inventarioTraslado);
+                    respTraslado.TbPrTrasladoInventario = trasladoMap.CreateOrUpdateAI(inventarioTraslado);
 
                 }
                 return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return BadRequest();
+            }
+        }
+
+
+
+        [HttpGet("Get-TrasladoInventario/{id}")]
+        public ActionResult GetTrasladoInventario(long id)
+        {
+            try
+            {
+
+                var trasladoInventario = trasladoInventarioService.GetTrasladoInventarioById(id);
+
+                return Ok(trasladoInventario);
             }
             catch
             {
                 return BadRequest();
             }
         }
+
+
+        [HttpGet("Get-Traslado/{id}")]
+        public ActionResult GetTraslado(long id)
+        {
+            try
+            {
+                var traslado = trasladoService.GetTrasladoById(id);
+
+                //foreach (var item in traslado.TbPrTrasladoInventario)
+                //{
+                //    item.IdInventarioNavigation = null;
+                //    item.IdTrasladoNavigation = null;
+                //}
+                return Ok(traslado);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        // POST: AjusteInventario/Delete/5
+        [HttpGet("Anular-Traslado/{id}")]
+        public ActionResult AnularTraslado(int id)
+        {
+            try
+            {
+                var traslado = trasladoService.GetTrasladoById(id);
+                var anulado = traslado.Anulado;
+
+                if (anulado == false)
+                {
+
+                    traslado.Anulado = true;
+                    trasladoService.Update(traslado);
+                    var res = true;
+                    return Json(new { success = res });
+                }
+                else
+                {
+                    var res = false;
+                    return Json(new { success = res });
+                }
+
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+
+
 
 
 

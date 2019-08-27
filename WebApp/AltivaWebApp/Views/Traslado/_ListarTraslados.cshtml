@@ -47,9 +47,12 @@
 
 
 <div class="row">
+
     <div class="col-md-12 table-responsive">
-        <table class="table table-bordered" id="tblTraslado">
+        <table class=" table table-bordered" style="width:100%"  id="tblTraslado">
             <thead>
+
+
                 <tr>
                     <th>
                         @SharedLocalizer["Traslado"]
@@ -75,21 +78,42 @@
                     <th>
                         @SharedLocalizer["accion"]
                     </th>
-
                 </tr>
+
             </thead>
             <tbody></tbody>
         </table>
+
     </div>
+
 </div>
+
+<div hidden><input hidden id="formater" class="currency" type="text" /></div>
 
 
 <style>
+    /*table {
+        table-layout: fixed;
+        width: 250px;
+    }
+
+    th, td {
+        border: 1px solid blue;
+        width: 100px;
+        word-wrap: break-word;
+    }*/
+       
+
     .dataTables_wrapper .dataTables_filter {
         float: right;
         text-align: right;
         visibility: hidden;
     }
+
+
+
+
+
 </style>
 
 
@@ -103,12 +127,15 @@
     var hasta;
     var desde;
 
+    var monedas = [];//array monedas trae los simbolos
+
 
     $(document).ready(function () {
 
 
         getUsuarios();
         getTraslados();
+        getMonedas(); //falta
 
         $('#filtroFecha').attr('disabled', true);
 
@@ -156,7 +183,7 @@
             hasta = end.format('YYYY-MM-DD');
             cargarFiltros();
 
-            });       
+            });
 
     });
 
@@ -170,7 +197,7 @@
     $('#habilitaFiltroFecha').change(function () {
 
         if (!$(this).prop('checked')) {
-           
+
             $('#filtroFecha').attr('disabled', true);
             filtroAnuladas();
         }
@@ -187,7 +214,7 @@
     $("#filtroBuscar").on("keyup", function () {
 
         cargarFiltros();
-       
+
     });
 
 
@@ -205,7 +232,7 @@
 
     }
 
-    
+
     function filtroPalabra(array) {
 
         var keyword = $('#filtroBuscar').val();
@@ -229,8 +256,8 @@
                     arrayTraslado.push(array[i]);
                 } else if (id.indexOf(keyword) > -1) {
                     arrayTraslado.push(array[i]);
-                } 
-                                
+                }
+
             }
             return arrayTraslado;
         }
@@ -248,7 +275,7 @@
 
             for (var i = 0; i < array.length; i++) {
 
-                var documento = new Date(array[i].fecha.substring(0, 10)).getTime();//quita la hora y la fecha 
+                var documento = new Date(array[i].fecha.substring(0, 10)).getTime();//quita la hora y la fecha
 
                 if (documento >= desdeLocal && documento <= hastaLocal)
                     arrayTraslados.push(Traslado[i]);
@@ -261,7 +288,7 @@
     }
 
 
-    
+
     function getTraslados() {
 
 
@@ -275,10 +302,10 @@
             success: function (data) {
                 //console.log(data);
                 Traslado = JSON.parse(JSON.stringify(data));
-                //cargarDatos(data);            
+                //cargarDatos(data);
                 cargarFiltros(); // este metodo carga la tabla
-            
-              
+
+
 
             },
             error: function (err, scnd) {
@@ -289,7 +316,7 @@
 
     }
 
-  
+
 
 
     function cargarDatos(data) {
@@ -304,11 +331,11 @@
         for (var i = 0; i < data.length; i++) {
 
 
-             if (data[i].anulado == true) { 
-                 anulado = '<input type="checkbox" disabled checked="checked" >';
+            if (data[i].anulado == false) {
+                anulado = '<input disabled type="checkbox" >';
              }
              else {
-                 anulado = '<input disabled type="checkbox" >';
+                anulado = '<input type="checkbox" disabled checked="checked" >';
              }
 
             var body = '<tr class="fila' + contadorFila + ' filas">'
@@ -318,7 +345,7 @@
                 + '<td><p style="padding-top:1rem">' + data[i].idBodegaDestinoNavigation.nombre + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fecha) + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + anulado + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].costoTraslado + '</p></td>'
+                + '<td><p style="padding-top:1rem" class="colon">' + data[i].costoTraslado + '</p></td>'
                 + '<td>  <button value="' + data[i].idTraslado + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i>';
 
             $('#tblTraslado > tbody').append(body);
@@ -326,9 +353,40 @@
 
         }
 
+        //inicializa formato
+        $(".colon").inputmask('currency', {
+            prefix: monedas[0].simbolo + " ",
+            rightAlign: true
+        });
+
         inicializarTabla();
 
     }
+
+
+    // para
+     function getMonedas() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+
+                 monedas = data; //array monedas trae los simbolos
+                // console.log(monedas);
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+
+
 
 
     function inicializarTabla() {
@@ -367,7 +425,7 @@
                     titleAttr: 'Copy',
                     title: '@SharedLocalizer["Traslados de Existencias"]',
                     exportOptions: {
-                        columns: [0, 1]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     }
 
                 },
@@ -377,7 +435,7 @@
                     titleAttr: 'Excel',
                     title: '@SharedLocalizer["Traslados de Existencias"]',
                     exportOptions: {
-                        columns: [0, 1]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     }
 
                 },
@@ -388,7 +446,7 @@
                     titleAttr: 'PDF',
                     title: '@SharedLocalizer["Traslados de Existencias"]',
                     exportOptions: {
-                        columns: [0, 1]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     }
                 }
             ]
@@ -454,16 +512,17 @@
         if ($('#Anulado').prop('checked')) {
 
             for (var i = 0; i < array.length; i++) {
-                if (!array[i].anulado)
+                if (array[i].anulado)
                     arrayTraslado.push(array[i]);
             }
 
         }
         else
             for (var i = 0; i < array.length; i++) {
-                if (array[i].anulado)
+                if (!array[i].anulado)
                     arrayTraslado.push(array[i]);
             }
+
 
         return arrayTraslado;
 

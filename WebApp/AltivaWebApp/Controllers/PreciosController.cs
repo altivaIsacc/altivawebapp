@@ -90,9 +90,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true, precios =Precios});
             }
-            catch
+            catch (Exception ex)
             {
-                //return BadRequest();
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -104,8 +104,9 @@ namespace AltivaWebApp.Controllers
             {
                 return Ok(service.GetPreciosWithReqs());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
                 throw;
             }
@@ -123,9 +124,10 @@ namespace AltivaWebApp.Controllers
                 precio = service.Update(precio);
                 return Ok(precio);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //return BadRequest();
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+               
                 throw;
             }
         }

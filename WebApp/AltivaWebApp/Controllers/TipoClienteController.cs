@@ -76,7 +76,6 @@ namespace AltivaWebApp.Controllers
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-
                 throw;
             }
         }

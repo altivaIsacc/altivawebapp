@@ -37,14 +37,14 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
 
-        public bool SaveFromInventario(int idInventario)
+        public bool SaveFromInventario(long idInventario)
         {
             try
             {
@@ -53,9 +53,9 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -68,9 +68,9 @@ namespace AltivaWebApp.Repositories
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }

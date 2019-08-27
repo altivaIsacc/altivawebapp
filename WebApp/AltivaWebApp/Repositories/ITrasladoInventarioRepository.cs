@@ -11,7 +11,7 @@ namespace AltivaWebApp.Repositories
         TbPrTrasladoInventario Save(TbPrTrasladoInventario domain);
         TbPrTrasladoInventario Update(TbPrTrasladoInventario domain);
         IList<TbPrTrasladoInventario> GetAllTrasladoInventario();
-        TbPrTrasladoInventario GetTrasladoInventarioById(long idTraslado);
+        IList<TbPrTrasladoInventario> GetTrasladoInventarioById(long idTraslado);//sirve
 
     }
 }

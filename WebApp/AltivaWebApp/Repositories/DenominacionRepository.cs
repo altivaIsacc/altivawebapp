@@ -23,7 +23,7 @@ namespace AltivaWebApp.Repositories
             }
             catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }
@@ -34,9 +34,9 @@ namespace AltivaWebApp.Repositories
             {
                 return context.TbFaDenominacion.FirstOrDefault(c => c.IdDenominaciones==id);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
         }

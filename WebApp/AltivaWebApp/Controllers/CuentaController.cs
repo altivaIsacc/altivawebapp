@@ -127,9 +127,9 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = false });
             }
-            catch (Exception)
+            catch (Exception Ex)
             {
-
+                AltivaLog.Log.Insertar(Ex.ToString(), "Error");
                 throw;
             }
            

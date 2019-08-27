@@ -19,5 +19,7 @@ namespace AltivaWebApp.Mappers
         CompraViewModel DomainToViewModel(TbPrCompra domain);
         IList<TbPrCompraDetalle> UpdateCD(CompraViewModel viewModel);
 
+        bool UpdateCDS(CompraServicioViewModel viewModel);
+
     }
 }
