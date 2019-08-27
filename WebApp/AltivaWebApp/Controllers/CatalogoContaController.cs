@@ -27,7 +27,7 @@ namespace AltivaWebApp.Controllers
         public IActionResult Index()
         {
             ViewBag.Titulo = "listCatalogoConta";
-            ViewBag.CatalogoContable = bd.CatalogoContable.ToList();
+            ViewBag.CatalogoContable = bd.CatalogoContable.OrderBy(p => p.CuentaContable).ToList();
             return View();
         }
         private void initViewBag()
@@ -60,7 +60,16 @@ namespace AltivaWebApp.Controllers
                 ViewBag.Max = MaxHija(padre);
                 ViewBag.InicioPadre = IniPadre(padre);
                 ViewBag.Espacios = digitosDisponibles(EspaciosNivel(dato.Nivel), "0");
-                ViewBag.RellenoPosterior = RellenoPadre(dato.Nivel, padre.CuentaContablePadre);
+                if (dato.Nivel > 1)
+                {
+                    ViewBag.FinPadre = FinPadre(ViewBag.InicioPadre.Length + ViewBag.Espacios.Length, padre.CuentaContablePadre);
+
+
+                }
+                else {
+                    ViewBag.FinPadre = FinPadre(1, padre.CuentaContablePadre);
+
+                }
                 ViewBag.Numero = dato.CuentaContable.Substring(IniPadre(padre).Length + 1, digitosDisponibles(EspaciosNivel(dato.Nivel), "0").Length);
             }
             else
@@ -70,7 +79,7 @@ namespace AltivaWebApp.Controllers
                 ViewBag.Max = 9;
                 ViewBag.InicioPadre = "";
                 ViewBag.Espacios = digitosDisponibles(EspaciosNivel(dato.Nivel), "0");
-                ViewBag.RellenoPosterior = RellenoPadre(1, "0");
+                ViewBag.FinPadre = FinPadre(1, "");
                 if (dato.CuentaContable != null)
                 {
                     ViewBag.Numero = dato.CuentaContable.ElementAt(0);
@@ -113,33 +122,26 @@ namespace AltivaWebApp.Controllers
           
             for (int i = 0; i < _padre.Nivel; i++)
             {
-                Ini = Ini + digitosDisponibles(EspaciosNivel(i), "0");
+                Ini = Ini + "-" + digitosDisponibles(EspaciosNivel(i), "0");
 
             }
             Ini = _padre.CuentaContable.Substring(0, Ini.Length);
 
-            return Ini + '-';
+            return Ini;
 
         }
-        private string RellenoPadre(int _NivelPadre, string CuentaPadre)
+        private string FinPadre(int _desde, string CuentaPadre)
         {
-            ConfiguracionContable _config = bd.ConfiguracionContable.FirstOrDefault();
-            string Fin = "";
-            if (_NivelPadre == _config.TamanoCuenta)
+           
+            int cantidadFinal = CuentaPadre.Length - _desde;
+            if (cantidadFinal < 0 || (CuentaPadre.Length ==0))
             {
-                return Fin;
+                AltivaWebApp.DomainsConta.ConfiguracionContable conf = bd.ConfiguracionContable.FirstOrDefault();
+                CuentaPadre = conf.Ejemplo;
+                cantidadFinal = conf.Ejemplo.Length - _desde;
             }
-
-            for (int i = _NivelPadre + 1; i <= _config.TamanoCuenta; i++)
-            {
-                Fin = Fin + "-" + digitosDisponibles(EspaciosNivel(i), "0");
-
-            }
-            if (_NivelPadre > 2)
-            {
-
-                Fin = CuentaPadre.Substring(0, Fin.Length);
-            }
+            string Fin = CuentaPadre.Substring(_desde,cantidadFinal);
+           
 
 
             return Fin;
@@ -216,7 +218,7 @@ namespace AltivaWebApp.Controllers
         {
             string nueves = "";
 
-            for (int i = 0; i < cant; i++)
+            for (int i = 1; i <= cant; i++)
             {
                 nueves = nueves + caracter;
 
