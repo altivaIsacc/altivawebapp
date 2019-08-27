@@ -58,7 +58,7 @@ namespace AltivaWebApp.Controllers
         }
         [HttpPost("CrearCamposPersonalizados")]
     
-        public IActionResult CrearCamposPersonalizados(CamposPersonalizadosViewModel domain2)
+        public IActionResult CrearCamposPersonalizados(CamposPersonalizadosViewModelSingle domain2)
         {
             ViewBag.id = 0;
             return PartialView("_CrearEditarCampos",domain2);
