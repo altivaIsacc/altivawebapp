@@ -107,7 +107,7 @@ namespace AltivaWebApp.Controllers
                     HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, props).Wait();
 
                     var uc = user.TbSeUsuarioConfiguraion.FirstOrDefault();
-                    if (uc != null)
+                    if (uc == null)
                     {
                         uc.Tema = "TemaCombinado";
                         uc.Idioma = "es";

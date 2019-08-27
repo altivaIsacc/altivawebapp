@@ -1,5 +1,5 @@
 ﻿@model TbSeUsuario
-@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject IStringLocalizer<SharedResources> Lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -18,7 +18,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h3>@SharedLocalizer["Bienvenido"] "@grupoEmpresa.Nombre"</h3>
+        <h3>@Lb["Bienvenido"] "@grupoEmpresa.Nombre"</h3>
     </div>
     <br />
 </div>
@@ -30,7 +30,7 @@
 
     <div class="row" style="padding-left: 1rem">
         <div class="col-md-12">
-            <h4>Información del grupo</h4>
+            <h4>@Lb["informacionGrupo"]</h4>
         </div>
         <div class="col-md-4 col-sm-6 col-xs-12" style="min-width:25rem">
             <img style="width: 20rem; height:12rem; margin-top: 0.5rem" src="@grupoEmpresa.Foto" />
@@ -39,7 +39,7 @@
             <table class="table table-bordered" style="min-width:400px">
                 <tr>
                     <th >
-                        <span>@SharedLocalizer["Nombre"]</span>
+                        <span>@Lb["Nombre"]</span>
                     </th>
                     <td>
                         <p>@grupoEmpresa.Nombre</p>
@@ -47,7 +47,7 @@
                 </tr>
                 <tr>
                     <th>
-                        <span>@SharedLocalizer["Teléfono"]</span>
+                        <span>@Lb["Teléfono"]</span>
                     </th>
                     <td>
                         <p>@grupoEmpresa.Telefono1 - @grupoEmpresa.Telefono2</p>
@@ -55,7 +55,7 @@
                 </tr>
                 <tr>
                     <th>
-                        <span>@SharedLocalizer["Corrreo"]</span>
+                        <span>@Lb["Corrreo"]</span>
                     </th>
                     <td>
                         <p>@grupoEmpresa.Correo</p>
@@ -68,7 +68,7 @@
 
     <hr />
 
-    <div class="col-md-12" style="padding-left: 1rem"><h4>@SharedLocalizer["Empresas"]</h4></div>
+    <div class="col-md-12" style="padding-left: 1rem"><h4>@Lb["Empresas"]</h4></div>
 
 
     <div class="row" style="padding-top:1rem">
@@ -78,12 +78,12 @@
             var estado = "";
             var estadoUser = "";
             var activa = true;
-            var btn = SharedLocalizer["Desactivar"];
+            var btn = Lb["Desactivar"];
             if (!item.IdEmpresaNavigation.Estado)
             {
                 estado = "disabled";
                 activa = false;
-                btn = SharedLocalizer["Activar"];
+                btn = Lb["Activar"];
             }
             if (!item.Estado)
             {
@@ -94,18 +94,18 @@
                 <img class="card-img-top" style="width:100%; height:10rem" src="@item.IdEmpresaNavigation.Foto" alt="Card image cap">
                 <div style="padding:0.5rem">
                     <h5>@item.IdEmpresaNavigation.Nombre</h5>
-                    <p class="card-text"><strong><span>@SharedLocalizer["cedulaJuridica"]: </span></strong>@item.IdEmpresaNavigation.CedJuridica</p>
-                    <p class="card-text"><strong><span>@SharedLocalizer["Teléfono"]: </span></strong> @item.IdEmpresaNavigation.Telefono1 - @item.IdEmpresaNavigation.Telefono2</p>
-                    <p class="card-text"><strong><span>@SharedLocalizer["Dirección"]: </span></strong> @item.IdEmpresaNavigation.Direccion</p>
-                    <button @estadoUser @estado onclick="setEmpresa('@item.IdEmpresaNavigation.Nombre', '@item.IdEmpresaNavigation.Foto', '@item.IdEmpresaNavigation.Correo', '@item.IdEmpresaNavigation.Telefono1', '@item.IdEmpresaNavigation.Telefono1', '@item.IdEmpresaNavigation.CedJuridica')" class="btn btn-primary">@SharedLocalizer["Ingresar"]</button>
+                    <p class="card-text"><strong><span>@Lb["cedulaJuridica"]: </span></strong>@item.IdEmpresaNavigation.CedJuridica</p>
+                    <p class="card-text"><strong><span>@Lb["Teléfono"]: </span></strong> @item.IdEmpresaNavigation.Telefono1 - @item.IdEmpresaNavigation.Telefono2</p>
+                    <p class="card-text"><strong><span>@Lb["Dirección"]: </span></strong> @item.IdEmpresaNavigation.Direccion</p>
+                    <button @estadoUser @estado onclick="setEmpresa('@item.IdEmpresaNavigation.Nombre', '@item.IdEmpresaNavigation.Foto', '@item.IdEmpresaNavigation.Correo', '@item.IdEmpresaNavigation.Telefono1', '@item.IdEmpresaNavigation.Telefono1', '@item.IdEmpresaNavigation.CedJuridica')" class="btn btn-primary">@Lb["Ingresar"]</button>
                     <button @estadoUser onclick="cambiarEstadoEmpresa(@item.IdEmpresaNavigation.Id, '@item.IdEmpresaNavigation.Estado')" class="btn btn-link">@btn</button>
                 </div>
             </div>
 
         }
-            <div class="col-md-3 col-sm-6 col-xs-12 card" style="margin-left: 2rem; width: 18rem;">
+            <div hidden class="col-md-3 col-sm-6 col-xs-12 card" style="margin-left: 2rem; width: 18rem;">
                 <div class="card-body">
-                    <a style="width: 100%;" href="@Url.Action("CrearEmpresa")" class="btn btn-primary">@SharedLocalizer["Nueva"] @SharedLocalizer["Empresa"]</a>
+                    <a style="width: 100%;" href="@Url.Action("CrearEmpresa")" class="btn btn-primary">@Lb["Nueva"] @Lb["Empresa"]</a>
                 </div>
             </div>
 
@@ -133,6 +133,7 @@
             ced: ced
         };
         localStorage.setItem('empresaInfo', JSON.stringify(model));
+
         var url = setIdiomaUrl('@Url.Action("DetallesEmpresa", "GrupoEmpresarial", new { nombre = "__nombre__" })');
         window.location.href = url.replace("__nombre__", empresa);
     }
@@ -142,7 +143,7 @@
         if (estado === "false")
             ajaxEstado(idEmpresa);
         else
-            bootbox.confirm("@SharedLocalizer["confirmDesactivarEmpresa"]", function (result) {
+            bootbox.confirm("@Lb["confirmDesactivarEmpresa"]", function (result) {
                 if (result) {
                     ajaxEstado(idEmpresa);
                 }
@@ -168,7 +169,7 @@
                         window.location.href = "@Url.Action("ListarEmpresas")";
                     },
                     error: function (err) {
-                        cargarAlert('@SharedLocalizer["errorGeneral"]');
+                        cargarAlert('@Lb["errorGeneral"]');
                         console.log(err.success);
                     }
                 });
