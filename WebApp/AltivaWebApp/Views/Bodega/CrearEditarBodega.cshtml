@@ -13,6 +13,7 @@
     var ishidden = "hidden";
     var ischecked = "checked";
     var error = ViewBag.error as string;
+    
 }
 
 @if (Model.Id == 0)
@@ -24,6 +25,7 @@ else
     <h3>@Lb["Editar"] @Lb["Bodega"]</h3>
     ishidden = "";
     ischecked = "";
+    
 }
 
 <hr />
@@ -34,7 +36,7 @@ else
             @Html.HiddenFor(x => x.Id)
             <div class="form-group">
                 <label asp-for="Nombre" class="control-label">@Lb["Nombre"]:</label>
-                <input id="nombreBodega" maxlength="50" asp-for="Nombre" autofocus class="form-control" />
+                <input id="nombreBodega" onkeyup="pasarSigCampo(event,'Produccion')" maxlength="50" asp-for="Nombre" class="form-control" />
                 <span hidden id="duplicacionValid" class="text-danger">@Lb["repetidoValid"]</span>
                 <span hidden id="nombreValid" class="text-danger">@Lb["nombreValid"]</span>
             </div>
@@ -42,7 +44,7 @@ else
             <span hidden id="tipoValid" class="text-danger">@Lb["tipoBodegaValid"].</span>
             <div class="form-group">
                 <div class="form-check">
-                    <input class="form-check-input tipoBodega" asp-for="Produccion" />
+                    <input class="form-check-input tipoBodega" onkeyup="pasarSigCampo(event,'Almacenamiento')" asp-for="Produccion" />
                     <label class="form-check-label">
                         <span>@Lb["Producción"] </span> <span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="@Lb["tipoProduccion"]."></i></span>
                     </label>
@@ -50,7 +52,7 @@ else
             </div>
             <div class="form-group">
                 <div class="form-check">
-                    <input class="form-check-input tipoBodega" asp-for="Almacenamiento" />
+                    <input class="form-check-input tipoBodega" onkeyup="pasarSigCampo(event,'SuministrosInternos')" asp-for="Almacenamiento" />
                     <label class="form-check-label">
                         <span>@Lb["Almacenamiento"] </span> <span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="@Lb["tipoAlmacenamiento"]."></i></span>
                     </label>
@@ -58,23 +60,39 @@ else
             </div>
             <div class="form-group">
                 <div class="form-check">
-                    <input class="form-check-input tipoBodega" asp-for="SuministrosInternos" />
-                    <label  class="form-check-label">
+                    <input class="form-check-input tipoBodega" onkeyup="pasarSigCampo(event,'Consignacion')" asp-for="SuministrosInternos" />
+                    <label class="form-check-label">
                         <span>@Lb["SuministrosInternos"] </span><span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="@Lb["tipoSuministros"]."></i></span>
                     </label>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="form-check">
-                    <input class="form-check-input tipoBodega" asp-for="Consignacion" />
-                    <label class="form-check-label">
-                        <span>@Lb["Consignación"] </span><span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="@Lb["tipoConsignacion"]."></i></span>
-                    </label>
+            @if (Model.Id == 0)
+            {
+                <div class="form-group">
+                    <div class="form-check">
+                        <input class="form-check-input tipoBodega" onkeyup="pasarSigCampo(event,'UsuarioEncargado')" asp-for="Consignacion" />
+                        <label class="form-check-label">
+                            <span>@Lb["Consignación"] </span><span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="@Lb["tipoConsignacion"]."></i></span>
+                        </label>
+                    </div>
                 </div>
-            </div>
+            }
+            else
+            {
+                <div class="form-group">
+                    <div class="form-check">
+                        <input class="form-check-input tipoBodega" onkeyup="pasarSigCampo(event,'Estado')" asp-for="Consignacion" />
+                        <label class="form-check-label">
+                            <span>@Lb["Consignación"] </span><span><i class="fas fa-question" data-toggle="tooltip" data-placement="top" title="@Lb["tipoConsignacion"]."></i></span>
+                        </label>
+                    </div>
+                </div>
+
+            }
+
             <div class="form-group" @ishidden>
                 <div class="form-check">
-                    <input class="form-check-input" asp-for="Estado" @ischecked />
+                    <input class="form-check-input" onkeyup="pasarSigCampo(event,'UsuarioEncargado')" asp-for="Estado" @ischecked />
                     <label class="form-check-label">
                         @Lb["Activa"]?
                     </label>
@@ -82,7 +100,7 @@ else
             </div>
             <div class="form-group">
                 <label class="control-label">@Lb["UsuarioEncargado"]:</label>
-                <select asp-for="UsuarioEncargado" id="perfiles" class="form-control search-key">
+                <select  asp-for="UsuarioEncargado" id="perfiles" onkeyup="pasarSigCampo(event,'Observaciones')" class="form-control search-key">
                     @{
                         foreach (var item in ViewData["usuarios"] as List<TbSeUsuario>)
                         {
@@ -93,7 +111,7 @@ else
             </div>
             <div class="form-group">
                 <label asp-for="Observaciones" class="control-label">@Lb["Observaciones"]:</label>
-                <textarea asp-for="Observaciones" class="form-control"></textarea>
+                <textarea asp-for="Observaciones" onkeyup="pasarSigCampo(event,'btnGuardar')" class="form-control"></textarea>
             </div>
 
         </form>
@@ -105,9 +123,27 @@ else
 </div>
 
 <script>
-
+     function pasarSigCampo(e,id)
+  {
+	
+	  (e.keyCode)?k=e.keyCode:k=e.which;
+ 
+	   if(k==13)
+       {
+            if(id=="btnGuardar")
+		  {
+              validarForm();
+          }
+        document.getElementById(id).focus();
+	   }
+  }
     $(document).ready(function () {
-
+    $('#frmBodega').bind("keypress", function(e) {
+  if (e.keyCode == 13) {               
+    e.preventDefault();
+    return false;
+  }
+});
         //if ($('#nombreBodega').val() === "") {
         //    $('#btnGuardar').attr('disabled', true);
         //}
