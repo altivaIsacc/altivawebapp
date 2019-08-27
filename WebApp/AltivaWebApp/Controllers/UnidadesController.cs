@@ -56,20 +56,19 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Get-Unidad/{id?}")]
         public ActionResult GetUnidad(string nombre)
         {
-            var flag = true;
+            var flag = false;
             try
             {
-             var uni =unidadService.GetAll();
+             var uni = unidadService.GetAll();
 
                 foreach (var item in uni)
                 {
                     if (item.Nombre == nombre)
-                        flag = false;
+                        flag = true;
                 }
-                if(flag)
-                    return Json(new { data = true });
-                else
-                    return Json(new { data = false });
+               
+                    return Json(new { data = flag });
+             
 
 
 
@@ -79,8 +78,6 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
            
-
-
         }
 
         [HttpPost("CrearEditar-Unidad/{id?}")]

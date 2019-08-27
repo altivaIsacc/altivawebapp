@@ -69,13 +69,15 @@
 </div>
 
 <script>
+  
    
         $("#submitFrmUnidad").click(function (e) {
-
-
-            if (validarForm()) {
-               var url = '@Url.Action("CrearEditarUnidad", "Unidades")';
-
+            
+            validarForm();
+        });
+    function guardarCambios(validar) {
+        if (validar) {
+            var url = '@Url.Action("CrearEditarUnidad", "Unidades")';
             $.ajax({
                 type: "post",
                 headers: {
@@ -85,12 +87,12 @@
                 data: $('#frmUnidad').serialize(),
                 success: function (data) {
 
-                    if(@Model.Id != 0)
+                    if (@Model.Id != 0)
                         $("#unidades option:selected").remove();
 
                     var text = data.nombre + ' - ' + data.abreviatura
                     var o = new Option(text, data.id);
-                    $(o).attr('selected',  true);
+                    $(o).attr('selected', true);
                     $("#unidades").append(o);
                     $("#unidades").trigger('change');
                     $('#modalUnidad').modal('hide');
@@ -99,41 +101,26 @@
                     console.log(err.statusText);
                 }
             });
-            }
+        }  
+    }
+    function validarForm() {
+       
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                url: '@Url.Action("GetUnidad", "Unidades")',
+                data: { nombre: $("#Nombre").val() },
+                success: function (data) {
 
-        });
-
-        function validarRepetido() {
-            if ($('#Nombre').val() != "" && $('#Abreviatura').val() != "" ) {
-                $.ajax({
-                    type: "GET",
-                    dataType: "json",
-                    url: '@Url.Action("GetUnidad")',
-                    data: { nombre: $("#Nombre").val() },
-                    success: function (data) {
-
-                        if (!data.success) {
-                            $('#validatedTextNombre').attr('hidden', true);
-                            $('#validatedTextAbreviatura').attr('hidden', true);
-                            $('#nombreExiste').attr('hidden', false);
-                            return false;
-                        } else {
-                            return true;
-                        }
-                    },
-                    error: function (err, scnd) {
-                        cargarAlert('@SharedLocalizer["errorGeneral"]');
-                        console.log(err.statusText);
+                    if (data.data == true) {
+                        $('#validatedTextNombre').attr('hidden', true);
+                        $('#validatedTextAbreviatura').attr('hidden', true);
+                        $('#nombreExiste').attr('hidden', false);
+                        guardarCambios(false);
                     }
-                });
-            } else {
-                return true;
-            }
-           
-        }
-        function validarForm() {
-            if (validarRepetido()) {
-                var flag = true;
+                    else {
+                         var flag = true;
+                      $('#nombreExiste').attr('hidden', true);
 
                 if ($('#Nombre').val().replace(/ /g, "") == "") {
                     $('#validatedTextNombre').attr('hidden', false);
@@ -149,14 +136,20 @@
                 else {
                     $('#validatedTextAbreviatura').attr('hidden', true);
                 }
+                        guardarCambios(flag); 
+                    }
 
-                return flag;
 
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
 
-            } else {
-            return false;
-        }
-        }
+       
+    }
+
 
    
 
