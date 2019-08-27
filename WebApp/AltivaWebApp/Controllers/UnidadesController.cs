@@ -53,6 +53,35 @@ namespace AltivaWebApp.Controllers
                
 
         }
+        [HttpGet("Get-Unidad/{id?}")]
+        public ActionResult GetUnidad(string nombre)
+        {
+            var flag = true;
+            try
+            {
+             var uni =unidadService.GetAll();
+
+                foreach (var item in uni)
+                {
+                    if (item.Nombre == nombre)
+                        flag = false;
+                }
+                if(flag)
+                    return Json(new { data = true });
+                else
+                    return Json(new { data = false });
+
+
+
+            }
+            catch
+            {
+                throw;
+            }
+           
+
+
+        }
 
         [HttpPost("CrearEditar-Unidad/{id?}")]
         public ActionResult CrearEditarUnidad(int id, UnidadViewModel viewModel)
