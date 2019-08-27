@@ -213,6 +213,14 @@ namespace AltivaWebApp.Controllers
 
 
 
+        [HttpGet("Crear-PDF")]
+        public IActionResult _CrearPDF()
+        {
+
+            return PartialView("_CrearPDF");
+
+        }
+
 
 
 
