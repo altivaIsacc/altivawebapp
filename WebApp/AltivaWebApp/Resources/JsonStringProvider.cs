@@ -15,8 +15,6 @@ namespace AltivaWebApp.Resources
         {
             var pathJson = System.IO.Path.Combine(Startup.entorno.ContentRootPath, @".\Resources\Idioma-" + cultura + ".json");
 
-            
-
             if (!File.Exists(pathJson))
             {
 
