@@ -1,8 +1,9 @@
 ﻿
-namespace AltivaWebApp.Context 
+namespace AltivaWebApp.Context
 {
-    using Microsoft.EntityFrameworkCore;using AltivaWebApp.DomainsConta;
-    public class BaseConta : DbContext  
+    using AltivaWebApp.DomainsConta;
+    using Microsoft.EntityFrameworkCore;
+    public class BaseConta : DbContext
     {
         public BaseConta(DbContextOptions<BaseConta> options) : base(options)
         {
@@ -19,7 +20,8 @@ namespace AltivaWebApp.Context
         public DbSet<PeriodoFiscal> PeriodoFiscal { get; set; }
         public DbSet<PeriodoTrabajo> PeriodoTrabajo { get; set; }
         public DbSet<ConfiguracionContable> ConfiguracionContable { get; set; }
-
         public DbSet<CatalogoContable> CatalogoContable { get; set; }
+        public DbSet<Asiento> Asiento { get; set; }
+        public DbSet<AsientoDetalle> AsientoDetalle { get; set; }
     }
 }

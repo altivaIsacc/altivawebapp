@@ -51,7 +51,9 @@ namespace AltivaWebApp.Controllers
             {
 
                 dato.Nivel = Nivel(padre);
-                dato.CuentaContable = padre.CuentaContable;
+                if (dato.CuentaContable == null) {
+                    dato.CuentaContable = padre.CuentaContable;
+                }              
                 dato.CuentaContablePadre = padre.CuentaContable;
                 dato.DescCuentaPadre = padre.Descripcion;
                 dato.IdCuentaContablePadre = padre.IdCuentaContable;
@@ -70,7 +72,7 @@ namespace AltivaWebApp.Controllers
                     ViewBag.FinPadre = FinPadre(1, padre.CuentaContablePadre);
 
                 }
-                ViewBag.Numero = dato.CuentaContable.Substring(IniPadre(padre).Length + 1, digitosDisponibles(EspaciosNivel(dato.Nivel), "0").Length);
+                ViewBag.Numero = dato.CuentaContable.Substring(ViewBag.InicioPadre.Length, ViewBag.Espacios.Length);
             }
             else
             {
@@ -120,12 +122,26 @@ namespace AltivaWebApp.Controllers
         {
             string Ini = "";
           
-            for (int i = 0; i < _padre.Nivel; i++)
+            for (int i = 1; i <= _padre.Nivel; i++)
             {
-                Ini = Ini + "-" + digitosDisponibles(EspaciosNivel(i), "0");
+                if (i == 1)
+                {
+                    Ini = digitosDisponibles(EspaciosNivel(i), "0");
+                }
+                else {
+                    Ini = Ini + "-" + digitosDisponibles(EspaciosNivel(i), "0");
+                }
+               
 
             }
-            Ini = _padre.CuentaContable.Substring(0, Ini.Length);
+            AltivaWebApp.DomainsConta.ConfiguracionContable conf = bd.ConfiguracionContable.FirstOrDefault();
+            if (conf.TamanoCuenta == (_padre.Nivel)) {
+                Ini = _padre.CuentaContable.Substring(0, Ini.Length);
+            }
+            else
+            {Ini = _padre.CuentaContable.Substring(0, Ini.Length) + '-';}
+
+           
 
             return Ini;
 
@@ -256,7 +272,7 @@ namespace AltivaWebApp.Controllers
                 ViewBag.Dato = "MovimientoInvalido";
 
             }
-            concidencias = bd.CatalogoContable.Where(x => x.IdCuentaContablePadre == p.IdCuentaContable).ToList();
+            concidencias = bd.CatalogoContable.Where(x => x.IdCuentaContablePadre == p.IdCuentaContable && x.Nivel>1).ToList();
             if (concidencias.Count > 0 && p.Movimiento)
             {
                 ViewBag.Error = true;

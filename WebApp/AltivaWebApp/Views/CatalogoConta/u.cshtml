@@ -39,7 +39,7 @@
 
                 <input type="hidden" class="form-control" placeholder="@lb["Numero"]" id="Nivel" asp-for="Nivel" />
 
-                <input type="hidden" class="form-control" placeholder="@lb["Numero"]" id="Espacios" value="@ViewBag.Espacios"/>
+                <input type="hidden" class="form-control" placeholder="@lb["Numero"]" id="Espacios" value="@ViewBag.Numero" />
                 <div class="form-group">
 
                     <label asp-for="CuentaContable" class="control-label"><span class="text-danger"></span>@lb["CuentaContable"]:</label>
@@ -59,7 +59,7 @@
                 <div id="cuentasPadre">
                     <div class="form-group">
                         <label>
-                            @lb["Movimientos"] <input asp-for="Movimiento" />
+                            @lb["RecibeMovimientos"] <input asp-for="Movimiento" />
 
                         </label>
                         <span hidden id="MovimientoValid" class="text-danger">@lb["NoPermiteSerMovimiento"]</span>
@@ -167,25 +167,28 @@
     });
     function definirCuentaContable() {
         var numero = document.getElementById('Numero').value;
+        var Espacios = document.getElementById('Espacios').value;
+        console.log("Espacios>" + Espacios)
         var nivel = document.getElementById('Nivel').value;
-        var segmento = rellenarCeros(document.getElementById('Espacios').value, numero.length) + numero;
+        var segmento = rellenarCeros(Espacios, numero.length) + numero;
         var Ini = document.getElementById('Ini').value;
         var Fin = document.getElementById('Fin').value;
         if (nivel == "1") {
             document.getElementById("CuentaContableInput").value = segmento + Fin;
         } else {
-             document.getElementById("CuentaContableInput").value = Ini + segmento + Fin;
+            document.getElementById("CuentaContableInput").value = Ini + segmento + Fin;
         }
-       
+
     }
     function rellenarCeros(n, cant) {
         var ceros = "";
-        n = n - cant;
-        if (n <= 0) {
+        var cantv = n.length - cant;
+        console.log()
+        if (cantv <= 0) {
             return "";
         }
 
-        for (var i = 1; i < n; i++) {
+        for (var i = 0; i < cantv; i++) {
             ceros = ceros + "0";
         }
 
@@ -193,7 +196,7 @@
     }
     definirCuentaContable();
     function esPrimaria() {
- 
+
         var nivel = document.getElementById('Nivel').value;
         if (nivel <= 1) {
             muestra_oculta('cuentasPadre');
@@ -209,7 +212,7 @@
     }
     function activarEvaluacion() {
         var Evaluacion = document.getElementById('EvaluacionCheck').value;
-         if (Evaluacion) {
+        if (Evaluacion) {
             muestra_oculta('EvaluacionDiv');
         }
     }
