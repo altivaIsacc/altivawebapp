@@ -14,7 +14,7 @@ using FastReport.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using AltivaWebApp.Domains;
-
+using System.Globalization;
 
 namespace AltivaWebApp.Controllers
 {
@@ -47,9 +47,12 @@ namespace AltivaWebApp.Controllers
             var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "Reportes");
             var path = $"{savePath}\\Precios.frx";
 
+            var strIdioma = Resources.JsonStringProvider.GetJson(CultureInfo.CurrentCulture.Name);
 
             rep.Report.Load(path);
             rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;
+            rep.Report.Dictionary.Connections[1].ConnectionString = strIdioma;
+
             rep.Report.Prepare();
             ViewBag.WebReport = rep;
             return View();

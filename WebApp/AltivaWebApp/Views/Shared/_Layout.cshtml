@@ -393,51 +393,33 @@
     <script src="~/lib/vendors/autocomplete/dist/latest/bootstrap-autocomplete.min.js"></script>
 
     <script>
-
         function cargarAlert(mensaje) {
             bootbox.alert({
                 message: '<h4 >' + mensaje + '</h4>',
                 className: 'rubberBand animated',
                 buttons: {
-
                     ok: {
                         label: '<span>@SharedLocalizer["Aceptar"] </span><i class="fa fa-check"></i>'
                     }
                 },
             });
-
         }
-
-
-
     </script>
     <script>
-
-
         $(document).ready(function () {
-
             //agrega tema del local storage
             $("#tema").attr('href', '/../css/' + localStorage.getItem('tema') + '.css');
-
             //agregar el nombre de la empresa del local storage y la imagen
             var empresa = localStorage.getItem("empresa");
-
-
             $('.nombreEmpresaLink').click(function () {
-
                 var url = '@Url.Action("DetallesEmpresa", "GrupoEmpresarial", new { nombre = "__nombre__" })';
                 window.location.href = url.replace('__nombre__', empresa);
-
             });
-
             if (localStorage.getItem('idioma') != null) {
                 $("[data-translate]").jqTranslate('/../idiomas/altiva', { forceLang: localStorage.getItem('idioma'), asyncLoad: false });
             }
-
             ////INICLIALIZA SELECT2
             $.fn.select2.defaults.set("theme", "bootstrap");
-
-
             //////////////////////////////////////////////idioma//////////////////////////////////////////
             $('#english').click(function () {
                 $("[data-translate]").jqTranslate('/../idiomas/altiva', { defaultLang: 'es', forceLang: 'en', asyncLoad: false });
@@ -447,63 +429,40 @@
                 $("[data-translate]").jqTranslate('/../idiomas/altiva', { defaultLang: 'en', forceLang: 'es', asyncLoad: false });
                 localStorage.setItem('idioma', 'es');
             });
-
             $('.btnIdioma').click(function () {
                 var idiomaActual = localStorage.getItem('idioma');
                 var url = window.location.pathname;
-
                 var urlPost = '@Url.Action("CambiarConfig", "ManejoUsuarios")';
-
                 guardarConfigUsuario(@User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value, urlPost);
-
                 if (idiomaActual === 'en')
                     url = url.replace("es-CR", 'en-US');
                 else if (idiomaActual === 'es')
                     url = url.replace("en-US", 'es-CR');
-
                 window.location.pathname = url;
             });
-
-
             /////////////////////////////////////////////////////fin idioma/////////////////////////////////////////////////////
-
             bootbox.setDefaults({
                 locale: localStorage.getItem('idioma')
             });
-
             //window.ParsleyValidator.setLocale(localStorage.getItem('idioma'));
-
-
             var idMensaje = 0;
-
             $.ajax({
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
                 type: "GET",
-
-
                 url: '@Url.Action("Contador", "Mensajes")',
-
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
                     $("#contador").text(data.contador);
-
                 },
-
                 dataType: "json"
-
             });
-
-
             ///boton atras////////////
-
             $('.btnAtras').click(function () {
                 bootbox.confirm({
-
                     message: "<p class='text-center'><span>¿Esta seguro que desea continuar?</span></p>",
                     buttons: {
-
                         confirm: {
                             label: '<i class="fa fa-check"></i> Aceptar'
                         },
@@ -520,67 +479,42 @@
                         }
                     }
                 });
-
-
             });
-
             $('.telefono').on('keypress onblur', function (e) {
-
                 tecla = (document.all) ? e.keyCode : e.which;
-
                 //Tecla de retroceso para borrar, siempre la permite
                 if (tecla == 8) {
                     return true;
                 }
-
                 // Patron de entrada, en este caso solo acepta numeros y letras
                 patron = /^[-()+0-9\s]+$/g;
                 tecla_final = String.fromCharCode(tecla);
                 return patron.test(tecla_final);
-
             });
-
-
         });
-
         $('.sinCaracteresE').on('keypress onblur', function (e) {
-
             tecla = (document.all) ? e.keyCode : e.which;
-
             //Tecla de retroceso para borrar, siempre la permite
             if (tecla == 8) {
                 return true;
             }
-
             // Patron de entrada, en este caso solo acepta numeros y letras
             patron = /^[A-Za-z0-9\s]+$/g;
             tecla_final = String.fromCharCode(tecla);
             return patron.test(tecla_final);
-
         });
-
         $('.sinEspaciosNiEspeciales').on('keypress onblur paste', function (e) {
-
-
             tecla = (document.all) ? e.keyCode : e.which;
-
             //Tecla de retroceso para borrar, siempre la permite
             if (tecla == 8) {
                 return true;
             }
-
             // Patron de entrada, en este caso solo acepta numeros y letras
             patron = /^[A-Za-z0-9]+$/g;
             tecla_final = String.fromCharCode(tecla);
             return patron.test(tecla_final);
-
         });
-
-
     </script>
-
     @RenderSection("Scripts", required: false)
 </body>
 </html>
-
-
