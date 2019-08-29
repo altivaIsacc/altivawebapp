@@ -34,8 +34,6 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Lista-Ajustes")]
         public ActionResult ListarAjustes()
         {
-            AltivaLog.Log.Insertar(Resources.JsonStringProvider.GetJson(CultureInfo.CurrentCulture.Name), "Español");
-            
             return View();
         }
 

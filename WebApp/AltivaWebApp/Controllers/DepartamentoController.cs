@@ -130,7 +130,7 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                return Ok(service.GetAll());
+                return Ok(service.GetAll().OrderBy(d => d.Descripcion));
             }
             catch (Exception ex)
             {
@@ -155,7 +155,7 @@ namespace AltivaWebApp.Controllers
                 }
 
 
-                return Ok(depa);
+                return Ok(depa.OrderByDescending(d => d.Fecha));
             }
             catch (Exception ex)
             {
