@@ -72,12 +72,12 @@ else
     </div>
     <div class="col-md-12 col-sm-12 col-xs-12">
         <form id="formInventario">
-
-            <div class="form-group" hidden>
-                <label asp-for="IdInventario" class="control-label"></label>
-                <input asp-for="IdInventario" class="form-control" />
-                <span asp-validation-for="IdInventario" class="text-danger"></span>
-            </div>
+            @Html.HiddenFor(x => x.IdInventario)
+            @Html.HiddenFor(x => x.CostoPromedioGeneral)
+            @Html.HiddenFor(x => x.UltimoPrecioCompra)
+            @Html.HiddenFor(x => x.ExistenciaGeneral)
+            @Html.HiddenFor(x => x.Inactiva)
+            @Html.HiddenFor(x => x.IdUsuario)
             <div class="row">
                 <div class="form-group col-md-2 col-sm-6 col-xs-12">
                     <label asp-for="CantidadUnidad" class="control-label">@SharedLocalizer["Presentación"]:</label>
@@ -142,13 +142,9 @@ else
                     <input id="impVenta" asp-for="ImpuestoVenta" class="form-control porc inputPorcentaje" />
                 </div>
 
-                <div hidden class="form-group col-md-4 col-sm-6 col-xs-12">
-                    <label class="control-label">@SharedLocalizer["CostoPromedio"]:</label>
-                    <input readonly asp-for="CostoPromedioGeneral" value="@Model.CostoPromedioGeneral.ToString().Replace(',', '.')" class="form-control inputVentaDirecta" />
-                </div>
                 <div class="form-group col-md-4 col-sm-6 col-xs-12">
                     <label class="control-label">@SharedLocalizer["CostoPromedio"]:</label>
-                    <input readonly value="@Model.CostoPromedioGeneral.ToString().Replace(',', '.')" class="form-control inputVentaDirecta" />
+                    <input style="text-align:right" readonly value="@Model.CostoPromedioGeneral.ToString("N").Replace(',', '.')" class="form-control money" />
                 </div>
             </div>
             <div class="row">
@@ -173,8 +169,8 @@ else
                 </div>
 
                 <div class="form-group col-md-4 col-sm-6 col-xs-12">
-                    <label data-translate="ultimoCosto" asp-for="UltimoPrecioCompra" class="control-label">@SharedLocalizer["Último"] @SharedLocalizer["Costo"]:</label>
-                    <input readonly asp-for="UltimoPrecioCompra" value="@Model.UltimoPrecioCompra.ToString().Replace(',', '.')" class="form-control inputVentaDirecta" />
+                    <label class="control-label">@SharedLocalizer["Último"] @SharedLocalizer["Costo"]:</label>
+                    <input style="text-align:right" readonly value="@Model.UltimoPrecioCompra.ToString().Replace(',', '.')" class="form-control money" />
                 </div>
 
             </div>
@@ -294,16 +290,15 @@ else
                 <br />
 
                 <!--Habilitar Venta online-->
-                <br />
-                <div class="row well collapse ventaOnlineForm">
-
+                <hr />
+                <div class="row collapse ventaOnlineForm">
 
                     <!--Familias online-->
-                    <div class="col-md-4 col-sm-4 col-xs-10">
+                    <div class="col-md-5 col-sm-5 col-xs-9">
                         <label class="control-label">@SharedLocalizer["Familia"]:</label>
                         <select id="familiasOnline" class="form-control search-key"></select>
                     </div>
-                    <div class="form-group col-md-1 col-sm-2 col-xs-2">
+                    <div class="form-group col-md-1 col-sm-1 col-xs-3">
                         <br />
                         <a style="padding:0; margin:0rem; margin-top:1rem; margin-right:0.5rem" class="btn btn-link crearEditarFamiliaOnline" id="crearFamiliaOnline">
                             <span><i style="font-size: 2rem" class="fas fa-plus-circle"></i></span>
@@ -315,11 +310,11 @@ else
                     <!--Fin familia online-->
                     <!--SubFamiliaOnline-->
 
-                    <div class="col-md-4 col-sm-4 col-xs-10">
+                    <div class="col-md-5 col-sm-5 col-xs-10">
                         <label data-translate="subFamilia" class="control-label">@SharedLocalizer["Sub-Familia"]:</label>
                         <select asp-for="IdFamiliaOnline" id="subFamiliasOnline" class="form-control search-key"></select>
                     </div>
-                    <div class="col-md-2 col-sm-2 col-xs-2">
+                    <div class="col-md-1 col-sm-1 col-xs-1">
                         <br />
                         <a class="btn btn-link crearEditarSubFamiliaOnline" id="editarSubFamiliaOnline">
                             <span style="font-size: 2rem"><i class="fas fa-edit"></i></span>
@@ -328,7 +323,7 @@ else
 
 
 
-                    <!--Fn SubFamiliaOnline-->
+                    <!--Fin SubFamiliaOnline-->
 
 
                     <br />
@@ -368,92 +363,77 @@ else
                         <span hidden id="skuOnline" class="text-danger">@SharedLocalizer["skuValid"]</span>
                     </div>
                 </div>
-            </div>
 
-            <!--Fin de tabs fotos y caracteristicas-->
-            <div class="form-group" hidden>
-                <label asp-for="ExistenciaGeneral" class="control-label"></label>
-                <input asp-for="ExistenciaGeneral" class="form-control" />
-                <span asp-validation-for="ExistenciaGeneral" class="text-danger"></span>
-            </div>
+                <!--Tabs de fotos y caracteristicas-->
+                @if (Model.IdInventario != 0)
+                {
+                    <div class="row">
+                        <div class="container mt-3" id="tabs">
 
-            <div class="form-group" hidden>
-                <div class="checkbox">
-                    <label>
-                        <input asp-for="Inactiva" /> @Html.DisplayNameFor(model => model.Inactiva)
-                    </label>
-                </div>
-            </div>
-            <div class="form-group" hidden>
-                <label asp-for="IdUsuario" class="control-label"></label>
-                <input asp-for="IdUsuario" class="form-control" />
-                <span asp-validation-for="IdUsuario" class="text-danger"></span>
+                            <br>
+                            <!-- Nav tabs -->
+
+                            <ul class="nav nav-tabs " id="tabs">
+                                <li class="nav-item active">
+                                    <a class="nav-link" data-toggle="tab" href="#fotosOnline">@SharedLocalizer["Fotos"]</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="#caracteristicasOnline">@SharedLocalizer["Características"]</a>
+                                </li>
+
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                <div id="fotosOnline" class="container tab-pane active">
+
+                                    <br />
+
+                                    <button id="nuevaImagen" class="btn btn-success btn-sm" type="button" onclick="modalImagenes()"> @SharedLocalizer["CargarImagen"]</button>
+
+                                    <br />
+
+                                    <div id="partialImagenes">
+
+                                    </div>
+
+
+                                </div>
+
+
+                                <div id="caracteristicasOnline" class="container tab-pane">
+
+                                    <br />
+
+                                    <button id="nuevaCaracteristica" class="btn btn-success btn-sm" type="button" onclick="modalCaracteristica()"> @SharedLocalizer["Agregar"] @SharedLocalizer["Característica"]</button>
+
+                                    <br />
+
+                                    <div id="partialCaracteristicas">
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <br />
+
+
+                        </div>
+                    </div>
+                }
+                <!--Fin de tabs fotos y caracteristicas-->
+
             </div>
 
         </form>
 
     </div>
 
-    <div class="col-md-12">
-        <!--Tabs de fotos y caracteristicas-->
-        @if (Model.IdInventario != 0)
-        {
-            <div class="container mt-3" id="tabs">
 
-                <br>
-                <!-- Nav tabs -->
-
-                <ul class="nav nav-tabs " id="tabs">
-                    <li class="nav-item active">
-                        <a class="nav-link" data-toggle="tab" href="#fotosOnline">@SharedLocalizer["Fotos"]</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#caracteristicasOnline">@SharedLocalizer["Características"]</a>
-                    </li>
-
-                </ul>
-
-                <!-- Tab panes -->
-                <div class="tab-content">
-                    <div id="fotosOnline" class="container tab-pane active">
-
-                        <br />
-
-                        <button id="nuevaImagen" class="btn btn-success btn-sm" type="button" onclick="modalImagenes()"> @SharedLocalizer["CargarImagen"]</button>
-
-                        <br />
-
-                        <div id="partialImagenes">
-
-                        </div>
-
-
-                    </div>
-
-
-                    <div id="caracteristicasOnline" class="container tab-pane">
-
-                        <br />
-
-                        <button id="nuevaCaracteristica" class="btn btn-success btn-sm" type="button" onclick="modalCaracteristica()"> @SharedLocalizer["Agregar"] @SharedLocalizer["Característica"]</button>
-
-                        <br />
-
-                        <div id="partialCaracteristicas">
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <br />
-
-
-            </div>
-        }
-    </div>
+    
 </div>
 
 <!--///////////////////////////fin venta directa fomr///////////////////////////////-->
@@ -720,6 +700,13 @@ else
         $(".inputVentaDirecta").inputmask({
             'alias': 'decimal',
             rightAlign: true,
+            digits: 2
+        });
+
+        $(".money").inputmask('currency', {
+            prefix: '',
+            rightAlign: true,
+            min: 0
         });
 
         $(".numerico").inputmask({
@@ -1396,41 +1383,43 @@ else
         var flag = true;
 
 
-        if (parseFloat(array[1].value) <= 0 || array[1].value === ""){
+        if (parseFloat($('#CantidadUnidad').val()) <= 0 || $('#CantidadUnidad').val() === ""){
             $('#presentacionValid').attr('hidden', false);
             flag = false;
         } else
             $('#presentacionValid').attr('hidden', true);
 
-        if (array[3].value.replace(/ /g, "") === "")
-            array[3].value = 0;
-        if (array[11].value === "")
-            array[11].value = 0;
-        if (array[13].value === "")
-            array[13].value = 0;
-        if (array[16].value === "")
-            array[16].value = 0;
-        if (array[19].value === "")
-            array[19].value = 0;
-        if (array[14].value === "")
-            array[14].value = 0;
-        if (array[15].value === "")
-            array[15].value = 0;
-        if (array[17].value === "")
-            array[17].value = 0;
-        if (array[18].value === "")
-            array[18].value = 0;
-        if (array[20].value === "")
-            array[20].value = 0;
-        if (array[21].value === "")
-            array[21].value = 0;
-        if (array[4].value.replace(/ /g, "") === "") {
+        //if (array[3].value.replace(/ /g, "") === "")
+        //    array[3].value = 0;
+        //if (array[11].value === "")
+        //    array[11].value = 0;
+        //if (array[13].value === "")
+        //    array[13].value = 0;
+        //if (array[16].value === "")
+        //    array[16].value = 0;
+        //if (array[19].value === "")
+        //    array[19].value = 0;
+        //if (array[14].value === "")
+        //    array[14].value = 0;
+        //if (array[15].value === "")
+        //    array[15].value = 0;
+        //if (array[17].value === "")
+        //    array[17].value = 0;
+        //if (array[18].value === "")
+        //    array[18].value = 0;
+        //if (array[20].value === "")
+        //    array[20].value = 0;
+        //if (array[21].value === "")
+        //    array[21].value = 0;
+
+
+        if ($('#Codigo').val().replace(/ /g, "") === "") {
             $('#codigoValid').attr('hidden', false);
             flag = false;
         } else
             $('#codigoValid').attr('hidden', true);
 
-        if (array[7].value.replace(/ /g, "") === "") {
+        if ($('#txtDescripcion').val().replace(/ /g, "") === "") {
             $('#descripcionValid').attr('hidden', false);
             flag = false;
         } else
