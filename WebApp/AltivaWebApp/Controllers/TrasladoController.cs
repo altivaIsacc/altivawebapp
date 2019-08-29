@@ -218,30 +218,71 @@ namespace AltivaWebApp.Controllers
         public IActionResult _CrearPDF()
         {
 
+                    FastReport.Utils.Config.WebMode = true;
+                    var rep = new WebReport();
+                    var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "Reportes");//carpeta reportes
+                    var path = $"{savePath}\\ReporteGeneralTraslado.frx";//guarda el frm del reporte creado de fast repor
+
+
+                    rep.Report.Load(path);
+
+                    var str = Resources.JsonStringProvider.GetJson(CultureInfo.CurrentCulture.Name);// consulta a la clase JsonStringProvider AltivaWebApp/resources/JsonStringProvider si estan creados los archivos de traduccion para los reportes
+
+                    rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;// primera conexion
+                    rep.Report.Dictionary.Connections[1].ConnectionString = StringProvider.StringGE;
+                    rep.Report.Dictionary.Connections[3].ConnectionString = str;
+
+                    //  rep.Report.Dictionary.Connections[3].ConnectionString = $"Json=\"{{\"imagen\":\"{HttpContext.Session.GetString("fotoEmpresa")}}}";
+                    //  Json = '{"imagen": "https://picsum.photos/200/300"}'; JsonSchema = '{"type":"object","properties":{"imagen":{"type":"string"}}}'; Encoding = utf - 8
+
+                    rep.Report.SetParameterValue("IdEmpresa", HttpContext.Session.GetInt32("idEmpresa"));// envia por parametro el idempresa a fast report
+
+                    rep.Report.Prepare();
+
+                    ViewBag.reporte = rep;
+
+
+                    return View("_CrearPDF", path);
+
+            
+
+        }
+
+
+        // POST: AjusteInventario/Delete/5
+        [HttpGet("Crear-PDF-Traslado/{id}")]
+        public IActionResult CrearPdfEspecifico(int id)
+        {
+
+
             FastReport.Utils.Config.WebMode = true;
             var rep = new WebReport();
             var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "Reportes");//carpeta reportes
-            var path = $"{savePath}\\ReporteGeneralTraslado.frx";//guarda el frm del reporte creado de fast repor
+            var path = $"{savePath}\\ReporteEspecificoTraslado.frx";//guarda el frm del reporte creado de fast repor
 
 
             rep.Report.Load(path);
 
             var str = Resources.JsonStringProvider.GetJson(CultureInfo.CurrentCulture.Name);// consulta a la clase JsonStringProvider AltivaWebApp/resources/JsonStringProvider si estan creados los archivos de traduccion para los reportes
 
-            rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;// primera conexion
-            rep.Report.Dictionary.Connections[1].ConnectionString = str;
-            rep.Report.Dictionary.Connections[2].ConnectionString = StringProvider.StringGE;
-            //rep.Report.Dictionary.Connections[3].ConnectionString = $"Json=\"{{\"imagen\":\"{HttpContext.Session.GetString("fotoEmpresa")}}}"; 
+            rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringGE;// primera conexion
 
+            rep.Report.Dictionary.Connections[1].ConnectionString = StringProvider.StringEmpresas;
+
+            rep.Report.Dictionary.Connections[2].ConnectionString = str;
 
             rep.Report.SetParameterValue("IdEmpresa", HttpContext.Session.GetInt32("idEmpresa"));// envia por parametro el idempresa a fast report
+
+            rep.Report.SetParameterValue("IdTraslado", id);// envia por parametro el idTraslado a fast report
 
             rep.Report.Prepare();
 
             ViewBag.reporte = rep;
-            
 
-            return PartialView("_CrearPDF", path);
+
+
+
+            return View("_CrearPDF", path);
           
         }
 

@@ -107,7 +107,7 @@
                         <div class="col-md-6 col-sm-6 col-xs-6">
                             <div class="input-group">
                                 <br>
-                                <button class="btn btn-primary btn-sm" id="Pdf" onclick="crearPdf()">@SharedLocalizer["PDF"]</button>
+                                <button class="btn btn-primary btn-sm" id="Pdf" onclick="crearPdfTrasladoEspecifico()">@SharedLocalizer["PDF"]</button>
                             </div>
                         </div>
                     </div>
@@ -133,7 +133,7 @@
                         <th>
                             @SharedLocalizer["Cantidad"]
                         </th>
-                       
+
                         <th>
                             @SharedLocalizer["PrecioUnitario"]
                         </th>
@@ -157,7 +157,7 @@
         <div class="col-md-6 col-sm-6 col-xs-6">
             <div class="input-group">
                 <label class="control-label">@SharedLocalizer["Comentario"]:</label>
-                <textarea asp-for="Comentario" id="Comentario" rows="3" class="form-control" style="resize:none;"></textarea>
+                <textarea asp-for="Comentario" id="Comentario" rows="3" class="form-control" style="resize:none;" maxlength="200"></textarea>
             </div>
         </div>
         <div class="col-md-6 col-sm-6 col-xs-6">
@@ -281,7 +281,7 @@
     var arrayArticuloPorBodegaOrigenSeleccionada = [];
     var arrayTablaTraslado = [];
     var arrayTablaTrasladoInventario = [];//si editar
-  
+
     //envio al controlador
     var arrayTraslado = [];
     var arrayTrasladoInventario = [];
@@ -291,10 +291,10 @@
 
     $(document).ready(function () {
 
-      
+
         validarGuardarEditar();
         getBodegasInventario();
-     
+
 
         if (@Model.IdTraslado != 0) {
 
@@ -721,7 +721,7 @@
             contadorFila++;
         }
 
-        //inicializa formato de la moneda tambien aca 
+        //inicializa formato de la moneda tambien aca
         $(".colon").inputmask('currency', {
             prefix: monedas[0].simbolo + " ",
             rightAlign: true
@@ -840,16 +840,16 @@
             var body = '<tr class="fila' + contadorFila + ' filas">'
                 + '<td><p style="padding-top:1rem">' + arrayTablaTraslado[i].codigoArticulo + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + arrayTablaTraslado[i].descripcion + '</p></td>'
-                + '<td> <input type="number" id="' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].cantidad + '" onChange="calcular(value,' + contadorFila + ', ' + arrayTablaTraslado[i].idInventario +' )"  min="1" pattern="^[0-9]+" onKeyPress="return soloNumeros(event)" readonly /></td>'                          
+                + '<td> <input type="number" id="' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].cantidad + '" onChange="calcular(value,' + contadorFila + ', ' + arrayTablaTraslado[i].idInventario +' )"  min="1" pattern="^[0-9]+" onKeyPress="return soloNumeros(event)" readonly /></td>'
                 + '<td><p style="padding-top:1rem" class="colon">' + arrayTablaTraslado[i].precioUnitario + '</p></td>'
                 //mostrando por la clase colon
-                + '<td> <input type="text"  id="txtCosto2' + contadorFila + '" class="form-control colon" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '" readonly placeholder="@SharedLocalizer["costoTotal"]."/>  <input type="hidden" id="txtCosto' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '"/>    </td>'       
+                + '<td> <input type="text"  id="txtCosto2' + contadorFila + '" class="form-control colon" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '" readonly placeholder="@SharedLocalizer["costoTotal"]."/>  <input type="hidden" id="txtCosto' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '"/>    </td>'
                 + '<td>  <button value="' + contadorFila + '" onclick="editar(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + contadorFila + '" onclick="eliminar(value)" class="btn btn-link btnEditar"><i class="fas fa-trash"></i></button>';
             $('#tablaTrasladoInventario > tbody').append(body);
             contadorFila++;
         }
 
-        //inicializa formato de la moneda tambien aca 
+        //inicializa formato de la moneda tambien aca
         $(".colon").inputmask('currency', {
             prefix: monedas[0].simbolo + " ",
             rightAlign: true
@@ -963,15 +963,15 @@
 
         } else {
             // console.log("entro a editar");
-            
+
                  for (var j = 0; j < arrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
 
                      if (arrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == id) {
-                       
+
                          var existenciaBodega = arrayArticuloPorBodegaOrigenSeleccionada[j].existenciaBodega;
                         // console.log(existenciaBodega);
 
-                         if (cantidad > existenciaBodega) {                       
+                         if (cantidad > existenciaBodega) {
                                cargarAlert("@SharedLocalizer["ExistenciaSuperada"]");
                              $('#' + pos).val(1);
                              $('#' + pos).prop("readonly", true);
@@ -980,7 +980,7 @@
                              $('#txtCosto2' + pos).val(costo);
                              $('#txtCosto' + pos).val(costo);
                              calcularCostoTotal(1, pos);
-                         } else if (cantidad == 0) {                         
+                         } else if (cantidad == 0) {
                              $('#' + pos).val(1);//ponga 1 por defecto
                              $('#' + pos).prop("readonly", true);//y lo bloquee
                              precioUnitario = arrayTablaTraslado[pos].precioUnitario;
@@ -988,7 +988,7 @@
                              $('#txtCosto2' + pos).val(costo);
                              $('#txtCosto' + pos).val(costo);
                              calcularCostoTotal(1, pos);
-                         } else {                     
+                         } else {
                              precioUnitario = arrayTablaTraslado[pos].precioUnitario;
                              costo = precioUnitario * cantidad;
                              $('#txtCosto2' + pos).val(costo);
@@ -1079,7 +1079,7 @@
         arrayArticulosEliminados.push(num);
 
         console.log(arrayArticulosEliminados);
-        
+
     }
 
 
@@ -1219,7 +1219,7 @@
                 return resp;
                 break;
 
-            } 
+            }
 
         }
 
@@ -1304,7 +1304,7 @@
                   }
             });
         }
-    
+
 
 
 
@@ -1358,15 +1358,22 @@
     }
 
 
-    function crearPdf() {
-           console.log(" A crear el pdf ");
+    function crearPdfTrasladoEspecifico() {
+            
+            console.log(" A crear el pdf ");
 
-
-
-
-
-
+            open("Crear-PDF-Traslado/@Model.IdTraslado");
+                      
     }
+
+
+
+
+
+
+
+
+
 
 
     function recuperarUsuario() {
@@ -1375,7 +1382,7 @@
         var idUsu = $('#IdUsuario').val();
         var nombre = "";
         //console.log(Usuarios);
-       
+
 
         for (var i = 0; i < Usuarios.length; i++) {
 
@@ -1426,6 +1433,6 @@
 
 
 
-    
+
 </script>
 
