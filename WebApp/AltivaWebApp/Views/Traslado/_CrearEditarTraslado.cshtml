@@ -32,7 +32,7 @@
 <div class="container" style=" overflow-y: scroll; height:60rem;">
 
     <div class="row">
-        <h5 class="col-md-11 col-sm-11 col-xs-11" id="trasladoModallabel">@titulo</h5>
+        <h4 class="col-md-11 col-sm-11 col-xs-11" id="trasladoModallabel">@titulo</h4>
         <div class="col-md-1">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -208,7 +208,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">@SharedLocalizer["InventarioBodega"]</h5>
+                    <h4 class="modal-title" id="exampleModalLongTitle">@SharedLocalizer["InventarioBodega"]</h4>
                     <span id="error" class="text-danger">@SharedLocalizer["ArticuloEnlistado"] </span>
 
                     <button type="button" class="close" aria-label="Close" onclick="ocultarModalInventarioBodega()">
@@ -238,7 +238,7 @@
                                 <thead>
                                     <tr>
                                         <th>
-                                            @SharedLocalizer["id"]
+                                            @SharedLocalizer["Id"]
                                         </th>
 
                                         <th>
@@ -583,7 +583,7 @@
         $('#error').hide(); //el mensaje del error se oculte
         var value = $('#BuscarCodigoInventarioBodega').val().trim();
 
-        console.log(value);
+       // console.log(value);
 
         if (value != 0) {
             //seguir flujo aca
@@ -712,19 +712,27 @@
 
 
     function obtenerArticulosPorBodega(array) {
-        var ib = array;
+        //console.log(array);
+        var ib = array;     
         arrayArticuloPorBodegaOrigenSeleccionada = [];//limpie en caso de cambiar de bodega en el select
         for (var i = 0; i < ib.length; i++) {
-            var model = {
-                idInventario: ib[i].idInventarioNavigation.idInventario,
-                codigo: ib[i].idInventarioNavigation.codigo,
-                descripcion: ib[i].idInventarioNavigation.descripcion,
-                existenciaBodega: ib[i].existenciaBodega,
-                costoPromedioBodega: ib[i].costoPromedioBodega,
-                idInventarioBodega: ib[i].id
-            };
-            // console.log(model);
-            arrayArticuloPorBodegaOrigenSeleccionada.push(model); //pasar jason al array global
+
+            if (ib[i].existenciaBodega > 0) {
+                var model = {
+                    idInventario: ib[i].idInventarioNavigation.idInventario,
+                    codigo: ib[i].idInventarioNavigation.codigo,
+                    descripcion: ib[i].idInventarioNavigation.descripcion,
+                    existenciaBodega: ib[i].existenciaBodega,
+                    costoPromedioBodega: ib[i].costoPromedioBodega,
+                    idInventarioBodega: ib[i].id
+                };
+                //8console.log(model);
+                arrayArticuloPorBodegaOrigenSeleccionada.push(model); //pasar jason al array global
+            }
+
+           
+
+
         }
     }
 
@@ -732,13 +740,13 @@
 
 
     function cargarDatosInventarioBodega() {
-        console.log(arrayArticuloPorBodegaOrigenSeleccionada);
+        //console.log(arrayArticuloPorBodegaOrigenSeleccionada);
         var contadorFila = 0;
         $("#tblInventarioBodega > tbody").remove();
         $('#tblInventarioBodega').append('<tbody></tbody>');
         for (var i = 0; i < arrayArticuloPorBodegaOrigenSeleccionada.length; i++) {
 
-            if (arrayArticuloPorBodegaOrigenSeleccionada[i].existenciaBodega > 0) {
+           
                 var body = '<tr class="fila' + contadorFila + ' filas">'
                     + '<td id="idInventario"><p style="padding-top:1rem">' + arrayArticuloPorBodegaOrigenSeleccionada[i].idInventario + '</p></td>'
                     + '<td id="codigo" ><p style="padding-top:1rem">' + arrayArticuloPorBodegaOrigenSeleccionada[i].codigo + '</p></td>'
@@ -749,7 +757,7 @@
                 $('#tblInventarioBodega > tbody').append(body);
                 contadorFila++;
             
-            }
+            
           
         }
 
@@ -1032,20 +1040,6 @@
                  }
              }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 
 
@@ -1097,7 +1091,7 @@
         if (elementoEliminado[0].id != 0) {
 
             insertarArticuloEliminado(elementoEliminado);
-            console.log("anadiendo al arrayArticulosEliminados...");
+          //  console.log("anadiendo al arrayArticulosEliminados...");
 
         }
 
@@ -1110,7 +1104,7 @@
         var num = elementoEliminado[0].id;
         arrayArticulosEliminados.push(num);
 
-        console.log(arrayArticulosEliminados);
+      //  console.log(arrayArticulosEliminados);
 
     }
 
@@ -1152,7 +1146,7 @@
                         data: { traslado: crearModelo(), inventarioTraslado: arrayTablaTraslado, eliminados: arrayArticulosEliminados },
                         success: function (data) {
                             if (data.success) {
-                                console.log(data);
+                              //  console.log(data);
                                 $('#modalTraslado').modal('hide'); //ocultar modal
                                 getTrasladosGeneral();
                                 limpiarArray();
@@ -1247,7 +1241,7 @@
             if (arrayTablaTraslado[i].precioUnitario == 0) {
 
                  // console.log(arrayTablaTraslado);
-                console.log("que no guarde");
+                //  console.log("que no guarde");
                 resp = true;
                 return resp;
                 break;
