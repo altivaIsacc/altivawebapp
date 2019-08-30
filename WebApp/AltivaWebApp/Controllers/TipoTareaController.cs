@@ -84,12 +84,12 @@ namespace AltivaWebApp.Controllers
                 {
                     return Json(new { titulo = true });
                 }
-                else if (domain.Color != "#ffffff")
+                else if (domain.Color != "#f6faf9")
                 {
                     if (this.ITipoTareaService.GetByColor(domain.Color))
                         return Json(new { color = true });
                 }
-                else if (domain.EsTipoDefecto != false)
+                 if (domain.EsTipoDefecto != false)
                 {
 
                     if (this.ITipoTareaService.GetByDefecto(domain.EsTipoDefecto))
@@ -120,6 +120,7 @@ namespace AltivaWebApp.Controllers
             tt = this.ITipoTareaService.GetById(idTipoTarea);
             return PartialView("_CrearEditarTipos", tt);
         }
+     
         [HttpGet("Delete/{idTipo?}")]
         public IActionResult Delete(int idTipo)
         {
@@ -155,7 +156,7 @@ namespace AltivaWebApp.Controllers
                     return Json(new { titulo = true });
                 }
             }
-            if (domain.Color != "#ffffff")
+            if (domain.Color != "#f6faf9")
             {
                 if (this.ITipoTareaService.GetByColor(domain.Color))
                 {
@@ -181,7 +182,7 @@ namespace AltivaWebApp.Controllers
 
 
 
-            return Json(new { titulo = false, color = false, defecto = false });
+            return Json(new { titulo = false, color = false, defecto = false}); ;
         }
 
     }

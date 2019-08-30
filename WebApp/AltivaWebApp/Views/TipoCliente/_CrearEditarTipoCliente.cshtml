@@ -64,6 +64,7 @@
                 <label asp-for="Nombre" class="control-label">@Lb["Nombre"]:</label>
                 <input asp-for="Nombre" id="tcNombre" class="form-control" />
                 <span hidden id="tcNombreValid" class="text-danger">@Lb["nombreValid"]</span>
+                <span hidden id="nombreExiste" class="text-danger">@Lb["repetidoValid"]</span>
             </div>
             <div class="form-group">
 
@@ -79,7 +80,7 @@
 
 <div class="form-group row">
     <div class="col-md-2 col-sm-2 col-xs-4">
-        <button onclick="guardarTipoCliente()" class="btn btn-success"><span>@Lb["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
+        <button onclick="validarForm()" class="btn btn-success"><span>@Lb["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
     </div>
     <div class="col-md-2 col-sm-2 col-xs-4">
         <button class="btn btn-default" data-dismiss="modal">@Lb["Cancelar"]</button>
@@ -135,33 +136,28 @@
 
     /////////Tipos de Clientes
 
-    function guardarTipoCliente() {
+    function guardarTipoCliente(flag) {
+     
+            if (flag) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("CrearEditarTipoCliente", "TipoCliente")',
+                    data: $('#frmTipoCliente').serialize(),
+                    success: function (data) {
+                        var tipo = $("input[name='radioTipoC']:checked").val();
+                        //getTipoClientes(parseInt(tipo), data.tipoC.id);
+                        //setTipoClientes(parseInt(tipo), data.tipoC.id);
+                        window.location.href = "@Url.Action("ListarTipoCLientes", "TipoCliente")";
+                        $('#modalTipoCliente').modal('hide');
 
-        var flag = true;
-        if ($('#tcNombre').val().replace(/ /g, "") === "") {
-            flag = false;
-            $('#tcNombreValid').prop('hidden', false);
-        }
+                    },
+                    error: function (err, scnd) {
+                        cargarAlert('@Lb["errorGeneral"]');
+                    }
 
-
-        if (flag) {
-            $.ajax({
-                type: "POST",
-                url: '@Url.Action("CrearEditarTipoCliente", "TipoCliente")',
-                data: $('#frmTipoCliente').serialize(),
-                success: function (data) {
-                   var tipo = $("input[name='radioTipoC']:checked").val();
-                    getTipoClientes(parseInt(tipo), data.tipoP.id);
-                    $('#modalTipoCliente').modal('hide');
-                    
-                },
-                error: function (err, scnd) {
-                    cargarAlert('@Lb["errorGeneral"]');
-                }
-
-            });
-        }
-
+                });
+            }
+        
     }
 
 
@@ -228,7 +224,39 @@
             }
         }
 
-    }
+        }
+     function validarForm() {
+            
+                $.ajax({
+                    type: "GET",
+                    dataType: "json",
+                    url: '@Url.Action("GetTipoClientes")',
+                    data: { nombre: $("#tcNombre").val() },
+                    success: function (data) {
+                        if (data.data == true) {
+                            $('#tcNombreValid').attr('hidden', true);
+                            $('#nombreExiste').attr('hidden', false);
+                            guardarTipoCliente(false);
+                        }
+                        else
+                        {    var flag = true;
+                             if ($('#tcNombre').val().replace(/ /g, "") === "") {
+                                 $('#nombreExiste').attr('hidden', true);
+                                    flag = false;
+                                  $('#tcNombreValid').prop('hidden', false);
+                             }
+                             guardarTipoCliente(flag);
+                        }
+                     
+                    },
+                    error: function (err, scnd) {
+                        cargarAlert('@Lb["errorGeneral"]');
+                        console.log(err.statusText);
+                    }
+                });
+           
+           
+        }
 
 </script>
 
