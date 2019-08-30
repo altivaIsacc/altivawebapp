@@ -23,21 +23,25 @@ else
 }
 <hr />
 
-<div class="btn-group">
-    <button type="button" onclick="imprimirTicket()" class="btn btn-primary">@Lb["Imprimir"]</button>
-    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-        <span class="caret"></span>
-        <span class="sr-only">Toggle Dropdown</span>
-    </button>
-    <ul class="dropdown-menu" role="menu">
-        <li>
-            <a href="#carta">@Lb["Carta"]</a>
-        </li>
-        <li>
-            <a href="#ticket">@Lb["Ticket"]</a>
-        </li>
-    </ul>
-</div>
+@if (Model.Id != 0)
+{
+    <div class="btn-group">
+        <button type="button" onclick="imprimirTicket()" class="btn btn-primary">@Lb["Imprimir"]</button>
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            <li>
+                <a href="#carta">@Lb["Carta"]</a>
+            </li>
+            <li>
+                <a href="#ticket">@Lb["Ticket"]</a>
+            </li>
+        </ul>
+    </div>
+}
+
 
 <div class="row">
     <form id="frmFactura">
@@ -325,11 +329,15 @@ else
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-12">
-        @await ViewBag.reporte.Render()
+@if (Model.Id != 0)
+{
+    <div class="row">
+        <div class="col-md-12">
+            @await ViewBag.reporte.Render()
+        </div>
     </div>
-</div>
+}
+
 
 <input hidden id="monedaFormatter" class="moneda" type="text" />
 <input hidden id="moneyFormatter" class="money" type="text" />
@@ -375,7 +383,7 @@ else
             rightAlign: true,
             min: 0
         });
-        
+
 
         $(".porcentaje").inputmask({
             'alias': 'percentage',
@@ -391,8 +399,6 @@ else
         getInventario();
 
         comprobarBorrador();
-
-        imprimirTicket();
 
 
     });
@@ -1229,7 +1235,7 @@ else
             tipoDocumentoTitulo: '@Lb["Tipo"]:',
             tipoDocumento: $('#Tipo option:selected').text()
         };
-        
+
         return modelo;
 
     }
@@ -1301,9 +1307,9 @@ else
     }
 
     function imprimirTicket() {
-        
-        
-         
+
+
+
 
         var request = new XMLHttpRequest();
         request.responseType = "blob";
@@ -1317,7 +1323,7 @@ else
                 base64data = reader.result;
                 crearTicketPdf(base64data);
             }
-            
+
         }
         request.send();
     }
@@ -1325,19 +1331,19 @@ else
 
     function crearTicketPdf(img) {
 
-        var imgData = img//getImgFromUrl(img)  
+        var imgData = img//getImgFromUrl(img)
 
-        
-        
+
+
         var doc = new jsPDF('p', 'mm', [80, 210]);
 
 
         doc.addImage(imgData, 'JPEG', 0, 0, 80, 210)
 
-        
+
         doc.autoPrint();
         window.open(doc.output('bloburl'), '_blank');
-        
+
     }
 
 </script>

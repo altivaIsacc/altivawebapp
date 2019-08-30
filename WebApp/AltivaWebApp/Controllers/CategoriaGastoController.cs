@@ -59,14 +59,14 @@ namespace AltivaWebApp.Controllers
                 if (viewModel.Id != 0)
                 {
                     if (existeCG != null && existeCG.Id != viewModel.Id)
-                        return Json(new { success = false });
+                        return Json(new { success = false, activo = existeCG.Estado  });
 
                     cg = map.Update(viewModel);
                 }
                 else
                 {
                     if(existeCG != null)
-                        return Json(new { success = false });
+                        return Json(new { success = false, activo = existeCG.Estado });
                     viewModel.Estado = true;
                     viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     viewModel.FechaCreacion = DateTime.Now;

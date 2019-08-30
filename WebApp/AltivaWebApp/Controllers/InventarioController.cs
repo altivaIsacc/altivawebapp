@@ -51,11 +51,10 @@ namespace AltivaWebApp.Controllers
         {
             ViewBag.cod = cod;
             ViewData["bodegas"] = bodegaService.GetAllActivas();
-            var algo= bodegaService.GetAllActivas(); 
             return View();
         }
 
-        [HttpGet("Lista-Inventario/todo")]
+        [HttpGet("GetAllInventario")]
         public IActionResult GetAllInventario()
         {
             var catalogo = service.GetAllInventario();
@@ -159,15 +158,13 @@ namespace AltivaWebApp.Controllers
             {
                 if (model.DescripcionVenta == null)
                     model.DescripcionVenta = model.Descripcion;
-                var inventario = new TbPrInventario();
-
                 long idInventario = 0;
                 var codigoInventario = "";
-
+                var inventario = new TbPrInventario();
                 if(id == 0)
                 {
-                    inventario = service.GetInventarioByCodigo(model.Codigo);
-                    if (inventario == null)
+                    long? existeInventario = service.ExisteInventarioCodigo(model.Codigo);
+                    if (existeInventario == 0)
                     {
 
                         var idUser = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -175,27 +172,26 @@ namespace AltivaWebApp.Controllers
                         inventario = map.Create(model);
                         idInventario = inventario.IdInventario;
                         var precios = preciosService.GetAll();
-                        precioCatalogoService.SaveFromInventario(idInventario);
+                        precioCatalogoService.SaveFromInventario((int)inventario.IdInventario);
 
                     }
                 }
                 else
                 {
-                    inventario = service.GetInventarioByCodigo(model.Codigo);
+                    
+
+                    var existeInventario = service.ExisteInventarioCodigo(model.Codigo);
                     var flag = true;
 
-                    if (inventario != null)
-                        if (inventario.IdInventario != id)
+                    if (existeInventario != 0)
+                        if (existeInventario != id)
                         {
                             flag = false;
-                            idInventario = 0;
                         }
                             
                     if (flag)
                     {
                         inventario = map.Update(id, model);
-                        idInventario = id;
-                        codigoInventario = inventario.Codigo;
                     }
 
 
@@ -203,7 +199,7 @@ namespace AltivaWebApp.Controllers
 
                 }
 
-                return Json(new { id = idInventario, codigo = codigoInventario });
+                return Json(new { id = inventario.IdInventario, codigo = inventario.Codigo });
             }
             
             catch (Exception ex)
@@ -349,13 +345,13 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        [HttpGet("EliminarInventarioBodega/{id}")]
+        [HttpPost("EliminarInventarioBodega")]
         public ActionResult EliminarInventarioBodega(int id)
         {
             try
             {
                 var res = service.EliminarInventarioBodega(id);
-                return Ok();
+                return Ok(res);
             }
             catch (Exception ex)
             {
@@ -467,7 +463,7 @@ namespace AltivaWebApp.Controllers
             try
             {
                 map.CreateImagen(id, files);
-                
+                return Json(new { success = true });
 
             }
             catch (Exception ex)
@@ -477,17 +473,23 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
 
-            return RedirectToAction("EditarInventario", new { id });
         }
 
         [HttpPost("CargarCaracteristicasInventario/{id}")]
-        public ActionResult CargarCaracteristicasInventario(int id, string model)
+        public ActionResult CargarCaracteristicasInventario(long id, string model)
         {
             try
             {
-                map.CreateCaracteristica(id, model);
-
-
+                if (!service.ExisteCaracteristica(id, model))
+                {
+                    map.CreateCaracteristica((int)id, model);
+                    return Json(new { success = true });
+                }
+                else
+                {
+                    return Json(new { success = false });
+                }
+                    
             }
             catch (Exception ex)
             {
@@ -496,7 +498,6 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
 
-            return RedirectToAction("EditarInventario", new { id });
         }
 
 

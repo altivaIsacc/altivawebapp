@@ -58,10 +58,6 @@ namespace AltivaWebApp.Controllers
 
                 var modulosPerfil = moduloPerfilService.GetAllByPerfil();
 
-                
-
-                
-
                 foreach (var item in modulosPerfil)
                 {
                     if (item.IdPerfil == id)
@@ -75,8 +71,8 @@ namespace AltivaWebApp.Controllers
                         else
                             modulosAsignados.Add(item);
                     }
-
                 }
+
 
                 var flag = true;
 

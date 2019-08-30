@@ -8,12 +8,18 @@
     }
 }
 
+@{ 
+
+    ViewData["Title"] = @SharedLocalizer["Catálogo"];
+
+}
+
 
 <div class="row">
-    <div class="col-md-1">
+    <div class="col-md-2">
         <h3>@SharedLocalizer["Catálogo"]</h3>
     </div>
-    <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
+    <div class="col-md-8" style="margin-left:1rem; padding-top:0.7rem">
         <p>
             <a asp-action="CrearInventario" class="btn btn-primary"><span>@SharedLocalizer["Agregar"]</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
         </p>
@@ -84,9 +90,9 @@
             </div>
             <div class="col-md-6 col-sm-6 col-xs-6">
                 <select style="width:10rem" id="filtroMedida" class="form-control form-control-sm selectExistencia selectFiltro">
-                    <option value="1" selected>@SharedLocalizer["Mínima"]</option>
-                    <option value="2" selected>@SharedLocalizer["Media"]</option>
-                    <option value="3" selected>@SharedLocalizer["Máxima"]</option>
+                    <option value="1" selected>@SharedLocalizer["Min"]</option>
+                    <option value="2" selected>@SharedLocalizer["Med"]</option>
+                    <option value="3" selected>@SharedLocalizer["Max"]</option>
                 </select>
             </div>
         </div>
@@ -156,7 +162,7 @@
     $(document).ready(function () {
 
         if ("@ViewBag.cod" != "") {
-            var url = "@Url.Action("CrearEditarInventario", "Inventario")";
+            var url = "@Url.Action("ListarInventario", "Inventario", new { cod = ViewBag.cod })";
             var regex = new RegExp('/[^/]*$');
             history.pushState(null, "", url.replace(regex, '/'));
         }
@@ -466,27 +472,29 @@
     }
 
     function cambiarEstadoInventarioLocal(id) {
-        var contador = 0;
+        var item = "";
         var msj = "";
-
-        if (estadoItem)
-            msj = '@SharedLocalizer["confirmReactivar"]';//"Está seguro que desea reactivar este item?";
-        else
-            msj = '@SharedLocalizer["confirmDesactivar"]';//"Está seguro que desea desactivar este item?";
+        var contador = 0;
 
         for (var i = 0; i < inventario.length; i++) {
 
             if (inventario[i].idInventario == id) {
+                item = inventario[i];
                 contador = i;
                 break;
             }
         }
 
+        if (item.inactiva)
+            msj = '@SharedLocalizer["confirmReactivar"]';//"Está seguro que desea reactivar este item?";
+        else
+            msj = '@SharedLocalizer["confirmDesactivar"]';//"Está seguro que desea desactivar este item?";
+
         bootbox.confirm(msj, function (result) {
 
             if (result) {
 
-                if (inventario[contador].inactiva)
+                if (item.inactiva)
                     inventario[contador].inactiva = false;
                 else
                     inventario[contador].inactiva = true;
@@ -587,6 +595,12 @@
 
     }
 
+    $('.selectFiltro').on('change', function () {
+
+        cargarFiltros();
+
+    });
+
 
     function cargarFiltros() {
 
@@ -600,8 +614,6 @@
     }
 
     function filtroFamilia(inventarioMostrar) {
-
-        //console.log(inventarioMostrar);
 
         var inventarioFiltrado = [];
         var idFamilia = parseInt($('#filtroFamilia').val());
@@ -678,8 +690,6 @@
 
 
     function filtroBodega(inventarioMostrar) {
-
-        //getInventario();
 
         var idBodega = parseInt($('#filtroBodega').val());
         var inventarioFiltrado = [];

@@ -9,6 +9,18 @@
     }
 }
 @{
+
+
+    if (Model.IdInventario != 0)
+    {
+        ViewData["Title"] = SharedLocalizer["EditarItem"];
+    }
+    else
+    {
+        ViewData["Title"] = SharedLocalizer["NuevoItem"];
+    }
+
+
     var habilitaVentaDirecta = "";
     var habilitaVentaOnline = "";
 
@@ -43,12 +55,12 @@
 
 @if (ViewBag.accion == "1")
 {
-    <h3 data-translate="nuevoItem">Nuevo Item</h3>
+    <h3>@SharedLocalizer["NuevoItem"]</h3>
 }
 else
 {
 
-    <h3 data-translate="editarItem">Editar Item</h3>
+    <h3>@SharedLocalizer["EditarItem"]</h3>
 }
 <hr />
 <div class="row">
@@ -60,12 +72,12 @@ else
     </div>
     <div class="col-md-12 col-sm-12 col-xs-12">
         <form id="formInventario">
-
-            <div class="form-group" hidden>
-                <label asp-for="IdInventario" class="control-label"></label>
-                <input asp-for="IdInventario" class="form-control" />
-                <span asp-validation-for="IdInventario" class="text-danger"></span>
-            </div>
+            @Html.HiddenFor(x => x.IdInventario)
+            @Html.HiddenFor(x => x.CostoPromedioGeneral)
+            @Html.HiddenFor(x => x.UltimoPrecioCompra)
+            @Html.HiddenFor(x => x.ExistenciaGeneral)
+            @Html.HiddenFor(x => x.Inactiva)
+            @Html.HiddenFor(x => x.IdUsuario)
             <div class="row">
                 <div class="form-group col-md-2 col-sm-6 col-xs-12">
                     <label asp-for="CantidadUnidad" class="control-label">@SharedLocalizer["Presentación"]:</label>
@@ -132,7 +144,7 @@ else
 
                 <div class="form-group col-md-4 col-sm-6 col-xs-12">
                     <label class="control-label">@SharedLocalizer["CostoPromedio"]:</label>
-                    <input readonly asp-for="CostoPromedioGeneral" value="@Model.CostoPromedioGeneral.ToString().Replace(',', '.')" class="form-control inputVentaDirecta" />
+                    <input style="text-align:right" readonly value="@Model.CostoPromedioGeneral.ToString("N").Replace(',', '.')" class="form-control money" />
                 </div>
             </div>
             <div class="row">
@@ -157,8 +169,8 @@ else
                 </div>
 
                 <div class="form-group col-md-4 col-sm-6 col-xs-12">
-                    <label data-translate="ultimoCosto" asp-for="UltimoPrecioCompra" class="control-label">@SharedLocalizer["Último"] @SharedLocalizer["Costo"]:</label>
-                    <input readonly asp-for="UltimoPrecioCompra" value="@Model.UltimoPrecioCompra.ToString().Replace(',', '.')" class="form-control inputVentaDirecta" />
+                    <label class="control-label">@SharedLocalizer["Último"] @SharedLocalizer["Costo"]:</label>
+                    <input style="text-align:right" readonly value="@Model.UltimoPrecioCompra.ToString().Replace(',', '.')" class="form-control money" />
                 </div>
 
             </div>
@@ -278,16 +290,15 @@ else
                 <br />
 
                 <!--Habilitar Venta online-->
-                <br />
-                <div class="row well collapse ventaOnlineForm">
-
+                <hr />
+                <div class="row collapse ventaOnlineForm">
 
                     <!--Familias online-->
-                    <div class="col-md-4 col-sm-4 col-xs-10">
+                    <div class="col-md-5 col-sm-5 col-xs-9">
                         <label class="control-label">@SharedLocalizer["Familia"]:</label>
                         <select id="familiasOnline" class="form-control search-key"></select>
                     </div>
-                    <div class="form-group col-md-1 col-sm-2 col-xs-2">
+                    <div class="form-group col-md-1 col-sm-1 col-xs-3">
                         <br />
                         <a style="padding:0; margin:0rem; margin-top:1rem; margin-right:0.5rem" class="btn btn-link crearEditarFamiliaOnline" id="crearFamiliaOnline">
                             <span><i style="font-size: 2rem" class="fas fa-plus-circle"></i></span>
@@ -299,11 +310,11 @@ else
                     <!--Fin familia online-->
                     <!--SubFamiliaOnline-->
 
-                    <div class="col-md-4 col-sm-4 col-xs-10">
+                    <div class="col-md-5 col-sm-5 col-xs-10">
                         <label data-translate="subFamilia" class="control-label">@SharedLocalizer["Sub-Familia"]:</label>
                         <select asp-for="IdFamiliaOnline" id="subFamiliasOnline" class="form-control search-key"></select>
                     </div>
-                    <div class="col-md-2 col-sm-2 col-xs-2">
+                    <div class="col-md-1 col-sm-1 col-xs-1">
                         <br />
                         <a class="btn btn-link crearEditarSubFamiliaOnline" id="editarSubFamiliaOnline">
                             <span style="font-size: 2rem"><i class="fas fa-edit"></i></span>
@@ -312,7 +323,7 @@ else
 
 
 
-                    <!--Fn SubFamiliaOnline-->
+                    <!--Fin SubFamiliaOnline-->
 
 
                     <br />
@@ -352,92 +363,77 @@ else
                         <span hidden id="skuOnline" class="text-danger">@SharedLocalizer["skuValid"]</span>
                     </div>
                 </div>
-            </div>
 
-            <!--Fin de tabs fotos y caracteristicas-->
-            <div class="form-group" hidden>
-                <label asp-for="ExistenciaGeneral" class="control-label"></label>
-                <input asp-for="ExistenciaGeneral" class="form-control" />
-                <span asp-validation-for="ExistenciaGeneral" class="text-danger"></span>
-            </div>
+                <!--Tabs de fotos y caracteristicas-->
+                @if (Model.IdInventario != 0)
+                {
+                    <div class="row">
+                        <div class="container mt-3" id="tabs">
 
-            <div class="form-group" hidden>
-                <div class="checkbox">
-                    <label>
-                        <input asp-for="Inactiva" /> @Html.DisplayNameFor(model => model.Inactiva)
-                    </label>
-                </div>
-            </div>
-            <div class="form-group" hidden>
-                <label asp-for="IdUsuario" class="control-label"></label>
-                <input asp-for="IdUsuario" class="form-control" />
-                <span asp-validation-for="IdUsuario" class="text-danger"></span>
+                            <br>
+                            <!-- Nav tabs -->
+
+                            <ul class="nav nav-tabs " id="tabs">
+                                <li class="nav-item active">
+                                    <a class="nav-link" data-toggle="tab" href="#fotosOnline">@SharedLocalizer["Fotos"]</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="#caracteristicasOnline">@SharedLocalizer["Características"]</a>
+                                </li>
+
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                <div id="fotosOnline" class="container tab-pane active">
+
+                                    <br />
+
+                                    <button id="nuevaImagen" class="btn btn-success btn-sm" type="button" onclick="modalImagenes()"> @SharedLocalizer["CargarImagen"]</button>
+
+                                    <br />
+
+                                    <div id="partialImagenes">
+
+                                    </div>
+
+
+                                </div>
+
+
+                                <div id="caracteristicasOnline" class="container tab-pane">
+
+                                    <br />
+
+                                    <button id="nuevaCaracteristica" class="btn btn-success btn-sm" type="button" onclick="modalCaracteristica()"> @SharedLocalizer["Agregar"] @SharedLocalizer["Característica"]</button>
+
+                                    <br />
+
+                                    <div id="partialCaracteristicas">
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <br />
+
+
+                        </div>
+                    </div>
+                }
+                <!--Fin de tabs fotos y caracteristicas-->
+
             </div>
 
         </form>
 
     </div>
 
-    <div class="col-md-12">
-        <!--Tabs de fotos y caracteristicas-->
-        @if (Model.IdInventario != 0)
-        {
-            <div class="container mt-3" id="tabs">
 
-                <br>
-                <!-- Nav tabs -->
-
-                <ul class="nav nav-tabs " id="tabs">
-                    <li class="nav-item active">
-                        <a class="nav-link" data-toggle="tab" href="#fotosOnline">@SharedLocalizer["Fotos"]</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#caracteristicasOnline">@SharedLocalizer["Características"]</a>
-                    </li>
-
-                </ul>
-
-                <!-- Tab panes -->
-                <div class="tab-content">
-                    <div id="fotosOnline" class="container tab-pane active">
-
-                        <br />
-
-                        <button id="nuevaImagen" class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modalImagenesOnline"> @SharedLocalizer["CargarImagen"]</button>
-
-                        <br />
-
-                        <div id="partialImagenes">
-
-                        </div>
-
-
-                    </div>
-
-
-                    <div id="caracteristicasOnline" class="container tab-pane">
-
-                        <br />
-
-                        <button id="nuevaCaracteristica" class="btn btn-success btn-sm" type="button" data-toggle="modal" data-target="#modalCaracteristicas"> @SharedLocalizer["Agregar"] @SharedLocalizer["Característica"]</button>
-
-                        <br />
-
-                        <div id="partialCaracteristicas">
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <br />
-
-
-            </div>
-        }
-    </div>
+    
 </div>
 
 <!--///////////////////////////fin venta directa fomr///////////////////////////////-->
@@ -595,20 +591,20 @@ else
 
 <div>
     <!-- Modal Editar -->
-    <div class="modal fade" id="modalEditarBodega" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog" >
+    <div class="modal fade" id="modalEditarBodega" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <div class="col-md-6"> <h5 data-translate="EditIBodega" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["EditIBodega"]</h5></div>
-                       
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body" id="editarBodega">
 
-                    </div>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
+                <div class="modal-body" id="editarBodega">
+
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -619,7 +615,7 @@ else
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="row modal-header">
-                    <div class="col-md-6"><h5 data-translate="nuevaImagen" class="modal-title" id="imagnesModallabel">@SharedLocalizer["Imagenes"]</h5></div>
+                    <div class="col-md-6"><h5 data-translate="nuevaImagen" class="modal-title" id="imagnesModallabel">@SharedLocalizer["Imágenes"]</h5></div>
                     <div class="col-md-6">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -627,56 +623,21 @@ else
                     </div>
                 </div>
                 <div class="modal-body">
-
-                    <form id="frmImagenesOline" method="post" enctype="multipart/form-data" asp-controller="Inventario" asp-action="CargarImagenesInventario" asp-route-id="@Model.IdInventario">
+                    <form id="frmImagenesOline" method="post" enctype="multipart/form-data">
                         <div class="form-group">
                             <div class="input-group input-group-sm mb-3">
                                 <div class="input-group-prepend custom-file">
-                                    <span class="input-group-text" id="inputGroup-sizing-sm">@SharedLocalizer["CargarImagen"]</span>
+                                    <span class="input-group-text" id="inputGroup-sizing-sm">@SharedLocalizer["CargarImagen"]:</span>
                                 </div>
-                                <input id="fileUpload" type="file" multiple="multiple" name="files" accept="image/*" class="form-control custom-file-input">
-                                <span hidden id="tamanoArchivo" class="text-danger">@SharedLocalizer["tamanoArchivo"]</span>
-                                <span hidden id="tipoArchivo" class="text-danger">@SharedLocalizer["tipoArchivo"]</span>
+                                <input id="fileUploadOnline" type="file" multiple="multiple" name="files" accept="image/*" class="form-control custom-file-input">
+                                <span hidden id="tamanoArchivoOnline" class="text-danger">@SharedLocalizer["tamanoArchivo"]</span>
+                                <span hidden id="tipoArchivoOnline" class="text-danger">@SharedLocalizer["tipoArchivo"].</span>
+                                <span hidden id="imgValid" class="text-danger">@SharedLocalizer["imagenRequerida"]</span>
+                                <span hidden id="cantidadArchivoOnline" class="text-danger">@SharedLocalizer["cantidadArchivosValid"].</span>
                             </div>
                         </div>
-
-
-                        <button id="guardarFoto" class="btn btn-success btn-sm" type="submit">
-                            <span>@SharedLocalizer["Guardar"]:</span><span> <i class="fas fa-save"></i></span>
-                        </button>
                     </form>
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div>
-    <!-- Modal Caracteriscas -->
-    <div class="modal fade" id="modalCaracteristicas" tabindex="-1" role="dialog" aria-labelledby="caracterisitcasModallabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 data-translate="nuevaCaracterisca" class="modal-title" id="caracteristicasModallabel">@SharedLocalizer["Caracterísitcas"]</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-
-                    <form>
-                        <div class="form-group">
-                            <div class="form-group col-md-6">
-                                <label data-translate="caracteristicasOnline" class="control-label">@SharedLocalizer["Descripción"]:</label>
-                                <input id="txtCaracteriscas" class="form-control" />
-                                <span hidden id="caracteristicasValid" data-translate="ValidacionCaracteristicas" class="text-danger"></span>
-                            </div>
-                        </div>
-
-                    </form>
-
-                    <button id="guardarCaracteristicas" onclick="guardarCaracteristica()" class="btn btn-success">
+                    <button onclick="guardarImagen()" id="guardarFoto" class="btn btn-success btn-sm" type="submit">
                         <span>@SharedLocalizer["Guardar"]</span><span> <i class="fas fa-save"></i></span>
                     </button>
                 </div>
@@ -684,7 +645,41 @@ else
         </div>
     </div>
 </div>
-<input type="hidden"  id="anulado" value="false"/>
+
+
+<!-- Modal Caracteriscas -->
+<div class="modal fade" id="modalCaracteristicas" tabindex="-1" role="dialog" aria-labelledby="caracterisitcasModallabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="row modal-header">
+                <div class="col-md-6"><h5 class="modal-title" id="caracteristicasModallabel">@SharedLocalizer["Características"]</h5></div>
+                <div class="col-md-6">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+            </div>
+            <div class="row modal-body">
+
+                <div class="form-group col-md-12 col-sm-12 col-xs-12">
+                    <label data-translate="caracteristicasOnline" class="control-label">@SharedLocalizer["Descripción"]:</label>
+                    <textarea maxlength="500" rows="4" id="txtCaracteriscas" class="form-control"></textarea>
+                    <span hidden id="caractericaRepetida">@SharedLocalizer["repetidoValid"]</span>
+                    <span hidden id="caracteristicasValid" class="text-danger">@SharedLocalizer["descripcionValid"]</span>
+                </div>
+                <div class="col-md-12 col-sm-12 col-xs-12"></div>
+                <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                    <button id="guardarCaracteristicas" onclick="guardarCaracteristica()" class="btn btn-sm btn-success">
+                        <span>@SharedLocalizer["Guardar"]</span><span> <i class="fas fa-save"></i></span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="anulado" value="false" />
 
 <script src="~/js/comentario.js"></script>
 
@@ -705,6 +700,13 @@ else
         $(".inputVentaDirecta").inputmask({
             'alias': 'decimal',
             rightAlign: true,
+            digits: 2
+        });
+
+        $(".money").inputmask('currency', {
+            prefix: '',
+            rightAlign: true,
+            min: 0
         });
 
         $(".numerico").inputmask({
@@ -716,8 +718,6 @@ else
             prefix: " ",
             rightAlign: true
         });
-
-        $('#guardarFoto').attr('disabled', true);
 
 
         $(".porc").inputmask({
@@ -756,11 +756,6 @@ else
             $('#txtCaracteriscas').val('');
         });
 
-        $('#habilitaEdicion').on('mousedown',function (e) {
-
-
-
-        });
 
         $('#familias').change(function () {
 
@@ -864,29 +859,7 @@ else
             }
         });
 
-        $('#fileUpload').bind('change', function () {
 
-        var file = $(this)[0].files[0];
-
-        if ($(this).val() != '') {
-            $('#guardarFoto').attr('disabled', false);
-
-            var e = 0;
-            e = + file.size;
-
-            if (e > 6000000) {
-                $('#tamanoArchivo').attr('hidden', false);
-                $(this).val('');
-            }
-
-            if (!(/\.(jpg|png|gif)$/i).test(file.name)) {
-                $('#tipoArchivo').attr('hidden', false);
-                $(this).val('');
-            }
-        }
-        else
-            $('#guardarFoto').attr('disabled', true);
-        });
 
         $('#btnGuardar').click(function () {
 
@@ -922,9 +895,9 @@ else
                                  if (inventarioBodega.length != 0) {
                                      guardarRelacionIB(data.id, data.codigo);
                                  }
-                                 else {
-                                     window.location.href = '@Url.Action("ListarInventario", "Inventario", new { cod = "__cod__" })'.replace("__cod__", data.codigo);
-                                 }
+
+                                 window.location.href = '@Url.Action("ListarInventario", "Inventario", new { cod = "__cod__" })'.replace("__cod__", data.codigo);
+
                              }
                              else {
                                  $('#existeCodigoValid').attr('hidden', false);
@@ -999,6 +972,100 @@ else
 
 
     }); // FIn del Document ready
+
+
+    $('#fileUploadOnline').bind('change', function () {
+
+        var flag = true;
+        var e = 0;
+        for (var i = 0; i < this.files.length; i++) {
+
+            e = + this.files[i].size;
+            if (!(/\.(jpg|png|gif)$/i).test(this.files[i].name)) {
+                $('#tipoArchivoOnline').attr('hidden', false);
+                $(this).val('');
+                flag = false;
+            }
+
+        }
+
+        if (e > 30000000) {
+            $('#tamanoArchivoOnline').attr('hidden', false);
+            $(this).val('');
+            flag = false;
+        }
+        else
+            $('#tamanoArchivoOnline').attr('hidden', true);
+
+
+
+        if (this.files.length > 5) {
+            $('#cantidadArchivoOnline').attr('hidden', false);
+            $(this).val('');
+            flag = false;
+        } else
+            $('#cantidadArchivoOnline').attr('hidden', true);
+
+        if (flag) {
+            $('#tipoArchivoOnline').attr('hidden', true);
+            $('#guardarFoto').focus();
+        }
+
+    });
+
+
+
+    function guardarImagen() {
+
+        if ($('#fileUploadOnline').val() == "") {
+            $('#imgValid').prop('hidden', false);
+            return;
+        }
+        else
+            $('#imgValid').prop('hidden', true);
+
+
+
+
+        var formData = new FormData();
+        var file = [];
+        var files = $('#fileUploadOnline')[0].files;
+
+        for (var i = 0; i < files.length; i++) {
+            formData.append("files", files[i]);
+        }
+
+
+        $.ajax({
+            type: "post",
+            url: '@Url.Action("CargarImagenesInventario", "Inventario", new{ id = Model.IdInventario })',
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            data: formData,
+            success: function (data) {
+                getImagenes();
+
+                $('#modalImagenesOnline').modal('hide');
+            },
+            error: function (err) {
+                console.log(err.success);
+            }
+        });
+
+    }
+
+    function modalImagenes() {
+
+        $('#fileUploadOnline').val('');
+        $('#tamanoArchivo').prop('hidden', true);
+        $('#imgValid').prop('hidden', true);
+        $('#cantidadArchivoOnline').attr('hidden', true);
+        $('#tipoArchivoOnline').attr('hidden', true);
+
+        $('#modalImagenesOnline').modal('show');
+    }
+
 
     function crearEditarFamilia (url) {
 
@@ -1316,41 +1383,43 @@ else
         var flag = true;
 
 
-        if (parseFloat(array[1].value) <= 0 || array[1].value === ""){
+        if (parseFloat($('#CantidadUnidad').val()) <= 0 || $('#CantidadUnidad').val() === ""){
             $('#presentacionValid').attr('hidden', false);
             flag = false;
         } else
             $('#presentacionValid').attr('hidden', true);
 
-        if (array[3].value.replace(/ /g, "") === "")
-            array[3].value = 0;
-        if (array[11].value === "")
-            array[11].value = 0;
-        if (array[13].value === "")
-            array[13].value = 0;
-        if (array[16].value === "")
-            array[16].value = 0;
-        if (array[19].value === "")
-            array[19].value = 0;
-        if (array[14].value === "")
-            array[14].value = 0;
-        if (array[15].value === "")
-            array[15].value = 0;
-        if (array[17].value === "")
-            array[17].value = 0;
-        if (array[18].value === "")
-            array[18].value = 0;
-        if (array[20].value === "")
-            array[20].value = 0;
-        if (array[21].value === "")
-            array[21].value = 0;
-        if (array[4].value.replace(/ /g, "") === "") {
+        //if (array[3].value.replace(/ /g, "") === "")
+        //    array[3].value = 0;
+        //if (array[11].value === "")
+        //    array[11].value = 0;
+        //if (array[13].value === "")
+        //    array[13].value = 0;
+        //if (array[16].value === "")
+        //    array[16].value = 0;
+        //if (array[19].value === "")
+        //    array[19].value = 0;
+        //if (array[14].value === "")
+        //    array[14].value = 0;
+        //if (array[15].value === "")
+        //    array[15].value = 0;
+        //if (array[17].value === "")
+        //    array[17].value = 0;
+        //if (array[18].value === "")
+        //    array[18].value = 0;
+        //if (array[20].value === "")
+        //    array[20].value = 0;
+        //if (array[21].value === "")
+        //    array[21].value = 0;
+
+
+        if ($('#Codigo').val().replace(/ /g, "") === "") {
             $('#codigoValid').attr('hidden', false);
             flag = false;
         } else
             $('#codigoValid').attr('hidden', true);
 
-        if (array[7].value.replace(/ /g, "") === "") {
+        if ($('#txtDescripcion').val().replace(/ /g, "") === "") {
             $('#descripcionValid').attr('hidden', false);
             flag = false;
         } else
@@ -1375,20 +1444,26 @@ else
         contadorFila = 0;
 
         for (var i = 0; i < data.length; i++) {
+            var editar = '<td style="text-align: center;">';
+
+            if (data[i].id != 0) {
+                editar = '<td><a style="font-size:1.5rem;" href="#" onclick="editarBodegaInventario( ' + contadorFila + ',' + data[i].id + ')" ><i class="fas fa-edit"></i></a>&nbsp;&nbsp; ';
+            }
             contadorFila++;
-            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td>' + data[i].idBodegaNavigation.nombre + '</td>'
-                + '<td>' + data[i].existenciaMinima + '</td>'
-                + '<td>' + data[i].existenciaMedia + ' </td>'
-                + '<td>' + data[i].existenciaMaxima + '</td>'
-                + '<td>' + data[i].existenciaBodega + '</td>'
-                + '<td style="text-align: right">' + formatMoneda(data[i].costoPromedioBodega) + '</td>'
-                + '<td style="text-align: right">' + formatMoneda(data[i].saldoBodega) + '</td>'
-                + '<td><button class="btn btn-link" value="' + contadorFila + '" onclick="editarBodegaInventario( value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button>'
-            + '<button class="btn btn-link" value="' + contadorFila + '" onclick="eliminarBodegaInventario( value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
-            
+            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top: 1.2rem">' + data[i].idBodegaNavigation.nombre + '</td>'
+                + '<td style="padding-top: 1.2rem">' + data[i].existenciaMinima + '</td>'
+                + '<td style="padding-top: 1.2rem">' + data[i].existenciaMedia + ' </td>'
+                + '<td style="padding-top: 1.2rem">' + data[i].existenciaMaxima + '</td>'
+                + '<td style="padding-top: 1.2rem">' + data[i].existenciaBodega + '</td>'
+                + '<td style="text-align: right; padding-top: 1.2rem">' + formatMoneda(data[i].costoPromedioBodega) + '</td>'
+                + '<td style="text-align: right; padding-top: 1.1rem">' + formatMoneda(data[i].saldoBodega) + '</td>'
+                + editar
+                + '<a style="font-size:1.5rem;" href="#" onclick="eliminarBodegaInventario(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-trash"></i></a></td></tr>';
+
             $('.bodegaInventarioForm').before(body);
         }
     }
+
 
     function formatMoneda(value) {
         $('#formatterMoneda').val(value);
@@ -1396,71 +1471,60 @@ else
         return $('#formatterMoneda').val();
     }
     function editarBodegaInventario(fila, idRelacion) {
-       
-         console.log("Fila >>" + fila);
-         var url = "@Url.Action("EditarBodegaIventario", "Inventario", new { id = "__id__" })";
+
+        var url = "@Url.Action("EditarBodegaIventario", "Inventario", new { id = "__id__" })";
         url = url.replace("__id__", idRelacion);
-       
+
         $.ajax({
         type: "get",
         headers: {
         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
         },
         url: url,
-           
+
             success: function (data) {
                 $('#editarBodega').html(data);
                 $('#modalEditarBodega').modal('show');
             }
-        
+
         });
 
     }
     function eliminarBodegaInventario(fila, idRelacion) {
 
-        bootbox.confirm("@SharedLocalizer["confirmEliminar"]", function (result) {
+        bootbox.confirm("@SharedLocalizer["confirmEliminarLinea"]", function (result) {
 
             if (result) {
-            var flag = false;
-
-            for (var i = 0; i < inventarioBodega.length; i++) {
-                if (inventarioBodega[i].id == idRelacion)
-                    if (inventarioBodega[i].existenciaBodega > 0)
-                        flag = true;
-            }
-                if (inventarioBodega.length > 1) {
+                var flag = false;
 
                 if (idRelacion != 0) {
-                    var url = "@Url.Action("EliminarInventarioBodega", "Inventario", new { id = "__id__" })";
-                    url = url.replace("__id__", idRelacion);
+                    var url = "@Url.Action("EliminarInventarioBodega", "Inventario")";
 
-                    if (!flag)
-                        $.ajax({
-                            type: "get",
-                            headers: {
-                                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                            },
-                            url: url,
-                            //data: { id: idRelacion },
-                            success: function (data) {
+                    $.ajax({
+                        type: "post",
+                        headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        url: url,
+                        data: { id: idRelacion },
+                        success: function (data) {
+                            if (data)
                                 eliminarLocal(fila);
-                            },
-                            error: function (err, scnd) {
-                                console.log(err.statusText);
-                                cargarAlert('@SharedLocalizer["errorGeneral"]');
-                            }
-                        });
-                    else
-                        cargarAlert("@SharedLocalizer["eliminarInventario"]");
+                            else
+                                cargarAlert("@SharedLocalizer["eliminarInventario"]");
+                        },
+                        error: function (err, scnd) {
+                            console.log(err.statusText);
+                            cargarAlert('@SharedLocalizer["errorGeneral"]');
+                        }
+                    });
+
                 }
                 else {
                     eliminarLocal(fila);
                 }
+
             }
-            else {
-                cargarAlert("@SharedLocalizer["bodegaAsignada"]");
-            }
-        }
 
         });
     }
@@ -1498,35 +1562,59 @@ else
                     console.log(err.statusText);
                 }
             });
+    }
+
+    function modalCaracteristica() {
+
+        $('#txtCaracteriscas').val('');
+        setTimeout(function () { $('#txtCaracteriscas').focus(); }, 500);
+        $('#caracteristicasValid').prop('hidden', true);
+        $('#caractericaRepetida').prop('hidden', true);
+        $('#modalCaracteristicas').modal('show');
+
+    }
+
+    function guardarCaracteristica() {
+
+        var comentario = $('#txtCaracteriscas').val();
+
+        if (comentario.replace(/ /g, "") == "" || comentario.split("\n").join("") == "") {
+                $('#caracteristicasValid').prop('hidden', false);
+                return;
         }
+        else
+            $('#caracteristicasValid').prop('hidden', true);
 
 
 
+        $.ajax({
+            type: "post",
+            url: '@Url.Action("CargarCaracteristicasInventario", new {id = Model.IdInventario })',
+            data: {
+                model: comentario
+            },
+            success: function (data) {
 
-
-        function guardarCaracteristica() {
-            //$('#frmComentario').serializeArray()
-            var comentario = $('#txtCaracteriscas').val();
-
-            $.ajax({
-                type: "post",
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                url: '@Url.Action("CargarCaracteristicasInventario", new {id = Model.IdInventario })',
-                data: {
-                    model: comentario
-                },
-                success: function (data) {
+                if (data.success) {
                     $('#modalCaracteristicas').modal('hide');
+                    $('#caractericaRepetida').prop('hidden', true);
                     getCaracteristicas();
-
-                },
-                error: function (err, scnd) {
-                    @*cargarAlert("@SharedLocalizer("errorGeneral")");*@
-                    console.log(err.statusText);
                 }
-            });
-        }
+                else {
+                    $('#caractericaRepetida').prop('hidden', false);
+                }
+
+            },
+            error: function (err, scnd) {
+                cargarAlert("@SharedLocalizer["errorGeneral"]");
+                console.log(err.statusText);
+            }
+        });
+
+    }
+
+
+
+
 </script>
 

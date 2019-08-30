@@ -1,5 +1,5 @@
 ﻿@model AltivaWebApp.ViewModels.MensajeViewModel
-@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject IStringLocalizer<SharedResources> Lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -14,15 +14,15 @@
         <br />
         <form id="frmComentario" >
             <div  class="form-group">
-                <label asp-for="mensaje" class="control-label">Comentario:</label>
+                <label asp-for="mensaje" class="control-label">@Lb["Comentario"]:</label>
                 <textarea id="txtMensaje" asp-for="mensaje" maxlength="1000" class="form-control " rows="4"> </textarea>
-                <span hidden data-translate="comentarioValid" id="comentarioValid" class="text-danger">Comentario no puede ir vacío.</span>
+                <span hidden  id="comentarioValid" class="text-danger">@Lb["comentarioValid"].</span>
             </div>
             <div class="form-group">
-                <span data-translate="cargaArchivos" class="input-group-text" id="inputGroup-sizing-sm">Adjuntar Archivos</span>
+                <span class="input-group-text" id="inputGroup-sizing-sm">@Lb["adjuntarArchivos"]</span>
                 <input type="file" asp-for="Files" class="form-control" multiple="multiple" id="fileUpload">
-                <span hidden class="text-danger" data-translate="tamanoArchivoValid" id="tamanoArchivos">El tamaño máximo del archivo es de 25MB.</span>
-                <span hidden data-translate="cantidadArchivosValid" id="cantidadArchivos" class="text-danger">No puede agregar más de 5 archivos.</span>
+                <span hidden class="text-danger" id="tamanoArchivos">@Lb["tamanoArchivo"]. (25MB)</span>
+                <span hidden id="cantidadArchivos" class="text-danger">@Lb["cantidadArchivosValid"]</span>
             </div>
             <div class="form-group" hidden>
                 <label asp-for="tipoMensaje" class="control-label"></label>
@@ -38,7 +38,7 @@
             </div>
         </form>
         <div class="form-group">
-            <button   class="btn btn-primary" onclick="guardarComentario()" id="btnGuardarComentario">@SharedLocalizer["Enviar"] <i class="fas fa-paper-plane"></i></button>
+            <button   class="btn btn-primary" onclick="guardarComentario()" id="btnGuardarComentario">@Lb["Enviar"] <i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
@@ -57,14 +57,16 @@
     var model = {
             idReferencia: 0,
             tipoReferencia: ''
-        };
+    };
       
     $(document).ready(function () {
         
-          if ($anulado.val()== "True")
-           $("#btnGuardarComentario").prop('disabled', true);
-          else
-           $("#btnGuardarComentario").prop('disabled', false);
+        
+        if ($('#estadoDocumento').val() === "false")
+            $("#btnGuardarComentario").prop('disabled', true);
+        else
+            $("#btnGuardarComentario").prop('disabled', false);
+
 
         model.idReferencia= @Model.id;
         model.tipoReferencia = '@Model.tipoReferencia';
@@ -112,7 +114,7 @@
 
                 },
                 error: function (err, scnd) {
-                    cargarAlert("@SharedLocalizer["errorGeneral"]");
+                    cargarAlert("@Lb["errorGeneral"]");
                     console.log(err.statusText);
                 }
             });
@@ -126,11 +128,13 @@
         for (var i = 0; i < this.files.length; i++) {
 
             e = + this.files[i].size;
-            if (e > 250000) {
-                $('#tamanoArchivos').attr('hidden', false);
-                $(this).val('');
-                break;
-            }
+            
+        }
+
+        if (e > 25000000) {
+            $('#tamanoArchivos').attr('hidden', false);
+            $(this).val('');
+            break;
         }
 
         if (this.files.length > 5) {
@@ -157,7 +161,7 @@
              },
              error: function (err, scnd) {
 
-                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                cargarAlert('@Lb["errorGeneral"]');
                 console.log(err.statusText);
 
              }

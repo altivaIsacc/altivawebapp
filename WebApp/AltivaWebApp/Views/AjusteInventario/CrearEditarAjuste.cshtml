@@ -475,6 +475,7 @@ else
             var itemBodega = getItem(item.idInventario)[0];
 
             $costoPromedio.val(item.costoPromedioGeneral);
+            $cantidad.val(1);
             $lblInfoItem.text(item.descripcion.substr(0, 32) + (item.descripcion.length > 25 ? '...' : '')).prop('href', '@Url.Action("EditarInventario", "Inventario", new { id = "__id__" })'.replace("__id__", item.idInventario));
             $lblExistencia.text(itemBodega.existenciaBodega + " " + item.idUnidadMedidaNavigation.abreviatura);
             calcularTotalMovientoLinea();
@@ -687,14 +688,14 @@ else
 
         var flag = true;
 
-        if (parseFloat($('#cantidadEditar').val()) <= 0) {
+        if (parseFloat($('#cantidadEditar').val()) <= 0 || $('#cantidadEditar').inputmask('unmaskedvalue') == null) {
             flag = false;
             $('#cantidadEditarValid').prop('hidden', false);
         }
         else
             $('#cantidadEditarValid').prop('hidden', true);
 
-        if (parseFloat($('#costoEditar').val()) <= 0) {
+        if (parseFloat($('#costoEditar').inputmask('unmaskedvalue')) <= 0 || $('#costoEditar').inputmask('unmaskedvalue') == null) {
             flag = false;
             $('#costoEditarValid').prop('hidden', false);
         }
@@ -733,14 +734,19 @@ else
             else
                 $('#cantidadExistenciaNuevaValid').prop('hidden', true);
 
-            if (parseFloat($costoPromedio.val().replace(/,/g, "")) <= 0) {
+            
+
+            if (parseFloat($('#costoPromedio').inputmask('unmaskedvalue')) <= 0 || $('#costoPromedio').inputmask('unmaskedvalue') == null) {
                 flag = false;
                 $('#costoValid').prop('hidden', false);
             }
             else {
                 $('#costoValid').prop('hidden', true);
             }
-            if (parseFloat($cantidad.val().replace(/,/g, "")) <= 0) {
+
+            
+
+            if (parseFloat($('#cantidad').inputmask('unmaskedvalue')) <= 0 || $('#cantidad').inputmask('unmaskedvalue') == null) {
                 flag = false;
                 $('#cantidadValid').prop('hidden', false);
             }
@@ -914,6 +920,8 @@ else
 
 
     $("#bodegas").change(function () {
+
+        limpiarLinea();
 
         for (var i = 0; i < bodegas.length; i++) {
             if (bodegas[i].id === parseInt($(this).val()))

@@ -14,6 +14,7 @@ namespace AltivaWebApp.Repositories
         TbPrInventario GetInventarioById(int id);
         TbPrInventarioBodega GetInventarioBodegaById(int id);
         TbPrInventario GetInventarioByCodigo(string codigo);
+        long? ExisteInventarioCodigo(string codigo);
         IList<TbPrImagenInventario> GetInventarioImagenByCodigo(int id);
         TbPrInventario Save(TbPrInventario domain);
         TbPrInventario Update(TbPrInventario domain);
@@ -33,5 +34,6 @@ namespace AltivaWebApp.Repositories
         bool DeleteCaracteristica(int id);
         bool DeleteImagen(int id);
         void CrearRelacionInventarioBodega(int idInventario, int idBodega);
+        bool ExisteCaracteristica(long idInventario, string caracteristica);
     }
 }

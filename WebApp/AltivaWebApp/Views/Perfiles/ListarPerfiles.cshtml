@@ -5,6 +5,9 @@
     var PerfilFilled = Model.FirstOrDefault(p => p.Id == ViewBag.id);
 
     var selected = Model.FirstOrDefault();
+
+    ViewData["Title"] = SharedLocalizer["Perfiles"];
+
 }
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
@@ -15,10 +18,11 @@
     }
 }
 
-<h3 data-translate="PETitulo">Perfiles</h3>
-<div class="row">
 
-    <div class="col-md-3">
+<h3>@SharedLocalizer["Perfiles"]</h3>
+<div class="row ">
+
+    <div class="col-md-3 col-sm-3 col-xs-5">
 
         <select id="perfiles" class="form-control search-key">
 
@@ -30,11 +34,11 @@
 
 
             }
-                    <option value="0">@SharedLocalizer["seleccione"]</option>
+            <option value="0">@SharedLocalizer["seleccione"]</option>
         </select>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-9 col-sm-9 col-xs-7">
         <button value="0" id="nuevoPerfil" onclick="CrearEditarPerfil(value)" class="btn btn-link">
             <span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span>
         </button>
@@ -50,29 +54,16 @@
 </div>
 <hr />
 
-<div class="row">
-    <div class="col-md-12" id="Modulos">
 
-        <partial name="_ListarModulos"
-                 for=@ViewData["ModulosAsignados"] />
-
-    </div>
+<div id="Modulos">
+    <partial name="_ListarModulos"
+             for=@ViewData["ModulosAsignados"] />
 </div>
+
 
 <div class="modal fade" id="crearEditarModal" tabindex="-1" role="dialog" aria-labelledby="crearEditarModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header row">
-                <div class="col-md-6">
-                    <h4 class="modal-title" id="crearEditarModalLabel">@SharedLocalizer["Perfil"]</h4>
-                </div>
-                <div class="col-md-6">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-
-            </div>
             <div class="modal-body">
                 <div id="frmPerfil">
 
@@ -89,9 +80,9 @@
    $(document).ready(function () {
 
 
-       var id = (location.search.split("id" + '=')[1] || '').split('&')[0];
+       var id = (location.search.split("id")[1] || '').split('&')[0];
 
-       console.log(@ViewBag.id);
+
        if (@ViewBag.id != 0)
            $('#perfiles').val(@ViewBag.id);
        else {
@@ -107,20 +98,23 @@
             setUrl(id);
        });
 
-       $('#grupo').val('@ViewBag.grupo');
+       $('#grupo').val($("<textarea/>").html('@ViewBag.grupo').text());
 
        $('#grupo').change(function () {
 
            var grupo = $(this).val();
            var url = '';
-           if (grupo != '')
-               var url = '../Lista-Perfiles/' + $('#perfiles').val() + '/' + grupo;
+           if (grupo != '') {
+               var url = '@Url.Action("ListarPerfiles", new { id = "__id__", grupo = "__gp__" })'.replace("__id__", $('#perfiles').val());
+               url = url.replace("__gp__", grupo);
+           }
            else
                url = '../' + $('#perfiles').val();
 
            window.location.href = url;
 
          });
+
 
 
        $('#eliminarPerfil').click(function () {
@@ -158,6 +152,8 @@
             window.location.href = url.replace('__id__', id );
        }
     });
+
+
 
     function CrearEditarPerfil(id) {
         var url = '@Url.Action("CrearEditarPerfil", "Perfiles")';

@@ -8,19 +8,19 @@
     }
 }
 @{
+    var accion = Lb["Nuevo"] + " " + Lb["País"];
+
+    if(Model.Id != 0)
+    {
+        accion = Lb["Editar"] + " " + Lb["País"];
+    }
+
     ViewData["Title"] = "CrearEditarPais";
 }
 
 <div class="row">
     <div class="col-md-12">
-        @if (Model.Id != 0)
-        {
-            <h3>@Lb["Editar"] @Lb["País"]</h3>
-        }
-        else
-        {
-            <h3>@Lb["Nuevo"] @Lb["País"]</h3>
-        }
+        <h3>@accion</h3>
     </div>
 </div>
 
@@ -29,6 +29,7 @@
 <div class="row">
     <div class="col-md-6 col-sm-8 col-xs-12">
         <form id="frmPais">
+            <span hidden id="repetidoValid" class="text-danger">@Lb["repetidoValid"]</span>
             @Html.HiddenFor(x => x.Id)
 
             <div class="form-group">
@@ -113,9 +114,12 @@
             data: frm,
             success: function (data) {
                 if (!data.success)
-                    $('#duplicacionValid').attr('hidden', false);
-                else
+                    $('#repetidoValid').attr('hidden', false);
+                else {
+                    $('#repetidoValid').attr('hidden', true);
                     window.location.href = '@Url.Action("Index")';
+                }
+                    
                 },
              error: function (err) {
                  cargarAlert('@Lb["errorGeneral"]');
