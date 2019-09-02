@@ -169,11 +169,7 @@ namespace AltivaWebApp.Controllers
             {
                 var traslado = trasladoService.GetTrasladoById(id);
 
-                //foreach (var item in traslado.TbPrTrasladoInventario)
-                //{
-                //    item.IdInventarioNavigation = null;
-                //    item.IdTrasladoNavigation = null;
-                //}
+               
                 return Ok(traslado);
             }
             catch

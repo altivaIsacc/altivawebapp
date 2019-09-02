@@ -77,7 +77,7 @@
             <div class="col-md-4 col-sm-4 col-xs-4 ">
                 <label class="control-label">@SharedLocalizer["BodegaDestino"]:</label>
                 <select id="IdBodegaDestino" class="form-control">
-                    <!-- class="selectpicker form-control selectFiltro" data-live-search="true"   onChange="validarBodegaDestinoSeleccionada()"-->
+                 
                     <option id="option" value="">@SharedLocalizer["seleccione"]</option>
                 </select>
             </div>
@@ -194,7 +194,7 @@
         <br>
 
         <button class="btn btn-success" onclick="guardarTraslado()">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
-        <button class="btn btn-default" data-dismiss="modal">@SharedLocalizer["Cancelar"]</button>
+        <button class="btn btn-default" data-dismiss="modal" onclick="focus()">@SharedLocalizer["Cancelar"]</button>
 
     </div>
 </div>
@@ -269,12 +269,7 @@
                     </div>
 
                 </div>
-                <!--
-                   <div class="modal-footer">
-                       <button class="btn btn-success" onclick="guardarInventarioBodega() ">@SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
-                       <button class="btn btn-default" onclick="ocultarModalInventarioBodega()">@SharedLocalizer["Cancelar"]</button>
-                   </div>
-                -->
+            
 
             </div>
         </div>
@@ -283,14 +278,18 @@
 
 
 <script>
-    var arrayBodegas = [];//uti
-    var arrayInventarioBodegas = [];//uti
-    var arrayInventario = [];//uti
+
+  
+
+
+    var arrayBodegas = [];
+    var arrayInventarioBodegas = [];
+    var arrayInventario = [];
     var arrayArticuloPorBodegaOrigenSeleccionada = [];
     var arrayTablaTraslado = [];
-    var arrayTablaTrasladoInventario = [];//si editar
+    var arrayTablaTrasladoInventario = [];
 
-    //envio al controlador
+  
     var arrayTraslado = [];
     var arrayTrasladoInventario = [];
     var fecha = $('#fecha');
@@ -307,7 +306,7 @@
         if (@Model.IdTraslado != 0) {
 
             date = new Date(formatearFecha());
-           // console.log(date);
+        
 
             $('#fechaPicker').datetimepicker({
                 defaultDate: date,
@@ -397,19 +396,18 @@
         $('#CostoTraslado').prop("disabled", true);
         $('#txtCostoTraslado').hide();
         $('#errorExistenciaArticulo').hide(); //el mensaje del error se oculte
-        //$('#IdBodegaDestino').prop("disabled", true);
+   
         $('#Anular').hide();
         $('#Pdf').hide();
 
-        //$('#divFiltroFecha').hide();
-        //$('#divFiltroAnuladas').hide();
+        
     }
 
 
 
     function mostrarOcultarCampos() {
         $('#divTraslado').show();
-        $('#errorExistenciaArticulo').hide(); //el mensaje del error se oculte
+        $('#errorExistenciaArticulo').hide(); 
         $('#CostoTraslado').prop("disabled", true);
         $('#txtCostoTraslado').hide();
         $('#IdBodegaDestino').prop("disabled", true);
@@ -428,12 +426,12 @@
               dataType: "json",
               url: '@Url.Action("GetBodegaInventario", "AjusteInventario")',
               success: function (data) {
-                 // console.log(data);
+                
                   arrayBodegas = data;
                   obtenerTablaInventarioBodega();
                   obtenerTablaInventario();
                   cargarBodegasOrigen();
-                 // cargarBodegasDestino();
+               
                   cargarDatosTraslado(arrayTablaTraslado);//para que muestre la tabla vacia
                },
               error: function (err, scnd) {
@@ -451,7 +449,7 @@
                 arrayInventarioBodegas.push(arrayBodegas[i].tbPrInventarioBodega);
             }
         }
-       // console.log(arrayInventarioBodegas);
+      
     }
 
 
@@ -464,7 +462,7 @@
                 arrayInventario.push(auxArrayInventarioBodegas[j].idInventarioNavigation);
             }
         }
-       // console.log(arrayInventario);
+    
     }
 
 
@@ -473,7 +471,7 @@
         for (var i = 0; i < arrayBodegas.length; i++) {
             if (arrayBodegas[i].tbPrInventarioBodega.length != 0) {
                 var o = new Option(arrayBodegas[i].nombre, arrayBodegas[i].id);
-                    if (@Model.IdBodegaOrigen == arrayBodegas[i].id) {//editar
+                    if (@Model.IdBodegaOrigen == arrayBodegas[i].id) {
                         $(o).prop('selected', true);
                         validarBodegaOrigenSeleccionada(@Model.IdBodegaOrigen);
                     }
@@ -486,7 +484,7 @@
 
     var array = [];
     function cargarBodegasDestino(idBodegaOrigenSeleccionada) {
-        //console.log(arrayBodegas);
+      
         if (idBodegaOrigenSeleccionada != "") {
             array = [];
             for (var i = 0; i < arrayBodegas.length; i++) {
@@ -494,66 +492,43 @@
                     id: arrayBodegas[i].id,
                     nombre: arrayBodegas[i].nombre,
                 };
-                // console.log(model);
-                array.push(model); //pasar jason al array global
+              
+                array.push(model); 
             }
-            //console.log(array);
-            cargarSelectBodegaDestino(idBodegaOrigenSeleccionada);
-        } else {
 
+              document.getElementById('IdBodegaDestino').options.length = 0;
+                for (var i = 0; i < array.length; i++)
+                {
 
-           //var vacio = "";
-           //$("#IdBodegaDestino").val("");
-           //$('select option[value=""]').attr("selected", true);
-           //document.getElementById('IdBodegaDestino').options.length = 0;
-           //$("#IdBodegaDestino").val("");
-           //$('IdBodegaDestino').prop('selected', true);
-           //$("#IdBodegaDestino").attr("", "Seleccione")
-           //$("#IdBodegaDestino option[value='option']").prop('selected', true);
-           //$('s option[value="0"]').attr("selected", true);
-           //cargarBodegasDestino(vacio);
+                    if ($('#IdTraslado').val() == 0) {
+                        //guarda
+                        if (array[i].id != idBodegaOrigenSeleccionada) {
+                            var o = new Option(array[i].nombre, array[i].id);
+                            $("#IdBodegaDestino").append(o);
+                        }
+                        
+                    } else {
+                         //edita
+                        var bodegaDestinoEditar = @Model.IdBodegaDestino;
+                        
+                        if (array[i].id == bodegaDestinoEditar) {
+                            var o = new Option(array[i].nombre, array[i].id);
+                            $("#IdBodegaDestino").append(o);
+                        }
 
+                    }
+                }
         }
     }
 
-
-
-    function cargarSelectBodegaDestino(idBodegaOrigenSeleccionada) {
-       // console.log(idBodegaOrigenSeleccionada);
-       // console.log(array);
-        document.getElementById('IdBodegaDestino').options.length = 0;
-        for (var i = 0; i < array.length; i++)
-        {
-
-            if ($('#IdTraslado').val() == 0) {
-                //guarda
-                if (array[i].id == idBodegaOrigenSeleccionada) {
-                    var pos = i;
-                    //console.log(pos);
-                    array.splice(pos, 1);
-                }
-                var o = new Option(array[i].nombre, array[i].id);
-                $("#IdBodegaDestino").append(o);
-            } else {
-                 //edita
-                var bodegaDestinoEditar = @Model.IdBodegaDestino;
-                //console.log(bodegaDestinoEditar);
-                if (array[i].id == bodegaDestinoEditar) {
-                    var o = new Option(array[i].nombre, array[i].id);
-                    $("#IdBodegaDestino").append(o);
-                }
-
-            }
-        }
-         //console.log(array);
-    }
+    
 
 
 
     function limpiarSelect() {
-        //console.log();
+      
         var select = document.getElementById('IdBodegaDestino');
-        //console.log(select);
+      
         while (select.length > 0) {
             select.remove(1);
         }
@@ -580,13 +555,11 @@
 
 
     function mostrarModalInventarioBodega() {
-        $('#error').hide(); //el mensaje del error se oculte
+        $('#error').hide();
         var value = $('#BuscarCodigoInventarioBodega').val().trim();
-
-       // console.log(value);
-
+ 
         if (value != 0) {
-            //seguir flujo aca
+          
             buscarArticuloInventarioBodega(value);
         } else {
             $('#modalInventarioBodega').modal('show');
@@ -603,10 +576,9 @@
         var existeTraslado = "";
         existeInventarioBodega = validarExistenciaInventarioBodega(arrayArticuloPorBodegaOrigenSeleccionada, value);
         existeTraslado = validarExistenciaTablaTraslado(arrayTablaTraslado, value);
-        //console.log(existeInventarioBodega );
-        //console.log(existeTraslado);
+      
         if (existeInventarioBodega == true) {
-            //console.log('existe');
+          
             if (existeTraslado == true) {
                 cargarAlert("@SharedLocalizer["ArticuloEnlistado"]");
             } else {
@@ -629,7 +601,7 @@
 
 
     function validarExistenciaInventarioBodega(array, value) {
-        //console.log(array);
+       
         var respuesta = false;
         for (var i = 0; i < array.length; i++) {
             if (array[i].codigo == value || array[i].descripcion == value) {
@@ -643,7 +615,7 @@
 
 
     function validarExistenciaTablaTraslado(array, value) {
-        //console.log(array);
+       
         var respuesta = false;
         for (var i = 0; i < array.length; i++) {
             if (array[i].codigoArticulo == value || array[i].descripcion == value) {
@@ -658,7 +630,7 @@
 
 
     function agregarArticuloTablaTraslado(value) {
-        //console.log(value);
+     
         for (var i = 0; i < arrayArticuloPorBodegaOrigenSeleccionada.length; i++) {
             if (arrayArticuloPorBodegaOrigenSeleccionada[i].codigo == value || arrayArticuloPorBodegaOrigenSeleccionada[i].descripcion == value ) {
                 var objEncontrado = {
@@ -674,9 +646,9 @@
                 };
             }
         }
-        //console.log(objEncontrado);
+      
         arrayTablaTraslado.push(objEncontrado);
-        //console.log(arrayTablaTraslado);
+   
         cargarDatosTraslado(arrayTablaTraslado);
     }
 
@@ -685,15 +657,15 @@
 
     function ocultarModalInventarioBodega() {
         $('#modalInventarioBodega').modal('hide');
-        //si selecciono algo el array estara lleno
+   
         if (arrayTablaTraslado.length == 0) {
             $('#IdBodegaOrigen').prop("disabled", false);
             $('#IdBodegaDestino').prop("disabled", false);
-            //console.log('entro desBloqueo');
+            
             } else {
                 $('#IdBodegaOrigen').prop("disabled", true);
                 $('#IdBodegaDestino').prop("disabled", true);
-                //console.log('entro Bloqueo');
+               
             }
     }
 
@@ -712,9 +684,9 @@
 
 
     function obtenerArticulosPorBodega(array) {
-        //console.log(array);
+     
         var ib = array;     
-        arrayArticuloPorBodegaOrigenSeleccionada = [];//limpie en caso de cambiar de bodega en el select
+        arrayArticuloPorBodegaOrigenSeleccionada = [];
         for (var i = 0; i < ib.length; i++) {
 
             if (ib[i].existenciaBodega > 0) {
@@ -726,8 +698,8 @@
                     costoPromedioBodega: ib[i].costoPromedioBodega,
                     idInventarioBodega: ib[i].id
                 };
-                //8console.log(model);
-                arrayArticuloPorBodegaOrigenSeleccionada.push(model); //pasar jason al array global
+               
+                arrayArticuloPorBodegaOrigenSeleccionada.push(model); 
             }
 
            
@@ -740,7 +712,7 @@
 
 
     function cargarDatosInventarioBodega() {
-        //console.log(arrayArticuloPorBodegaOrigenSeleccionada);
+       
         var contadorFila = 0;
         $("#tblInventarioBodega > tbody").remove();
         $('#tblInventarioBodega').append('<tbody></tbody>');
@@ -761,7 +733,7 @@
           
         }
 
-        //inicializa formato de la moneda tambien aca
+     
         $(".colon").inputmask('currency', {
             prefix: monedas[0].simbolo + " ",
             rightAlign: true
@@ -777,13 +749,12 @@
     function inicializarTablaInventarioBodega() {
         $('#tblInventarioBodega').DataTable().destroy();
         tblInventarioBodega = $('#tblInventarioBodega').DataTable({
-            //scrollY: '50rem',
-            //scrollX: '50rem',
+          
             "info": false,
             "iDisplayLength": 5,//Paginación
             "order": [[0, "desc"]],
             paging: true,
-           // dom: 'Bfrtip',
+        
             language: {
                 "decimal": "",
                 "emptyTable": "@SharedLocalizer["NoDatos"]",
@@ -829,12 +800,12 @@
     function capturar(pos) {
         var obj = "";
         obj = arrayArticuloPorBodegaOrigenSeleccionada[pos];
-        //console.log(obj);
+     
         var model = {
             id: 0,
             idTraslado: @Model.IdTraslado,
             idInventario: obj.idInventario,
-          //idInventarioBodega: obj.idInventarioBodega,
+        
             codigoArticulo: obj.codigo,
             descripcion: obj.descripcion,
             cantidad: 1,
@@ -845,9 +816,9 @@
         if (!existeItem(arrayTablaTraslado, model.idInventario)) {
             arrayTablaTraslado.push(model);
             cargarDatosTraslado(arrayTablaTraslado);
-            ocultarModalInventarioBodega();//oculta el modal y bloquea los input
+            ocultarModalInventarioBodega();
         } else
-            $('#error').show(); //el mensaje del error se muestre
+            $('#error').show();
     }
 
 
@@ -865,26 +836,38 @@
     }
 
 
+    function pasarSigCampo(e, id) {
+        id = "txtCostoTotal" + id;
 
+        console.log("Evento>" + id);
+
+        (e.keyCode) ? k = e.keyCode : k = e.which;
+
+        if (k == 13) {          
+            document.getElementById(id).focus();
+            document.getElementById(id).select();
+        
+        }
+    }
 
     function cargarDatosTraslado(arrayTablaTraslado) {
-        //console.log(arrayTablaTraslado);
+      
         calcularCostoTraslado();
         var contadorFila = 0;
         $("#tablaTrasladoInventario > tbody").remove();
         $('#tablaTrasladoInventario').append('<tbody></tbody>');
         for (var i = 0; i < arrayTablaTraslado.length; i++) {
 
-           // console.log(arrayTablaTraslado[i].id);
+       
 
             var body = '<tr class="fila' + contadorFila + ' filas">'
-                + '<td><p style="padding-top:1rem">' + arrayTablaTraslado[i].codigoArticulo + '</p></td>'
+                + '<td style="width:17%"><p style="padding-top:1rem">' + arrayTablaTraslado[i].codigoArticulo + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + arrayTablaTraslado[i].descripcion + '</p></td>'
-                + '<td> <input type="number" id="' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].cantidad + '" onChange="calcular(value,' + contadorFila + ', ' + arrayTablaTraslado[i].idInventario +' )"  min="1" pattern="^[0-9]+" onKeyPress="return soloNumeros(event)" readonly /></td>'
-                + '<td><p style="padding-top:1rem" class="colon">' + arrayTablaTraslado[i].precioUnitario + '</p></td>'
-                //mostrando por la clase colon
-                + '<td> <input type="text"  id="txtCosto2' + contadorFila + '" class="form-control colon" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '" readonly placeholder="@SharedLocalizer["costoTotal"]."/>  <input type="hidden" id="txtCosto' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '"/>    </td>'
-                + '<td>  <button value="' + contadorFila + '" onclick="editar(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + contadorFila + '" onclick="eliminar(value)" class="btn btn-link btnEditar"><i class="fas fa-trash"></i></button>';
+                + '<td> <input style="width:50%" type="number" id="' + contadorFila + '" class="form-control" maxlength="50" value="' + arrayTablaTraslado[i].cantidad + '" onChange="calcular(value,' + contadorFila + ', ' + arrayTablaTraslado[i].idInventario + ' )"  min="1" pattern="^[0-9]+"  onkeyup="pasarSigCampo(event,' + contadorFila + ')" readonly /></td>'
+                + '<td style="width:17%"><p style="padding-top:1rem" class="colon">' + arrayTablaTraslado[i].precioUnitario + '</p></td>'
+              
+                + '<td style="width:20%"> <input type="text" style="width:100%" id="txtCostoTotal' + contadorFila + '" class="form-control colon" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '" readonly placeholder="@SharedLocalizer["costoTotal"]."/>  <input type="hidden" id="txtCosto' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '"/>    </td>'
+                + '<td> <button id="btGuardarLinea' + contadorFila + '" value="' + contadorFila + '" onclick="editar(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + contadorFila + '" onclick="eliminar(value)" class="btn btn-link btnEditar"><i class="fas fa-trash"></i></button>';
             $('#tablaTrasladoInventario > tbody').append(body);
             contadorFila++;
         }
@@ -905,13 +888,12 @@
     function inicializarTablaTraslado() {
         $('#tablaTrasladoInventario').DataTable().destroy();
         tablaTrasladoInventario = $('#tablaTrasladoInventario').DataTable({
-            //scrollY: '50rem',
-            //scrollX: '50rem',
+           
             "info": false,
-            "iDisplayLength": 10,//Paginación
+            "iDisplayLength": 10,
             "order": [[0, "desc"]],
             paging: true,
-           // dom: 'Bfrtip',
+        
             language: {
                 "decimal": "",
                 "emptyTable": "@SharedLocalizer["NoDatos"]",
@@ -939,10 +921,6 @@
 
 
 
-    function soloNumeros(e) {
-        var key = window.Event ? e.which : e.keyCode
-        return (key >= 48 && key <= 57)
-    }
 
 
 
@@ -961,55 +939,51 @@
 
 
     function calcular(cantidad,pos,id) {
-      // console.log(cantidad);
-      // console.log(pos);
-      // console.log(id);
-
+    
         var precioUnitario = 0;
 
          if (@Model.IdTraslado == 0) {
-           //  console.log("entro a guardar");
+        
 
                         if (cantidad > arrayTablaTraslado[pos].existenciaBodega) { // si la cantidad dijitada es mayor que la que se encuentra en esa bodega
                             var existenciaBodega = arrayTablaTraslado[pos].existenciaBodega;
-                            //console.log(existenciaBodega);
-                            //console.log("cuando es mayor a lo existente en inventario bodega");
+                           
                             cargarAlert("@SharedLocalizer["ExistenciaSuperada"]");
                             $('#' + pos).val(1);
                             $('#' + pos).prop("readonly", true);
                             precioUnitario = arrayTablaTraslado[pos].precioUnitario;
                             costo = precioUnitario * 1;
-                            $('#txtCosto2' + pos).val(costo);
+                            $('#txtCostoTotal' + pos).val(costo);
                             $('#txtCosto' + pos).val(costo);
                             calcularCostoTotal(1, pos);
                         } else if (cantidad == 0) {
-                            //console.log("es igual a cero");
+                         
                             $('#' + pos).val(1);
                             $('#' + pos).prop("readonly", true);
                             precioUnitario = arrayTablaTraslado[pos].precioUnitario;
                             costo = precioUnitario * 1;
-                            $('#txtCosto2' + pos).val(costo);
+                            $('#txtCostoTotal' + pos).val(costo);
                             $('#txtCosto' + pos).val(costo);
                             calcularCostoTotal(1, pos);
                         } else {
-                            //console.log("normal");
+                           
                             precioUnitario = arrayTablaTraslado[pos].precioUnitario;
                             costo = precioUnitario * cantidad;
-                            $('#txtCosto2' + pos).val(costo);
+                            $('#txtCostoTotal' + pos).val(costo);
                             $('#txtCosto' + pos).val(costo);
                             $('#' + pos).prop("readonly", true);
                             calcularCostoTotal(cantidad, pos);
                         }
 
         } else {
-            // console.log("entro a editar");
+          
 
                  for (var j = 0; j < arrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
 
                      if (arrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == id) {
 
                          var existenciaBodega = arrayArticuloPorBodegaOrigenSeleccionada[j].existenciaBodega;
-                        // console.log(existenciaBodega);
+                       
 
                          if (cantidad > existenciaBodega) {
                                cargarAlert("@SharedLocalizer["ExistenciaSuperada"]");
@@ -1017,21 +991,21 @@
                              $('#' + pos).prop("readonly", true);
                              precioUnitario = arrayTablaTraslado[pos].precioUnitario;
                              costo = precioUnitario * 1;
-                             $('#txtCosto2' + pos).val(costo);
+                             $('#txtCostoTotal' + pos).val(costo);
                              $('#txtCosto' + pos).val(costo);
                              calcularCostoTotal(1, pos);
                          } else if (cantidad == 0) {
-                             $('#' + pos).val(1);//ponga 1 por defecto
-                             $('#' + pos).prop("readonly", true);//y lo bloquee
+                             $('#' + pos).val(1);
+                             $('#' + pos).prop("readonly", true);
                              precioUnitario = arrayTablaTraslado[pos].precioUnitario;
                              costo = precioUnitario * 1;
-                             $('#txtCosto2' + pos).val(costo);
+                             $('#txtCostoTotal' + pos).val(costo);
                              $('#txtCosto' + pos).val(costo);
                              calcularCostoTotal(1, pos);
                          } else {
                              precioUnitario = arrayTablaTraslado[pos].precioUnitario;
                              costo = precioUnitario * cantidad;
-                             $('#txtCosto2' + pos).val(costo);
+                             $('#txtCostoTotal' + pos).val(costo);
                              $('#txtCosto' + pos).val(costo);
                              $('#' + pos).prop("readonly", true);
                              calcularCostoTotal(cantidad, pos);
@@ -1045,13 +1019,13 @@
 
 
 
-   //calcula con forme los item se van agregando
+  
     function calcularCostoTraslado() {
         var sumatoria = 0;
         for (var i = 0; i < arrayTablaTraslado.length; i++) {
             sumatoria += parseInt(arrayTablaTraslado[i].costoTotal);
         }
-        //console.log(sumatoria);
+      
         $("#CostoTraslado").val("");
         $("#CostoTraslado").val(sumatoria);
         $("#txtCostoTraslado").val(sumatoria); //ACA
@@ -1060,18 +1034,17 @@
 
 
 
-  //los item ya han sido agregados por lo tanto calcula conforme los item van siendo editados en su campo cantidad
+  
     function calcularCostoTotal(cantidad, pos) {
-       // console.log(cantidad);
-       // console.log(pos);
+    
         var nuevoPrecioUnitario = 0;
         nuevoPrecioUnitario = $('#txtCosto' + pos).val();
-       // console.log(nuevoPrecioUnitario);//18600
+     
         for (var i = 0; i < arrayTablaTraslado.length; i++) {
              arrayTablaTraslado[pos].cantidad = parseInt(cantidad);
              arrayTablaTraslado[pos].costoTotal = parseInt(nuevoPrecioUnitario);
         }
-        //console.log(arrayTablaTraslado);
+      
         calcularCostoTraslado();
     }
 
@@ -1081,8 +1054,8 @@
 
     function eliminar(pos) {
 
-        var elementoEliminado = arrayTablaTraslado.splice(pos, 1);//posicion y cantidad
-        //console.log(elementoEliminado);
+        var elementoEliminado = arrayTablaTraslado.splice(pos, 1);
+    
 
         cargarDatosTraslado(arrayTablaTraslado);
         calcularCostoTraslado();
@@ -1091,8 +1064,7 @@
         if (elementoEliminado[0].id != 0) {
 
             insertarArticuloEliminado(elementoEliminado);
-          //  console.log("anadiendo al arrayArticulosEliminados...");
-
+        
         }
 
     }
@@ -1100,11 +1072,9 @@
 
 
     function insertarArticuloEliminado(elementoEliminado) {
-        //console.log(elementoEliminado);
+    
         var num = elementoEliminado[0].id;
         arrayArticulosEliminados.push(num);
-
-      //  console.log(arrayArticulosEliminados);
 
     }
 
@@ -1146,10 +1116,10 @@
                         data: { traslado: crearModelo(), inventarioTraslado: arrayTablaTraslado, eliminados: arrayArticulosEliminados },
                         success: function (data) {
                             if (data.success) {
-                              //  console.log(data);
-                                $('#modalTraslado').modal('hide'); //ocultar modal
+                             
+                                $('#modalTraslado').modal('hide');
                                 getTrasladosGeneral();
-                                limpiarArray();
+                             
                             }
                             else
                                 cargarAlert("@SharedLocalizer["errorDuplicacion"]");
@@ -1176,7 +1146,7 @@
 
     function crearModelo() {
 
-       //console.log(arrayTablaTraslado);
+     
        var idBodegaOrigen = 0;
        var idBodegaDestino = 0;
        var fecha = "";
@@ -1200,10 +1170,7 @@
                costoTraslado: txtCostoTraslado,
                comentario: comentario
        };
-       //console.log(arrayTablaTraslado);//lo que va para la tabla traslado
-       //console.log(modelTraslado);
-       //console.log(fecha);
-       //console.log(anulado);
+     
        return modelTraslado;
    }
 
@@ -1240,8 +1207,6 @@
 
             if (arrayTablaTraslado[i].precioUnitario == 0) {
 
-                 // console.log(arrayTablaTraslado);
-                //  console.log("que no guarde");
                 resp = true;
                 return resp;
                 break;
@@ -1252,30 +1217,15 @@
 
     }
 
-
-
-
-        //no se esta utilizando
-        function limpiarArray() {
-             arrayBodegas = [];//uti
-             arrayInventarioBodegas = [];//uti
-             arrayInventario = [];//uti
-             arrayArticuloPorBodegaOrigenSeleccionada = [];
-             arrayTablaTraslado = [];
-           //envio al controlador
-             arrayTraslado = [];
-             arrayTrasladoInventario = [];
-    }
-
-
+    
 
 
 //-----------------------------------------editar---------------------------------------------//
            function getTraslado() {
 
-            //console.log('entro');
+         
             var IdTraslado = $('#IdTraslado').val();
-            //console.log(IdTraslado);
+         
             if (IdTraslado != 0)
             $.ajax({
                   type: "get",
@@ -1289,9 +1239,7 @@
 
                     arrayTraslado = data;
                     getTrasladoInventario();
-                   // console.log(arrayTraslado);
-                   //cargarLineas(data);
-
+                 
                 },
                   error: function (err, scnd) {
                       cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -1306,9 +1254,9 @@
 
         function getTrasladoInventario() {
 
-            //console.log('entro');
+         
             var IdTraslado = $('#IdTraslado').val();
-            //console.log(IdTraslado);
+          
             if (IdTraslado != 0)
             $.ajax({
                   type: "get",
@@ -1321,9 +1269,9 @@
                 success: function (data) {
 
                     arrayTablaTraslado = data;
-                    //console.log(arrayTablaTraslado);
+                 
                     cargarDatosTraslado(arrayTablaTraslado);
-                   //cargarLineas(data);
+                 
                 },
                   error: function (err, scnd) {
                       cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -1340,7 +1288,7 @@
 
 
             var id = @Model.IdTraslado;
-            //console.log(id);
+         
             bootbox.confirm({
                 message: "@SharedLocalizer["AnularTraslado"]", //@SharedLocalizer["confirmAnularTraslado"]"
                 buttons: {
@@ -1355,7 +1303,7 @@
                 },
                 callback: function (result) {
                     if (result == true) {
-                        //console.log("entro a anular");
+                       
                               $.ajax({
                                 type: "get",
                                 headers: {
@@ -1365,7 +1313,7 @@
                                 url: '@Url.Action("AnularTraslado", "Traslado", new { id = @Model.IdTraslado })',
                                 success: function (data) {
                                     if (data.success) {
-                                       // cargarJustificacion(result);
+                                      
                                         cargarAlert('@SharedLocalizer["TrasladoAnulado"]');
                                         getTraslados();
                                        // window.location.href = "@Url.Action("ListarAjustes","AjusteInventario")";
@@ -1406,15 +1354,15 @@
 
     function recuperarUsuario() {
 
-        //console.log("entro a recuperar el usuario");
+      
         var idUsu = $('#IdUsuario').val();
         var nombre = "";
-        //console.log(Usuarios);
+      
 
 
         for (var i = 0; i < Usuarios.length; i++) {
 
-            if (Usuarios[i].id == idUsu) { // estan llegando los usuarios 1 ,2 y 3 seguidos por eso no los obtiene por que ha que recorrerlos
+            if (Usuarios[i].id == idUsu) { 
                 nombre = Usuarios[i].nombre;
             }
 
@@ -1428,7 +1376,18 @@
     }
 
 
+    function focus() {
 
+      //document.getElementById("filtroBuscar").focus();
+      //  console.log("entro");
+        id = "filtroBuscar";
+
+        console.log("Evento>" + id);
+
+            document.getElementById(id).focus();
+            document.getElementById(id).select();
+
+    }
 
 
 

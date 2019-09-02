@@ -17,7 +17,7 @@ namespace AltivaWebApp.Services
         }
 
 
-        //si
+       
         public TbPrTraslado Save(TbPrTraslado domain)
         {
             return repository.Save(domain);
@@ -32,12 +32,12 @@ namespace AltivaWebApp.Services
         {
             return repository.Delete(domain);
         }
-        //si
+      
         public IList<TbPrTraslado> GetAllTraslado()
         {
             return repository.GetAllTraslado();
         }
-        //si
+      
         public TbPrTraslado GetTrasladoById(long id)
         {
             return repository.GetTrasladoById(id);

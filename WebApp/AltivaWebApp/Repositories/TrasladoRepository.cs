@@ -24,7 +24,7 @@ namespace AltivaWebApp.Repositories
 
         public TbPrTraslado GetTrasladoById(long id)
         {          
-                return context.TbPrTraslado.FirstOrDefault(d => d.IdTraslado == id);//se cambio Id por IdTraslado         
+                return context.TbPrTraslado.FirstOrDefault(d => d.IdTraslado == id);        
         }
 
       
