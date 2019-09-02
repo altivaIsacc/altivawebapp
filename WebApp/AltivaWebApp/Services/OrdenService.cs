@@ -10,7 +10,10 @@ namespace AltivaWebApp.Services
     public class OrdenService: IOrdenService
     {
         private readonly IOrdenRepository repository;
-
+        public IList<TbCrContacto> GetAllProveedores()
+        {
+            return repository.GetAllProveedores();
+        }
         public OrdenService(IOrdenRepository repository)
         {
             this.repository = repository;

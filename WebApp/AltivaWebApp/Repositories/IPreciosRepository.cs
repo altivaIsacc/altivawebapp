@@ -8,6 +8,7 @@ namespace AltivaWebApp.Repositories
 {
     public interface IPreciosRepository
     {
+        TbPrPrecios GetFirstPrecioCatalogo();
         TbPrPrecios Save(TbPrPrecios domain);
         TbPrPrecios Update(TbPrPrecios domain);
         IList<TbPrPrecios> GetAll();

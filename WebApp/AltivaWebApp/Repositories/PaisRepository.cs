@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
 using AltivaWebApp.GEDomain;
+using AltivaWebApp.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace AltivaWebApp.Repositories
@@ -26,9 +27,9 @@ namespace AltivaWebApp.Repositories
             return query;
         }
 
-        public bool ConsultarPais(string nombre)
+        public TbSePais ConsultarPais(PaisViewModel viewModel)
         {
-            return context.TbSePais.Any(u => u.NombreEs == nombre || u.NombreEn == nombre);
+            return context.TbSePais.FirstOrDefault(u => u.NombreEs == viewModel.NombreEs || u.NombreEn == viewModel.NombreEn);
         }
 
  

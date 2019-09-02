@@ -344,7 +344,7 @@ else
 
                 </form>
                 <div class="col-md-12 col-sm-12 col-xs-12">
-                    <button type="button" onclick="editarLinea()" class="btn btn-success">@Lb["Guardar"]</button>
+                    <button @estado @estado2 type="button" onclick="editarLinea()" class="btn btn-success">@Lb["Guardar"]</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
                 </div>
             </div>
@@ -535,7 +535,7 @@ else
                 cargarInfoItem($('#item').val());
             else
                 limpiarLinea();
-        }, 100);
+        }, 500);
 
     });
 
@@ -547,7 +547,7 @@ else
 
             $descripcion.text(itemInfo.descripcion.substr(0, 32) + (itemInfo.descripcion.length > 25 ? '...' : '')).prop('href', '@Url.Action("EditarInventario", "Inventario", new { id = "__id__" })'.replace("__id__", itemInfo.idInventario));
             $precio.val(getPrecioAlCambio(itemInfo));
-            $cantidad.val(itemInfo.cantidadUnidad);
+            $cantidad.val(1);
             $unidad.text(itemInfo.idUnidadMedidaNavigation.abreviatura);
             $iva.val(itemInfo.impuestoVenta);
             setSubTotalLinea();
@@ -661,7 +661,7 @@ else
 
         var flag = true;
 
-        console.log($('#precioEditar').inputmask('unmaskedvalue'));
+        
 
         if (parseFloat($('#precioEditar').inputmask('unmaskedvalue')) <= 0 || $('#precioEditar').inputmask('unmaskedvalue') === null) {
             flag = false;
@@ -671,7 +671,7 @@ else
             $('#precioEditarValid').prop('hidden', true);
         }
         
-        if (parseFloat($('#cantidadEditar').inputmask('unmaskedvalue')) <= 0) {
+        if (parseFloat($('#cantidadEditar').inputmask('unmaskedvalue')) <= 0 || $('#cantidadEditar').inputmask('unmaskedvalue') === null) {
             flag = false;
             $('#cantidadEditarValid').prop('hidden', false);        
         }
@@ -1271,34 +1271,7 @@ else
             lineas[i].total = (lineas[i].subTotalExcentoNeto + lineas[i].subTotalGravadoNeto) + lineas[i].totalIva;
         }
 
-        //if (lineasCrOrUp.length > 0)
-        //    for (var i = 0; i < lineasCrOrUp.length; i++) {
-
-        //        lineasCrOrUp[i].precioUnitario = getPrecioAlCambioLocal(lineasCrOrUp[i]);
-        //        lineasCrOrUp[i].idMonedaCD = parseInt($('.tipoMoneda').val());
-        //        subtotal = lineasCrOrUp[i].precioUnitario * lineasCrOrUp[i].cantidad;
-        //        lineasCrOrUp[i].totalDescuento = (lineasCrOrUp[i].porcDescuento / 100) * subtotal;
-
-        //        if (lineasCrOrUp[i].porcIva > 0) {
-        //            lineasCrOrUp[i].subTotalExcento = 0;
-        //            lineasCrOrUp[i].subTotalGravado = subtotal;
-        //            lineasCrOrUp[i].subTotalExcentoNeto = 0;
-        //            lineasCrOrUp[i].subTotalGravadoNeto = subtotal - lineas[i].totalDescuento;
-        //        }
-        //        else {
-        //            lineasCrOrUp[i].subTotalExcento = subtotal;
-        //            lineasCrOrUp[i].subTotalGrabado = 0;
-        //            lineasCrOrUp[i].subTotalExcentoNeto = subtotal - lineas[i].totalDescuento;
-        //            lineasCrOrUp[i].subTotalGravadoNeto = 0;
-        //        }
-
-        //        lineasCrOrUp[i].totalIva = (lineasCrOrUp[i].porcIva / 100) * (lineasCrOrUp[i].subTotalExcentoNeto + lineasCrOrUp[i].subTotalGravadoNeto);
-        //        lineas[i].total = (lineasCrOrUp[i].subTotalExcentoNeto + lineasCrOrUp[i].subTotalGravadoNeto) + lineasCrOrUp[i].totalIva;
-        //    }
-
-        //$('#item').trigger('change.select2');
         cargarTabla(lineas);
-        //calcularTotales();
 
     }
 

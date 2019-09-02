@@ -1,30 +1,31 @@
 ﻿@model IEnumerable<AltivaWebApp.Domains.TbFdTarea>
-    @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
-    @functions{
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
     public string GetAntiXsrfRequestToken()
     {
         return Xsrf.GetAndStoreTokens(Context).RequestToken;
     }
-    }
+}
 
-    <div class=" container">
-        <div id="tareas">
-            
-            <div class="row">
-                <div class="col-md-3 col-sm-3 col-xs-3"><h3>Reporte de Costos</h3></div>
-                <div class="col-md-9 col-sm-9 col-xs-9">
-                    <div class="form-group col-md-2" style="padding-top:0.5rem">
-                        <a href="@Url.Action("ListarTareas")" class="btn btn-default">Atrás</a>
-                    </div>
+<div class=" container">
+    <div id="tareas">
+
+        <div class="row">
+            <div class="col-md-3 col-sm-3 col-xs-3"><h3>@Lb["reporteCostos"]</h3></div>
+            <div class="col-md-9 col-sm-9 col-xs-9">
+                <div class="form-group col-md-2" style="padding-top:0.5rem">
+                    <a href="@Url.Action("ListarTareas")" class="btn btn-default">@Lb["Atrás"]</a>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-2">
-                    <label style="padding-top: 0.2rem">Asignados:</label>
-                    <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroAsignado">
-                        <option value="0" selected>Seleccione</option>
-                        <option value="na">No Asignados</option>
-                        @foreach (var asignados in ViewData["Asignados"] as IList<TbSeUsuario>)
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <label style="padding-top: 0.2rem">@Lb["asignados"]:</label>
+                <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroAsignado">
+                    <option value="0" selected>@Lb["seleccione"]</option>
+                    <option value="na">@Lb["Not"] @Lb["asignados"]</option>
+                    @foreach (var asignados in ViewData["Asignados"] as IList<TbSeUsuario>)
                     {
 
 
@@ -32,129 +33,130 @@
 
 
                     }
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label style="padding-top: 0.2rem">Contactos:</label>
-                    <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroContacto">
-                        <option value="0" selected>Seleccione</option>
-                        @foreach (var contacto in ViewData["contactos"] as IList<TbCrContacto>)
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label style="padding-top: 0.2rem">@Lb["Contactos"]:</label>
+                <select class="selectpicker form-control selectFiltro" data-live-search="true" id="filtroContacto">
+                    <option value="0" selected>@Lb["seleccione"]</option>
+                    @foreach (var contacto in ViewData["contactos"] as IList<TbCrContacto>)
                     {
                         @if (contacto.Persona == true)
                         {
-                        <option value="@contacto.IdContacto">@contacto.Nombre</option>
+                            <option value="@contacto.IdContacto">@contacto.Nombre</option>
                         }
                         else
                         {
-                        <option value="@contacto.IdContacto">@contacto.NombreComercial</option>
+                            <option value="@contacto.IdContacto">@contacto.NombreComercial</option>
                         }
                     }
-                    </select>
-                </div> <div class="col-md-2">
-                    <label style="padding-top: 0.2rem">Estados:</label>
-                    <select class=" form-control selectFiltro" data-live-search="true" id="filtroEstados">
-                        <option value="0" selected>Seleccione</option>
-                        @foreach (var estados in ViewData["estados"] as IList<TbFdTareaEstado>)
+                </select>
+            </div> <div class="col-md-2">
+                       <label style="padding-top: 0.2rem">@Lb["Estados"]:</label>
+                <select class=" form-control selectFiltro" data-live-search="true" id="filtroEstados">
+                    <option value="0" selected>@Lb["seleccione"]</option>
+                    @foreach (var estados in ViewData["estados"] as IList<TbFdTareaEstado>)
                     {
                         @if (estados.Activo == true)
                         {
-                        <option value="@estados.Id" style="background:@estados.Color;color:black;">@estados.Titulo</option>
+                            <option value="@estados.Id" style="background:@estados.Color;color:black;">@estados.Titulo</option>
 
                         }
                     }
-                    </select>
-                </div><div class="col-md-2">
-                    <label style="padding-top: 0.2rem">Tipos:</label>
-                    <select class="  form-control selectFiltro" data-live-search="true" id="filtroTipos">
-                        <option value="0" selected>Seleccione</option>
-                        @foreach (var tipos in ViewData["tipos"] as IList<TbFdTareaTipo>)
+                </select>
+            </div><div class="col-md-2">
+                      <label style="padding-top: 0.2rem">@Lb["Tipos"]:</label>
+                <select class="  form-control selectFiltro" data-live-search="true" id="filtroTipos">
+                    <option value="0" selected>@Lb["seleccione"]</option>
+                    @foreach (var tipos in ViewData["tipos"] as IList<TbFdTareaTipo>)
                     {
                         @if (tipos.Activo == true)
                         {
-                        <option value="@tipos.Id" style="background:@tipos.Color;color:black;">@tipos.Titulo</option>
+                            <option value="@tipos.Id" style="background:@tipos.Color;color:black;">@tipos.Titulo</option>
 
                         }
                     }
-                    </select>
-                </div>
-                <div class="col-md-3">
+                </select>
+            </div>
+            <div class="col-md-3">
 
-                    <label>Rango entre fechas:</label>
-                    <form id="frmFecha">
-                        <fieldset>
-                            <div class="control-group">
-                                <div class="controls">
-                                    <div class="input-prepend input-group">
-                                        <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
-                                        <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" />
-                                    </div>
+                <label>@Lb["rangoFechas"]:</label>
+                <form id="frmFecha">
+                    <fieldset>
+                        <div class="control-group">
+                            <div class="controls">
+                                <div class="input-prepend input-group">
+                                    <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                                    <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" />
                                 </div>
                             </div>
-                        </fieldset>
-                    </form>
-                </div>
-
+                        </div>
+                    </fieldset>
+                </form>
             </div>
 
-            <table class="table table-bordered dt-responsive nowrap " id="TablaTareas" style="width:100%">
-                <thead>
-                    <tr>
-                       
-                        <th>
-                            Tipo Tarea
-                        </th>
-                        <th>
-                            Título
-                        </th>
-                        <th>
-                            Estado tarea
-                        </th>
-                        <th>
-                            Contacto
-                        </th>
-                        <th>
-                            Fecha Límite
-                        </th>
-                        <th hidden>
-                            Asignado
-                        </th>
-
-                        <th hidden>
-                            Descripción
-                        </th>
-                        <th hidden>
-                            Dias Estimados
-                        </th>
-                        <th hidden>
-                            Dias Reales
-                        </th>
-                        <th >
-                            Costo Estimado
-                        </th>
-                        <th >
-                            Costo Real
-                        </th>
-
-                        <th hidden>
-                            Fecha Inicio
-                        </th>
-                        <th hidden>
-                            Fecha Final
-                        </th>
-
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-
-
         </div>
-        
+
+        <table class="table table-bordered dt-responsive nowrap " id="TablaTareas" style="width:100%">
+            <thead>
+                <tr>
+
+                    <th>
+                        <span>@Lb["tipoTarea"]</span>
+
+                    </th>
+                    <th>
+                        <span>@Lb["Título"]</span>
+                    </th>
+                    <th>
+                        <span>@Lb["estadoTarea"]</span>
+                    </th>
+                    <th>
+                        <span>@Lb["Contacto"]</span>
+                    </th>
+                    <th>
+                        <span>@Lb["fechaLimite"]</span>
+                    </th>
+                    <th hidden>
+                        @Lb["Asignado"]
+                    </th>
+
+                    <th hidden>
+                        @Lb["Descripción"]
+                    </th>
+                    <th hidden>
+                        @Lb["diasEstimados"]
+                    </th>
+                    <th hidden>
+                        @Lb["diasReales"]
+                    </th>
+                    <th>
+                        <span>@Lb["costoEstimado"]</span>   
+                    </th>
+                    <th>
+                        <span> @Lb["costoReal"]</span> 
+                    </th>
+
+                    <th hidden>
+                        @Lb["fechaInicio"]
+                    </th>
+                    <th hidden>
+                        @Lb["fechaFinal"]
+                    </th>
+
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+
     </div>
 
+</div>
 
-    <input readonly hidden id="monedaFormatter" />
-    <script>
+
+<input readonly hidden id="monedaFormatter" />
+<script>
         var reportes = [];
         var TareasMostrar = [];
         TareasMostrar = null;
@@ -173,22 +175,22 @@
 
 
 
-     
+
         TareasMostrar = JSON.parse(JSON.stringify(reportes));
-      
-       
+
+
             TareasMostrar = filtroContacto(TareasMostrar);
             TareasMostrar = FistroAsignados(TareasMostrar);
             TareasMostrar = filtroEstado(TareasMostrar);
             TareasMostrar = filtroTipos(TareasMostrar);
            // TareasMostrar = filtroFecha(desde, hasta);
-        
-        
-        cargarDatos(TareasMostrar); 
+
+
+        cargarDatos(TareasMostrar);
 
     }
     function filtroEstado(TareasMostrar) {
-    
+
 
         var IdEstado = parseInt($('#filtroEstados').val());
 
@@ -204,7 +206,7 @@
                 var estados = TareasMostrar[i].idEstadoNavigation;
                 ;
                 if (estados.id === IdEstado) {
-               
+
                     EstadosFiltrado.push(TareasMostrar[i]);
 
 
@@ -274,9 +276,9 @@
                     arrayTareas.splice(i, 1);
             }
             return arrayTareas;
-         
+
         }
-           
+
 
     }
     function FistroAsignados(TareasMostrar) {
@@ -318,7 +320,7 @@
 
         var TareasFiltrado = [];
 
-     
+
         if (IdContacto === 0) {
             return TareasMostrar;
         }
@@ -327,7 +329,7 @@
             for (var i = 0; i < TareasMostrar.length; i++) {
 
                 if (TareasMostrar[i].idContacto === IdContacto) {
-                   
+
                     TareasFiltrado.push(TareasMostrar[i]);
 
                 }
@@ -347,41 +349,41 @@
 
             getMonedaBase();
             cargarTabla();
-     
+
         $('#filtroFecha').daterangepicker({
             opens: 'left',
-            
 
-            "locale": {
-                format: "DD/MM/YYYY",
+
+           "locale": {
+                 format: "@Lb["formatoFecha"]",
                 "separator": " - ",
-                "applyLabel": "Aplicar",
-                "cancelLabel":"Cancelar",
-                "fromLabel": "DE",
-                "toLabel": "Hasta",
+                "applyLabel": "@Lb["Aplicar"]",
+                "cancelLabel": "@Lb["Cancelar"]",
+                "fromLabel": "@Lb["DE"]",
+                "toLabel": "@Lb["Hasta"]",
                 "customRangeLabel": "Custom",
                 "daysOfWeek": [
-                    "Dom",
-                  "Lun",
-                    "Mar",
-                   "Mie",
-                   "Jue",
-                   "Vie",
-                    "Sáb"
+                    "@Lb["Dom"]",
+                    "@Lb["Lun"]",
+                    "@Lb["Mar"]",
+                    "@Lb["Mie"]",
+                    "@Lb["Jue"]",
+                    "@Lb["Vie"]",
+                    "@Lb["Sáb"]"
                 ],
                 "monthNames": [
-                    "Enero",
-                    "Febrero",
-                    "Marzo",
-                    "Abril",
-                    "Mayo",
-                    "Junio",
-                    "Julio",
-                    "Agosto",
-                    "Septiembre",
-                    "Octubre",
-                    "Noviembre",
-                    "Diciembre"
+                    "@Lb["Enero"]",
+                    "@Lb["Febrero"]",
+                    "@Lb["Marzo"]",
+                    "@Lb["Abril"]",
+                    "@Lb["Mayo"]",
+                    "@Lb["Junio"]",
+                    "@Lb["Julio"]",
+                    "@Lb["Agosto"]",
+                    "@Lb["Septiembre"]",
+                    "@Lb["Octubre"]",
+                    "@Lb["Noviembre"]",
+                    "@Lb["Diciembre"]"
                 ],
                 "firstDay": 1
             }
@@ -412,7 +414,7 @@
                     });
                 },
                 error: function (err, scnd) {
-                   
+
                     console.log(err.statusText);
                 }
             });
@@ -449,8 +451,8 @@
 
                         color = "#dc4a46";
                     }
-                    
-                
+
+
                 var body = '<tr class="fila' + contadorFila + ' filas" >'
                     + '<td ><div  style="background: ' + data[i].idTipoNavigation.color + '; color:white;">' + data[i].idTipoNavigation.titulo + '</div></td>'
 
@@ -482,24 +484,26 @@
                 "ordering": false,
                 scrollX: '50rem',
 
-                language: {
-                    "decimal": "",
-                    "emptyTable": "No hay información",
-
-                    "infoPostFix": "",
-                    "thousands": ",",
-
-                    "loadingRecords": "Cargando...",
-                    "processing": "Procesando...",
-                    "search": "<a ><i  class='fas fa-search ' ></i></a>",
-                    "zeroRecords": "Sin resultados encontrados",
-                    "paginate": {
-                        "first": "Primero",
-                        "last": "Ultimo",
-                        "next": "Siguiente",
-                        "previous": "Anterior"
-                    }
-                },
+                  language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
                 buttons: [
                     {
                         extend: 'copyHtml5',
@@ -535,7 +539,7 @@
 
             return $('#monedaFormatter').val();
         }
-        
+
          //cargar tabla
         function cargarTabla() {
          var url = '@Url.Action("GetTareas", "Tarea")';
@@ -581,12 +585,12 @@
             return d + "/" + m + "/" + y;
 
         }
-    </script>
+</script>
 
-    <style>
-        .dataTables_wrapper .dataTables_filter {
-            float: right;
-            text-align: right;
-            visibility: hidden;
-        }
-    </style>
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

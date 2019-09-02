@@ -14,7 +14,7 @@ namespace AltivaWebApp.Services
         TbPrPrecioCatalogo GetPrecioCatalogoById(int id);
         IList<TbPrPrecioCatalogo> GetAllPrecioCatalogo();
 
-        bool SaveFromInventario(int idIventario);
+        bool SaveFromInventario(long idIventario);
          bool SaveFromPrecios(int idTipoPrecio);
         IList<TbPrPrecioCatalogo> GetPreciosWithReqs();
     }

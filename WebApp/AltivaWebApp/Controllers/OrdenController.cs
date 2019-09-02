@@ -38,6 +38,21 @@ namespace AltivaWebApp.Controllers
         {
             return View();
         }
+        [HttpGet("GetProveedores")]
+        public IActionResult GetProveedores()
+        {
+            try
+            {
+                var prov = service.GetAllProveedores();
+                return Ok(prov);
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return BadRequest();
+            }
+
+        }
 
         [HttpGet("GenerarCompraAutomatica/{idProveedor}")]
         public IActionResult GenerarCompraAutomatica(int idProveedor)
@@ -63,6 +78,7 @@ namespace AltivaWebApp.Controllers
         public ActionResult CrearOrden()
         {
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
+            ViewBag.Proveedores =  service.GetAllProveedores();
 
             var tipoCambio = monedaService.GetAll(); 
             var model = new OrdenViewModel();
@@ -78,6 +94,9 @@ namespace AltivaWebApp.Controllers
         public ActionResult EditarOrden(int id)
         {
             var orden = map.DomainToViewModel(service.GetOrdenById(id));
+            var proveedor = contactoService.GetByIdContacto(orden.IdProveedor);
+            ViewBag.IdContacto = proveedor.IdContacto;
+            ViewBag.NombreCompleto = proveedor.Nombre+ " " + proveedor.NombreComercial;
             ViewData["usuario"] = userService.GetSingleUser((int)orden.IdUsuario);
             return View("CrearEditarOrden", orden);
         }
@@ -91,9 +110,10 @@ namespace AltivaWebApp.Controllers
                 if(viewModel.Id != 0)
                 {
                     var orden = map.Update(viewModel);
-
                     if (viewModel.OrdenDetalle != null)
                     {
+                       
+
                         map.CreateOD(viewModel);
 
                     }
@@ -102,7 +122,9 @@ namespace AltivaWebApp.Controllers
                             viewModel.OrdenDetalle = model2;
                             map.UpdateOD(viewModel);
                     }
-                          
+                    
+
+
                 }
                 else
                 {
@@ -115,8 +137,9 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception ex)
             {
-                AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                return BadRequest();
+                throw;
+                //AltivaLog.Log.Insertar(ex.ToString(), "Error");
+               // return BadRequest();
             }
         }
 

@@ -8,6 +8,7 @@ namespace AltivaWebApp.Services
 {
     public interface IOrdenService
     {
+         IList<TbCrContacto> GetAllProveedores();
          IList<CompraAutomaticoViewModel> compraProveedor(int id);
         TbPrOrden Save(TbPrOrden domain);
         TbPrOrden Update(TbPrOrden domain);

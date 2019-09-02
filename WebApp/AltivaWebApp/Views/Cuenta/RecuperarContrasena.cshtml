@@ -1,5 +1,5 @@
 ﻿@model AltivaWebApp.ViewModels.EmailViewModel
-
+@inject IStringLocalizer<SharedResources> Lb
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
@@ -11,7 +11,7 @@
 
 <div class="row">
     <div class="col-md-10">
-        <h4 data-translate="loginRecuperarContrasena">Recuperar Contrasena</h4>
+        <h4>@Lb["RecuperarContrasena"]</h4>
     </div>
     <div class="col-md-2">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -24,23 +24,33 @@
 <hr />
 <div class="row">
     <div class="col-md-12">
-        <form  >            
+        <form>
             <div class="form-group">
-                <label data-translate="loginInputCorreo" class="control-label">Correo</label>
-                <input id="correo" class="form-control" />
-                <span class="text-danger"></span>
+                <label data-translate="loginInputCorreo" class="control-label">@Lb["Correo"]</label>
+                <input id="correo" class="form-control" autofocus />
+                <span hidden id="correoValid" class="text-danger">@Lb["correoValid"]</span>
             </div>
-            <div class="form-group">
-                <a data-translate="loginBtnSolicitud" id="enviarSolicitud" class="btn btn-primary">Enviar Solicitud</a>
-            </div>
+
         </form>
+        <div class="form-group">
+            <button id="enviarSolicitud" class="btn btn-success">@Lb["EnviarSolicitud"]</button>
+        </div>
     </div>
 </div>
 
 <script>
     $(document).ready(function () {
 
+        
+
         $('#enviarSolicitud').click(function () {
+
+            if ($('#correo').val().replace(/ /g, "") == "") {
+                $('#correoValid').prop('hidden', false);
+                return;
+            }
+
+            $('#correoValid').prop('hidden', true);
 
             var url = '../Cuenta/RecuperarContrasena';
 
@@ -57,7 +67,7 @@
                 data: model,
                     success: function (data) {
                         console.log(data);
-                        
+
                 },
                     error: function (err, scnd) {
                         console.log(data);

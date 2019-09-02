@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AltivaWebApp.GEDomain;
 using AltivaWebApp.Repositories;
+using AltivaWebApp.ViewModels;
+
 namespace AltivaWebApp.Services
 {
     public class PaisService : IPaisService
@@ -19,9 +21,9 @@ namespace AltivaWebApp.Services
 
         }
 
-        public bool ConsultarPais(string nombre)
+        public TbSePais ConsultarPais(PaisViewModel viewModel)
         {
-            return repository.ConsultarPais(nombre);
+            return repository.ConsultarPais(viewModel);
         }
 
         public TbSePais Create(TbSePais collection)

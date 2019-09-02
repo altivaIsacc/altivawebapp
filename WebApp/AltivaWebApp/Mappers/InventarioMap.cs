@@ -77,8 +77,6 @@ namespace AltivaWebApp.Mappers
         public void CreateCaracteristica(int id, string caracteristica)
         {
             service.SaveCaracteristicaInventario(ViewModelToDomainNuevoCaracteristica(id, caracteristica));
-
-
         }
 
         public TbPrInventario Update(int id, InventarioViewModel viewModel)
@@ -213,7 +211,8 @@ namespace AltivaWebApp.Mappers
             inventario.PrecioVentaOnline = viewModel.PrecioVentaOnline;
             inventario.AbreviacionFacturas = viewModel.AbreviacionFactura;
             inventario.HabilitarVentaOnline = viewModel.HabilitarVentaOnline;
-            inventario.SkuOnline = viewModel.SkuOnline;   
+            inventario.SkuOnline = viewModel.SkuOnline;
+            inventario.IdMonedaVentaOnline = viewModel.CodigoMonedaOnline;
            
             return inventario;
 

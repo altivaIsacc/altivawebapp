@@ -30,7 +30,7 @@ namespace AltivaWebApp.Controllers
        {
 
             ViewBag.id = 0;
-            CamposPersonalizadosViewModel domain2 = new CamposPersonalizadosViewModel();
+            CamposPersonalizadosViewModelSingle domain2 = new CamposPersonalizadosViewModelSingle();
 
             return PartialView("_CrearEditar",domain2 );
         }

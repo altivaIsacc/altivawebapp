@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AltivaWebApp.Controllers
@@ -38,7 +37,7 @@ namespace AltivaWebApp.Controllers
             return View();
         }
 
-        [Route("Nuevo-Ajuste")]
+        [Route("Nuevo -Ajuste")]
         public ActionResult CrearAjuste()
         {
             ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
@@ -106,11 +105,11 @@ namespace AltivaWebApp.Controllers
                                 item.IdAjuste = ajuste.Id;
                                 if (item.Id != 0)
                                 {
-                                    eliminadas.Add(item.Id);                               
+                                    eliminadas.Add(item.Id);
                                     detallesId.Add(item.Id);
                                     item.Id = 0;
                                 }
-                                    
+
                             }
 
                             ajusteInventario = map.CreateOrUpdateAI(detalle);
@@ -137,12 +136,12 @@ namespace AltivaWebApp.Controllers
 
                                 var kardex = kardexMap.CreateKardexAM(ajusteKardex, (int)ajuste.Id);
 
-                                
+
                             }
 
-                            
 
-                            if(eliminadas.Count() > 0)
+
+                            if (eliminadas.Count() > 0)
                             {
                                 ajusteKardex.TbPrAjusteInventario = ajusteTemp.TbPrAjusteInventario.Where(d => eliminadas.Any(id => id == d.Id)).ToList();
                                 kardexMap.CreateKardexDeletedAM(ajusteKardex);
@@ -211,7 +210,7 @@ namespace AltivaWebApp.Controllers
 
                 return Json(new { success = true });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
@@ -247,7 +246,7 @@ namespace AltivaWebApp.Controllers
             {
                 var ajuste = service.GetAjusteById(id);
                 ajuste.Anulada = true;
-                
+
                 var res = kardexMap.CreateKardexAM(ajuste, id);
 
                 if (res)
