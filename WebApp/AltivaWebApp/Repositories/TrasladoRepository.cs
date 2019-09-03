@@ -24,7 +24,7 @@ namespace AltivaWebApp.Repositories
 
         public TbPrTraslado GetTrasladoById(long id)
         {          
-                return context.TbPrTraslado.FirstOrDefault(d => d.IdTraslado == id);        
+                return context.TbPrTraslado.AsNoTracking().FirstOrDefault(d => d.IdTraslado == id);// AsNoTracking()       
         }
 
       
@@ -94,7 +94,63 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbPrTraslado.Where(d => d.Anulado == false).ToList();
         }
-  
+
+
+
+        public TbPrTraslado GetTrasladoForKardex(int id, IList<long> idDetalles)
+        {
+            try
+            {
+                return context.TbPrTraslado.Select(a => new TbPrTraslado
+                    {
+                        IdUsuario = a.IdUsuario,
+                        IdBodegaOrigen = a.IdBodegaOrigen,
+                        IdBodegaDestino = a.IdBodegaDestino,
+                        Fecha = a.Fecha,
+                        FechaCreacion = a.FechaCreacion,
+                        Anulado = a.Anulado,
+                        CostoTraslado = a.CostoTraslado,
+                        Comentario = a.Comentario,
+                            TbPrTrasladoInventario = a.TbPrTrasladoInventario.Select(d => new TbPrTrasladoInventario
+                            {
+                                Id = d.Id,
+                                IdTraslado = d.IdTraslado,
+                                IdInventario = d.IdInventario,
+                                CodigoArticulo = d.CodigoArticulo,
+                                Descripcion = d.Descripcion,
+                                Cantidad = d.Cantidad,
+                                PrecioUnitario = d.PrecioUnitario,
+                                CostoTotal = d.CostoTotal,
+                                                                                    
+                                IdInventarioNavigation = new TbPrInventario
+                                {
+                                    IdInventario = d.IdInventarioNavigation.IdInventario,
+                                    TbPrInventarioBodega = d.IdInventarioNavigation.TbPrInventarioBodega,
+                                    ExistenciaGeneral = d.IdInventarioNavigation.ExistenciaGeneral,
+                                    CostoPromedioGeneral = d.IdInventarioNavigation.CostoPromedioGeneral,
+                                    UltimoPrecioCompra = d.IdInventarioNavigation.UltimoPrecioCompra
+                                }
+                              
+                            }).Where(d => idDetalles.Any(idD => idD == d.Id)).ToList()
+                           
+                }).AsNoTracking().FirstOrDefault(a => a.IdTraslado == id);
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+            }
+
+
+        }
+
+
+
+
+
+
+
+
 
     }
 }

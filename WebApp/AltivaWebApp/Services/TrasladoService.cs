@@ -57,5 +57,13 @@ namespace AltivaWebApp.Services
         {
             return repository.GetTrasladosSinAnular();
         }
+
+        public TbPrTraslado GetTrasladoForKardex(int id, IList<long> idDetalles)
+        {
+            return repository.GetTrasladoForKardex(id, idDetalles);
+        }
+
+
+
     }
 }
