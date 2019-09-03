@@ -19,6 +19,7 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbPrPrecioCatalogo.FirstOrDefault(d => d.IdPrecioCatalogo == id);
         }
+       
 
         public IList<TbPrPrecioCatalogo> GetPreciosWithReqs()
         {
@@ -44,7 +45,7 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public bool SaveFromInventario(int idInventario)
+        public bool SaveFromInventario(long idInventario)
         {
             try
             {

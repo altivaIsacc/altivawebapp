@@ -15,7 +15,7 @@ namespace AltivaWebApp.Services
         {
             this.reposistory = reposistory;
         }
-
+      
         public IList<TbPrPrecioCatalogo> GetAll()
         {
             return reposistory.GetAll() ;
@@ -44,7 +44,7 @@ namespace AltivaWebApp.Services
         {
             return reposistory.UpdatePrecio(domain);
         }
-        public bool SaveFromInventario(int idIventario)
+        public bool SaveFromInventario(long idIventario)
         {
             return reposistory.SaveFromInventario(idIventario);
         }

@@ -158,17 +158,19 @@ namespace AltivaWebApp.Controllers
             {
                 if (model.DescripcionVenta == null)
                     model.DescripcionVenta = model.Descripcion;
-
+                long idInventario = 0;
+                var codigoInventario = "";
                 var inventario = new TbPrInventario();
-
                 if(id == 0)
                 {
                     long? existeInventario = service.ExisteInventarioCodigo(model.Codigo);
                     if (existeInventario == 0)
                     {
+
                         var idUser = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                         model.IdUsuario = int.Parse(idUser);
                         inventario = map.Create(model);
+                        idInventario = inventario.IdInventario;
                         var precios = preciosService.GetAll();
                         precioCatalogoService.SaveFromInventario((int)inventario.IdInventario);
 

@@ -17,7 +17,7 @@
     if (Model.Anulado)
     {
         estado = "disabled";
-        
+
     }
 
 
@@ -83,9 +83,29 @@ else
 
             <div class="form-group col-md-3 col-sm-6 col-xs-12">
                 <label asp-for="IdProveedor" class="control-label">@SharedLocalizer["Proveedor"]</label>
-                <select class="form-control selectItems" id="proveedores"></select>
-            </div>
+                <select class="selectpicker form-control selectItems" data-live-search="true" id="proveedores" >
+                    @if (Model.Id == 0)
+                    {
+                        foreach (var prove in ViewBag.Proveedores)
+                        {
+                            var nombre = @prove.Nombre;
+                            if (@prove.Nombre == "")
+                            {
+                                nombre = prove.NombreComercial;
+                            }
+                            <option  value="@prove.IdContacto">@nombre</option>
+                        }
+                    }
+                    else{
+                        
 
+                <option  value="@ViewBag.IdContacto">@ViewBag.NombreCompleto</option>
+                        
+
+                    }
+                </select>
+            </div>
+            <input hidden id="proveedor"  value="@ViewBag.IdContacto"/>
             <div class="form-group col-md-5 col-sm-6 col-xs-12">
                 <label asp-for="Observacion" class="control-label">@SharedLocalizer["Observación"]</label>
                 <textarea @estado asp-for="Observacion" id="txtObservacion" rows="8" maxlength="500" class="form-control">@Model.Observacion</textarea>
@@ -206,13 +226,15 @@ else
     <div class="modal fade" id="modalEditarOrden" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
+               
                 <div class="modal-header">
-                    <div class="col-md-6"> <h5 data-translate="editarOrden" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["editarOrden"]</h5></div>
-                 </div>
-                <div class="modal-body" id="editar">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
+                    <div class="col-md-6"> <h5 data-translate="editarOrden" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["editarOrden"]</h5></div>
+                </div>
+                <div class="modal-body" id="editar">
+
                     <div class="row">
                         <input id="editId" type="hidden" class="form-control" />
                         <input id="editIva" type="hidden" class="form-control" />
@@ -238,9 +260,9 @@ else
 
                             <button class="btn btn-default" data-dismiss="modal"><span>@SharedLocalizer["Cancelar"]</span></button>
 
-                            </div>
                         </div>
                     </div>
+                </div>
             </div>
         </div>
     </div>
@@ -290,14 +312,13 @@ else
     var lineasEliminadas = [];
     var lineasActualizadas = [];
 
- 
+    var editProveedor = $('#proveedor').val();
 
     $(document).ready(function () {
         getProveedores();
-        
         var date = new Date();
         if (@Model.Id != 0) {
-            $proveedores.val(@Model.IdProveedor);
+            $proveedores.val(editProveedor);
             GetComentarios("Orden", @Model.Id);
             date = new Date(formatearFecha());
             $('.tipoMoneda').val('@Model.IdMoneda');
@@ -943,15 +964,19 @@ else
               url: '@Url.Action("GetProveedores", "Contacto")',
              success: function (data) {
                  proveedores = data;
-                 for (var i = 0; i < data.length; i++) {
-                     var nombre = "";
-                     if (data[i].persona)
-                         nombre = data[i].nombre + ' ' + data[i].apellidos;
-                     else
-                         nombre = data[i].nombreJuridico;
-                    var o = new Option(nombre, data[i].idContacto);
-                    $("#proveedores").append(o);
-                 }
+
+         
+                     console.log(data);
+
+                 //for (var i = 0; i < proveedores.length; i++) {
+                 //    var nombre = "";
+                 //    if (proveedores[i].persona)
+                 //        nombre = proveedores[i].nombre + ' ' + proveedores[i].apellidos;
+                 //    else
+                 //        nombre = proveedores[i].nombreJuridico;
+                 //   var o = new Option(nombre, proveedores[i].idContacto);
+                 //   $("#proveedores").append(o);
+                 //}
                  if (@Model.Id != 0) {
                     $proveedores.val(@Model.IdProveedor);
                  }
@@ -965,7 +990,7 @@ else
               }
          });
     }
-
+   
     function guardarCambios() {
 
         if(validarForm())

@@ -94,6 +94,29 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
-        
+        [HttpGet("Get-Unidad/{id?}")]
+        public ActionResult GetTipoClientes(string nombre)
+        {
+            var flag = false;
+            try
+            {
+                var uni = service.GetAll();
+
+                foreach (var item in uni)
+                {
+                    if (item.Nombre == nombre)
+                        flag = true;
+                }
+                    return Json(new { data = flag });
+                
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
+
+
     }
 }

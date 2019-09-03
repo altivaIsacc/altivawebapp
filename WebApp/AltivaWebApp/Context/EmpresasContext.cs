@@ -237,6 +237,7 @@ namespace AltivaWebApp.Context
         }
 
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.3-servicing-35854");
@@ -4296,7 +4297,7 @@ namespace AltivaWebApp.Context
                 entity.ToTable("tb_PR_Inventario");
 
                 entity.Property(e => e.AbreviacionFacturas)
-                    // .IsRequired()
+                    .IsRequired()
                     .HasMaxLength(150)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('''')");
@@ -4345,11 +4346,12 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(60)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('''')");
+
                 entity.HasOne(d => d.IdSubFamiliaNavigation)
-                   .WithMany(p => p.TbPrInventario)
-                   .HasForeignKey(d => d.IdSubFamilia)
-                   .OnDelete(DeleteBehavior.ClientSetNull)
-                   .HasConstraintName("FK_tb_PR_Inventario_tb_PR_Familia");
+                    .WithMany(p => p.TbPrInventario)
+                    .HasForeignKey(d => d.IdSubFamilia)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_PR_Inventario_tb_PR_Familia");
 
                 entity.HasOne(d => d.IdUnidadMedidaNavigation)
                     .WithMany(p => p.TbPrInventario)
@@ -4357,6 +4359,7 @@ namespace AltivaWebApp.Context
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_PR_Inventario_tb_PR_UnidadMedida");
             });
+
 
             modelBuilder.Entity<TbPrInventarioBodega>(entity =>
             {
@@ -4374,6 +4377,7 @@ namespace AltivaWebApp.Context
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_PR_InventarioBodega_tb_PR_Inventario");
             });
+
 
             modelBuilder.Entity<TbPrInventarioCaracteristica>(entity =>
             {
@@ -4745,17 +4749,18 @@ namespace AltivaWebApp.Context
                     .HasConstraintName("FK_tb_PR_TomaDetalle_tb_PR_Toma");
             });
 
-
             modelBuilder.Entity<TbPrTraslado>(entity =>
             {
-                entity.HasKey(e => e.IdTraslado);
+                entity.HasKey(e => e.IdTraslado)
+                    .HasName("PK_tb_PR_Traslados");
 
                 entity.ToTable("tb_PR_Traslado");
 
-                entity.Property(e => e.Comentario)
+                entity.Property(e => e.Anulado)
                     .IsRequired()
-                    .HasMaxLength(256)
-                    .HasDefaultValueSql("('')");
+                    .HasDefaultValueSql("('0')");
+
+                entity.Property(e => e.Comentario).HasMaxLength(256);
 
                 entity.Property(e => e.Fecha)
                     .HasColumnType("datetime")
@@ -4785,11 +4790,13 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.CodigoArticulo)
                     .IsRequired()
                     .HasMaxLength(60)
+                    .IsUnicode(false)
                     .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Descripcion)
                     .IsRequired()
                     .HasMaxLength(150)
+                    .IsUnicode(false)
                     .HasDefaultValueSql("('')");
 
                 entity.HasOne(d => d.IdInventarioNavigation)
@@ -4803,6 +4810,28 @@ namespace AltivaWebApp.Context
                     .HasForeignKey(d => d.IdTraslado)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_PR_TrasladoInventario_tb_PR_Traslado");
+            });
+
+
+            modelBuilder.Entity<TbPrUnidadMedida>(entity =>
+            {
+                entity.ToTable("tb_PR_UnidadMedida");
+
+                entity.Property(e => e.Abreviatura)
+                    .IsRequired()
+                    .HasMaxLength(4)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdUsuario).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("('')");
             });
 
             modelBuilder.Entity<TbPrUnidadMedida>(entity =>

@@ -22,7 +22,8 @@ namespace AltivaWebApp.Services
             return repository.GetAllTrasladoInventario();
         }
 
-        public TbPrTrasladoInventario GetTrasladoInventarioById(long idTraslado)
+        //sirve
+        public IList<TbPrTrasladoInventario> GetTrasladoInventarioById(long idTraslado)
         {
             return repository.GetTrasladoInventarioById(idTraslado);
         }

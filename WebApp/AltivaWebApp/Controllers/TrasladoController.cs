@@ -11,7 +11,8 @@ using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
+using FastReport.Web;
+using System.Globalization;
 
 namespace AltivaWebApp.Controllers
 {
@@ -93,33 +94,44 @@ namespace AltivaWebApp.Controllers
 
 
         [HttpPost("CrearEditar-Traslado")]
-        public ActionResult CrearEditarTraslado(TrasladoViewModel traslado, IList<TrasladoInventarioViewModel> inventarioTraslado)
+        public ActionResult CrearEditarTraslado(TrasladoViewModel traslado, IList<TrasladoInventarioViewModel> inventarioTraslado, IList<long> eliminados)
         {
 
-         
+
             try
             {
-           
+
                 if (traslado.IdTraslado != 0)
                 {
-                    traslado.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
-                    //traslado = trasladoMap.Update(viewModel);
+
+                    var respTraslado = trasladoMap.Update(traslado);
+
+                    if (inventarioTraslado.Count() > 0)
+                    {
+                        foreach (var item in inventarioTraslado)
+                        {
+                            item.IdTraslado = respTraslado.IdTraslado;
+                        }
+
+                        var ajusteInventario = trasladoMap.CreateOrUpdateAI(inventarioTraslado);
+
+                        trasladoService.DeleteTrasladoInventario(eliminados);
+                    }
                 }
                 else
                 {
-                    traslado.trasladoInventarioDetalle = inventarioTraslado;
+                    traslado.TrasladoInventarioDetalle = inventarioTraslado;
                     traslado.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     traslado.FechaCreacion = DateTime.Now;
-                    traslado.Anulado = true;//cambiar luego
-                                             
+                    traslado.Anulado = false;//cambiar luego
+
                     var respTraslado = trasladoMap.Create(traslado);
 
                     foreach (var item in inventarioTraslado)
                     {
                         item.IdTraslado = respTraslado.IdTraslado;
                     }
-
-                     trasladoMap.CreateOrUpdateTD(inventarioTraslado);
+                    respTraslado.TbPrTrasladoInventario = trasladoMap.CreateOrUpdateAI(inventarioTraslado);
 
                 }
                 return Json(new { success = true });
@@ -130,6 +142,150 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+
+
+
+        [HttpGet("Get-TrasladoInventario/{id}")]
+        public ActionResult GetTrasladoInventario(long id)
+        {
+            try
+            {
+
+                var trasladoInventario = trasladoInventarioService.GetTrasladoInventarioById(id);
+
+                return Ok(trasladoInventario);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+
+        [HttpGet("Get-Traslado/{id}")]
+        public ActionResult GetTraslado(long id)
+        {
+            try
+            {
+                var traslado = trasladoService.GetTrasladoById(id);
+
+                //foreach (var item in traslado.TbPrTrasladoInventario)
+                //{
+                //    item.IdInventarioNavigation = null;
+                //    item.IdTrasladoNavigation = null;
+                //}
+                return Ok(traslado);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        // POST: AjusteInventario/Delete/5
+        [HttpGet("Anular-Traslado/{id}")]
+        public ActionResult AnularTraslado(int id)
+        {
+            try
+            {
+                var traslado = trasladoService.GetTrasladoById(id);
+                var anulado = traslado.Anulado;
+
+                if (anulado == false)
+                {
+
+                    traslado.Anulado = true;
+                    trasladoService.Update(traslado);
+                    var res = true;
+                    return Json(new { success = res });
+                }
+                else
+                {
+                    var res = false;
+                    return Json(new { success = res });
+                }
+
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+
+
+        [HttpGet("Crear-PDF")]
+        public IActionResult _CrearPDF()
+        {
+
+                    FastReport.Utils.Config.WebMode = true;
+                    var rep = new WebReport();
+                    var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "Reportes");//carpeta reportes
+                    var path = $"{savePath}\\ReporteGeneralTraslado.frx";//guarda el frm del reporte creado de fast repor
+
+
+                    rep.Report.Load(path);
+
+                    var str = Resources.JsonStringProvider.GetJson(CultureInfo.CurrentCulture.Name);// consulta a la clase JsonStringProvider AltivaWebApp/resources/JsonStringProvider si estan creados los archivos de traduccion para los reportes
+
+                    rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;// primera conexion
+                    rep.Report.Dictionary.Connections[1].ConnectionString = StringProvider.StringGE;
+                    rep.Report.Dictionary.Connections[3].ConnectionString = str;
+
+                    //  rep.Report.Dictionary.Connections[3].ConnectionString = $"Json=\"{{\"imagen\":\"{HttpContext.Session.GetString("fotoEmpresa")}}}";
+                    //  Json = '{"imagen": "https://picsum.photos/200/300"}'; JsonSchema = '{"type":"object","properties":{"imagen":{"type":"string"}}}'; Encoding = utf - 8
+
+                    rep.Report.SetParameterValue("IdEmpresa", HttpContext.Session.GetInt32("idEmpresa"));// envia por parametro el idempresa a fast report
+
+                    rep.Report.Prepare();
+
+                    ViewBag.reporte = rep;
+
+
+                    return View("_CrearPDF", path);
+
+            
+
+        }
+
+
+        // POST: AjusteInventario/Delete/5
+        [HttpGet("Crear-PDF-Traslado/{id}")]
+        public IActionResult CrearPdfEspecifico(int id)
+        {
+
+
+            FastReport.Utils.Config.WebMode = true;
+            var rep = new WebReport();
+            var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "Reportes");//carpeta reportes
+            var path = $"{savePath}\\ReporteEspecificoTraslado.frx";//guarda el frm del reporte creado de fast repor
+
+
+            rep.Report.Load(path);
+
+            var str = Resources.JsonStringProvider.GetJson(CultureInfo.CurrentCulture.Name);// consulta a la clase JsonStringProvider AltivaWebApp/resources/JsonStringProvider si estan creados los archivos de traduccion para los reportes
+
+            rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringGE;// primera conexion
+
+            rep.Report.Dictionary.Connections[1].ConnectionString = StringProvider.StringEmpresas;
+
+            rep.Report.Dictionary.Connections[2].ConnectionString = str;
+
+            rep.Report.SetParameterValue("IdEmpresa", HttpContext.Session.GetInt32("idEmpresa"));// envia por parametro el idempresa a fast report
+
+            rep.Report.SetParameterValue("IdTraslado", id);// envia por parametro el idTraslado a fast report
+
+            rep.Report.Prepare();
+
+            ViewBag.reporte = rep;
+
+
+
+
+            return View("_CrearPDF", path);
+          
+        }
+
 
 
 

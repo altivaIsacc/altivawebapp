@@ -8,14 +8,12 @@ namespace AltivaWebApp.Services
 {
     public interface ITrasladoService
     {
-
-        IList<TbPrTraslado> GetAllTraslado();//si
         TbPrTraslado Save(TbPrTraslado domain);//si
         TbPrTraslado Update(TbPrTraslado domain);
-        bool Delete(TbPrTraslado domain);     
+        bool Delete(TbPrTraslado domain);
+        IList<TbPrTraslado> GetAllTraslado();//si          
         TbPrTraslado GetTrasladoById(long id);//si
-        bool SaveTrasladoInventario(IList<TbPrTrasladoInventario> domain);//si
-        bool UpdateTrasladoInventario(IList<TbPrTrasladoInventario> domain);//si
+        IList<TbPrTrasladoInventario> SaveOrUpdateTrasladoInventario(IList<TbPrTrasladoInventario> domain);
         void DeleteTrasladoInventario(IList<long> id);
 
         IList<TbPrTraslado> GetTrasladosSinAnular();
