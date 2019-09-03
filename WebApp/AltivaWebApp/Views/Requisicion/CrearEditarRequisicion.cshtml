@@ -9,6 +9,16 @@
 }
 
 @{
+    if (Model.Id != 0)
+    {
+        ViewData["Title"] = SharedLocalizer["editarReq"];
+    }
+    else
+    {
+        ViewData["Title"] = SharedLocalizer["nuevaReq"];
+    }
+
+
     var estado = "";
     var estado2 = "";
     if (Model.Anulado)
@@ -52,14 +62,14 @@ else
 </div>
 
 <div class="row well">
-    <div>
+    <div class="row">
         <form id="frmReq">
             @Html.HiddenFor(x => x.Id)
             @Html.HiddenFor(x => x.Anulado)
             @Html.HiddenFor(x => x.IdUsuario)
 
             <div class="form-group col-md-2 col-sm-6 col-xs-12">
-                <fieldset disabled>
+                <fieldset>
                     <div class="form-group">
                         <label for="fecha">@SharedLocalizer["Fecha"]:</label>
                         <div class='input-group date' id='fechaPicker'>
@@ -72,14 +82,16 @@ else
                 </fieldset>
             </div>
             <div class="form-group col-md-4 col-sm-6 col-xs-12">
-                <div class="col-md-8">
-                    <label class="control-label">@SharedLocalizer["Departamento"]:</label>
-                    <select @estado2 @estado id="departamento" class="form-control selectItems"></select>
-                    <span hidden id="departamentoValid" class="text-danger">@SharedLocalizer["departementoValid"]</span>
-                </div>
-                <div class="col-md-4">
-                    <a @estado2 @estado style="padding-top:2.5rem" class="btn btn-link" onclick="getCrearEditarPartial(0)"><span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span></a>
-                    <a @estado2 @estado style="padding-top:2.5rem" class="btn btn-link" onclick="getEditarPartial()"><span style="font-size: 2rem"><i class="fas fa-edit"></i></span></a>
+                <div class="row">
+                    <div class="col-md-9 col-sm-9 col-xs-8">
+                        <label class="control-label">@SharedLocalizer["Departamento"]:</label>
+                        <select @estado2 @estado id="departamento" class="form-control selectItems"></select>
+                        <span hidden id="departamentoValid" class="text-danger">@SharedLocalizer["departementoValid"]</span>
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-4">
+                        <a @estado2 @estado style="padding:0rem; padding-top:2.5rem" class="btn btn-link" onclick="getCrearEditarPartial(0)"><span style="font-size: 2rem"><i class="fas fa-plus-circle"></i></span></a>
+                        <a @estado2 @estado style="padding:0rem; padding-top:2.5rem" class="btn btn-link" onclick="getEditarPartial()"><span style="font-size: 2rem"><i class="fas fa-edit"></i></span></a>
+                    </div>
                 </div>
             </div>
 
@@ -96,40 +108,74 @@ else
 
         </form>
     </div>
-    <div class="col-md-12 table-responsive">
-        <span hidden id="sinDetalleValid" class="text-danger">@SharedLocalizer["docSinDetalle"].</span>
-        <table class="table table-bordered table-striped" id="tblReq" style="min-width:900px">
-            <thead>
-                <tr>
-                    <th style="width:12%">@SharedLocalizer["Item"]</th>
-                    <th style="width:24%">@SharedLocalizer["Descripción"]</th>
-                    <th style="width:6%">@SharedLocalizer["Cantidad"]</th>
-                    <th style="width:12%">@SharedLocalizer["PrecioUnitario"]</th>
-                    <th style="width:12%">@SharedLocalizer["Total"]</th>
-                    <th style="width:8%">@SharedLocalizer["Acción"]</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="lineaForm">
-                    <td><select @estado2 @estado class="form-control selectItems" id="item"></select></td>
-                    <td class="col-md-3"><div class="col-md-10"><input readonly class="form-control" id="descripcionLinea" /></div><div style="padding-top: 1rem" class="col-md-2"><label id="lblItemInfo"></label></div></td>
-                    <td><input @estado2 @estado class="form-control numerico" type="text" min="0" id="cantidad" /></td>
-                    <td><input @estado2 @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
-                    <td><input class="form-control moneda" readonly type="text" id="totalLinea" /></td>
-                    <td><button @estado2 @estado class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="col-md-offset-9 col-md-3">
-        <form>
-            <div class="form-group">
-                <label class="control-label">@SharedLocalizer["Total"]</label>
-                <input readonly id="total" class="form-control currency" />
-            </div>
-        </form>
+
+    <div class="row">
+        <h4 class="col-md-12">@SharedLocalizer["LineasRequisicion"]</h4>
     </div>
 
+    <div class="row">
+        <div class="form-group col-md-3 col-sm-3 col-xs-12">
+            <label id="lblItem" class="control-label">@SharedLocalizer["Item"]: <span style="font-size:1.1rem" class="text-info"><a id="descripcionLinea"></a></span></label>
+            <input @estado2 @estado id="item" onkeyup="pasarSigCampo(event,'cantidad')" class="form-control autocomplete" autofocus type="text" />
+        </div>
+        <div class="form-group col-md-2 col-sm-2 col-xs-5">
+            <label class="control-label">@SharedLocalizer["Cantidad"]:</label>
+            <input @estado2 @estado id="cantidad" onkeyup="pasarSigCampo(event,'precio'), setTotalLinea()" class="form-control numerico" value="1" type="text" />
+        </div>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-7">
+            <label class="control-label">@SharedLocalizer["PrecioUnitario"]:</label>
+            <input readonly @estado2 @estado id="precio" onkeyup="pasarSigCampo(event,'totalLinea'), setTotalLinea()" class="form-control  currency" type="text" />
+        </div>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-10">
+            <label class="control-label">@SharedLocalizer["Total"]:</label>
+            <input type="text" class="form-control currency" onkeyup="pasarSigCampo(event,'submitFrmReq')" readonly id="totalLinea" />
+        </div>
+
+        <div class="form-group col-md-1 col-sm-1 col-xs-2" style="padding-top: 2.3rem;">
+            <button @estado2 @estado onkeyup="pasarSigCampo(event,'items')" onclick="prepararLinea()" id="submitFrmReq" class="btn btn-success"><span><i class="fas fa-save"></i></span></button>
+        </div>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-12" style="padding-top: 2.5rem;">
+            <span style="padding-top: 2.3rem; font-size: 1.5rem">@SharedLocalizer["Existencia"]: </span><span class="text-info" id="lblExistencia"></span>
+        </div>
+
+        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+            <p hidden id="cantidadValid" class="text-danger">@SharedLocalizer["cantidadValid"].</p>
+            <p hidden id="costoValid" class="text-danger">@SharedLocalizer["precioValidacion"].</p>
+            <p hidden id="cantidadExistenciaNuevaValid" class="text-danger">@SharedLocalizer["cantidaMayorQueExistencias"].</p>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-12 table-responsive">
+            <span hidden id="sinDetalleValid" class="text-danger">@SharedLocalizer["docSinDetalle"].</span>
+            <table class="table table-bordered table-striped" id="tblReq" style="min-width:900px">
+                <thead>
+                    <tr>
+                        <th style="width:12%">@SharedLocalizer["Item"]</th>
+                        <th style="width:24%">@SharedLocalizer["Descripción"]</th>
+                        <th style="width:6%">@SharedLocalizer["Cantidad"]</th>
+                        <th style="width:12%">@SharedLocalizer["PrecioUnitario"]</th>
+                        <th style="width:12%">@SharedLocalizer["Total"]</th>
+                        <th style="width:8%">@SharedLocalizer["Acción"]</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-offset-9 col-md-3">
+            <form>
+                <div class="form-group">
+                    <label class="control-label">@SharedLocalizer["Total"]</label>
+                    <input readonly id="total" class="form-control currency" />
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <div class="row">
@@ -147,6 +193,50 @@ else
 
                 <div class="modal-body" id="crearEditarPartial">
 
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<!-- Modal Editar linea-->
+<div class="modal fade" id="lineaModal" tabindex="-1" role="dialog" aria-labelledby="lineaModallabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header row">
+                <div class="col-md-10 col-sm-10 col-xs-10" style="text-align:left">
+                    <h4 class="modal-title" id="lineaModalLabel">@SharedLocalizer["Editar"] @SharedLocalizer["Línea"]</h4>
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2" style="text-align:right">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body row">
+                <form>
+                    <div hidden class="form-group col-md-2 col-sm-2 col-xs-12">
+                        <input readonly id="idLinea" class="form-control" type="number" />
+                    </div>
+                    <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                        <label class="control-label">@SharedLocalizer["Cantidad"]:</label>
+                        <input @estado @estado2 id="cantidadEditar" class="form-control numerico" value="1" type="text" />
+                        <span hidden id="cantidadEditarValid" class="text-danger">@SharedLocalizer["cantidadValid"].</span>
+                        <span hidden id="cantidadExistenciaValid" class="text-danger">@SharedLocalizer["cantidaMayorQueExistencias"].</span>
+                    </div>
+                    <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                        <label class="control-label">@SharedLocalizer["Precio"]:</label>
+                        <input readonly @estado @estado2 id="precioEditar" class="form-control currency" type="text" />
+                        <span hidden id="precioEditarValid" class="text-danger">@SharedLocalizer["precioValidacion"].</span>
+                    </div>
+
+                    <div class="form-group col-md-12 col-sm-12 col-xs-12"></div>
+
+                </form>
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <button @estado @estado2 type="button" onclick="editarLinea()" class="btn btn-success">@SharedLocalizer["Guardar"]</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
                 </div>
             </div>
         </div>
@@ -173,6 +263,7 @@ else
     var $totalLinea = $('#totalLinea');
     var $precio = $('#precio');
     var $cantidad = $('#cantidad');
+    var $lblExistencia = $('#lblExistencia');
 
     ///////////requisicion
     var $total = $('#total');
@@ -187,7 +278,7 @@ else
     var reqDetalleBD = [];
     var lineas = [];
     var items = [];
-    var lineasAgregadas = [];
+    var lineasCrOrUp = [];
     var lineasEliminadas = [];
     var departamentos = [];
     var bodegas = [];
@@ -214,13 +305,15 @@ else
         $(".moneda").inputmask({
             'alias': 'decimal',
             rightAlign: true,
+            min: 0
         });
 
         $(".numerico").inputmask({
             'alias': 'decimal',
             rightAlign: false,
+            min: 0
         });
-       
+
 
         getMonedas();
         getBodegasInventario();
@@ -228,19 +321,9 @@ else
 
         $('.selectItems').select2({ width: null, language: localStorage.getItem("idioma") });
 
-        $('#item').on('change.select2', function () {
+        
 
-            var itemInfo = getItem($(this).val());
-
-            $descripcionLinea.val(itemInfo.idInventarioNavigation.descripcion);
-            $lblItemInfo.text(itemInfo.existenciaBodega + " " + itemInfo.idInventarioNavigation.idUnidadMedidaNavigation.abreviatura);
-            $precio.val(itemInfo.idInventarioNavigation.costoPromedioGeneral);
-            $cantidad.val(1);
-            setTotalLinea();
-        });
-
-        $('textarea[data-limit-rows=true]')
-            .on('keypress', function (event) {
+        $('textarea[data-limit-rows=true]').on('keypress', function (event) {
                 var textarea = $(this),
                     text = textarea.val(),
                     numberOfLines = (text.match(/\n/g) || []).length + 1,
@@ -249,17 +332,17 @@ else
                 if (event.which === 13 && numberOfLines === maxRows) {
                     return false;
                 }
-            });
-
-
+        });
 
         $("#bodegas").change(function () {
 
+            limpiarLinea();
 
             for (var i = 0; i < bodegas.length; i++) {
-                if (bodegas[i].id === parseInt($(this).val()))                  
+                if (bodegas[i].id === parseInt($(this).val()))
                     cargarItems(bodegas[i].tbPrInventarioBodega);
             }
+
         });
 
         $("#departamento").on('change', function () {
@@ -278,28 +361,599 @@ else
 
 
     /////////////////////////////eventos del dom////////////////////////////////////////
-    $cantidad.on('focusout', function () {
-        if ($(this).val() <= 0 || $(this).val() === "")
-            $(this).val(1);
-
-        setTotalLinea();
-    });
-
-    $precio.on('keyup, change, focusout', function () {
-        if ($(this).val() < 0 || $(this).val() === "")
-            $(this).val(0);
-
-        setTotalLinea();
-
-    });
-
 
     function getEditarPartial() {
         if("@Model.Anulado" !== "True")
             getCrearEditarPartial($departamento.val());
     }
 
+    $item.on('focusout', function (evt, item) {
+
+        setTimeout(function () {
+            if ($('#item').val().replace(/ /g, "") !== "")
+                cargarInfoItem($('#item').val());
+            else
+                limpiarLinea();
+        }, 250);
+
+    });
+
+    function cargarInfoItem(cod) {
+
+
+        var item = getItemPorCodigo(cod);
+
+        if (item !== undefined) {
+
+            var itemBodega = getItem(item.idInventario);
+
+            $precio.val(item.costoPromedioGeneral);
+            $cantidad.val(1);
+            $descripcionLinea.text(item.descripcion.substr(0, 32) + (item.descripcion.length > 25 ? '...' : '')).prop('href', '@Url.Action("EditarInventario", "Inventario", new { id = "__id__" })'.replace("__id__", item.idInventario));
+            $lblExistencia.text(itemBodega.existenciaBodega + " " + item.idUnidadMedidaNavigation.abreviatura);
+            setTotalLinea();
+        }
+        else {
+            cargarAlert('@SharedLocalizer["itemInvalido"]');
+            limpiarLinea();
+        }
+
+
+
+    }
+
+    function limpiarLinea() {
+        $item.val("");
+        $descripcionLinea.text("");
+        $precio.val(0);
+        $cantidad.val(1);
+        $totalLinea.val(0);
+        $lblExistencia.text("");
+    }
+
+    function prepararLinea() {
+
+        var item = getItemPorCodigo($item.val());
+
+        if (validarLinea(item.idInventario)) {
+            guardarLinea(item);
+            limpiarLinea();
+            $('#bodegas').prop('disabled', true);
+            setTimeout(function () { $('#item').focus(); }, 1);
+        }
+
+    }
+
+    function validarLinea(idItem) {
+
+        var flag = true;
+
+
+
+        if ($('#item').val().replace(/ /g, "") === "")
+            return false;
+
+
+        if (getItem(idItem).existenciaBodega >= parseFloat($('#cantidad').inputmask('unmaskedvalue'))) {
+            $('#cantidadExistenciaNuevaValid').prop('hidden', true);
+        }
+        else {
+            $('#cantidadExistenciaNuevaValid').prop('hidden', false);
+            return false;
+        }
+
+
+        if (parseFloat($('#precio').inputmask('unmaskedvalue')) <= 0 || $('#precio').inputmask('unmaskedvalue') == null) {
+            flag = false;
+            $('#costoValid').prop('hidden', false);
+        }
+        else {
+            $('#costoValid').prop('hidden', true);
+        }
+
+        if (parseFloat($('#cantidad').inputmask('unmaskedvalue')) <= 0 || $('#cantidad').inputmask('unmaskedvalue') == null) {
+            flag = false;
+            $('#cantidadValid').prop('hidden', false);
+        }
+        else {
+            $('#cantidadValid').prop('hidden', true);
+        }
+
+        return flag;
+
+    }
+
+    function modalEditarLinea(key) {
+
+        $('#cantidadEditarValid').prop('hidden', true);
+        $('#precioEditarValid').prop('hidden', true);
+        $('#cantidadExistenciaValid').prop('hidden', true);
+
+        var linea = lineas[key];
+
+        $('#idLinea').val(key);
+        $('#cantidadEditar').val(linea.cantidad);
+        $('#precioEditar').val(linea.precioUnitario);
+
+
+        $('#lineaModal').modal('show');
+
+    }
+
+    function editarLinea() {
+
+        var key = $('#idLinea').val();
+
+        if (!validarLineaEditar(lineas[key])) {
+            return;
+        }
+
+        actualizarInventarioLocal(lineas[key].idInventario, true, lineas[key].cantidad);
+
+        lineas[key].cantidad = parseFloat($('#cantidadEditar').inputmask('unmaskedvalue'));
+        lineas[key].precioUnitario = parseFloat($('#precioEditar').inputmask('unmaskedvalue'));
+        lineas[key].total = lineas[key].cantidad * lineas[key].precioUnitario;
+
+        var flag = false;
+        for (var i = 0; i < lineasCrOrUp.length; i++) {
+            if (lineasCrOrUp[i].idInventario == lineas[key].idInventario) {
+                lineasCrOrUp[i] = lineas[key];
+                flag = true;
+                break;
+            }
+        }
+
+        if (!flag)
+            lineasCrOrUp.push(lineas[key]);
+
+        actualizarInventarioLocal(lineas[key].idInventario, false, lineas[key].cantidad);
+
+        cargarTabla(lineas);
+
+        $('#lineaModal').modal('hide');
+
+    }
+
+    function validarLineaEditar(item) {
+
+        var flag = true;
+
+        if (parseFloat($('#cantidadEditar').val()) <= 0 || $('#cantidadEditar').inputmask('unmaskedvalue') == null) {
+            flag = false;
+            $('#cantidadEditarValid').prop('hidden', false);
+        }
+        else
+            $('#cantidadEditarValid').prop('hidden', true);
+
+        if (parseFloat($('#precioEditar').inputmask('unmaskedvalue')) <= 0 || $('#precioEditar').inputmask('unmaskedvalue') == null) {
+            flag = false;
+            $('#precioEditarValid').prop('hidden', false);
+        }
+        else
+            $('#precioEditarValid').prop('hidden', true);
+
+
+        var stockItem = JSON.parse(JSON.stringify(getItem(item.idInventario).existenciaBodega));
+        stockItem += item.cantidad;
+
+        if (stockItem < parseFloat($('#cantidadEditar').val())) {
+            flag = false;
+            $('#cantidadExistenciaValid').prop('hidden', false);
+        }
+        else
+            $('#cantidadExistenciaValid').prop('hidden', true);
+
+
+        return flag;
+
+    }
+
+
+
+    //////////////////////////////////////////////////////helpers///////////////////////////////////
+
+    function getDepaAnulado(idDepa) {
+        for (var i = 0; i < departamentos.length; i++) {
+            if (parseInt(idDepa) === departamentos[i].id)
+                return departamentos[i].anulado;
+        }
+    }
+
+
+    function formatearFecha() {
+
+        return '@Model.Fecha.Month' + "-" + '@Model.Fecha.Day' + "-" + '@Model.Fecha.Year' + " " + '@Model.Fecha.TimeOfDay';
+
+    }
+
+    function cargarBodegas(data) {
+
+        var flag = true;
+        for (var i = 0; i < data.length; i++) {
+            var o = new Option(data[i].nombre, data[i].id);
+
+            if (data[i].id === @Model.IdBodega) {
+                $(o).attr('selected', true);
+                cargarItems(data[i].tbPrInventarioBodega);
+                flag = false;
+            }
+
+            $("#bodegas").append(o);
+        }
+
+        if (flag)
+            cargarItems(data[0].tbPrInventarioBodega);
+
+        getReqDetalle();
+
+    }
+
+
+    function crearModelo() {
+        return model = {
+            id: @Model.Id,
+            fecha: $fecha.val(),
+            idDepartamento: $departamento.val(),
+            idBodega: $bodega.val(),
+            anulado: false,
+            idUsuario: @Model.IdUsuario,
+            descripcion: $descripcion.val(),
+            total: totalReq.toString().replace(".", ","),
+            RequisicionDetalle: crearModelDetalle(lineasCrOrUp)
+        };
+    }
+
+    function crearModelDetalle(model) {
+        for (var i = 0; i < model.length; i++) {
+            model[i].precioUnitario = model[i].precioUnitario.toString().replace(".", ",");
+            model[i].total = model[i].total.toString().replace(".", ",");
+        }
+
+        return model;
+    }
+
+    function guardarCambios() {
+
+        if (validarForm())
+            guardarRequisicion();
+    }
+
+
+    function formatCurrency(value) {
+        $('#formater').val(value);
+
+        return $('#formater').val();
+    }
+
+    function cargarLineas(data) {
+        for (var i = 0; i < data.length; i++) {
+            var model = {
+                id: data[i].id,
+                idRequisicion: @Model.Id,
+                idInventario: data[i].idInventario,
+                cantidad: data[i].cantidad,
+                precioUnitario: data[i].precioUnitario,
+                total: data[i].total
+            };
+
+            //lineasCrOrUp.push(model);
+            lineas.push(model);
+        }
+
+        cargarTabla(lineas);
+    }
+
+    function guardarLinea(item) {
+
+
+        var model = {
+            id: 0,
+            idRequisicion: @Model.Id,
+            idInventario: item.idInventario,
+            cantidad: parseFloat($cantidad.val()),
+            precioUnitario: parseFloat($('#precio').inputmask('unmaskedvalue')),
+            total: parseFloat($('#totalLinea').inputmask('unmaskedvalue')) //parseFloat($('#cantidad').inputmask('unmasked')) * parseFloat($('#precio').inputmask('unmasked'))
+        };
+
+
+        var existeItem = existeItemLineas(model);
+
+        actualizarInventarioLocal(model.idInventario, false, model.cantidad);
+
+        if (existeItem == null) {
+
+            lineasCrOrUp.push(model);
+            lineas.push(model);
+
+        }
+        else {
+
+            lineas[existeItem].cantidad += model.cantidad;
+            lineas[existeItem].total += model.total;
+
+            var flag = false;
+            for (var i = 0; i < lineasCrOrUp.length; i++) {
+                if (lineasCrOrUp[i].idInventario == lineas[existeItem].idInventario) {
+                    lineasCrOrUp[i] = lineas[existeItem];
+                    flag = true;
+                    break;
+                }
+            }
+
+            if (!flag)
+                lineasCrOrUp.push(lineas[key]);
+
+        }
+
+        $bodega.prop('disabled', true);
+        cargarTabla(lineas);
+
+    }
+
+    function existeItemLineas(linea) {
+
+        var pos = null;
+
+        for (var i = 0; i < lineas.length; i++) {
+            if (linea.idInventario.toString() === lineas[i].idInventario.toString() && linea.precioUnitario === lineas[i].precioUnitario) {
+                pos = i;
+                break;
+            }
+        }
+
+        return pos;
+    }
+
+    function actualizarInventarioLocal(idItem, isDeleted, cantidad) {
+
+        for (var i = 0; i < arrayInventario.length; i++) {
+            if (arrayInventario[i].idInventario === parseInt(idItem) && arrayInventario[i].idBodega === parseInt($bodega.val())) {
+                if (isDeleted)
+                    arrayInventario[i].existenciaBodega = arrayInventario[i].existenciaBodega + cantidad;
+                else
+                    arrayInventario[i].existenciaBodega = arrayInventario[i].existenciaBodega - cantidad;
+            }
+
+        }
+    }
+
+    function validarForm() {
+        //var frmOrden = $('#frmOrden').serializeArray();
+        var flag = true;
+
+        if ($descripcion.val().replace(/ /g, "") === "") {
+            $('#descripcionValid').attr("hidden", false);
+            flag = false;
+        } else
+            $('#descripcionValid').attr("hidden", true);
+
+        if (lineas.length <= 0) {
+            $('#sinDetalleValid').prop('hidden', false);
+            flag = false;
+        } else
+            $('#sinDetalleValid').prop('hidden', true);
+
+        if (depaAnulado) {
+            cargarAlert("@SharedLocalizer["depaAnulado"]");
+            flag = false;
+        }
+
+
+        return flag;
+    }
+
     
+
+
+    function eliminarLinea(_key, idLinea) {
+
+        bootbox.confirm("@SharedLocalizer["confirmEliminarLinea"]", function (result) {
+
+            if (result) {
+
+                eliminarLineaDirect(_key, idLinea);
+                $('.selectItems').trigger('change');
+            }
+
+        });
+
+    }
+
+    function eliminarLineaDirect(key, idLinea) {
+
+        actualizarInventarioLocal(lineas[key].idInventario, true, lineas[key].cantidad);
+
+        if (idLinea != 0)
+            lineasEliminadas.push(lineas[key].id);
+
+        lineasCrOrUp.splice($.inArray(lineas[key], lineasCrOrUp), 1);
+
+        lineas.splice(key, 1);
+
+
+        cargarTabla(lineas);
+
+
+
+        //$('.selectItems').trigger('change');
+
+
+    }
+
+
+    function cargarTabla(data) {
+
+
+
+        $('.filasCargadas').remove();
+
+        contadorFila = 0;
+        var subtotal = 0;
+
+        for (var i = 0; i < data.length; i++) {
+            
+            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td >' + getItem(data[i].idInventario).idInventarioNavigation.codigo + '</td>'
+                + '<td >' + getItem(data[i].idInventario).idInventarioNavigation.descripcion + ' </td>'
+                + '<td >' + data[i].cantidad + ' </td>'
+                + '<td style="text-align:right"> ' + formatCurrency(data[i].precioUnitario) + '</td>'
+                + '<td style="text-align:right">' + formatCurrency(data[i].total) + '</td>'
+                + '<td><button style = "padding:0; margin:0" @estado2 @estado class="btn btn-link" value = "' + contadorFila + '" onclick="modalEditarLinea(value)" > <i style="font-size:1.8rem" class="fas fa-edit"></i></button >'
+                + ' <button style="padding:0; margin:0" @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i style="font-size:1.8rem" class="fas fa-trash"></i></button></td ></tr > ';
+
+            $('#tblReq > tbody').append(body);
+
+            contadorFila++;
+
+        }
+
+        calcularTotales();
+
+
+    }
+
+    function getItem(id) {
+
+
+        var it = {};
+        for (var i = 0; i < arrayInventario.length; i++) {
+            if (arrayInventario[i].idInventario === parseInt(id))
+                it = arrayInventario[i];
+        }
+
+        return it;
+    }
+
+    function cargarItems(data) {
+
+
+        arrayInventario = data;
+
+        items = [];
+
+        for (var i = 0; i < data.length; i++) {
+
+            if (!data[i].idInventarioNavigation.inactiva) {
+                items.push(data[i].idInventarioNavigation);
+            }
+
+        }
+
+        var arrayItems = [];
+        arrayItems = items;
+
+
+        $('.autocomplete').unbind().removeData();
+
+        $('.autocomplete').autoComplete({
+            resolver: 'custom',
+            formatResult: function (item) {
+
+                return {
+                    value: item.idInventario,
+                    text:  item.codigo,
+                    html: [
+                        item.codigo + ' - ',
+                        item.descripcion
+                    ]
+                };
+            },
+            events: {
+                search: function (_keyword, callback) {
+                    var keyword = _keyword.toUpperCase();
+                    var filtrado = [];
+
+                    if (keyword.replace(/ /g, "") === "") {
+                        filtrado = [];
+                    }
+                    else {
+                        for (var i = 0; i < arrayItems.length; i++) {
+
+                            var keyArray = arrayItems[i].codigo.toUpperCase();
+                            var keyArray2 = arrayItems[i].descripcion.toUpperCase();
+
+                            if (keyArray.indexOf(keyword) > -1  )
+                                filtrado.push(arrayItems[i]);
+                            else
+                                if (keyArray2.indexOf(keyword) > -1)
+                                    filtrado.push(arrayItems[i]);
+                        }
+
+                    }
+
+
+
+                    callback(filtrado);
+                }
+            },
+            noResultsText: '@SharedLocalizer["sinResultados"]',
+            autoSelect: true,
+            minLength: 2,
+
+        });
+
+    }
+
+    function getItemPorCodigo(codigo) {
+        for (var i = 0; i < items.length; i++) {
+            if (codigo === items[i].codigo) {
+                return items[i];
+            }
+        }
+    }
+
+    function cancelar() {
+        bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) {
+            if (result)
+                window.location.href = "@Url.Action("ListarRequisiciones")";
+
+        });
+    }
+
+
+    /////////////////////////////////////////////calculos////////////////////////////////////////
+    function calcularTotales() {
+        totalReq = 0;
+
+        for (var i = 0; i < lineas.length; i++) {
+            totalReq += lineas[i].total;
+        }
+
+        $total.val(totalReq);
+
+    }
+
+    function setTotalLinea() {
+
+        var precio = parseFloat($('#precio').inputmask('unmaskedvalue'));
+        var cantidad = parseFloat($('#cantidad').inputmask('unmaskedvalue'));
+
+        $totalLinea.val(cantidad * precio);
+
+    }
+
+
+    ////////////////////////////////////extras////////////////////////
+    function pasarSigCampo(e, id) {
+
+
+        (e.keyCode) ? k = e.keyCode : k = e.which;
+
+        if (k == 13) {
+            if (id == "submitFrmReq") {
+
+
+                prepararLinea();
+
+
+            }
+            else {
+                document.getElementById(id).focus();
+
+            }
+
+            $('#' + id).select();
+        }
+    }
 
 
     ////////////////////////////////////////ajax////////////////////////////////////////////
@@ -335,7 +989,7 @@ else
                 url = '@Url.Action("_EditarDepartamento", "Departamento", new { id = "__id__"})';
                 url = url.replace("__id__", id);
             }
-            
+
             $.ajax({
                 type: "GET",
                 headers: {
@@ -365,11 +1019,12 @@ else
               url: '@Url.Action("GetMonedas", "Monedas")',
              success: function (data) {
 
-                 monedas = data;  
+                 monedas = data;
 
                  $(".currency").inputmask('currency', {
                      prefix: monedas[0].simbolo + " ",
-                     rightAlign: true
+                     rightAlign: true,
+                     min: 0
                  });
 
               },
@@ -412,7 +1067,7 @@ else
                          depaAnulados.push(data[i]);
                  }
 
-                 if (!flag) 
+                 if (!flag)
                      if (@Model.Id != 0) {
 
                          for (var i = 0; i < depaAnulados.length; i++) {
@@ -424,7 +1079,7 @@ else
                                  depaAnulado = true;
                              }
                          }
-                       
+
                      }
               },
               error: function (err, scnd) {
@@ -536,347 +1191,12 @@ else
                   }
 
                   cargarBodegas(bodegas);
-                  getReqDetalle();
               },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
                   console.log(err.statusText);
               }
           });
-    }
-
-
-    //////////////////////////////////////////////////////helpers///////////////////////////////////
-
-    function getDepaAnulado(idDepa) {
-        for (var i = 0; i < departamentos.length; i++) {
-            if (parseInt(idDepa) === departamentos[i].id)
-                return departamentos[i].anulado;
-        }
-    }
-    
-
-    function formatearFecha() {
-
-        return '@Model.Fecha.Month' + "-" + '@Model.Fecha.Day' + "-" + '@Model.Fecha.Year' + " " + '@Model.Fecha.TimeOfDay';
-
-    }
-
-    function cargarBodegas(data) {
-
-        var flag = true;
-
-        for (var i = 0; i < data.length; i++) {
-            var o = new Option(data[i].nombre, data[i].id);
-            if (data[i].id === @Model.IdBodega) {
-
-                $(o).attr('selected', true);
-
-                cargarItems(data[i].tbPrInventarioBodega);
-                flag = false;
-            }
-
-
-            $("#bodegas").append(o);
-        }
-
-        if (flag)
-            cargarItems(data[0].tbPrInventarioBodega);
-
-    }
-
-    function editarLinea(key, id) {
-
-
-        var detalle = lineas[key - 1];
-
-        $item.val(detalle.idInventario);
-        $('.selectItems').trigger('change.select2');
-        $cantidad.val(detalle.cantidad);
-        $precio.val(detalle.precioUnitario);
-
-        $precio.trigger("focusout");
-
-
-        eliminarLineaDirect(key, id);
-
-        var itemInfo = getItem(detalle.idInventario);
-        $lblItemInfo.text(itemInfo.existenciaBodega + " " + itemInfo.idInventarioNavigation.idUnidadMedidaNavigation.abreviatura);
-
-    }
-
-
-    function crearModelo() {
-        return model = {
-            id: @Model.Id,
-            fecha: $fecha.val(),
-            idDepartamento: $departamento.val(),
-            idBodega: $bodega.val(),
-            anulado: false,
-            idUsuario: @Model.IdUsuario,
-            descripcion: $descripcion.val(),
-            total: totalReq.toString().replace(".", ","),
-            RequisicionDetalle: crearModelDetalle(lineasAgregadas)
-        };
-    }
-
-    function crearModelDetalle(model) {
-        for (var i = 0; i < model.length; i++) {
-            model[i].precioUnitario = model[i].precioUnitario.toString().replace(".", ",");
-            model[i].total = model[i].total.toString().replace(".", ",");
-        }
-
-        return model;
-    }
-
-    function guardarCambios() {
-
-        if (validarForm())
-            guardarRequisicion();
-    }
-
-
-    function formatCurrency(value) {
-        $('#formater').val(value);
-
-        return $('#formater').val();
-    }
-
-    function cargarLineas(data) {
-        for (var i = 0; i < data.length; i++) {
-            var model = {
-                id: data[i].id,
-                idRequisicion: @Model.Id,
-                idInventario: data[i].idInventario,
-                cantidad: data[i].cantidad,
-                precioUnitario: data[i].precioUnitario,
-                total: data[i].total
-            };
-
-            //lineasAgregadas.push(model);
-            lineas.push(model);
-        }
-
-        cargarTabla(lineas);
-    }
-
-    function guardarLinea() {
-
-
-        var model = {
-            id: 0,
-            idRequisicion: @Model.Id,
-            idInventario: $item.val(),
-            cantidad: parseFloat($cantidad.val()),
-            precioUnitario: parseFloat($precio.val()),
-            total: parseFloat($cantidad.val()) * parseFloat($precio.val())
-        };
-
-
-        if (!existeItemLineas(model.idInventario)) {
-            if (getItem(model.idInventario).existenciaBodega >= model.cantidad) {
-                lineasAgregadas.push(model);
-                lineas.push(model);
-                cargarTabla(lineas);
-
-                actualizarInventarioLocal(model.idInventario, false, model.cantidad);
-                $('.selectItems').trigger('change');
-            }
-            else
-                cargarAlert('@SharedLocalizer["cantidaMayorQueExistencias"]');
-        }
-        else
-            cargarAlert("@SharedLocalizer["repetidoValid"]");
-      
-        
-
-
-    }
-
-    function existeItemLineas(idInventario) {
-
-        var flag = false;
-
-        for (var i = 0; i < lineas.length; i++) {
-            if (idInventario.toString() === lineas[i].idInventario.toString()) {
-                flag = true;
-                break;
-            }
-        }
-
-        return flag;
-    }
-
-    function actualizarInventarioLocal(idItem, isDeleted, cantidad) {
-
-
-
-        for (var i = 0; i < arrayInventario.length; i++) {
-            if (arrayInventario[i].idInventario === parseInt(idItem) && arrayInventario[i].idBodega === parseInt($bodega.val())) {
-                if (isDeleted)
-                    arrayInventario[i].existenciaBodega = arrayInventario[i].existenciaBodega + cantidad;
-                else
-                    arrayInventario[i].existenciaBodega = arrayInventario[i].existenciaBodega - cantidad;
-            }
-
-        }
-
-
-       // $('.selectItems').trigger('change');
-
-    }
-
-    function validarForm() {
-        //var frmOrden = $('#frmOrden').serializeArray();
-        var flag = true;
-
-        if ($descripcion.val().replace(/ /g, "") === "") {
-            $('#descripcionValid').attr("hidden", false);
-            flag = false;
-        } else
-            $('#descripcionValid').attr("hidden", true);
-
-        if (lineas.length <= 0) {
-            $('#sinDetalleValid').prop('hidden', false);
-            flag = false;
-        } else
-            $('#sinDetalleValid').prop('hidden', true);
-
-        if (depaAnulado) {
-            cargarAlert("@SharedLocalizer["depaAnulado"]");
-            flag = false;
-        } 
-
-
-        return flag;
-    }
-
-    function eliminarLinea(_key, idLinea) {
-
-        bootbox.confirm("@SharedLocalizer["confirmEliminarLinea"]", function (result) {
-
-            if (result) {
-
-                eliminarLineaDirect(_key, idLinea);
-                $('.selectItems').trigger('change');
-            }
-
-        });
-
-    }
-
-    function eliminarLineaDirect(_key, idLinea) {
-        var key = _key - 1;
-
-        actualizarInventarioLocal(lineas[key].idInventario, true, lineas[key].cantidad);
-
-        if (idLinea != 0)
-            lineasEliminadas.push(lineas[key].id);
-        else
-            lineasAgregadas.splice($.inArray(lineas[key], lineasAgregadas), 1);
-
-        lineas.splice(key, 1);
-
-
-        cargarTabla(lineas);
-
-       
-
-        //$('.selectItems').trigger('change');
-      
-
-    }
-
-
-    function cargarTabla(data) {
-
-
-
-        $('.filasCargadas').remove();
-
-        contadorFila = 0;
-        var subtotal = 0;
-
-        for (var i = 0; i < data.length; i++) {
-            contadorFila++;
-
-            //console.log(getItem(data[i].idInventario));
-
-            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + getItem(data[i].idInventario).idInventarioNavigation.codigo + '</td>'
-                + '<td style="padding-top:2rem;">' + getItem(data[i].idInventario).idInventarioNavigation.descripcion + ' </td>'
-                + '<td style="padding-top:2rem;">' + data[i].cantidad + ' </td>'
-                + '<td style="padding-top:2rem; text-align:right"> ' + formatCurrency(data[i].precioUnitario) + '</td>'
-                + '<td style="padding-top:2rem; text-align:right">' + formatCurrency(data[i].total) + '</td>'
-                + '<td><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button><button @estado2 @estado class="btn btn-link" value="' + contadorFila + '" onclick="editarLinea(value, ' + data[i].id + ')" ><i class="fas fa-edit"></i></button></td></tr>';
-
-            $('.lineaForm').before(body);
-
-        }
-
-        calcularTotales();
-
-
-    }
-
-    function getItem(id) {
-
-
-        var it = {};
-        for (var i = 0; i < arrayInventario.length; i++) {
-            if (arrayInventario[i].idInventario === parseInt(id))
-                it = arrayInventario[i];
-        }
-
-        return it;
-    }
-
-    function cargarItems(data) {
-
-        arrayInventario = data;
-
-        $('#item option').remove();
-
-        for (var i = 0; i < data.length; i++) {
-
-            if (!data[i].idInventarioNavigation.inactiva) {
-                var o = new Option(data[i].idInventarioNavigation.codigo, data[i].idInventarioNavigation.idInventario);
-                $("#item").append(o);
-            }
-
-        }
-
-        $("#item").trigger('change');
-
-    }
-
-    function cancelar() {
-        bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) {
-            if (result)
-                window.location.href = "@Url.Action("ListarRequisiciones")";
-
-        });
-    }
-
-
-    /////////////////////////////////////////////calculos////////////////////////////////////////
-    function calcularTotales() {
-        totalReq = 0;
-
-        for (var i = 0; i < lineas.length; i++) {
-            totalReq += lineas[i].total;
-        }
-
-        $total.val(totalReq);
-
-    }
-
-    function setTotalLinea() {
-
-        var precio = parseFloat($precio.val());
-        var cantidad = parseFloat($cantidad.val());
-
-        $totalLinea.val(cantidad * precio);
-
     }
 
 
@@ -904,7 +1224,7 @@ else
                 telTitulo: "@SharedLocalizer["Telefonos"]:",
                 correoTitulo: "@SharedLocalizer["Correo"]:",
                 cedTitulo: getTittulos().cedJuridica
-            },          
+            },
             total: $total.val(),
             nombreDoc: getTittulos().req + '#@Model.Id',
             nombreDescarga: '@SharedLocalizer["Requisicion"]_ ' + ' ' + @Model.Id + '.pdf',
@@ -916,7 +1236,7 @@ else
                 total: "@SharedLocalizer["Total"]"
             },
             filas: crearFilasPdf(),
-            resumen: {              
+            resumen: {
                 total: "@SharedLocalizer["Total"]",
                 autorizado: "@SharedLocalizer["Autorizado por"]:______________________"
             },
@@ -937,7 +1257,7 @@ else
 
         return modelo;
 
-    } 
+    }
 
     function crearFilasPdf() {
 
@@ -989,7 +1309,7 @@ else
             };
     }
 
-    
+
 
     function getEstado() {
         if ('@Model.Anulado' === "True")
