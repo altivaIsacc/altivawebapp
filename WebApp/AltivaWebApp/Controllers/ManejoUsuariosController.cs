@@ -107,6 +107,7 @@ namespace AltivaWebApp.Controllers
         bool soyAdmin()
         {
             bool SoyAdmin = false;
+
             var model = userService.GetUsuarioConPerfiles(User.Identity.Name);
 
 
