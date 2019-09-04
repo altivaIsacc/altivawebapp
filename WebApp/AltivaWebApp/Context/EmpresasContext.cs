@@ -225,6 +225,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFaCajaArqueo> TbFaCajaArqueo { get; set; }
         public virtual DbSet<TbFaCajaArqueoDenominacion> TbFaCajaArqueoDenominacion { get; set; }
         public virtual DbSet<TbFaCajaCierre> TbFaCajaCierre { get; set; }
+      
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -2782,11 +2783,11 @@ namespace AltivaWebApp.Context
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_FD_CuentaEnCasaPuntoDeVenta_tb_FD_CuentaEnCasa");
 
-                entity.HasOne(d => d.IdPuntoVentaNavigation)
-                    .WithMany(p => p.TbFdCuentaEnCasaPuntoDeVenta)
-                    .HasForeignKey(d => d.IdPuntoVenta)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_tb_FD_CuentaEnCasaPuntoDeVenta_tb_SE_PuntoVenta");
+                //entity.HasOne(d => d.IdPuntoVentaNavigation)
+                //    .WithMany(p => p.TbFdCuentaEnCasaPuntoDeVenta)
+                //    .HasForeignKey(d => d.IdPuntoVenta)
+                //    .OnDelete(DeleteBehavior.ClientSetNull)
+                //    .HasConstraintName("FK_tb_FD_CuentaEnCasaPuntoDeVenta_tb_SE_PuntoVenta");
             });
 
             modelBuilder.Entity<TbFdCuentasBancarias>(entity =>
@@ -5827,6 +5828,8 @@ namespace AltivaWebApp.Context
 
             modelBuilder.Entity<TbSePuntoVenta>(entity =>
             {
+                entity.HasKey(e => e.IdPuntoVenta);
+
                 entity.ToTable("tb_SE_PuntoVenta");
 
                 entity.Property(e => e.CedulaJuridica)
@@ -5847,17 +5850,30 @@ namespace AltivaWebApp.Context
                     .IsUnicode(false)
                     .HasDefaultValueSql("('')");
 
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
                 entity.Property(e => e.IdMonedaFacturaDefecto).HasDefaultValueSql("((1))");
 
                 entity.Property(e => e.IdMonedaPrecio).HasDefaultValueSql("((1))");
 
-                entity.Property(e => e.Logo).HasColumnType("image");
+                entity.Property(e => e.Imagen)
+                    .IsRequired()
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Nombre)
                     .IsRequired()
                     .HasMaxLength(60)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.PrefijoConcecutivoIndepediente)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.RazonSocial)
                     .IsRequired()
@@ -5870,12 +5886,6 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.Tipo)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('Front Desk')");
 
                 entity.Property(e => e.Web)
                     .IsRequired()

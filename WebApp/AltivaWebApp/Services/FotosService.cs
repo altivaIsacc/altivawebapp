@@ -71,6 +71,25 @@ namespace AltivaWebApp.Services
             return ruta;
 
         }
+        public static string SubirImagenPuntoVenta(IFormFile file, string savePath)
+        {
+            var ruta = "";
+            if (file.Length > 0)
+            {
+                var fileName = GetUniqueName(file.FileName);
+                var path = $"{savePath}\\{fileName}";
+
+                //  var path = $"wwwroot\\uploads\\{fileName}";
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                }
+
+                ruta = $"/uploads/{fileName}";
+            }
+            return ruta;
+
+        }
         public static string SubirFotoEmpresa(IFormFile file, string savePath )
         {
                 if (file.Length > 0)
