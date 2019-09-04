@@ -83,7 +83,7 @@ else
 
             <div class="form-group col-md-3 col-sm-6 col-xs-12">
                 <label asp-for="IdProveedor" class="control-label">@SharedLocalizer["Proveedor"]</label>
-                <select class="selectpicker form-control selectItems" data-live-search="true" id="proveedores" >
+                <select class="selectItems form-control" data-live-search="true" id="proveedores">
                     @if (Model.Id == 0)
                     {
                         foreach (var prove in ViewBag.Proveedores)
@@ -93,19 +93,20 @@ else
                             {
                                 nombre = prove.NombreComercial;
                             }
-                            <option  value="@prove.IdContacto">@nombre</option>
+                            <option value="@prove.IdContacto">@nombre</option>
                         }
                     }
-                    else{
-                        
+                    else
+                    {
 
-                <option  value="@ViewBag.IdContacto">@ViewBag.NombreCompleto</option>
-                        
+
+                        <option value="@ViewBag.IdContacto">@ViewBag.NombreCompleto</option>
+
 
                     }
                 </select>
             </div>
-            <input hidden id="proveedor"  value="@ViewBag.IdContacto"/>
+            <input hidden id="proveedor" value="@ViewBag.IdContacto" />
             <div class="form-group col-md-5 col-sm-6 col-xs-12">
                 <label asp-for="Observacion" class="control-label">@SharedLocalizer["Observación"]</label>
                 <textarea @estado asp-for="Observacion" id="txtObservacion" rows="8" maxlength="500" class="form-control">@Model.Observacion</textarea>
@@ -134,14 +135,14 @@ else
     </div>
 
     <br />
-    
-   
-     <div class="form-group col-md-4">
-         <button @generarOrden class="btn btn-success btnAccion" onclick="validarCompraAutomatica()">@SharedLocalizer["ordenAutomatica"]</button>
-     </div>
-    
-    
-      <div class="col-md-12 table-responsive">
+
+
+    <div class="form-group col-md-4">
+        <button @generarOrden class="btn btn-success btnAccion" onclick="validarCompraAutomatica()">@SharedLocalizer["ordenAutomatica"]</button>
+    </div>
+
+
+    <div class="col-md-12 table-responsive">
 
         <table class="table table-bordered table-striped" id="tblOrdenCompra" style="min-width:900px">
             <thead>
@@ -165,14 +166,14 @@ else
                     <td>
                         <input readonly class="form-control" id="descripcion" />
                     </td>
-                    <td hidden><input @estado class="form-control numerico" type="text" min="0" id="estado"   /></td>
+                    <td hidden><input @estado class="form-control numerico" type="text" min="0" id="estado" /></td>
                     <td><input @estado class="form-control numerico" type="text" min="0" id="cantidad" /></td>
                     <td><input @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
                     <td><input @estado class="form-control numerico" type="text" id="descuento" /></td>
                     <td><input class="form-control" readonly type="number" id="iva" /></td>
                     <td><input class="form-control moneda" readonly type="text" id="subtotal" /></td>
                     <td hidden><input class="form-control moneda" readonly type="text" id="totalLinea" /></td>
-                    <td><button @estado class="btn btn-link btnAccion"  onclick="guardarLinea()"><i class="fas fa-save"></i></button></td>
+                    <td><button @estado class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button></td>
                 </tr>
             </tbody>
         </table>
@@ -211,9 +212,9 @@ else
     </div>
 </div>
 
-<div  class="row" >
-    <div  class="col-md-12">
-        <div  id="comentarios">
+<div class="row">
+    <div class="col-md-12">
+        <div id="comentarios">
 
         </div>
     </div>
@@ -226,7 +227,7 @@ else
     <div class="modal fade" id="modalEditarOrden" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-               
+
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -234,14 +235,10 @@ else
                     <div class="col-md-6"> <h5 data-translate="editarOrden" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["editarOrden"]</h5></div>
                 </div>
                 <div class="modal-body" id="editar">
-
                     <div class="row">
                         <input id="editId" type="hidden" class="form-control" />
                         <input id="editIva" type="hidden" class="form-control" />
                         <input id="nSubTotal" type="hidden" class="form-control" />
-
-
-
                         <div class="form-group col-sm-7">
                             <label class="control-label">@SharedLocalizer["Cantidad"]</label>
                             <input id="editCantidad" class="form-control numerico" />
@@ -315,19 +312,13 @@ else
     var editProveedor = $('#proveedor').val();
 
     $(document).ready(function () {
-        getProveedores();
-        var date = new Date();
+          var date = new Date();
         if (@Model.Id != 0) {
-            $proveedores.val(editProveedor);
             GetComentarios("Orden", @Model.Id);
             date = new Date(formatearFecha());
             $('.tipoMoneda').val('@Model.IdMoneda');
         }
-
         deshabilitaTipoCambio();
-
-
-
         $descuento.val(0);
         var d = parseFloat('@Model.TipoCambioDolar'.replace(',', '.'));
         var e = parseFloat('@Model.TipoCambioEuro'.replace(',', '.'));
@@ -350,7 +341,7 @@ else
         });
 
         getInventario();
-        
+
 
         $('.selectItems').select2({ width: null, language: localStorage.getItem("idioma") });
 
@@ -359,14 +350,14 @@ else
             var itemInfo = getItem($(this).val());
             var monto = getPrecioAlCambio(itemInfo);
             var monto1 = parseFloat(monto.toFixed(2));
-            
+
             $descripcion.val(itemInfo.descripcion);
             $precio.val(monto1);
             $cantidad.val(1);
             $iva.val(itemInfo.impuestoVenta);
             setSubTotalLinea();
         });
-        
+
         $('textarea[data-limit-rows=true]')
             .on('keypress', function (event) {
                 var textarea = $(this),
@@ -459,15 +450,15 @@ else
                $('#editIva').val(arreglo[i].porcIva);
                editDescuento = $('#editDescuento').val();
                editPrecio = $('#editPrecio').val();
-               
-               
+
+
 
            }
        }
 
     }
     function validarmodalEditar() {
-       
+
         var cantidad = parseFloat($('#editCantidad').val());
         var precio = parseFloat($('#editPrecio').val());
         if (cantidad <= 0) {
@@ -483,8 +474,8 @@ else
                         return true;
 
         }
-        
-        
+
+
     }
    function editOrden()
    {
@@ -514,7 +505,7 @@ else
            $('#modalEditarOrden').modal('hide');
        }
    }
-   
+
     ///calculos de línea
     function setSubTotalLinea() {
         if ($('#modalEditarOrden').hasClass('in')) {
@@ -532,7 +523,7 @@ else
     function calcularSubtotalGrabadoLinea() {
         if ($('#modalEditarOrden').hasClass('in')) {
             var iva = parseFloat($('#editIva').val());
-        } else 
+        } else
            var iva = parseFloat($iva.val());
 
         if (iva > 0)
@@ -544,7 +535,7 @@ else
     function calcularSubtotalExcentoLinea() {
         if ($('#modalEditarOrden').hasClass('in')) {
             var iva = parseFloat($('#editIva').val());
-        } else 
+        } else
             var iva = parseFloat($iva.val());
 
         if (iva === 0)
@@ -561,10 +552,10 @@ else
 
 
     function calcularTotalIvaLinea() {
-         
+
         if ($('#modalEditarOrden').hasClass('in')) {
             var iva = parseFloat($('#editIva').val());
-        } else 
+        } else
             var iva = parseFloat($iva.val());
 
         var subTotal = parseFloat($subTotalLinea.val()) - calcularTotalDescuentoLinea();
@@ -574,7 +565,7 @@ else
     function calcularTotalDescuentoLinea() {
           if ($('#modalEditarOrden').hasClass('in')) {
             var desc = parseFloat($('#editDescuento').val());
-        } else 
+        } else
             var desc = parseFloat($descuento.val());
 
         var subTotal = parseFloat($subTotalLinea.val());
@@ -601,7 +592,7 @@ else
             success: function (data) {
                 ordenDetalleBD = JSON.parse(JSON.stringify(data));
                 cargarLineas(data);
-                 
+
                },
               error: function (err, scnd) {
                   cargarAlert('@SharedLocalizer["errorGeneral"]');
@@ -640,7 +631,7 @@ else
 
     }
     function guardarLineaAutomatico(data) {
-        
+
         var cero = true;
         for (var i = 0; i < data.length; i++) {
             $('#item').val(data[i].idInventario);
@@ -651,18 +642,18 @@ else
                 cero = false;
                 guardarLinea();
             }
-            
+
            $cantidad.val(1);
 
         }
-        if (cero) 
+        if (cero)
           cargarAlert('@SharedLocalizer["AlertPreciosCero"]');
 
-        
 
 
-     
-            
+
+
+
     }
     function guardarLinea() {
         var existe =true;
@@ -681,7 +672,7 @@ else
           {
             if ($item.val() == lineas[i].idInventario)
             {
-                
+
                 if (lineas[i].precio == parseFloat($precio.val()) && lineas[i].porcDesc == parseFloat($descuento.val()) && lineas[i].porcIva == parseFloat($iva.val()))
                 {
 
@@ -698,11 +689,11 @@ else
                     cargarTabla(lineas);
                      $cantidad.val(1);
 
-                    
-                }       
+
+                }
             }
-               
-            } 
+
+            }
             if (existe) {
                  var model = {
                 id: 0,
@@ -731,38 +722,38 @@ else
                 cargarTabla(lineas);
             }
         }
-      
-        
-        
-       
-         
+
+
+
+
+
     }
-    
+
     function validarCompraAutomatica() {
-      
+
         if (lineas.length != 0) {
             bootbox.confirm("@SharedLocalizer["confirmCompraAutomatica"]", function (resultado) {
                 if (resultado) {
                     lineas = [];
                     lineasAgregadas = [];
                     cargarTabla(lineas);
-                 
+
                     generarCompraAutomatica();
                 }
 
             });
         }
         else {
-                
+
             generarCompraAutomatica();
         }
     }
     function generarCompraAutomatica() {
-        
+
          var idProveedor = $("#proveedores").val();
           var url = "@Url.Action("GenerarCompraAutomatica", "Orden", new { idProveedor = "__id__" })".replace("__id__", idProveedor);
         lineas[""];
-       
+
             $.ajax({
             type: "get",
         headers: {
@@ -773,12 +764,12 @@ else
                 success: function (data) {
             guardarLineaAutomatico(data);
             }
-        
-            });
-        
-        
 
-          
+            });
+
+
+
+
 
     }
 
@@ -792,7 +783,7 @@ else
       lineas[id].porcIva = parseFloat($iva.val());
       $precio.val(lineas[pos].precio);
         $estado.val(lineas[pos].id);
-       
+
     }*/
 
     function eliminarLinea(_id, idLinea) {
@@ -832,7 +823,7 @@ else
         totalImpuesto = 0;
         totalOrden = 0;
 
-       
+
 
         for (var i = 0; i < lineas.length; i++) {
             subTotalExcento += parseFloat(lineas[i].subTotalExcento);
@@ -853,7 +844,7 @@ else
 
 
     function cargarTabla(data) {
-        
+
 
         $('.filasCargadas').remove();
 
@@ -876,7 +867,7 @@ else
                 + '<td style="padding-top:2rem; "><input style="width:6rem; border:0; background-color : #F7F7F7"  value="' + data[i].porcIva + '%"/></td>'
                 + '<td style="padding-top:2rem; width:12rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + subtotal + '"/></td>'
                 + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="cargarModalEditOrden('+i+')" ><i class="fas fa-edit"></i></button><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
-                
+
 
 
 
@@ -916,7 +907,7 @@ else
                  //        items.push(data[i]);
                  //}
                  items = data;
-                 
+
                  cargarItems(items);
                  getOrdenDetalle();
                },
@@ -938,7 +929,7 @@ else
         for (var i = 0; i < data.length; i++) {
             var o = new Option(data[i].codigo, data[i].idInventario);
             $("#item").append(o);
-            
+
 
         }
 
@@ -953,44 +944,8 @@ else
         });
     }
 
-    function getProveedores() {                                                                                                 
-
-         $.ajax({
-              type: "get",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
-              url: '@Url.Action("GetProveedores", "Contacto")',
-             success: function (data) {
-                 proveedores = data;
-
-         
-                     console.log(data);
-
-                 //for (var i = 0; i < proveedores.length; i++) {
-                 //    var nombre = "";
-                 //    if (proveedores[i].persona)
-                 //        nombre = proveedores[i].nombre + ' ' + proveedores[i].apellidos;
-                 //    else
-                 //        nombre = proveedores[i].nombreJuridico;
-                 //   var o = new Option(nombre, proveedores[i].idContacto);
-                 //   $("#proveedores").append(o);
-                 //}
-                 if (@Model.Id != 0) {
-                    $proveedores.val(@Model.IdProveedor);
-                 }
 
 
-
-              },
-              error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-         });
-    }
-   
     function guardarCambios() {
 
         if(validarForm())
@@ -1107,7 +1062,7 @@ else
         console.log(ordenModel);
         return ordenModel;
     }
-    
+
 
     function crearModeloDetalle(model) {
 
@@ -1127,7 +1082,7 @@ else
 
         return model;
     }
-    
+
 
     function validarForm() {
         //var frmOrden = $('#frmOrden').serializeArray();
@@ -1417,8 +1372,8 @@ else
 
         return modelo;
 
-    } 
-    
+    }
+
     function getEstado() {
         if ('@Model.Anulado' === "True")
             return "@SharedLocalizer["OrdenAnulada"]";
@@ -1492,7 +1447,7 @@ else
         var imp = "";
         var desc = "";
 
-        
+
         tam = $total.val().length;
 
         for (var i = $subTotal.val().length; i < tam; i++) {
