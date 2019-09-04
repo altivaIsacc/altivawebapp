@@ -105,8 +105,11 @@ namespace AltivaWebApp.Controllers
                 if (traslado.IdTraslado != 0)
                 {
 
-                    var respTraslado = trasladoMap.Update(traslado);
+                   // IList<TbPrTrasladoInventario> detallesToAnular = trasladoService.GetAllTrasladoInvetarioDetalleById(inventarioTraslado.Select(d => (long)d.Id).Where(d => d != 0).ToList());
+                  //  kardexMap.CreateKardexTRI(detallesToAnular, true);
 
+
+                    var respTraslado = trasladoMap.Update(traslado);
                     if (inventarioTraslado.Count() > 0)
                     {
                         foreach (var item in inventarioTraslado)
@@ -114,9 +117,11 @@ namespace AltivaWebApp.Controllers
                             item.IdTraslado = respTraslado.IdTraslado;
                         }
 
-                        var ajusteInventario = trasladoMap.CreateOrUpdateAI(inventarioTraslado);
-
+                        var trasladoInventarioDetalle = trasladoMap.CreateOrUpdateAI(inventarioTraslado);
                         trasladoService.DeleteTrasladoInventario(eliminados);
+
+                        kardexMap.CreateKardexTRI(respTraslado.TbPrTrasladoInventario.ToList(), false);
+
                     }
                 }
                 else
@@ -134,7 +139,6 @@ namespace AltivaWebApp.Controllers
                     }
                     respTraslado.TbPrTrasladoInventario = trasladoMap.CreateOrUpdateAI(inventarioTraslado);
 
-                    // var trasladoKardex = trasladoService.GetTrasladoForKardex((int)traslado.IdTraslado, respTraslado.TbPrTrasladoInventario.Select(d => d.Id).ToList());
                     kardexMap.CreateKardexTRI(respTraslado.TbPrTrasladoInventario.ToList(), false);
 
                 }

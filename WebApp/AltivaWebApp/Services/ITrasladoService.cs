@@ -17,7 +17,7 @@ namespace AltivaWebApp.Services
         void DeleteTrasladoInventario(IList<long> id);
         IList<TbPrTraslado> GetTrasladosSinAnular();
 
-        TbPrTraslado GetTrasladoForKardex(int id, IList<long> idDetalles);
+        IList<TbPrTrasladoInventario> GetAllTrasladoInvetarioDetalleById(IList<long> domain);
 
 
     }
