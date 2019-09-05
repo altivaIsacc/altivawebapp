@@ -26,7 +26,7 @@ else
 @if (Model.Id != 0)
 {
     <div class="btn-group">
-        <button type="button" onclick="imprimirTicket()" class="btn btn-primary">@Lb["Imprimir"]</button>
+        <button type="button" onclick="GetPDF()" class="btn btn-primary">@Lb["Imprimir"]</button>
         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
             <span class="caret"></span>
             <span class="sr-only">Toggle Dropdown</span>
@@ -36,7 +36,7 @@ else
                 <a href="#carta">@Lb["Carta"]</a>
             </li>
             <li>
-                <a href="#ticket" onclick="imprimirTicket()">@Lb["Ticket"]</a>
+                <a href="#ticket" onclick="GetPDF(1)">@Lb["Ticket"]</a>
             </li>
         </ul>
     </div>
@@ -329,8 +329,14 @@ else
     </div>
 </div>
 
-<div id="reporteCont">
-    
+<div class="modal fade bd-example-modal-xl" id="reporteModal" tabindex="-2" role="dialog" aria-labelledby="reporteModalCenter" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div id="repContainer">
+
+            </div>
+        </div>
+    </div>
 </div>
 
 <input hidden id="monedaFormatter" class="moneda" type="text" />
@@ -339,6 +345,8 @@ else
 
 <script src="~/js/comentario.js"></script>
 <script src="~/js/base64ImageCreator.js"></script>
+
+
 <script>
 
     ///////factura
@@ -1217,50 +1225,122 @@ else
 
     }
 
-    function getTicket() {
+    function GetPDF(imprimir) {
 
-        var request = new XMLHttpRequest();
-        request.responseType = "blob";
-        request.open("GET", '@Url.Action("GetTicket", "Factura", new { idFactura = Model.Id })');
-        request.onload = function () {
-            var url = window.URL.createObjectURL(this.response);
-        }
-        request.send();
+        var parametros = [];
 
-    }
+        parametros.push({ nombre: "idFactura", valor: '@Model.Id'});
+        parametros.push({ nombre: "idEmpresa", valor: '@Context.Session.GetInt32("idEmpresa")' });
 
-    function imprimirTicket() {
+        var data = { NombreReporte: "Facturaticket", parametros: parametros };
 
-        var request = new XMLHttpRequest();
-        request.responseType = "blob";
-        request.open("GET", '@Url.Action("GetTicket", "Factura", new { idFactura = Model.Id })');
-        request.onload = function () {
-           //var url = window.URL.createObjectURL(this.response);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("ReportePDF", "VistaReporte")',
+            cache: false,
+            xhr: function () {// Seems like the only way to get access to the xhr object
+                var xhr = new XMLHttpRequest();
+                xhr.responseType = 'blob'
+                return xhr;
+            },
+            data:data,
+            success: function (data) {
+                var reader = new FileReader();
+                reader.readAsDataURL(data);
 
-            var reader = new FileReader();
-            reader.readAsDataURL(this.response);
-            reader.onloadend = function () {
-                base64data = reader.result;
-                crearTicketPdf(base64data);
+                reader.onloadend = function () {
+                    base64data = reader.result;
+
+                    var w = 0;
+                    var h = 0;
+
+                    var img = new Image;
+
+                    img.onload = function () {
+                        w = (img.width / 595) * 100;
+                        h = (img.height / 842) * 100;
+
+                        console.log(w); // image is loaded; sizes are available
+                        console.log(h);
+
+                        var doc = new jsPDF('p', 'pt', 'a4');
+
+                        doc.addImage(base64data, 'JPEG', 0, 0, w, h);
+                        if (imprimir == 1) {
+                            doc.autoPrint();
+                        }
+                        window.open(doc.output('bloburl'), '_blank');
+
+                    };
+
+                    img.src = base64data;
+
+
+
+
+                }
+
+            },
+            error: function () {
+                cargarAlert("@Lb["errorGeneral"]");
             }
+        });
 
-        }
-        request.send();
+
     }
 
 
-    function crearTicketPdf(img) {
 
-        var imgData = img//getImgFromUrl(img)
-        var doc = new jsPDF('p', 'mm', [80, 210]);
-        doc.addImage(imgData, 'JPEG', 0, 0, 80, 210)
-        doc.autoPrint();
-        window.open(doc.output('bloburl'), '_blank');
+    function GetWORD() {
+
+        var parametros = [];
+
+        parametros.push({ nombre: "idFactura", valor: '@Model.Id'});
+        parametros.push({ nombre: "idEmpresa", valor: '@Context.Session.GetInt32("idEmpresa")' });
+
+        var data = { NombreReporte: "Facturaticket", parametros: parametros };
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("ReporteHTML", "VistaReporte")',
+            cache: false,
+            xhr: function () {// Seems like the only way to get access to the xhr object
+                var xhr = new XMLHttpRequest();
+                xhr.responseType = 'blob'
+                return xhr;
+            },
+            data:data,
+            success: function (data) {
+
+                //console.log(data);
+
+                var reader = new FileReader();
+                reader.readAsText(data);
+
+                reader.onloadend = function (e) {
+                    //base64data = reader.result;
+
+                    $('#wordContent').html(reader.result);
+                    $('#wordContent').wordExport();
+
+                    //var myWindow = window.open('', '', '');
+                    //var doc = myWindow.document;
+                    //doc.open();
+                    //doc.write(reader.result);
+                    //$(doc).wordExport();
+                    //doc.close();
+
+                }
+
+            },
+            error: function () {
+                cargarAlert("@Lb["errorGeneral"]");
+            }
+        });
+
 
     }
 
 </script>
-
-
 
 <script src="~/lib/vendors/jsPDF/FA.js"></script>

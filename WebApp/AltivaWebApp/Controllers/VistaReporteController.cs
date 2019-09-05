@@ -39,17 +39,18 @@ namespace AltivaWebApp.Controllers
                 rep.Report.SetParameterValue(item.Nombre, item.Valor);// envia por parametro el idempresa a fast report
             }
 
-            rep.ShowToolbar = false;
+           // rep.ShowToolbar = false;
+            //rep.Height = 
 
             rep.Report.Prepare();
 
             ViewBag.reporte = rep;
 
-            return PartialView("../Reporte/_Reporte");
+            return PartialView("../Reporte/_Reporte", NombreReporte);
 
         }
 
-        [HttpGet("ReportePDF")]
+        [HttpPost("ReportePDF")]
         public IActionResult ReportePDF(string NombreReporte, IList<RepParametro> parametros)
         {
 
@@ -63,7 +64,7 @@ namespace AltivaWebApp.Controllers
             var str = Resources.JsonStringProvider.GetJson(CultureInfo.CurrentCulture.Name); //idioma
             rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;
             rep.Report.Dictionary.Connections[1].ConnectionString = StringProvider.StringGE;
-            rep.Report.Dictionary.Connections[2].ConnectionString = str;
+            //rep.Report.Dictionary.Connections[2].ConnectionString = str;
 
 
             foreach (var item in parametros)
@@ -78,7 +79,7 @@ namespace AltivaWebApp.Controllers
                 //imgExport.ShowProgress = false;
                 imgExport.ImageFormat = FastReport.Export.Image.ImageExportFormat.Jpeg;
                 imgExport.SeparateFiles = false;
-                imgExport.Resolution = 100;
+                imgExport.Resolution = 300;
 
 
                 MemoryStream strm = new MemoryStream();
@@ -97,7 +98,7 @@ namespace AltivaWebApp.Controllers
 
         }
 
-        [HttpGet("ReporteHTML")]
+        [HttpPost("ReporteHTML")]
         public IActionResult ReporteHTML(string NombreReporte, IList<RepParametro> parametros)
         {
 
@@ -111,7 +112,7 @@ namespace AltivaWebApp.Controllers
             var str = Resources.JsonStringProvider.GetJson(CultureInfo.CurrentCulture.Name); //idioma
             rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;
             rep.Report.Dictionary.Connections[1].ConnectionString = StringProvider.StringGE;
-            rep.Report.Dictionary.Connections[2].ConnectionString = str;
+            //rep.Report.Dictionary.Connections[2].ConnectionString = str;
 
 
             foreach (var item in parametros)
@@ -119,26 +120,32 @@ namespace AltivaWebApp.Controllers
                 rep.Report.SetParameterValue(item.Nombre, item.Valor);// envia por parametro el idempresa a fast report
             }
 
-
-            if (rep.Report.Prepare())
-            {
-                FastReport.Export.Html.HTMLExport html = new FastReport.Export.Html.HTMLExport();
-                html.ShowProgress = false;
-                html.SinglePage = true;
+            rep.Report.Prepare();
 
 
-                MemoryStream strm = new MemoryStream();
-                rep.Report.Export(html, strm);
-                rep.Report.Dispose();
-                html.Dispose();
-                strm.Position = 0;
+            FastReport.Export.Html.HTMLExport html = new FastReport.Export.Html.HTMLExport();
+            html.ShowProgress = false;
+            html.SinglePage = true;
+            html.Navigator = false; // Top navigation bar
+            html.EmbedPictures = true; // Embeds images into a document
 
-                return File(strm, "text/html", $"{NombreReporte}.html");
-            }
-            else
-            {
-                return null;
-            }
+            MemoryStream strm = new MemoryStream();
+            rep.Report.Export(html, strm);
+            rep.Report.Dispose();
+            html.Dispose();
+            strm.Position = 0;
+
+            var res = Encoding.UTF8.GetString(strm.ToArray()); //File(strm.ToArray(), "text/html", $"{NombreReporte}.html");
+
+
+            return Ok(res);
+            //using (HTMLExport html = new HTMLExport())
+            //{
+            //    MemoryStream strm = new MemoryStream();
+            //    rep.Report.Export(html, strm);
+            //    return File(strm, "text/html", $"{NombreReporte}.html");
+            //}
+
 
         }
 
