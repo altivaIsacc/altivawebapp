@@ -440,8 +440,7 @@ else
            arreglo = lineasAgregadas;
        else
            arreglo = lineas;
-     //  $('#menu_toggle').click(); 
-         $(".main_menu_side").dropdown("toggle");
+       $('#menu_toggle').click(); 
        $('#modalEditarOrden').modal('show');
        for (var i = 0; i < arreglo.length; i++) {
            if (arreglo[i].idInventario == arreglo[j].idInventario && arreglo[i].precio == arreglo[j].precio && arreglo[i].porcDesc == arreglo[j].porcDesc) {
@@ -482,10 +481,12 @@ else
     }
    function editOrden()
    {
+       console.log(editPrecio);
        if (validarmodalEditar()) {
            for (var i = 0; i < lineas.length; i++) {
+               console.log(lineas[i].precio);
                if (lineas[i].idInventario == $('#editId').val() &&
-                   lineas[i].precio == editPrecio && lineas[i].porcDesc == editDescuento) {
+                   parseFloat(lineas[i].precio.toFixed(2)) == parseFloat(editPrecio) && lineas[i].porcDesc == editDescuento) {
                    setSubTotalLinea();
                    lineas[i].cantidad = parseFloat($("#editCantidad").val());
                    lineas[i].precio = parseFloat($('#editPrecio').val());
@@ -494,7 +495,7 @@ else
                    lineas[i].subTotalNeto = calcularSubtotalNetoLinea();
                    lineas[i].porcIs = 0;
                    lineas[i].totalIs = 0;
-                   lineas[i].porcDesc = parseFloat($('#editDescuento').val());
+                   lineas[i].porcDesc = parseFloat($('#editDescuento').val());                  
                    lineas[i].totalDescuento = calcularTotalDescuentoLinea();
                    lineas[i].totalIva = calcularTotalIvaLinea();
                    lineas[i].total = calcularTotalLinea();
@@ -847,7 +848,8 @@ else
 
 
     function cargarTabla(data) {
-
+        console.log(data);
+        console.log(lineasActualizadas);
 
         $('.filasCargadas').remove();
 
@@ -966,7 +968,7 @@ else
             },
             dataType: "json",
             url: '@Url.Action("CrearEditarOrden")',
-            data: { viewModel:crearModelo(), model2: lineasActualizadas },
+            data: { viewModel: crearModelo(), model2: crearModelo2() },
             success: function (data) {
                 if (lineasEliminadas.length > 0)
                     eliminarOrdenDetalle();
@@ -1085,7 +1087,22 @@ else
 
         return model;
     }
+     function crearModelo2() {
+         var model = lineasActualizadas;
+         for (var i = 0; i < lineasActualizadas.length; i++) {
+            model[i].cantidad = lineasActualizadas[i].cantidad.toString().replace(".", ",");
+            model[i].precio = lineasActualizadas[i].precio.toString().replace(".", ",");
+            model[i].subTotalGrabado = lineasActualizadas[i].subTotalGrabado.toString().replace(".", ",");
+            model[i].subTotalExcento = lineasActualizadas[i].subTotalExcento.toString().replace(".", ",");
+            model[i].subTotalNeto = lineasActualizadas[i].subTotalNeto.toString().replace(".", ",");
+            model[i].totalIva = lineasActualizadas[i].totalIva.toString().replace(".", ",");
+            model[i].totalDescuento = lineasActualizadas[i].totalDescuento.toString().replace(".", ",");
+            model[i].total = lineasActualizadas[i].total.toString().replace(".", ",");
 
+        }
+
+        return model;
+    }
 
     function validarForm() {
         //var frmOrden = $('#frmOrden').serializeArray();
