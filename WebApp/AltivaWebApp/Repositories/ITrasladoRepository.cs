@@ -20,6 +20,7 @@ namespace AltivaWebApp.Repositories
         IList<TbPrTraslado> GetTrasladosSinAnular();
 
         IList<TbPrTrasladoInventario> GetAllTrasladoInvetarioDetalleById(IList<long> domain);
+        TbPrTraslado GetTrasladoWithDetails(long id);
 
     }
 }

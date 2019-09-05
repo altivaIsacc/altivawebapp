@@ -62,5 +62,14 @@ namespace AltivaWebApp.Services
         {
             return repository.GetAllTrasladoInvetarioDetalleById(domain);
         }
+
+
+        public TbPrTraslado GetTrasladoWithDetails(long id)
+        {
+            return repository.GetTrasladoWithDetails(id);
+        }
+
+
+
     }
 }

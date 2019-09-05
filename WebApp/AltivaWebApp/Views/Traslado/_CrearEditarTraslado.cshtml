@@ -108,8 +108,11 @@
                             <div class="input-group">
                                 <br>
                                 <button class="btn btn-danger btn-sm" id="Anular" onclick="anularTraslado()">@SharedLocalizer["Anular"]</button>
+                                <input type="hidden" value="@Model.Anulado.ToString()" id="Anulado" class="form-control" />
                             </div>
                         </div>
+
+
                         <div class="row">
                             <div class="col-md-6 col-sm-6 col-xs-6">
                                 <div class="input-group">
@@ -118,6 +121,8 @@
                                 </div>
                             </div>
                         </div>
+
+
 
                     </div>
                 </div>
@@ -295,6 +300,8 @@
     var fecha = $('#fecha');
     var arrayArticulosEliminados = [];
 
+    var arrayTablaTrasladoItemEditadosOnuevos = [];
+   
 
     $(document).ready(function () {
 
@@ -399,6 +406,8 @@
    
         $('#Anular').hide();
         $('#Pdf').hide();
+      
+
 
         
     }
@@ -413,6 +422,24 @@
         $('#IdBodegaDestino').prop("disabled", true);
         $('#IdBodegaOrigen').prop("disabled", true);
         $('#Pdf').show();
+
+        var estadoAnulado = "";
+        estadoAnulado = "@Model.Anulado";
+        //console.log(estadoAnulado);
+
+        if (estadoAnulado == "False") { 
+            
+           // console.log("dejar disponible el boton");
+            $('#Anular').prop("disabled", false);
+
+        } else if (estadoAnulado == "True") {
+          //  console.log("bloquear boton");
+            $('#Anular').prop("disabled", true);
+           
+        }
+
+       
+
     }
 
 
@@ -799,8 +826,10 @@
 
     function capturar(pos) {
         var obj = "";
+   
         obj = arrayArticuloPorBodegaOrigenSeleccionada[pos];
-     
+      
+
         var model = {
             id: 0,
             idTraslado: @Model.IdTraslado,
@@ -814,8 +843,9 @@
             existenciaBodega: obj.existenciaBodega
         };
         if (!existeItem(arrayTablaTraslado, model.idInventario)) {
-            arrayTablaTraslado.push(model);
+            arrayTablaTraslado.push(model);        
             cargarDatosTraslado(arrayTablaTraslado);
+            agregarNuevoArticulo2(obj); //en caso de que edite
             ocultarModalInventarioBodega();
         } else
             $('#error').show();
@@ -839,7 +869,7 @@
     function pasarSigCampo(e, id) {
         id = "txtCostoTotal" + id;
 
-        console.log("Evento>" + id);
+        //console.log("Evento>" + id);
 
         (e.keyCode) ? k = e.keyCode : k = e.which;
 
@@ -939,8 +969,10 @@
 
 
     function calcular(cantidad,pos,id) {
-    
+
+       
         var precioUnitario = 0;
+       
 
          if (@Model.IdTraslado == 0) {
         
@@ -977,7 +1009,7 @@
 
         } else {
           
-
+          
                  for (var j = 0; j < arrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
 
                      if (arrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == id) {
@@ -994,6 +1026,7 @@
                              $('#txtCostoTotal' + pos).val(costo);
                              $('#txtCosto' + pos).val(costo);
                              calcularCostoTotal(1, pos);
+                             capturarArticulosPorCantidadesEditadas(pos);
                          } else if (cantidad == 0) {
                              $('#' + pos).val(1);
                              $('#' + pos).prop("readonly", true);
@@ -1002,6 +1035,7 @@
                              $('#txtCostoTotal' + pos).val(costo);
                              $('#txtCosto' + pos).val(costo);
                              calcularCostoTotal(1, pos);
+                             capturarArticulosPorCantidadesEditadas(pos);
                          } else {
                              precioUnitario = arrayTablaTraslado[pos].precioUnitario;
                              costo = precioUnitario * cantidad;
@@ -1009,6 +1043,7 @@
                              $('#txtCosto' + pos).val(costo);
                              $('#' + pos).prop("readonly", true);
                              calcularCostoTotal(cantidad, pos);
+                             capturarArticulosPorCantidadesEditadas(pos);
                          }
 
                  }
@@ -1055,17 +1090,25 @@
     function eliminar(pos) {
 
         var elementoEliminado = arrayTablaTraslado.splice(pos, 1);
-    
+
+        //se elimina tambien de aca
+        for (var i = 0; i < arrayTablaTrasladoItemEditadosOnuevos.length; i++) {
+
+            if (arrayTablaTrasladoItemEditadosOnuevos[i].idInventario == elementoEliminado[0].idInventario) {
+
+                arrayTablaTrasladoItemEditadosOnuevos.splice(i, 1);
+            }
+
+        }
 
         cargarDatosTraslado(arrayTablaTraslado);
         calcularCostoTraslado();
         bloquearCampos();
 
         if (elementoEliminado[0].id != 0) {
-
-            insertarArticuloEliminado(elementoEliminado);
-        
+            insertarArticuloEliminado(elementoEliminado);      
         }
+
 
     }
 
@@ -1104,38 +1147,77 @@
     function guardarTraslado() {
 
 
-        if (validarSelectBodegaOrigen() == false) {
-            if (validarTablaTraslado() == false) {
-                    $.ajax({
-                        type: "POST",
-                        headers: {
-                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                        },
-                        dataType: "json",
-                        url: '@Url.Action("CrearEditarTraslado", "Traslado")',
-                        data: { traslado: crearModelo(), inventarioTraslado: arrayTablaTraslado, eliminados: arrayArticulosEliminados },
-                        success: function (data) {
-                            if (data.success) {
+        if (validarGuardaEditar() == false) {
+           // console.log("edita");
+
+
+              if (validarTablaTraslado() == false) {
+                            $.ajax({
+                                type: "POST",
+                                headers: {
+                                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                                },
+                                dataType: "json",
+                                url: '@Url.Action("CrearEditarTraslado", "Traslado")',
+                                data: { traslado: crearModelo(), inventarioTraslado: arrayTablaTrasladoItemEditadosOnuevos, eliminados: arrayArticulosEliminados },
+                                success: function (data) {
+                                    if (data.success) {
                              
-                                $('#modalTraslado').modal('hide');
-                                getTrasladosGeneral();
+                                        $('#modalTraslado').modal('hide');
+                                        getTrasladosGeneral();
                              
-                            }
-                            else
-                                cargarAlert("@SharedLocalizer["errorDuplicacion"]");
-                        },
-                        error: function (err, scnd) {
-                            cargarAlert('@SharedLocalizer["errorGeneral"]');
-                            console.log(err.statusText);
+                                    }
+                                    else
+                                        cargarAlert("@SharedLocalizer["errorDuplicacion"]");
+                                },
+                                error: function (err, scnd) {
+                                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                                    console.log(err.statusText);
+                                }
+                            });
+                        } else {
+                         $('#modalTraslado').modal('show');
+                         cargarAlert('@SharedLocalizer["TablaVacia"]');
                         }
-                    });
-                } else {
-                 $('#modalTraslado').modal('show');
-                 cargarAlert('@SharedLocalizer["TablaVacia"]');
-                }
+          
+
         } else {
-            $('#modalTraslado').modal('show');
-            $('#IdbodegaRequeridaValid').show();
+
+           // console.log("guarda");
+               if (validarSelectBodegaOrigen() == false) {
+                    if (validarTablaTraslado() == false) {
+                            $.ajax({
+                                type: "POST",
+                                headers: {
+                                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                                },
+                                dataType: "json",
+                                url: '@Url.Action("CrearEditarTraslado", "Traslado")',
+                                data: { traslado: crearModelo(), inventarioTraslado: arrayTablaTraslado, eliminados: arrayArticulosEliminados },
+                                success: function (data) {
+                                    if (data.success) {
+                             
+                                        $('#modalTraslado').modal('hide');
+                                        getTrasladosGeneral();
+                             
+                                    }
+                                    else
+                                        cargarAlert("@SharedLocalizer["errorDuplicacion"]");
+                                },
+                                error: function (err, scnd) {
+                                    cargarAlert('@SharedLocalizer["errorGeneral"]');
+                                    console.log(err.statusText);
+                                }
+                            });
+                        } else {
+                         $('#modalTraslado').modal('show');
+                         cargarAlert('@SharedLocalizer["TablaVacia"]');
+                        }
+            } else {
+                $('#modalTraslado').modal('show');
+                $('#IdbodegaRequeridaValid').show();
+
+            }
 
         }
 
@@ -1174,6 +1256,9 @@
        return modelTraslado;
    }
 
+    
+
+
 
     function validarSelectBodegaOrigen() {
         var resp = false;
@@ -1199,6 +1284,134 @@
         }
     }
 
+
+
+    function validarGuardaEditar() {
+
+        var resp = false;
+        if ($('#IdTraslado').val() == 0) {
+            resp = true;
+            return resp;
+        } else {
+            resp = false;
+            return resp;
+        }
+
+    }
+
+    function capturarArticulosPorCantidadesEditadas(pos){
+
+       // console.log(pos);
+        obj = arrayTablaTraslado[pos];
+       
+        if (obj.id == 0) { // el articulo es nuevo y se ha agregado
+           
+            editarNuevoArticulo(obj);
+
+        } else { // el articulo a sido editado en su cantidad
+           
+            agregarArticuloExistenteEditado(obj);
+          
+        }
+
+    }
+
+
+
+   function agregarArticuloExistenteEditado(obj){
+       // console.log("linea existente editada");
+       // console.log(obj);
+       if (validarArticuloExistente(obj) == true) {
+         //  console.log("linea existente existe en el array");
+           for (var i = 0; i < arrayTablaTrasladoItemEditadosOnuevos.length; i++) {
+
+               if (arrayTablaTrasladoItemEditadosOnuevos[i].idInventario == obj.idInventario) {
+
+                   arrayTablaTrasladoItemEditadosOnuevos[i].cantidad = obj.cantidad;
+               }
+           }
+
+        //   console.log(arrayTablaTrasladoItemEditadosOnuevos);
+
+       } else {
+          // console.log("linea existente NO existe en el array");
+
+           for (var i = 0; i < arrayTablaTraslado.length; i++) {
+
+               if (arrayTablaTraslado[i].id == obj.id) {
+
+                   var objEncontrado = {
+
+                       id: obj.id,
+                       idTraslado: obj.idTraslado,
+                       idInventario: obj.idInventario,
+                       codigoArticulo: obj.codigoArticulo,
+                       descripcion: obj.descripcion,
+                       cantidad: obj.cantidad,
+                       precioUnitario: obj.precioUnitario,
+                       costoTotal: obj.costoTotal
+
+                   };
+                   arrayTablaTrasladoItemEditadosOnuevos.push(objEncontrado);
+               }
+
+           }
+        //   console.log(arrayTablaTrasladoItemEditadosOnuevos);
+
+       }
+
+    }
+
+
+
+     
+    function editarNuevoArticulo(obj) {
+      //  console.log("linea nueva, agrego, edito");
+      //  console.log(obj);
+        for (var i = 0; i < arrayTablaTrasladoItemEditadosOnuevos.length; i++) {
+
+            if (arrayTablaTrasladoItemEditadosOnuevos[i].idInventario == obj.idInventario) {
+
+                arrayTablaTrasladoItemEditadosOnuevos[i].cantidad = obj.cantidad;
+            }
+
+        }
+
+       // console.log(arrayTablaTrasladoItemEditadosOnuevos);
+
+    }
+
+
+
+    //en caso de que solo agrege el articulo
+    function agregarNuevoArticulo2(obj) {
+
+       // console.log(obj);
+
+        for (var i = 0; i < arrayTablaTraslado.length; i++) {
+
+            if (arrayTablaTraslado[i].idInventario == obj.idInventario) {
+
+                var objEncontrado = {
+
+                    id: 0,
+                    idTraslado: arrayTablaTraslado[i].idTraslado,
+                    idInventario: obj.idInventario,
+                    codigoArticulo: obj.codigo,
+                    descripcion: obj.descripcion,
+                    cantidad: 1,
+                    precioUnitario: obj.costoPromedioBodega,
+                    costoTotal: arrayTablaTraslado[i].costoTotal
+
+                };
+                arrayTablaTrasladoItemEditadosOnuevos.push(objEncontrado);
+
+            }
+        }
+      //  console.log(arrayTablaTrasladoItemEditadosOnuevos);
+
+    }
+
     function validarPreciosArticulos() {
 
         var resp = false;
@@ -1217,7 +1430,18 @@
 
     }
 
-    
+
+    function validarArticuloExistente(obj) {
+        var resp = false;
+        for (var i = 0; i < arrayTablaTrasladoItemEditadosOnuevos.length; i++) {
+            if (arrayTablaTrasladoItemEditadosOnuevos[i].idInventario == obj.idInventario) {
+                resp = true;
+                break;
+            }
+        }
+        return resp;
+    }
+
 
 
 //-----------------------------------------editar---------------------------------------------//
@@ -1268,8 +1492,8 @@
                 data: { id: IdTraslado},
                 success: function (data) {
 
-                    arrayTablaTraslado = data;
-                 
+                    arrayTablaTraslado = data;                
+                    //console.log(auxArrayTablaTraslado);
                     cargarDatosTraslado(arrayTablaTraslado);
                  
                 },
@@ -1311,7 +1535,10 @@
                                       
                                         cargarAlert('@SharedLocalizer["TrasladoAnulado"]');
                                         getTraslados();
-                                       // window.location.href = "@Url.Action("ListarAjustes","AjusteInventario")";
+                                       
+                                        //bloquear boton pdf
+                                        $('#Anular').prop("disabled", true);
+
                                     }
                                     else
                                         cargarAlert('@SharedLocalizer["TrasladoConEstadoAnulado"]');

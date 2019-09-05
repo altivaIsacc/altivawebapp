@@ -106,6 +106,12 @@ namespace AltivaWebApp.Repositories
 
 
 
+        public TbPrTraslado GetTrasladoWithDetails(long id)
+        {
+            return context.TbPrTraslado.Include(t => t.TbPrTrasladoInventario).FirstOrDefault(t => t.IdTraslado == id);
+        }
+
+
 
     }
 }

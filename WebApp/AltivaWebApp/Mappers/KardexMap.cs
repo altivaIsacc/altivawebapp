@@ -477,6 +477,9 @@ namespace AltivaWebApp.Mappers
        
         public bool CreateKardexTRI(IList<TbPrTrasladoInventario> tr, bool isDeteled)
         {
+            if (tr.Count() == 0 || tr == null)
+                return false;
+
             var domain = trService.GetTrasladoById((long)tr.First().IdTraslado);
             var kardex = new List<TbPrKardex>();
 
@@ -491,7 +494,7 @@ namespace AltivaWebApp.Mappers
                     TipoDocumento = "TRE",
                     Fecha = DateTime.Now,
                     ExistAnt = 0,
-                    CantidadMov = !isDeteled ? item.Cantidad : item.Cantidad * -1,
+                    CantidadMov = !isDeteled ? item.Cantidad : item.Cantidad * -1,//       true I -2 
                     ExistAct = 0,
                     PrecioUnit = item.PrecioUnitario,
                     CostoMov = 0,
@@ -519,7 +522,7 @@ namespace AltivaWebApp.Mappers
                     TipoDocumento = "TRS",
                     Fecha = DateTime.Now,
                     ExistAnt = 0,
-                    CantidadMov = isDeteled ? item.Cantidad : item.Cantidad * -1,
+                    CantidadMov = isDeteled ? item.Cantidad : item.Cantidad * -1,// true d +2
                     ExistAct = 0,
                     PrecioUnit = item.PrecioUnitario,
                     CostoMov = 0,
