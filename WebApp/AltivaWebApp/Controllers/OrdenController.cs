@@ -96,7 +96,7 @@ namespace AltivaWebApp.Controllers
             var orden = map.DomainToViewModel(service.GetOrdenById(id));
             var proveedor = contactoService.GetByIdContacto(orden.IdProveedor);
             ViewBag.IdContacto = proveedor.IdContacto;
-            ViewBag.NombreCompleto = proveedor.Nombre+ " " + proveedor.NombreComercial;
+            ViewBag.NombreCompleto = proveedor.Nombre+" "+ proveedor.Apellidos + " " + proveedor.NombreComercial;
             ViewData["usuario"] = userService.GetSingleUser((int)orden.IdUsuario);
             return View("CrearEditarOrden", orden);
         }
@@ -221,7 +221,7 @@ namespace AltivaWebApp.Controllers
                     }
                 }
 
-                return Ok(ordenes);
+                return Ok(ordenes.OrderByDescending(o => o.Fecha));
             }
             catch (Exception ex)
             {
