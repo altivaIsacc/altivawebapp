@@ -37,6 +37,11 @@ namespace AltivaWebApp.Services
             return this.IListaDesplegable.GetById(id);
         }
 
+        public IList<TbCrListaDesplegables> GetListaByIdCampo(int idCampo)
+        {
+            return IListaDesplegable.GetListaByIdCampo(idCampo);
+        }
+
         public IList<ListaDesplegableGETViewModel> GetCampos(int id)
         {
             return this.IListaDesplegable.GetCampos(id);
@@ -62,6 +67,12 @@ namespace AltivaWebApp.Services
              this.IListaDesplegable.UpdateRange(domain);
         }
 
-    
+        public void DeleteRange(IList<long> domain)
+        {
+            IListaDesplegable.DeleteRange(domain);
+        }
+
+
+
     }
 }

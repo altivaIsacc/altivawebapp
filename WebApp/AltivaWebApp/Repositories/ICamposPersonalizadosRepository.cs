@@ -13,5 +13,6 @@ namespace AltivaWebApp.Repositories
         TbCrCamposPersonalizados Save(TbCrCamposPersonalizados domain);
         TbCrCamposPersonalizados Update(TbCrCamposPersonalizados domain);
         void CrearCamposPersonalizados(IList<TbCrCamposPersonalizados> domain);
+        TbCrCamposPersonalizados GetCPPorNombre(string nombre);
     }
 }

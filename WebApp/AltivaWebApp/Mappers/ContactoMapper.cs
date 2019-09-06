@@ -20,6 +20,11 @@ namespace AltivaWebApp.Mappers
             this.cpService = ICamposPersonalizados;
         }
 
+        public TbCrCamposPersonalizados SaveCP(CamposPersonalizadosViewModel domain)
+        {
+            return this.cpService.Save(ViewModelToDomainCP(domain));
+        }
+
         public TbCrCamposPersonalizados EliminarCP(int id)
         {
             TbCrCamposPersonalizados cp = new TbCrCamposPersonalizados();
@@ -74,6 +79,17 @@ namespace AltivaWebApp.Mappers
                 Estado = domain.Estado
             };
         }
+        public CamposPersonalizadosViewModel  DomainToViewModelCP(TbCrCamposPersonalizados domain)
+        {
+            return new CamposPersonalizadosViewModel
+            {
+                Id = (int) domain.Id,
+                Nombre = domain.Nombre,
+                Tipo = domain.Tipo,
+                Estado = domain.Estado
+            };
+        }
+
 
         public ContactoViewModel DomainToViewModelC(TbCrContacto domain)
         {
