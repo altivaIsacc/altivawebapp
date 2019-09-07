@@ -17,7 +17,7 @@ namespace AltivaWebApp.Mappers
             this.service = service;
         }
 
-        //si
+       
         public TbPrTraslado Create(TrasladoViewModel viewModel)
         {
             return service.Save(ViewModelToDomain(viewModel));
@@ -78,7 +78,7 @@ namespace AltivaWebApp.Mappers
             };
         }
 
-        //si
+       
         public TrasladoViewModel DomainToViewModel(TbPrTraslado domain)
         {
             return new TrasladoViewModel
@@ -117,9 +117,9 @@ namespace AltivaWebApp.Mappers
                 IdInventario = domain.IdInventario,
                 CodigoArticulo = domain.CodigoArticulo,
                 Descripcion = domain.Descripcion,
-                Cantidad = (float)domain.Cantidad, //(double) domain.Cantidad
-                PrecioUnitario = (float)domain.PrecioUnitario, //(double) domain.PrecioUnitario
-                CostoTotal = (float)domain.CostoTotal //(double) domain.CostoTotal
+                Cantidad = (float)domain.Cantidad, 
+                PrecioUnitario = (float)domain.PrecioUnitario, 
+                CostoTotal = (float)domain.CostoTotal 
 
             };
         }
@@ -134,7 +134,7 @@ namespace AltivaWebApp.Mappers
                 IdBodegaOrigen = viewModel.IdBodegaOrigen,
                 IdBodegaDestino = viewModel.IdBodegaDestino,
                 Fecha = viewModel.Fecha,
-                FechaCreacion = viewModel.FechaCreacion, //  DateTime.Now
+                FechaCreacion = viewModel.FechaCreacion, 
                 Anulado = viewModel.Anulado,
                 CostoTraslado = viewModel.CostoTraslado,
                 Comentario = viewModel.Comentario

@@ -22,11 +22,7 @@ namespace AltivaWebApp.Mappers
             return service.Save(ViewModelToDomain(viewModel));
         }
 
-        //public TbPrTrasladoInventario Update(TrasladoInventarioViewModel viewModel)
-        //{
-        //    return service.Update(ViewModelToDomainEditar(viewModel));
-        //}
-
+  
         public TbPrTrasladoInventario ViewModelToDomain(TrasladoInventarioViewModel viewModel)
         {
             return new TbPrTrasladoInventario
@@ -68,21 +64,6 @@ namespace AltivaWebApp.Mappers
         {
             throw new NotImplementedException();
         }
-
-        //tal vez falte
-        //public TbPrTrasladoInventario ViewModelToDomainEditar(TrasladoInventarioViewModel viewModel)
-        //{
-        //    var domain = service.GetTrasladoInventarioById(viewModel.IdTraslado);
-
-        //    domain.IdTraslado = viewModel.IdTraslado;
-        //    domain.IdInventario = viewModel.IdInventario;
-        //    domain.CodigoArticulo = viewModel.CodigoArticulo;
-        //    domain.Descripcion = viewModel.Descripcion;
-        //    domain.Cantidad = viewModel.Cantidad;
-        //    domain.PrecioUnitario = viewModel.PrecioUnitario;
-        //    domain.CostoTotal = viewModel.CostoTotal;
-
-        //    return domain;
-        //}
+   
 }
 }
