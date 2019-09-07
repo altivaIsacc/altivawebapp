@@ -1,0 +1,192 @@
+﻿@inject IStringLocalizer<SharedResources> Lb
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+</head>
+<body onload="idioma()" style="color:#73879C;" class="bg-dark text-white">
+
+   
+        <div>
+            <table>
+                <tr>
+                    <td>
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color:#ffffff; text-align:right">
+                            @Lb["Idioma"]
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <button onclick="clickIdioma(value)" value="en" class="dropdown-item btnIdioma" id="english">en</button>
+                            <button onclick="clickIdioma(value)" value="es" class="dropdown-item btnIdioma" id="spanish">es</button>
+                        </div>
+                    <td>
+                        <img class="img-fluid" style="max-height:50px; max-height:60px;"
+                             src="~/images/AltivaLogoBlanco.png"
+                             alt="Altiva Soluciones" />
+                    </td>
+                    <td>
+                        @ViewData["BIENVENIDA"]
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        @RenderBody()
+
+
+
+    <script src="~/js/bootbox.min.js"></script>
+    <script src="~/js/bootbox.locales.min.js"></script>
+    <script src="~/js/guardarConfigUsuario.js"></script>
+    <script type="text/javascript">
+
+        function idioma() {
+
+            if (localStorage.getItem('idioma') != null) {
+                $("[data-translate]").jqTranslate('/../idiomas/altiva', { forceLang: localStorage.getItem('idioma'), asyncLoad: false });
+            }
+
+        }
+        $(document).ready(function () {
+
+
+            $('#english').click(function () {
+                $("[data-translate]").jqTranslate('/../idiomas/altiva', { defaultLang: 'es', forceLang: 'en', asyncLoad: false });
+                localStorage.setItem('idioma', 'en');
+            });
+            $('#spanish').click(function () {
+                $("[data-translate]").jqTranslate('/../idiomas/altiva', { defaultLang: 'en', forceLang: 'es', asyncLoad: false });
+                localStorage.setItem('idioma', 'es');
+            });
+
+            bootbox.setDefaults({
+                locale: localStorage.getItem('idioma')
+            });
+
+                $('#btn_ir').click(function () {
+                   // alert($('#txt_grupo').val());
+                    var grupo = $('#txt_grupo').val();
+                    var url = '@Url.Action("Login", new { grupo = "__grupo__"})';
+                    window.location.href = url.replace('__grupo__', grupo);
+
+            });
+
+
+        });
+
+
+
+        function cargarAlert(mensaje) {
+            bootbox.alert({
+                message: '<h4 class="text-center"><span class="text-warnig">' + mensaje + '</span></h4>',
+                className: 'rubberBand animated',
+                buttons: {
+
+                    ok: {
+                        label: '<i class="fa fa-check"></i><span> Aceptar</span>'
+                    }
+                },
+            });
+
+        }
+
+        $('.sinCaracteresE').on('keypress onblur', function (e) {
+
+            tecla = (document.all) ? e.keyCode : e.which;
+
+            //Tecla de retroceso para borrar, siempre la permite
+            if (tecla == 8) {
+                return true;
+            }
+
+            // Patron de entrada, en este caso solo acepta numeros y letras
+            patron = /^[A-Za-z0-9\s]+$/g;
+            tecla_final = String.fromCharCode(tecla);
+            return patron.test(tecla_final);
+
+        });
+
+        $('.telefono').on('keypress onblur', function (e) {
+
+            tecla = (document.all) ? e.keyCode : e.which;
+
+            //Tecla de retroceso para borrar, siempre la permite
+            if (tecla == 8) {
+                return true;
+            }
+
+            // Patron de entrada, en este caso solo acepta numeros y letras
+            patron = /^[-()+0-9\s]+$/g;
+            tecla_final = String.fromCharCode(tecla);
+            return patron.test(tecla_final);
+
+        });
+
+
+        function clickIdioma(value) {
+
+
+            cambioIdioma(value);
+
+            var url = window.location.href;
+
+            var user = "";
+            user = '@User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value';
+
+            if (user.toString().replace(/ /g, "") !== '') {
+                localStorage.setItem('idioma', value);
+                guardarConfigUsuario(parseInt(user), '@Url.Action("CambiarConfig", "ManejoUsuarios")');
+            }
+
+            if (value === 'en')
+                url = url.replace("es-CR", 'en-US');
+            else if (value === 'es')
+                url = url.replace("en-US", 'es-CR');
+
+            window.location.href = url;
+        }
+
+
+        function cambioIdioma() {
+
+            var url = setIdiomaUrl(window.location.href);
+            history.pushState(null, "", url);
+
+        }
+
+
+        function setIdiomaUrl(url) {
+
+            var idiomaActual = localStorage.getItem('idioma');
+
+            if (idiomaActual === 'en')
+                url = url.replace("es-CR", 'en-US');
+            else if (idiomaActual === 'es')
+                url = url.replace("en-US", 'es-CR');
+            else
+                url = url.replace("en-US", 'es-CR');
+
+
+            return url;
+
+        }
+
+    </script>
+
+
+
+
+    <script src="~/lib/translator/jqueryTranslator.js"></script>
+
+
+</body>
+</html>

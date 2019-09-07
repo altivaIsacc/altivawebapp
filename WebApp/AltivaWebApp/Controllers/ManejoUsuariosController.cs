@@ -28,7 +28,7 @@ namespace AltivaWebApp.Controllers
         IPerfilService perfilService;
 
         private readonly IStringLocalizer<SharedResources> _sharedLocalizer;
-       
+
         public ManejoUsuariosController(IStringLocalizer<SharedResources> sharedLocalizer, IPerfilService perfilService, IUserMap map, IUserService userservice)
         {
             this.userMap = map;
@@ -59,7 +59,7 @@ namespace AltivaWebApp.Controllers
                     usariosFiltrados.Add(item);
                 }
             }
-            
+
 
             return View(usariosFiltrados.OrderByDescending(u => u.Id));
 
@@ -68,8 +68,7 @@ namespace AltivaWebApp.Controllers
         public ActionResult CuentaUsuario(string codigo)
         {
             var model = userService.GetUsuarioConPerfiles(codigo);
-            //long id = model.Id;
-            //ViewBag.id = id;
+
             var asignados = new List<TbSePerfil>();
 
             foreach (var item in model.TbSePerfilUsuario)
@@ -88,8 +87,10 @@ namespace AltivaWebApp.Controllers
                     if (item.Id == i.Id)
                     {
                         flag = true;
+
                         break;
                     }
+
 
                 }
                 if (!flag)
@@ -98,14 +99,52 @@ namespace AltivaWebApp.Controllers
 
             ViewData["Asignados"] = asignados;
             ViewData["SinAsignar"] = sinAsignar;
+            ViewBag.EsAdmin = soyAdmin();
 
 
             return View(userMap.DomainToViewModelSingle(model));
         }
+        bool soyAdmin()
+        {
+            bool SoyAdmin = false;
+
+            var model = userService.GetUsuarioConPerfiles(User.Identity.Name);
+
+
+            var asignados = new List<TbSePerfil>();
+
+            foreach (var item in model.TbSePerfilUsuario)
+            {
+                asignados.Add(item.IdPerfilNavigation);
+            }
+
+            var perfiles = perfilService.GetAll();
+            var sinAsignar = new List<TbSePerfil>();
+
+            foreach (var item in perfiles)
+            {
+                foreach (var i in asignados)
+                {
+                    if (item.Id == i.Id)
+                    {
+                        if (item.Nombre.Contains("Admin"))
+                        {
+                            SoyAdmin = true;
+                        }
+                        break;
+                    }
+
+
+                }
+
+            }
+
+            return SoyAdmin;
+        }
         [HttpPost("CambiarContrasena")]
         public IActionResult CambiarContrasena(UsuarioViewModel model)
         {
-            
+
 
             try
             {
@@ -189,7 +228,7 @@ namespace AltivaWebApp.Controllers
         {
 
             var pu = userMap.CreatePU(model);
-            
+
             if (pu)
                 return Json(new { success = true });
             else
@@ -267,7 +306,7 @@ namespace AltivaWebApp.Controllers
                     var resCU = userService.CreateOrUpdateConfiguracion(configUsuario);
                     var resEU = userService.CreateEmpresaUsuarioRel(empresaUsuarioRel);
 
-                    return Json(new { success = true, cod =  user.codigo});
+                    return Json(new { success = true, cod = user.codigo });
 
                 }
                 else
@@ -285,16 +324,7 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        [Route("Editar-Usuario/{id}")]
-        public ActionResult EditarUsuario(int id)
-        {
-            var model = userService.GetSingleUser(id);
-            ViewBag.id = id;
-            var modelView = userMap.DomainToViewModelSingle(model);
-            return View(modelView);
 
-        }
-        
         [HttpPost("Editar-Usuario/{id?}")]
         public ActionResult EditarUsuario(UsuarioViewModel model)
         {
@@ -321,13 +351,13 @@ namespace AltivaWebApp.Controllers
                 }
 
                 var user = userMap.Update(model);
-                if(user.Id.ToString() == User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value)
+                if (user.Id.ToString() == User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value)
                 {
                     ReiniciarSesion(user);
                     enSesion = true;
                 }
-                    
-                
+
+
                 return Json(new { success = true, enSesion = enSesion });
 
             }
@@ -375,7 +405,7 @@ namespace AltivaWebApp.Controllers
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw;
             }
-           
+
 
         }
 
@@ -391,7 +421,7 @@ namespace AltivaWebApp.Controllers
 
             user.Avatar = directorio;
 
-            if(codigo == User.Identity.Name)
+            if (codigo == User.Identity.Name)
                 Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
 
             userService.UpdateUsuario(user);
@@ -445,7 +475,7 @@ namespace AltivaWebApp.Controllers
                 var res = userService.CrearRelEmpresaUsuario(newViewModel);
                 var res2 = userService.DesactivarRelEmpresaUsuario(upViewModel);
 
-                return Json( new { success = true });
+                return Json(new { success = true });
             }
             catch (Exception ex)
             {
@@ -481,17 +511,17 @@ namespace AltivaWebApp.Controllers
             return Ok(userService.GetAllConEmpresas());
         }
 
-              [HttpGet("GetAllPerfilModulo")]
+        [HttpGet("GetAllPerfilModulo")]
         public ActionResult GetAllPerfilModulo()
         {
-           
+
             return Ok(userService.GetAllPerfilModulo());
         }
 
         [HttpGet("GetAllPerfilUsuario")]
         public ActionResult GetAllPerfilUsuario()
         {
-            
+
             return Ok(userService.GetAllPerfilUsuario());
         }
 
