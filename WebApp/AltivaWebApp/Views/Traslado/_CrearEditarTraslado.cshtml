@@ -55,7 +55,7 @@
                 <select id="IdBodegaOrigen" class="form-control" onChange="validarBodegaOrigenSeleccionada(value)" autofocus="autofocus">
                     <option id="option" value="">@SharedLocalizer["seleccione"]</option>
                 </select>
-                <span hidden id="IdbodegaRequeridaValid" class="text-danger">@SharedLocalizer["bodegaRequerida"]</span>
+                <span hidden id="IdbodegaOrigenRequeridaValid" class="text-danger">@SharedLocalizer["bodegaRequerida"]</span>
             </div>
 
             <div class="col-md-4 col-sm-4 col-xs-4 ">
@@ -77,9 +77,10 @@
             <div class="col-md-4 col-sm-4 col-xs-4 ">
                 <label class="control-label">@SharedLocalizer["BodegaDestino"]:</label>
                 <select id="IdBodegaDestino" class="form-control">
-                 
+
                     <option id="option" value="">@SharedLocalizer["seleccione"]</option>
                 </select>
+                <span hidden id="IdbodegaDestinoRequeridaValid" class="text-danger">@SharedLocalizer["bodegaRequerida"]</span>
             </div>
 
         </div>
@@ -564,7 +565,8 @@
 
 
     function validarBodegaOrigenSeleccionada(value) {
-        $('#IdbodegaRequeridaValid').hide();
+        $('#IdbodegaOrigenRequeridaValid').hide();
+        $('#IdbodegaDestinoRequeridaValid').hide();
         var vacio = "";
         if (value == "") {
             ocultarCampos();
@@ -1177,13 +1179,13 @@
                             });
                         } else {
                          $('#modalTraslado').modal('show');
-                         cargarAlert('@SharedLocalizer["TablaVacia"]');
+                         cargarAlert('@SharedLocalizer["docSinDetalle"]');
                         }
           
 
         } else {
 
-           // console.log("guarda");
+        
                if (validarSelectBodegaOrigen() == false) {
                     if (validarTablaTraslado() == false) {
                             $.ajax({
@@ -1211,11 +1213,14 @@
                             });
                         } else {
                          $('#modalTraslado').modal('show');
-                         cargarAlert('@SharedLocalizer["TablaVacia"]');
+                         cargarAlert('@SharedLocalizer["docSinDetalle"]');
                         }
             } else {
                 $('#modalTraslado').modal('show');
-                $('#IdbodegaRequeridaValid').show();
+                   $('#IdbodegaOrigenRequeridaValid').show();
+                   $('#IdbodegaDestinoRequeridaValid').hide();
+                   if (validarSelectBodegaDestino() == true) {$('#IdbodegaDestinoRequeridaValid').show();}
+                  
 
             }
 
@@ -1263,6 +1268,16 @@
     function validarSelectBodegaOrigen() {
         var resp = false;
         if ($('#IdBodegaOrigen').val() == "" ) {
+            resp = true;
+            return resp;
+        } else {
+            resp = false;
+            return resp;
+        }
+    }
+     function validarSelectBodegaDestino() {
+        var resp = false;
+        if ($('#IdBodegaDestino').val() == "" ) {
             resp = true;
             return resp;
         } else {

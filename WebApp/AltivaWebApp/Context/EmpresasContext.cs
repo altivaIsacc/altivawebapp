@@ -4759,7 +4759,7 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.Anulado)
                     .IsRequired()
-                    .HasDefaultValueSql("('0')");
+                    .HasDefaultValueSql("0");
 
                 entity.Property(e => e.Comentario).HasMaxLength(256);
 

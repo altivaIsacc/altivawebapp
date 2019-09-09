@@ -95,19 +95,21 @@ namespace AltivaWebApp.Controllers
         [HttpPost("CrearEditar-Traslado")]
         public ActionResult CrearEditarTraslado(TrasladoViewModel traslado, IList<TrasladoInventarioViewModel> inventarioTraslado, IList<long> eliminados)
         {
-            //traslado: Anulado, Comnetario, CostoTraslado, Fecha, FechaCreacion, IdBodegaDestino, IdbodegaOrigen, IdTraslado, IdUsuario,
-            //inventarioTraslado: Cantidad,CodigoArticulo, CostoTotal, Descripcion, Id, IdInventario, IdTraslado, PrecioUnitaio
-            //eliminados: [0] 4
-
+        
             try
             {
 
+                if (traslado.Comentario == null)
+                {
+                    traslado.Comentario = "";
+                }
+                
                 if (traslado.IdTraslado != 0)
                 {
 
                    IList<TbPrTrasladoInventario> detallesToAnular = trasladoService.GetAllTrasladoInvetarioDetalleById(inventarioTraslado.Select(d => (long)d.Id).Where(d => d != 0).ToList());//enviar las que vienen sin id y no devuelve nada
                    kardexMap.CreateKardexTRI(detallesToAnular, true); // va y vuelve
-
+                  
 
                     var respTraslado = trasladoMap.Update(traslado);//actualiza en la tabla traslado
                     if (inventarioTraslado.Count() > 0)
