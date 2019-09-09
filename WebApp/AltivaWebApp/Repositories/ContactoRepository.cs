@@ -39,7 +39,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                var model = context.TbCrContacto.FromSql($"Select * From tb_CR_Contacto as c where c.Proveedor = 0 and c.Cliente = 1 Order By LTRIM(Nombre + NombreComercial)").ToList();
+                var model = context.TbCrContacto.FromSql($"Select * From tb_CR_Contacto as c where c.Cliente = 1 Order By LTRIM(Nombre + NombreComercial)").ToList();
                 return model;
 
             }
