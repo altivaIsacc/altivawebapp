@@ -24,7 +24,7 @@ namespace AltivaWebApp.Repositories
 
         public TbPrTraslado GetTrasladoById(long id)
         {          
-                return context.TbPrTraslado.FirstOrDefault(d => d.IdTraslado == id);//se cambio Id por IdTraslado         
+                return context.TbPrTraslado.AsNoTracking().FirstOrDefault(d => d.IdTraslado == id);// AsNoTracking()       
         }
 
       
@@ -94,7 +94,24 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbPrTraslado.Where(d => d.Anulado == false).ToList();
         }
-  
+
+
+
+
+        public IList<TbPrTrasladoInventario> GetAllTrasladoInvetarioDetalleById(IList<long> domain)
+        {
+            return context.TbPrTrasladoInventario.Where(t => domain.Any(id => id == t.Id)).AsNoTracking().ToList();
+
+        }
+
+
+
+        public TbPrTraslado GetTrasladoWithDetails(long id)
+        {
+            return context.TbPrTraslado.Include(t => t.TbPrTrasladoInventario).FirstOrDefault(t => t.IdTraslado == id);
+        }
+
+
 
     }
 }

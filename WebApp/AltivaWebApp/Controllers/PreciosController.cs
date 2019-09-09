@@ -52,7 +52,7 @@ namespace AltivaWebApp.Controllers
             rep.Report.Load(path);
             rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;
             rep.Report.Dictionary.Connections[1].ConnectionString = strIdioma;
-
+            rep.ShowToolbar = false;
             rep.Report.Prepare();
             ViewBag.WebReport = rep;
             return View();

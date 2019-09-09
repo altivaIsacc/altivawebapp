@@ -202,7 +202,7 @@ namespace AltivaWebApp.Mappers
             domain.IdUsuario = viewModel.IdUsuario;
             domain.Observacion = viewModel.Observacion;
             domain.Anulado = viewModel.Anulado;
-            domain.Fecha = viewModel.Fecha;
+            domain.Fecha = DateTime.Now;
             domain.TipoCambioDolar = viewModel.TipoCambioDolar;
             domain.TipoCambioEuro = viewModel.TipoCambioEuro;
           

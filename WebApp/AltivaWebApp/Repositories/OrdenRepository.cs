@@ -30,6 +30,7 @@ namespace AltivaWebApp.Repositories
                 throw;
             }
         }
+        
         public IList<TbPrOrden> GetAllOrdenes()
         {
             try

@@ -27,10 +27,13 @@ namespace AltivaWebApp.Controllers
             this.map = ITipoMapper;
         }
 
-        [Route("Cliente")]
-        public IActionResult ListarTipoClientes()
+        [Route("Cliente/{last?}")]
+        public IActionResult ListarTipoClientes(string last)
         {
-            return View();
+         
+
+           
+            return View(service.GetAll().OrderByDescending(p => p.Id));
         }
 
         [HttpPost("_CrearTipoCliente/{id?}")]
@@ -86,7 +89,24 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-               return Ok(service.GetAll());
+             
+
+                    return Ok(service.GetAll().OrderByDescending(p => p.Id));
+              
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return BadRequest();
+            }
+        }
+        [HttpGet("GetTiposClientesCrear")]
+        public IActionResult GetTiposClientesCrear()
+        {
+            try
+            {             
+                    return Ok(service.GetAll().OrderByDescending(p => p.Id));
+
             }
             catch (Exception ex)
             {
@@ -95,7 +115,7 @@ namespace AltivaWebApp.Controllers
             }
         }
         [HttpGet("Get-Unidad/{id?}")]
-        public ActionResult GetTipoClientes(string nombre)
+        public ActionResult GetTipoClientes(string nombre, long id)
         {
             var flag = false;
             try
@@ -104,7 +124,7 @@ namespace AltivaWebApp.Controllers
 
                 foreach (var item in uni)
                 {
-                    if (item.Nombre == nombre)
+                    if (item.Nombre == nombre && id != item.Id)
                         flag = true;
                 }
                     return Json(new { data = flag });

@@ -1,0 +1,490 @@
+﻿@model AltivaWebApp.ViewModels.PuntoVentaViewModel
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{ var titulo = @Lb["Crear"];
+    var oculto = "hidden";
+    if (Model.IdPuntoVenta != 0)
+    {
+        titulo = @Lb["Editar"];
+    }
+    if (Model.Imagen != " ")
+    {
+        oculto = " ";
+    }
+}
+<div class="row">
+    <div class="col-md-3"><h3>@titulo @Lb["PuntoVenta"]</h3></div>
+
+</div>
+
+<form asp-route="CrearEditarPuntoVenta()" method="post" id="formPuntoVenta">
+    @Html.HiddenFor(x => x.IdUsuarioCreacion)
+    @Html.HiddenFor(x => x.IdPuntoVenta)
+    @Html.HiddenFor(x => x.TieneEncabezadoIndependiente)
+    @Html.HiddenFor(x => x.TieneConcecutivoIndependiente)
+    @Html.HiddenFor(x => x.TieneCajaIndependiente)
+    @Html.HiddenFor(x => x.Inactivo)
+    @Html.HiddenFor(x => x.EsPorDefecto)
+    @Html.HiddenFor(x => x.Imagen)
+    <div class="form-group col-md-10 col-sm-12 col-xs-12">
+
+        <label asp-for="Nombre" class="control-label">@Lb["Nombre"]:</label>
+        <input maxlength="59" asp-for="Nombre" class="form-control" />
+        <span id="nombreValid" class="text-danger" hidden>@Lb["nombreValid"]</span>
+        <br />
+        <label asp-for="Descripcion" class="control-label">@Lb["Descripción"]:</label>
+        <textarea asp-for="Descripcion" class="form-control" cols="40" rows="7" style="resize: both;"></textarea>
+        <span id="descripcionValid" class="text-danger" hidden>@Lb["descripcionValid"]</span>
+
+        <div class="form-group">
+            <input id="inactivo" type="checkbox" /> @Lb["inactivo"]
+        </div>
+
+        <div class="form-group">
+            <input id="PorDefecto" type="checkbox" /> @Lb["porDefecto"]
+        </div>
+        <br />
+
+        <label asp-for="Tipo" class="control-label">@Lb["tipo"]:</label>
+        <select asp-for="Tipo" class="form-control search-key">
+
+            <option value="1">@Lb["Front"] @Lb["Desk"]</option>
+            <option value="2">@Lb["comercioGeneral"]</option>
+            <option value="3">@Lb["Tour"] @Lb["Desk"]</option>
+            <option value="4">@Lb["Restaurante"]</option>
+
+        </select>
+
+        <label asp-for="OpcionImpresion" class="control-label">@Lb["Impresión"]:</label>
+        <select asp-for="OpcionImpresion" class="form-control search-key">
+
+            <option selected value="1">@Lb["Impresora"] @Lb["Tiquete"]</option>
+            <option value="0">@Lb["Sin"] @Lb["Impresora"]</option>
+            <option value="2">@Lb["preguntarCadaVez"]</option>
+            <option value="3">@Lb["imprimir"] @Lb["Carta"]</option>
+            <option value="4">@Lb["imprimir"] @Lb["mediaCarta"]</option>
+            <option value="5">@Lb["imprimir"] @Lb["Personalizado"]</option>
+
+
+        </select>
+
+        <label asp-for="IdContactoClienteDefecto" class="control-label">@Lb["clienteDefecto"]:</label>
+        <select asp-for="IdContactoClienteDefecto" class="form-control search-key">
+            @{
+                foreach (var item in ViewData["cliente"] as IList<TbCrContacto>)
+                {
+                    @if (item.Nombre == "")
+                    {
+                        <option value="@item.IdContacto">@item.NombreComercial</option>
+                    }
+                    else
+                    {
+                        <option value="@item.IdContacto">@item.Nombre @item.Apellidos</option>
+                    }
+
+                }
+            }
+        </select>
+
+        <label asp-for="IdBodega" class="control-label">@Lb["Bodega"]:</label>
+        <select asp-for="IdBodega" class="form-control search-key">
+            @{
+                foreach (var item in ViewData["bodega"] as IList<TbPrBodega>)
+                {
+                    <option value="@item.Id">@item.Nombre</option>
+                }
+            }
+        </select>
+
+        <label asp-for="IdMonedaPrecio" class="control-label">@Lb["monedaPrecio"]:</label>
+        <select asp-for="IdMonedaPrecio" class="form-control search-key">
+            @{
+                foreach (var item in ViewData["moneda"] as IList<TbSeMoneda>)
+                {
+                    <option value="@item.Codigo">@item.Nombre</option>
+                }
+            }
+        </select>
+
+        <label asp-for="IdMonedaFacturaDefecto" class="control-label">@Lb["monedaFactura"]:</label>
+        <select asp-for="IdMonedaFacturaDefecto" class="form-control search-key">
+            @{
+                foreach (var item in ViewData["moneda"] as IList<TbSeMoneda>)
+                {
+                    <option value="@item.Codigo">@item.Nombre</option>
+                }
+            }
+        </select>
+        <br />
+        <div class="form-group">
+            <input type="checkbox" class="form-check-input" id="caja" />
+            <label class="form-check-label">@Lb["cajaIndependiente"]</label>
+        </div>
+        <div class="form-group">
+            <input type="checkbox" class="form-check-input" asp-for="TieneEncabezadoIndependiente" id="encabezado" />
+            <label class="form-check-label">@Lb["encabezadoIndependiente"]</label>
+        </div>
+
+        <div class="row collapse encabezadoForm">
+
+            <div class="form-group col-md-6">
+                <label asp-for="RazonSocial">@Lb["razonSocial"]:</label>
+                <input asp-for="RazonSocial" type="text" class="form-control" />
+                <span id="razonValid" class="text-danger" hidden>@Lb["razonValid"]</span>
+
+            </div>
+            <div class="form-group col-md-6">
+                <label asp-for="Telefono">@Lb["Teléfono"]</label>
+                <input asp-for="Telefono" class="form-control numerico" />
+                <span id="telefonoRequerido" class="text-danger" hidden>@Lb["telefonoRequerido"]</span>
+
+            </div>
+            <div class="form-group col-md-6">
+                <label asp-for="CedulaJuridica">@Lb["cedulaJuridica"]:</label>
+                <input asp-for="CedulaJuridica" class="form-control" />
+                <span id="cedulaJuridicaValid" class="text-danger" hidden>@Lb["cedulaJuridicaValid"]</span>
+
+            </div>
+            <div class="form-group col-md-6">
+                <label asp-for="Email">@Lb["Correo"]:</label>
+                <input asp-for="Email" type="text" class="form-control" />
+                <span id="correoValid" class="text-danger" hidden>@Lb["correoValid"]</span>
+                <div id="correoInvalido"></div>
+
+            </div>
+
+            <div class="form-group col-md-6">
+                <label asp-for="Web">@Lb["sitioWeb"]:</label>
+                <input asp-for="Web" class="form-control" />
+                <div id="webValid"></div>
+            </div>
+
+            <div class="form-group col-md-6">
+                <label class="input-group-text" id="inputGroup-sizing-sm">@Lb["CargarImagen"] (6MB)</label>
+                <input id="fileUploadC" type="file" accept="image/*" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                <span hidden id="tamanoArchivoC" class="text-danger">@Lb["tamanoArchivo"]</span>
+                <span hidden id="tipoArchivoC" class="text-danger">@Lb["tipoArchivo"]</span>
+                <img class="card-img-top" style="width:100%; height:20rem" src="@Model.Imagen" alt="Card image cap" id="foto" @oculto>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="form-group ">
+            <input type="checkbox" class="form-check-input" asp-for="TieneConcecutivoIndependiente" id="concecutivo" />
+            <label class="form-check-label">@Lb["consecutivoIndependiente"]</label>
+        </div>
+        <div class="row collapse consecutivoForm">
+
+            <div class="form-group col-md-6">
+                <label asp-for="PrefijoConcecutivoIndepediente">@Lb["Prefijo"]:</label>
+                <input asp-for="PrefijoConcecutivoIndepediente" type="text" class="form-control" />
+                <span id="prefijoValid" class="text-danger" hidden>@Lb["prefijoValid"]</span>
+
+            </div>
+            <div class="form-group col-md-6">
+                <label asp-for="InicioConcecutivoIndependiente">@Lb["Inicio"]:</label>
+                <input asp-for="InicioConcecutivoIndependiente" class="form-control numerico" />
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <br />
+
+
+</form>
+
+<div class="row">
+    <div class="form-group col-md-12">
+        <button id="btnGuardar" onclick="guardarCambios()" class="btn btn-success"><span>@Lb["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
+        <a class="btn btn-default" id="btnCancelar" onclick="cancelar()">@Lb["Cancelar"]</a>
+    </div>
+</div>
+<script>
+  $(document).ready(function () {
+
+        if ($('#IdPuntoVenta').val() == 0 ||  $('#TieneConcecutivoIndependiente').val() === "False" )
+            $('#InicioConcecutivoIndependiente').val(1);
+
+        if ($('#encabezado').prop('checked') == true)
+            $('.encabezadoForm').collapse('toggle');
+
+        if ($('#concecutivo').prop('checked') == true)
+            $('.consecutivoForm').collapse('toggle');
+
+        if ($('#TieneCajaIndependiente').val() === "True")
+            $('#caja').prop('checked', true)
+
+         if ($('#EsPorDefecto').val() === "True")
+            $('#PorDefecto').prop('checked', true)
+
+          if ( $('#Inactivo').val() === "True")
+            $('#inactivo').prop('checked', true)
+
+  });
+
+    //eventos directos
+   $('#fileUploadC').bind('change', function () {
+        var file = $(this)[0].files[0];
+        if ($(this).val() != '') {
+
+            var e = 0;
+            e = + file.size;
+
+            if (e > 6000000) {
+                $('#tamanoArchivoC').attr('hidden', false);
+                $(this).val('');
+            }
+            else
+                $('#tamanoArchivoC').attr('hidden', true);
+
+            if (!(/\.(jpg|png)$/i).test(file.name)) {
+                $('#tipoArchivoC').attr('hidden', false);
+                $(this).val('');
+            }
+            else
+                $('#tipoArchivoC').attr('hidden', true);
+
+        }
+   });
+   $('#encabezado').change(function () {
+        $('.encabezadoForm').collapse('toggle');
+        if (  $('#TieneEncabezadoIndependiente').val() === "False") {
+            $('#TieneEncabezadoIndependiente').val("True");
+        } else {
+            $('#TieneEncabezadoIndependiente').val("False");
+
+        }
+   });
+   $('#caja').change(function () {
+        if ($(this).prop('checked'))
+            $('#TieneCajaIndependiente').val("True");
+        else
+             $('#TieneCajaIndependiente').val("False");
+
+
+   });
+    $('#concecutivo').change(function () {
+        $('.consecutivoForm').collapse('toggle');
+         if ( $('#TieneConcecutivoIndependiente').val() === "False") {
+            $('#TieneConcecutivoIndependiente').val("True");
+         } else {
+            $('#TieneConcecutivoIndependiente').val("False");
+         }
+    });
+
+    $('#inactivo').change(function () {
+        if ($(this).prop('checked') == true) {
+            $('#PorDefecto').prop('checked', false);
+            $('#Inactivo').val("True");
+            $('#EsPorDefecto').val("False");
+
+        } else {
+            $('#Inactivo').val("False");
+
+        }
+
+    });
+    $('#PorDefecto').change(function () {
+        if ($(this).prop('checked') == true) {
+            $('#inactivo').prop('checked', false);
+            $('#EsPorDefecto').val("True");
+            $('#Inactivo').val("False");
+        }
+         else {
+           $('#EsPorDefecto').val("False");
+        }
+    });
+
+    $('#InicioConcecutivoIndependiente').on('keyup, change, focusout', function () {
+        if ($(this).val() <= 0 || $(this).val() === "")
+            $(this).val(1);
+    });
+
+    //helpers
+    function validarCampos() {
+
+             var flag = true;
+
+            if ($('#Nombre').val().replace(/ /g, '') === "") {
+                flag = false;
+                $('#nombreValid').prop('hidden', false);
+            }
+            else
+                $('#nombreValid').prop('hidden', true);
+
+            if ($('#Descripcion').val().replace(/ /g, '') === "") {
+                flag = false;
+                $('#descripcionValid').prop('hidden', false);
+            }
+            else
+                $('#descripcionValid').prop('hidden', true);
+
+           if ($('#concecutivo').prop('checked')) {
+                if ($('#PrefijoConcecutivoIndepediente').val().replace(/ /g, '') === "") {
+                   flag = false;
+                   $('#prefijoValid').prop('hidden', false);
+                }
+               else
+                $('#prefijoValid').prop('hidden', true);
+           }//fin if de concecutivo
+
+           if ($('#encabezado').prop('checked')) {
+
+               if ($('#Web').val().replace(/ /g, "") == "") {
+                flag = false;
+                  $('#webValid').empty();
+                  $('#webValid').append('<span class="text-danger">@Lb["webValid"]</span>');
+               }
+                else
+                 $('#webValid').empty();
+
+              if ($('#RazonSocial').val() == "") {
+                flag = false;
+                $('#razonValid').prop('hidden', false);
+              }
+              else
+                 $('#razonValid').prop('hidden', true);
+
+             if ($('#CedulaJuridica').val() == "") {
+                flag = false;
+                $('#cedulaJuridicaValid').prop('hidden', false);
+             }
+              else
+                 $('#cedulaJuridicaValid').prop('hidden', true);
+
+             if ($('#Email').val().replace(/ /g, "") === "")
+             {
+                 flag = false;
+                   $('#correoInvalido').empty();
+                   $('#correoValid').prop("hidden", false);
+
+             }
+             else
+             {
+                 $('#correoValid').prop("hidden", true);
+
+                 if (!isEmail($('#Email').val())) {
+                   $('#correoInvalido').empty();
+                  $('#correoInvalido').append('<span class="text-danger">@Lb["correoInvalido"]</span>');
+                  flag = false;
+                }  else
+                     $('#correoInvalido').empty();
+              }
+
+              if ($('#Telefono').val().replace(/ /g, '') === "") {
+                   flag = false;
+                   $('#telefonoRequerido').prop('hidden', false);
+              }
+              else
+                 $('#telefonoRequerido').prop('hidden', true);
+
+
+
+         }//fin if de encabezado
+          return flag;
+    }
+     function cancelar() {
+        bootbox.confirm("@Lb["confirmCancelar"]", function (result) {
+            if (result)
+                window.location.href = "@Url.Action("ListarPuntosVentas")";
+
+
+        });
+    }
+    function isEmail(email) {
+        var regex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        return regex.test(email);
+    }
+    function crearModelo() {
+        Model = {
+            IdPuntoVenta: $("#IdPuntoVenta").val(),
+            Nombre: $("#Nombre").val(),
+            Descripcion: $("#Descripcion").val(),
+            Tipo: $("#Tipo").val(),
+            EsPorDefecto: $("#EsPorDefecto").val(),
+            Inactivo: $("#Inactivo").val(),
+            OpcionImpresion:$("#OpcionImpresion").val(),
+            IdContactoClienteDefecto:$("#IdContactoClienteDefecto").val(),
+            IdBodega:$("#IdBodega").val(),
+            IdMonedaPrecio:$("#IdMonedaPrecio").val(),
+            IdMonedaFacturaDefecto:$("#IdMonedaFacturaDefecto").val(),
+            TieneConcecutivoIndependiente:$("#TieneConcecutivoIndependiente").val(),
+            PrefijoConcecutivoIndepediente:$("#PrefijoConcecutivoIndepediente").val(),
+            InicioConcecutivoIndependiente:$("#InicioConcecutivoIndependiente").val(),
+            TieneEncabezadoIndependiente: $("#TieneEncabezadoIndependiente").val(),
+            TieneCajaIndependiente: $("#TieneCajaIndependiente").val(),
+            RazonSocial:$("#RazonSocial").val(),
+            CedulaJuridica:$("#CedulaJuridica").val(),
+            Email:$("#Email").val(),
+            Telefono:$("#Telefono").val(),
+            Web:$("#Web").val(),
+            FechaCreacion:$("#FechaCreacion").val(),
+            IdUsuarioCreacion: $("#IdUsuarioCreacion").val(),
+            Imagen: $("#Imagen").val()
+        }
+        return Model;
+    }
+
+
+    //Ajax
+    function guardarCambios() {
+        if (validarCampos()) {
+           $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: '@Url.Action("CrearEditarPuntoVenta")',
+            data: crearModelo(),
+               success: function (data) {
+                   if ($('#fileUploadC').val() != "") {
+                      guardarImagen(data.id);
+                   }
+
+
+               window.location.href = "@Url.Action("ListarPuntosVentas")";
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+
+        }
+    }
+    function guardarImagen(idPuntoVenta) {
+
+         var formData = new FormData();
+         var file = $('#fileUploadC')[0].files[0];
+        formData.append("Foto", file);
+        $.ajax({
+            type: "post",
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            url: '@Url.Action("GuardarImagen", "PuntoVenta", new { idPuntoVenta = "__id__"})'.replace("__id__", idPuntoVenta),
+            data: formData,
+             success: function (data) {
+
+             },
+             error: function (err, scnd) {
+                 cargarAlert('@Lb["errorGeneral"]');
+                 console.log(err.statusText);
+             }
+         });
+
+    }
+
+</script>

@@ -16,13 +16,13 @@ namespace AltivaWebApp.Services
             this.repository = _repository;
         }
 
-        //NO
+       
         public IList<TbPrTrasladoInventario> GetAllTrasladoInventario()
         {
             return repository.GetAllTrasladoInventario();
         }
 
-        //sirve
+        
         public IList<TbPrTrasladoInventario> GetTrasladoInventarioById(long idTraslado)
         {
             return repository.GetTrasladoInventarioById(idTraslado);

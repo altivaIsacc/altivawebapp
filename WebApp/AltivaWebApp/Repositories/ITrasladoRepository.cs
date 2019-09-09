@@ -13,11 +13,14 @@ namespace AltivaWebApp.Repositories
         TbPrTraslado Save(TbPrTraslado domain);
         TbPrTraslado Update(TbPrTraslado domain);
         bool Delete(TbPrTraslado domain);
-        IList<TbPrTraslado> GetAllTraslado();//si
-        TbPrTraslado GetTrasladoById(long id);//si
+        IList<TbPrTraslado> GetAllTraslado();
+        TbPrTraslado GetTrasladoById(long id);
         IList<TbPrTrasladoInventario> SaveOrUpdateTrasladoInventario(IList<TbPrTrasladoInventario> domain);
         void DeleteTrasladoInventario(IList<long> domain);
-
         IList<TbPrTraslado> GetTrasladosSinAnular();
+
+        IList<TbPrTrasladoInventario> GetAllTrasladoInvetarioDetalleById(IList<long> domain);
+        TbPrTraslado GetTrasladoWithDetails(long id);
+
     }
 }
