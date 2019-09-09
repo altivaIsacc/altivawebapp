@@ -58,217 +58,218 @@ else
 </div>
 
 <div class="row well">
-    <div>
-        <form id="frmOrden">
+   
+        <div>
+            <form id="frmOrden">
 
-            @Html.HiddenFor(x => x.Id)
-            @Html.HiddenFor(x => x.Anulado)
-            @Html.HiddenFor(x => x.TipoCambioDolar)
-            @Html.HiddenFor(x => x.TipoCambioEuro)
-            @Html.HiddenFor(x => x.IdUsuario)
+                @Html.HiddenFor(x => x.Id)
+                @Html.HiddenFor(x => x.Anulado)
+                @Html.HiddenFor(x => x.TipoCambioDolar)
+                @Html.HiddenFor(x => x.TipoCambioEuro)
+                @Html.HiddenFor(x => x.IdUsuario)
 
-            <div class="form-group col-md-2 col-sm-6 col-xs-12">
-                <fieldset disabled>
-                    <div class="form-group">
-                        <label for="fecha">@SharedLocalizer["Fecha"]:</label>
-                        <div class='input-group date' id='fechaPicker'>
-                            <input type='text' class="form-control" id="fecha" />
-                            <span class="input-group-addon">
-                                <span class="fas fa-calendar"></span>
-                            </span>
+                <div class="form-group col-md-2 col-sm-6 col-xs-12">
+                    <fieldset disabled>
+                        <div class="form-group">
+                            <label for="fecha">@SharedLocalizer["Fecha"]:</label>
+                            <div class='input-group date' id='fechaPicker'>
+                                <input type='text' class="form-control" id="fecha" />
+                                <span class="input-group-addon">
+                                    <span class="fas fa-calendar"></span>
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                </fieldset>
-            </div>
+                    </fieldset>
+                </div>
 
-            <div class="form-group col-md-3 col-sm-6 col-xs-12">
-                <label asp-for="IdProveedor" class="control-label">@SharedLocalizer["Proveedor"]</label>
-                <select class="selectItems form-control" data-live-search="true" id="proveedores">
-                    @if (Model.Id == 0)
-                    {
-                        foreach (var prove in ViewBag.Proveedores)
+                <div class="form-group col-md-3 col-sm-6 col-xs-12">
+                    <label asp-for="IdProveedor" class="control-label">@SharedLocalizer["Proveedor"]</label>
+                    <select class="selectItems form-control" data-live-search="true" id="proveedores">
+                        @if (Model.Id == 0)
                         {
-                            var nombre = @prove.Nombre;
-                            if (@prove.Nombre == "")
+                            foreach (var prove in ViewBag.Proveedores)
                             {
-                                nombre = prove.NombreComercial;
+                                var nombre = @prove.Nombre +" "+ @prove.Apellidos;
+                                if (@prove.Nombre == "")
+                                {
+                                    nombre = prove.NombreComercial;
+                                }
+                                <option value="@prove.IdContacto">@nombre</option>
                             }
-                            <option value="@prove.IdContacto">@nombre</option>
                         }
-                    }
-                    else
-                    {
+                        else
+                        {
 
 
-                        <option value="@ViewBag.IdContacto">@ViewBag.NombreCompleto</option>
+                            <option value="@ViewBag.IdContacto">@ViewBag.NombreCompleto</option>
 
 
-                    }
-                </select>
-            </div>
-            <input hidden id="proveedor" value="@ViewBag.IdContacto" />
-            <div class="form-group col-md-5 col-sm-6 col-xs-12">
-                <label asp-for="Observacion" class="control-label">@SharedLocalizer["Observación"]</label>
-                <textarea @estado asp-for="Observacion" id="txtObservacion" rows="8" maxlength="500" class="form-control">@Model.Observacion</textarea>
-                <span hidden id="observacionValid" class="text-danger">@SharedLocalizer["observacionValid"]</span>
-            </div>
-            <div class="col-md-2 col-sm-6 col-xs-12">
-                <div class="form-group col-md-12">
-                    <label asp-for="IdMoneda" class="control-label">@SharedLocalizer["Moneda"]</label>
-                    <select @estado onchange="recalcularPrecio(), deshabilitaTipoCambio()" asp-for="IdMoneda" id="moneda" class="form-control tipoMoneda">
-                        <option value="1">@SharedLocalizer["CRC"]</option>
-                        <option value="2">@SharedLocalizer["USD"]</option>
-                        <option value="3">@SharedLocalizer["EUR"]</option>
+                        }
                     </select>
                 </div>
-                <div class="form-group col-md-12">
-                    <label class="control-label" for="dolar">@SharedLocalizer["TipoCambio"]</label>
-                    <label class="control-label" for="dolar">@SharedLocalizer["Dolar"]:</label>
-                    <input @estado class="form-control moneda" id="dolar" />
+                <input hidden id="proveedor" value="@ViewBag.IdContacto" />
+                <div class="form-group col-md-5 col-sm-6 col-xs-12">
+                    <label asp-for="Observacion" class="control-label">@SharedLocalizer["Observación"]</label>
+                    <textarea @estado asp-for="Observacion" id="txtObservacion" rows="8" maxlength="500" class="form-control">@Model.Observacion</textarea>
+                    <span hidden id="observacionValid" class="text-danger">@SharedLocalizer["observacionValid"]</span>
                 </div>
-                <div class="form-group col-md-12">
-                    <label class="control-label" for="euro">@SharedLocalizer["Euro"]:</label>
-                    <input @estado class="form-control moneda" id="euro" />
+                <div class="col-md-2 col-sm-6 col-xs-12">
+                    <div class="form-group col-md-12">
+                        <label asp-for="IdMoneda" class="control-label">@SharedLocalizer["Moneda"]</label>
+                        <select @estado onchange="recalcularPrecio(), deshabilitaTipoCambio()" asp-for="IdMoneda" id="moneda" class="form-control tipoMoneda">
+                            <option value="1">@SharedLocalizer["CRC"]</option>
+                            <option value="2">@SharedLocalizer["USD"]</option>
+                            <option value="3">@SharedLocalizer["EUR"]</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label class="control-label" for="dolar">@SharedLocalizer["TipoCambio"]</label>
+                        <label class="control-label" for="dolar">@SharedLocalizer["Dolar"]:</label>
+                        <input @estado class="form-control moneda" id="dolar" />
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label class="control-label" for="euro">@SharedLocalizer["Euro"]:</label>
+                        <input @estado class="form-control moneda" id="euro" />
+                    </div>
                 </div>
-            </div>
-        </form>
-    </div>
+            </form>
+        </div>
 
-    <br />
-
-
-    <div class="form-group col-md-4">
-        <button @generarOrden class="btn btn-success btnAccion" onclick="validarCompraAutomatica()">@SharedLocalizer["ordenAutomatica"]</button>
-    </div>
+        <br />
 
 
-    <div class="col-md-12 table-responsive">
+        <div class="form-group col-md-4">
+            <button @generarOrden class="btn btn-success btnAccion" onclick="validarCompraAutomatica()">@SharedLocalizer["ordenAutomatica"]</button>
+        </div>
 
-        <table class="table table-bordered table-striped" id="tblOrdenCompra" style="min-width:900px">
-            <thead>
-                <tr>
-                    <th><span>@SharedLocalizer["Item"]</span></th>
-                    <th><span>@SharedLocalizer["Descripción"]</span></th>
-                    <th><span>@SharedLocalizer["Cantidad"]</span></th>
-                    <th><span>@SharedLocalizer["PrecioUnitario"]</span></th>
-                    <th><span class="col-md-1">@SharedLocalizer["Descuento"]</span></th>
-                    <th><span>@SharedLocalizer["IVA"]</span></th>
-                    <th><span>@SharedLocalizer["SubTotal"]</span></th>
-                    <th hidden><span>@SharedLocalizer["Total"]</span></th>
-                    <th style="width:10%"><span>@SharedLocalizer["Acción"]</span></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="lineaForm">
-                    <td>
-                        <select @estado class="form-control selectItems" id="item"></select>
-                    </td>
-                    <td>
-                        <input readonly class="form-control" id="descripcion" />
-                    </td>
-                    <td hidden><input @estado class="form-control numerico" type="text" min="0" id="estado" /></td>
-                    <td><input @estado class="form-control numerico" type="text" min="0" id="cantidad" /></td>
-                    <td><input @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
-                    <td><input @estado class="form-control numerico" type="text" id="descuento" /></td>
-                    <td><input class="form-control" readonly type="number" id="iva" /></td>
-                    <td><input class="form-control moneda" readonly type="text" id="subtotal" /></td>
-                    <td hidden><input class="form-control moneda" readonly type="text" id="totalLinea" /></td>
-                    <td><button @estado class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button></td>
-                </tr>
-            </tbody>
-        </table>
 
-    </div>
-    <div class="col-md-offset-9 col-md-3">
-        <form id="frmOrden2">
+        <div class="col-md-12 table-responsive">
 
-            <div class="form-group">
-                <label class="control-label">@SharedLocalizer["SubTotal"]</label>
-                <input readonly id="subTotal" class="form-control currency" />
-            </div>
-            <div class="form-group">
-                <label class="control-label">@SharedLocalizer["Descuento"]</label>
-                <input readonly id="totalDescuento" class="form-control currency" />
-            </div>
-            <div class="form-group">
-                <label class="control-label">@SharedLocalizer["Impuesto"]</label>
-                <input readonly id="totalImpuesto" class="form-control currency" />
-            </div>
-            <div class="form-group">
-                <label class="control-label">@SharedLocalizer["Total"]</label>
-                <input readonly id="total" class="form-control currency" />
-            </div>
-
-        </form>
-    </div>
-
-    <br />
-
-</div>
-<div class="row">
-    <div class="form-group col-md-3">
-        <button @estado class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"]<i class="fas fa-save"></i></button>
-        <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-        <div id="comentarios">
+            <table class="table table-bordered table-striped" id="tblOrdenCompra" style="min-width:900px">
+                <thead>
+                    <tr>
+                        <th style="width:15%"><span>@SharedLocalizer["Item"]</span></th>
+                        <th><span>@SharedLocalizer["Descripción"]</span></th>
+                        <th><span>@SharedLocalizer["Cantidad"]</span></th>
+                        <th><span>@SharedLocalizer["PrecioUnitario"]</span></th>
+                        <th><span style="width:2%">@SharedLocalizer["Descuento"]</span></th>
+                        <th><span>@SharedLocalizer["IVA"]</span></th>
+                        <th><span>@SharedLocalizer["SubTotal"]</span></th>
+                        <th hidden><span>@SharedLocalizer["Total"]</span></th>
+                        <th style="width:15%"><span>@SharedLocalizer["Acción"]</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="lineaForm">
+                        <td>
+                            <select @estado class="form-control selectItems" id="item"></select>
+                        </td>
+                        <td>
+                            <input readonly class="form-control" id="descripcion" />
+                        </td>
+                        <td hidden><input @estado class="form-control numerico" type="text" min="0" id="estado" /></td>
+                        <td><input @estado class="form-control numerico" type="text" min="0" id="cantidad" /></td>
+                        <td><input @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
+                        <td style="width:2%"><input @estado class="form-control numerico" type="text" id="descuento" /></td>
+                        <td><input class="form-control" readonly type="number" id="iva" /></td>
+                        <td><input class="form-control moneda" readonly type="text" id="subtotal" /></td>
+                        <td hidden><input class="form-control moneda" readonly type="text" id="totalLinea" /></td>
+                        <td><button @estado class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button></td>
+                    </tr>
+                </tbody>
+            </table>
 
         </div>
-    </div>
-</div>
+        <div class="col-md-offset-9 col-md-3">
+            <form id="frmOrden2">
 
-<div hidden><input hidden id="formater" class="currency" type="text" /></div>
-
-<div>
-    <!-- Modal Editar -->
-    <div class="modal fade" id="modalEditarOrden" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <div class="col-md-6"> <h5 data-translate="editarOrden" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["editarOrden"]</h5></div>
+                <div class="form-group">
+                    <label class="control-label">@SharedLocalizer["SubTotal"]</label>
+                    <input readonly id="subTotal" class="form-control currency" />
                 </div>
-                <div class="modal-body" id="editar">
-                    <div class="row">
-                        <input id="editId" type="hidden" class="form-control" />
-                        <input id="editIva" type="hidden" class="form-control" />
-                        <input id="nSubTotal" type="hidden" class="form-control" />
-                        <div class="form-group col-sm-7">
-                            <label class="control-label">@SharedLocalizer["Cantidad"]</label>
-                            <input id="editCantidad" class="form-control numerico" />
-                        </div>
-                        <div class="form-group col-sm-7">
-                            <label class="control-label ">@SharedLocalizer["PrecioUnitario"]</label>
-                            <input id="editPrecio" class="form-control numerico" />
-                        </div>
-                        <div class="form-group col-sm-7">
-                            <label class="control-label ">@SharedLocalizer["Descuento"]</label>
-                            <input id="editDescuento" class="form-control numerico" />
-                        </div>
-                        <div class="form-group col-sm-7">
+                <div class="form-group">
+                    <label class="control-label">@SharedLocalizer["Descuento"]</label>
+                    <input readonly id="totalDescuento" class="form-control currency" />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">@SharedLocalizer["Impuesto"]</label>
+                    <input readonly id="totalImpuesto" class="form-control currency" />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">@SharedLocalizer["Total"]</label>
+                    <input readonly id="total" class="form-control currency" />
+                </div>
 
-                            <button id="btnEditOrden" onclick="editOrden()" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
+            </form>
+        </div>
 
-                            <button class="btn btn-default" data-dismiss="modal"><span>@SharedLocalizer["Cancelar"]</span></button>
+        <br />
 
+    </div>
+    <div class="row">
+        <div class="form-group col-md-3">
+            <button @estado class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"]<i class="fas fa-save"></i></button>
+            <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div id="comentarios">
+
+            </div>
+        </div>
+    </div>
+
+    <div hidden><input hidden id="formater" class="currency" type="text" /></div>
+
+    <div>
+        <!-- Modal Editar -->
+        <div class="modal fade" id="modalEditarOrden" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <div class="col-md-6"> <h5 data-translate="editarOrden" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["editarOrden"]</h5></div>
+                    </div>
+                    <div class="modal-body" id="editar">
+                        <div class="row">
+                            <input id="editId" type="hidden" class="form-control" />
+                            <input id="editIva" type="hidden" class="form-control" />
+                            <input id="nSubTotal" type="hidden" class="form-control" />
+                            <div class="form-group col-sm-7">
+                                <label class="control-label">@SharedLocalizer["Cantidad"]</label>
+                                <input id="editCantidad" class="form-control numerico" />
+                            </div>
+                            <div class="form-group col-sm-7">
+                                <label class="control-label ">@SharedLocalizer["PrecioUnitario"]</label>
+                                <input id="editPrecio" class="form-control numerico" />
+                            </div>
+                            <div class="form-group col-sm-7">
+                                <label class="control-label ">@SharedLocalizer["Descuento"]</label>
+                                <input id="editDescuento" class="form-control numerico" />
+                            </div>
+                            <div class="form-group col-sm-7">
+
+                                <button id="btnEditOrden" onclick="editOrden()" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
+
+                                <button class="btn btn-default" data-dismiss="modal"><span>@SharedLocalizer["Cancelar"]</span></button>
+
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script src="~/js/comentario.js"></script>
-<script src="~/js/base64ImageCreator.js"></script>
+    <script src="~/js/comentario.js"></script>
+    <script src="~/js/base64ImageCreator.js"></script>
 
-<script>
+    <script>
     var $anulado = $('#Anulado');
     ///linea
     var $item = $('#item');
@@ -439,6 +440,7 @@ else
            arreglo = lineasAgregadas;
        else
            arreglo = lineas;
+       $('#menu_toggle').click(); 
        $('#modalEditarOrden').modal('show');
        for (var i = 0; i < arreglo.length; i++) {
            if (arreglo[i].idInventario == arreglo[j].idInventario && arreglo[i].precio == arreglo[j].precio && arreglo[i].porcDesc == arreglo[j].porcDesc) {
@@ -479,10 +481,12 @@ else
     }
    function editOrden()
    {
+       console.log(editPrecio);
        if (validarmodalEditar()) {
            for (var i = 0; i < lineas.length; i++) {
+               console.log(lineas[i].precio);
                if (lineas[i].idInventario == $('#editId').val() &&
-                   lineas[i].precio == editPrecio && lineas[i].porcDesc == editDescuento) {
+                   parseFloat(lineas[i].precio.toFixed(2)) == parseFloat(editPrecio) && lineas[i].porcDesc == editDescuento) {
                    setSubTotalLinea();
                    lineas[i].cantidad = parseFloat($("#editCantidad").val());
                    lineas[i].precio = parseFloat($('#editPrecio').val());
@@ -491,7 +495,7 @@ else
                    lineas[i].subTotalNeto = calcularSubtotalNetoLinea();
                    lineas[i].porcIs = 0;
                    lineas[i].totalIs = 0;
-                   lineas[i].porcDesc = parseFloat($('#editDescuento').val());
+                   lineas[i].porcDesc = parseFloat($('#editDescuento').val());                  
                    lineas[i].totalDescuento = calcularTotalDescuentoLinea();
                    lineas[i].totalIva = calcularTotalIvaLinea();
                    lineas[i].total = calcularTotalLinea();
@@ -844,7 +848,8 @@ else
 
 
     function cargarTabla(data) {
-
+        console.log(data);
+        console.log(lineasActualizadas);
 
         $('.filasCargadas').remove();
 
@@ -863,7 +868,7 @@ else
                 + '<td style="padding-top:2rem;"><input style="border:0; background-color : #F7F7F7" value="' + data[i].nombreInventario + '"/></td>'
                 + '<td style="padding-top:2rem;">' + data[i].cantidad + ' </td>'
                 + '<td style="padding-top:2rem; width:12rem;"><input  style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].precio + '"/></td>'
-                + '<td style="padding-top:2rem; width:12rem;"><input style="border:0; background-color : #F7F7F7"  value="' + data[i].porcDesc + '"/></td>'
+                + '<td style="padding-top:2rem;"><input  style=" width:5rem;border:0; background-color : #F7F7F7"  value="' + data[i].porcDesc + '"/></td>'
                 + '<td style="padding-top:2rem; "><input style="width:6rem; border:0; background-color : #F7F7F7"  value="' + data[i].porcIva + '%"/></td>'
                 + '<td style="padding-top:2rem; width:12rem;"><input style="border:0; background-color : #F7F7F7" class="currency" value="' + subtotal + '"/></td>'
                 + '<td><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="cargarModalEditOrden('+i+')" ><i class="fas fa-edit"></i></button><button @estado class="btn btn-link" value="' + contadorFila + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
@@ -963,7 +968,7 @@ else
             },
             dataType: "json",
             url: '@Url.Action("CrearEditarOrden")',
-            data: { viewModel:crearModelo(), model2: lineasActualizadas },
+            data: { viewModel: crearModelo(), model2: crearModelo2() },
             success: function (data) {
                 if (lineasEliminadas.length > 0)
                     eliminarOrdenDetalle();
@@ -1082,7 +1087,22 @@ else
 
         return model;
     }
+     function crearModelo2() {
+         var model = lineasActualizadas;
+         for (var i = 0; i < lineasActualizadas.length; i++) {
+            model[i].cantidad = lineasActualizadas[i].cantidad.toString().replace(".", ",");
+            model[i].precio = lineasActualizadas[i].precio.toString().replace(".", ",");
+            model[i].subTotalGrabado = lineasActualizadas[i].subTotalGrabado.toString().replace(".", ",");
+            model[i].subTotalExcento = lineasActualizadas[i].subTotalExcento.toString().replace(".", ",");
+            model[i].subTotalNeto = lineasActualizadas[i].subTotalNeto.toString().replace(".", ",");
+            model[i].totalIva = lineasActualizadas[i].totalIva.toString().replace(".", ",");
+            model[i].totalDescuento = lineasActualizadas[i].totalDescuento.toString().replace(".", ",");
+            model[i].total = lineasActualizadas[i].total.toString().replace(".", ",");
 
+        }
+
+        return model;
+    }
 
     function validarForm() {
         //var frmOrden = $('#frmOrden').serializeArray();
@@ -1473,19 +1493,19 @@ else
     }
 
 
-</script>
+    </script>
 
-<script src="~/lib/vendors/jsPDF/OC.js"></script>
+    <script src="~/lib/vendors/jsPDF/OC.js"></script>
 
-<style>
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-        /* display: none; <- Crashes Chrome on hover */
-        -webkit-appearance: none;
-        margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
-    }
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            /* display: none; <- Crashes Chrome on hover */
+            -webkit-appearance: none;
+            margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+        }
 
-    input[type=number] {
-        -moz-appearance: textfield; /* Firefox */
-    }
-</style>
+        input[type=number] {
+            -moz-appearance: textfield; /* Firefox */
+        }
+    </style>
