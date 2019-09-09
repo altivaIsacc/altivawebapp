@@ -39,7 +39,33 @@
     <div class="col-md-12 col-sm-12 col-xs-12 text-center">
         <ul class="pagination pagination-split" id="paginacion">
             <li><button style="background-color: #337AB7; color: #fff; font-weight: bold" id="All" class="btn btn-sm abecedario " value="All">@Lb["Todos"]</button></li>
-            <li class="especial"><button id="especial" class="btn btn-sm abecedario" value="especial">#@@1</button></li>        
+            <li style="display:none" hidden id="liA"><button id="A" class="btn btn-sm abecedario activo" value="A">A</button></lihidden>
+            <li style="display:none" id="liB"><button id="B" class="btn btn-sm abecedario" value="B">B</button></li>
+            <li style="display:none" id="liC"><button id="C" class="btn btn-sm abecedario" value="C">C</button></li>
+            <li style="display:none" id="liD"><button id="D" class="btn btn-sm abecedario" value="D">D</button></li>
+            <li style="display:none" id="liE"><button id="E" class="btn btn-sm abecedario" value="E">E</button></li>
+            <li style="display:none" id="liF"><button id="F" class="btn btn-sm abecedario" value="F">F</button></li>
+            <li style="display:none" id="liG"><button id="G" class="btn btn-sm abecedario" value="G">G</button></li>
+            <li style="display:none" id="liH"><button id="H" class="btn btn-sm abecedario" value="H">H</button></li>
+            <li style="display:none" id="liI"><button id="I" class="btn btn-sm abecedario" value="I">I</button></li>
+            <li style="display:none" id="liJ"><button id="J" class="btn btn-sm abecedario" value="J">J</button></li>
+            <li style="display:none" id="liK"><button id="K" class="btn btn-sm abecedario" value="K">K</button></li>
+            <li style="display:none" id="liL"><button id="L" class="btn btn-sm abecedario" value="L">L</button></li>
+            <li style="display:none" id="liM"><button id="M" class="btn btn-sm abecedario" value="M">M</button></li>
+            <li style="display:none" id="liN"><button id="N" class="btn btn-sm abecedario" value="N">N</button></li>
+            <li style="display:none" id="liO"><button id="O" class="btn btn-sm abecedario" value="O">O</button></li>
+            <li style="display:none" id="liP"><button id="P" class="btn btn-sm abecedario" value="P">P</button></li>
+            <li style="display:none" id="liQ"><button id="Q" class="btn btn-sm abecedario" value="Q">Q</button></li>
+            <li style="display:none" id="liR"><button id="R" class="btn btn-sm abecedario" value="R">R</button></li>
+            <li style="display:none" id="liS"><button id="S" class="btn btn-sm abecedario" value="S">S</button></li>
+            <li style="display:none" id="liT"><button id="T" class="btn btn-sm abecedario" value="T">T</button></li>
+            <li style="display:none" id="liU"><button id="U" class="btn btn-sm abecedario" value="U">U</button></li>
+            <li style="display:none" id="liV"><button id="V" class="btn btn-sm abecedario" value="V">V</button></li>
+            <li style="display:none" id="liW"><button id="W" class="btn btn-sm abecedario" value="W">W</button></li>
+            <li style="display:none" id="liX"><button id="X" class="btn btn-sm abecedario" value="X">X</button></li>
+            <li style="display:none" id="liY"><button id="Y" class="btn btn-sm abecedario" value="Y">Y</button></li>
+            <li style="display:none" id="liZ"><button id="Z" class="btn btn-sm abecedario" value="Z">Z</button></li>
+            <li class="especial"><button id="especial" class="btn btn-sm abecedario" value="especial">#@@1</button></li>
         </ul>
     </div>
 </div>
@@ -94,7 +120,6 @@
                     $('#keyword').val("@ViewBag.nombre");
 
                     cargarFiltros("All", "@ViewBag.nombre");
-
                    
 
                     $('.abecedario').trigger('change');
@@ -148,23 +173,24 @@
         if (key === "All") {
             return array;
         }
-        else if(key === "especial") {
+        else if (key === "especial") {
             for (var i = 0; i < array.length; i++) {
 
-                if (!esLetra(array[i].nombre.charAt(0).toUpperCase()))
+                if (!esLetra(array[i].nombre.charAt(0).toUpperCase())) {
                     filtrado.push(array[i]);
+                }
             }
 
             return filtrado;
         }
         else{
-            for (var i = 0; i < array.length; i++) {
-
-                if (array[i].nombre.charAt(0).toUpperCase() == key)
+                for (var i = 0; i < array.length; i++) {
+                    var letraPos = array[i].nombre.replace(/ /g, '').charAt(0).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    if (letraPos.toUpperCase() == key)
                     filtrado.push(array[i]);
-            }
+                }
 
-            return filtrado;
+                return filtrado;
         }
 
     }
@@ -172,7 +198,7 @@
 
     function filtroPalabra(array, _keyword) {
 
-        var keyword = _keyword.toUpperCase();
+        var keyword = _keyword.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
         var filtrado = [];
         //var array = contactos;
         if (keyword.replace(/ /g, "") === "") {
@@ -181,7 +207,7 @@
         else {
             for (var i = 0; i < array.length; i++) {
 
-                var keyArray = array[i].nombre.toUpperCase();
+                var keyArray = array[i].nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
 
                 if (keyArray.indexOf(keyword) > -1)
                     filtrado.push(array[i]);
@@ -213,8 +239,10 @@
     function ordenarArray(data){
 
         return data.sort(function (a, b) {
-            if (a.nombre < b.nombre) { return -1; }
-            if (a.nombre > b.nombre) { return 1; }
+            var aNom = a.nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            var bNom = b.nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            if (aNom < bNom) { return -1; }
+            if (aNom > bNom) { return 1; }
             return 0;
         });
     }
@@ -231,28 +259,12 @@
 
     function reenderizarPaginado() {
 
-        var abc = [];
-        var flag = true;
-
-        $('.letter').remove();
-
         for (var i = 0; i < arrayRender.length; i++) {
 
-            var letra = arrayRender[i].nombre.charAt(0).toUpperCase();
+            var letra = arrayRender[i].nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").charAt(0).toUpperCase();
 
             if (esLetra(letra)) {
-                for (var k = 0; k < abc.length; k++) {
-                    if (abc[k].toUpperCase() === letra) {
-                        flag = false;
-                    }
-                    else
-                        flag = true;
-                }
-                if (flag) {
-                    abc.push(letra);
-                    $('.especial').before('<li class="letter" ><button onclick="buscarPaginado(value)" id="' + letra + '" class="btn btn-sm abecedario" value="' + letra + '">' + letra + '</button></li>');
-                }
-
+                $('#li' + letra).css("display", "");
             }
         }
         
