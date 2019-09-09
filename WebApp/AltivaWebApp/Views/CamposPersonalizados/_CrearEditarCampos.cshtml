@@ -1,150 +1,346 @@
-﻿@model AltivaWebApp.ViewModels.CamposPersonalizadosViewModelSingle
+﻿@model AltivaWebApp.ViewModels.CamposPersonalizadosViewModel
 
+@inject IStringLocalizer<SharedResources> Lb
 @{
-    ViewData["Title"] = "Crear Campos Personalizados";
-}
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
-@functions{
-    public string GetAntiXsrfRequestToken()
+
+
+    var titulo = Lb["NuevoCampo"];
+
+
+    if (Model.Id != 0)
     {
-        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+        titulo = Lb["EditarCampo"];
     }
+
+    var oculto = "hidden";
+    if (Model.Tipo == "lista")
+    {
+        oculto = "";
+    }
+
+    ViewData["Title"] = titulo; ;
+
 }
 
 <div class="row">
-    <div class="col-md-6 " id="empty">
-        <div hidden><label hidden>Campo de tipo:</label> @Model.Tipo</div>
-        <div class="form-group">
-            <input type="text" asp-for="@Model.Id" id="id1" hidden />
-        </div>
-        <div class="form-group">
-            <input type="text" asp-for="@Model.Tipo" id="tipo1" hidden />
-        </div>
-        <div class="form-group">
-            <input type="text" asp-for="@Model.Estado" id="Estado1" hidden />
-        </div>
-        <div class="form-group">
-            <label>Nombre del campo</label>
-            <input type="text" asp-for="Nombre" id="Nombre1" class="form-control" />
-            <div id="alertNombre"></div>
-        </div>
-        <div class="form-group">
-
-            @if (ViewBag.id == 1)
-            {
-
-                <button type="button" id="editarCampo" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-            }
-            else if (ViewBag.id == 0)
-            {
-
-                <button type="button" id="guardarCampo" class="btn btn-success">Guardar <i class="fas fa-save"></i></button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-            }
-        </div>
-
+    <h4 class="col-md-11 col-sm-11 col-xs-11" id="departamentoModallabel">@titulo</h4>
+    <div class="col-md-1 col-sm-1 col-xs-1">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
 </div>
 
+<hr />
+
+<div class="row">
+    <form id="frmCampo">
+        @Html.HiddenFor(x => x.Id)
+        @Html.HiddenFor(x => x.Estado)
+        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+            <label class="control-label" asp-for="Tipo">@Lb["Tipo"]:</label>
+            <select onchange="mostrarValoresLista()" class="form-control" maxlength="40" asp-for="Tipo" type="text" autofocus>
+                <option value="texto">@Lb["Texto"]</option>
+                <option value="casilla">@Lb["CasillaVerificacion"]</option>
+                <option value="fecha">@Lb["Fecha"]</option>
+                <option value="lista">@Lb["ListaDesplegable"]</option>
+            </select>
+        </div>
+        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+            <label class="control-label" asp-for="Nombre">@Lb["Nombre"]:</label>
+            <input class="form-control" maxlength="40" asp-for="Nombre" type="text" />
+            <span hidden class="text-danger" id="nombreValid">@Lb["nombreValid"]</span>
+            <span hidden class="text-danger" id="repetidoValid">@Lb["repetidoValid"]</span>
+        </div>
+        <div @oculto id="valoresLista" class="form-group col-md-12 col-sm-12 col-xs-12">
+            <label class="control-label">@Lb["Opciones"]:</label>
+            <br />
+            <span hidden class="text-danger" id="repetidoValidOpcion">@Lb["repetidoValid"]</span>
+            <br />
+            <span hidden class="text-danger" id="opcionesValid">@Lb["opcionesValid"]</span>
+            <div id="valorLista" class="row">
+                <div id="nuevoValor" class="form-group col-md-5 col-sm-4 col-xs-10">
+                    <input type="text" class="form-control form-group-sm" id="valorBlanco" placeholder="@Lb["Nuevo"]" />
+                </div>
+                <div class="form-group col-md-1 col-sm-2 col-xs-2">
+                    <span><a style="padding:0; margin:0" onclick="nuevoValor()" class="btn btn-link"><i class="fas fa-plus-circle"></i></a></span>
+                </div>
+            </div>
+
+        </div>
+    </form>
+    <div class="form-group col-md-12 col-sm-12 col-xs-12">
+        <button class="btn btn-success" onclick="guardarCampos()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
+        <button class="btn btn-default" data-dismiss="modal">@Lb["Cancelar"]</button>
+    </div>
+
+</div>
 
 <script>
-    $('#editarCampo').on('click', function () {
 
-            if ($('#Nombre').val() == "") {
-                $('#alertNombre').append('<span class="text-danger">El nombre es requerido.</span>');
+    var valoresEliminados = [];
+    var valoresCrOrUp = [];
+    var valores = [];
+    var valoresBD = [];
 
-                return false;
+    $(document).ready(function () {
+
+        $(".lista-desplegable").select2({
+            tags: true,
+            tokenSeparators: [',', ' '],
+            width: null,
+            language: localStorage.getItem("idioma")
+        });
+
+        if (@Model.Id != 0 && '@Model.Tipo' == "lista") {
+            getValoresLista();
+        }
+    });
+
+
+    function mostrarValoresLista() {
+        if ($('#Tipo').val() == "lista")
+            $('#valoresLista').prop('hidden', false);
+        else {
+            $('#valoresLista').prop('hidden', true);
+            $('.lista-desplegable').val(null).trigger('change');
+        }
+
+    }
+
+    function guardarCampos() {
+
+
+        if (!validarCampos())
+            return;
+        
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: '@Url.Action("CrearEditarCampo")',
+            data: { viewModel: crearModeloCampo(), lista: valoresCrOrUp, optListaEliminados: valoresEliminados },
+            success: function (data) {
+
+                if (data.success) {
+                    $('#modalCampos').modal('hide');
+                    getlistarPartial();
+                }
+                else {
+                    $('#repetidoValid').attr('hidden', false);
+                }
+
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+
+
+    }
+    function crearModeloCampo() {
+
+        return {
+            id: @Model.Id,
+            nombre: $('#Nombre').val(),
+            tipo: $('#Tipo').val(),
+            estado: '@Model.Estado'
+        };
+
+    }
+    
+
+    function validarCampos() {
+        var flag = true;
+
+        if ($('#Nombre').val().replace(/ /g, "") == "") {
+            $('#nombreValid').prop('hidden', false);
+            flag = false;
+        }
+        else
+            $('#nombreValid').prop('hidden', true);
+
+
+        if ($('#Tipo').val() == "lista") {
+            if (valores.length == 0 ) {
+                $('#opcionesValid').prop('hidden', false);
+                flag = false;
+            }
+            else
+                $('#opcionesValid').prop('hidden', true);
+        }
+
+        console.log(valores);
+
+        return flag;
+
+    }
+
+    function getValoresLista() {
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: '@Url.Action("GetValorLista", "CamposPersonalizados")',
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var model = { id: data[i].id, valor: data[i].valor, idCamposPersonalizados: data[i].idCamposPersonalizados, _idValor: i };
+                    valoresBD.push(model);
+                    valores.push(model);
+                }
+
+                reenderizarInput(valores);
+                
+            },
+            error: function (err, scnd) {
+                cargarAlert("@Lb["errorGeneral"]");
+                console.log(err.statusText);
             }
 
-            var domain1 = {
-                id: $('#id1').val(),
-                nombre: $('#Nombre1').val(),
-                tipo: $('#tipo1').val(),
-                estado: $('#Estado1').val()
-            };
+        });
+    }
 
-            $.ajax({
-                headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                type: "POST",
+    function nuevoValor() {
 
+        var valor = $('#valorBlanco').val();
 
-                url: '@Url.Action("Editar", "CamposPersonalizados")',
-
-                data: { model1: domain1 },
-                success: function (data) {
-                    $('#ul').empty();
-                    $('#myModal1').modal('hide');
-                    cargarTable();
-
-                },
-
-                error: function (err, scnd) {
-                    console.log(err.statusText);
-                }        
-
-            });            
-
-    });
-
-    $('#Nombre1').on('keyup', function (e) {
-
-        (e.keyCode) ? k = e.keyCode : k = e.which;
-
-        if (k == 13) {
-            guardarCampo();
+        if (!validarValor(valor)) {
+            $('#valorBlanco').focus();
+            return;
         }
+            
+        var _id = valores.length;
+
         
-    });
 
+        var model = { id: 0, valor: valor, idCamposPersonalizados: @Model.Id, _idValor: _id};
+        valoresCrOrUp.push(model);
+        valores.push(model);
 
-    $('#guardarCampo').on('click', function () {
-        guardarCampo();
-    });
+        reenderizarInput(valores);
 
-    function guardarCampo() {
+        $('#valorBlanco').val("");
+        $('#valorBlanco').focus();
+    }
 
+    function editarValor(pos, valor) {
 
-        if ($('#Nombre').val() == "") {
-            $('#alertNombre').append('<span class="text-danger">El nombre es requerido.</span>');
+        if (valor == valores[pos].valor)
+            return;
 
+        if (!validarValor(valor)) {
+            $('#' + pos).val("");
+            $('#' + pos).focus();
+            return;
+        }
+
+        var existe = existeCrOrUpIdValor(pos);
+
+        valores[pos].valor = valor;
+        
+        if (existe != null) {
+            valoresCrOrUp[existe].valor = valor;
+        }
+        else {
+            valoresCrOrUp.push(valores[pos]);
+        }
+
+        
+
+        
+        
+    }
+
+    function validarValor(valor, id) {
+        
+        var _valor = valor;
+        
+
+        if (_valor.replace(/ /g, "") == "") {
+            $('#valorValid').prop('hidden', false);
             return false;
         }
+        else {
+            $('#valorValid').prop('hidden', true);
+            for (var i = 0; i < valores.length; i++) {
+                
+                var val = valores[i].valor.toString();
+                
+                if (val.toLowerCase() == _valor.toLowerCase()) {
+                    $('#repetidoValidOpcion').prop('hidden', false);
+                    return false;
+                }
+                
+            }
 
-        var domain = {
-            nombre: $('#Nombre1').val(),
-            tipo: $('#tipo1').val(),
-            estado: $('#Estado1').val()
-        };
-            $.ajax({
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                    },
-                    type: "POST",
+            $('#repetidoValidOpcion').prop('hidden', true);
+            
+        }
 
+        return true;
 
-                    url: '@Url.Action("CrearNuevoCamposPersonalizados", "CamposPersonalizados")',
-
-                    data: { domain: domain },
-                success: function (data) {
-                    $('#crearCampos').remove();
-                    $('.panelCrearCampo').append('<div id="crearCampos"></div>');
-
-                    $('#ul').empty();
-                        $('#myModal1').modal('hide');
+    }
 
 
-                            cargarTable();
 
-                    },
+    
 
-                    error: function (err, scnd) {
-                        console.log(err.statusText);
-                    }
+    function eliminarValor(id, pos) {
 
-                });
+        if (id != 0) {
+            valoresEliminados.push(id);
+            valoresBD.splice(existeEnBD(id), 1);
+        }
+
+        var existe = existeCrOrUp(id);
+        if (existe != null) {
+            valoresCrOrUp.splice(existe, 1);
+        }
+
+        valores.splice(pos, 1);
+
+        reenderizarInput(valores);
+
+
+    }
+
+    function existeCrOrUpIdValor(valor) {
+        for (var i = 0; i < valoresCrOrUp.length; i++) {
+            if (valor == valoresCrOrUp[i]._idValor)
+                return i;
+        }
+
+        return null;
+    }
+
+    function existeCrOrUp(valor) {
+        for (var i = 0; i < valoresCrOrUp.length; i++) {
+            if (valor == valoresCrOrUp[i].id)
+                return i;
+        }
+
+        return null;
+    }
+
+    function existeEnBD(valor) {
+        
+        for (var i = 0; i < valoresBD.length; i++) {
+            if (valor == valoresBD[i].id)
+                return i;
+        }
+
+        return null;
+    }
+
+    function reenderizarInput(data) {
+
+        $('.valoresCargados').remove();
+
+        for (var i = 0; i < data.length; i++) {
+            var opt = '<div class="form-group col-md-5 col-sm-4 col-xs-10 valoresCargados c' + i + '">'
+                + '<input onfocusout="editarValor(' + i + ', value)" class="form-control form-control-sm" type = "text" id = "' + i + '" value = "' + data[i].valor + '" /> </div > '
+                + '<div  class="form-group col-md-1 col-sm-2 col-xs-2 valoresCargados c' + i + '"><span ><a style="padding:0; margin:0" onclick="eliminarValor(' + data[i].id + ',' + i + ')"  class="btn btn-link"><i class="fas fa-minus-circle"></i></a></span></div>';
+            $('#nuevoValor').before(opt);
+        }
 
     }
 

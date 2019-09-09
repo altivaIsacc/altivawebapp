@@ -36,6 +36,11 @@ namespace AltivaWebApp.Services
             return this.pIcamposPersonalizados.getById(id);
         }
 
+        public TbCrCamposPersonalizados GetCPPorNombre(string nombre)
+        {
+            return pIcamposPersonalizados.GetCPPorNombre(nombre);
+        }
+
         public IList<TbCrCamposPersonalizados> GetCampos()
         {
             return this.pIcamposPersonalizados.GetCampos(0);

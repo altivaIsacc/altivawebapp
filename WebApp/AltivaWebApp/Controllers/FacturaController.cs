@@ -7,10 +7,6 @@ using AltivaWebApp.Helpers;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
-using FastReport;
-using FastReport.Export.Html;
-using FastReport.Export.Image;
-using FastReport.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,101 +45,9 @@ namespace AltivaWebApp.Controllers
         [Route("Editar/{id}")]
         public IActionResult EditarFactura(long id)
         {
-
-            FastReport.Utils.Config.WebMode = true;
-            var rep = new WebReport();
-            var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "Reportes");
-            var path = $"{savePath}\\Facturaticket.frx";
-
-
-            rep.Report.Load(path);
-
-
-            rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;
-            rep.Report.SetParameterValue("idFactura", id);
-            rep.Report.Prepare();
-
-            ViewBag.reporte = rep;
-
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["clientes"] = contactoService.GetAllClientes();
             return View("CrearEditarFactura", map.DomainToViewModel(service.GetFacturaById(id)));
-        }
-
-        [HttpGet("GetTicket/{id}")]
-        public IActionResult GetTicket(long idFactura)
-        {
-
-
-            FastReport.Utils.Config.WebMode = true;
-            var rep = new WebReport();
-            var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "Reportes");
-            var path = $"{savePath}\\Facturaticket.frx";
-
-
-            rep.Report.Load(path);
-
-
-            rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;
-            rep.Report.Dictionary.Connections[1].ConnectionString = StringProvider.StringGE;
-            rep.Report.SetParameterValue("idFactura", idFactura);
-            rep.Report.SetParameterValue("idEmpresa", HttpContext.Session.GetInt32("idEmpresa"));
-
-
-            if (rep.Report.Prepare())
-            {
-                FastReport.Export.Image.ImageExport imgExport = new FastReport.Export.Image.ImageExport();
-                //imgExport.ShowProgress = false;
-                imgExport.ImageFormat = FastReport.Export.Image.ImageExportFormat.Jpeg;
-                imgExport.SeparateFiles = false;
-                imgExport.Resolution = 300;
-
-                MemoryStream strm = new MemoryStream();
-                rep.Report.Export(imgExport, strm);
-                rep.Report.Dispose();
-                imgExport.Dispose();
-                strm.Position = 0;
-
-                return File(strm, "image/jpeg", "report.pdf");
-            }
-            else
-            {
-                return null;
-            }
-
-
-        }
-
-        public IActionResult GetTicketImage()
-        {
-            // Creatint the Report object
-
-            FastReport.Utils.Config.WebMode = true;
-            var report = new WebReport();
-            var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "Reportes");
-            var path = $"{savePath}\\Facturaticket.frx";
-
-
-            report.Report.Load(path);
-
-
-            report.Report.Prepare();// Preparing a report
-
-            // Creating the Image export
-            using (ImageExport image = new ImageExport())
-            {
-                image.ImageFormat = ImageExportFormat.Jpeg;
-                image.JpegQuality = 100; // Set up the quality
-                image.Resolution = 100; // Set up a resolution 
-                image.SeparateFiles = false; // We need all pages in one big single file
-
-                using (MemoryStream st = new MemoryStream())// Using stream to save export
-                {
-                    report.Report.Export(image, st);
-                    return base.File(st.ToArray(), "image/jpeg");
-                }
-            }
-
         }
 
         [HttpPost("CrearEditarFactura")]

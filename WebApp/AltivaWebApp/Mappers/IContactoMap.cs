@@ -17,8 +17,10 @@ namespace AltivaWebApp.Mappers
         TbCrContactoRelacion UpdateRelacion(ContactoRelacionViewModel domain);
         TbCrContactoRelacion ViewModelToDomainCR(ContactoRelacionViewModel domain);
         TbCrCamposPersonalizados EliminarCP(int id);
+        TbCrCamposPersonalizados SaveCP(CamposPersonalizadosViewModel domain);
         TbCrCamposPersonalizados UpdateCP(CamposPersonalizadosViewModel domain);
         TbCrCamposPersonalizados ViewModelToDomainCP(CamposPersonalizadosViewModel domain);
+        CamposPersonalizadosViewModel DomainToViewModelCP(TbCrCamposPersonalizados domain);
         ContactoViewModel DomainToViewModelC(TbCrContacto domain);
         ContactoRelacionViewModel DomainToViewModelCR(TbCrContactoRelacion domain);
         CuentaBancariaViewModel DomainToViewModelCB(TbFdCuentasBancarias domain);
