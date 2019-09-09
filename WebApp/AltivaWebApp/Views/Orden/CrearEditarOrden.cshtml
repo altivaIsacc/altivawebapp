@@ -1,5 +1,5 @@
 ﻿@model AltivaWebApp.ViewModels.OrdenViewModel
-@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject IStringLocalizer<SharedResources> Lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -33,14 +33,14 @@
 @if (Model.Id != 0)
 {
     <div class="row">
-        <div class="col-md-3"><h3>@SharedLocalizer["editarOrden"]</h3></div>
+        <div class="col-md-3"><h3>@Lb["editarOrden"]</h3></div>
         <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
     </div>
 
 }
 else
 {
-    <h3>@SharedLocalizer["nuevaOrden"]</h3>
+    <h3>@Lb["nuevaOrden"]</h3>
 }
 
 
@@ -49,167 +49,204 @@ else
 <div class="row">
     @if (Model.Id != 0 && !Model.Anulado)
     {
-        <div class="col-md-12 text-right"><button class="btn btn-danger btn-sm" onclick="cambiarEstadoOrden()">@SharedLocalizer["Anular"]</button></div>
+        <div class="col-md-12 text-right"><button class="btn btn-danger btn-sm" onclick="cambiarEstadoOrden()">@Lb["Anular"]</button></div>
     }
     else if (Model.Id != 0)
     {
-        <div class="col-md-12 text-left"> <h4 class="text-danger">@SharedLocalizer["OrdenAnulada"]</h4></div>
+        <div class="col-md-12 text-left"> <h4 class="text-danger">@Lb["OrdenAnulada"]</h4></div>
     }
 </div>
 
 <div class="row well">
-   
-        <div>
-            <form id="frmOrden">
+    <div>
+        <form id="frmOrden">
 
-                @Html.HiddenFor(x => x.Id)
-                @Html.HiddenFor(x => x.Anulado)
-                @Html.HiddenFor(x => x.TipoCambioDolar)
-                @Html.HiddenFor(x => x.TipoCambioEuro)
-                @Html.HiddenFor(x => x.IdUsuario)
+            @Html.HiddenFor(x => x.Id)
+            @Html.HiddenFor(x => x.Anulado)
+            @Html.HiddenFor(x => x.TipoCambioDolar)
+            @Html.HiddenFor(x => x.TipoCambioEuro)
+            @Html.HiddenFor(x => x.IdUsuario)
 
-                <div class="form-group col-md-2 col-sm-6 col-xs-12">
-                    <fieldset disabled>
-                        <div class="form-group">
-                            <label for="fecha">@SharedLocalizer["Fecha"]:</label>
-                            <div class='input-group date' id='fechaPicker'>
-                                <input type='text' class="form-control" id="fecha" />
-                                <span class="input-group-addon">
-                                    <span class="fas fa-calendar"></span>
-                                </span>
-                            </div>
+            <div class="form-group col-md-2 col-sm-6 col-xs-12">
+                <fieldset disabled>
+                    <div class="form-group">
+                        <label for="fecha">@Lb["Fecha"]:</label>
+                        <div class='input-group date' id='fechaPicker'>
+                            <input type='text' class="form-control" id="fecha" />
+                            <span class="input-group-addon">
+                                <span class="fas fa-calendar"></span>
+                            </span>
                         </div>
-                    </fieldset>
-                </div>
+                    </div>
+                </fieldset>
+            </div>
 
-                <div class="form-group col-md-3 col-sm-6 col-xs-12">
-                    <label asp-for="IdProveedor" class="control-label">@SharedLocalizer["Proveedor"]</label>
-                    <select class="selectItems form-control" data-live-search="true" id="proveedores">
-                        @if (Model.Id == 0)
+            <div class="form-group col-md-3 col-sm-6 col-xs-12">
+                <label asp-for="IdProveedor" class="control-label">@Lb["Proveedor"]</label>
+                <select class="selectItems form-control" data-live-search="true" id="proveedores">
+                    @if (Model.Id == 0)
+                    {
+                        foreach (var prove in ViewBag.Proveedores)
                         {
-                            foreach (var prove in ViewBag.Proveedores)
+                            var nombre = @prove.Nombre + " " + @prove.Apellidos;
+                            if (@prove.Nombre == "")
                             {
-                                var nombre = @prove.Nombre +" "+ @prove.Apellidos;
-                                if (@prove.Nombre == "")
-                                {
-                                    nombre = prove.NombreComercial;
-                                }
-                                <option value="@prove.IdContacto">@nombre</option>
+                                nombre = prove.NombreComercial;
                             }
+                            <option value="@prove.IdContacto">@nombre</option>
                         }
-                        else
-                        {
+                    }
+                    else
+                    {
 
 
-                            <option value="@ViewBag.IdContacto">@ViewBag.NombreCompleto</option>
+                        <option value="@ViewBag.IdContacto">@ViewBag.NombreCompleto</option>
 
 
-                        }
+                    }
+                </select>
+            </div>
+            <input hidden id="proveedor" value="@ViewBag.IdContacto" />
+            <div class="form-group col-md-5 col-sm-6 col-xs-12">
+                <label asp-for="Observacion" class="control-label">@Lb["Observación"]</label>
+                <textarea @estado asp-for="Observacion" id="txtObservacion" rows="8" maxlength="500" class="form-control">@Model.Observacion</textarea>
+                <span hidden id="observacionValid" class="text-danger">@Lb["observacionValid"]</span>
+            </div>
+            <div class="col-md-2 col-sm-6 col-xs-12">
+                <div class="form-group col-md-12">
+                    <label asp-for="IdMoneda" class="control-label">@Lb["Moneda"]</label>
+                    <select @estado onchange="recalcularPrecio(), deshabilitaTipoCambio()" asp-for="IdMoneda" id="moneda" class="form-control tipoMoneda">
+                        <option value="1">@Lb["CRC"]</option>
+                        <option value="2">@Lb["USD"]</option>
+                        <option value="3">@Lb["EUR"]</option>
                     </select>
                 </div>
-                <input hidden id="proveedor" value="@ViewBag.IdContacto" />
-                <div class="form-group col-md-5 col-sm-6 col-xs-12">
-                    <label asp-for="Observacion" class="control-label">@SharedLocalizer["Observación"]</label>
-                    <textarea @estado asp-for="Observacion" id="txtObservacion" rows="8" maxlength="500" class="form-control">@Model.Observacion</textarea>
-                    <span hidden id="observacionValid" class="text-danger">@SharedLocalizer["observacionValid"]</span>
+                <div class="form-group col-md-12">
+                    <label class="control-label" for="dolar">@Lb["TipoCambio"]</label>
+                    <label class="control-label" for="dolar">@Lb["Dolar"]:</label>
+                    <input @estado class="form-control moneda" id="dolar" />
                 </div>
-                <div class="col-md-2 col-sm-6 col-xs-12">
-                    <div class="form-group col-md-12">
-                        <label asp-for="IdMoneda" class="control-label">@SharedLocalizer["Moneda"]</label>
-                        <select @estado onchange="recalcularPrecio(), deshabilitaTipoCambio()" asp-for="IdMoneda" id="moneda" class="form-control tipoMoneda">
-                            <option value="1">@SharedLocalizer["CRC"]</option>
-                            <option value="2">@SharedLocalizer["USD"]</option>
-                            <option value="3">@SharedLocalizer["EUR"]</option>
-                        </select>
-                    </div>
-                    <div class="form-group col-md-12">
-                        <label class="control-label" for="dolar">@SharedLocalizer["TipoCambio"]</label>
-                        <label class="control-label" for="dolar">@SharedLocalizer["Dolar"]:</label>
-                        <input @estado class="form-control moneda" id="dolar" />
-                    </div>
-                    <div class="form-group col-md-12">
-                        <label class="control-label" for="euro">@SharedLocalizer["Euro"]:</label>
-                        <input @estado class="form-control moneda" id="euro" />
-                    </div>
+                <div class="form-group col-md-12">
+                    <label class="control-label" for="euro">@Lb["Euro"]:</label>
+                    <input @estado class="form-control moneda" id="euro" />
                 </div>
-            </form>
+            </div>
+        </form>
+    </div>
+
+    <br />
+
+
+    <div class="form-group col-md-4">
+        <button @generarOrden class="btn btn-success btnAccion" onclick="validarCompraAutomatica()">@Lb["ordenAutomatica"]</button>
+    </div>
+    <hr />
+    <div class="row">
+
+        <div class="form-group col-md-3 col-sm-3 col-xs-12">
+            <label id="lblItem" class="control-label">@Lb["Item"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+            <select @estado class="form-control selectItems" autofocus id="item"></select>
         </div>
 
-        <br />
-
-
-        <div class="form-group col-md-4">
-            <button @generarOrden class="btn btn-success btnAccion" onclick="validarCompraAutomatica()">@SharedLocalizer["ordenAutomatica"]</button>
+        <div class="form-group col-md-2 col-sm-2 col-xs-6">
+            <label class="control-label">@Lb["Descripción"]:</label>
+            <input readonly class="form-control" id="descripcion" />
         </div>
 
-
-        <div class="col-md-12 table-responsive">
-
-            <table class="table table-bordered table-striped" id="tblOrdenCompra" style="min-width:900px">
-                <thead>
-                    <tr>
-                        <th style="width:15%"><span>@SharedLocalizer["Item"]</span></th>
-                        <th><span>@SharedLocalizer["Descripción"]</span></th>
-                        <th><span>@SharedLocalizer["Cantidad"]</span></th>
-                        <th><span>@SharedLocalizer["PrecioUnitario"]</span></th>
-                        <th><span style="width:2%">@SharedLocalizer["Descuento"]</span></th>
-                        <th><span>@SharedLocalizer["IVA"]</span></th>
-                        <th><span>@SharedLocalizer["SubTotal"]</span></th>
-                        <th hidden><span>@SharedLocalizer["Total"]</span></th>
-                        <th style="width:15%"><span>@SharedLocalizer["Acción"]</span></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="lineaForm">
-                        <td>
-                            <select @estado class="form-control selectItems" id="item"></select>
-                        </td>
-                        <td>
-                            <input readonly class="form-control" id="descripcion" />
-                        </td>
-                        <td hidden><input @estado class="form-control numerico" type="text" min="0" id="estado" /></td>
-                        <td><input @estado class="form-control numerico" type="text" min="0" id="cantidad" /></td>
-                        <td><input @estado class="form-control moneda" type="text" min="1" id="precio" /></td>
-                        <td style="width:2%"><input @estado class="form-control numerico" type="text" id="descuento" /></td>
-                        <td><input class="form-control" readonly type="number" id="iva" /></td>
-                        <td><input class="form-control moneda" readonly type="text" id="subtotal" /></td>
-                        <td hidden><input class="form-control moneda" readonly type="text" id="totalLinea" /></td>
-                        <td><button @estado class="btn btn-link btnAccion" onclick="guardarLinea()"><i class="fas fa-save"></i></button></td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="form-group col-md-1 col-sm-1 col-xs-6">
+            <label class="control-label">@Lb["Cantidad"]:</label>
+            <input @estado class="form-control numerico" onkeyup="pasarSigCampo(event,'precio')" type="text" min="0" id="cantidad" />
 
         </div>
-        <div class="col-md-offset-9 col-md-3">
-            <form id="frmOrden2">
 
-                <div class="form-group">
-                    <label class="control-label">@SharedLocalizer["SubTotal"]</label>
-                    <input readonly id="subTotal" class="form-control currency" />
-                </div>
-                <div class="form-group">
-                    <label class="control-label">@SharedLocalizer["Descuento"]</label>
-                    <input readonly id="totalDescuento" class="form-control currency" />
-                </div>
-                <div class="form-group">
-                    <label class="control-label">@SharedLocalizer["Impuesto"]</label>
-                    <input readonly id="totalImpuesto" class="form-control currency" />
-                </div>
-                <div class="form-group">
-                    <label class="control-label">@SharedLocalizer["Total"]</label>
-                    <input readonly id="total" class="form-control currency" />
-                </div>
-
-            </form>
+        <div class="form-group col-md-2 col-sm-2 col-xs-12">
+            <label class="control-label">@Lb["PrecioUnitario"]:</label>
+            <input @estado class="form-control moneda" type="text"  onkeyup="pasarSigCampo(event,'descuento')" min="1" id="precio" />
         </div>
 
-        <br />
+        <div class="form-group col-md-2 col-sm-2 col-xs-12">
+            <label class="control-label">@Lb["Descuento"]:</label>
+            <input @estado class="form-control numerico" type="text"  onkeyup="pasarSigCampo(event,'guardar')" id="descuento" />
+        </div>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-12">
+            <label class="control-label">@Lb["IVA"]:</label>
+            <input class="form-control" readonly type="number" id="iva" />
+        </div>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-10">
+            <label class="control-label">@Lb["SubTotal"]:</label>
+            <input class="form-control moneda" readonly type="text" id="subtotal" />
+        </div>
+
+        <input class="form-control moneda" readonly type="hidden"  id="totalLinea" />
+        <div class="form-group col-md-1 col-sm-1 col-xs-2" style="padding-top: 2.3rem;">
+            <button onkeyup="pasarSigCampo(event,'items')" onclick="guardarLinea()" id="guardar" class="btn btn-success"><span><i class="fas fa-save"></i></span></button>
+        </div>
+
+       
+
+        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+            <p hidden id="cantidadValid" class="text-danger">@Lb["cantidadValid"].</p>
+            <p hidden id="costoValid" class="text-danger">@Lb["costoPromedioValidacion"].</p>
+            <p hidden id="cantidadExistenciaNuevaValid" class="text-danger">@Lb["cantidaMayorQueExistencias"].</p>
+        </div>
 
     </div>
+    <div class="col-md-12 table-responsive">
+
+        <table class="table table-bordered table-striped" id="tblOrdenCompra" style="min-width:900px">
+            <thead>
+                <tr>
+                    <th style="width:15%"><span>@Lb["Item"]</span></th>
+                    <th><span>@Lb["Descripción"]</span></th>
+                    <th><span>@Lb["Cantidad"]</span></th>
+                    <th><span>@Lb["PrecioUnitario"]</span></th>
+                    <th><span style="width:2%">@Lb["Descuento"]</span></th>
+                    <th><span>@Lb["IVA"]</span></th>
+                    <th><span>@Lb["SubTotal"]</span></th>
+                    <th hidden><span>@Lb["Total"]</span></th>
+                    <th style="width:15%"><span>@Lb["Acción"]</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="lineaForm">
+                  
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+    <div class="col-md-offset-9 col-md-3">
+        <form id="frmOrden2">
+
+            <div class="form-group">
+                <label class="control-label">@Lb["SubTotal"]</label>
+                <input readonly id="subTotal" class="form-control currency" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">@Lb["Descuento"]</label>
+                <input readonly id="totalDescuento" class="form-control currency" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">@Lb["Impuesto"]</label>
+                <input readonly id="totalImpuesto" class="form-control currency" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">@Lb["Total"]</label>
+                <input readonly id="total" class="form-control currency" />
+            </div>
+
+        </form>
+    </div>
+
+    <br />
+
+</div>
     <div class="row">
         <div class="form-group col-md-3">
-            <button @estado class="btn btn-success btnAccion" onclick="guardarCambios()">@SharedLocalizer["Guardar"]<i class="fas fa-save"></i></button>
-            <a onclick="cancelar()" class="btn btn-default">@SharedLocalizer["Cancelar"]</a>
+            <button @estado class="btn btn-success btnAccion" onclick="guardarCambios()">@Lb["Guardar"]<i class="fas fa-save"></i></button>
+            <a onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
         </div>
     </div>
 
@@ -233,7 +270,7 @@ else
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <div class="col-md-6"> <h5 data-translate="editarOrden" class="modal-title" id="bodegaIventarioLabel">@SharedLocalizer["editarOrden"]</h5></div>
+                        <div class="col-md-6"> <h5 data-translate="editarOrden" class="modal-title" id="bodegaIventarioLabel">@Lb["editarOrden"]</h5></div>
                     </div>
                     <div class="modal-body" id="editar">
                         <div class="row">
@@ -241,22 +278,24 @@ else
                             <input id="editIva" type="hidden" class="form-control" />
                             <input id="nSubTotal" type="hidden" class="form-control" />
                             <div class="form-group col-sm-7">
-                                <label class="control-label">@SharedLocalizer["Cantidad"]</label>
-                                <input id="editCantidad" class="form-control numerico" />
+                                <label class="control-label">@Lb["Cantidad"]</label>
+                                <input id="editCantidad" class="form-control numerico" onkeyup="pasar(event,'editPrecio')" />
+                                <span hidden id="editCantidadValid" class="text-danger">@Lb["AlertCompraCantidad"]</span>
                             </div>
                             <div class="form-group col-sm-7">
-                                <label class="control-label ">@SharedLocalizer["PrecioUnitario"]</label>
-                                <input id="editPrecio" class="form-control numerico" />
+                                <label class="control-label ">@Lb["PrecioUnitario"]</label>
+                                <input id="editPrecio" class="form-control numerico" onkeyup="pasar(event,'editDescuento')" />
+                                <span hidden id="editPrecioValid" class="text-danger">@Lb["AlertCompraPrecio"]</span>
                             </div>
                             <div class="form-group col-sm-7">
-                                <label class="control-label ">@SharedLocalizer["Descuento"]</label>
-                                <input id="editDescuento" class="form-control numerico" />
+                                <label class="control-label ">@Lb["Descuento"]</label>
+                                <input id="editDescuento" class="form-control numerico" onkeyup="pasar(event,'btnEditOrden')"  />
                             </div>
                             <div class="form-group col-sm-7">
 
-                                <button id="btnEditOrden" onclick="editOrden()" class="btn btn-success"><span>@SharedLocalizer["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
+                                <button id="btnEditOrden" onclick="editOrden()" class="btn btn-success"><span>@Lb["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
 
-                                <button class="btn btn-default" data-dismiss="modal"><span>@SharedLocalizer["Cancelar"]</span></button>
+                                <button class="btn btn-default" data-dismiss="modal"><span>@Lb["Cancelar"]</span></button>
 
                             </div>
                         </div>
@@ -433,8 +472,10 @@ else
         return '@Model.Fecha.Month' + "-" + '@Model.Fecha.Day' + "-" + '@Model.Fecha.Year' + " " + '@Model.Fecha.TimeOfDay';
 
     }
-   function cargarModalEditOrden(j)
+    function cargarModalEditOrden(j)
    {
+        $('#editCantidadValid').attr('hidden', true);
+        $('#editPrecioValid').attr('hidden', true);
        var arreglo = [];
        if (@Model.Id  === 0)
            arreglo = lineasAgregadas;
@@ -459,29 +500,64 @@ else
        }
 
     }
-    function validarmodalEditar() {
+    function pasarSigCampo(e,id)
+    {
+
+	    (e.keyCode)?k=e.keyCode:k=e.which;
+
+	      if(k==13)
+	      {
+		      if(id=="guardar")
+		      {
+                 guardarLinea();
+                 document.getElementById(id).focus();
+              }
+              else
+              {
+                 document.getElementById(id).focus();
+
+		      }
+	      }
+    }
+    function pasar(e,id)
+  {
+
+	    (e.keyCode)?k=e.keyCode:k=e.which;
+
+	      if(k==13)
+	      {
+		      if(id=="btnEditOrden")
+		      {
+                 editOrden();
+              }
+              else
+              {
+                 document.getElementById(id).focus();
+
+		      }
+	      }
+  }
+      function validarmodalEditar() {
 
         var cantidad = parseFloat($('#editCantidad').val());
         var precio = parseFloat($('#editPrecio').val());
+        var flag = true;
+        $('#editCantidadValid').attr('hidden', true);
+        $('#editPrecioValid').attr('hidden', true);
         if (cantidad <= 0) {
-            cargarAlert('@SharedLocalizer["AlertCompraCantidad"]');
-            return false;
+            $('#editCantidadValid').attr('hidden', false);
+            flag = false;
         }
         if (precio <= 0) {
-           cargarAlert('@SharedLocalizer["AlertCompraPrecio"]');
-            return false;
+           $('#editPrecioValid').attr('hidden', false);
+            flag = false;
         }
-        else
-        {
-                        return true;
-
-        }
-
-
-    }
+       
+        return flag;
+      }
    function editOrden()
    {
-       console.log(editPrecio);
+      
        if (validarmodalEditar()) {
            for (var i = 0; i < lineas.length; i++) {
                console.log(lineas[i].precio);
@@ -560,7 +636,8 @@ else
         if ($('#modalEditarOrden').hasClass('in')) {
             var iva = parseFloat($('#editIva').val());
         } else
-            var iva = parseFloat($iva.val());
+            var iva = parseFloat($('#iva').val());
+       
 
         var subTotal = parseFloat($subTotalLinea.val()) - calcularTotalDescuentoLinea();
         return (iva / 100) * subTotal;
@@ -594,12 +671,13 @@ else
             url: '@Url.Action("GetOrdenDetalle")',
 
             success: function (data) {
+                
                 ordenDetalleBD = JSON.parse(JSON.stringify(data));
                 cargarLineas(data);
 
                },
               error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  cargarAlert('@Lb["errorGeneral"]');
                   console.log(err.statusText);
               }
           });
@@ -651,7 +729,7 @@ else
 
         }
         if (cero)
-          cargarAlert('@SharedLocalizer["AlertPreciosCero"]');
+          cargarAlert('@Lb["AlertPreciosCero"]');
 
 
 
@@ -659,14 +737,41 @@ else
 
 
     }
+    function generarLinea() {
+        var model = {
+           id: 0,
+         idOrden: @Model.Id,
+         idInventario: $item.val(),
+         nombreInventario: $descripcion.val(),
+         idMonedaOD: parseInt($('.tipoMoneda').val()),
+         cantidad: parseFloat($cantidad.val()),
+         precio: parseFloat($precio.val()),
+         subTotalGrabado: calcularSubtotalGrabadoLinea(),
+         subTotalExcento: calcularSubtotalExcentoLinea(),
+         subTotalNeto: calcularSubtotalNetoLinea(),
+         porcIva: parseFloat($iva.val()),
+         porcIs: 0,
+         totalIs: 0,
+         porcDesc: parseFloat($descuento.val()),
+         totalDescuento: calcularTotalDescuentoLinea(),
+         totalIva: calcularTotalIvaLinea(),
+         total: calcularTotalLinea()
+        };
+       lineasAgregadas.push(model);
+       lineas.push(model);
+       $cantidad.val(1);
+       cargarTabla(lineas);
+    }
     function guardarLinea() {
-        var existe =true;
+        var flag2 = false;
+        var pos = 0;
+
         if ($cantidad.val() <= 0) {
-            cargarAlert('@SharedLocalizer["AlertCompraCantidad"]');
+            cargarAlert('@Lb["AlertCompraCantidad"]');
             return;
         }
         if ($precio.val() <= 0) {
-            cargarAlert('@SharedLocalizer["AlertCompraPrecio"]');
+            cargarAlert('@Lb["AlertCompraPrecio"]');
             return;
 
         }
@@ -679,52 +784,37 @@ else
 
                 if (lineas[i].precio == parseFloat($precio.val()) && lineas[i].porcDesc == parseFloat($descuento.val()) && lineas[i].porcIva == parseFloat($iva.val()))
                 {
-
-                    $cantidad.val(parseFloat(lineas[i].cantidad) + parseFloat($cantidad.val()));
-                    lineas[i].cantidad = $cantidad.val();
-                         setSubTotalLinea();
-                         lineas[i].subTotalGrabado= calcularSubtotalGrabadoLinea();
-                         lineas[i].subTotalExcento= calcularSubtotalExcentoLinea();
-                         lineas[i].subTotalNeto = calcularSubtotalNetoLinea();
-                         lineas[i].totalDescuento= calcularTotalDescuentoLinea();
-                         lineas[i].totalIva= calcularTotalIvaLinea();
-                         lineas[i].total= calcularTotalLinea();
-                    existe = false;
-                    cargarTabla(lineas);
-                     $cantidad.val(1);
-
-
+                    flag2 = true;   
+                    pos = i;
                 }
             }
 
             }
-            if (existe) {
-                 var model = {
-                id: 0,
-                idOrden: @Model.Id,
-                idInventario: $item.val(),
-                nombreInventario: $descripcion.val(),
-                idMonedaOD: parseInt($('.tipoMoneda').val()),
-                cantidad: parseFloat($cantidad.val()),
-                precio: parseFloat($precio.val()),
-                subTotalGrabado: calcularSubtotalGrabadoLinea(),
-                subTotalExcento: calcularSubtotalExcentoLinea(),
-                subTotalNeto: calcularSubtotalNetoLinea(),
-                porcIva: parseFloat($iva.val()),
-                porcIs: 0,
-                totalIs: 0,
-                porcDesc: parseFloat($descuento.val()),
-                totalDescuento: calcularTotalDescuentoLinea(),
-                totalIva: calcularTotalIvaLinea(),
-                total: calcularTotalLinea()
-               };
+            if (flag2) {
+                  bootbox.confirm("@Lb["sumarDetalleOrdenValid"]", function (resultado) {
+                           if (resultado) {
+                               $cantidad.val(parseFloat(lineas[pos].cantidad) + parseFloat($cantidad.val()));
+                               lineas[pos].cantidad = $cantidad.val();
+                               setSubTotalLinea();
+                               lineas[pos].subTotalGrabado = calcularSubtotalGrabadoLinea();
+                               lineas[pos].subTotalExcento = calcularSubtotalExcentoLinea();
+                               lineas[pos].subTotalNeto = calcularSubtotalNetoLinea();
+                               lineas[pos].totalDescuento = calcularTotalDescuentoLinea();
+                               lineas[pos].totalIva = calcularTotalIvaLinea();
+                               lineas[pos].total = calcularTotalLinea();
+                               cargarTabla(lineas);
+                               $cantidad.val(1);
 
+                           } else {
+                               generarLinea();
+                           }
+                     
 
-                lineasAgregadas.push(model);
-                lineas.push(model);
-                $cantidad.val(1);
-                cargarTabla(lineas);
+                  });
+            } else {
+                generarLinea();
             }
+            
         }
 
 
@@ -736,7 +826,7 @@ else
     function validarCompraAutomatica() {
 
         if (lineas.length != 0) {
-            bootbox.confirm("@SharedLocalizer["confirmCompraAutomatica"]", function (resultado) {
+            bootbox.confirm("@Lb["confirmCompraAutomatica"]", function (resultado) {
                 if (resultado) {
                     lineas = [];
                     lineasAgregadas = [];
@@ -792,7 +882,7 @@ else
 
     function eliminarLinea(_id, idLinea) {
 
-        bootbox.confirm("@SharedLocalizer["confirmEliminarLinea"]", function (result) {
+        bootbox.confirm("@Lb["confirmEliminarLinea"]", function (result) {
 
             if (result) {
 
@@ -838,7 +928,6 @@ else
             totalDescuento += parseFloat(lineas[i].totalDescuento);
             totalOrden += parseFloat(lineas[i].total);
         }
-
         $subTotal.val(subTotalOrden);
         $totalImpuesto.val(totalImpuesto);
         $totalDescuento.val(totalDescuento);
@@ -848,9 +937,6 @@ else
 
 
     function cargarTabla(data) {
-        console.log(data);
-        console.log(lineasActualizadas);
-
         $('.filasCargadas').remove();
 
         contadorFila = 0;
@@ -917,7 +1003,7 @@ else
                  getOrdenDetalle();
                },
               error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  cargarAlert('@Lb["errorGeneral"]');
                   console.log(err.statusText);
               }
           });
@@ -942,7 +1028,7 @@ else
     }
 
     function cancelar() {
-        bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) {
+        bootbox.confirm("@Lb["confirmCancelar"]", function (result) {
             if (result)
                 window.location.href = "@Url.Action("ListarOrdenes")";
 
@@ -958,9 +1044,7 @@ else
     }
 
     function guardarOrden() {
-        console.log(crearModelo());
-        //crearModelo();
-
+   
         $.ajax({
             type: "POST",
             headers: {
@@ -975,7 +1059,7 @@ else
                 window.location.href = "@Url.Action("ListarOrdenes")";
                },
               error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  cargarAlert('@Lb["errorGeneral"]');
                   console.log(err.statusText);
               }
         });
@@ -984,8 +1068,8 @@ else
 
     function cambiarEstadoOrden() {
         bootbox.prompt({
-            title: "@SharedLocalizer["confirmAnularOrden"]",
-            message: '<p>@SharedLocalizer["Justificación"]</p>',
+            title: "@Lb["confirmAnularOrden"]",
+            message: '<p>@Lb["Justificación"]</p>',
             inputType: 'textarea',
             callback: function (result) {
                 if (result != null) {
@@ -1002,19 +1086,19 @@ else
                         url: '@Url.Action("CambiarEstadoOrden", new { id = Model.Id })',
                         success: function (data) {
                             setMensajeFromOut(result);
-                            cargarAlert('@SharedLocalizer["OrdenAnulada"]');
+                            cargarAlert('@Lb["OrdenAnulada"]');
                             window.location.href = "@Url.Action("ListarOrdenes")";
 
                         },
                         error: function (err, scnd) {
-                            cargarAlert('@SharedLocalizer["errorGeneral"]');
+                            cargarAlert('@Lb["errorGeneral"]');
                             console.log(err.statusText);
                         }
                     });
 
                 }
                 else
-                    cargarAlert('@SharedLocalizer["JustificacionInvalida"]');
+                    cargarAlert('@Lb["JustificacionInvalida"]');
                 }
 
             }
@@ -1033,10 +1117,9 @@ else
             url: '@Url.Action("EliminarOrdenDetalle", new { id = Model.Id })',
             data: { viewModel: lineasEliminadas },
             success: function (data) {
-               // console.log(data);
                },
               error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  cargarAlert('@Lb["errorGeneral"]');
                   console.log(err.statusText);
               }
           });
@@ -1064,7 +1147,7 @@ else
 
         };
 
-        console.log(ordenModel);
+      
         return ordenModel;
     }
 
@@ -1112,7 +1195,7 @@ else
             return false;
         }
         else if (lineas.length <= 0) {
-            cargarAlert('@SharedLocalizer["ordenSinDetalle"]');
+            cargarAlert('@Lb["ordenSinDetalle"]');
             return false;
         }
 
@@ -1188,7 +1271,7 @@ else
         else if (moneda === 2)
             return data.totalIvadolar;
         else if (moneda === 3)
-            return data.totalIvauro;
+            return data.totalIvaeuro;
     }
     function recuperarIs(data) {
         var moneda = parseInt($('.tipoMoneda').val());
@@ -1346,47 +1429,47 @@ else
                 correo: empresaModel.correo,
                 cedJuridica: empresaModel.ced,
                 logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
-                nombreTitulo: "@SharedLocalizer["Nombre"]:",
-                telTitulo: "@SharedLocalizer["Telefonos"]:",
-                correoTitulo: "@SharedLocalizer["Correo"]:",
+                nombreTitulo: "@Lb["Nombre"]:",
+                telTitulo: "@Lb["Telefonos"]:",
+                correoTitulo: "@Lb["Correo"]:",
                 cedTitulo: getTittulos().cedJuridica
             },
             subtotal: formatTotales().subtotal,
             descuento: formatTotales().desc,
             impuesto: formatTotales().imp,
             total: formatTotales().total,
-            nombreDoc: '@SharedLocalizer["OrdenCompra"] ' + '#@Model.Id',
-            nombreDescarga: '@SharedLocalizer["orden_compra"]_' + @Model.Id + '.pdf',
+            nombreDoc: '@Lb["OrdenCompra"] ' + '#@Model.Id',
+            nombreDescarga: '@Lb["orden_compra"]_' + @Model.Id + '.pdf',
             columnas: {
                 item: "Item",
                 descripcion: getTittulos().desc,
-                cantidad: "@SharedLocalizer["Cantidad"]",
-                precioUnid: "@SharedLocalizer["PrecioUnid"]",
-                descuento: "@SharedLocalizer["Descuento"]",
-                iva: "@SharedLocalizer["IVA"]",
-                subtotal: "@SharedLocalizer["SubTotal"]"
+                cantidad: "@Lb["Cantidad"]",
+                precioUnid: "@Lb["PrecioUnid"]",
+                descuento: "@Lb["Descuento"]",
+                iva: "@Lb["IVA"]",
+                subtotal: "@Lb["SubTotal"]"
             },
             filas: crearFilasPdf(),
             resumen: {
-                subtotal: "@SharedLocalizer["SubTotal"]",
-                descuento: "@SharedLocalizer["Descuento"]",
-                impuesto: "@SharedLocalizer["Impuesto"]",
-                total: "@SharedLocalizer["Total"]",
-                autorizado: "@SharedLocalizer["Autorizado por"]:______________________"
+                subtotal: "@Lb["SubTotal"]",
+                descuento: "@Lb["Descuento"]",
+                impuesto: "@Lb["Impuesto"]",
+                total: "@Lb["Total"]",
+                autorizado: "@Lb["Autorizado por"]:______________________"
             },
             proveedor: $('#proveedores option:selected').text(),
             fecha: $('#fecha').val(),
             descripcion: getDescripcion(),
-            proveedorTitulo: "@SharedLocalizer["Proveedor"]:",
-            observacionTitulo: "@SharedLocalizer["Observaciones"]:",
-            fechaTitulo: "@SharedLocalizer["Fecha"]:",
+            proveedorTitulo: "@Lb["Proveedor"]:",
+            observacionTitulo: "@Lb["Observaciones"]:",
+            fechaTitulo: "@Lb["Fecha"]:",
             estado: getEstado(),
-            tipoCambio: '@SharedLocalizer["Tipo de cambio"]',
-            dolarTitulo: '@SharedLocalizer["Dolar"]',
-            euroTitulo: '@SharedLocalizer["Euro"]',
+            tipoCambio: '@Lb["Tipo de cambio"]',
+            dolarTitulo: '@Lb["Dolar"]',
+            euroTitulo: '@Lb["Euro"]',
             dolar: $('#dolar').val().toString(),
             euro: $('#euro').val().toString(),
-            monedaTitulo: '@SharedLocalizer["Moneda"]',
+            monedaTitulo: '@Lb["Moneda"]',
             moneda: $('#moneda option:selected').text()
         };
 
@@ -1396,7 +1479,7 @@ else
 
     function getEstado() {
         if ('@Model.Anulado' === "True")
-            return "@SharedLocalizer["OrdenAnulada"]";
+            return "@Lb["OrdenAnulada"]";
         else
             return "";
     }
