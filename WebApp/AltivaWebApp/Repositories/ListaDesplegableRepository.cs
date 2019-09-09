@@ -17,18 +17,18 @@ namespace AltivaWebApp.Repositories
 
         public IList<ListaDesplegableGETViewModel> GetAllLista()
         {
-           
+
             var model = (from con in context.TbCrListaDesplegables
                          join a in context.TbCrCamposPersonalizados
                          on con.IdCamposPersonalizados equals a.Id
                          select new ListaDesplegableGETViewModel
                          {
-                        IdCampoPersonalizado =Convert.ToInt32( a.Id),
-                        Nombre = a.Nombre,
-                        IdListaDesplegable = Convert.ToInt32(con.Id),
-                        Tipo = a.Tipo
-                        
-                        
+                             IdCampoPersonalizado = Convert.ToInt32(a.Id),
+                             Nombre = a.Nombre,
+                             IdListaDesplegable = Convert.ToInt32(con.Id),
+                             Tipo = a.Tipo
+
+
                          }
 
      ).ToList();
@@ -42,6 +42,11 @@ namespace AltivaWebApp.Repositories
 
         }
 
+        public IList<TbCrListaDesplegables> GetListaByIdCampo(int idCampo)
+        {
+            return context.TbCrListaDesplegables.Where(u => u.IdCamposPersonalizados == idCampo).ToList();
+        }
+
         public IList<ListaDesplegableGETViewModel> GetCampos(int id)
         {
 
@@ -51,11 +56,11 @@ namespace AltivaWebApp.Repositories
                          where con.IdCamposPersonalizados == id
                          select new ListaDesplegableGETViewModel
                          {
-                            IdCampoPersonalizado = Convert.ToInt32( con.Id),
-                            IdListaDesplegable = Convert.ToInt32(a.Id),
-                            Tipo = a.Tipo,
-                            Nombre = a.Nombre,
-                            Valor = con.Valor
+                             IdCampoPersonalizado = Convert.ToInt32(con.Id),
+                             IdListaDesplegable = Convert.ToInt32(a.Id),
+                             Tipo = a.Tipo,
+                             Nombre = a.Nombre,
+                             Valor = con.Valor
 
                          }
 
@@ -73,6 +78,12 @@ namespace AltivaWebApp.Repositories
         public void UpdateRange(IList<TbCrListaDesplegables> domain)
         {
             context.TbCrListaDesplegables.UpdateRange(domain);
+            context.SaveChanges();
+        }
+
+        public void DeleteRange(IList<long> domain)
+        {
+            context.TbCrListaDesplegables.RemoveRange(context.TbCrListaDesplegables.Where(l => domain.Contains(l.Id)));
             context.SaveChanges();
         }
     }

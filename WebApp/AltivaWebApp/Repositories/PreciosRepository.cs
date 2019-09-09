@@ -35,6 +35,10 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbPrPrecios.FirstOrDefault(d => d.Id == Id);
         }
+        public TbPrPrecios GetFirstPrecioCatalogo()
+        {
+            return context.TbPrPrecios.FirstOrDefault();
+        }
 
     }
 }

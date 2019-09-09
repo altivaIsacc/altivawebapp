@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AltivaWebApp.GEDomain;
+using AltivaWebApp.ViewModels;
+
 namespace AltivaWebApp.Services
 {
   public  interface IPaisService
@@ -12,6 +14,6 @@ namespace AltivaWebApp.Services
         TbSePais Delete(int id);
         IList<TbSePais> GetAll();
         TbSePais GetPaisById(int id);
-        bool ConsultarPais(string nombre);
+        TbSePais ConsultarPais(PaisViewModel viewModel);
     }
 }

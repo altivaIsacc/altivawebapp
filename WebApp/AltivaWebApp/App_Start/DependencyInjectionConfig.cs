@@ -309,6 +309,12 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<ITrasladoInventarioService, TrasladoInventarioService>();
             services.AddScoped<ITrasladoInventarioMap, TrasladoInventarioMap>();
 
+            //Punto de Venta
+
+            services.AddScoped<IPuntoVentaRepository, PuntoVentaRepository>();
+            services.AddScoped<IPuntoVentaService, PuntoVentaService>();
+            services.AddScoped<IPuntoVentaMap, PuntoVentaMap>();
+
 
         }
     }

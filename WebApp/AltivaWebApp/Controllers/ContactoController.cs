@@ -248,7 +248,7 @@ namespace AltivaWebApp.Controllers
         public IActionResult _ListarCuentasBancarias(int idContacto)
         {
             ViewBag.idContacto = idContacto;
-            return View(contactoService.GetCuentasByContacto(idContacto));
+            return PartialView(contactoService.GetCuentasByContacto(idContacto));
         }
 
         [HttpPost("_CrearEditarCuentasBancarias")]

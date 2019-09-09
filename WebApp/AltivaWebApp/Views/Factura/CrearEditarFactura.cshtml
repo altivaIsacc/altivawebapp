@@ -23,21 +23,25 @@ else
 }
 <hr />
 
-<div class="btn-group">
-    <button type="button" onclick="imprimirTicket()" class="btn btn-primary">@Lb["Imprimir"]</button>
-    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-        <span class="caret"></span>
-        <span class="sr-only">Toggle Dropdown</span>
-    </button>
-    <ul class="dropdown-menu" role="menu">
-        <li>
-            <a href="#carta">@Lb["Carta"]</a>
-        </li>
-        <li>
-            <a href="#ticket">@Lb["Ticket"]</a>
-        </li>
-    </ul>
-</div>
+@if (Model.Id != 0)
+{
+    <div class="btn-group">
+        <button type="button" onclick="GetPDF()" class="btn btn-primary">@Lb["Imprimir"]</button>
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            <li>
+                <a href="#carta">@Lb["Carta"]</a>
+            </li>
+            <li>
+                <a href="#ticket" onclick="GetPDF(1)">@Lb["Ticket"]</a>
+            </li>
+        </ul>
+    </div>
+}
+
 
 <div class="row">
     <form id="frmFactura">
@@ -105,7 +109,7 @@ else
                     <a class="dropdown-item" href="#">@Lb["ImportarCotizacion"]</a>
                 </li>
                 <li>
-                    <a class="dropdown-item" href="#" onclick="crearPdf()">@Lb["Exportarpdf"]</a>
+                    <a class="dropdown-item" href="#" onclick="GetReporte()">@Lb["Reporte"]</a>
                 </li>
             </ul>
 
@@ -325,9 +329,13 @@ else
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-12">
-        @await ViewBag.reporte.Render()
+<div class="modal fade bd-example-modal-xl" id="reporteModal" tabindex="-2" role="dialog" aria-labelledby="reporteModalCenter" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div id="repContainer">
+
+            </div>
+        </div>
     </div>
 </div>
 
@@ -337,6 +345,8 @@ else
 
 <script src="~/js/comentario.js"></script>
 <script src="~/js/base64ImageCreator.js"></script>
+
+
 <script>
 
     ///////factura
@@ -375,7 +385,7 @@ else
             rightAlign: true,
             min: 0
         });
-        
+
 
         $(".porcentaje").inputmask({
             'alias': 'percentage',
@@ -391,8 +401,6 @@ else
         getInventario();
 
         comprobarBorrador();
-
-        imprimirTicket();
 
 
     });
@@ -1172,104 +1180,6 @@ else
     //    window.open(pdf.output('bloburl'), '_blank');
     //}
 
-    function crearModeloPDF() {
-
-        var empresaModel = JSON.parse(localStorage.getItem("empresaInfo"));
-
-        var modelo = {
-            empresa: {
-                nombre: localStorage.getItem("empresa"),
-                telefono: empresaModel.tel.replace(/ /g, ""),
-                correo: empresaModel.correo,
-                cedJuridica: empresaModel.ced.replace(/-/g, ""),
-                logo: getImgFromUrl(localStorage.getItem("fotoEmpresa")),
-                nombreTitulo: "@Lb["Nombre"]:",
-                telTitulo: getTittulos().telefono,
-                correoTitulo: "@Lb["Correo"]:",
-                cedTitulo: getTittulos().cedJuridica,
-                cedTT: getTittulos().ced,
-                telTT: "@Lb["Tel"]:"
-            },
-            subtotal: darFomatoDinero(facturaModel.SubTotal.toFixed(2)),
-            descuento: darFomatoDinero(facturaModel.TotalDescuento.toFixed(2)),
-            impuesto: darFomatoDinero(facturaModel.MontoIva.toFixed(2)),
-            exoneracion: darFomatoDinero(facturaModel.MontoExoneracion),
-            total: darFomatoDinero(facturaModel.Total.toFixed(2)),
-            tieneEx: facturaModel.MontoExoneracion != 0 ? true : false,
-            tieneDesc: facturaModel.MontoDescuento != 0 ? true : false,
-            nombreDoc: '@Lb["Factura"] ' + '#@Model.Id',
-            nombreDescarga: '@Lb["factura"]_' + @Model.Id + '.pdf',
-            columnas: {
-                descripcion: getTittulos().desc,
-                cantidad: "@Lb["Cantidad"]",
-                precio: "@Lb["PrecioUnit"]",
-                total: "@Lb["Total"]",
-                subtotal: "@Lb["Subtotal"]"
-            },
-            filas: crearFilasPdf(),
-            resumen: {
-                subtotal: "@Lb["SubTotal"]",
-                descuento: "@Lb["Descuento"]",
-                impuesto: "@Lb["I.V.A"]",
-                exoneracion: "@Lb["Exonerado"]",
-                total: "@Lb["Total"]",
-            },
-            cliente: $('#IdCliente option:selected').text(),
-            fecha: "@Model.FechaFactura",
-            clienteTitulo: "@Lb["Cliente"]:",
-            fechaTitulo: "@Lb["Fecha"]:",
-            estado: getEstado(),
-            tipoCambio: '@Lb["Tipo de cambio"]',
-            dolarTitulo: '@Lb["Dolar"]:',
-            euroTitulo: '@Lb["Euro"]:',
-            dolar: monedas[1].valorVenta.toString(),
-            euro: monedas[2].valorVenta.toString(),
-            monedaTitulo: '@Lb["Moneda"]:',
-            moneda:  @Model.IdMoneda === 1 ? monedas[0].nombre : @Model.IdMoneda === 2 ? monedas[1].nombre : monedas[2].nombre,
-            tipoDocumentoTitulo: '@Lb["Tipo"]:',
-            tipoDocumento: $('#Tipo option:selected').text()
-        };
-        
-        return modelo;
-
-    }
-
-    function crearFilasPdf() {
-
-        var row = [];
-        for (var i = 0; i < lineas.length; i++) {
-            var tieneImp = lineas[i].porcIva != 0 ? "*" : "";
-            var model = {
-                descripcion: getItemPorId(lineas[i].idInventario).descripcionVenta + " " + tieneImp,
-                cantidad: lineas[i].cantidad.toString(),
-                precio: darFomatoDinero(lineas[i].precio.toFixed(2)),
-                total: darFomatoDinero(lineas[i].total.toFixed(2)),
-                subtotal: darFomatoDinero(lineas[i].subTotal.toFixed(2))
-            };
-
-            row.push(model);
-        }
-
-
-        return row;
-    }
-    function getTittulos() {
-        var idioma = localStorage.getItem("idioma");
-        if (idioma === "es")
-            return {
-                desc: "Descripción",
-                cedJuridica: "Cédula Jurídica:",
-                ced: "Céd:",
-                telefono: "Teléfono:"
-            };
-        else
-            return {
-                desc: "Description",
-                cedJuridica: "Legal Number:",
-                ced: "Id:",
-                telefono: "Phone Number:"
-            };
-    }
 
     function getEstado() {
         if ('@Model.Estado' === "0")
@@ -1287,61 +1197,150 @@ else
         });
     }
 
-    function getTicket() {
+    function GetReporte() {
 
-        var request = new XMLHttpRequest();
-        request.responseType = "blob";
-        request.open("GET", '@Url.Action("GetTicketImage", "Factura", new { idFactura = Model.Id })');
-        request.onload = function () {
-            var url = window.URL.createObjectURL(this.response);
-            console.log(this.response);
-        }
-        request.send();
+        var parametros = [];
+
+        parametros.push({ nombre: "idFactura", valor: '@Model.Id'});
+        parametros.push({ nombre: "idEmpresa", valor: '@Context.Session.GetInt32("idEmpresa")' });
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("ReporteGeneral", "VistaReporte")',
+            data: { NombreReporte: "Facturaticket", parametros: parametros },
+             success: function (data) {
+
+                 var myWindow = window.open('', '', '');
+                 var doc = myWindow.document;
+                 doc.open();
+                 doc.write(data);
+                 doc.close();
+
+             },
+             error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+             }
+        });
 
     }
 
-    function imprimirTicket() {
-        
-        
-         
+    function GetPDF(imprimir) {
 
-        var request = new XMLHttpRequest();
-        request.responseType = "blob";
-        request.open("GET", '@Url.Action("GetTicket", "Factura", new { idFactura = Model.Id })');
-        request.onload = function () {
-            var url = window.URL.createObjectURL(this.response);
+        var parametros = [];
 
-            var reader = new FileReader();
-            reader.readAsDataURL(this.response);
-            reader.onloadend = function () {
-                base64data = reader.result;
-                crearTicketPdf(base64data);
+        parametros.push({ nombre: "idFactura", valor: '@Model.Id'});
+        parametros.push({ nombre: "idEmpresa", valor: '@Context.Session.GetInt32("idEmpresa")' });
+
+        var data = { NombreReporte: "Facturaticket", parametros: parametros };
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("ReportePDF", "VistaReporte")',
+            cache: false,
+            xhr: function () {// Seems like the only way to get access to the xhr object
+                var xhr = new XMLHttpRequest();
+                xhr.responseType = 'blob'
+                return xhr;
+            },
+            data:data,
+            success: function (data) {
+                var reader = new FileReader();
+                reader.readAsDataURL(data);
+
+                reader.onloadend = function () {
+                    base64data = reader.result;
+
+                    var w = 0;
+                    var h = 0;
+
+                    var img = new Image;
+
+                    img.onload = function () {
+                        w = (img.width / 595) * 100;
+                        h = (img.height / 842) * 100;
+
+                        console.log(w); // image is loaded; sizes are available
+                        console.log(h);
+
+                        var doc = new jsPDF('p', 'pt', 'a4');
+
+                        doc.addImage(base64data, 'JPEG', 0, 0, w, h);
+                        if (imprimir == 1) {
+                            doc.autoPrint();
+                        }
+                        window.open(doc.output('bloburl'), '_blank');
+
+                    };
+
+                    img.src = base64data;
+
+
+
+
+                }
+
+            },
+            error: function () {
+                cargarAlert("@Lb["errorGeneral"]");
             }
-            
-        }
-        request.send();
+        });
+
+
     }
 
 
-    function crearTicketPdf(img) {
 
-        var imgData = img//getImgFromUrl(img)  
+    function GetWORD() {
 
-        
-        
-        var doc = new jsPDF('p', 'mm', [80, 210]);
+        var parametros = [];
+
+        parametros.push({ nombre: "idFactura", valor: '@Model.Id'});
+        parametros.push({ nombre: "idEmpresa", valor: '@Context.Session.GetInt32("idEmpresa")' });
+
+        var data = { NombreReporte: "Facturaticket", parametros: parametros };
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("ReporteHTML", "VistaReporte")',
+            cache: false,
+            xhr: function () {// Seems like the only way to get access to the xhr object
+                var xhr = new XMLHttpRequest();
+                xhr.responseType = 'blob'
+                return xhr;
+            },
+            data:data,
+            success: function (data) {
+
+                //console.log(data);
+
+                var reader = new FileReader();
+                reader.readAsText(data);
+
+                reader.onloadend = function (e) {
+                    //base64data = reader.result;
+
+                    $('#wordContent').html(reader.result);
+                    $('#wordContent').wordExport();
+
+                    //var myWindow = window.open('', '', '');
+                    //var doc = myWindow.document;
+                    //doc.open();
+                    //doc.write(reader.result);
+                    //$(doc).wordExport();
+                    //doc.close();
+
+                }
+
+            },
+            error: function () {
+                cargarAlert("@Lb["errorGeneral"]");
+            }
+        });
 
 
-        doc.addImage(imgData, 'JPEG', 0, 0, 80, 210)
-
-        
-        doc.autoPrint();
-        window.open(doc.output('bloburl'), '_blank');
-        
     }
 
 </script>
-
-
 
 <script src="~/lib/vendors/jsPDF/FA.js"></script>

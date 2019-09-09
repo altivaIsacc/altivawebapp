@@ -20,6 +20,11 @@ namespace AltivaWebApp.Services
             return this.repository.GetAllByCoincidence(word);
         }
 
+        public bool ExisteCaracteristica(long idInventario, string caracteristica)
+        {
+            return repository.ExisteCaracteristica(idInventario, caracteristica);
+        }
+
         public IList<TbPrInventario> GetInventarioFacturable()
         {
             return repository.GetInventarioFacturable();
@@ -35,6 +40,11 @@ namespace AltivaWebApp.Services
         public TbPrInventario GetInventarioByCodigo(string codigo)
         {
             return repository.GetInventarioByCodigo(codigo);
+        }
+
+        public long? ExisteInventarioCodigo(string codigo)
+        {
+            return repository.ExisteInventarioCodigo(codigo);
         }
 
         public IList<TbPrImagenInventario> GetInventarioImagenById(int id)

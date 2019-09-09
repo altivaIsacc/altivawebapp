@@ -175,7 +175,7 @@
             dataType: "json",
             url: 'Get-Ordenes',
             success: function (data) {
-                console.log(data);
+                //console.log(data);
                 ordenes = JSON.parse(JSON.stringify(data));
 
                 cargarDatos(data);
@@ -190,19 +190,20 @@
     function getProveedorByPos(pos, model)
     {
         if (model[pos].idProveedorNavigation.persona)
-            return   model[pos].idProveedorNavigation.nombre + model[pos].idProveedorNavigation.apellidos;
+            return   model[pos].idProveedorNavigation.nombre +" "+ model[pos].idProveedorNavigation.apellidos;
         else
-           return model[pos].idProveedorNavigation.nombreJuridico;
+           return model[pos].idProveedorNavigation.nombreComercial;
     }
     function cargarDatos(data) {
+       console.log(data);
         var contadorFila = 0;
         $("#tblOrdenes > tbody").remove();
         $('#tblOrdenes').append('<tbody></tbody>');
-        for (var i = 0; i < data.length; i++) {
+        for (var i = 0; i < data.length; i++) {         
             //<input style="border:0; background-color : #F7F7F7" class="currency" value="' + data[i].precio + '"/>
             var body = '<tr class="fila' + contadorFila + ' filas">'
                 + '<td><p style="padding-top:1rem">' + data[i].id + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fecha) + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + getProveedorByPos(i, data) + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + recuperarMoneda(data[i].idMoneda) + '</p></td>'
                 + '<td class="col-md-2"><input style="padding-top:1rem; border:0; background-color : #F7F7F7" class="' + darFormato(data[i].idMoneda) + '" value="' + recuperarTotal(data[i]) + '"/></td>'
@@ -231,6 +232,7 @@
         $('#tblOrdenes').DataTable().destroy();
         tblOrdenes = $('#tblOrdenes').DataTable({
             "info": false,
+             "bSort": false,
             language: {
                 "decimal": "",
                 "emptyTable": "@SharedLocalizer["NoDatos"]",
@@ -251,6 +253,7 @@
                     "previous": "@SharedLocalizer["Anterior"]"
                 }
             },
+            
             buttons: [
                 {
                     extend: 'copyHtml5',
@@ -377,6 +380,7 @@
 
     }
     function editarOrden(value) {
+        
         var url = '@Url.Action("EditarOrden", new { id = "__id__"})';
         window.location.href = url.replace("__id__", value);
     }

@@ -55,8 +55,6 @@ namespace AltivaWebApp.Controllers
 
                 var user = userservice.GetUsuarioConConfig(model.usuario);
 
-
-
                 if (user != null)
                 {
                     if (user.Estado != "INACTIVO")
@@ -84,14 +82,12 @@ namespace AltivaWebApp.Controllers
 
                         else
                         {
-                            // ModelState.AddModelError(string.Empty, "Credenciales inválidas");
                             return Json(new { success = false, credentials = false });
                         }
                     else
                         return Json(new { success = false, active = false });
 
                 }
-
 
                 else
                 {
@@ -103,14 +99,13 @@ namespace AltivaWebApp.Controllers
                     var principal = new ClaimsPrincipal(identity);
 
                     var props = new AuthenticationProperties();
-                    props.IsPersistent = model.recuerdame;
-
+                    props.IsPersistent = model.recuerdame;                  
                     Sesion.Sesion.SetNombreUsuario(HttpContext.Session, user.Nombre);
-                    Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
+                    Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);                    
                     HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, props).Wait();
 
                     var uc = user.TbSeUsuarioConfiguraion.FirstOrDefault();
-                    if (uc != null)
+                    if (uc == null)
                     {
                         uc.Tema = "TemaCombinado";
                         uc.Idioma = "es";
@@ -119,7 +114,6 @@ namespace AltivaWebApp.Controllers
 
                     return Json(new { success = true, userConfig = uc, avatar = user.Avatar });
                 }
-
 
 
                 return Json(new { success = false });

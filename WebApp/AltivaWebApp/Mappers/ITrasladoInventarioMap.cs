@@ -11,9 +11,9 @@ namespace AltivaWebApp.Mappers
     {
 
         TbPrTrasladoInventario Create(TrasladoInventarioViewModel viewModel);
-        //TbPrTrasladoInventario Update(TrasladoInventarioViewModel viewModel);
+     
         TbPrTrasladoInventario ViewModelToDomain(TrasladoInventarioViewModel viewModel);
-        //TbPrTrasladoInventario ViewModelToDomainEditar(TrasladoInventarioViewModel viewModel);
+     
         TrasladoInventarioViewModel DomainToVIewModel(TbPrTrasladoInventario domain);
 
     }

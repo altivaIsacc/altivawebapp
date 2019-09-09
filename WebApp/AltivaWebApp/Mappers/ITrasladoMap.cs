@@ -9,13 +9,13 @@ namespace AltivaWebApp.Mappers
 {
     public interface ITrasladoMap
     {
-        TbPrTraslado Create(TrasladoViewModel viewModel);//si
+        TbPrTraslado Create(TrasladoViewModel viewModel);
         TbPrTraslado Update(TrasladoViewModel viewModel);
-        TrasladoViewModel DomainToViewModel(TbPrTraslado domain);//si
+        TrasladoViewModel DomainToViewModel(TbPrTraslado domain);
         ICollection<TbPrTrasladoInventario> AIViewModelToDomain(IList<TrasladoInventarioViewModel> viewModel);
         IList<TbPrTrasladoInventario> CreateOrUpdateAI(IList<TrasladoInventarioViewModel> crOrup);
 
-        TbPrTraslado ViewModelToDomain(TrasladoViewModel viewModel); //si
+        TbPrTraslado ViewModelToDomain(TrasladoViewModel viewModel);
         
 
 

@@ -8,6 +8,7 @@ namespace AltivaWebApp.Services
 {
     public interface IPreciosService
     {
+        TbPrPrecios GetFirstPrecioCatalogo();
         TbPrPrecios Save(TbPrPrecios domain);
         TbPrPrecios Update(TbPrPrecios domain);
         IList<TbPrPrecios> GetAll();

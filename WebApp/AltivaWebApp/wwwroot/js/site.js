@@ -11,7 +11,15 @@ function startTime() {
     AddZero(now.getMinutes())].join(":"),
     [AddZero(now.getSeconds())].join(":"),
     now.getHours() >= 12 ? "PM" : "AM"].join(" ");
-    document.getElementById("time").innerHTML = strDateTime;
+
+    document.getElementById("datetime").innerHTML = strDateTime;
+
+    var strDate = [[AddZero(now.getDate()),
+    AddZero(now.getMonth() + 1),
+    now.getFullYear()].join("/")];
+
+    document.getElementById("date").innerHTML = strDate;
+
 
     var t = setTimeout(startTime, 500);
 }

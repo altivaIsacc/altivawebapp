@@ -68,6 +68,21 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbPrInventario.FirstOrDefault(i => i.Codigo == codigo);
         }
+        
+        public long? ExisteInventarioCodigo(string codigo)
+        {
+            var idInventario = context.TbPrInventario.Select(i => new TbPrInventario { IdInventario = i.IdInventario, Codigo = i.Codigo }).FirstOrDefault(i => i.Codigo == codigo);
+            if (idInventario == null)
+                return 0;
+            else
+                return idInventario.IdInventario;
+            
+        }
+
+        public bool ExisteCaracteristica(long idInventario, string caracteristica )
+        {
+            return context.TbPrInventarioCaracteristica.Any(i => i.IdInventario == idInventario && i.Caracteristicas == caracteristica);
+        }
 
         public IList<TbPrInventario> GetAllInventario()
         {
@@ -199,6 +214,8 @@ namespace AltivaWebApp.Repositories
             try
             {
                 var ib = context.TbPrInventarioBodega.FirstOrDefault(i => i.Id == id);
+                if (ib.ExistenciaBodega > 0)
+                    return false;
                 context.TbPrInventarioBodega.Remove(ib);
                 context.SaveChanges();
                 return true;

@@ -92,22 +92,22 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                //var existePais = PaisService.ConsultarPais(viewModel.);
+                var existePais = PaisService.ConsultarPais(viewModel);
                 if (viewModel.Id != 0)
                 {
-                    //if (existePais != null && existePais.Id != viewModel.Id)
-                    //{
-                    //    return Json(new { success = false });
-                    //}
+                    if (existePais != null && existePais.Id != viewModel.Id)
+                    {
+                        return Json(new { success = false });
+                    }
 
                     var nuevoPais = PaisMap.Update(viewModel);
                 }
                 else
                 {
-                    //if (existePais != null)
-                    //{
-                    //    return Json(new { success = false });
-                    //}
+                    if (existePais != null)
+                    {
+                        return Json(new { success = false });
+                    }
 
                     var nuevoPais = PaisMap.Create(viewModel);
 

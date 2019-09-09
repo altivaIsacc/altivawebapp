@@ -125,9 +125,6 @@ else
         <div class="form-group col-md-3 col-sm-3 col-xs-12">
             <label id="lblItem" class="control-label">@Lb["Item"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
             <input @estado2 id="items" onkeyup="pasarSigCampo(event,'movimiento')" class="form-control autocomplete" autofocus type="text" />
-            @*<select id="items" onkeyup="pasarSigCampo(event,'movimiento')" class="form-control autocomplete" autocomplete="off" autofocus type="text">
-
-            </select>*@
         </div>
 
         <div class="form-group col-md-2 col-sm-2 col-xs-6">
@@ -141,8 +138,6 @@ else
         <div class="form-group col-md-1 col-sm-1 col-xs-6">
             <label class="control-label">@Lb["Cantidad"]:</label>
             <input @estado2 id="cantidad" onkeyup="pasarSigCampo(event,'costoPromedio'), calcularTotalMovientoLinea()" class="form-control numerico" value="1" type="text" />
-
-
         </div>
 
         <div class="form-group col-md-2 col-sm-2 col-xs-12">
@@ -448,7 +443,7 @@ else
                 cargarInfoItem($('#items').val());
             else
                 limpiarLinea();
-        }, 100);
+        }, 250);
 
     });
 
@@ -475,6 +470,7 @@ else
             var itemBodega = getItem(item.idInventario)[0];
 
             $costoPromedio.val(item.costoPromedioGeneral);
+            $cantidad.val(1);
             $lblInfoItem.text(item.descripcion.substr(0, 32) + (item.descripcion.length > 25 ? '...' : '')).prop('href', '@Url.Action("EditarInventario", "Inventario", new { id = "__id__" })'.replace("__id__", item.idInventario));
             $lblExistencia.text(itemBodega.existenciaBodega + " " + item.idUnidadMedidaNavigation.abreviatura);
             calcularTotalMovientoLinea();
@@ -620,6 +616,14 @@ else
             return;
         }
 
+        recalcularExistencias({
+            idInventario: parseInt(lineas[key].idInventario),
+            movimiento: lineas[key].movimiento === "true" ? "false" : "true",
+            cantidad: lineas[key].cantidad
+        });
+
+
+
         lineas[key].cuentaContable = $('#cuentaContableEditar option:selected').text();
         lineas[key].cuentaCosto = $('#cuentaCostoEditar option:selected').text();
         lineas[key].cantidad = parseFloat($('#cantidadEditar').val());
@@ -637,6 +641,9 @@ else
 
         if (!flag)
             lineasCrOrUp.push(lineas[key]);
+
+
+        recalcularExistencias(lineas[key]);
 
         cargarTabla(lineas);
 
@@ -656,8 +663,8 @@ else
                 if (validarExistencia(id)) {
                     if (idLinea != 0)
                         lineasEliminadas.push(lineas[id].id);
-                    else
-                        lineasCrOrUp.splice($.inArray(lineas[id], lineasCrOrUp), 1);
+                    
+                    lineasCrOrUp.splice($.inArray(lineas[id], lineasCrOrUp), 1);
 
                     //la linea hay que convertirla a salida para que se reste o al revez para que se sume
                     if (lineas[id].movimiento === "true")
@@ -687,24 +694,29 @@ else
 
         var flag = true;
 
-        if (parseFloat($('#cantidadEditar').val()) <= 0) {
+        if (parseFloat($('#cantidadEditar').val()) <= 0 || $('#cantidadEditar').inputmask('unmaskedvalue') == null) {
             flag = false;
             $('#cantidadEditarValid').prop('hidden', false);
         }
         else
             $('#cantidadEditarValid').prop('hidden', true);
 
-        if (parseFloat($('#costoEditar').val()) <= 0) {
+        if (parseFloat($('#costoEditar').inputmask('unmaskedvalue')) <= 0 || $('#costoEditar').inputmask('unmaskedvalue') == null) {
             flag = false;
             $('#costoEditarValid').prop('hidden', false);
         }
         else
             $('#costoEditarValid').prop('hidden', true);
 
+        if (item.movimiento.toString() === "false") {
+            var stockItem = JSON.parse(JSON.stringify(getItem(item.idInventario)[0].existenciaBodega));
+            stockItem += getLinea(item.idInventario, "false").cantidad;
 
-        if (item.movimiento.toString() === "false" && getItem(item.idInventario)[0].existenciaBodega < parseFloat($('#cantidadEditar').val())) {
-            flag = false;
-            $('#cantidadExistenciaValid').prop('hidden', false);
+            if (stockItem < parseFloat($('#cantidadEditar').val())) {
+                flag = false;
+                $('#cantidadExistenciaValid').prop('hidden', false);
+            }
+            
         }
         else
             $('#cantidadExistenciaValid').prop('hidden', true);
@@ -712,6 +724,14 @@ else
 
         return flag;
 
+    }
+
+    function getLinea(idInventario, mov) {
+        for (var i = 0; i < lineas.length; i++) {
+            if (idInventario == lineas[i].idInventario && mov == lineas[i].movimiento) {
+                return lineas[i];
+            }
+        }
     }
 
     function validarLinea(item) {
@@ -733,14 +753,19 @@ else
             else
                 $('#cantidadExistenciaNuevaValid').prop('hidden', true);
 
-            if (parseFloat($costoPromedio.val().replace(/,/g, "")) <= 0) {
+            
+
+            if (parseFloat($('#costoPromedio').inputmask('unmaskedvalue')) <= 0 || $('#costoPromedio').inputmask('unmaskedvalue') == null) {
                 flag = false;
                 $('#costoValid').prop('hidden', false);
             }
             else {
                 $('#costoValid').prop('hidden', true);
             }
-            if (parseFloat($cantidad.val().replace(/,/g, "")) <= 0) {
+
+            
+
+            if (parseFloat($('#cantidad').inputmask('unmaskedvalue')) <= 0 || $('#cantidad').inputmask('unmaskedvalue') == null) {
                 flag = false;
                 $('#cantidadValid').prop('hidden', false);
             }
@@ -914,6 +939,8 @@ else
 
 
     $("#bodegas").change(function () {
+
+        limpiarLinea();
 
         for (var i = 0; i < bodegas.length; i++) {
             if (bodegas[i].id === parseInt($(this).val()))

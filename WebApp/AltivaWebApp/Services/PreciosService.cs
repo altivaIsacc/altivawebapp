@@ -15,7 +15,10 @@ namespace AltivaWebApp.Services
         {
             this.reposistory = reposistory;
         }
-
+        public TbPrPrecios GetFirstPrecioCatalogo()
+        {
+            return reposistory.GetFirstPrecioCatalogo();
+        }
         public IList<TbPrPrecios> GetAll()
         {
             return reposistory.GetAll(); ;

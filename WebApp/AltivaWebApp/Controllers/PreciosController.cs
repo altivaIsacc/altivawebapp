@@ -1,20 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using AltivaWebApp.Domains;
+using AltivaWebApp.Helpers;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
+using FastReport;
+using FastReport.Export.Html;
+using FastReport.Export.Image;
+using FastReport.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using AltivaWebApp.Domains;
+using System.Globalization;
 
 namespace AltivaWebApp.Controllers
 {
     [Route("{culture}/Precios")]
     public class PreciosController : Controller
     {
+        
         private readonly IPreciosService service;
         private readonly IPreciosMap map;
         private readonly IPrecioCatalogoService precioCatalogoService;
@@ -27,9 +34,27 @@ namespace AltivaWebApp.Controllers
             this.inventarioService = inventarioService;
 
         }
+     
         [Route("Precios/")]
         public ActionResult ListarPrecios()
+        { 
+            return View();
+        }
+        [HttpGet("Reporte-Precio")]
+        public IActionResult ReporteTiposPrecios()
         {
+            var rep = new WebReport();
+            var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "Reportes");
+            var path = $"{savePath}\\Precios.frx";
+
+            var strIdioma = Resources.JsonStringProvider.GetJson(CultureInfo.CurrentCulture.Name);
+
+            rep.Report.Load(path);
+            rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;
+            rep.Report.Dictionary.Connections[1].ConnectionString = strIdioma;
+            rep.ShowToolbar = false;
+            rep.Report.Prepare();
+            ViewBag.WebReport = rep;
             return View();
         }
         [HttpGet("Listar-Precios")]

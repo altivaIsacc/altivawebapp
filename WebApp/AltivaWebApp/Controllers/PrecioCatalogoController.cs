@@ -16,16 +16,21 @@ namespace AltivaWebApp.Controllers
     public class PrecioCatalogoController : Controller
     {
         private readonly IPrecioCatalogoService service;
-        private readonly IPrecioCatalogoMap map;
-        public PrecioCatalogoController(IPrecioCatalogoService service, IPrecioCatalogoMap map)
-        {
+        private readonly IPreciosService preciosService;
 
+        private readonly IPrecioCatalogoMap map;
+        public PrecioCatalogoController(IPrecioCatalogoService service, IPrecioCatalogoMap map, IPreciosService preciosService)
+        {
             this.service = service;
             this.map = map;
+            this.preciosService = preciosService;
         }
         [Route("PrecioCatalogo/")]
         public ActionResult ListarPrecioCatalogo()
         {
+            var precio= preciosService.GetFirstPrecioCatalogo();
+            ViewBag.IdPrecio = precio.Id;
+
             return View();
         }
         [HttpGet("ListarPrecioCatalogo")]

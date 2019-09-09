@@ -15,7 +15,22 @@ namespace AltivaWebApp.Repositories
         {
 
         }
+        public IList<TbCrContacto> GetAllProveedores()
+        {
+            try
+            {
+              var model = context.TbCrContacto.FromSql($"Select * From tb_CR_Contacto as c where c.Proveedor = 1 Order By LTRIM(Nombre + NombreComercial)") .ToList();
+              return model;
+              
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
+                throw;
+            }
+        }
+        
         public IList<TbPrOrden> GetAllOrdenes()
         {
             try

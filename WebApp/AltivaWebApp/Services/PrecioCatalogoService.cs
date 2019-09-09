@@ -15,7 +15,7 @@ namespace AltivaWebApp.Services
         {
             this.reposistory = reposistory;
         }
-
+      
         public IList<TbPrPrecioCatalogo> GetAll()
         {
             return reposistory.GetAll() ;

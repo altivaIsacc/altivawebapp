@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AltivaWebApp.Domains;
 using AltivaWebApp.GEDomain;
+using AltivaWebApp.ViewModels;
 
 namespace AltivaWebApp.Repositories
 {
@@ -15,7 +16,7 @@ namespace AltivaWebApp.Repositories
         TbSePais Update(TbSePais pais);
         IList<TbSePais> GetAll();
         TbSePais GetPaisById(int idPais);
-        bool ConsultarPais(string nombrePais);
+        TbSePais ConsultarPais(PaisViewModel viewModel);
 
     }
 }

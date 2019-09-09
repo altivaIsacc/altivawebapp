@@ -11,12 +11,20 @@
 
 <div class="row">
 
-    <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
+    <div class="col-md-4 col-sm-7 col-xs-7" style="margin-left:1rem; padding-top:0.7rem">
         <label>@SharedLocalizer["buscar"]:</label>
         <input type="text" id="filtroBuscar" class="form-control" autofocus="autofocus" placeholder="@SharedLocalizer["buscarTraslado"]." />
     </div>
 
-    <div class="col-md-2 " style="margin-top: 0.2rem">
+
+    <div class="col-md-2 col-sm-7 col-xs-7 checkbox" style="margin-top: 0.2rem">
+        <label class="control-label">
+            <input type="checkbox" id="Anulado" onchange="cargarFiltros()"> @SharedLocalizer["VerAnulados"]
+        </label>
+    </div>
+
+
+    <div class="col-md-4 col-sm-6 col-xs-6" style="margin-top: 0.2rem">
         <label class="control-label">
             <input type="checkbox" id="habilitaFiltroFecha"> @SharedLocalizer["FiltroFecha"]
         </label>
@@ -34,19 +42,18 @@
             </fieldset>
         </form>
     </div>
-
-    <div class="col-md-2 checkbox" style="margin-top: 0.2rem">
-        <label class="control-label">
-            <input type="checkbox" id="Anulado" onchange="cargarFiltros()"> @SharedLocalizer["VerAnulados"]
-        </label>
+    <br />
+    <div class="text-right col-md-1" style="padding-top: 0.5rem">
+        <button class="btn btn-primary" id="PdfTraslado" onclick="crearPdfTrasladoGeneral()">@SharedLocalizer["PDF"]</button>
     </div>
+
+
+
 </div>
 
 
 <br />
 
-
-<div class="row">
 
     <div class="col-md-12 table-responsive">
         <table class=" table table-bordered" style="width:100%"  id="tblTraslado">
@@ -54,7 +61,7 @@
 
 
                 <tr>
-                    <th>
+                    <th style="width:5%">
                         @SharedLocalizer["Traslado"]
                     </th>
                     <th>
@@ -66,16 +73,16 @@
                     <th>
                         @SharedLocalizer["BodegaDestino"]
                     </th>
-                    <th>
+                    <th style="width:12%">
                         @SharedLocalizer["Fecha"]
                     </th>
-                    <th>
+                    <th style="width:7%">
                         @SharedLocalizer["Anulado"]
                     </th>
-                    <th>
+                    <th style="width:12%">
                         @SharedLocalizer["CostoTraslado"]
                     </th>
-                    <th>
+                    <th style="width:5%">
                         @SharedLocalizer["accion"]
                     </th>
                 </tr>
@@ -86,7 +93,6 @@
 
     </div>
 
-</div>
 
 <div hidden><input hidden id="formater" class="currency" type="text" /></div>
 
@@ -132,10 +138,7 @@
 
     $(document).ready(function () {
 
-
-        getUsuarios();
-        getTraslados();
-        getMonedas(); //falta
+        getTrasladosGeneral();
 
         $('#filtroFecha').attr('disabled', true);
 
@@ -184,6 +187,7 @@
             cargarFiltros();
 
             });
+     
 
     });
 
@@ -194,28 +198,68 @@
     });
 
 
-    $('#habilitaFiltroFecha').change(function () {
 
-        if (!$(this).prop('checked')) {
-
-            $('#filtroFecha').attr('disabled', true);
-            filtroAnuladas();
-        }
-
-        else {
-            $('#filtroFecha').attr('disabled', false);
-            filtroAnuladas();
-        }
-
-    });
+    function getTrasladosGeneral() {
 
 
+        getUsuarios2();
+        getMonedas(); //falta
 
-    $("#filtroBuscar").on("keyup", function () {
+    }
 
-        cargarFiltros();
 
-    });
+    
+      function getUsuarios2() {
+         $.ajax({
+             type: "get",
+             headers: {
+                 "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+             },
+             dataType: "json",
+             url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
+             success: function (data) {
+
+                 Usuarios = data;
+                 getTraslados();
+
+             },
+             error: function (err, scnd) {
+                 var msj = '@SharedLocalizer["errorGeneral"]';
+                  cargarAlert(msj);
+                  console.log(err.statusText);
+             }
+         });
+    }   
+
+
+
+    function getTraslados() {
+
+      
+            $.ajax({
+            type: "get",
+            headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: 'Get-Traslados',
+            success: function (data) {
+                //console.log(data);
+                Traslado = JSON.parse(JSON.stringify(data));               
+                //cargarDatos(data);
+                cargarFiltros(); // este metodo carga la tabla
+              
+
+
+
+            },
+            error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+            });
+    }
+
 
 
 
@@ -228,15 +272,43 @@
         TrasladoFiltrado = filtroAnuladas(TrasladoFiltrado);
 
         cargarDatos(TrasladoFiltrado);
-
-
     }
+
+
+
+    function filtroFecha(array, _desde, _hasta) {
+
+        var arrayTraslados = [];
+
+        if ($('#habilitaFiltroFecha').prop('checked')) {
+
+            var desdeLocal = new Date(_desde).getTime();
+            var hastaLocal = new Date(_hasta).getTime();
+
+            for (var i = 0; i < array.length; i++) {
+
+                var documento = new Date(array[i].fecha.substring(0, 10)).getTime();//quita la hora y la fecha
+
+                if (documento >= desdeLocal && documento <= hastaLocal)
+                    arrayTraslados.push(Traslado[i]);
+
+            }
+            return arrayTraslados;
+        }
+        else
+            return array;
+    }
+
+
+
+
+
 
 
     function filtroPalabra(array) {
 
         var keyword = $('#filtroBuscar').val();
-       // console.log(keyword);
+        // console.log(keyword);
 
         var arrayTraslado = [];
         //var array = contactos;
@@ -263,107 +335,41 @@
         }
     }
 
-    function filtroFecha(array, _desde, _hasta) {
 
 
-        var arrayTraslados = [];
+    function filtroAnuladas(array) {
+        //console.log(array);
+        //var array = Traslado;
 
-        if ($('#habilitaFiltroFecha').prop('checked')) {
+        var arrayTraslado = [];
 
-            var desdeLocal = new Date(_desde).getTime();
-            var hastaLocal = new Date(_hasta).getTime();
+
+        if ($('#Anulado').prop('checked')) {
 
             for (var i = 0; i < array.length; i++) {
-
-                var documento = new Date(array[i].fecha.substring(0, 10)).getTime();//quita la hora y la fecha
-
-                if (documento >= desdeLocal && documento <= hastaLocal)
-                    arrayTraslados.push(Traslado[i]);
-
+                if (array[i].anulado)
+                    arrayTraslado.push(array[i]);
             }
-            return arrayTraslados;
-        }
-        else
-            return array;
-    }
-
-
-
-    function getTraslados() {
-
-
-            $.ajax({
-            type: "get",
-            headers: {
-                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-            },
-            dataType: "json",
-            url: 'Get-Traslados',
-            success: function (data) {
-                //console.log(data);
-                Traslado = JSON.parse(JSON.stringify(data));
-                //cargarDatos(data);
-                cargarFiltros(); // este metodo carga la tabla
-
-
-
-            },
-            error: function (err, scnd) {
-                cargarAlert('@SharedLocalizer["errorGeneral"]');
-                console.log(err.statusText);
-            }
-            });
-
-    }
-
-
-
-
-    function cargarDatos(data) {
-        ///console.log(data);
-        $("#tblTraslado> tbody").remove();
-        $('#tblTraslado').append('<tbody></tbody>');
-
-        var anulado = "";
-        var contadorFila = 0;
-
-
-        for (var i = 0; i < data.length; i++) {
-
-
-            if (data[i].anulado == false) {
-                anulado = '<input disabled type="checkbox" >';
-             }
-             else {
-                anulado = '<input type="checkbox" disabled checked="checked" >';
-             }
-
-            var body = '<tr class="fila' + contadorFila + ' filas">'
-                + '<td><p style="padding-top:1rem">' + data[i].idTraslado + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + obtenerUsuario(data[i].idUsuario) + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].idBodegaOrigenNavigation.nombre  + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].idBodegaDestinoNavigation.nombre + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fecha) + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + anulado + '</p></td>'
-                + '<td><p style="padding-top:1rem" class="colon">' + data[i].costoTraslado + '</p></td>'
-                + '<td>  <button value="' + data[i].idTraslado + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i>';
-
-            $('#tblTraslado > tbody').append(body);
-            contadorFila++;
 
         }
+        else {
+            for (var i = 0; i < array.length; i++) {
+                if (!array[i].anulado)
+                    arrayTraslado.push(array[i]);
+            }
+        }
 
-        //inicializa formato
-        $(".colon").inputmask('currency', {
-            prefix: monedas[0].simbolo + " ",
-            rightAlign: true
-        });
+        return arrayTraslado;
 
-        inicializarTabla();
 
     }
 
 
+
+
+
+
+    
     // para
      function getMonedas() {
          $.ajax({
@@ -388,16 +394,63 @@
 
 
 
+    function cargarDatos(data) {
+        ///console.log(data);
+        $("#tblTraslado> tbody").remove();
+        $('#tblTraslado').append('<tbody></tbody>');
 
-    function inicializarTabla() {
+        var anulado = "";
+        var contadorFila = 0;
 
-        $('#tblTraslado').DataTable().destroy();
+
+        for (var i = 0; i < data.length; i++) {
+
+
+            if (data[i].anulado == false) {
+                anulado = '<input disabled type="checkbox" >';
+            }
+            else {
+                anulado = '<input type="checkbox" disabled checked="checked" >';
+            }
+
+            var body = '<tr class="fila' + contadorFila + ' filas">'
+                + '<td><p style="padding-top:1rem">' + data[i].idTraslado + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + obtenerUsuario(data[i].idUsuario) + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + data[i].idBodegaOrigenNavigation.nombre + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + data[i].idBodegaDestinoNavigation.nombre + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fecha) + '</p></td>'
+                + '<td><p style="padding-top:1rem">' + anulado + '</p></td>'
+                + '<td><p style="padding-top:1rem" class="colon">' + data[i].costoTraslado + '</p></td>'
+                + '<td>  <button value="' + data[i].idTraslado + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i>';
+
+            $('#tblTraslado > tbody').append(body);
+            contadorFila++;
+
+        }
+
+        //inicializa formato
+        $(".colon").inputmask('currency', {
+            prefix: monedas[0].simbolo + " ",
+            rightAlign: true
+        });
+
+        inicializarTabla();
+
+    }
+
+
+
+
+ function inicializarTabla() {
+
+       $('#tblTraslado').DataTable().destroy();
 
 
         tblTraslado = $('#tblTraslado').DataTable({
             "info": false,
             "order": [[0, "desc"]],
-            dom: 'Bfrtip',
+            paging: true,
+            //dom: 'Bfrtip',
             language: {
                 "decimal": "",
                 "emptyTable": "@SharedLocalizer["NoDatos"]",
@@ -418,42 +471,10 @@
                     "previous": "@SharedLocalizer["Anterior"]"
                 }
             },
-            buttons: [
-                {
-                    extend: 'copyHtml5',
-                    text: '<i class="fas fa-copy   "></i>',
-                    titleAttr: 'Copy',
-                    title: '@SharedLocalizer["Traslados de Existencias"]',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6]
-                    }
-
-                },
-                {
-                    extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel  "></i>',
-                    titleAttr: 'Excel',
-                    title: '@SharedLocalizer["Traslados de Existencias"]',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6]
-                    }
-
-                },
-
-                {
-                    extend: 'pdfHtml5',
-                    text: '<i class="fas fa-file-pdf   "></i>',
-                    titleAttr: 'PDF',
-                    title: '@SharedLocalizer["Traslados de Existencias"]',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6]
-                    }
-                }
-            ]
         });
 
-    }
 
+    }
 
 
     function recuperarFecha(_fecha) {
@@ -464,29 +485,10 @@
 
     }
 
-    function getUsuarios() {
-         $.ajax({
-             type: "get",
-             headers: {
-                 "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-             },
-             dataType: "json",
-             url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
-             success: function (data) {
 
-                 Usuarios = data;
-
-
-             },
-             error: function (err, scnd) {
-                 var msj = '@SharedLocalizer["errorGeneral"]';
-                  cargarAlert(msj);
-                  console.log(err.statusText);
-             }
-         });
-    }
 
     function obtenerUsuario(id) {
+        //console.log(Usuarios);
 
         for (var i = 0; i < Usuarios.length; i++) {
 
@@ -502,32 +504,60 @@
 
 
 
-    function filtroAnuladas(array) {
-       //console.log(array);
-       //var array = Traslado;
 
-        var arrayTraslado = [];
+    $("#filtroBuscar").on("keyup", function () {
+
+        cargarFiltros();
+
+    });
 
 
-        if ($('#Anulado').prop('checked')) {
+    $('#habilitaFiltroFecha').change(function () {
 
-            for (var i = 0; i < array.length; i++) {
-                if (array[i].anulado)
-                    arrayTraslado.push(array[i]);
-            }
+        if (!$(this).prop('checked')) {
+
+            $('#filtroFecha').attr('disabled', true);
+            filtroAnuladas();
+        }
+
+        else {
+            $('#filtroFecha').attr('disabled', false);
+            filtroAnuladas();
+        }
+
+    });
+
+
+    function crearPdfTrasladoGeneral() {
+     
+        console.log(Traslado);
+        if (Traslado.length == 0) {
+            console.log("La Tabla se encuentra vacia");
+
+
+        } else {
+            console.log("entro a crear el PDF General ");
+            open("Crear-PDF");
+
+
+
+
+
+
+
+
 
         }
-        else
-            for (var i = 0; i < array.length; i++) {
-                if (!array[i].anulado)
-                    arrayTraslado.push(array[i]);
-            }
 
 
-        return arrayTraslado;
 
 
     }
+
+
+
+
+
 
 
 
