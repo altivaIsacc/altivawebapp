@@ -208,7 +208,7 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var campos = cpService.GetAll(idContacto);
+                var campos = cpService.GetCamposContacto(idContacto);
                 return Json(campos);
             }
             catch (Exception ex)

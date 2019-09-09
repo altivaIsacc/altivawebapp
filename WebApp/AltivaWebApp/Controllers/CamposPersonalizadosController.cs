@@ -40,7 +40,7 @@ namespace AltivaWebApp.Controllers
         [HttpGet("_ListarCamposPersonalizados")]
         public IActionResult _ListarCamposPersonalizados()
         {
-            return PartialView(cpService.GetCampos());
+            return PartialView(cpService.GetAll());
         }
 
         [HttpGet("Nuevo-CP")]
@@ -101,6 +101,30 @@ namespace AltivaWebApp.Controllers
                 campo.TbCrListaDesplegables = null;
 
                 return Json( new { success = true, campo = campo });
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+            }
+        }
+
+        [HttpPost("CambiarEstadoCampo/{id}")]
+        public IActionResult CambiarEstadoCampo(int id)
+        {
+            try
+            {
+                var cp = cpService.getById(id);
+                if (cp.Estado == "Inactivo")
+                    cp.Estado = "Activo";
+                else
+                    cp.Estado = "Inactivo";
+
+                cpService.Edit(cp);
+
+                return Json(new { succes = true, estado = cp.Estado });
+
+
             }
             catch (Exception ex)
             {
