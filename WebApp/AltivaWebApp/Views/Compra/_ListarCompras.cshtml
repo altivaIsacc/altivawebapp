@@ -1,0 +1,116 @@
+﻿@model IList<TbPrCompra>
+@inject IStringLocalizer<SharedResources> Lb
+
+@{ 
+    var monedas = ViewData["monedas"] as IList<TbSeMoneda>;
+}
+
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12 table-responsive">
+        <table class="table table-bordered" id="tblCompras">
+            <thead>
+                <tr>
+                    <th>@Lb["Número"]</th>
+                    <th>@Lb["Tipo"]</th>
+                    <th>@Lb["Fecha"]</th>
+                    <th>@Lb["Proveedor"]</th>
+                    <th hidden></th>
+                    <th>@Lb["Moneda"]</th>
+                    <th>@Lb["Total"]</th>
+                    <th>@Lb["Acción"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        @{
+                            var tipo = item.TipoDocumento == "1" ? Lb["Contado"] : item.TipoDocumento == "2" ? Lb["Contado"] : Lb["Consignación"];
+
+                        }
+                        <td>@tipo</td>
+                        <td>@item.FechaDocumento</td>
+                        @{
+                            var proveedor = item.IdContactoNavigation.Persona ? item.IdContactoNavigation.Nombre + " " + item.IdContactoNavigation.Apellidos : item.IdContactoNavigation.NombreComercial;
+                        }
+                        <td>@proveedor</td>
+                        <td hidden>@item.Anulado</td>
+                        <td>@monedas.FirstOrDefault(m => m.Codigo == item.IdMoneda).Nombre</td>
+                        @{
+                            var total = item.IdMoneda == 1 ? item.TotalBase : item.IdMoneda == 2 ? item.TotalDolar : item.TotalEuro;
+                        }
+                        <td style="text-align:right">@total</td>
+                        <td><a class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+
+    var tblCompras;
+
+    $(document).ready(function () {
+
+        inicializarTabla();
+
+    });
+
+    function inicializarTabla() {
+
+        $('#tblCompras').DataTable().destroy();
+
+        tblCompras = $('#tblCompras').DataTable({
+            "info": false,
+            dom: 'Bfrtip',
+            "bSort": false,
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'print',
+                    text: '<i class="fas fa-print   "></i>',
+                    titleAttr: 'PDF',
+                    title: '@Lb["Compras"]',
+                    exportOptions: {
+                        columns: [0, 1, 3, 4, 5]
+                    }
+                },
+                {
+                    extend: 'copy',
+                    text: '<i class="fas fa-copy"></i>',
+                    titleAttr: 'Copy',
+                    title: '@Lb["Compras"]',
+                    exportOptions: {
+                        columns: [0, 1, 3, 4, 5]
+                    }
+
+                }
+            ]
+        });
+
+        //$(".dataTables_searching").hide();
+    }
+
+</script>
