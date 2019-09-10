@@ -124,6 +124,7 @@
             <input type="checkbox" id="fijar" asp-for="Estado" />
         </div>
     </div>
+
 </div>
 <div class="table-responsive">
     <table class="table TablaTareas table-bordered"  style="width:100%" id="TablaTareas">
@@ -136,7 +137,7 @@
                 <th style="width:10%">
                     <span>@Lb["Título"]</span>
                 </th>
-                <th style="width:20%">
+                <th style="width:15%">
                     <span>@Lb["tipoTarea"]</span>
                 </th>
                 <th style="width:5%">
@@ -206,7 +207,71 @@
     var desde;
     var TablaTareas;
 
-    //fijar filtros.
+
+ 
+    $(document).ready(function () {
+
+        $('#filtroFecha').daterangepicker({
+            opens: 'left',
+
+            "locale": {
+                 format: "@Lb["formatoFecha"]",
+                "separator": " - ",
+                "applyLabel": "@Lb["Aplicar"]",
+                "cancelLabel": "@Lb["Cancelar"]",
+                "fromLabel": "@Lb["DE"]",
+                "toLabel": "@Lb["Hasta"]",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "@Lb["Dom"]",
+                    "@Lb["Lun"]",
+                    "@Lb["Mar"]",
+                    "@Lb["Mie"]",
+                    "@Lb["Jue"]",
+                    "@Lb["Vie"]",
+                    "@Lb["Sáb"]"
+                ],
+                "monthNames": [
+                    "@Lb["Enero"]",
+                    "@Lb["Febrero"]",
+                    "@Lb["Marzo"]",
+                    "@Lb["Abril"]",
+                    "@Lb["Mayo"]",
+                    "@Lb["Junio"]",
+                    "@Lb["Julio"]",
+                    "@Lb["Agosto"]",
+                    "@Lb["Septiembre"]",
+                    "@Lb["Octubre"]",
+                    "@Lb["Noviembre"]",
+                    "@Lb["Diciembre"]"
+                ],
+                "firstDay": 1
+            }
+                },
+            function (start, end, label) {
+
+                desde = start.format('YYYY-MM-DD');
+                hasta = end.format('YYYY-MM-DD');
+                cargarFiltros();
+                //filtroFecha(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+
+            });
+    });
+
+
+
+  
+    //inicializacion
+    $(function () {
+        cargarTabla();
+        $('.selectpicker').selectpicker();
+    });
+
+
+
+
+
+     //recordar filtros 
     $('#fijar').on('change', function () {
         if ($(this).is(':checked')) {
             var IdEstado = parseInt($('#filtroEstados').val());
@@ -221,18 +286,14 @@
                 idTipo: IdTipo,
                 Estado: true
             };
-
             $.ajax({
                 type: "post",
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
-
                 url: '@Url.Action("FijarFiltros", "Tarea")',
                 data: { domain: ConfiguracionDefiltros },
                 success: function (data) {
-
-
                     cargarTabla();
                 },
                 error: function (err, scnd) {
@@ -246,7 +307,6 @@
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
-
                 url: url1,
                 success: function (data) {
                     $('#fijar').prop('checked', false);
@@ -259,11 +319,12 @@
         }
     });
 
-    //inicializacion
-    $(function () {
-        cargarTabla();
-        $('.selectpicker').selectpicker();
-    });
+
+
+
+
+
+
     //reportes redireccionar
     $('#reportes').change(function () {
         if ($(this).val() == 1) {
@@ -280,70 +341,13 @@
             return false;
         }
     });
-    function inicializarTabla() {
-         $('#TablaTareas').DataTable().destroy();
 
-        TablaTareas = $('#TablaTareas').DataTable({
-            "info": false,
-            dom: 'Bfrtip',
-            language: {
-                "decimal": "",
-                "emptyTable": "@Lb["NoDatos"]",
-                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
-                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
-                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
-                "infoPostFix": "",
-                "thousands": ",",
-                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
-                "loadingRecords": "Cargando...",
-                "processing": "Procesando...",
-                "search": "<i class='fas fa-search'></i>",
-                "zeroRecords": "@Lb["sinResultados"]",
-                "paginate": {
-                    "first": "@Lb["Primero"]",
-                    "last": "@Lb["Último"]",
-                    "next": "@Lb["Sguiente"]",
-                    "previous": "@Lb["Anterior"]"
-                }
-            },
-            buttons: [
-                {
-                    extend: 'copyHtml5',
-                    text: '<i class="fas fa-copy   "></i>',
-                    titleAttr: 'Copy',
-                    title: '@Lb["Tareas"]',
-                    exportOptions: {
-                        columns: [0, 1,2, 3, 4, 5, 6]
-                    }
 
-                },
-                {
-                    extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel  "></i>',
-                    titleAttr: 'Excel',
-                    title: '@Lb["Tareas"]',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6]
-                    }
 
-                },
 
-                {
-                    extend: 'pdfHtml5',
-                    text: '<i class="fas fa-file-pdf   "></i>',
-                    titleAttr: 'PDF',
-                    title: '@Lb["Tareas"]',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6]
-                    }
-                }
-            ]
-        });
-    }
+
     //cargar datos de las tareas..
     function cargarDatos(data) {
-
-        console.log(data);
 
         var contadorFila = 0;
         var fecha1 = ""
@@ -420,6 +424,47 @@
         inicializarTabla();
 
     }
+
+
+
+
+
+    
+    function inicializarTabla() {
+         $('#TablaTareas').DataTable().destroy();
+
+        TablaTareas = $('#TablaTareas').DataTable({
+            "info": false,
+          
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },       
+        });
+    }
+
+
+
+
+
+
+
     //eliminar tarea..
     function Eliminar(idTarea) {
         bootbox.confirm({
@@ -459,11 +504,11 @@
                 }
             }
         });
-
-
-
-
     }
+
+
+
+
     //metodo que llamar ala partial de editar
     function editarTarea(id) {
          var url = '@Url.Action("EditarTarea", "Tarea")';
@@ -486,6 +531,9 @@
                 }
             });
     }
+
+
+
     //metodosdarPrioridad
     function darPrioridad(idTarea) {
             var url = '@Url.Action("DarPrioridad", "Tarea")';
@@ -497,12 +545,8 @@
             url: url,
             data: { IdTarea: idTarea },
 
-
             success: function (data) {
-
                 cargarTabla();
-
-
                 },
             error: function (err, scnd) {
                 alert('error');
@@ -510,6 +554,9 @@
                 }
             });
     }
+
+
+
     //metodosquitarPrioridad
     function quitarPrioridad(IdTarea) {
              var url = '@Url.Action("QuitarPrioridad", "Tarea")';
@@ -521,11 +568,8 @@
             url: url,
             data: { IdTarea, IdTarea },
 
-
             success: function (data) {
                 cargarTabla();
-
-
                 },
             error: function (err, scnd) {
                 alert('error');
@@ -533,6 +577,8 @@
                 }
             });
     }
+
+
     /////////////////////filtros//////////////////
 
 
@@ -548,7 +594,10 @@
     }
 
 
-    /////////////////////////////////////////
+
+
+
+
     function cargarFiltros() {
 
         TareasMostrar = JSON.parse(JSON.stringify(tareas));
@@ -560,66 +609,78 @@
         cargarDatos(TareasMostrar);
 
     }
-    function filtroEstado(TareasMostrar) {
-        //getInventario();
 
+
+
+    function filtroContacto(TareasMostrar) {
+         // console.log(TareasMostrar);
+        var IdContacto = parseInt($('#filtroContacto').val());
+        // console.log("IdContacto: " + IdContacto);
+        var contactoFiltrado = [];
+        if (IdContacto === 0) {
+            return TareasMostrar;
+        }
+        else {
+            for (var i = 0; i < TareasMostrar.length; i++) {              
+                if (TareasMostrar[i].idContacto === IdContacto) {
+                    //  console.log(contacto.idContacto);
+                    contactoFiltrado.push(TareasMostrar[i]);
+                }
+            }         
+            return contactoFiltrado;
+        }
+    }
+
+
+
+
+
+    function filtroEstado(TareasMostrar) {     
+      //console.log(TareasMostrar);
         var IdEstado = parseInt($('#filtroEstados').val());
-
+      //console.log("IdEstado: " + IdEstado);
         var EstadosFiltrado = [];
-
-
         if (IdEstado === 0) {
             return TareasMostrar;
         }
         else {
-
-            for (var i = 0; i < TareasMostrar.length; i++) {
-                var estados = TareasMostrar[i].idEstadoNavigation;
-             ;
-                if (estados.id === IdEstado) {
-                    console.log(IdEstado)
+            for (var i = 0; i < TareasMostrar.length; i++) {              
+                if (TareasMostrar[i].idEstado === IdEstado) {
+                   // console.log(IdEstado)
                     EstadosFiltrado.push(TareasMostrar[i]);
-
-
-
-
-
                 }
-            }
-            console.log(EstadosFiltrado);
-            return EstadosFiltrado;
-
+            }        
+           return EstadosFiltrado;
         }
-
     }
+
+
+
+
+
     function filtroTipos(TareasMostrar) {
+       // console.log(TareasMostrar);
         var IdTipo = parseInt($('#filtroTipos').val());
-
+       // console.log("IdTipo: " + IdTipo);
         var tiposFiltrado = [];
-
-
         if (IdTipo === 0) {
             return TareasMostrar;
         }
         else {
-
-            for (var i = 0; i < TareasMostrar.length; i++) {
-                var tipos = TareasMostrar[i].idTipoNavigation;
-
-                if (tipos.id === IdTipo) {
-
+            for (var i = 0; i < TareasMostrar.length; i++) {           
+                if (TareasMostrar[i].idTipo === IdTipo) {
+                     // console.log(IdTipo)
                     tiposFiltrado.push(TareasMostrar[i]);
-
                 }
-
             }
-
             return tiposFiltrado;
-
         }
+    }
 
-    } function filtroFecha(_desde, _hasta) {
 
+
+
+    function filtroFecha(_desde, _hasta) {
 
         var arrayTareas = JSON.parse(JSON.stringify(TareasMostrar));
         if (_desde == _hasta || _desde === null) {
@@ -629,8 +690,6 @@
 
             var desdeLocal = new Date(_desde).getTime();
             var hastaLocal = new Date(_hasta).getTime();
-
-
 
             for (var i = 0; i < tareas.length; i++) {
 
@@ -647,21 +706,23 @@
             }
             return arrayTareas;
         }
-
-
     }
+
+
+
     $('.selectFiltro').change(function () {
-
+        cargarTabla("entro");
         cargarFiltros();
-
     });
+
+
+
 
     function FistroAsignados(TareasMostrar){
 
         var IdAsignado = parseInt($('#filtroAsignado').val());
 
         var AsignadosFiltrado = [];
-
 
         if (IdAsignado === 0) {
 
@@ -678,97 +739,13 @@
                     if (asignados === IdAsignado) {
 
                         AsignadosFiltrado.push(TareasMostrar[i]);
-                        console.log(AsignadosFiltrado);
+                        //console.log(AsignadosFiltrado);
                     }
                 }
-
             }
-
             return AsignadosFiltrado;
-
         }
     }
-    function filtroContacto(TareasMostrar) {
-
-
-        var IdContacto = parseInt($('#filtroContacto').val());
-
-        var TareasFiltrado = [];
-
-
-        if (IdContacto === 0) {
-            return TareasMostrar;
-        }
-        else {
-
-            for (var i = 0; i < TareasMostrar.length; i++) {
-                var contacto = TareasMostrar[i].idContactoNavigation;
-
-                if (contacto.idContacto === IdContacto) {
-                    console.log(contacto.idContacto);
-                    TareasFiltrado.push(TareasMostrar[i]);
-
-                }
-            }
-            console.log(TareasFiltrado);
-            return TareasFiltrado;
-
-        }
-
-
-    }
-    $(document).ready(function () {
-
-
-
-        $('#filtroFecha').daterangepicker({
-            opens: 'left',
-
-
-            "locale": {
-                 format: "@Lb["formatoFecha"]",
-                "separator": " - ",
-                "applyLabel": "@Lb["Aplicar"]",
-                "cancelLabel": "@Lb["Cancelar"]",
-                "fromLabel": "@Lb["DE"]",
-                "toLabel": "@Lb["Hasta"]",
-                "customRangeLabel": "Custom",
-                "daysOfWeek": [
-                    "@Lb["Dom"]",
-                    "@Lb["Lun"]",
-                    "@Lb["Mar"]",
-                    "@Lb["Mie"]",
-                    "@Lb["Jue"]",
-                    "@Lb["Vie"]",
-                    "@Lb["Sáb"]"
-                ],
-                "monthNames": [
-                    "@Lb["Enero"]",
-                    "@Lb["Febrero"]",
-                    "@Lb["Marzo"]",
-                    "@Lb["Abril"]",
-                    "@Lb["Mayo"]",
-                    "@Lb["Junio"]",
-                    "@Lb["Julio"]",
-                    "@Lb["Agosto"]",
-                    "@Lb["Septiembre"]",
-                    "@Lb["Octubre"]",
-                    "@Lb["Noviembre"]",
-                    "@Lb["Diciembre"]"
-                ],
-                "firstDay": 1
-            }
-                },
-            function (start, end, label) {
-
-                desde = start.format('YYYY-MM-DD');
-                hasta = end.format('YYYY-MM-DD');
-                cargarFiltros();
-                //filtroFecha(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
-
-            });
-    });
-
 
 
 
@@ -819,33 +796,35 @@
                   console.log(err.statusText);
               }
           });
-
-
     });
-    function recuperarFecha(_fecha) {
 
+
+
+
+    function recuperarFecha(_fecha) {
         if (_fecha === null)
             return "";
-
         var f = new Date(_fecha);
-
         return f.toLocaleString();
-
     }
 
-    function recuperarFechaSinHora(_fecha) {
 
+
+
+    function recuperarFechaSinHora(_fecha) {
         var fecha = _fecha.substr(0, 10);
         var y = fecha.substr(0, 4);
         var m = fecha.substr(6, 1);
         var d = fecha.substr(8, 3);
-
         //var date = new Date();
         //console.log(fecha);
-
         return d +"/"+ m +"/"+ y;
-
     }
+
+
+
+
+
 </script>
 
 <style>
