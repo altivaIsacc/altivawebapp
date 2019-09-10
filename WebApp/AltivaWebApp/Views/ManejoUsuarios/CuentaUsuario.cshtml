@@ -18,7 +18,7 @@
     {
         inactivo = "disabled";
     }
-    if(Model.codigo != User.Identity.Name)
+    if (Model.codigo != User.Identity.Name && (!ViewBag.EsAdmin))
     {
         deshabilitado = "disabled";
     }
@@ -134,13 +134,13 @@
                 </div>
             </fieldset>
         </form>
-        @if (Model.codigo == User.Identity.Name)
+        @if (Model.codigo == User.Identity.Name || ViewBag.EsAdmin)
         {
             <div>
                 <button @deshabilitado @inactivo class="btn btn-link" data-toggle="modal" data-target="#claveModal">@SharedLocalizer["Cambiar"] @SharedLocalizer["Contraseña"]</button>
             </div>
         }
-       
+
     </div>
     <div class="col-md-4 col-sm-6 col-xs-12">
         <h4>@SharedLocalizer["Perfiles Asignados"]</h4>
@@ -163,7 +163,7 @@
                             @Html.DisplayFor(modelItem => item.Nombre)
                         </td>
                         <td>
-                            <button @deshabilitado  @inactivo class="btn btn-link" onclick="eliminarPerfilUsuario(value)" value="@item.Id"><i class="fas fa-trash"></i></button>
+                            <button @deshabilitado @inactivo class="btn btn-link" onclick="eliminarPerfilUsuario(value)" value="@item.Id"><i class="fas fa-trash"></i></button>
                         </td>
 
                     </tr>
@@ -455,7 +455,7 @@
                 }
 
             });
-        }    
+        }
 
         function guardarUsuario() {
 
@@ -471,14 +471,8 @@
                     data: $('#frmUsuario').serialize(),
                     success: function (data) {
                         if (data.success) {
-                            if (data.enSesion) {
-                                history.pushState(null, "", $('#codigo').val());
-                                window.location.href = window.location.href;
-                            }
-                            else
-                                cargarAlert('@SharedLocalizer["datosActualizados"]');
-                            
-                            
+                            cargarAlert('@SharedLocalizer["datosActualizados"]');
+                            history.pushState(null, "", $('#codigo').val());
                         }
                         else
                             cargarAlert('@SharedLocalizer["usuarioExistente"]');
@@ -499,7 +493,7 @@
 
             var model = $('#frmUsuario').serializeArray()
 
-    
+
             if (validarContrasena()) {
 
                 model[2].value = $('#nuevaContrasena').val();
@@ -515,14 +509,9 @@
                     url: url,
                     data: model,
                     success: function (data) {
-
                         if (data.success) {
-                            if (data.enSesion) {
-                                history.pushState(null, "", $('#codigo').val());
-                                window.location.href = window.location.href;
-                            }
-                            else
-                                cargarAlert('@SharedLocalizer["datosActualizados"]');
+                            cargarAlert('@SharedLocalizer["datosActualizados"]');
+
                         }
                         else
                             cargarAlert('@SharedLocalizer["usuarioExistente"]');
@@ -664,6 +653,3 @@
 
 </script>
 <script src="~/js/guardarConfigUsuario.js"></script>
-
-
-

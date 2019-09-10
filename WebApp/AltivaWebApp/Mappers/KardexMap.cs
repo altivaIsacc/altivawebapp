@@ -13,12 +13,14 @@ namespace AltivaWebApp.Mappers
         private readonly IAjusteService ajusteService;
         private readonly ICompraService compraService;
         private readonly IRequisicionService reqService;
-        public KardexMap(IRequisicionService reqService, ICompraService compraService, IKardexService service, IAjusteService ajusteService)
+        private readonly ITrasladoService trService;
+        public KardexMap(ITrasladoService trService, IRequisicionService reqService, ICompraService compraService, IKardexService service, IAjusteService ajusteService)
         {
             this.service = service;
             this.ajusteService = ajusteService;
             this.compraService = compraService;
             this.reqService = reqService;
+            this.trService = trService;
         }
 
         public bool CreateKardexAM(TbPrAjuste domain, int idAjuste)
@@ -403,6 +405,9 @@ namespace AltivaWebApp.Mappers
         ///
         public bool CreateKardexRD(IList<TbPrRequisicionDetalle> rq, bool isDeteled)
         {
+            if (rq.Count() == 0 || rq == null)
+                return false;
+
             var domain = reqService.GetReqById((int)rq.First().IdRequisicion);
             var kardex = new List<TbPrKardex>();
             var cd = new List<TbPrCompraDetalle>();
@@ -412,10 +417,6 @@ namespace AltivaWebApp.Mappers
 
             if (domain.Anulado)
                 tipoDoc = "REA";
-
-
-
-
 
             foreach (var item in rq)
             {
@@ -442,7 +443,7 @@ namespace AltivaWebApp.Mappers
                     IdDocumento = domain.Id,
                     IdUsuario = domain.IdUsuario,
                     IdMoneda = 1,
-                    Observaciones = "N/A",
+                    Observaciones = domain.Descripcion,
                     PrecioPromedio = 0,
                     PrecioUnit = item.PrecioUnitario,
                     IdInventario = item.IdInventario,
@@ -470,6 +471,90 @@ namespace AltivaWebApp.Mappers
 
         }
 
+
+        ///////////////////////////traslado
+       
+        public bool CreateKardexTRI(IList<TbPrTrasladoInventario> tr, bool isDeteled)
+        {
+            if (tr.Count() == 0 || tr == null)
+                return false;
+
+            var domain = trService.GetTrasladoById((long)tr.First().IdTraslado);
+            var kardex = new List<TbPrKardex>();
+
+            foreach (var item in tr)
+            {
+
+                //agrega la entrada
+                var k = new TbPrKardex
+                {
+                    IdInventario = item.IdInventario,
+                    IdDocumento = domain.IdTraslado,
+                    TipoDocumento = "TRE",
+                    Fecha = DateTime.Now,
+                    ExistAnt = 0,
+                    CantidadMov = !isDeteled ? item.Cantidad : item.Cantidad * -1,//       true I -2 
+                    ExistAct = 0,
+                    PrecioUnit = item.PrecioUnitario,
+                    CostoMov = 0,
+                    IdMoneda = 1,
+                    IdBodegaOrigen = domain.IdBodegaDestino,
+                    IdBodegaDestino = domain.IdBodegaOrigen,
+                   // IdBodegaOrigen = domain.IdBodegaOrigen,
+                   // IdBodegaDestino = domain.IdBodegaDestino,
+                    ExistAntBod = 0,
+                    ExistActBod = 0,
+                    Observaciones = domain.Comentario,
+                    CostoPromedio = 0,
+                    SaldoFinal = 0,
+                    PrecioPromedio = 0,
+                    IdUsuario = domain.IdUsuario
+                };
+
+                kardex.Add(k);
+
+                //agrega la salida
+                var kS = new TbPrKardex
+                {
+                    IdInventario = item.IdInventario,
+                    IdDocumento = domain.IdTraslado,
+                    TipoDocumento = "TRS",
+                    Fecha = DateTime.Now,
+                    ExistAnt = 0,
+                    CantidadMov = isDeteled ? item.Cantidad : item.Cantidad * -1,// true d +2
+                    ExistAct = 0,
+                    PrecioUnit = item.PrecioUnitario,
+                    CostoMov = 0,
+                    IdMoneda = 1,
+                    IdBodegaOrigen = domain.IdBodegaOrigen,
+                    IdBodegaDestino = domain.IdBodegaDestino,
+                    ExistAntBod = 0,
+                    ExistActBod = 0,
+                    Observaciones = domain.Comentario,
+                    CostoPromedio = 0,
+                    SaldoFinal = 0,
+                    PrecioPromedio = 0,
+                    IdUsuario = domain.IdUsuario
+                };
+
+                kardex.Add(kS);
+
+
+            }
+
+            try
+            {
+                service.SaveAll(kardex);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return true;
+                throw;
+            }
+
+        }
 
 
     }

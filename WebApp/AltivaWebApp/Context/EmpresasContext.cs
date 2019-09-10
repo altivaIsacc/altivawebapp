@@ -4752,14 +4752,16 @@ namespace AltivaWebApp.Context
 
             modelBuilder.Entity<TbPrTraslado>(entity =>
             {
-                entity.HasKey(e => e.IdTraslado);
+                entity.HasKey(e => e.IdTraslado)
+                    .HasName("PK_tb_PR_Traslados");
 
                 entity.ToTable("tb_PR_Traslado");
 
-                entity.Property(e => e.Comentario)
+                entity.Property(e => e.Anulado)
                     .IsRequired()
-                    .HasMaxLength(256)
-                    .HasDefaultValueSql("('')");
+                    .HasDefaultValueSql("0");
+
+                entity.Property(e => e.Comentario).HasMaxLength(256);
 
                 entity.Property(e => e.Fecha)
                     .HasColumnType("datetime")
@@ -4789,11 +4791,13 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.CodigoArticulo)
                     .IsRequired()
                     .HasMaxLength(60)
+                    .IsUnicode(false)
                     .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Descripcion)
                     .IsRequired()
                     .HasMaxLength(150)
+                    .IsUnicode(false)
                     .HasDefaultValueSql("('')");
 
                 entity.HasOne(d => d.IdInventarioNavigation)
@@ -4808,6 +4812,7 @@ namespace AltivaWebApp.Context
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_PR_TrasladoInventario_tb_PR_Traslado");
             });
+
 
             modelBuilder.Entity<TbPrUnidadMedida>(entity =>
             {

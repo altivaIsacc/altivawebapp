@@ -137,8 +137,8 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception ex)
             {
-                throw;
-                //AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                AltivaLog.Log.Insertar(ex.ToString(), "ADVICE");
+                throw;                
                // return BadRequest();
             }
         }

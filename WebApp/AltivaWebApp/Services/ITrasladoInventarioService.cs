@@ -10,8 +10,8 @@ namespace AltivaWebApp.Services
     {
         TbPrTrasladoInventario Save(TbPrTrasladoInventario domain);
         TbPrTrasladoInventario Update(TbPrTrasladoInventario domain);
-        IList<TbPrTrasladoInventario> GetAllTrasladoInventario(); // no
-        IList<TbPrTrasladoInventario> GetTrasladoInventarioById(long idTraslado);//sirve 
+        IList<TbPrTrasladoInventario> GetAllTrasladoInventario(); 
+        IList<TbPrTrasladoInventario> GetTrasladoInventarioById(long idTraslado);
       
     }
 }

@@ -18,6 +18,7 @@ namespace AltivaWebApp.ViewModels
         public double CostoTraslado { get; set; }
         public string Comentario { get; set; }
 
+
         public IList<TrasladoInventarioViewModel> TrasladoInventarioDetalle { get; set; }//si
 
     }
