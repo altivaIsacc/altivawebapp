@@ -36,6 +36,7 @@ namespace AltivaWebApp.Controllers
             this.geMap = geMap;
             this.userService = userService;
             this._sharedLocalizer = sharedLocalizer;
+           
         }
         
         [HttpGet("Empresas")]
