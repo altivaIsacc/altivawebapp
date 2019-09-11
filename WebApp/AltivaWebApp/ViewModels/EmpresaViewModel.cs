@@ -37,6 +37,8 @@ namespace AltivaWebApp.ViewModels
         [Required(ErrorMessage = "Dirección es requerida.")]
         public string Direccion { get; set; }
         public int Id_GE { get; set; }
+        public bool TienePuntoVentaDefecto { get; set; }
+        public long IdPuntoVenta { get; set; }
 
     }
 }
