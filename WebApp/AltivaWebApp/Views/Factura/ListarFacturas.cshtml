@@ -1,4 +1,4 @@
-﻿@model IEnumerable<AltivaWebApp.Domains.TbFdFactura>
+﻿
 @inject IStringLocalizer<SharedResources> Lb
 @{
     ViewData["Title"] = "Facturas";
@@ -17,31 +17,24 @@
     </div>
 </div>
 
-<div class="table-responsive">
-    <table id="tblFacturas" class="table table-bordered">
-        <thead>
-            <tr>
-                <th>
-                    @Lb["N."]
-                </th>
-                <th>
-                    @Lb["Tipo"]
-                </th>
-                <th>
-                    @Lb["Fecha"]
-                </th>
-                <th>
-                    @Lb["Cliente"]
-                </th>
-                <th>
-                    @Lb["Estado"]
-                </th>
+<div class="row">
+    <div class="form-group col-md-3 col-sm-3 col-xs-12">
+        <label for="filtroPV">@Lb["filtroPV"]:</label>
+        <select class="form-control" id="filtroPV" onchange="getFacuras()">
+            <option value="0">@Lb["Todos"]</option>
+            @foreach (var item in ViewData["puntoVenta"] as IList<TbSePuntoVenta>)
+            {
+                <option value="@item.IdPuntoVenta">@item.Nombre</option>
+            }
+        </select>
+    </div>
+</div>
 
-                <th>@Lb["Acción"]</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+<div class="row">
+
+    <div class="col-md-12 col-sm-12 col-xs-12" id="facturasPartial">
+
+    </div>
 </div>
 
 <script>
@@ -55,15 +48,13 @@
     });
 
     function getFacuras() {
-           
+
         $.ajax({
-            type: "get",
-            dataType: "json",
-            url: '@Url.Action("GetAllFacturas", "Factura")',
+            type: "POST",
+            url: '@Url.Action("_ListarFacturas", "Factura")',
+            data: { pv: $('#filtroPV').val() },
             success: function (data) {
-                console.log(data);
-                facturas = JSON.parse(JSON.stringify(data));
-                cargarFiltros();
+                $('#facturasPartial').html(data);
             },
             error: function (err, scnd) {
                 cargarAlert('@Lb["errorGeneral"]');
@@ -72,66 +63,6 @@
         });
     }
 
-    function cargarDatos(data) {
-       
-        $("#tblFacturas > tbody").remove();
-        $('#tblFacturas').append('<tbody></tbody>');
 
-        var contadorFila = 0;
-
-        for (var i = 0; i < data.length; i++) {
-
-
-            var body = '<tr class="fila' + contadorFila + ' filas">'
-                + '<td><a href="' + "@Url.Action("EditarFactura", new { id = "__id__" })".replace("__id__", data[i].id) + '" >' + data[i].id + '</a></td>'
-                + '<td><p>' + getTipo(data[i].tipo) + '</p></td>'
-                + '<td><p>' + recuperarFecha(data[i].fechaFactura) + '</p></td>'
-                + '<td><p>' + getNombreContacto(data[i].idClienteNavigation) + '</p></td>'
-                + '<td><p>' + data[i].estado + '</p></td>'
-                + '<td><a href="' + "@Url.Action("EditarFactura", new { id = "__id__" })".replace("__id__", data[i].id) + '" style="font-size:1.8rem;" onclick="editarFactura(' + data[i].id + ')" ><i class="fas fa-edit"></i></a></td></tr>';
-            $('#tblFacturas > tbody').append(body);
-            contadorFila++;
-        }
-
-
-
-        //inicializarTabla();
-
-    }
-    function cargarFiltros() {
-
-        facturasFiltrado = facturas;//JSON.parse(JSON.stringify(ordenes));
-
-        //facturasFiltrado = filtroAnuladas(comprasFiltrado);
-
-        //facturasFiltrado = filtroFecha(comprasFiltrado, desde, hasta);
-
-        cargarDatos(facturasFiltrado);
-
-    }
-    function getTipo(tipo) {
-        if (tipo === 1)
-            return "@Lb["Contado"]";
-        else
-            return "@Lb["Crédito"]";
-    }
-
-    function getNombreContacto(data) {
-        if (data.nombre === "0" && data.apellidos === "0") {
-            return "@Lb["ClienteContado"]";
-        }
-        if (data.empresa)
-            return data.nombreComercial;
-        else
-            return data.nombre + ' ' + data.apellidos;
-
-    }
-    function recuperarFecha(_fecha) {
-
-
-        var f = new Date(_fecha);
-        return f.toLocaleString();
-
-    }
 
 </script>

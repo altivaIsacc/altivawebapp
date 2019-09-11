@@ -17,7 +17,7 @@ namespace AltivaWebApp.Repositories
 
         public IList<TbFdFactura> GetAllFacturas()
         {
-            var facturas = context.TbFdFactura.Include(c => c.IdClienteNavigation).ToList();
+            var facturas = context.TbFdFactura.Include(c => c.IdClienteNavigation).Include(p => p.IdPuntoVentaNavigation).ToList();
 
             foreach (var item in facturas)
             {

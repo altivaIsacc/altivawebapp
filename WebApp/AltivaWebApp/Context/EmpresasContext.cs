@@ -2930,6 +2930,10 @@ namespace AltivaWebApp.Context
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
+                entity.Property(e => e.FechaFactura)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
                 entity.Property(e => e.FechaVencimiento)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate()+(30))");
@@ -2947,6 +2951,12 @@ namespace AltivaWebApp.Context
                     .HasForeignKey(d => d.IdCliente)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_FD_Factura_tb_CR_Contacto");
+
+                entity.HasOne(d => d.IdPuntoVentaNavigation)
+                    .WithMany(p => p.TbFdFactura)
+                    .HasForeignKey(d => d.IdPuntoVenta)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FD_Factura_tb_SE_PuntoVenta");
             });
 
             modelBuilder.Entity<TbFdFacturaDetalle>(entity =>
@@ -5878,7 +5888,8 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.PrefijoConcecutivoIndepediente)
                     .IsRequired()
                     .HasMaxLength(100)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.RazonSocial)
                     .IsRequired()
