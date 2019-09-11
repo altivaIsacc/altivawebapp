@@ -71,7 +71,7 @@
         <div class="form-group col-md-6 col-sm-6 col-xs-12">
             <label class="col-form-label ">@Lb["Contacto"]:</label><br />
             <select class="selectpicker form-control" data-live-search="true" id="contacto" asp-for="IdContacto">
-                <option selected value="0">@Lb["seleccione"]</option>
+                <option selected value="seleccione">@Lb["seleccione"]</option>
                 @foreach (var contactos in ViewData["contactos"] as IList<TbCrContacto>)
                 {
                     @if (contactos.Persona == true)
@@ -90,12 +90,13 @@
         <div class="form-group col-md-6 col-sm-6 col-xs-12">
             <label for="staticEmail" class=" col-form-label">@Lb["Asignado"]:</label><br />
             <select class="selectpicker form-control" data-live-search="true" id="asignado" asp-for="IdUsuario">
-                <option selected value="0">@Lb["seleccione"]</option>
+                <option selected value="seleccione">@Lb["seleccione"]</option>
                 @foreach (var asignados in ViewData["asignados"] as IList<TbSeUsuario>)
                 {
                     <option value="@asignados.Id">@asignados.Nombre</option>
                 }
             </select>
+            <div id="AlertAsignado"></div>
         </div>
     </div>
     <div class="row ">
@@ -194,7 +195,12 @@
     }
     else
     {
-        <div><label>@Lb["Subtareas"]:</label><button class="btn btn-link" id="AgregarLista"><i style="font-size:2rem;" class="fas fa-plus"></i></button></div>
+        <div><label>@Lb["Subtareas"]:</label>
+               <button class="btn btn-link" id="AgregarLista"><i style="font-size:2rem;" class="fas fa-plus"></i></button>
+    
+       </div>
+
+
         <div class="row">
 
             <div id="uls">
@@ -1124,21 +1130,32 @@
     }
 
     function ValidarDatos() {
+
         if ($('#titulo').val() == "") {
-
-                        $('#AlertTitulo').empty();
+            $('#AlertTitulo').empty();
             $('#AlertTitulo').append('<span class="text-danger">@Lb["tituloRequired"]</span>');
-
-
             return false;
+        } else {
+            $('#AlertTitulo').empty();
         }
 
-        if ($("#contacto").val()== "seleccione") {
+        if ($("#contacto").val() == "seleccione") {
             $('#AlertContacto').empty();
             $('#AlertContacto').append('<span class="text-danger">@Lb["contactoRequired"]</span>');
-
             return false;
+        } else {
+            $('#AlertContacto').empty();
         }
+
+        if ($("#asignado").val() == "seleccione") {
+            $('#AlertAsignado').empty();
+            $('#AlertAsignado').append('<span class="text-danger">@Lb["asignadoRequired"].</span>');
+            return false;
+        } else {
+            $('#AlertAsignado').empty();
+        }
+
+
         return true;
     }
 </script>
