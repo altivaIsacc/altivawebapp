@@ -263,25 +263,29 @@ else
                         </button>
                         <div class="col-md-6"> <h5 data-translate="editarOrden" class="modal-title" id="bodegaIventarioLabel">@Lb["editarOrden"]</h5></div>
                     </div>
-                    <div class="modal-body" id="editar">
+                    <div class="modal-body" id="editar" style="height:300px;">
                         <div class="row">
-                            <input id="editId" type="hidden" class="form-control" />
-                            <input id="editIva" type="hidden" class="form-control" />
-                            <input id="nSubTotal" type="hidden" class="form-control" />
-                            <div class="form-group col-sm-7">
-                                <label class="control-label">@Lb["Cantidad"]</label>
-                                <input id="editCantidad" class="form-control numerico" onkeyup="pasar(event,'editPrecio')" />
-                                <span hidden id="editCantidadValid" class="text-danger">@Lb["AlertCompraCantidad"]</span>
+                            <div class="form-group col-md-7 col-sm-7 col-xs-12">
+                                <input id="editId" type="hidden" class="form-control" />
+                                <input id="editIva" type="hidden" class="form-control" />
+                                <input id="nSubTotal" type="hidden" class="form-control" />
+                                <div class="form-group col-md-7 col-sm-7 col-xs-12">
+                                    <label class="control-label">@Lb["Cantidad"]</label>
+                                    <input id="editCantidad" class="form-control numerico" style="text-align:right;" onkeyup="pasar(event,'editPrecio')" />
+                                    <span hidden id="editCantidadValid" class="text-danger">@Lb["AlertCompraCantidad"]</span>
+                                </div>
+                                <div class="form-group  col-md-7 col-sm-7 col-xs-12">
+                                    <label class="control-label ">@Lb["PrecioUnitario"]</label>
+                                    <input id="editPrecio" class="form-control moneda" onkeyup="pasar(event,'editDescuento')" />
+                                    <span hidden id="editPrecioValid" class="text-danger">@Lb["AlertCompraPrecio"]</span>
+                                </div>
+                                <div class="form-group col-md-7 col-sm-7 col-xs-12">
+                                    <label class="control-label ">@Lb["Descuento"]</label>
+                                    <input id="editDescuento" class="form-control numerico" style="text-align:right;" onkeyup="pasar(event,'btnEditOrden')" />
+                                </div>
                             </div>
-                            <div class="form-group col-sm-7">
-                                <label class="control-label ">@Lb["PrecioUnitario"]</label>
-                                <input id="editPrecio" class="form-control numerico" onkeyup="pasar(event,'editDescuento')" />
-                                <span hidden id="editPrecioValid" class="text-danger">@Lb["AlertCompraPrecio"]</span>
-                            </div>
-                            <div class="form-group col-sm-7">
-                                <label class="control-label ">@Lb["Descuento"]</label>
-                                <input id="editDescuento" class="form-control numerico" onkeyup="pasar(event,'btnEditOrden')"  />
-                            </div>
+
+                        </div>                      
                             <div class="form-group col-sm-7">
 
                                 <button id="btnEditOrden" onclick="editOrden()" class="btn btn-success"><span>@Lb["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
@@ -289,9 +293,9 @@ else
                                 <button class="btn btn-default" data-dismiss="modal"><span>@Lb["Cancelar"]</span></button>
 
                             </div>
+                            
                         </div>
                     </div>
-                </div>
             </div>
         </div>
     </div>
@@ -304,8 +308,8 @@ else
     ///linea
     var $item = $('#item');
     var $descripcion = $('#descripcion');
-    var $subTotalLinea = $('#subtotal');
-    var $precio = $('#precio');
+   // var $('#subtotal') = $('#subtotal');
+    //var $("#precio") = $('#precio');
     var $iva = $('#iva');
     var $totalLinea = $('#totalLinea');
     var $cantidad = $('#cantidad');
@@ -361,9 +365,10 @@ else
             locale: localStorage.getItem("idioma")
         });
 
-        $(".moneda").inputmask({
-            'alias': 'decimal',
+        $(".moneda").inputmask('currency', {
+            prefix: '',
             rightAlign: true,
+            min: 0
         });
 
         $(".numerico").inputmask({
@@ -380,10 +385,10 @@ else
 
             var itemInfo = getItem($(this).val());
             var monto = getPrecioAlCambio(itemInfo);
-            var monto1 = parseFloat(monto.toFixed(2));
+            var monto1 = parseFloat(monto);
 
             $descripcion.val(itemInfo.descripcion);
-            $precio.val(monto1);
+            $("#precio").val(monto1);
             $cantidad.val(1);
             $iva.val(itemInfo.impuestoVenta);
             setSubTotalLinea();
@@ -432,7 +437,7 @@ else
         setSubTotalLinea();
     });
 
-    $precio.on('keyup, change, focusout', function () {
+    $("#precio").on('keyup, change, focusout', function () {
         if ($(this).val() < 0 || $(this).val() === "")
             $(this).val(0);
 
@@ -479,11 +484,11 @@ else
 
                $('#editId').val(arreglo[i].idInventario);
                $('#editCantidad').val(arreglo[i].cantidad);
-               $('#editPrecio').val(parseFloat((arreglo[i].precio).toFixed(2)));
+               $('#editPrecio').val(parseFloat((arreglo[i].precio)));
                $('#editDescuento').val(arreglo[i].porcDesc);
                $('#editIva').val(arreglo[i].porcIva);
                editDescuento = $('#editDescuento').val();
-               editPrecio = $('#editPrecio').val();
+               editPrecio = $('#editPrecio').inputmask('unmaskedvalue');
 
 
 
@@ -533,7 +538,7 @@ else
       function validarmodalEditar() {
 
         var cantidad = parseFloat($('#editCantidad').val());
-        var precio = parseFloat($('#editPrecio').val());
+        var precio = parseFloat($('#editPrecio').inputmask('unmaskedvalue'));
         var flag = true;
         $('#editCantidadValid').attr('hidden', true);
         $('#editPrecioValid').attr('hidden', true);
@@ -552,13 +557,14 @@ else
    {
       
        if (validarmodalEditar()) {
+           console.log(lineasActualizadas);
+           var flag = true;
            for (var i = 0; i < lineas.length; i++) {
-               console.log(lineas[i].precio);
                if (lineas[i].idInventario == $('#editId').val() &&
-                   parseFloat(lineas[i].precio.toFixed(2)) == parseFloat(editPrecio) && lineas[i].porcDesc == editDescuento) {
+                   parseFloat(lineas[i].precio) == parseFloat(editPrecio) && lineas[i].porcDesc == editDescuento) {
                    setSubTotalLinea();
                    lineas[i].cantidad = parseFloat($("#editCantidad").val());
-                   lineas[i].precio = parseFloat($('#editPrecio').val());
+                   lineas[i].precio = parseFloat($('#editPrecio').inputmask('unmaskedvalue'));
                    lineas[i].subTotalGrabado = calcularSubtotalGrabadoLinea();
                    lineas[i].subTotalExcento = calcularSubtotalExcentoLinea();
                    lineas[i].subTotalNeto = calcularSubtotalNetoLinea();
@@ -569,11 +575,24 @@ else
                    lineas[i].totalIva = calcularTotalIvaLinea();
                    lineas[i].total = calcularTotalLinea();
                    if (@Model.Id!= 0)
-                       lineasActualizadas.push(lineas[i]);
+                   {
+                       for (var j = 0; j < lineasActualizadas.length; j++)
+                       {
+                           if (lineas[i].id == lineasActualizadas[j].id) {
+                               lineas[i] = lineasActualizadas[j];
+                               flag = false;
+                           }
+                       }
+                       if(flag)
+                      lineasActualizadas.push(lineas[i]);
+
+                   }
 
                }
 
            }
+                      console.log(lineasActualizadas);
+
            cargarTabla(lineas);
            $('#modalEditarOrden').modal('hide');
        }
@@ -582,13 +601,13 @@ else
     ///calculos de línea
     function setSubTotalLinea() {
         if ($('#modalEditarOrden').hasClass('in')) {
-            var precio = parseFloat($('#editPrecio').val());
+            var precio = parseFloat($('#editPrecio').inputmask('unmaskedvalue'));
             var cantidad = parseFloat($('#editCantidad').val());
         } else {
-            var precio = parseFloat($precio.val());
+            var precio = parseFloat($("#precio").inputmask('unmaskedvalue'));
             var cantidad = parseFloat($cantidad.val());
         }
-        $subTotalLinea.val(cantidad * precio);
+        $('#subtotal').val(cantidad * precio);
 
 
     }
@@ -600,7 +619,7 @@ else
            var iva = parseFloat($iva.val());
 
         if (iva > 0)
-            return parseFloat($subTotalLinea.val());
+            return parseFloat($('#subtotal').inputmask('unmaskedvalue'));
         else
             return 0;
     }
@@ -612,14 +631,14 @@ else
             var iva = parseFloat($iva.val());
 
         if (iva === 0)
-            return parseFloat($subTotalLinea.val());
+            return parseFloat($('#subtotal').inputmask('unmaskedvalue'));
         else
             return 0;
     }
 
     function calcularSubtotalNetoLinea() {
 
-        return parseFloat($subTotalLinea.val()) - calcularTotalDescuentoLinea()
+        return parseFloat($('#subtotal').inputmask('unmaskedvalue')) - calcularTotalDescuentoLinea()
 
     }
 
@@ -632,7 +651,7 @@ else
             var iva = parseFloat($('#iva').val());
        
 
-        var subTotal = parseFloat($subTotalLinea.val()) - calcularTotalDescuentoLinea();
+        var subTotal = parseFloat($('#subtotal').inputmask('unmaskedvalue')) - calcularTotalDescuentoLinea();
         return (iva / 100) * subTotal;
     }
 
@@ -642,7 +661,7 @@ else
         } else
             var desc = parseFloat($descuento.val());
 
-        var subTotal = parseFloat($subTotalLinea.val());
+        var subTotal = parseFloat($('#subtotal').inputmask('unmaskedvalue'));
         return (desc / 100) * subTotal;
 
     }
@@ -713,7 +732,7 @@ else
             $('#item').trigger('change.select2');
             $cantidad.val(data[i].etotal);
             setSubTotalLinea();
-            if ($precio.val() != 0) {
+            if ($("#precio").inputmask('unmaskedvalue') != 0) {
                 cero = false;
                 guardarLinea();
             }
@@ -738,7 +757,7 @@ else
          nombreInventario: $descripcion.val(),
          idMonedaOD: parseInt($('.tipoMoneda').val()),
          cantidad: parseFloat($cantidad.val()),
-         precio: parseFloat($precio.val()),
+         precio: parseFloat($("#precio").inputmask('unmaskedvalue')),
          subTotalGrabado: calcularSubtotalGrabadoLinea(),
          subTotalExcento: calcularSubtotalExcentoLinea(),
          subTotalNeto: calcularSubtotalNetoLinea(),
@@ -763,7 +782,7 @@ else
             cargarAlert('@Lb["AlertCompraCantidad"]');
             return;
         }
-        if ($precio.val() <= 0) {
+        if ($("#precio").inputmask('unmaskedvalue') <= 0) {
             cargarAlert('@Lb["AlertCompraPrecio"]');
             return;
 
@@ -775,7 +794,7 @@ else
             if ($item.val() == lineas[i].idInventario)
             {
 
-                if (lineas[i].precio == parseFloat($precio.val()) && lineas[i].porcDesc == parseFloat($descuento.val()) && lineas[i].porcIva == parseFloat($iva.val()))
+                if (lineas[i].precio == parseFloat($("#precio").inputmask('unmaskedvalue')) && lineas[i].porcDesc == parseFloat($descuento.val()) && lineas[i].porcIva == parseFloat($iva.val()))
                 {
                     flag2 = true;   
                     pos = i;
@@ -866,7 +885,7 @@ else
       $('#item').trigger('change.select2');
       $cantidad.val(lineas[pos].cantidad);
       lineas[id].porcIva = parseFloat($iva.val());
-      $precio.val(lineas[pos].precio);
+      $("#precio").val(lineas[pos].precio);
         $estado.val(lineas[pos].id);
 
     }*/
