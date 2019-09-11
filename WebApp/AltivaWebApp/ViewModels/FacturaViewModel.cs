@@ -11,6 +11,7 @@ namespace AltivaWebApp.ViewModels
         public byte Tipo { get; set; }
         public DateTime FechaFactura { get; set; }
         public long IdCliente { get; set; }
+        public long IdPuntoVenta { get; set; }
         public string Estado { get; set; }
         public byte IdMoneda { get; set; }
         public long IdVendedor { get; set; }
@@ -29,6 +30,7 @@ namespace AltivaWebApp.ViewModels
         public DateTime FechaVencimiento { get; set; }
         public double TipoCambioDolar { get; set; }
         public double TipoCambioEuro { get; set; }
+        public bool EnCola { get; set; }
 
         public IList<FacturaDetalleViewModel> FacturaDetalle;
     }
