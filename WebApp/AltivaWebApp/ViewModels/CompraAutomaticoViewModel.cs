@@ -7,7 +7,6 @@ namespace AltivaWebApp.ViewModels
 {
     public class CompraAutomaticoViewModel
     {
-       
 
         public long IdInventario { get; set; }
         public string Codigo { get; set; }

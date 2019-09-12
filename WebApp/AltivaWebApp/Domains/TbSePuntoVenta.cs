@@ -7,6 +7,7 @@ namespace AltivaWebApp.Domains
     {
         public TbSePuntoVenta()
         {
+            TbFaCaja = new HashSet<TbFaCaja>();
             TbFdFactura = new HashSet<TbFdFactura>();
         }
 
@@ -35,6 +36,7 @@ namespace AltivaWebApp.Domains
         public DateTime FechaCreacion { get; set; }
         public long IdUsuarioCreacion { get; set; }
 
+        public virtual ICollection<TbFaCaja> TbFaCaja { get; set; }
         public virtual ICollection<TbFdFactura> TbFdFactura { get; set; }
     }
 }
