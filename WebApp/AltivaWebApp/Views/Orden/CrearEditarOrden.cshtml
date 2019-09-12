@@ -136,7 +136,6 @@ else
 
     <br />
 
-
     <div class="form-group col-md-4">
         <button @generarOrden class="btn btn-success btnAccion" onclick="validarCompraAutomatica()">@Lb["ordenAutomatica"]</button>
     </div>
@@ -145,7 +144,8 @@ else
 
         <div class="form-group col-md-3 col-sm-3 col-xs-12">
             <label id="lblItem" class="control-label">@Lb["Item"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
-            <select @estado class="form-control selectItems" autofocus id="item"></select>
+            <input @estado class="form-control " list="lista" id="item">
+            <datalist id="lista"></datalist>
         </div>
 
         <div class="form-group col-md-2 col-sm-2 col-xs-6">
@@ -344,6 +344,8 @@ else
     var editProveedor = $('#proveedor').val();
 
     $(document).ready(function () {
+            $cantidad.val(1);
+        repetido = false;
         comprobarBorrador();
           var date = new Date();
         if (@Model.Id != 0) {
@@ -379,18 +381,7 @@ else
      
         $('.selectItems').select2({ width: null, language: localStorage.getItem("idioma") });
 
-        $('#item').on('change.select2', function () {
-
-            var itemInfo = getItem($(this).val());
-            var monto = getPrecioAlCambio(itemInfo);
-            var monto1 = parseFloat(monto);
-
-            $descripcion.val(itemInfo.descripcion);
-            $("#precio").val(monto1);
-            $cantidad.val(1);
-            $iva.val(itemInfo.impuestoVenta);
-            setSubTotalLinea();
-        });
+     
 
         $('textarea[data-limit-rows=true]')
             .on('keypress', function (event) {
@@ -404,34 +395,59 @@ else
                 }
             });
 
+    });//fin del document ready
+
+    function cargarLineaAutomatica(codigo) {
+         $("#item").val(codigo);
+          var itemInfo = getIdInventario(codigo);
+            var monto = getPrecioAlCambio(itemInfo);
+            var monto1 = parseFloat(monto);
+            $descripcion.val(itemInfo.descripcion);
+            $("#precio").val(monto1);         
+            $iva.val(itemInfo.impuestoVenta);
+    }
+    $('#item').on('change.select2', function () {
+           
+            var itemInfo = getIdInventario($(this).val());
+            var monto = getPrecioAlCambio(itemInfo);
+            var monto1 = parseFloat(monto);
+
+            $descripcion.val(itemInfo.descripcion);
+            $("#precio").val(monto1);
+            $cantidad.val(1);
+            $iva.val(itemInfo.impuestoVenta);
+            setSubTotalLinea();
     });
-     function getFormData () {
+
+    $('#item').on('click', function () {  this.select(); });
+ //   $("#item").focus(function(){	   
+	//    this.select();
+	//});
+    function getFormData () {
              var Model = {
-            id: @Model.Id,
-            idProveedor: $proveedores.val(),
-            fecha: $('#fecha').val(),
-            idUsuario: 1,
-            Anulado: '@Model.Anulado',
-            IdMoneda: parseInt($('.tipoMoneda').val()),
-            observacion: $('#txtObservacion').val(),
-            subTotalGrabado: subTotalGravado.toString().replace(".", ","),
-            subTotalExcento: subTotalExcento.toString().replace(".", ","),
-            subTotalNeto: subTotalNeto.toString().replace(".", ","),
-            totalIva: totalImpuesto.toString().replace(".", ","),
-            totalDescuento: totalDescuento.toString().replace(".", ","),
-            total: totalOrden.toString().replace(".", ","),
-            tipoCambioDolar: $('#dolar').val(),
-            tipoCambioEuro: $('#euro').val(),
-            ordenDetalle: lineasAgregadas,
-            lineasAct: lineasActualizadas,
-            lineasE : lineasEliminadas,
-            lineas: lineas
+                   id: @Model.Id,
+                   idProveedor: $proveedores.val(),
+                   fecha: $('#fecha').val(),
+                   idUsuario: 1,
+                   Anulado: '@Model.Anulado',
+                   IdMoneda: parseInt($('.tipoMoneda').val()),
+                   observacion: $('#txtObservacion').val(),
+                   subTotalGrabado: subTotalGravado.toString().replace(".", ","),
+                   subTotalExcento: subTotalExcento.toString().replace(".", ","),
+                   subTotalNeto: subTotalNeto.toString().replace(".", ","),
+                   totalIva: totalImpuesto.toString().replace(".", ","),
+                   totalDescuento: totalDescuento.toString().replace(".", ","),
+                   total: totalOrden.toString().replace(".", ","),
+                   tipoCambioDolar: $('#dolar').val(),
+                   tipoCambioEuro: $('#euro').val(),
+                   ordenDetalle: lineasAgregadas,
+                   lineasAct: lineasActualizadas,
+                   lineasE : lineasEliminadas,
+                  lineas: lineas
+             };
+          return Model;
 
-
-         };
-         return Model;
-
-        }
+    }
     
     function guardarLocalStorage() {
         ordenModel = getFormData();
@@ -442,7 +458,6 @@ else
     
     function comprobarBorrador() {
         var borrador = JSON.parse(localStorage.getItem("OrdenBorrador"));
-        console.log(borrador);
         if (borrador !== null && borrador.lineas.length !== 0 && (borrador.id).toString() === "@Model.Id") {
             bootbox.confirm("@Lb["DeseaReanudar"]", function (result) {
 
@@ -481,8 +496,8 @@ else
     }
 
     $('#editCantidad').on('keyup, change, focusout', function () {
-        if ($(this).val() < 0 || $(this).val() === "")
-            $(this).val(0);
+        if ($(this).val() <= 0 || $(this).val() === "")
+            $(this).val(1);
 
         setSubTotalLinea();
     });
@@ -503,8 +518,8 @@ else
     });
 
     $cantidad.on('keyup, change, focusout', function () {
-        if ($(this).val() < 0 || $(this).val() === "")
-            $(this).val(0);
+        if ($(this).val() <= 0 || $(this).val() === "")
+            $(this).val(1);
 
         setSubTotalLinea();
     });
@@ -763,7 +778,6 @@ else
             url: '@Url.Action("GetOrdenDetalle")',
 
             success: function (data) {
-
                 ordenDetalleBD = JSON.parse(JSON.stringify(data));
                 if (!repetido) {
                   cargarLineas(data);
@@ -810,8 +824,7 @@ else
 
         var cero = true;
         for (var i = 0; i < data.length; i++) {
-            $('#item').val(data[i].idInventario);
-            $('#item').trigger('change.select2');
+            cargarLineaAutomatica(data[i].codigo);
             $cantidad.val(data[i].etotal);
             setSubTotalLinea();
             if ($("#precio").inputmask('unmaskedvalue') != 0) {
@@ -825,17 +838,12 @@ else
         if (cero)
           cargarAlert('@Lb["AlertPreciosCero"]');
 
-
-
-
-
-
     }
     function generarLinea() {
         var model = {
            id: 0,
-         idOrden: @Model.Id,
-         idInventario: $item.val(),
+          idOrden: @Model.Id,
+         idInventario: getIdInventario($item.val()).idInventario,
          nombreInventario: $descripcion.val(),
          idMonedaOD: parseInt($('.tipoMoneda').val()),
          cantidad: parseFloat($cantidad.val()),
@@ -851,11 +859,18 @@ else
          totalIva: calcularTotalIvaLinea(),
          total: calcularTotalLinea()
         };
-       lineasAgregadas.push(model);
-       lineas.push(model);
-        $cantidad.val(1);
-        guardarLocalStorage();
-       cargarTabla(lineas);
+          lineasAgregadas.push(model);
+          lineas.push(model);
+          $cantidad.val(1);
+          guardarLocalStorage();
+          $("#item").val("");
+          $descripcion.val("");
+          $("#precio").val(0);
+          $("#descuento").val(0);
+          $cantidad.val(1);
+          $iva.val("");
+          setSubTotalLinea();
+         cargarTabla(lineas);
     }
     function guardarLinea() {
         var flag2 = false;
@@ -884,7 +899,7 @@ else
                 }
             }
 
-            }
+          }
             if (flag2) {
                   bootbox.confirm("@Lb["sumarDetalleOrdenValid"]", function (resultado) {
                            if (resultado) {
@@ -902,18 +917,12 @@ else
 
                            }
 
-
                   });
             } else {
                 generarLinea();
             }
 
         }
-
-
-
-
-
     }
 
     function validarCompraAutomatica() {
@@ -954,13 +963,7 @@ else
 
             });
 
-
-
-
-
     }
-
-   
 
     function eliminarLinea(_id, idLinea) {
 
@@ -1065,7 +1068,6 @@ else
     }
 
     function getInventario() {
-
          $.ajax({
               type: "get",
               headers: {
@@ -1077,7 +1079,7 @@ else
                 
                  items = data;
 
-                 cargarItems(items);
+                 cargarItems(items);            
                  getOrdenDetalle();
                },
               error: function (err, scnd) {
@@ -1087,17 +1089,24 @@ else
           });
     }
 
-    function getItem(id) {
+    function getItem(id) {      
         for (var i = 0; i < items.length; i++) {
             if (items[i].idInventario == parseInt(id))
                 return items[i];
         }
     }
+    function getIdInventario(codigo) {  
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].codigo == codigo)
+                return items[i];
+        }
+    }
 
     function cargarItems(data) {
+     
         for (var i = 0; i < data.length; i++) {
-            var o = new Option(data[i].codigo, data[i].idInventario);
-            $("#item").append(o);
+            var o = new Option(data[i].descripcion, data[i].codigo);
+            $("#lista").append(o);
 
 
         }
