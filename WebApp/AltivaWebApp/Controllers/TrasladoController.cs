@@ -95,10 +95,7 @@ namespace AltivaWebApp.Controllers
         [HttpPost("CrearEditar-Traslado")]
         public ActionResult CrearEditarTraslado(TrasladoViewModel traslado, IList<TrasladoInventarioViewModel> inventarioTraslado, IList<long> eliminados)
         {
-            //traslado: Anulado, Comnetario, CostoTraslado, Fecha, FechaCreacion, IdBodegaDestino, IdbodegaOrigen, IdTraslado, IdUsuario,
-            //inventarioTraslado: Cantidad,CodigoArticulo, CostoTotal, Descripcion, Id, IdInventario, IdTraslado, PrecioUnitaio
-            //eliminados: [0] 4
-
+          
             try
             {
 
@@ -197,7 +194,7 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        // POST: AjusteInventario/Delete/5
+       
         [HttpGet("Anular-Traslado/{id}")]
         public ActionResult AnularTraslado(int id)
         {
