@@ -2040,12 +2040,21 @@ namespace AltivaWebApp.Context
             {
                 entity.ToTable("TB_FD_TipoCliente");
 
-                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
 
                 entity.Property(e => e.Nombre)
                     .IsRequired()
                     .HasMaxLength(100)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.HasOne(d => d.IdTipoPrecioNavigation)
+                    .WithMany(p => p.TbFdTipoCliente)
+                    .HasForeignKey(d => d.IdTipoPrecio)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_TB_FD_TipoCliente_tb_PR_Precios");
             });
 
             modelBuilder.Entity<TbFdTipoProveedor>(entity =>
@@ -3037,6 +3046,12 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('')");
+
+                entity.HasOne(d => d.IdTipoPrecioDefectoNavigation)
+                    .WithMany(p => p.TbSePuntoVenta)
+                    .HasForeignKey(d => d.IdTipoPrecioDefecto)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_SE_PuntoVenta_tb_PR_Precios");
             });
         }
     }

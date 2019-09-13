@@ -13,14 +13,23 @@
 
 }
 
-@if (Model.Id != 0)
-{
-    <h3>@Lb["Editar"] @Lb["Factura"]</h3>
-}
-else
-{
-    <h3>@Lb["Nueva"] @Lb["Factura"]</h3>
-}
+<div class="row">
+    <div class="col-md-2 col-sm-3 col-xs-12">
+        @if (Model.Id != 0)
+        {
+            <h3>@Lb["Editar"] @Lb["Factura"]</h3>
+        }
+        else
+        {
+            <h3>@Lb["Nueva"] @Lb["Factura"]</h3>
+        }
+    </div>
+    <div class="col-md-offset-7 col-sm-offset-6 col-md-3 col-sm-9 col-xs-12 ">
+        <label for="selectPuntoVenta" class="control-label">@Lb["PuntoVenta"]:</label>
+        <select id="selectPuntoVenta" class="form-control selectItems"></select>
+    </div>
+</div>
+
 <hr />
 
 @if (Model.Id != 0)
@@ -50,6 +59,7 @@ else
         @Html.HiddenFor(x => x.FechaCreacion)
         @Html.HiddenFor(x => x.IdUsuarioCreador)
         @Html.HiddenFor(x => x.Estado)
+        @Html.HiddenFor(x => x.IdPuntoVenta)
 
         <div class="form-group col-md-3 col-sm-3 col-xs-6">
             <label asp-for="IdVendedor" class="control-label">@Lb["Vendedor"]:</label>
@@ -64,10 +74,9 @@ else
                 }
             </select>
         </div>
-        <div class="form-group col-md-3 col-sm-3 col-xs-6">
+        <div class="form-group col-md-4 col-sm-4 col-xs-6">
             <label asp-for="IdCliente" class="control-label">@Lb["Cliente"]:</label>
             <select onkeyup="pasarSigCampo(event,'Tipo')" asp-for="IdCliente" class="form-control selectItems">
-                <option value="0">@Lb["ClienteContado"]</option>
                 @foreach (var item in ViewData["clientes"] as IList<TbCrContacto>)
                 {
                     if (item.Persona)
@@ -90,10 +99,10 @@ else
             </select>
         </div>
 
-        <div class="form-group col-md-2 col-sm-2 col-xs-6">
-            <label asp-for="IdPuntoVenta" class="control-label">@Lb["PuntoVenta"]:</label>
-            <select asp-for="IdPuntoVenta" class="form-control selectItems"></select>
-        </div>
+        @*<div class="form-group col-md-2 col-sm-2 col-xs-6">
+                <label asp-for="IdPuntoVenta" class="control-label">@Lb["PuntoVenta"]:</label>
+                <select asp-for="IdPuntoVenta" class="form-control selectItems"></select>
+            </div>*@
 
         <div class="col-md-2 col-sm-2 col-xs-6 btn-group" style="padding: 0; margin: 0; padding-top:2.4rem">
             <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle" type="button" aria-expanded="false">
@@ -784,7 +793,7 @@ else
         facturaModel.Tipo = $('#Tipo').val();
         facturaModel.Estado = '@Model.Estado';
         facturaModel.FechaFactura = $('#FechaFactura').val();
-        facturaModel.IdPuntoVenta = $('#IdPuntoVenta').val();
+        facturaModel.IdPuntoVenta = $('#selectPuntoVenta').val();
 
         guardarLocalStorage();
 
@@ -817,7 +826,7 @@ else
             tipoCambioEuro: facturaModel.TipoCambioEuro,
             estado: '@Model.Estado',
             tipo: facturaModel.Tipo,
-            idPuntoVenta: $('#IdPuntoVenta').val(),
+            idPuntoVenta: $('#selectPuntoVenta').val(),
             enCola: false
         };
 
@@ -869,7 +878,7 @@ else
                     $('#Tipo').val(facturaModel.Tipo);
                     $('#IdCliente').val(facturaModel.IdCliente);
                     $('#IdVendedor').val(facturaModel.IdVendedor);
-                    $('#IdPuntoVenta').val(facturaModel.IdPuntoVenta);
+                    $('#selectPuntoVenta').val(facturaModel.IdPuntoVenta);
 
                     $('.selectItems').trigger('change.select2');
 
@@ -1000,7 +1009,7 @@ else
 
                 var flag = false;
                 for (var i = 0; i < arrayPV.length; i++) {
-                    
+
                     var o = new Option(arrayPV[i].nombre, arrayPV[i].idPuntoVenta);
 
                     if (@Model.Id != 0 && arrayPV[i].idPuntoVenta == @Model.IdPuntoVenta) {
@@ -1009,12 +1018,18 @@ else
                             $("#puntoVentaValid").attr("hidden", false);
                         }
                         flag = true;
-                    }
-                    else if (arrayPV[i].esPorDefecto && !flag)
-                        $(o).attr('selected', true);
-                    
 
-                    $('#IdPuntoVenta').append(o);
+                    }
+                    else if (arrayPV[i].esPorDefecto && !flag) {
+                        console.log(arrayPV[i].idContactoClienteDefecto);
+                        $('#IdCliente').val(arrayPV[i].idContactoClienteDefecto);
+                        $('#IdCliente').trigger('change');
+                        $(o).attr('selected', true);
+                    }
+                        
+
+
+                    $('#selectPuntoVenta').append(o);
                 }
 
             },

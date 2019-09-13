@@ -7,7 +7,9 @@ namespace AltivaWebApp.Domains
     {
         public TbPrPrecios()
         {
+            TbFdTipoCliente = new HashSet<TbFdTipoCliente>();
             TbPrPrecioCatalogo = new HashSet<TbPrPrecioCatalogo>();
+            TbSePuntoVenta = new HashSet<TbSePuntoVenta>();
         }
 
         public int Id { get; set; }
@@ -18,6 +20,8 @@ namespace AltivaWebApp.Domains
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
 
+        public virtual ICollection<TbFdTipoCliente> TbFdTipoCliente { get; set; }
         public virtual ICollection<TbPrPrecioCatalogo> TbPrPrecioCatalogo { get; set; }
+        public virtual ICollection<TbSePuntoVenta> TbSePuntoVenta { get; set; }
     }
 }

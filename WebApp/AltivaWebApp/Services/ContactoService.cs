@@ -111,6 +111,11 @@ namespace AltivaWebApp.Services
             return this.repository.GetByIdContacto(id);
         }
 
+        public bool EsPorDefectoPV(int id)
+        {
+            return repository.EsPorDefectoPV(id);
+        }
+
         public IList<TbCeCanton> GetCantones(int idProvincia)
         {
             return this.repository.GetCantones(idProvincia);

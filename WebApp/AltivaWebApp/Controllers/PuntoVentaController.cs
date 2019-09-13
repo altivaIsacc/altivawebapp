@@ -21,13 +21,15 @@ namespace AltivaWebApp.Controllers
         private readonly IMonedaService monedaService;
         private readonly IContactoService contactoService;
         private readonly IBodegaService bodegaService;
-        public PuntoVentaController(IPuntoVentaService service, IPuntoVentaMap map, IMonedaService monedaService, IContactoService contactoService, IBodegaService bodegaService)
+        private readonly IPreciosService precioService;
+        public PuntoVentaController(IPreciosService precioService, IPuntoVentaService service, IPuntoVentaMap map, IMonedaService monedaService, IContactoService contactoService, IBodegaService bodegaService)
         {
             this.service = service;
             this.map = map;
             this.monedaService = monedaService;
             this.contactoService = contactoService;
             this.bodegaService = bodegaService;
+            this.precioService = precioService;
         
 
         }
@@ -53,18 +55,25 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Crear-PuntoVenta")]
         public IActionResult CrearPuntoVenta()
         {
+            ViewData["tipoPrecios"] = precioService.GetPreciosSinAnular(); 
             ViewData["moneda"] = monedaService.GetAll();
             ViewData["cliente"] = contactoService.GetAllClientes();
             ViewData["bodega"] = bodegaService.GetAllActivas();
+            ViewBag.tipoPrecio = new TbPrPrecios();
             return View("CrearEditarPuntoVenta", new PuntoVentaViewModel());
         }
         [HttpGet("Editar-PuntoVenta/{id}")]
         public IActionResult EditarPuntoVenta(int id)
         {
+            ViewData["tipoPrecios"] = precioService.GetPreciosSinAnular();
             ViewData["moneda"] = monedaService.GetAll();
             ViewData["cliente"] = contactoService.GetAllClientes();
             ViewData["bodega"] = bodegaService.GetAllActivas();
-            return View("CrearEditarPuntoVenta",map.DomainToVIewModel(service.GetPuntoVentaById(id)));
+
+            var model = service.GetPuntoVentaById(id);
+
+            ViewBag.tipoPrecio = model.IdTipoPrecioDefectoNavigation;
+            return View("CrearEditarPuntoVenta",map.DomainToVIewModel(model));
         }
         [HttpPost("CrearEditar-PuntoVenta")]
         public IActionResult CrearEditarPuntoVenta(PuntoVentaViewModel viewModel)

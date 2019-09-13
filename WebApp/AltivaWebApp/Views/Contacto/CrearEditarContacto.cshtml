@@ -43,6 +43,11 @@
 
     ViewData["Title"] = titulo;
 
+    var esPorDefectoPV = "";
+    if (ViewBag.esPorDefectoPV)
+    {
+        esPorDefectoPV = "disabled";
+    }
 
 }
 
@@ -53,204 +58,215 @@
     </div>
 </div>
 
+@Html.Hidden("disabled", ViewBag.esPorDefectoPV, new { @id = "esPorDefectoPV" })
+
+@if (ViewBag.esPorDefectoPV)
+{
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <h5 class="text-info">@Lb["contactoPordefectoPV"].</h5>
+        </div>
+    </div>
+}
 
 <div class="row well">
 
     <form id="frmContacto">
-        @Html.HiddenFor(x => x.IdContacto)
-        @Html.HiddenFor(x => x.Ruta)
+        <fieldset @esPorDefectoPV>
+            @Html.HiddenFor(x => x.IdContacto)
+            @Html.HiddenFor(x => x.Ruta)
 
-        <div class="form-group col-md-12 col-sm-12 col-xs-12">
-            <label class="radio-inline" for="persona"><input type="radio" name="radioTipo" onchange="ocultarCamposNombre(1)" checked="@Model.Persona" value="1" id="persona" />@Lb["Persona"]</label>
-            <label class="radio-inline" for="empresa"><input type="radio" name="radioTipo" onchange="ocultarCamposNombre(2)" checked="@Model.Empresa" value="2" id="empresa" />@Lb["Empresa"]</label>
-        </div>
+            <div class="form-group col-md-12 col-sm-12 col-xs-12">
+                <label class="radio-inline" for="persona"><input type="radio" name="radioTipo" onchange="ocultarCamposNombre(1)" checked="@Model.Persona" value="1" id="persona" />@Lb["Persona"]</label>
+                <label class="radio-inline" for="empresa"><input type="radio" name="radioTipo" onchange="ocultarCamposNombre(2)" checked="@Model.Empresa" value="2" id="empresa" />@Lb["Empresa"]</label>
+            </div>
 
-        <div @tipoPersona class="form-group col-md-4 col-sm-4 col-xs-12 nombrePersona">
-            <label asp-for="Nombre" class="control-label"><span class="text-danger">*</span>@Lb["Nombre"]:</label>
-            <input asp-for="Nombre" autofocus maxlength="50" type="text" class="form-control" />
-            <span hidden id="nombreValid" class="text-danger">@Lb["nombreValid"]</span>
-        </div>
-        <div @tipoPersona class="form-group col-md-4 col-sm-4 col-xs-12 nombrePersona">
-            <label asp-for="Apellidos" class="control-label"><span class="text-danger">*</span>@Lb["Apellidos"]:</label>
-            <input asp-for="Apellidos" maxlength="75" type="text" class="form-control" />
-            <span hidden id="apellidosValid" class="text-danger">@Lb["apellidosValid"]</span>
-        </div>
-        <div @tipoEmpresa class="form-group col-md-4 col-sm-4 col-xs-12 nombreEmpresa">
-            <label asp-for="NombreComercial" class="control-label"><span class="text-danger">*</span>@Lb["NombreComercial"]:</label>
-            <input asp-for="NombreComercial" maxlength="90" type="text" class="form-control" />
-            <span hidden id="nombreComercialValid" class="text-danger">@Lb["nombreValid"]</span>
-        </div>
-        <div @tipoEmpresa class="form-group col-md-4 col-sm-4 col-xs-12 nombreEmpresa">
-            <label asp-for="NombreJuridico" class="control-label"><span class="text-danger">*</span>@Lb["NombreJuridico"]:</label>
-            <input asp-for="NombreJuridico" class="form-control" type="text" />
-            <span hidden id="nombreJuridicaValid" class="text-danger">@Lb["nombreValid"]</span>
-        </div>
+            <div @tipoPersona class="form-group col-md-4 col-sm-4 col-xs-12 nombrePersona">
+                <label asp-for="Nombre" class="control-label"><span class="text-danger">*</span>@Lb["Nombre"]:</label>
+                <input asp-for="Nombre" autofocus maxlength="50" type="text" class="form-control" />
+                <span hidden id="nombreValid" class="text-danger">@Lb["nombreValid"]</span>
+            </div>
+            <div @tipoPersona class="form-group col-md-4 col-sm-4 col-xs-12 nombrePersona">
+                <label asp-for="Apellidos" class="control-label"><span class="text-danger">*</span>@Lb["Apellidos"]:</label>
+                <input asp-for="Apellidos" maxlength="75" type="text" class="form-control" />
+                <span hidden id="apellidosValid" class="text-danger">@Lb["apellidosValid"]</span>
+            </div>
+            <div @tipoEmpresa class="form-group col-md-4 col-sm-4 col-xs-12 nombreEmpresa">
+                <label asp-for="NombreComercial" class="control-label"><span class="text-danger">*</span>@Lb["NombreComercial"]:</label>
+                <input asp-for="NombreComercial" maxlength="90" type="text" class="form-control" />
+                <span hidden id="nombreComercialValid" class="text-danger">@Lb["nombreValid"]</span>
+            </div>
+            <div @tipoEmpresa class="form-group col-md-4 col-sm-4 col-xs-12 nombreEmpresa">
+                <label asp-for="NombreJuridico" class="control-label"><span class="text-danger">*</span>@Lb["NombreJuridico"]:</label>
+                <input asp-for="NombreJuridico" class="form-control" type="text" />
+                <span hidden id="nombreJuridicaValid" class="text-danger">@Lb["nombreValid"]</span>
+            </div>
 
-        <div class="form-group col-md-2 col-sm-4 col-xs-12">
-            <label asp-for="TipoCedula" class="control-label">@Lb["TipoCedula"]:</label>
-            <select asp-for="TipoCedula" onchange="tipoCedula(value)" class="form-control">
-                <option value="1">@Lb["Física"]</option>
-                <option value="2">@Lb["Jurídica"]</option>
-                <option value="3">@Lb["Dimex"]</option>
-                <option value="4">@Lb["NITE"]</option>
-            </select>
-        </div>
+            <div class="form-group col-md-2 col-sm-4 col-xs-12">
+                <label asp-for="TipoCedula" class="control-label">@Lb["TipoCedula"]:</label>
+                <select asp-for="TipoCedula" onchange="tipoCedula(value)" class="form-control">
+                    <option value="1">@Lb["Física"]</option>
+                    <option value="2">@Lb["Jurídica"]</option>
+                    <option value="3">@Lb["Dimex"]</option>
+                    <option value="4">@Lb["NITE"]</option>
+                </select>
+            </div>
 
-        <div class="form-group col-md-2 col-sm-4 col-xs-12">
-            <label asp-for="Cedula" class="control-label"><span class="text-danger">*</span>@Lb["Cédula"]:</label>
-            <input asp-for="Cedula" class="form-control" />
-            <span hidden id="cedulaValid" class="text-danger">@Lb["cedulaValid"]</span>
-            <span hidden id="repetidoValid" class="text-danger">@Lb["repetidoValid"]</span>
-        </div>
-
-        <div class="form-group col-md-4 col-sm-4 col-xs-12">
-            <label asp-for="Telefono" class="control-label"><span class="text-danger">*</span>@Lb["Teléfono"]:</label>
-            <input asp-for="Telefono" type="text" class="form-control telefono" />
-            <span hidden id="telefonoValid" class="text-danger">@Lb["telefonoValid"]</span>
-        </div>
-        <div class="form-group col-md-4 col-sm-4 col-xs-12">
-            <label asp-for="Correo" class="control-label"><span class="text-danger">*</span>@Lb["Correo"]:</label>
-            <input asp-for="Correo" class="form-control" />
-            <span hidden id="correoValid" class="text-danger">@Lb["correoValid"]</span>
-            <span hidden id="correoInvalido" class="text-danger">@Lb["correoInvalido"]</span>
-        </div>
-
-
-
-
-        <div class="form-group col-md-4 col-sm-4 col-xs-12">
-            <label asp-for="IdUsuario" class="control-label">@Lb["UsuarioEncargado"]:</label>
-
-            <select asp-for="IdUsuario" class="form-control">
-                @foreach (var item in ViewData["usuarios"] as IList<TbSeUsuario>)
-                {
-                    <option value="@item.Id">@item.Nombre</option>
-                }
-            </select>
-        </div>
-
-        <div class="form-group col-md-4 col-sm-4 col-xs-12" style="padding:0; margin:0; padding-left:1rem">
-            <label class="input-group-text" id="inputGroup-sizing-sm">@Lb["CargarImagen"] (6MB)</label>
-            <input type="file" accept="image/*" id="fileUploadC" class="jfilestyle" data-theme="blue" data-text="@Lb["Examinar"]">
-            <span hidden id="tamanoArchivoC" class="text-danger">@Lb["tamanoArchivo"]</span>
-            <span hidden id="tipoArchivoC" class="text-danger">@Lb["tipoArchivo"]</span>
-        </div>
-
-        <div class="form-group col-md-4 col-sm-4 col-xs-12">
-            <label asp-for="WebLink" class="control-label">@Lb["PaginaWeb"]:</label>
-            <input asp-for="WebLink" maxlength="150" type="text" class="form-control" />
-        </div>
-
-
-        <div class="form-group col-md-4 col-sm-4 col-xs-12">
-            <label asp-for="MapLink" class="control-label">@Lb["LinkUbicacion"]:</label>
-            <input asp-for="MapLink" maxlength="500" type="text" class="form-control" />
-        </div>
-
-
-
-        <div class="form-group col-md-4 col-sm-4 col-xs-12">
-            <label asp-for="Pais" class="control-label">@Lb["País"]:</label>
-            <select onchange="getProvincias()" asp-for="Pais" class="form-control">
-                @foreach (var item in ViewData["paises"] as IList<TbSePais>)
-                {
-                    <option value="@item.Id">@item.NombreEs</option>
-                }
-            </select>
-        </div>
-        <div class="form-group col-md-4 col-sm-4 col-xs-12">
-            <label asp-for="Provincia" class="control-label">@Lb["Provincia"]:</label>
-            <select onchange="getCantones(value)" class="form-control" asp-for="Provincia"></select>
-        </div>
-        <div class="form-group col-md-4 col-sm-4 col-xs-12">
-            <label asp-for="Canton" class="control-label">@Lb["Cantón"]:</label>
-            <select onchange="getDistritos(value)" class="form-control" asp-for="Canton"></select>
-        </div>
-
-        <div class="form-group col-md-4 col-sm-4 col-xs-12">
-            <label asp-for="Distrito" class="control-label">@Lb["Distrito"]:</label>
-            <select class="form-control" asp-for="Distrito"></select>
-        </div>
-        <div class="form-group col-md-8 col-sm-8 col-xs-12">
-            <label asp-for="OtrasSenas" class="control-label">@Lb["OtrasSenas"]:</label>
-            <textarea asp-for="OtrasSenas" maxlength="450" rows="4" class="form-control">@Model.OtrasSenas</textarea>
-            <span hidden id="otrasSenasValid" class="text-danger">@Lb["otrasSenasValid"]</span>
-        </div>
-
-
-
-
-        <div class="form-group col-md-12 col-sm-12 col-xs-12">
-            <label asp-for="Cliente" class="control-label">@Lb["Cliente"]</label>
-            <input asp-for="Cliente" type="checkbox" onchange="mostrarTipoCliente()" />
-        </div>
-
-        <div @tipoCliente class="tipoCliente">
-
-            <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                <label asp-for="IdTipoCliente" class="control-label">@Lb["Tipo"]:</label>
-                <select onchange="cargarFamiliaClientes(value)" asp-for="IdTipoCliente" class="form-control"><option value=""></option></select>
+            <div class="form-group col-md-2 col-sm-4 col-xs-12">
+                <label asp-for="Cedula" class="control-label"><span class="text-danger">*</span>@Lb["Cédula"]:</label>
+                <input asp-for="Cedula" class="form-control" />
+                <span hidden id="cedulaValid" class="text-danger">@Lb["cedulaValid"]</span>
+                <span hidden id="repetidoValid" class="text-danger">@Lb["repetidoValid"]</span>
             </div>
 
             <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                <label asp-for="IdFamiliaCliente" class="control-label">@Lb["Familia"]:</label>
-                <select onchange="cargarSubFamiliaClientes(value)" asp-for="IdFamiliaCliente" class="form-control"><option value=""></option></select>
+                <label asp-for="Telefono" class="control-label"><span class="text-danger">*</span>@Lb["Teléfono"]:</label>
+                <input asp-for="Telefono" type="text" class="form-control telefono" />
+                <span hidden id="telefonoValid" class="text-danger">@Lb["telefonoValid"]</span>
             </div>
-            <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
-                <label asp-for="IdSubFamiliaCliente" class="control-label">@Lb["Sub-Familia"]:</label>
-                <select asp-for="IdSubFamiliaCliente" class="form-control"><option value=""></option></select>
-            </div>
-
-            <div class="col-md-12 col-sm-12 col-xs-12"><h5>@Lb["CondicionesPago"]</h5></div>
-
-            <input readonly hidden id="idCPCliente" value="0" />
-
-            <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
-                <label for="plazoC" class="control-label">@Lb["PlazoCredito"] (@Lb["Días"]) :</label>
-                <input id="plazoC" type="text" class="form-control numerico" value="0" />
-            </div>
-            <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
-                <label for="montoMaxC" class="control-label">@Lb["MontoMaximo"]:</label>
-                <input id="montoMaxC" type="text" class="form-control moneda" value="0" />
+            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                <label asp-for="Correo" class="control-label"><span class="text-danger">*</span>@Lb["Correo"]:</label>
+                <input asp-for="Correo" class="form-control" />
+                <span hidden id="correoValid" class="text-danger">@Lb["correoValid"]</span>
+                <span hidden id="correoInvalido" class="text-danger">@Lb["correoInvalido"]</span>
             </div>
 
-        </div>
 
 
-        <div class="form-group col-md-12 col-sm-12 col-xs-12">
-            <label asp-for="Proveedor" class="control-label">@Lb["Proveedor"]</label>
-            <input asp-for="Proveedor" type="checkbox" onchange="mostrarTipoProveedor()" />
-        </div>
-        <div @tipoProveedor class="tipoProveedor">
-            <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
-                <label asp-for="IdTipoProveedor" class="control-label">@Lb["Tipo"]:</label>
-                <select onchange="cargarFamiliaProveedores(value)" asp-for="IdTipoProveedor" class="form-control"><option value=""></option></select>
+
+            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                <label asp-for="IdUsuario" class="control-label">@Lb["UsuarioEncargado"]:</label>
+
+                <select asp-for="IdUsuario" class="form-control">
+                    @foreach (var item in ViewData["usuarios"] as IList<TbSeUsuario>)
+                    {
+                        <option value="@item.Id">@item.Nombre</option>
+                    }
+                </select>
             </div>
 
-            <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
-                <label asp-for="IdFamiliaProveedor" class="control-label">@Lb["Familia"]:</label>
-                <select onchange="cargarSubFamiliaProveedores(value)" asp-for="IdFamiliaProveedor" class="form-control"><option value=""></option></select>
-            </div>
-            <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
-                <label asp-for="IdSubFamiliaProveedor" class="control-label">@Lb["Sub-Familia"]:</label>
-                <select asp-for="IdSubFamiliaProveedor" class="form-control"><option value=""></option></select>
+            <div class="form-group col-md-4 col-sm-4 col-xs-12" style="padding:0; margin:0; padding-left:1rem">
+                <label class="input-group-text" id="inputGroup-sizing-sm">@Lb["CargarImagen"] (6MB)</label>
+                <input type="file" accept="image/*" id="fileUploadC" class="jfilestyle" data-theme="blue" data-text="@Lb["Examinar"]">
+                <span hidden id="tamanoArchivoC" class="text-danger">@Lb["tamanoArchivo"]</span>
+                <span hidden id="tipoArchivoC" class="text-danger">@Lb["tipoArchivo"]</span>
             </div>
 
-            <div class="col-md-12 col-sm-12 col-xs-12"><h5>@Lb["CondicionesPago"]</h5></div>
-
-            <input readonly hidden id="idCPProveedor" value="0" />
-
-            <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
-                <label for="plazoP" class="control-label">@Lb["PlazoCredito"] (@Lb["Días"]):</label>
-                <input id="plazoP" type="text" class="form-control numerico" value="0" />
+            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                <label asp-for="WebLink" class="control-label">@Lb["PaginaWeb"]:</label>
+                <input asp-for="WebLink" maxlength="150" type="text" class="form-control" />
             </div>
 
-            <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
-                <label for="montoMaxP" class="control-label">@Lb["MontoMaximo"]:</label>
-                <input id="montoMaxP" type="text" class="form-control moneda" value="0" />
-            </div>
-        </div>
 
+            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                <label asp-for="MapLink" class="control-label">@Lb["LinkUbicacion"]:</label>
+                <input asp-for="MapLink" maxlength="500" type="text" class="form-control" />
+            </div>
+
+
+
+            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                <label asp-for="Pais" class="control-label">@Lb["País"]:</label>
+                <select onchange="getProvincias()" asp-for="Pais" class="form-control">
+                    @foreach (var item in ViewData["paises"] as IList<TbSePais>)
+                    {
+                        <option value="@item.Id">@item.NombreEs</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                <label asp-for="Provincia" class="control-label">@Lb["Provincia"]:</label>
+                <select onchange="getCantones(value)" class="form-control" asp-for="Provincia"></select>
+            </div>
+            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                <label asp-for="Canton" class="control-label">@Lb["Cantón"]:</label>
+                <select onchange="getDistritos(value)" class="form-control" asp-for="Canton"></select>
+            </div>
+
+            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                <label asp-for="Distrito" class="control-label">@Lb["Distrito"]:</label>
+                <select class="form-control" asp-for="Distrito"></select>
+            </div>
+            <div class="form-group col-md-8 col-sm-8 col-xs-12">
+                <label asp-for="OtrasSenas" class="control-label">@Lb["OtrasSenas"]:</label>
+                <textarea asp-for="OtrasSenas" maxlength="450" rows="4" class="form-control">@Model.OtrasSenas</textarea>
+                <span hidden id="otrasSenasValid" class="text-danger">@Lb["otrasSenasValid"]</span>
+            </div>
+
+
+
+
+            <div class="form-group col-md-12 col-sm-12 col-xs-12">
+                <label asp-for="Cliente" class="control-label">@Lb["Cliente"]</label>
+                <input asp-for="Cliente" type="checkbox" onchange="mostrarTipoCliente()" />
+            </div>
+
+            <div @tipoCliente class="tipoCliente">
+
+                <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                    <label asp-for="IdTipoCliente" class="control-label">@Lb["Tipo"]:</label>
+                    <select onchange="cargarFamiliaClientes(value)" asp-for="IdTipoCliente" class="form-control"><option value=""></option></select>
+                </div>
+
+                <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                    <label asp-for="IdFamiliaCliente" class="control-label">@Lb["Familia"]:</label>
+                    <select onchange="cargarSubFamiliaClientes(value)" asp-for="IdFamiliaCliente" class="form-control"><option value=""></option></select>
+                </div>
+                <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
+                    <label asp-for="IdSubFamiliaCliente" class="control-label">@Lb["Sub-Familia"]:</label>
+                    <select asp-for="IdSubFamiliaCliente" class="form-control"><option value=""></option></select>
+                </div>
+
+                <div class="col-md-12 col-sm-12 col-xs-12"><h5>@Lb["CondicionesPago"]</h5></div>
+
+                <input readonly hidden id="idCPCliente" value="0" />
+
+                <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
+                    <label for="plazoC" class="control-label">@Lb["PlazoCredito"] (@Lb["Días"]) :</label>
+                    <input id="plazoC" type="text" class="form-control numerico" value="0" />
+                </div>
+                <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
+                    <label for="montoMaxC" class="control-label">@Lb["MontoMaximo"]:</label>
+                    <input id="montoMaxC" type="text" class="form-control moneda" value="0" />
+                </div>
+
+            </div>
+
+
+            <div class="form-group col-md-12 col-sm-12 col-xs-12">
+                <label asp-for="Proveedor" class="control-label">@Lb["Proveedor"]</label>
+                <input asp-for="Proveedor" type="checkbox" onchange="mostrarTipoProveedor()" />
+            </div>
+            <div @tipoProveedor class="tipoProveedor">
+                <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
+                    <label asp-for="IdTipoProveedor" class="control-label">@Lb["Tipo"]:</label>
+                    <select onchange="cargarFamiliaProveedores(value)" asp-for="IdTipoProveedor" class="form-control"><option value=""></option></select>
+                </div>
+
+                <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
+                    <label asp-for="IdFamiliaProveedor" class="control-label">@Lb["Familia"]:</label>
+                    <select onchange="cargarSubFamiliaProveedores(value)" asp-for="IdFamiliaProveedor" class="form-control"><option value=""></option></select>
+                </div>
+                <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
+                    <label asp-for="IdSubFamiliaProveedor" class="control-label">@Lb["Sub-Familia"]:</label>
+                    <select asp-for="IdSubFamiliaProveedor" class="form-control"><option value=""></option></select>
+                </div>
+
+                <div class="col-md-12 col-sm-12 col-xs-12"><h5>@Lb["CondicionesPago"]</h5></div>
+
+                <input readonly hidden id="idCPProveedor" value="0" />
+
+                <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
+                    <label for="plazoP" class="control-label">@Lb["PlazoCredito"] (@Lb["Días"]):</label>
+                    <input id="plazoP" type="text" class="form-control numerico" value="0" />
+                </div>
+
+                <div class="form-group col-md-4 col-sm-4 col-xs-12 ">
+                    <label for="montoMaxP" class="control-label">@Lb["MontoMaximo"]:</label>
+                    <input id="montoMaxP" type="text" class="form-control moneda" value="0" />
+                </div>
+            </div>
+        </fieldset>
     </form>
 
     <hr />
@@ -274,7 +290,7 @@
 
 <div class="row">
     <div class="form-group col-md-3">
-        <button class="btn btn-success btnAccion" onclick="guardarCambios()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
+        <button @esPorDefectoPV class="btn btn-success btnAccion" onclick="guardarCambios()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
         <a onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
     </div>
 </div>
@@ -344,7 +360,14 @@
     var tipoClientesList = [];
     var tipoProveedoresList = [];
 
+    var esPorDefectoPV = "";
+
     $(document).ready(function () {
+
+        if ($('#esPorDefectoPV').val() == "True")
+            esPorDefectoPV = true;
+        else
+            esPorDefectoPV = false;
 
         if (@Model.IdContacto != 0) {
             getCondicionesPago();
@@ -745,6 +768,7 @@
             success: function (data) {
                 $('#relacionesContainer').html(data);
                 $('#relacionesTab').addClass('active');
+
             },
             error: function (err, scnd) {
                 console.log(err.statusText);
@@ -1045,20 +1069,20 @@
                         value = "checked='checked'";
 
                     input = '<div class="form-group col-md-4 col-sm-4 col-xs-12" >'
-                        + '<label style="padding-top:2.8rem" for="' + idC + '"> ' + data[i].nombre + ' <input onchange="editarCCPersonalizado(value, ' + contador + ', ' + idC + ')" id="' + idC + '" type="checkbox" ' + value + '  /></label>'
+                        + '<label style="padding-top:2.8rem" for="' + idC + '"> ' + data[i].nombre + ' <input @esPorDefectoPV onchange="editarCCPersonalizado(value, ' + contador + ', ' + idC + ')" id="' + idC + '" type="checkbox" ' + value + '  /></label>'
                         + '</div > ';
                 }
                 else if (data[i].tipo === "texto") {
                     input = '<div class="form-group col-md-4 col-sm-4 col-xs-12" >'
                         + '<label for="' + data[i].id + '">' + data[i].nombre + ':</label>'
-                        + '<input onchange="editarCCPersonalizado(value, ' + contador + ', null)" id="' + data[i].id + '" class="form-control" value="' + value + '" type="' + data[i].tipo + '" />'
+                        + '<input @esPorDefectoPV onchange="editarCCPersonalizado(value, ' + contador + ', null)" id="' + data[i].id + '" class="form-control" value="' + value + '" type="' + data[i].tipo + '" />'
                         + '</div>';
                 }
                 else if (data[i].tipo === "fecha") {
                     input = '<div class="form-group col-md-4 col-sm-4 col-xs-12" style="margin: 0; padding:0; margin-left:1rem">'
                         + '<label for="' + data[i].id + '">' + data[i].nombre + ':</label>'
                         + '<div class="input-group date fechaPickerCP" style="width:95%" >'
-                        + '<input onchange="editarCCPersonalizado(value, ' + contador + ', null)" id="' + data[i].id + '" class="form-control" value="' + value + '" type="text" />'
+                        + '<input @esPorDefectoPV onchange="editarCCPersonalizado(value, ' + contador + ', null)" id="' + data[i].id + '" class="form-control" value="' + value + '" type="text" />'
                         + '<span class="input-group-addon"><span class="fas fa-calendar"></span></span>'
                         + '</div>'
                         + '</div>';
@@ -1079,7 +1103,7 @@
 
                 input = '<div class="form-group col-md-4 col-sm-4 col-xs-12">'
                     + '<label for="' + data[i].id + '">' + data[i].nombre + ':</label>'
-                    + '<select onchange="editarCCPersonalizado(value, ' + contador + ', null)" id="' + data[i].id + '" class="form-control">'
+                    + '<select @esPorDefectoPV onchange="editarCCPersonalizado(value, ' + contador + ', null)" id="' + data[i].id + '" class="form-control">'
                     + valoresLista
                     + '</select></div>';
             }

@@ -18,12 +18,20 @@ namespace AltivaWebApp.Repositories
 
         public TbSePuntoVenta GetPuntoVentaById(int id)
         {
-            return context.TbSePuntoVenta.FirstOrDefault(d => d.IdPuntoVenta == id);
+            return context.TbSePuntoVenta
+                .Include(p => p.IdTipoPrecioDefectoNavigation)
+                .FirstOrDefault(d => d.IdPuntoVenta == id);
         }
 
-       
+        public bool ExistePuntoVentaValido()
+        {
+            return context.TbSePuntoVenta.Any(p => p.EsPorDefecto && !p.Inactivo && p.IdBodega != 0 && p.IdContactoClienteDefecto != 0 && p.IdTipoPrecioDefecto != 0 );
+        }
 
-       
+
+
+
+
 
     }
 }

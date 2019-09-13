@@ -35,6 +35,19 @@ namespace AltivaWebApp.Controllers
             ViewData["puntoVenta"] = pvService.GetAll();
             return View();
         }
+        [HttpGet("ValidarPV")]
+        public IActionResult ValidarPV()
+        {
+            try
+            {
+                return Ok(pvService.ExistePuntoVentaValido());
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+            }
+        }
 
         [HttpPost("_ListarFacturas")]
         public IActionResult _ListarFacturas(long pv)
