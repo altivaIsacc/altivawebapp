@@ -20,7 +20,7 @@ namespace AltivaWebApp.Repositories
 
             try
             {
-                context.TbFaRebajaConfigs.Add(domain);
+                context.TbFaRebajaConfig.Add(domain);
                 context.SaveChanges();
 
             }
@@ -33,7 +33,7 @@ namespace AltivaWebApp.Repositories
 
         public TbFaRebajaConfig GetRebajaConfig()
         {
-            return context.TbFaRebajaConfigs.FirstOrDefault();
+            return context.TbFaRebajaConfig.FirstOrDefault();
         }
     }
 }

@@ -61,6 +61,7 @@ namespace AltivaWebApp.Mappers
             domain.IdUsuario = viewModel.IdUsuario;
             domain.Estado = viewModel.Estado;
             domain.FechaModificacion = DateTime.Now;
+            domain.IdPuntoVenta = viewModel.IdPuntoVenta;
 
             return domain;
 
@@ -76,6 +77,7 @@ namespace AltivaWebApp.Mappers
                 IdUsuario = Convert.ToInt32(domain.IdUsuario),
                 Estado = Convert.ToInt32(domain.Estado),
                 FechaModificacion = domain.FechaModificacion,
+                IdPuntoVenta = domain.IdPuntoVenta
             };
 
             return viewModel;
@@ -86,8 +88,6 @@ namespace AltivaWebApp.Mappers
             try
             {
                 var caja = _Service.Save(ViewModelToDomain(viewModel));
-                var ac = caja.TbFaCajaAperturaDenominacion.First();
-
                 return caja;
             }
             catch (Exception ex)
@@ -122,6 +122,7 @@ namespace AltivaWebApp.Mappers
                     IdUsuario = viewModel.IdUsuario,
                     Estado = viewModel.Estado,
                     FechaModificacion=DateTime.Now,
+                    IdPuntoVenta = viewModel.IdPuntoVenta,
                     TbFaCajaAperturaDenominacion = ViewModelToDomainCD(viewModel),
                     TbFaCajaArqueoDenominacion= ViewModelToDomainAr(viewModel)
 
@@ -259,13 +260,13 @@ namespace AltivaWebApp.Mappers
             var domain = new TbFaCajaArqueo
             {
                 IdCajaArqueo = viewModel.IdCajaArqueo,
-                IdCaja = viewModel.IdCaja,
+                IdCaja = (long)viewModel.IdCaja,
                 FechaCreacion = fechaCreacion,
-                IdUsuario = viewModel.IdUsuario,
-                IdMoneda = viewModel.IdMoneda,
-                EfectivoReal = viewModel.EfectivoReal,
-                TarjetaReal = viewModel.TarjetaReal,
-                BancoReal = viewModel.BancoReal,
+                IdUsuario = (long)viewModel.IdUsuario,
+                IdMoneda = (int)viewModel.IdMoneda,
+                EfectivoReal = (double)viewModel.EfectivoReal,
+                TarjetaReal = (double)viewModel.TarjetaReal,
+                BancoReal = (double)viewModel.BancoReal,
             };
 
             return domain;

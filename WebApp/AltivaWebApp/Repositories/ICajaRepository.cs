@@ -1,4 +1,5 @@
 ﻿using AltivaWebApp.Domains;
+using AltivaWebApp.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ namespace AltivaWebApp.Repositories
 {
    public interface ICajaRepository
     {
-        IList<TbFaCaja> GetInfoCaja();
+        IList<TbFaCaja> GetInfoCaja(FiltroFechaViewModel _filtroFecha, long _filtroNum, long _filtroPV);
         TbFaCaja Save(TbFaCaja domain);
         TbFaCaja Update(TbFaCaja domain);
         IList<TbFaCaja> GetAllCajas();

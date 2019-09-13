@@ -23,13 +23,14 @@ namespace AltivaWebApp.Controllers
         private readonly ICajaMap _Map;
         private readonly IUserService _UserService;
         private readonly IMonedaService _MonedaService;
-
-        public CajaController(ICajaService Service, ICajaMap map, IUserService userService, IMonedaService monedaService)
+        private readonly IPuntoVentaService _PVService;
+        public CajaController(IPuntoVentaService pvService, ICajaService Service, ICajaMap map, IUserService userService, IMonedaService monedaService)
         {
             _Service = Service;
             _Map = map;
             _UserService = userService;
             _MonedaService = monedaService;
+            _PVService = pvService;
         }
 
         [HttpGet("Caja-Apertura")]
@@ -106,7 +107,17 @@ namespace AltivaWebApp.Controllers
 
         public IActionResult ListarCajas()
         {
+            ViewData["usuarios"] = _UserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+            ViewData["puntoVenta"] = _PVService.GetAll();
             return View();
+        }
+        
+        [HttpPost("_ListarCajas")]
+        public IActionResult _ListarCajas(FiltroFechaViewModel filtroFecha, long filtroNum, long filtroPV)
+        {
+            ViewData["usuarios"] = _UserService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
+            
+            return PartialView(_Service.GetInfoCaja(filtroFecha, filtroNum, filtroPV));
         }
 
         [HttpGet("ListarCajas")]
@@ -114,12 +125,13 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                //var CotizacionProducto = new List<TbFaCotizacion>();
-                var Cajas = _Service.GetInfoCaja();        
+
+
+                var Cajas = _Service.GetAllCajas();
                 return Ok(Cajas);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return BadRequest();
@@ -193,7 +205,7 @@ namespace AltivaWebApp.Controllers
             try
             {
                 //var CotizacionProducto = new List<TbFaCotizacion>();
-                var Cajas = _Service.GetInfoCaja();
+                var Cajas = _Service.GetAllCajas();
                 return Ok(Cajas);
 
             }

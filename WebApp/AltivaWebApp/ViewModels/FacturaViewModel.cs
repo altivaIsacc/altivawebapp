@@ -9,6 +9,7 @@ namespace AltivaWebApp.ViewModels
     {
         public long Id { get; set; }
         public byte Tipo { get; set; }
+        public long Consecutivo { get; set; }
         public DateTime FechaFactura { get; set; }
         public long IdCliente { get; set; }
         public long IdPuntoVenta { get; set; }
