@@ -479,7 +479,7 @@ namespace AltivaWebApp.Mappers
             if (tr.Count() == 0 || tr == null)
                 return false;
 
-            var domain = trService.GetTrasladoById((long)tr.First().IdTraslado);
+            var domain = trService.GetTrasladoById((long)tr.First().IdTraslado);//adquiere lo que tenia ese item en el pasado
             var kardex = new List<TbPrKardex>();
 
             foreach (var item in tr)
