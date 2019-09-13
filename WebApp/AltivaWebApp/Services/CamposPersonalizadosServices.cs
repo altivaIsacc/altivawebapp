@@ -26,9 +26,14 @@ namespace AltivaWebApp.Services
             return this.pIcamposPersonalizados.Update(domain);
         }
 
-        public IList<TbCrCamposPersonalizados> GetAll(int idContacto)
+        public IList<TbCrCamposPersonalizados> GetCamposContacto(int idContacto)
         {
             return this.pIcamposPersonalizados.GetCampos(idContacto);
+        }
+
+        public IList<TbCrCamposPersonalizados> GetAll()
+        {
+            return this.pIcamposPersonalizados.GetAll();
         }
 
         public TbCrCamposPersonalizados getById(int id)

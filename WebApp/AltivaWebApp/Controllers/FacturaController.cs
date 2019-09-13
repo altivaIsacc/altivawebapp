@@ -19,18 +19,30 @@ namespace AltivaWebApp.Controllers
         private readonly IFacturaService service;
         private readonly IUserService userService;
         private readonly IContactoService contactoService;
-        public FacturaController(IFacturaMap map, IFacturaService service, IUserService userService, IContactoService contactoService)
+        private readonly IPuntoVentaService pvService;
+        public FacturaController(IPuntoVentaService pvService, IFacturaMap map, IFacturaService service, IUserService userService, IContactoService contactoService)
         {
             this.map = map;
             this.service = service;
             this.userService = userService;
             this.contactoService = contactoService;
+            this.pvService = pvService;
         }
 
         [Route("Todo")]
         public IActionResult ListarFacturas()
         {
+            ViewData["puntoVenta"] = pvService.GetAll();
             return View();
+        }
+
+        [HttpPost("_ListarFacturas")]
+        public IActionResult _ListarFacturas(long pv)
+        {
+            if (pv != 0)
+                return PartialView(service.GetAllFacturas().Where(f => f.IdPuntoVenta == pv).ToList());
+            else
+                return PartialView(service.GetAllFacturas());
         }
 
         [Route("Nueva")]

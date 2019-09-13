@@ -78,7 +78,7 @@ namespace AltivaWebApp.Mappers
                 IdVendedor = viewModel.IdVendedor,
                 PorcDescuento = viewModel.PorcDescuento,
                 Tipo = viewModel.Tipo,
-                
+                IdPuntoVenta = viewModel.IdPuntoVenta,
                 TbFdFacturaDetalle = viewModel.FacturaDetalle != null ? ViewModelToDomainFD(viewModel) : null
             };
 
@@ -223,6 +223,7 @@ namespace AltivaWebApp.Mappers
                 IdVendedor = domain.IdVendedor,
                 PorcDescuento = domain.PorcDescuento,
                 Tipo = domain.Tipo,
+                IdPuntoVenta = domain.IdPuntoVenta
 
             };
 

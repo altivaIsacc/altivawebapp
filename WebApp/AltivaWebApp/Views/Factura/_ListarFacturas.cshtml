@@ -1,0 +1,112 @@
+﻿@model IList<AltivaWebApp.Domains.TbFdFactura>
+@inject IStringLocalizer<SharedResources> Lb
+
+<div class="table-responsive">
+    <table id="tblFacturas" class="table table-bordered">
+        <thead>
+            <tr>
+                <th>
+                    @Lb["N."]
+                </th>
+                <th>
+                    @Lb["Tipo"]
+                </th>
+                <th>
+                    @Lb["Fecha"]
+                </th>
+                <th>
+                    @Lb["Cliente"]
+                </th>
+                <th>@Lb["PV"]</th>
+                <th>
+                    @Lb["Estado"]
+                </th>
+                <th>@Lb["Acción"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    @{
+                        var tipo = item.Tipo == 1 ? Lb["Contado"] : Lb["Crédito"];
+                    }
+                    <td>@tipo</td>
+                    <td>@item.FechaFactura</td>
+                    @{
+                        var cliente = item.IdClienteNavigation.Persona ? item.IdClienteNavigation.Nombre + " " + item.IdClienteNavigation.Apellidos : item.IdClienteNavigation.NombreComercial;
+                    }
+                    <td>@cliente</td>
+                    <td>@item.IdPuntoVentaNavigation.Nombre</td>
+                    <td>@item.Estado</td>
+                    <td><a href="@Url.Action("EditarFactura", new { id = item.Id })" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+
+    var tblFacturas;
+
+    $(document).ready(function () {
+
+       // inicializarTabla();
+        
+
+    });
+
+
+    
+    function filtroPuntoVenta(value) {
+        
+        tblFacturas
+            .columns(5)
+            .search(value)
+            .draw();
+    }
+
+
+    function inicializarTabla() {
+
+        
+
+        tblFacturas = $('#tblFacturas').DataTable({
+            "info": false,
+            "bSort": false,
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            }
+        });
+
+        //$(".dataTables_searching").hide();
+    }
+
+</script>
+
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

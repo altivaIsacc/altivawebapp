@@ -121,7 +121,7 @@ else
         }
         <div class="col-md-2 col-sm-4 col-xs-12">
             <label>@Lb["DescuentoGeneral"]:</label>
-            <input id="lbDescuentoGlobal" class="form-control numerico" type="text" min="0" value="0" />
+            <input id="lbDescuentoGlobal" class="form-control porcentaje" type="text" min="0" value="0" />
         </div>
 
         <div class="col-md-2 col-sm-4 col-xs-12" style="margin-top:28px;">
@@ -148,23 +148,22 @@ else
     </div>
     <div class="form-group col-md-2 col-sm-2 col-xs-12">
         <label class="control-label">@Lb["Descuento"]:</label>
-        <input id="lbDescuento" class="form-control numerico cantidad" onkeyup="pasarSigCampo(event,'lbCostoPromedio')" type="text" value="0" />
+        <input id="lbDescuento" class="form-control porcentaje" onkeyup="pasarSigCampo(event,'lbCostoPromedio')" type="text" value="0" />
     </div>
     <div class="form-group col-md-2 col-sm-2 col-xs-12">
         <label class="control-label">@Lb["PrecioUnitario"]:</label>
-        <input id="lbCostoPromedio" onkeyup="pasarSigCampo(event,'guardar')" class="form-control moneda numerico" min="1" type="text" />
+        <input id="lbCostoPromedio" onkeyup="pasarSigCampo(event,'guardar')" class="form-control moneda" min="1" type="text" />
     </div>
 
     <div class="form-group col-md-2 col-sm-2 col-xs-10">
         <label class="control-label">@Lb["Total"]:</label>
-        <input type="text" class="form-control moneda numerico " readonly id="lbTotal" />
+        <input type="text" class="form-control moneda " readonly id="lbTotal" />
     </div>
 
     <div class="form-group col-md-1 col-sm-1 col-xs-2" style="padding-top: 2.3rem;">
         <button onkeyup="pasarSigCampo(event,'ddInventario')" onclick="guardarCambios()" id="guardar" class="btn btn-success"><span><i class="fas fa-save"></i></span></button>
     </div>
     <div class="col-md-6"><label id="lbExistencia"></label></div>
-
 
 </div>
 <div class="form-group">
@@ -343,6 +342,19 @@ else
 
         });
 
+        $(".moneda").inputmask('currency', {
+            prefix: " ",
+            rightAlign: true,
+            min: 0
+        });
+
+        $(".porcentaje").inputmask({
+            'alias': 'percentage',
+            rightAlign: false,
+            min: 0,
+            max: 100
+        });
+
         $(".cantidad").inputmask({
 
             'alias': 'decimal',
@@ -396,10 +408,10 @@ else
                cargarAlert('@Lb["errorGeneral"]');
             }
         });
-    }
+     }
 
-        function getClientes() {
-            $.ajax({
+    function getClientes() {
+        $.ajax({
                 type: "get",
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
@@ -415,10 +427,10 @@ else
                     cargarAlert('@Lb["errorGeneral"]');
                     console.log(err.statusText);
                 }
-            });
-        }
+        });
+    }
 
-            function getMonedas() {
+    function getMonedas() {
          $.ajax({
               type: "get",
               headers: {
@@ -445,7 +457,7 @@ else
           });
     }
 
-                function getUsuarios() {
+    function getUsuarios() {
          $.ajax({
               type: "get",
               headers: {
@@ -464,9 +476,9 @@ else
                   console.log(err.statusText);
               }
           });
-        }
+    }
 
-       function getIdUsuarioLogueado() {
+    function getIdUsuarioLogueado() {
          $.ajax({
               type: "get",
               headers: {
@@ -482,7 +494,7 @@ else
                   cargarAlert('@Lb["errorGeneral"]');
                   console.log(err.statusText);
               }
-          });
+         });
     }
 
     function GetUsuarioLogueado() {
@@ -490,16 +502,16 @@ else
         for (var i = 0; i <Usuarios.length; i++) {
             if (Usuarios[i].id === IdUsuarioLogueado) {
                 $("#lbCreador").val(Usuarios[i].nombre);
-                    if (@Model.IdCotizacion != 0) {
+                if (@Model.IdCotizacion != 0) {
                         $Creador.val(@Model.IdUsuarioCreador);
-                 }
+                }
             }
-          }
         }
+    }
 
-          function getInventario() {
+    function getInventario() {
             ///get inventario
-            $.ajax({
+        $.ajax({
 
             type: "get",
             headers: {
@@ -507,28 +519,27 @@ else
             },
             dataType: "json",
             url: '@Url.Action("GetAllInventario", "Inventario")',
-                success: function (data) {
-               cargarddInventario(data);
-                    _Inventario = data;
+            success: function (data) {
+                cargarddInventario(data);
+                _Inventario = data;
                 inventario = JSON.parse(JSON.stringify(data));
             },
             error: function (err, scnd) {
                 console.log(err.statusText);
             }
-            });
+        });
+    }
+
+
+    function existeItem(id) {
+        var flag = false;
+        for (var i = 0; i < _Inventario.length; i++) {
+
+            if (parseInt(_Inventario[i].idInventario) === parseInt(id))
+                flag = true;
         }
-
-
-
-        function existeItem(id) {
-            var flag = false;
-            for (var i = 0; i < _Inventario.length; i++) {
-
-                if (parseInt(_Inventario[i].idInventario) === parseInt(id))
-                    flag = true;
-            }
-            return flag;
-        }
+        return flag;
+    }
 
     function validarLinea() {
 
@@ -546,14 +557,13 @@ else
 
 
 
-        function formatearFechaCotizacion() {
+    function formatearFechaCotizacion() {
 
-            if (@Model.IdCotizacion!= 0) {
-                 return '@Model.FechaCotizacion.Month' + "-" + '@Model.FechaCotizacion.Day' + "-" + '@Model.FechaCotizacion.Year';
-            } else {
-                return new Date;
-            }
-
+        if (@Model.IdCotizacion!= 0) {
+            return '@Model.FechaCotizacion.Month' + "-" + '@Model.FechaCotizacion.Day' + "-" + '@Model.FechaCotizacion.Year';
+        } else {
+            return new Date;
+        }
 
     }
 
@@ -570,7 +580,10 @@ else
             for (var i = 0; i < _Inventario.length; i++) {
                 if (_Inventario[i].idInventario === parseInt($(this).val())) {
                     _Existencia = "Existencia: " + _Inventario[i].existenciaGeneral;
-                    _ImpuestoV =parseFloat( _Inventario[i].impuestoVenta);
+                    _ImpuestoV = parseFloat(_Inventario[i].impuestoVenta);
+
+                    console.log(_Inventario[i].codigoMonedaVenta);
+
                     switch (parseInt(_Inventario[i].codigoMonedaVenta)) {
                         case 1:
                             if ($("#ddMoneda").val() === "1") {
@@ -647,24 +660,25 @@ else
         CalcularTotalesCotizacion(lineas, parseInt($(this).val()))
     });
 
-        $("#lbCantidad").on('focusout', function () {
-            if ($(this).val() <= 0 || $(this).val() === "")
-                $(this).val(1);
+    $("#lbCantidad").on('focusout', function () {
 
-            setTotalLinea();
+        if ($(this).inputmask('unmaskedvalue') <= 0 || $(this).inputmask('unmaskedvalue') === null)
+            $(this).val(1);
+
+        setTotalLinea();
     });
 
 
 
     $("#lbDescuento").on('focusout', function () {
 
-        if ($(this).val() != 0) {
+        if ($(this).inputmask('unmaskedvalue') != 0 && $(this).inputmask('unmaskedvalue') != null ) {
 
-            if ($(this).val() < 0) {
+            if ($(this).inputmask('unmaskedvalue') < 0) {
                 $(this).val(0);
             }
 
-            if ($(this).val() > 100) {
+            if ($(this).inputmask('unmaskedvalue') > 100) {
                 $(this).val(100);
             }
 
@@ -674,20 +688,20 @@ else
 
     $("#lbDescuentoGlobal").on('focusout', function () {
 
-        if ($(this).val() != 0) {
+        if ($(this).inputmask('unmaskedvalue') != 0 && $(this).inputmask('unmaskedvalue') != null) {
 
-            if ($(this).val() > 100) {
+            if ($(this).inputmask('unmaskedvalue') > 100) {
                 $(this).val(100);
             }
 
-            if ($(this).val() < 0) {
+            if ($(this).inputmask('unmaskedvalue') < 0) {
                 $(this).val(0);
             }
 
-            $porcDescuento.val($(this).val());
+            $porcDescuento.val($(this).inputmask('unmaskedvalue'));
             $porcDescuento.prop('disabled', true);
             $("#lbExistencia").text(0);
-            ActualizarLineasDescuento($(this).val(), $Moneda.val());
+            ActualizarLineasDescuento($(this).inputmask('unmaskedvalue'), $Moneda.val());
 
         } else {
 
@@ -695,7 +709,7 @@ else
             $porcDescuento.val(0);
             $porcDescuentoGlobal.val(0);
             $("#lbExistencia").text(0);
-            ActualizarLineasDescuento($(this).val(), $Moneda.val());
+            ActualizarLineasDescuento($(this).inputmask('unmaskedvalue'), $Moneda.val());
         }
 
         setTotalLinea();
@@ -704,19 +718,19 @@ else
 
 
 
-        $("#lbCostoPromedio").on('focusout', function () {
-            if ($(this).val() <= 0 || $(this).val() === "")
-                $(this).val(1);
+    $("#lbCostoPromedio").on('focusout', function () {
+        if ($(this).inputmask('unmaskedvalue') <= 0 || $(this).inputmask('unmaskedvalue') === null)
+            $(this).val(1);
 
-            setTotalLinea();
+        setTotalLinea();
     });
 
-        function setTotalLinea() {
-            var precio = parseFloat($("#lbCostoPromedio").val());
-            var cantidad = parseFloat($("#lbCantidad").val());
-            var porcdescuento = parseFloat($("#lbDescuento").val());
-            var descuento = parseFloat(((precio * cantidad) * porcdescuento) / 100);
-            $("#lbTotal").val((cantidad * precio)-descuento);
+    function setTotalLinea() {
+        var precio = parseFloat($("#lbCostoPromedio").inputmask('unmaskedvalue'));
+        var cantidad = parseFloat($("#lbCantidad").inputmask('unmaskedvalue'));
+        var porcdescuento = parseFloat($("#lbDescuento").inputmask('unmaskedvalue'));
+        var descuento = parseFloat(((precio * cantidad) * porcdescuento) / 100);
+        $("#lbTotal").val((cantidad * precio) - descuento);        
 
     }
 
@@ -862,7 +876,7 @@ else
         CalcularTotalesCotizacion(_lineaDetalle, $('#ddMoneda').val());
     }
 
-        function Descuento() {
+    function Descuento() {
 
         if (@Model.IdCotizacion!= 0) {
             $porcDescuentoGlobal.val(@Model.PorcDescuentoBase);
@@ -870,8 +884,8 @@ else
             $porcDescuentoGlobal.val(0);
         }
 
-        if (parseInt( $porcDescuentoGlobal.val()) != 0) {
-            $porcDescuento.val($porcDescuentoGlobal.val());
+        if (parseInt($('#lbDescuentoGlobal').inputmask('unmaskedvalue')) != 0 && $('#lbDescuentoGlobal').inputmask('unmaskedvalue') != null) {
+            $porcDescuento.val($('#lbDescuentoGlobal').inputmask('unmaskedvalue'));
             $porcDescuento.prop('disabled', true);
         }
     }
@@ -900,9 +914,9 @@ else
                 var o = "<option value=" + usuarios[i].id + ">" + usuarios[i].nombre + "</option>";
                 $("#ddVendedor").append(o);
             }
-                if (@Model.IdCotizacion != 0) {
-                    $Vendedor.val(@Model.IdVendedor);
-                 }
+            if (@Model.IdCotizacion != 0) {
+                $Vendedor.val(@Model.IdVendedor);
+            }
         }
 
         function cargarddClientes(clientes) {      
@@ -1155,7 +1169,7 @@ else
     function guardarCambios() {
              if ($('#ddClientes option:selected').val() != 0 && $('#ddMoneda option:selected').val() != 0 && $('#ddVendedor option:selected').val() != 0) {
 
-                 if ($('#ddInventario option:selected').val() != 0 && $('#lbCostoPromedio').val() != "" && $('#lbCostoPromedio').val() != 0) {
+                 if ($('#ddInventario option:selected').val() != 0 && $('#lbCostoPromedio').inputmask('unmaskedvalue') != null && $('#lbCostoPromedio').inputmask('unmaskedvalue') != 0) {
                      guardarLinea();
                      guardarCotizacion();
                  } else {
@@ -1299,7 +1313,7 @@ else
                     break;
             }
 
-          ordenModel = {
+            ordenModel = {
                 idCotizacion: @Model.IdCotizacion,
                 fechaCotizacion: _fechaCotizacion,
                 idCliente: $("#ddClientes option:selected").val(),
@@ -1318,7 +1332,7 @@ else
                 subTotalExcentoBase: subTotalExcentoBaseGlobal.toString().replace(".",","),
                 subTotalExcentoDolar: 0,
                 subTotalExcentoEuro: 0,
-                porcDescuentoBase: $porcDescuentoGlobal.val().toString().replace(".",","),
+                porcDescuentoBase: $('#lbDescuentoGlobal').inputmask('unmaskedvalue').replace(".", ","),
                 totalDescuentoBase: totalDescuentoBaseGlobal.toString().replace(".",","),
                 totalDescuentoDolar: 0,
                 totalDescuentoEuro: 0,
@@ -1345,7 +1359,7 @@ else
             _fechaVencimiento = $FechaVencimiento.val();
             _estado = "Borrador";
 
-              ordenModel = {
+            ordenModel = {
                 idCotizacion: @Model.IdCotizacion,
                 fechaCotizacion: _fechaCotizacion,
                 idCliente: $("#ddClientes option:selected").val(),
@@ -1363,7 +1377,7 @@ else
                 subTotalExcentoBase: subTotalExcentoBaseGlobal.toString().replace(".",","),
                 subTotalExcentoDolar: 0,
                 subTotalExcentoEuro: 0,
-                porcDescuentoBase: $porcDescuentoGlobal.val().toString().replace(".",","),
+                porcDescuentoBase: $('#lbDescuentoGlobal').inputmask('unmaskedvalue').replace(".",","),
                 totalDescuentoBase: totalDescuentoBaseGlobal.toString().replace(".",","),
                 totalDescuentoDolar: 0,
                 totalDescuentoEuro: 0,
@@ -1453,21 +1467,21 @@ else
 
     function eliminarDetalleDB(_id, idLinea) {
                 if (idLinea != 0) {
-                     $.ajax({
-                    type: "POST",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                    },
-                    dataType: "json",
-                    url: '@Url.Action("EliminarCotizacionDetalle")',
-                    data: { idCD: idLinea },
-                    success: function (data) {
-                        eliminarLinea(_id);
-                    },
-                    error: function (err, scnd) {
-                        cargarAlert('@Lb["errorGeneral"]');
-                        console.log(err.statusText);
-                    }
+                    $.ajax({
+                        type: "POST",
+                        headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        dataType: "json",
+                        url: '@Url.Action("EliminarCotizacionDetalle")',
+                        data: { idCD: idLinea },
+                        success: function (data) {
+                            eliminarLinea(_id);
+                        },
+                        error: function (err, scnd) {
+                            cargarAlert('@Lb["errorGeneral"]');
+                            console.log(err.statusText);
+                        }
                     });
                 }
                 else
@@ -1550,7 +1564,7 @@ else
                     }
                 }
 
-            descuento = $porcDescuentoGlobal.val();
+            descuento = $('#lbDescuentoGlobal').inputmask('unmaskedvalue');
 
             LineasDetalle[i].porcDescuento = descuento;
 
@@ -1724,47 +1738,46 @@ else
 
             case 1:
 
-                    model = {
-                            idCotizacionDetalle: 0,
-                            idInventario: $("#ddInventario").val(),
-                            precioBase:parseFloat( $precio.val()),
-                            precioDolar: parseFloat($precio.val()/CambioDolar),
-                            precioEuro: parseFloat($precio.val()/CambioEuro),
-                            fechaCreacion:$("#fecha").val(),
-                            idUsuarioCreador: IdUsuarioLogueado,
-                            subTotalBase: fnSubTotalBase($("#ddInventario").val()),
-                            subTotalDolar: parseFloat( (fnSubTotalBase($("#ddInventario").val()))/CambioDolar),
-                            subTotalEuro: parseFloat( (fnSubTotalBase($("#ddInventario").val()))/CambioEuro),
-                            subTotalGravadoBase: fnSubTotalGravadoBase($("#ddInventario").val()),
-                            subTotalGravadoDolar: parseFloat((fnSubTotalGravadoBase($("#ddInventario").val()))/CambioDolar),
-                            subTotalGravadoEuro:parseFloat(( fnSubTotalGravadoBase($("#ddInventario").val()))/CambioEuro),
-                            subTotalExcentoBase: fnSubTotalExcentoBase($("#ddInventario").val()),
-                            subTotalExcentoDolar: parseFloat((fnSubTotalExcentoBase($("#ddInventario").val()))/CambioDolar),
-                            subTotalExcentoEuro:parseFloat( (fnSubTotalExcentoBase($("#ddInventario").val()))/CambioEuro),
-                            porcDescuento:$porcDescuento.val(),
-                            totalDescuentoBase: fnTotalDescuentoBase($("#ddInventario").val()),
-                            totalDescuentoDolar: parseFloat((fnTotalDescuentoBase($("#ddInventario").val()))/CambioDolar),
-                            totalDescuentoEuro: parseFloat((fnTotalDescuentoBase($("#ddInventario").val()))/CambioEuro),
-                            subTotalGravadoNetoBase: fnSubTotalGravadoNetoBase($("#ddInventario").val()),
-                            subTotalGravadoNetoDolar:parseFloat(( fnSubTotalGravadoNetoBase($("#ddInventario").val()))/CambioDolar),
-                            subTotalGravadoNetoEuro:parseFloat(( fnSubTotalGravadoNetoBase($("#ddInventario").val()))/CambioEuro),
-                            subTotalExcentoNetoBase: fnSubTotalExcentoNetoBase($("#ddInventario").val()),
-                            subTotalExcentoNetoDolar: parseFloat(( fnSubTotalExcentoNetoBase($("#ddInventario").val()))/CambioDolar),
-                            subTotalExcentoNetoEuro:parseFloat(( fnSubTotalExcentoNetoBase($("#ddInventario").val()))/CambioEuro),
-                            montoIvaBase: fnMontoIvaBase($("#ddInventario").val()),
-                            montoIvaDolar:parseFloat(( fnMontoIvaBase($("#ddInventario").val()))/CambioDolar),
-                            montoIvaEuro:parseFloat(( fnMontoIvaBase($("#ddInventario").val()))/CambioEuro),
-                            totalBase: fnTotalBase($("#ddInventario").val()),
-                            totalDolar:parseFloat(( fnTotalBase($("#ddInventario").val()))/CambioDolar),
-                            totalEuro:parseFloat(( fnTotalBase($("#ddInventario").val()))/CambioEuro),
-                            idCotizacion:@Model.IdCotizacion,
-                            cantidad: parseFloat($cantidad.val())
-
+                model = {
+                        idCotizacionDetalle: 0,
+                        idInventario: $("#ddInventario").val(),
+                        precioBase: parseFloat($('#lbCostoPromedio').inputmask('unmaskedvalue')),
+                        precioDolar: parseFloat($('#lbCostoPromedio').inputmask('unmaskedvalue')/CambioDolar),
+                        precioEuro: parseFloat($('#lbCostoPromedio').inputmask('unmaskedvalue')/CambioEuro),
+                        fechaCreacion:$("#fecha").val(),
+                        idUsuarioCreador: IdUsuarioLogueado,
+                        subTotalBase: fnSubTotalBase($("#ddInventario").val()),
+                        subTotalDolar: parseFloat( (fnSubTotalBase($("#ddInventario").val()))/CambioDolar),
+                        subTotalEuro: parseFloat( (fnSubTotalBase($("#ddInventario").val()))/CambioEuro),
+                        subTotalGravadoBase: fnSubTotalGravadoBase($("#ddInventario").val()),
+                        subTotalGravadoDolar: parseFloat((fnSubTotalGravadoBase($("#ddInventario").val()))/CambioDolar),
+                        subTotalGravadoEuro:parseFloat(( fnSubTotalGravadoBase($("#ddInventario").val()))/CambioEuro),
+                        subTotalExcentoBase: fnSubTotalExcentoBase($("#ddInventario").val()),
+                        subTotalExcentoDolar: parseFloat((fnSubTotalExcentoBase($("#ddInventario").val()))/CambioDolar),
+                        subTotalExcentoEuro:parseFloat( (fnSubTotalExcentoBase($("#ddInventario").val()))/CambioEuro),
+                        porcDescuento: $('#lbDescuento').inputmask('unmaskedvalue'),
+                        totalDescuentoBase: fnTotalDescuentoBase($("#ddInventario").val()),
+                        totalDescuentoDolar: parseFloat((fnTotalDescuentoBase($("#ddInventario").val()))/CambioDolar),
+                        totalDescuentoEuro: parseFloat((fnTotalDescuentoBase($("#ddInventario").val()))/CambioEuro),
+                        subTotalGravadoNetoBase: fnSubTotalGravadoNetoBase($("#ddInventario").val()),
+                        subTotalGravadoNetoDolar:parseFloat(( fnSubTotalGravadoNetoBase($("#ddInventario").val()))/CambioDolar),
+                        subTotalGravadoNetoEuro:parseFloat(( fnSubTotalGravadoNetoBase($("#ddInventario").val()))/CambioEuro),
+                        subTotalExcentoNetoBase: fnSubTotalExcentoNetoBase($("#ddInventario").val()),
+                        subTotalExcentoNetoDolar: parseFloat(( fnSubTotalExcentoNetoBase($("#ddInventario").val()))/CambioDolar),
+                        subTotalExcentoNetoEuro:parseFloat(( fnSubTotalExcentoNetoBase($("#ddInventario").val()))/CambioEuro),
+                        montoIvaBase: fnMontoIvaBase($("#ddInventario").val()),
+                        montoIvaDolar:parseFloat(( fnMontoIvaBase($("#ddInventario").val()))/CambioDolar),
+                        montoIvaEuro:parseFloat(( fnMontoIvaBase($("#ddInventario").val()))/CambioEuro),
+                        totalBase: fnTotalBase($("#ddInventario").val()),
+                        totalDolar:parseFloat(( fnTotalBase($("#ddInventario").val()))/CambioDolar),
+                        totalEuro:parseFloat(( fnTotalBase($("#ddInventario").val()))/CambioEuro),
+                        idCotizacion:@Model.IdCotizacion,
+                        cantidad: parseFloat($('#lbCantidad').inputmask('unmaskedvalue'))                    
         };
                 break;
             case 2:
 
-                precioBase = parseFloat($precio.val() * CambioDolar);
+                precioBase = parseFloat($('#lbCostoPromedio').inputmask('unmaskedvalue') * CambioDolar);
                 subTotalBase = parseFloat((fnSubTotalBase($("#ddInventario").val())) * CambioDolar);
                 subTotalGravadoBase =parseFloat( (fnSubTotalGravadoBase($("#ddInventario").val()))*CambioDolar );
                 subTotalExcentobase = parseFloat((fnSubTotalExcentoBase($("#ddInventario").val()))*CambioDolar);
@@ -1774,47 +1787,47 @@ else
                 montoIvaBase =parseFloat( (fnMontoIvaBase($("#ddInventario").val()))*CambioDolar);
                 totalBase = parseFloat((fnTotalBase($("#ddInventario").val())) * CambioDolar);
 
-                  model = {
-                            idCotizacionDetalle: 0,
-                            idInventario: $("#ddInventario").val(),
-                            precioBase:parseFloat( precioBase),
-                            precioDolar: parseFloat($precio.val()),
-                            precioEuro:parseFloat( precioBase/CambioEuro),
-                            fechaCreacion:$("#fecha").val(),
-                            idUsuarioCreador: IdUsuarioLogueado,
-                            subTotalBase:parseFloat( subTotalBase),
-                            subTotalDolar: parseFloat( (fnSubTotalBase($("#ddInventario").val()))),
-                            subTotalEuro: parseFloat( subTotalBase/CambioEuro),
-                            subTotalGravadoBase:parseFloat( subTotalGravadoBase),
-                            subTotalGravadoDolar: parseFloat((fnSubTotalGravadoBase($("#ddInventario").val()))),
-                            subTotalGravadoEuro:parseFloat(subTotalGravadoBase/CambioEuro),
-                            subTotalExcentoBase:parseFloat( subTotalExcentobase),
-                            subTotalExcentoDolar: parseFloat(fnSubTotalExcentoBase($("#ddInventario").val())),
-                            subTotalExcentoEuro:parseFloat(subTotalExcentobase/CambioEuro),
-                            porcDescuento:$porcDescuento.val(),
-                            totalDescuentoBase:parseFloat( totalDescuentoBase),
-                      totalDescuentoDolar: parseFloat(fnTotalDescuentoBase($("#ddInventario").val())),
-                            totalDescuentoEuro:parseFloat(totalDescuentoBase/CambioEuro),
-                            subTotalGravadoNetoBase:parseFloat( subTotalGravadoNetoBase) ,
-                            subTotalGravadoNetoDolar:parseFloat(( fnSubTotalGravadoNetoBase($("#ddInventario").val()))),
-                            subTotalGravadoNetoEuro:parseFloat(subTotalGravadoNetoBase/CambioEuro),
-                            subTotalExcentoNetoBase:parseFloat( subTotalExcentoNetoBase),
-                            subTotalExcentoNetoDolar: parseFloat(( fnSubTotalExcentoNetoBase($("#ddInventario").val()))),
-                            subTotalExcentoNetoEuro:parseFloat(subTotalExcentoNetoBase/CambioEuro),
-                            montoIvaBase:parseFloat( montoIvaBase) ,
-                            montoIvaDolar:parseFloat(( fnMontoIvaBase($("#ddInventario").val()))),
-                            montoIvaEuro:parseFloat(montoIvaBase/CambioEuro),
-                            totalBase:parseFloat( totalBase),
-                            totalDolar:parseFloat(( fnTotalBase($("#ddInventario").val()))),
-                            totalEuro:parseFloat(totalBase/CambioEuro),
-                            idCotizacion:@Model.IdCotizacion,
-                            cantidad: parseFloat($cantidad.val())
+                model = {
+                    idCotizacionDetalle: 0,
+                    idInventario: $("#ddInventario").val(),
+                    precioBase:parseFloat(precioBase),
+                    precioDolar: parseFloat($('#lbCostoPromedio').inputmask('unmaskedvalue')),
+                    precioEuro:parseFloat( precioBase/CambioEuro),
+                    fechaCreacion:$("#fecha").val(),
+                    idUsuarioCreador: IdUsuarioLogueado,
+                    subTotalBase:parseFloat( subTotalBase),
+                    subTotalDolar: parseFloat( (fnSubTotalBase($("#ddInventario").val()))),
+                    subTotalEuro: parseFloat( subTotalBase/CambioEuro),
+                    subTotalGravadoBase:parseFloat( subTotalGravadoBase),
+                    subTotalGravadoDolar: parseFloat((fnSubTotalGravadoBase($("#ddInventario").val()))),
+                    subTotalGravadoEuro:parseFloat(subTotalGravadoBase/CambioEuro),
+                    subTotalExcentoBase:parseFloat( subTotalExcentobase),
+                    subTotalExcentoDolar: parseFloat(fnSubTotalExcentoBase($("#ddInventario").val())),
+                    subTotalExcentoEuro:parseFloat(subTotalExcentobase/CambioEuro),
+                    porcDescuento: $('#lbDescuento').inputmask('unmaskedvalue'),
+                    totalDescuentoBase:parseFloat( totalDescuentoBase),
+                    totalDescuentoDolar: parseFloat(fnTotalDescuentoBase($("#ddInventario").val())),
+                    totalDescuentoEuro:parseFloat(totalDescuentoBase/CambioEuro),
+                    subTotalGravadoNetoBase:parseFloat( subTotalGravadoNetoBase) ,
+                    subTotalGravadoNetoDolar:parseFloat(( fnSubTotalGravadoNetoBase($("#ddInventario").val()))),
+                    subTotalGravadoNetoEuro:parseFloat(subTotalGravadoNetoBase/CambioEuro),
+                    subTotalExcentoNetoBase:parseFloat( subTotalExcentoNetoBase),
+                    subTotalExcentoNetoDolar: parseFloat(( fnSubTotalExcentoNetoBase($("#ddInventario").val()))),
+                    subTotalExcentoNetoEuro:parseFloat(subTotalExcentoNetoBase/CambioEuro),
+                    montoIvaBase:parseFloat( montoIvaBase) ,
+                    montoIvaDolar:parseFloat(( fnMontoIvaBase($("#ddInventario").val()))),
+                    montoIvaEuro:parseFloat(montoIvaBase/CambioEuro),
+                    totalBase:parseFloat( totalBase),
+                    totalDolar:parseFloat(( fnTotalBase($("#ddInventario").val()))),
+                    totalEuro:parseFloat(totalBase/CambioEuro),
+                    idCotizacion:@Model.IdCotizacion,
+                    cantidad: parseFloat($('#lbCantidad').inputmask('unmaskedvalue')) 
         };
                 break
             case 3:
 
 
-                precioBase = parseFloat($precio.val() * CambioEuro);
+                precioBase = parseFloat($('#lbCostoPromedio').inputmask('unmaskedvalue') * CambioEuro);
                 subTotalBase = parseFloat((fnSubTotalBase($("#ddInventario").val())) * CambioEuro);
                 subTotalGravadoBase = parseFloat((fnSubTotalGravadoBase($("#ddInventario").val())) * CambioEuro);
                 subTotalExcentobase = parseFloat((fnSubTotalExcentoBase($("#ddInventario").val())) * CambioEuro);
@@ -1829,7 +1842,7 @@ else
                         idInventario: $("#ddInventario").val(),
                         precioBase:parseFloat( precioBase),
                         precioDolar:parseFloat(precioBase/CambioDolar),
-                        precioEuro: parseFloat($precio.val()),
+                        precioEuro: parseFloat($('#lbCostoPromedio').inputmask('unmaskedvalue')),
                         fechaCreacion:$("#fecha").val(),
                         idUsuarioCreador: IdUsuarioLogueado,
                         subTotalBase:parseFloat( subTotalBase),
@@ -1841,10 +1854,10 @@ else
                         subTotalExcentoBase:parseFloat( subTotalExcentobase),
                         subTotalExcentoDolar:parseFloat(subTotalExcentobase/CambioDolar) ,
                         subTotalExcentoEuro: parseFloat(fnSubTotalExcentoBase($("#ddInventario").val())),
-                        porcDescuento:$porcDescuento.val(),
+                        porcDescuento: $('#lbDescuento').inputmask('unmaskedvalue'),
                         totalDescuentoBase:parseFloat( totalDescuentoBase),
                         totalDescuentoDolar:parseFloat(totalDescuentoBase/CambioDolar),
-                    totalDescuentoEuro: parseFloat(fnTotalDescuentoBase($("#ddInventario").val())),
+                        totalDescuentoEuro: parseFloat(fnTotalDescuentoBase($("#ddInventario").val())),
                         subTotalGravadoNetoBase:parseFloat( subTotalGravadoNetoBase) ,
                         subTotalGravadoNetoDolar:parseFloat( subTotalGravadoNetoBase/CambioDolar),
                         subTotalGravadoNetoEuro: parseFloat(fnSubTotalGravadoNetoBase($("#ddInventario").val())),
@@ -1858,7 +1871,7 @@ else
                         totalDolar:parseFloat(totalBase/CambioDolar),
                         totalEuro: parseFloat(fnTotalBase($("#ddInventario").val())),
                         idCotizacion:@Model.IdCotizacion,
-                        cantidad: parseFloat($cantidad.val())
+                        cantidad: parseFloat($('#lbCantidad').inputmask('unmaskedvalue')) 
         };
                 break;
         }
@@ -1972,11 +1985,11 @@ else
             if (_Inventario[i].idInventario == parseInt(IdInventario)) {
                 var imp = parseFloat(_Inventario[i].impuestoVenta);
                 var imp1 = parseFloat(1 + (imp / 100));
-                var precioSinImpuesto = parseFloat(parseFloat($precio.val()) / imp1);
+                var precioSinImpuesto = parseFloat(parseFloat($('#lbCostoPromedio').inputmask('unmaskedvalue')) / imp1);
                 if (imp != 0) {
-                    return precioSinImpuesto * $cantidad.val();
+                    return precioSinImpuesto * $('#lbCantidad').inputmask('unmaskedvalue');
                 } else {
-                    return $precio.val() * $cantidad.val();
+                    return $('#lbCostoPromedio').inputmask('unmaskedvalue') * $('#lbCantidad').inputmask('unmaskedvalue');
                 }
             }
         }
@@ -1988,11 +2001,11 @@ else
             if (_Inventario[i].idInventario == parseInt(IdInventario)) {
                 var imp = parseFloat(_Inventario[i].impuestoVenta);
                 var imp1 = parseFloat(1 + (imp / 100));
-                var precioSinImpuesto = parseFloat(parseFloat( $precio.val())/ imp1);
+                var precioSinImpuesto = parseFloat(parseFloat($('#lbCostoPromedio').inputmask('unmaskedvalue'))/ imp1);
                 if (imp != 0) {
-                    return precioSinImpuesto*$cantidad.val();
+                    return precioSinImpuesto * $('#lbCantidad').inputmask('unmaskedvalue');
                 } else {
-                    return $precio.val()*$cantidad.val();
+                    return $('#lbCostoPromedio').inputmask('unmaskedvalue') * $('#lbCantidad').inputmask('unmaskedvalue');
                 }
             }
         }
@@ -2031,10 +2044,10 @@ else
     function fnTotalDescuentoBase(IdInventario) {
 
         var porc = 0;
-        if (parseInt($porcDescuentoGlobal.val()) != 0) {
-            porc = parseFloat($porcDescuentoGlobal.val());
+        if (parseInt($('#lbDescuentoGlobal').inputmask('unmaskedvalue')) != 0 && $('#lbDescuentoGlobal').inputmask('unmaskedvalue') != null) {
+            porc = parseFloat($('#lbDescuentoGlobal').inputmask('unmaskedvalue'));
         } else {
-            porc = parseFloat($porcDescuento.val());
+            porc = parseFloat($('#lbDescuento').inputmask('unmaskedvalue'));
         }
 
         var Descuento = parseFloat((fnPrecioSinImpuesto(IdInventario) * porc) / 100);
@@ -2061,8 +2074,6 @@ else
         }
     }
 
-
-
     function fnSubTotalExcentoNetoBase(IdInventario) {
 
         for (var i = 0; i < _Inventario.length; i++) {
@@ -2081,7 +2092,6 @@ else
         for (var i = 0; i < _Inventario.length; i++) {
             if (_Inventario[i].idInventario == parseInt(IdInventario)) {
                 var imp = parseFloat(_Inventario[i].impuestoVenta);
-               // var imp1 = parseFloat(1 + (imp / 100));
                 var totalImpuesto = parseFloat(fnSubTotalGravadoNetoBase(IdInventario)*(imp/100));
                 if (imp != 0) {
                     return parseFloat(totalImpuesto);
@@ -2193,7 +2203,7 @@ else
         subTotalBaseGlobal = subTotal;
         subTotalGravadoBaseGlobal = _subTotalGravadoBase;
         subTotalExcentoBaseGlobal = _subTotalExcentoBase;
-        porcDescuentoGlobal = $porcDescuentoGlobal.val();
+        porcDescuentoGlobal = $('#lbDescuentoGlobal').inputmask('unmaskedvalue');
         totalDescuentoBaseGlobal = _totalDescuento;
         subTotalGravadoNetoBaseGlobal = _subTotalGravadoNetoBase;
         subTotalExcentoNetoBaseGlobal = _subTotalExcentoNetoBase;

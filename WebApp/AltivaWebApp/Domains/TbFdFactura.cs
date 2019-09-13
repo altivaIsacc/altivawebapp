@@ -51,8 +51,10 @@ namespace AltivaWebApp.Domains
         public double TipoCambioDolar { get; set; }
         public double TipoCambioEuro { get; set; }
         public bool EnCola { get; set; }
+        public long IdPuntoVenta { get; set; }
 
         public virtual TbCrContacto IdClienteNavigation { get; set; }
+        public virtual TbSePuntoVenta IdPuntoVentaNavigation { get; set; }
         public virtual ICollection<TbFdFacturaDetalle> TbFdFacturaDetalle { get; set; }
     }
 }
