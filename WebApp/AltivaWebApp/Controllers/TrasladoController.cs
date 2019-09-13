@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using FastReport.Web;
 using System.Globalization;
+using System.Data.SqlClient;
 
 namespace AltivaWebApp.Controllers
 {
@@ -145,18 +146,36 @@ namespace AltivaWebApp.Controllers
                     {
                         item.IdTraslado = respTraslado.IdTraslado;
                     }
+
                     respTraslado.TbPrTrasladoInventario = trasladoMap.CreateOrUpdateAI(inventarioTraslado); //envia los item sin id para devolverlos con id
 
                     kardexMap.CreateKardexTRI(respTraslado.TbPrTrasladoInventario.ToList(), false);
+
+                  
+
+
 
                 }
                 return Json(new { success = true });
             }
             catch (Exception ex)
             {
+
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                return BadRequest();
+
+                if (ex.HResult.ToString() == "-2146233088")
+                {
+                    //eliminar en traslado y traslado inventario
+                    return BadRequest(new { rollback = true });
+                }
+                else
+                {
+                    return BadRequest(new { rollback = false });
+                }
+                
+                
             }
+            
         }
 
 

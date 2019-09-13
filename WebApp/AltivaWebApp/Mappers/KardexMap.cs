@@ -2,6 +2,7 @@
 using AltivaWebApp.Services;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -551,7 +552,7 @@ namespace AltivaWebApp.Mappers
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                return true;
+              
                 throw;
             }
 
