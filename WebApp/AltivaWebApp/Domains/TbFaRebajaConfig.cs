@@ -8,7 +8,9 @@ namespace AltivaWebApp.Domains
         public TbFaRebajaConfig()
         {
             TbFaDescuentoUsuario = new HashSet<TbFaDescuentoUsuario>();
+            TbFaDescuentoUsuarioClave = new HashSet<TbFaDescuentoUsuarioClave>();
             TbFaDescuentoUsuarioRango = new HashSet<TbFaDescuentoUsuarioRango>();
+            TbFaPromocionProducto = new HashSet<TbFaPromocionProducto>();
         }
 
         public int IdRebajaConfig { get; set; }
@@ -26,6 +28,5 @@ namespace AltivaWebApp.Domains
         public virtual ICollection<TbFaDescuentoUsuarioClave> TbFaDescuentoUsuarioClave { get; set; }
         public virtual ICollection<TbFaDescuentoUsuarioRango> TbFaDescuentoUsuarioRango { get; set; }
         public virtual ICollection<TbFaPromocionProducto> TbFaPromocionProducto { get; set; }
-
     }
 }

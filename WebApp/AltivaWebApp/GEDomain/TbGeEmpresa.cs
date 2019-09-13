@@ -24,6 +24,9 @@ namespace AltivaWebApp.GEDomain
         public string Foto { get; set; }
         public string Telefono1 { get; set; }
         public string Telefono2 { get; set; }
+        public bool TienePuntoVentaDefecto { get; set; }
+        public long IdPuntoVenta { get; set; }
+
 
         public virtual TbGeGrupoEmpresarial IdGrupoEmpresarialNavigation { get; set; }
         public virtual ICollection<TbSeBitacora> TbSeBitacora { get; set; }

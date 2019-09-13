@@ -95,40 +95,39 @@ namespace AltivaWebApp.Controllers
         [HttpPost("CrearEditar-Traslado")]
         public ActionResult CrearEditarTraslado(TrasladoViewModel traslado, IList<TrasladoInventarioViewModel> inventarioTraslado, IList<long> eliminados)
         {
-            //traslado: Anulado, Comnetario, CostoTraslado, Fecha, FechaCreacion, IdBodegaDestino, IdbodegaOrigen, IdTraslado, IdUsuario,
-            //inventarioTraslado: Cantidad,CodigoArticulo, CostoTotal, Descripcion, Id, IdInventario, IdTraslado, PrecioUnitaio
-            //eliminados: [0] 4
-
+        
             try
             {
 
+                if (traslado.Comentario == null)
+                {
+                    traslado.Comentario = "";
+                }
+                
                 if (traslado.IdTraslado != 0)
                 {
-
                    IList<TbPrTrasladoInventario> detallesToAnular = trasladoService.GetAllTrasladoInvetarioDetalleById(inventarioTraslado.Select(d => (long)d.Id).Where(d => d != 0).ToList());//enviar las que vienen sin id y no devuelve nada
-                   kardexMap.CreateKardexTRI(detallesToAnular, true); // va y vuelve
+                   kardexMap.CreateKardexTRI(detallesToAnular, true); // va y vuelve nadamas si la lineas se editaron, y no son nuevas
 
-
-                    var respTraslado = trasladoMap.Update(traslado);//actualiza en la tabla traslado
+               
                     if (inventarioTraslado.Count() > 0)
                     {
-                        foreach (var item in inventarioTraslado)
-                        {
-                            item.IdTraslado = respTraslado.IdTraslado;
-                        }
-                        //volver con id
-                        var trasladoInventarioDetalle = trasladoMap.CreateOrUpdateAI(inventarioTraslado);//envia las que vienen sin id 
+                        
+                        var trasladoInventarioDetalle = trasladoMap.CreateOrUpdateAI(inventarioTraslado);//envia las que vienen sin id para retornarlas con id, y actualiza en la tabla detalle
+
                         kardexMap.CreateKardexTRI(trasladoInventarioDetalle, false);
+
+                        var respTraslado = trasladoMap.Update(traslado);//actualiza en la tabla traslado
+                                       
                     }
 
 
                     if (eliminados.Count() > 0)
                     {
 
-                        var resp = trasladoService.GetAllTrasladoInvetarioDetalleById(eliminados);
-                        kardexMap.CreateKardexTRI(resp, true);
-
+                        var resp = trasladoService.GetAllTrasladoInvetarioDetalleById(eliminados);                     
                         trasladoService.DeleteTrasladoInventario(eliminados);
+                        kardexMap.CreateKardexTRI(resp, true);
                     }
                     // kardexMap.CreateKardexTRI(respTraslado.TbPrTrasladoInventario.ToList(), false);
 
@@ -149,7 +148,7 @@ namespace AltivaWebApp.Controllers
                     {
                         item.IdTraslado = respTraslado.IdTraslado;
                     }
-                    respTraslado.TbPrTrasladoInventario = trasladoMap.CreateOrUpdateAI(inventarioTraslado);
+                    respTraslado.TbPrTrasladoInventario = trasladoMap.CreateOrUpdateAI(inventarioTraslado); //envia los item sin id para devolverlos con id
 
                     kardexMap.CreateKardexTRI(respTraslado.TbPrTrasladoInventario.ToList(), false);
 
@@ -198,7 +197,7 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        // POST: AjusteInventario/Delete/5
+       
         [HttpGet("Anular-Traslado/{id}")]
         public ActionResult AnularTraslado(int id)
         {

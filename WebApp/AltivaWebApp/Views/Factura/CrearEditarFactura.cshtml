@@ -82,7 +82,7 @@ else
                 }
             </select>
         </div>
-        <div class="form-group col-md-3 col-sm-3 col-xs-6">
+        <div class="form-group col-md-2 col-sm-2 col-xs-6">
             <label asp-for="Tipo" class="control-label">@Lb["Tipo"]:</label>
             <select asp-for="Tipo" class="form-control selectItems">
                 <option value="1">@Lb["Contado"]</option>
@@ -90,7 +90,12 @@ else
             </select>
         </div>
 
-        <div class="col-md-3 col-sm-3 col-xs-6 btn-group" style="padding: 0; margin: 0; padding-top:2.4rem">
+        <div class="form-group col-md-2 col-sm-2 col-xs-6">
+            <label asp-for="IdPuntoVenta" class="control-label">@Lb["PuntoVenta"]:</label>
+            <select asp-for="IdPuntoVenta" class="form-control selectItems"></select>
+        </div>
+
+        <div class="col-md-2 col-sm-2 col-xs-6 btn-group" style="padding: 0; margin: 0; padding-top:2.4rem">
             <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle" type="button" aria-expanded="false">
                 @Lb["MasOpciones"] <span class="caret"></span>
             </button>
@@ -367,12 +372,13 @@ else
 
     var facturaModel = "";
 
+    var arrayPV = [];
+
 
     $(document).ready(function () {
 
 
         $('.selectItems').select2();
-
 
         $(".numerico").inputmask({
             'alias': 'decimal',
@@ -398,6 +404,7 @@ else
 
 
         getMonedas();
+        getPuntoVenta();
         getInventario();
 
         comprobarBorrador();
@@ -777,6 +784,7 @@ else
         facturaModel.Tipo = $('#Tipo').val();
         facturaModel.Estado = '@Model.Estado';
         facturaModel.FechaFactura = $('#FechaFactura').val();
+        facturaModel.IdPuntoVenta = $('#IdPuntoVenta').val();
 
         guardarLocalStorage();
 
@@ -808,7 +816,9 @@ else
             tipoCambioDolar: facturaModel.TipoCambioDolar,
             tipoCambioEuro: facturaModel.TipoCambioEuro,
             estado: '@Model.Estado',
-            tipo: facturaModel.Tipo
+            tipo: facturaModel.Tipo,
+            idPuntoVenta: $('#IdPuntoVenta').val(),
+            enCola: false
         };
 
         return model;
@@ -859,6 +869,7 @@ else
                     $('#Tipo').val(facturaModel.Tipo);
                     $('#IdCliente').val(facturaModel.IdCliente);
                     $('#IdVendedor').val(facturaModel.IdVendedor);
+                    $('#IdPuntoVenta').val(facturaModel.IdPuntoVenta);
 
                     $('.selectItems').trigger('change.select2');
 
@@ -973,6 +984,47 @@ else
          });
     }
 
+    function getPuntoVenta() {
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetPuntosVentas", "PuntoVenta")',
+            success: function (data) {
+
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].inactivo && @Model.Id != 0 && @Model.IdPuntoVenta == data[i].idPuntoVenta)
+                        arrayPV.push(data[i]);
+                    else if (!data[i].inactivo)
+                        arrayPV.push(data[i]);
+                }
+
+                var flag = false;
+                for (var i = 0; i < arrayPV.length; i++) {
+                    
+                    var o = new Option(arrayPV[i].nombre, arrayPV[i].idPuntoVenta);
+
+                    if (@Model.Id != 0 && arrayPV[i].idPuntoVenta == @Model.IdPuntoVenta) {
+                        $(o).attr('selected', true);
+                        if (arrayPV[i].inactivo) {
+                            $("#puntoVentaValid").attr("hidden", false);
+                        }
+                        flag = true;
+                    }
+                    else if (arrayPV[i].esPorDefecto && !flag)
+                        $(o).attr('selected', true);
+                    
+
+                    $('#IdPuntoVenta').append(o);
+                }
+
+            },
+            error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+            }
+        });
+    }
+
     function getClientes() {
          $.ajax({
               type: "get",
@@ -995,7 +1047,7 @@ else
 
                   $(".autocompleteV").typeahead({
                       source: auto,
-                      minLength: 3,
+                      minLength: 2,
                       afterSelect: alert(),
 
                   });

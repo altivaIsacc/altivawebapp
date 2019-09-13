@@ -1,5 +1,4 @@
 ﻿@model AltivaWebApp.Domains.TbFdTarea
-@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -21,12 +20,12 @@
     @if (Model.Id != 0)
     {
 
-        titulo = @SharedLocalizer["modificarTarea"];
+        titulo = @Lb["modificarTarea"];
 
     }
     else
     {
-        titulo = @SharedLocalizer["nuevaTarea"];
+        titulo = @Lb["nuevaTarea"];
     }
 
 }
@@ -58,7 +57,8 @@
         <div hidden="hidden" class="form-group">
             <input type="text" class="form-control" id="Id" asp-for="Id" hidden>
         </div>
-        <div class="form-group col-md-12 col-sm-12 col-xs-12">          
+        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+            <label class="col-form-label">@Lb["Título"]:</label><br />
             <input type="text" class="form-control" id="titulo" asp-for="Titulo">
             <div id="AlertTitulo"> </div>
         </div>
@@ -70,7 +70,7 @@
         <div class="form-group col-md-6 col-sm-6 col-xs-12">
             <label class="col-form-label ">@Lb["Contacto"]:</label><br />
             <select class="selectpicker form-control" data-live-search="true" id="contacto" asp-for="IdContacto">
-                <option selected value="0">@Lb["seleccione"]</option>
+                <option selected value="seleccione">@Lb["seleccione"]</option>
                 @foreach (var contactos in ViewData["contactos"] as IList<TbCrContacto>)
                 {
                     @if (contactos.Persona == true)
@@ -89,12 +89,13 @@
         <div class="form-group col-md-6 col-sm-6 col-xs-12">
             <label for="staticEmail" class=" col-form-label">@Lb["Asignado"]:</label><br />
             <select class="selectpicker form-control" data-live-search="true" id="asignado" asp-for="IdUsuario">
-                <option selected value="0">@Lb["seleccione"]</option>
+                <option selected value="seleccione">@Lb["seleccione"]</option>
                 @foreach (var asignados in ViewData["asignados"] as IList<TbSeUsuario>)
                 {
                     <option value="@asignados.Id">@asignados.Nombre</option>
                 }
             </select>
+            <div id="AlertAsignado"></div>
         </div>
     </div>
     <div class="row ">
@@ -193,7 +194,12 @@
     }
     else
     {
-        <div><label>@Lb["Subtareas"]:</label><button class="btn btn-link" id="AgregarLista"><i style="font-size:2rem;" class="fas fa-plus"></i></button></div>
+        <div><label>@Lb["Subtareas"]:</label>
+               <button class="btn btn-link" id="AgregarLista"><i style="font-size:2rem;" class="fas fa-plus"></i></button>
+    
+       </div>
+
+
         <div class="row">
 
             <div id="uls">
@@ -255,14 +261,8 @@
     <!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
     <div class="modal-dialog modal-full-height modal-right" role="document">
 
-
         <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title w-100" id="myModalLabel">@SharedLocalizer["Nuevo"] @SharedLocalizer["Estado"]</h4>
-                <button type="button" class="close" id="btnCancelarEstados">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+         
             <div class="modal-body " id="EstadosTarea">
 
             </div>
@@ -385,7 +385,7 @@
                 $('#comentarios').html(data);
             },
             error: function (err, scnd) {
-                 cargarAlert('@SharedLocalizer["errorGeneral"]');
+                 cargarAlert('@Lb["errorGeneral"]');
                 console.log(err.statusText);
 
             }
@@ -436,16 +436,18 @@
                 },
 
              error: function (err, scnd) {
-                     cargarAlert('@SharedLocalizer["errorGeneral"]');
+                     cargarAlert('@Lb["errorGeneral"]');
                     console.log(err.statusText);
                 }
 
             });
     }
 
+
+
     //eliminar subtareas nuevas
     function eliminarCampo(id) {
-
+        console.log(id);
         bootbox.confirm({
 
             message: "<h4 class='text-center'><span > @Lb["confirmElimSubtarea"]</span></h4>",
@@ -473,8 +475,14 @@
 
 
     }
-    //eliminar subtarea
+
+
+
+
+    //eliminar subtarea que ya estaban
     function EliminarSubTarea(idSubTarea) {
+
+        console.log(idSubTarea);
         bootbox.confirm({
 
             message: "<h4 class='text-center'><span > @Lb["confirmElimSubtarea"]</span></h4>",
@@ -487,6 +495,7 @@
                         label: '<i class="fa fa-times"></i> @Lb["Cancelar"]'
                     }
             },
+
             callback: function (result) {
                 if (result) {
                     $.ajax({
@@ -495,14 +504,14 @@
                         },
                         type: "GET",
 
-                        url: '@Url.Action("EliminarSubTarea", "Tarea") ',
+                        url: '@Url.Action("EliminarSubTarea", "Tarea")',
                         data: { idSubContacto:idSubTarea },
 
 
                       success: function (data1) {
                           $('#uls').empty();
                           GetSubTareas();
-           return;
+                          return;
                     },
 
                     error: function (err, scnd) {
@@ -544,7 +553,7 @@
                 },
 
              error: function (err, scnd) {
-                     cargarAlert('@SharedLocalizer["errorGeneral"]');
+                     cargarAlert('@Lb["errorGeneral"]');
                     console.log(err.statusText);
                 }
 
@@ -646,7 +655,7 @@
                 },
 
                 error: function (err, scnd) {
-                     cargarAlert('@SharedLocalizer["errorGeneral"]');
+                     cargarAlert('@Lb["errorGeneral"]');
                     console.log(err.statusText);
                 }
 
@@ -713,7 +722,7 @@
                     },
 
                   error: function (err, scnd) {
-                         cargarAlert('@SharedLocalizer["errorGeneral"]');
+                         cargarAlert('@Lb["errorGeneral"]');
                         console.log(err.statusText);
                     }
 
@@ -736,7 +745,7 @@
                     },
 
                error: function (err, scnd) {
-                         cargarAlert('@SharedLocalizer["errorGeneral"]');
+                         cargarAlert('@Lb["errorGeneral"]');
                         console.log(err.statusText);
                     }
 
@@ -771,7 +780,7 @@
                     },
 
              error: function (err, scnd) {
-                         cargarAlert('@SharedLocalizer["errorGeneral"]');
+                         cargarAlert('@Lb["errorGeneral"]');
                         console.log(err.statusText);
                     }
 
@@ -1122,28 +1131,39 @@
 
              },
              error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
+                  cargarAlert('@Lb["errorGeneral"]');
                 console.log(err.statusText);
              }
          });
     }
 
     function ValidarDatos() {
+
         if ($('#titulo').val() == "") {
-
-                        $('#AlertTitulo').empty();
+            $('#AlertTitulo').empty();
             $('#AlertTitulo').append('<span class="text-danger">@Lb["tituloRequired"]</span>');
-
-
             return false;
+        } else {
+            $('#AlertTitulo').empty();
         }
 
-        if ($("#contacto").val()== "seleccione") {
+        if ($("#contacto").val() == "seleccione") {
             $('#AlertContacto').empty();
             $('#AlertContacto').append('<span class="text-danger">@Lb["contactoRequired"]</span>');
-
             return false;
+        } else {
+            $('#AlertContacto').empty();
         }
+
+        if ($("#asignado").val() == "seleccione") {
+            $('#AlertAsignado').empty();
+            $('#AlertAsignado').append('<span class="text-danger">@Lb["asignadoRequired"].</span>');
+            return false;
+        } else {
+            $('#AlertAsignado').empty();
+        }
+
+
         return true;
     }
 </script>
