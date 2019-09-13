@@ -136,7 +136,6 @@ else
 
     <br />
 
-
     <div class="form-group col-md-4">
         <button @generarOrden class="btn btn-success btnAccion" onclick="validarCompraAutomatica()">@Lb["ordenAutomatica"]</button>
     </div>
@@ -145,7 +144,8 @@ else
 
         <div class="form-group col-md-3 col-sm-3 col-xs-12">
             <label id="lblItem" class="control-label">@Lb["Item"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
-            <select @estado class="form-control selectItems" autofocus id="item"></select>
+            <input @estado class="form-control " list="lista" id="item">
+            <datalist id="lista"></datalist>
         </div>
 
         <div class="form-group col-md-2 col-sm-2 col-xs-6">
@@ -161,12 +161,12 @@ else
 
         <div class="form-group col-md-2 col-sm-2 col-xs-12">
             <label class="control-label">@Lb["PrecioUnitario"]:</label>
-            <input @estado class="form-control moneda" type="text"  onkeyup="pasarSigCampo(event,'descuento')" min="1" id="precio" />
+            <input @estado class="form-control moneda" type="text" onkeyup="pasarSigCampo(event,'descuento')" min="1" id="precio" />
         </div>
 
         <div class="form-group col-md-2 col-sm-2 col-xs-12">
             <label class="control-label">@Lb["Descuento"]:</label>
-            <input @estado class="form-control numerico" type="text"  onkeyup="pasarSigCampo(event,'guardar')" id="descuento" />
+            <input @estado class="form-control numerico" type="text" onkeyup="pasarSigCampo(event,'guardar')" id="descuento" />
         </div>
 
         <div class="form-group col-md-2 col-sm-2 col-xs-12">
@@ -179,7 +179,7 @@ else
             <input class="form-control moneda" readonly type="text" id="subtotal" />
         </div>
 
-        <input class="form-control moneda" readonly type="hidden"  id="totalLinea" />
+        <input class="form-control moneda" readonly type="hidden" id="totalLinea" />
         <div class="form-group col-md-1 col-sm-1 col-xs-2" style="padding-top: 2.3rem;">
             <button onkeyup="pasarSigCampo(event,'item')" onclick="guardarLinea()" id="guardar" class="btn btn-success"><span><i class="fas fa-save"></i></span></button>
         </div>
@@ -201,9 +201,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                <tr class="lineaForm">
-                  
-                </tr>
+                <tr class="lineaForm"></tr>
             </tbody>
         </table>
 
@@ -232,84 +230,82 @@ else
     </div>
 
     <br />
-
 </div>
-    <div class="row">
-        <div class="form-group col-md-3">
-            <button @estado class="btn btn-success btnAccion" onclick="guardarCambios()">@Lb["Guardar"]<i class="fas fa-save"></i></button>
-            <a onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
+<div class="row">
+    <div class="form-group col-md-3">
+        <button @estado class="btn btn-success btnAccion" onclick="guardarCambios()">@Lb["Guardar"]<i class="fas fa-save"></i></button>
+        <a onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div id="comentarios">
+
         </div>
     </div>
+</div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div id="comentarios">
+<div hidden><input hidden id="formater" class="currency" type="text" /></div>
 
-            </div>
-        </div>
-    </div>
+<div>
+    <!-- Modal Editar -->
+    <div class="modal fade" id="modalEditarOrden" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
 
-    <div hidden><input hidden id="formater" class="currency" type="text" /></div>
-
-    <div>
-        <!-- Modal Editar -->
-        <div class="modal fade" id="modalEditarOrden" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <div class="col-md-6"> <h5 data-translate="editarOrden" class="modal-title" id="bodegaIventarioLabel">@Lb["editarOrden"]</h5></div>
-                    </div>
-                    <div class="modal-body" id="editar" style="height:300px;">
-                        <div class="row">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <div class="col-md-6"> <h5 data-translate="editarOrden" class="modal-title" id="bodegaIventarioLabel">@Lb["editarOrden"]</h5></div>
+                </div>
+                <div class="modal-body" id="editar" style="height:300px;">
+                    <div class="row">
+                        <div class="form-group col-md-7 col-sm-7 col-xs-12">
+                            <input id="editId" type="hidden" class="form-control" />
+                            <input id="editIva" type="hidden" class="form-control" />
+                            <input id="nSubTotal" type="hidden" class="form-control" />
                             <div class="form-group col-md-7 col-sm-7 col-xs-12">
-                                <input id="editId" type="hidden" class="form-control" />
-                                <input id="editIva" type="hidden" class="form-control" />
-                                <input id="nSubTotal" type="hidden" class="form-control" />
-                                <div class="form-group col-md-7 col-sm-7 col-xs-12">
-                                    <label class="control-label">@Lb["Cantidad"]</label>
-                                    <input id="editCantidad" class="form-control numerico" style="text-align:right;" onkeyup="pasar(event,'editPrecio')" />
-                                    <span hidden id="editCantidadValid" class="text-danger">@Lb["AlertCompraCantidad"]</span>
-                                </div>
-                                <div class="form-group  col-md-7 col-sm-7 col-xs-12">
-                                    <label class="control-label ">@Lb["PrecioUnitario"]</label>
-                                    <input id="editPrecio" class="form-control moneda" onkeyup="pasar(event,'editDescuento')" />
-                                    <span hidden id="editPrecioValid" class="text-danger">@Lb["AlertCompraPrecio"]</span>
-                                </div>
-                                <div class="form-group col-md-7 col-sm-7 col-xs-12">
-                                    <label class="control-label ">@Lb["Descuento"]</label>
-                                    <input id="editDescuento" class="form-control numerico" style="text-align:right;" onkeyup="pasar(event,'btnEditOrden')" />
-                                </div>
+                                <label class="control-label">@Lb["Cantidad"]</label>
+                                <input id="editCantidad" class="form-control numerico" style="text-align:right;" onkeyup="pasar(event,'editPrecio')" />
+                                <span hidden id="editCantidadValid" class="text-danger">@Lb["AlertCompraCantidad"]</span>
                             </div>
-
-                        </div>                      
-                            <div class="form-group col-sm-7">
-
-                                <button id="btnEditOrden" onclick="editOrden()" class="btn btn-success"><span>@Lb["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
-
-                                <button class="btn btn-default" data-dismiss="modal"><span>@Lb["Cancelar"]</span></button>
-
+                            <div class="form-group  col-md-7 col-sm-7 col-xs-12">
+                                <label class="control-label ">@Lb["PrecioUnitario"]</label>
+                                <input id="editPrecio" class="form-control moneda" onkeyup="pasar(event,'editDescuento')" />
+                                <span hidden id="editPrecioValid" class="text-danger">@Lb["AlertCompraPrecio"]</span>
                             </div>
-                            
+                            <div class="form-group col-md-7 col-sm-7 col-xs-12">
+                                <label class="control-label ">@Lb["Descuento"]</label>
+                                <input id="editDescuento" class="form-control numerico" style="text-align:right;" onkeyup="pasar(event,'btnEditOrden')" />
+                            </div>
                         </div>
+
                     </div>
+                    <div class="form-group col-sm-7">
+
+                        <button id="btnEditOrden" onclick="editOrden()" class="btn btn-success"><span>@Lb["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
+
+                        <button class="btn btn-default" data-dismiss="modal"><span>@Lb["Cancelar"]</span></button>
+
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="~/js/comentario.js"></script>
-    <script src="~/js/base64ImageCreator.js"></script>
+<script src="~/js/comentario.js"></script>
+<script src="~/js/base64ImageCreator.js"></script>
 
-    <script>
+<script>
     var $anulado = $('#Anulado');
     ///linea
     var $item = $('#item');
     var $descripcion = $('#descripcion');
-   // var $('#subtotal') = $('#subtotal');
-    //var $("#precio") = $('#precio');
     var $iva = $('#iva');
     var $totalLinea = $('#totalLinea');
     var $cantidad = $('#cantidad');
@@ -336,6 +332,7 @@ else
     var totalOrden = 0;
     var editDescuento = 0;
     var editPrecio = 0;
+    var repetido = false;
 
     var ordenDetalleBD = [];
     var lineas = [];
@@ -343,10 +340,13 @@ else
     var lineasAgregadas = [];
     var lineasEliminadas = [];
     var lineasActualizadas = [];
-
+    var ordenModel = "";
     var editProveedor = $('#proveedor').val();
 
     $(document).ready(function () {
+            $cantidad.val(1);
+        repetido = false;
+        comprobarBorrador();
           var date = new Date();
         if (@Model.Id != 0) {
             GetComentarios("Orden", @Model.Id);
@@ -375,24 +375,13 @@ else
             'alias': 'decimal',
             rightAlign: false,
         });
-
-        getInventario();
-
-
+        
+        ordenModel = getFormData();
+        getInventario();      
+     
         $('.selectItems').select2({ width: null, language: localStorage.getItem("idioma") });
 
-        $('#item').on('change.select2', function () {
-
-            var itemInfo = getItem($(this).val());
-            var monto = getPrecioAlCambio(itemInfo);
-            var monto1 = parseFloat(monto);
-
-            $descripcion.val(itemInfo.descripcion);
-            $("#precio").val(monto1);
-            $cantidad.val(1);
-            $iva.val(itemInfo.impuestoVenta);
-            setSubTotalLinea();
-        });
+     
 
         $('textarea[data-limit-rows=true]')
             .on('keypress', function (event) {
@@ -406,11 +395,109 @@ else
                 }
             });
 
+    });//fin del document ready
+
+    function cargarLineaAutomatica(codigo) {
+         $("#item").val(codigo);
+          var itemInfo = getIdInventario(codigo);
+            var monto = getPrecioAlCambio(itemInfo);
+            var monto1 = parseFloat(monto);
+            $descripcion.val(itemInfo.descripcion);
+            $("#precio").val(monto1);         
+            $iva.val(itemInfo.impuestoVenta);
+    }
+    $('#item').on('change.select2', function () {
+           
+            var itemInfo = getIdInventario($(this).val());
+            var monto = getPrecioAlCambio(itemInfo);
+            var monto1 = parseFloat(monto);
+
+            $descripcion.val(itemInfo.descripcion);
+            $("#precio").val(monto1);
+            $cantidad.val(1);
+            $iva.val(itemInfo.impuestoVenta);
+            setSubTotalLinea();
     });
 
+    $('#item').on('click', function () {  this.select(); });
+ //   $("#item").focus(function(){	   
+	//    this.select();
+	//});
+    function getFormData () {
+             var Model = {
+                   id: @Model.Id,
+                   idProveedor: $proveedores.val(),
+                   fecha: $('#fecha').val(),
+                   idUsuario: 1,
+                   Anulado: '@Model.Anulado',
+                   IdMoneda: parseInt($('.tipoMoneda').val()),
+                   observacion: $('#txtObservacion').val(),
+                   subTotalGrabado: subTotalGravado.toString().replace(".", ","),
+                   subTotalExcento: subTotalExcento.toString().replace(".", ","),
+                   subTotalNeto: subTotalNeto.toString().replace(".", ","),
+                   totalIva: totalImpuesto.toString().replace(".", ","),
+                   totalDescuento: totalDescuento.toString().replace(".", ","),
+                   total: totalOrden.toString().replace(".", ","),
+                   tipoCambioDolar: $('#dolar').val(),
+                   tipoCambioEuro: $('#euro').val(),
+                   ordenDetalle: lineasAgregadas,
+                   lineasAct: lineasActualizadas,
+                   lineasE : lineasEliminadas,
+                  lineas: lineas
+             };
+          return Model;
+
+    }
+    
+    function guardarLocalStorage() {
+        ordenModel = getFormData();
+        localStorage.removeItem("OrdenBorrador");
+        localStorage.setItem("OrdenBorrador", JSON.stringify(ordenModel));
+
+    }
+    
+    function comprobarBorrador() {
+        var borrador = JSON.parse(localStorage.getItem("OrdenBorrador"));
+        if (borrador !== null && borrador.lineas.length !== 0 && (borrador.id).toString() === "@Model.Id") {
+            bootbox.confirm("@Lb["DeseaReanudar"]", function (result) {
+
+                if (result) {
+                    repetido = true;
+                    ordenModel = borrador;
+          
+                     var idProveedor = ordenModel.idProveedor;
+                    $("#proveedores option[value='"+idProveedor+"']").attr("selected", true);
+                    $('#txtObservacion').val(ordenModel.observacion);                  
+                    $('#dolar').val(ordenModel.tipoCambioDolar);
+                    $('#euro').val(ordenModel.tipoCambioEuro);
+                    $('#moneda').val(ordenModel.IdMoneda);
+                     if (ordenModel.IdMoneda == 2 || ordenModel.IdMoneda == 3)
+                    {
+                          $('#dolar').attr('disabled', 'disabled');;
+                          $('#euro').attr('disabled', 'disabled');;
+                    }
+
+                    $('.selectItems').trigger('change.select2');
+                    lineas = borrador.lineas;                  
+                    lineasAgregadas = borrador.ordenDetalle;
+                    lineasActualizadas = borrador.lineasAct;
+                    lineasEliminadas = borrador.lineasE;
+                    
+
+                    cargarTabla(lineas);
+                    calcularTotales();
+                }
+                else
+                    localStorage.removeItem("OrdenBorrador");
+            });
+
+
+        }
+    }
+
     $('#editCantidad').on('keyup, change, focusout', function () {
-        if ($(this).val() < 0 || $(this).val() === "")
-            $(this).val(0);
+        if ($(this).val() <= 0 || $(this).val() === "")
+            $(this).val(1);
 
         setSubTotalLinea();
     });
@@ -431,8 +518,8 @@ else
     });
 
     $cantidad.on('keyup, change, focusout', function () {
-        if ($(this).val() < 0 || $(this).val() === "")
-            $(this).val(0);
+        if ($(this).val() <= 0 || $(this).val() === "")
+            $(this).val(1);
 
         setSubTotalLinea();
     });
@@ -473,11 +560,9 @@ else
         $('#editCantidadValid').attr('hidden', true);
         $('#editPrecioValid').attr('hidden', true);
        var arreglo = [];
-       if (@Model.Id  === 0)
-           arreglo = lineasAgregadas;
-       else
+     
            arreglo = lineas;
-       
+
        $('#modalEditarOrden').modal('show');
        for (var i = 0; i < arreglo.length; i++) {
            if (arreglo[i].idInventario == arreglo[j].idInventario && arreglo[i].precio == arreglo[j].precio && arreglo[i].porcDesc == arreglo[j].porcDesc) {
@@ -497,7 +582,7 @@ else
 
     }
 
-    
+
 
     function pasarSigCampo(e,id)
     {
@@ -518,7 +603,7 @@ else
 	      }
     }
     function pasar(e,id)
-  {
+    {
 
 	    (e.keyCode)?k=e.keyCode:k=e.which;
 
@@ -534,8 +619,8 @@ else
 
 		      }
 	      }
-  }
-      function validarmodalEditar() {
+    }
+    function validarmodalEditar() {
 
         var cantidad = parseFloat($('#editCantidad').val());
         var precio = parseFloat($('#editPrecio').inputmask('unmaskedvalue'));
@@ -550,14 +635,14 @@ else
            $('#editPrecioValid').attr('hidden', false);
             flag = false;
         }
-       
+
         return flag;
-      }
+    }
+
    function editOrden()
    {
-      
+
        if (validarmodalEditar()) {
-           console.log(lineasActualizadas);
            var flag = true;
            for (var i = 0; i < lineas.length; i++) {
                if (lineas[i].idInventario == $('#editId').val() &&
@@ -570,28 +655,38 @@ else
                    lineas[i].subTotalNeto = calcularSubtotalNetoLinea();
                    lineas[i].porcIs = 0;
                    lineas[i].totalIs = 0;
-                   lineas[i].porcDesc = parseFloat($('#editDescuento').val());                  
+                   lineas[i].porcDesc = parseFloat($('#editDescuento').val());
                    lineas[i].totalDescuento = calcularTotalDescuentoLinea();
                    lineas[i].totalIva = calcularTotalIvaLinea();
                    lineas[i].total = calcularTotalLinea();
+                      
                    if (@Model.Id!= 0)
                    {
-                       for (var j = 0; j < lineasActualizadas.length; j++)
-                       {
-                           if (lineas[i].id == lineasActualizadas[j].id) {
-                               lineas[i] = lineasActualizadas[j];
-                               flag = false;
+                       if (lineas[i].id != 0) {
+                           for (var j = 0; j < lineasActualizadas.length; j++) {
+
+                               if (lineas[i].id == lineasActualizadas[j].id) {
+                                   lineasActualizadas[j] = lineas[i];
+                                   flag = false;
+                               }
+                           }
+                         if (flag)
+                           lineasActualizadas.push(lineas[i]);
+                       }
+                        else {
+                           for (var k = 0; k < lineasAgregadas.length; k++) {
+
+                               if (lineas[i].idInventario == lineasAgregadas[k].idInventario) {
+                                   lineasAgregadas[k] = lineas[i];
+                                   flag = false;
+                               }
                            }
                        }
-                       if(flag)
-                      lineasActualizadas.push(lineas[i]);
-
                    }
-
+                    guardarLocalStorage();
                }
 
            }
-                      console.log(lineasActualizadas);
 
            cargarTabla(lineas);
            $('#modalEditarOrden').modal('hide');
@@ -649,7 +744,7 @@ else
             var iva = parseFloat($('#editIva').val());
         } else
             var iva = parseFloat($('#iva').val());
-       
+
 
         var subTotal = parseFloat($('#subtotal').inputmask('unmaskedvalue')) - calcularTotalDescuentoLinea();
         return (iva / 100) * subTotal;
@@ -683,9 +778,10 @@ else
             url: '@Url.Action("GetOrdenDetalle")',
 
             success: function (data) {
-                
                 ordenDetalleBD = JSON.parse(JSON.stringify(data));
-                cargarLineas(data);
+                if (!repetido) {
+                  cargarLineas(data);
+                }
 
                },
               error: function (err, scnd) {
@@ -728,8 +824,7 @@ else
 
         var cero = true;
         for (var i = 0; i < data.length; i++) {
-            $('#item').val(data[i].idInventario);
-            $('#item').trigger('change.select2');
+            cargarLineaAutomatica(data[i].codigo);
             $cantidad.val(data[i].etotal);
             setSubTotalLinea();
             if ($("#precio").inputmask('unmaskedvalue') != 0) {
@@ -743,17 +838,12 @@ else
         if (cero)
           cargarAlert('@Lb["AlertPreciosCero"]');
 
-
-
-
-
-
     }
     function generarLinea() {
         var model = {
            id: 0,
-         idOrden: @Model.Id,
-         idInventario: $item.val(),
+          idOrden: @Model.Id,
+         idInventario: getIdInventario($item.val()).idInventario,
          nombreInventario: $descripcion.val(),
          idMonedaOD: parseInt($('.tipoMoneda').val()),
          cantidad: parseFloat($cantidad.val()),
@@ -769,10 +859,18 @@ else
          totalIva: calcularTotalIvaLinea(),
          total: calcularTotalLinea()
         };
-       lineasAgregadas.push(model);
-       lineas.push(model);
-       $cantidad.val(1);
-       cargarTabla(lineas);
+          lineasAgregadas.push(model);
+          lineas.push(model);
+          $cantidad.val(1);
+          guardarLocalStorage();
+          $("#item").val("");
+          $descripcion.val("");
+          $("#precio").val(0);
+          $("#descuento").val(0);
+          $cantidad.val(1);
+          $iva.val("");
+          setSubTotalLinea();
+         cargarTabla(lineas);
     }
     function guardarLinea() {
         var flag2 = false;
@@ -796,12 +894,12 @@ else
 
                 if (lineas[i].precio == parseFloat($("#precio").inputmask('unmaskedvalue')) && lineas[i].porcDesc == parseFloat($descuento.val()) && lineas[i].porcIva == parseFloat($iva.val()))
                 {
-                    flag2 = true;   
+                    flag2 = true;
                     pos = i;
                 }
             }
 
-            }
+          }
             if (flag2) {
                   bootbox.confirm("@Lb["sumarDetalleOrdenValid"]", function (resultado) {
                            if (resultado) {
@@ -817,20 +915,14 @@ else
                                cargarTabla(lineas);
                                $cantidad.val(1);
 
-                           } 
-                     
+                           }
 
                   });
             } else {
                 generarLinea();
             }
-            
+
         }
-
-
-
-
-
     }
 
     function validarCompraAutomatica() {
@@ -871,24 +963,7 @@ else
 
             });
 
-
-
-
-
     }
-
-    /*El precio de los items debe ser mayor a cero*/
-
-   /* function modificarLinea(id) {
-       var pos = id - 1;
-      $('#item').val(lineas[pos].idInventario);
-      $('#item').trigger('change.select2');
-      $cantidad.val(lineas[pos].cantidad);
-      lineas[id].porcIva = parseFloat($iva.val());
-      $("#precio").val(lineas[pos].precio);
-        $estado.val(lineas[pos].id);
-
-    }*/
 
     function eliminarLinea(_id, idLinea) {
 
@@ -906,7 +981,7 @@ else
 
                 lineas.splice(id, 1);
 
-
+                guardarLocalStorage();
                 cargarTabla(lineas);
 
 
@@ -993,7 +1068,6 @@ else
     }
 
     function getInventario() {
-
          $.ajax({
               type: "get",
               headers: {
@@ -1002,14 +1076,10 @@ else
               dataType: "json",
               url: '@Url.Action("GetAllInventario", "Inventario")',
              success: function (data) {
-
-                 //for (var i = 0; i < data.length; i++) {
-                 //    if (!data[i].inactiva)
-                 //        items.push(data[i]);
-                 //}
+                
                  items = data;
 
-                 cargarItems(items);
+                 cargarItems(items);            
                  getOrdenDetalle();
                },
               error: function (err, scnd) {
@@ -1019,17 +1089,24 @@ else
           });
     }
 
-    function getItem(id) {
+    function getItem(id) {      
         for (var i = 0; i < items.length; i++) {
             if (items[i].idInventario == parseInt(id))
                 return items[i];
         }
     }
+    function getIdInventario(codigo) {  
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].codigo == codigo)
+                return items[i];
+        }
+    }
 
     function cargarItems(data) {
+     
         for (var i = 0; i < data.length; i++) {
-            var o = new Option(data[i].codigo, data[i].idInventario);
-            $("#item").append(o);
+            var o = new Option(data[i].descripcion, data[i].codigo);
+            $("#lista").append(o);
 
 
         }
@@ -1054,7 +1131,7 @@ else
     }
 
     function guardarOrden() {
-   
+
         $.ajax({
             type: "POST",
             headers: {
@@ -1064,8 +1141,10 @@ else
             url: '@Url.Action("CrearEditarOrden")',
             data: { viewModel: crearModelo(), model2: crearModelo2() },
             success: function (data) {
+                 localStorage.removeItem("OrdenBorrador");
                 if (lineasEliminadas.length > 0)
                     eliminarOrdenDetalle();
+
                 window.location.href = "@Url.Action("ListarOrdenes")";
                },
               error: function (err, scnd) {
@@ -1153,11 +1232,12 @@ else
             total: totalOrden.toString().replace(".", ","),
             tipoCambioDolar: $('#dolar').val().replace(".", ","),
             tipoCambioEuro: $('#euro').val().replace(".", ","),
-            ordenDetalle: crearModeloDetalle(lineasAgregadas)
+            ordenDetalle: crearModeloDetalle(lineas)
 
         };
+        if ('@Model.Id' != 0)
+            ordenModel.ordenDetalle = crearModeloDetalle(lineasAgregadas);
 
-      
         return ordenModel;
     }
 
@@ -1198,7 +1278,6 @@ else
     }
 
     function validarForm() {
-        //var frmOrden = $('#frmOrden').serializeArray();
 
         if ($('#txtObservacion').val().replace(/ /g, "") === "") {
             $('#observacionValid').attr("hidden", false);
@@ -1586,19 +1665,19 @@ else
     }
 
 
-    </script>
+</script>
 
-    <script src="~/lib/vendors/jsPDF/OC.js"></script>
+<script src="~/lib/vendors/jsPDF/OC.js"></script>
 
-    <style>
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            /* display: none; <- Crashes Chrome on hover */
-            -webkit-appearance: none;
-            margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
-        }
+<style>
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        /* display: none; <- Crashes Chrome on hover */
+        -webkit-appearance: none;
+        margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+    }
 
-        input[type=number] {
-            -moz-appearance: textfield; /* Firefox */
-        }
-    </style>
+    input[type=number] {
+        -moz-appearance: textfield; /* Firefox */
+    }
+</style>
