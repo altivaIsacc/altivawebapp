@@ -135,5 +135,19 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpGet("GetIdTipoPrecioCliente/{idCliente}")]
+        public IActionResult GetIdTipoPrecioCliente(long idCliente)
+        {
+            try
+            {
+                return Ok(service.GetIdTipoPrecioCliente(idCliente));
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return BadRequest();
+            }
+        }
     }
 }

@@ -32,6 +32,7 @@ namespace AltivaWebApp.Services
         {
             return repository.GetFacturaDetalleById(id);
         }
+        
 
         public TbFdFactura Save(TbFdFactura Factura)
         {
@@ -51,6 +52,11 @@ namespace AltivaWebApp.Services
         public IList<TbFdFacturaDetalle> UpdateFacturaDetalle(IList<TbFdFacturaDetalle> domain)
         {
             return repository.UpdateFacturaDetalle(domain);
+        }
+
+        public long GetIdTipoPrecioCliente(long idCliente)
+        {
+            return repository.GetIdTipoPrecioCliente(idCliente);
         }
     }
 }

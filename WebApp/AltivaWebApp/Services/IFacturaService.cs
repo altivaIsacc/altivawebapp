@@ -16,5 +16,6 @@ namespace AltivaWebApp.Services
         IList<TbFdFacturaDetalle> SaveFacturaDetalle(IList<TbFdFacturaDetalle> domain);
         IList<TbFdFacturaDetalle> UpdateFacturaDetalle(IList<TbFdFacturaDetalle> domain);
         bool DeleteFacturaDetalle(IList<long> domain);
+        long GetIdTipoPrecioCliente(long idCliente);
     }
 }
