@@ -303,6 +303,11 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IPuntoVentaService, PuntoVentaService>();
             services.AddScoped<IPuntoVentaMap, PuntoVentaMap>();
 
+            //Tipo Justificante
+            services.AddScoped<ITipoJustificanteRepository, TipoJustificanteRepository>();
+            services.AddScoped<ITipoJustificanteService, TipoJustificanteService>();
+            services.AddScoped<ITipoJustificanteMap, TipoJustificanteMap>();
+
 
         }
     }

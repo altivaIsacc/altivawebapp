@@ -11,6 +11,7 @@ namespace AltivaWebApp.Domains
             TbFaCajaArqueo = new HashSet<TbFaCajaArqueo>();
             TbFaCajaArqueoDenominacion = new HashSet<TbFaCajaArqueoDenominacion>();
             TbFaCajaCierre = new HashSet<TbFaCajaCierre>();
+            TbFaCajaMovimiento = new HashSet<TbFaCajaMovimiento>();
         }
 
         public long IdCaja { get; set; }
@@ -23,5 +24,6 @@ namespace AltivaWebApp.Domains
         public virtual ICollection<TbFaCajaArqueo> TbFaCajaArqueo { get; set; }
         public virtual ICollection<TbFaCajaArqueoDenominacion> TbFaCajaArqueoDenominacion { get; set; }
         public virtual ICollection<TbFaCajaCierre> TbFaCajaCierre { get; set; }
+        public virtual ICollection<TbFaCajaMovimiento> TbFaCajaMovimiento { get; set; }
     }
 }

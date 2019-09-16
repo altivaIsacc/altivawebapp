@@ -5,6 +5,7 @@ using System.Collections.Generic;
 namespace AltivaWebApp.Domains
 {
     //creada por lenin
+  
     public partial class TbBaFlujoCategoria
     {
         public long IdCategoriaFlujo { get; set; }
@@ -14,5 +15,7 @@ namespace AltivaWebApp.Domains
         public string Nombre { get; set; }
         public string Codigo { get; set; }
         public int Estado { get; set; }
+      
+        public virtual ICollection<TbFaCajaMovimiento> TbFaCajaMovimiento { get; set; }
     }
 }

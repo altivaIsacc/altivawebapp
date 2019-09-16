@@ -225,7 +225,18 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFaCajaArqueo> TbFaCajaArqueo { get; set; }
         public virtual DbSet<TbFaCajaArqueoDenominacion> TbFaCajaArqueoDenominacion { get; set; }
         public virtual DbSet<TbFaCajaCierre> TbFaCajaCierre { get; set; }
-      
+        public virtual DbSet<TbFaTipoJustificante> TbFaTipoJustificante { get; set; }
+        public virtual DbSet<TbFaMovimientoJustificante> TbFaMovimientoJustificante { get; set; }
+        public virtual DbSet<TbFaMovimiento> TbFaMovimiento { get; set; }
+        public virtual DbSet<TbFaMovimientoDetalle> TbFaMovimientoDetalle { get; set; }
+        public virtual DbSet<TbFaCajaMovimiento> TbFaCajaMovimiento { get; set; }
+        public virtual DbSet<TbFaTipoDocumento> TbFaTipoDocumento { get; set; }
+        public virtual DbSet<TbFaNota> TbFaNota { get; set; }
+        public virtual DbSet<TbFaCajaMovimientoCheque> TbFaCajaMovimientoCheque { get; set; }
+        public virtual DbSet<TbFaCajaMovimientoTarjeta> TbFaCajaMovimientoTarjeta { get; set; }
+
+
+
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -5799,6 +5810,273 @@ namespace AltivaWebApp.Context
                     .WithMany(p => p.TbFaCajaArqueoDenominacion)
                     .HasForeignKey(d => d.IdDenominacion)
                     .HasConstraintName("FK_tb_FA_CajaArqueoDenominacion_tb_FA_Denominacion");
+            });
+            modelBuilder.Entity<TbFaTipoJustificante>(entity =>
+            {
+                entity.HasKey(e => e.IdTipoJustificante);
+
+                entity.ToTable("tb_FA_TipoJustificante");
+
+                entity.Property(e => e.Cxc)
+                    .IsRequired()
+                    .HasColumnName("CXC")
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Cxp)
+                    .IsRequired()
+                    .HasColumnName("CXP")
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Estado).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Nombre)
+                 .IsRequired()
+                 .HasMaxLength(100)
+                 .IsUnicode(false);
+            });
+            modelBuilder.Entity<TbFaTipoDocumento>(entity =>
+            {
+                entity.HasKey(e => e.IdTipoDocumento);
+
+                entity.ToTable("tb_FA_TipoDocumento");
+
+                entity.Property(e => e.Cxc).HasColumnName("CXC");
+
+                entity.Property(e => e.EsDebito).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+            });
+            modelBuilder.Entity<TbFaCajaMovimientoCheque>(entity =>
+            {
+                entity.HasKey(e => e.IdCajaMovimientoCheque);
+
+                entity.ToTable("tb_FA_CajaMovimientoCheque");
+
+                entity.Property(e => e.Banco)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Fecha)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Nota)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Portador)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.HasOne(d => d.IdCajaMovimientoNavigation)
+                    .WithMany(p => p.TbFaCajaMovimientoCheque)
+                    .HasForeignKey(d => d.IdCajaMovimiento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_CajaMovimientoCheque_tb_FA_CajaMovimiento");
+            });
+
+            modelBuilder.Entity<TbFaCajaMovimientoTarjeta>(entity =>
+            {
+                entity.HasKey(e => e.IdCajaMovimientoTarjeta);
+
+                entity.ToTable("tb_FA_CajaMovimientoTarjeta");
+
+                entity.Property(e => e.IdCajaMovimientoTarjeta).ValueGeneratedNever();
+
+                entity.Property(e => e.Autorizacion)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Voucher)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
+
+                entity.HasOne(d => d.IdCajaMovimientoNavigation)
+                    .WithMany(p => p.TbFaCajaMovimientoTarjeta)
+                    .HasForeignKey(d => d.IdCajaMovimiento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_CajaMovimientoTarjeta_tb_FA_CajaMovimiento");
+            });
+            modelBuilder.Entity<TbFaNota>(entity =>
+            {
+                entity.HasKey(e => e.IdNotaCredito)
+                    .HasName("PK_tb_FA_NotaCredito");
+
+                entity.ToTable("tb_FA_Nota");
+
+                entity.Property(e => e.Estado).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Fecha)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Nota)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.HasOne(d => d.IdTipoDocumentoNavigation)
+                    .WithMany(p => p.TbFaNota)
+                    .HasForeignKey(d => d.IdTipoDocumento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_Nota_tb_FA_TipoDocumento");
+            });
+            modelBuilder.Entity<TbFaMovimiento>(entity =>
+            {
+                entity.HasKey(e => e.IdMovimiento);
+
+                entity.ToTable("tb_FA_Movimiento");
+
+                entity.Property(e => e.Cxc).HasColumnName("CXC");
+
+                entity.Property(e => e.Cxp).HasColumnName("CXP");
+
+                entity.Property(e => e.DisponibleDolar).HasMaxLength(10);
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdUsuario).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.MontoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SaldoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SaldoDolar).HasDefaultValueSql("((0))");
+
+                entity.HasOne(d => d.IdContactoNavigation)
+                    .WithMany(p => p.TbFaMovimiento)
+                    .HasForeignKey(d => d.IdContacto)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_Movimiento_tb_CR_Contacto");
+
+                entity.HasOne(d => d.IdTipoDocumentoNavigation)
+                    .WithMany(p => p.TbFaMovimiento)
+                    .HasForeignKey(d => d.IdTipoDocumento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_Movimiento_tb_FA_TipoDocumento");
+            });
+            modelBuilder.Entity<TbFaMovimientoDetalle>(entity =>
+            {
+                entity.HasKey(e => e.IdMovimientoDetalle);
+
+                entity.ToTable("tb_FA_MovimientoDetalle");
+
+                entity.Property(e => e.CompraDolarTc).HasColumnName("CompraDolarTC");
+
+                entity.Property(e => e.CompraEuroTc).HasColumnName("CompraEuroTC");
+
+                entity.Property(e => e.Fecha)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.VentaDolarTc).HasColumnName("VentaDolarTC");
+
+                entity.Property(e => e.VentaEuroTc).HasColumnName("VentaEuroTC");
+
+                entity.HasOne(d => d.IdMovimientoDesdeNavigation)
+                    .WithMany(p => p.TbFaMovimientoDetalleIdMovimientoDesdeNavigation)
+                    .HasForeignKey(d => d.IdMovimientoDesde)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_MovimientoDetalle_tb_FA_Movimiento");
+
+                entity.HasOne(d => d.IdMovimientoHastaNavigation)
+                    .WithMany(p => p.TbFaMovimientoDetalleIdMovimientoHastaNavigation)
+                    .HasForeignKey(d => d.IdMovimientoHasta)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_MovimientoDetalle_tb_FA_Movimiento1");
+            });
+            modelBuilder.Entity<TbFaMovimientoJustificante>(entity =>
+            {
+                entity.HasKey(e => e.IdMovimientoJustificante);
+
+                entity.ToTable("tb_FA_MovimientoJustificante");
+
+                entity.Property(e => e.CompraDolarTc).HasColumnName("CompraDolarTC");
+
+                entity.Property(e => e.CompraEuroTc).HasColumnName("CompraEuroTC");
+
+                entity.Property(e => e.Descripcion)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Estado).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.IdMoneda).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.VentaDolatTc).HasColumnName("VentaDolatTC");
+
+                entity.Property(e => e.VentaEuroTc).HasColumnName("VentaEuroTC");
+
+                entity.HasOne(d => d.IdMovimientoNavigation)
+                    .WithMany(p => p.TbFaMovimientoJustificante)
+                    .HasForeignKey(d => d.IdMovimiento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_MovimientoJustificante_tb_FA_Movimiento");
+
+                entity.HasOne(d => d.IdTipoJustificanteNavigation)
+                    .WithMany(p => p.TbFaMovimientoJustificante)
+                    .HasForeignKey(d => d.IdTipoJustificante)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_MovimientoJustificante_tb_FA_TipoJustificante");
+            });
+            modelBuilder.Entity<TbFaCajaMovimiento>(entity =>
+            {
+                entity.HasKey(e => e.IdCajaMovimiento);
+
+                entity.ToTable("tb_FA_CajaMovimiento");
+
+                entity.Property(e => e.CompraDolarTc).HasColumnName("CompraDolarTC");
+
+                entity.Property(e => e.CompraEuroTc).HasColumnName("CompraEuroTC");
+
+                entity.Property(e => e.Estado).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdMoneda).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.VentaDolarTc).HasColumnName("VentaDolarTC");
+
+                entity.Property(e => e.VentaEuroTc).HasColumnName("VentaEuroTC");
+
+                entity.HasOne(d => d.IdCajaNavigation)
+                    .WithMany(p => p.TbFaCajaMovimiento)
+                    .HasForeignKey(d => d.IdCaja)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_CajaMovimiento_tb_FA_Caja");
+
+                entity.HasOne(d => d.IdCategoriaFlujoNavigation)
+                    .WithMany(p => p.TbFaCajaMovimiento)
+                    .HasForeignKey(d => d.IdCategoriaFlujo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_CajaMovimiento_tb_BA_FlujoCategoria");
+
+                entity.HasOne(d => d.IdMovimientoNavigation)
+                    .WithMany(p => p.TbFaCajaMovimiento)
+                    .HasForeignKey(d => d.IdMovimiento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_CajaMovimiento_tb_FA_Movimiento");
             });
 
             modelBuilder.Entity<TbFaCajaCierre>(entity =>
