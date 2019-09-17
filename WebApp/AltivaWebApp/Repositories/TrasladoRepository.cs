@@ -23,8 +23,21 @@ namespace AltivaWebApp.Repositories
         }
 
         public TbPrTraslado GetTrasladoById(long id)
-        {          
-                return context.TbPrTraslado.AsNoTracking().FirstOrDefault(d => d.IdTraslado == id);// AsNoTracking()       
+        {
+            TbPrTraslado resul;
+            if (id == 0)
+            {
+
+                resul= context.TbPrTraslado.AsNoTracking().FirstOrDefault(d => d.IdTraslado == id);
+            }
+            else {
+                resul = context.TbPrTraslado.AsNoTracking().FirstOrDefault(d => d.IdTraslado == id);
+                resul.TbPrTrasladoInventario = context.TbPrTrasladoInventario.Where(f => f.IdTraslado == id).ToList();
+            }
+           
+
+
+            return resul;// AsNoTracking()       
         }
 
       
