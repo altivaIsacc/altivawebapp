@@ -32,7 +32,7 @@ namespace AltivaWebApp.Repositories
             }
             else {
                 resul = context.TbPrTraslado.AsNoTracking().FirstOrDefault(d => d.IdTraslado == id);
-                resul.TbPrTrasladoInventario = context.TbPrTrasladoInventario.Where(f => f.IdTraslado == id).ToList();
+                resul.TbPrTrasladoInventario = context.TbPrTrasladoInventario.AsNoTracking().Where(f => f.IdTraslado == id).ToList();
             }
            
 

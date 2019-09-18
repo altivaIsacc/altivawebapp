@@ -103,10 +103,10 @@ namespace AltivaWebApp.Controllers
         [HttpPost("CrearEditar-Traslado")]
         public ActionResult CrearEditarTraslado(TrasladoViewModel traslado, IList<TrasladoInventarioViewModel> inventarioTraslado, IList<long> eliminados)
         {
-          
 
-            TbPrTraslado original = trasladoService.GetTrasladoById(traslado.IdTraslado);
-            TbPrTraslado tr = trasladoMap.ViewModelToDomain(traslado);
+            TrasladoInventarioRepository rep = new TrasladoInventarioRepository(context);
+            TbPrTraslado original = trasladoService.GetTrasladoById(traslado.IdTraslado); //adquiere todos los hijos asociados
+            TbPrTraslado tr;
             Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction trans = context.Database.BeginTransaction();
             using (trans)
             {
@@ -114,12 +114,11 @@ namespace AltivaWebApp.Controllers
                 try
                 {
 
-
                     if (traslado.IdTraslado != 0)
                     {
 
-                         tr = trasladoService.GetTrasladoById(traslado.IdTraslado);
-                      
+                       
+                        tr =  trasladoService.GetTrasladoById(traslado.IdTraslado);
 
                         if (inventarioTraslado.Count() > 0)//nuevas y editadas
                         {
@@ -130,8 +129,6 @@ namespace AltivaWebApp.Controllers
                                 if (item.Id == 0)
                                 {
                                     tr.TbPrTrasladoInventario.Add(trasladoInventarioMap.ViewModelToDomain(item));//adquiere los hijos
-
-
                                 }
                                 else
                                 {
@@ -139,20 +136,15 @@ namespace AltivaWebApp.Controllers
                                     tr.TbPrTrasladoInventario.FirstOrDefault(d => d.Id == item.Id).IdTraslado = item.IdTraslado;
                                     tr.TbPrTrasladoInventario.FirstOrDefault(d => d.Id == item.Id).IdInventario = item.IdInventario;
                                     tr.TbPrTrasladoInventario.FirstOrDefault(d => d.Id == item.Id).CodigoArticulo = item.CodigoArticulo;
-                                    tr.TbPrTrasladoInventario.FirstOrDefault(d => d.Id == item.Id).Descripcion = item.Descripcion +'*';
+                                    tr.TbPrTrasladoInventario.FirstOrDefault(d => d.Id == item.Id).Descripcion = item.Descripcion;
                                     tr.TbPrTrasladoInventario.FirstOrDefault(d => d.Id == item.Id).Cantidad = item.Cantidad;
                                     tr.TbPrTrasladoInventario.FirstOrDefault(d => d.Id == item.Id).PrecioUnitario = item.PrecioUnitario;
                                     tr.TbPrTrasladoInventario.FirstOrDefault(d => d.Id == item.Id).CostoTotal = item.CostoTotal;
 
-
-
                                 }
                             }
-
                         }
-
-                       
-
+                      
                         if (eliminados.Count() > 0)
                         {
                             var borrar = new List<TbPrTrasladoInventario>();
@@ -164,12 +156,14 @@ namespace AltivaWebApp.Controllers
                             context.RemoveRange(borrar);
                             context.SaveChanges();
                         }
-                        
+                        tr.Comentario = traslado.Comentario;
+                        tr.CostoTraslado = traslado.CostoTraslado;
+                        tr.Fecha = traslado.Fecha;
+                        tr.Anulado = traslado.Anulado;
                         context.Update(tr);
+                      
                         kardexMap.CreateKardexTRI(tr,original, eliminados);
-                       
-
-
+                        context.SaveChanges();
 
                     }
                     else
@@ -188,7 +182,6 @@ namespace AltivaWebApp.Controllers
 
                         context.Add(tr);
                         context.SaveChanges();
-
                         kardexMap.CreateKardexTRI(tr, original, eliminados);//inserta en el kardex
 
                     }
@@ -209,7 +202,6 @@ namespace AltivaWebApp.Controllers
                     {
                         return BadRequest(new { rollback = false });
                     }
-
 
                 }
 
@@ -262,7 +254,7 @@ namespace AltivaWebApp.Controllers
                 IList<long> eliminados = new List<long>(); //lista vacia
 
                 var traslado = trasladoService.GetTrasladoById(id);
-                var orginal = trasladoService.GetTrasladoById(id);
+                var orginal = trasladoService.GetTrasladoById(0);
                 var anulado = traslado.Anulado;
 
                 if (anulado == false)

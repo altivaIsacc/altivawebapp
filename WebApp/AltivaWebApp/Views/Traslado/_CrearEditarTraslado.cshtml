@@ -198,7 +198,7 @@
         </div>
         <br>
 
-        <button class="btn btn-success" onclick="guardarTraslado()">@SL["Guardar"] <i class="fas fa-save"></i></button>
+        <button class="btn btn-success" id="btnGuardar" onclick="guardarTraslado()">@SL["Guardar"] <i class="fas fa-save"></i></button>
         <button class="btn btn-default" data-dismiss="modal" onclick="focus()">@SL["Cancelar"]</button>
 
     </div>
@@ -431,10 +431,12 @@
             
            // console.log("dejar disponible el boton");
             $('#Anular').prop("disabled", false);
+            $('#btnGuardar').prop("disabled", false);
 
         } else if (estadoAnulado == "True") {
           //  console.log("bloquear boton");
             $('#Anular').prop("disabled", true);
+            $('#btnGuardar').prop("disabled", true);
            
         }
 
@@ -840,7 +842,7 @@
             descripcion: obj.descripcion,
             cantidad: 0,
             precioUnitario: obj.costoPromedioBodega,
-            costoTotal: 0,
+            costoTotal: obj.costoPromedioBodega,
             existenciaBodega: obj.existenciaBodega
         };
         if (!existeItem(arrayTablaTraslado, model.idInventario)) {
@@ -882,11 +884,19 @@
             document.getElementById(id).select();
         
         }
+
     }
+
+    function soloNumeros(e) {
+        var key = window.Event ? e.which : e.keyCode
+        return (key >= 48 && key <= 57)
+    }
+
+
 
     function cargarDatosTraslado(arrayTablaTraslado) {
        
-        console.log(arrayTablaTraslado);
+        //console.log(arrayTablaTraslado);
         calcularCostoTraslado();
         var contadorFila = 0;
         $("#tablaTrasladoInventario > tbody").remove();
@@ -897,9 +907,9 @@
             var body = '<tr class="fila' + contadorFila + ' filas">'
                 + '<td style="width:17%"><p style="padding-top:1rem">' + arrayTablaTraslado[i].codigoArticulo + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + arrayTablaTraslado[i].descripcion + '</p></td>'
-                + '<td> <input style = "width:100%" id="' + contadorFila + '" class="form-control numerico" maxlength="10" value="' + arrayTablaTraslado[i].cantidad + '" onChange="calcular(value,' + contadorFila + ', ' + arrayTablaTraslado[i].idInventario + ' )"  min="1" pattern="^[0-9]+"  onkeyup="pasarSigCampo(event,' + contadorFila + ')" readonly />                    <input type="hidden" id="txtCantidadEntrante" class="form-control numerico" maxlength="10" value="' + arrayTablaTraslado[i].cantidad + '" />  </td>'
+                + '<td> <input type="number" style = "width:100%" id="' + contadorFila + '" class="form-control numerico" maxlength="10" value="' + arrayTablaTraslado[i].cantidad + '" onChange="calcular(value,' + contadorFila + ', ' + arrayTablaTraslado[i].idInventario + ' )"  min="1" pattern="^[0-9]+"  onkeyup="pasarSigCampo(event,' + contadorFila + ')"  readonly />                    <input type="hidden" id="txtCantidadEntrante" class="form-control numerico" maxlength="10" value="' + arrayTablaTraslado[i].cantidad + '" />  </td>'
                 + '<td style="width:17%"><p style="padding-top:1rem" class="colon">' + arrayTablaTraslado[i].precioUnitario + '</p></td>'            
-                + '<td style="width:20%"> <input type="text" style="width:100%" id="txtCostoTotal' + contadorFila + '" class="form-control colon" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '" readonly placeholder="@SL["costoTotal"]."/>                           <input type="hidden" id="txtCosto' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '"/>    </td>'
+                + '<td style="width:20%"> <input type="text" style="width:100%" id="txtCostoTotal' + contadorFila + '" class="form-control colon" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '" readonly />                           <input style="width:100%" type="hidden" id="txtCosto' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '"/>    </td>'
                 + '<td style="width:15%"> <button id="btGuardarLinea' + contadorFila + '" value="' + contadorFila + '" onclick="editar(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + contadorFila + '" onclick="eliminar(value)" class="btn btn-link btnEditar"><i class="fas fa-trash"></i></button>';
             $('#tablaTrasladoInventario > tbody').append(body);
             contadorFila++;
@@ -1021,11 +1031,11 @@
         } else {
 
             
-            // console.log("cantidad a modificada: " + cantidad);
+             console.log("cantidad a modificada: " + cantidad);
              var txtCantidadEntrante = $('#txtCantidadEntrante').val();
-           //  console.log("cantidad entrante: " + txtCantidadEntrante);
+             console.log("cantidad entrante: " + txtCantidadEntrante);
              var cantidadResultante = (cantidad - txtCantidadEntrante);
-           //  console.log("cantidad resultante a agregar: " + cantidadResultante);
+             console.log("cantidad resultante a agregar: " + cantidadResultante);
            
 
                  for (var j = 0; j < arrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
@@ -1033,7 +1043,7 @@
                      if (arrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == id) {
 
                          var existenciaBodega = arrayArticuloPorBodegaOrigenSeleccionada[j].existenciaBodega;
-                       //  console.log("existencia en bodega: " + existenciaBodega);
+                         console.log("existencia en bodega: " + existenciaBodega);
 
                          if (cantidadResultante > existenciaBodega) {
 
@@ -1643,6 +1653,7 @@
                                        
                                         //bloquear boton pdf
                                         $('#Anular').prop("disabled", true);
+                                        $('#btnGuardar').prop("disabled", true);
 
                                     }
                                     else

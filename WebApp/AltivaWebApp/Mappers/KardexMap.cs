@@ -537,7 +537,7 @@ namespace AltivaWebApp.Mappers
 
                
                 bool isDeleted = eliminados.Contains(item.Id);
-                if (cambios.Anulado) { //anulo
+                if (cambios.Anulado == true) { //anulo
                     kOrigen.CantidadMov = item.Cantidad;
                     kDestino.CantidadMov = item.Cantidad * -1;
                     kardex.Add(kDestino);
@@ -568,18 +568,62 @@ namespace AltivaWebApp.Mappers
                             if (lineaVieja.CostoTotal != item.CostoTotal || lineaVieja.Cantidad != item.Cantidad)
                             {
                                 kOrigen.CantidadMov = lineaVieja.Cantidad;
+                                kOrigen.PrecioUnit = lineaVieja.PrecioUnitario;
                                 kDestino.CantidadMov = lineaVieja.Cantidad * -1;
                                 kardex.Add(kDestino);
                                 kardex.Add(kOrigen);
 
-                                kOrigen.CantidadMov = item.Cantidad * -1;
-                                kDestino.CantidadMov = lineaVieja.Cantidad;
-                                kardex.Add(kDestino);
-                                kardex.Add(kOrigen);
+                                var kOrigenN = new TbPrKardex
+                                {
+                                    IdInventario = item.IdInventario,
+                                    IdDocumento = cambios.IdTraslado,
+                                    TipoDocumento = "TRE",
+                                    Fecha = DateTime.Now,
+                                    ExistAnt = 0,
+                                    CantidadMov = item.Cantidad*-1,
+                                    ExistAct = 0,
+                                    PrecioUnit = item.PrecioUnitario,
+                                    CostoMov = 0,
+                                    IdMoneda = 1,
+                                    IdBodegaOrigen = cambios.IdBodegaOrigen,
+                                    IdBodegaDestino = cambios.IdBodegaDestino,
+
+                                    ExistAntBod = 0,
+                                    ExistActBod = 0,
+                                    Observaciones = cambios.Comentario,
+                                    CostoPromedio = 0,
+                                    SaldoFinal = 0,
+                                    PrecioPromedio = 0,
+                                    IdUsuario = cambios.IdUsuario
+                                };
+                                var kDestinoN = new TbPrKardex
+                                {
+                                    IdInventario = item.IdInventario,
+                                    IdDocumento = cambios.IdTraslado,
+                                    TipoDocumento = "TRS",
+                                    Fecha = DateTime.Now,
+                                    ExistAnt = 0,
+                                    CantidadMov = item.Cantidad,// true d +2
+                                    ExistAct = 0,
+                                    PrecioUnit = item.PrecioUnitario,
+                                    CostoMov = 0,
+                                    IdMoneda = 1,
+                                    IdBodegaOrigen = cambios.IdBodegaDestino,
+                                    IdBodegaDestino = cambios.IdBodegaOrigen,
+                                    ExistAntBod = 0,
+                                    ExistActBod = 0,
+                                    Observaciones = cambios.Comentario,
+                                    CostoPromedio = 0,
+                                    SaldoFinal = 0,
+                                    PrecioPromedio = 0,
+                                    IdUsuario = cambios.IdUsuario
+                                };
+                            
+                                kardex.Add(kDestinoN);
+                                kardex.Add(kOrigenN);
 
                             }
                            
-
                         }
                     }
                 }              
