@@ -155,5 +155,20 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
         }
+
+        [HttpPost("GetEstadoCajasPuntoVenta")]
+        public IActionResult GetEstadoCajasPuntoVenta(long idPV, long idUsuario)
+        {
+            try
+            {
+                return Ok(service.GetEstadoCajasPV(idPV, idUsuario));
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return BadRequest();
+                throw;
+            }
+        }
     }
 }

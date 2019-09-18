@@ -150,37 +150,39 @@
 <div class="row">
 
     <form id="frmFD">
-        <div class="form-group col-md-3 col-sm-3 col-xs-12">
-            <label class="control-label">@Lb["Producto"]: <span style="font-size:1.1rem" class="text-info"><a id="descProducto"></a></span></label>
-            <input id="producto" onkeyup="pasarSigCampo(event,'cantidad')" class="form-control autocompleteTH" autocomplete="off" autofocus type="text" />
-        </div>
+        <fieldset id="frmFDfieldset">
+            <div class="form-group col-md-3 col-sm-3 col-xs-12">
+                <label class="control-label">@Lb["Producto"]: <span style="font-size:1.1rem" class="text-info"><a id="descProducto"></a></span></label>
+                <input id="producto" onkeyup="pasarSigCampo(event,'cantidad')" class="form-control autocompleteTH" autocomplete="off" autofocus type="text" />
+            </div>
 
-        <div class="form-group col-md-2 col-sm-2 col-xs-4">
-            <label class="control-label">@Lb["Cantidad"]:</label>
-            <input id="cantidad" onkeyup="pasarSigCampo(event,'precio')" class="form-control numerico" value="1" type="text" />
-        </div>
+            <div class="form-group col-md-2 col-sm-2 col-xs-4">
+                <label class="control-label">@Lb["Cantidad"]:</label>
+                <input id="cantidad" onkeyup="pasarSigCampo(event,'precio')" class="form-control numerico" value="1" type="text" />
+            </div>
 
-        <div class="form-group col-md-2 col-sm-2 col-xs-6">
-            <label class="control-label">@Lb["Precio"]:</label>
-            <input id="precio" onkeyup="pasarSigCampo(event,'submitFrmFD')" class="form-control moneda" type="text" />
-        </div>
+            <div class="form-group col-md-2 col-sm-2 col-xs-6">
+                <label class="control-label">@Lb["Precio"]:</label>
+                <input id="precio" onkeyup="pasarSigCampo(event,'submitFrmFD')" class="form-control moneda" type="text" />
+            </div>
 
-        <div hidden class="form-group col-md-3 col-sm-3 col-xs-6">
-            <label class="control-label">@Lb["Descuento"]:</label>
-            <input id="descuento" class="form-control porcentaje" value="0" type="text" />
-        </div>
+            <div hidden class="form-group col-md-3 col-sm-3 col-xs-6">
+                <label class="control-label">@Lb["Descuento"]:</label>
+                <input id="descuento" class="form-control porcentaje" value="0" type="text" />
+            </div>
 
-        <div hidden class="form-group col-md-3 col-sm-3 col-xs-6">
-            <label class="control-label">@Lb["IVA"]:</label>
-            <input id="iva" class="form-control" type="text" />
-        </div>
+            <div hidden class="form-group col-md-3 col-sm-3 col-xs-6">
+                <label class="control-label">@Lb["IVA"]:</label>
+                <input id="iva" class="form-control" type="text" />
+            </div>
 
-        <div class="form-group col-md-1 col-sm-1 col-xs-1" style="padding-top: 2.3rem;">
-            <a onkeyup="pasarSigCampo(event,'producto')" onclick="" id="submitFrmFD" class="btn btn-success"><span><i class="fas fa-save"></i></span></a>
-        </div>
-        <div class="form-group col-md-3 col-sm-3 col-xs-12" style="padding-top: 2.3rem;">
-            <label style="font-size:2rem" class="control-label pull-right">@Lb["Total"]: <span id="totalFactura"></span></label>
-        </div>
+            <div class="form-group col-md-1 col-sm-1 col-xs-1" style="padding-top: 2.3rem;">
+                <a onkeyup="pasarSigCampo(event,'producto')" onclick="" id="submitFrmFD" class="btn btn-success"><span><i class="fas fa-save"></i></span></a>
+            </div>
+            <div class="form-group col-md-3 col-sm-3 col-xs-12" style="padding-top: 2.3rem;">
+                <label style="font-size:2rem" class="control-label pull-right">@Lb["Total"]: <span id="totalFactura"></span></label>
+            </div>
+        </fieldset>
     </form>
 
 </div>
@@ -361,6 +363,10 @@
         $('#selectPuntoVenta').on('change', function () {
             setConfiguracionPV();
             limpiarLinea();
+        });
+
+        $('#IdVendedor').on('change', function () {
+            validarCajasAbiertas();
         });
 
         $('#IdCliente').on('change.select2', function () {
@@ -735,6 +741,8 @@
 
         //se llama en el trigger change de select cliente
         //getIdTipoPrecioCliente();
+
+        validarCajasAbiertas();
     }
 
     function setMonedaFactura(codigo) {
@@ -1114,6 +1122,29 @@
         });
     }
 
+    function validarCajasAbiertas() {
+
+        $.ajax({
+              type: "POST",
+            dataType: "json",
+            url: '@Url.Action("GetEstadoCajasPuntoVenta", "PuntoVenta")',
+            data: { idPV: $('#selectPuntoVenta').val(), idUsuario: $('#IdVendedor').val() },
+            success: function (data) {
+                 if (data <= 0) {
+                     $('#frmFDfieldset').prop('disabled', true);
+                     cargarAlert('@Lb["PuntoVentaSinCajasAbiertas"]');
+                 }
+                 else
+                     $('#frmFDfieldset').prop('disabled', false);
+                 
+             },
+             error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+             }
+         });
+
+    }
 
 
     function getInventario() {

@@ -14,5 +14,6 @@ namespace AltivaWebApp.Services
         IList<TbSePuntoVenta> GetAll();
         TbSePuntoVenta GetPuntoVentaById(int id);
         bool ExistePuntoVentaValido();
+        int GetEstadoCajasPV(long idPV, long idUsuario);
       }
 }
