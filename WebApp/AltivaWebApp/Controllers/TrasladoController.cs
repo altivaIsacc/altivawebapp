@@ -195,7 +195,7 @@ namespace AltivaWebApp.Controllers
 
                     if (ex.HResult.ToString() == "-2146233088")
                     {
-                        //eliminar en traslado y traslado inventario
+                        
                         return BadRequest(new { rollback = true });
                     }
                     else
