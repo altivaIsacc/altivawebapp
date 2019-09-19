@@ -20,6 +20,7 @@ namespace AltivaWebApp.DomainsConta
         public string Modulo { get; set; }
         public long IdTipoDocumento { get; set; }
         public long IdDocumento { get; set; }
+        public long IdPeriodoTrabajo { get; set; }
         public int IdUsuarioCreador { get; set; }
         public int IdUsuarioMod { get; set; }
         public DateTime FechaCreacion { get; set; }

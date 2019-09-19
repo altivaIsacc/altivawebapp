@@ -1,5 +1,5 @@
-﻿@model AltivaWebApp.DomainsConta.Asiento;
-@inject IStringLocalizer<SharedResources> lb
+﻿@model AltivaWebApp.DomainsConta.Asiento
+@inject IStringLocalizer<SharedResources> Lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -7,110 +7,355 @@
         return Xsrf.GetAndStoreTokens(Context).RequestToken;
     }
 }
+
 @{
-    ViewData["Title"] = "Asiento";
+    var estado = "";
+    var estado2 = "";
+    var usuario = ViewData["usuario"] as TbSeUsuario;
+    if (Model.Estado == "ANULADO")
+    {
+        estado = "disabled";
+    }
+  
+    var numDocumento = Model.IdDocumento;
+    ViewData["Title"] = Lb["Asiento"];
 }
 
-<!DOCTYPE html>
-
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-
-</head>
-<body>
-  
+@if (Model.IdAsientoContable != 0)
+{
     <div class="row">
-        <div class="col-lg-4 col-sm-6">
-            <form id="frmCuenta" asp-action="guardar" asp-controller="ContaAsiento" method="post">
-                <input type="hidden" asp-for="IdAsientoContable" />
-                <div class="form-group">
-                    <input list="pasta" autocomplete=on>
+        <div class="col-md-3"><h3>@Lb["editarAsiento"]</h3></div>
+        <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
+    </div>
 
-                    <datalist id="pasta">
-                        <option value="1-345-144">Bavette</option>
-                        <option value="2-244-244">Cannelloni</option>
-                        <option value="3-144-524">Fiorentine</option>
-                        <option>Gnocchi</option>
-                        <option>Pappardelle</option>
-                        <option>Penne lisce</option>
-                        <option>Pici</option>
-                        <option>Rigatoni</option>
-                        <option>Spaghetti</option>
-                        <option>Tagliatelle</option>
-                    </datalist>
-                    <label asp-for="Fecha">@lb["Fecha"]:</label>
+}
+else
+{
+    <div class="row">
+        <h3 class="col-md-3">@Lb["nuevoAsiento"]</h3>
 
-                    <input type="date" asp-for="Fecha" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="Estado" class="control-label">@lb["Estado"]:</label>
-                    <input asp-for="Estado" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="Descripcion" class="control-label">@lb["Descripcion"]:</label>
-                    <input asp-for="Descripcion" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="CodigoMoneda" class="control-label">@lb["Moneda"]:</label>
-                    <input asp-for="CodigoMoneda" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="MontoColones" class="control-label">@lb["TotalColones"]:</label>
-                    <input asp-for="MontoColones" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="MontoDolar" class="control-label">@lb["TotalDolar"]:</label>
-                    <input asp-for="MontoDolar" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="MontoEuro" class="control-label">@lb["TotalEuro"]:</label>
-                    <input asp-for="MontoEuro" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="MontoEuro" class="control-label">@lb["TotalEuro"]:</label>
-                    <input asp-for="MontoEuro" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="Modulo" class="control-label">@lb["Modulo"]:</label>
-                    <input asp-for="Modulo" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="IdTipoDocumento" class="control-label">@lb["TipoDocumento"]:</label>
-                    <input asp-for="IdTipoDocumento" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="IdDocumento" class="control-label">@lb["Documento"]:</label>
-                    <input asp-for="IdDocumento" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="IdUsuarioCreador" class="control-label">@lb["Usuario"]:</label>
-                    <input asp-for="IdUsuarioCreador" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="IdUsuarioMod" class="control-label">@lb["Usuario Ultima Mod"]:</label>
-                    <input asp-for="IdUsuarioMod" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="FechaCreacion" class="control-label">@lb["Fecha Creado"]:</label>
-                    <input asp-for="FechaCreacion" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="FechaMod" class="control-label">@lb["Fecha Creado"]:</label>
-                    <input asp-for="FechaMod" class="form-control" />
-                </div>
+    </div>
+}
+<div class="row">
+    @if (Model.IdAsientoContable != 0 && !(Model.Estado == ""))
+    {
+        <div class="col-md-12 text-right"><button @estado2 class="btn btn-danger btn-sm" onclick="anularCompra()">@Lb["Anular"]</button></div>
+    }
+    else if (Model.IdAsientoContable != 0)
+    {
+        <div class="col-md-12 text-left"><h4 class="text-danger">@Lb["gastoAnulado"]</h4></div>
+    }
 
-                <div class="form-group">
-                    <label asp-for="Frecuente" class="control-label">@lb["Frecuente"]:</label>
-                    <input asp-for="Frecuente" class="form-control" />
-                </div>
+</div>
 
-                <button id="btnGuardar" asp-controller="ContaAsiento" asp-action="guardar" value="Guardar" class="btn btn-success"><span>@lb["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
-                <a class="btn btn-default btnAtras" asp-action="Index" asp-controller="ContaAsiento">@lb["Cancelar"]</a>
+<div class="row well">
+    <div class="container">
 
-            </form>
+        @Html.HiddenFor(x => x.IdAsientoContable)
+        @Html.HiddenFor(x => x.Estado)
+        @Html.HiddenFor(x => x.FechaCreacion)
+        @Html.HiddenFor(x => x.IdUsuarioCreador)
+        @Html.HiddenFor(x => x.Frecuente)
+        <div class="form-group col-md-3 col-sm-12 col-xs-12">
+            <div class="row">
+                <label for="fecha">@Lb["Fecha"]:</label>
+                <input type="date" asp-for="Fecha" class="form-control date" name="fecha" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+
+            </div>
+            <div class="row">
+                <label asp-for="IdPeriodoTrabajo" class="control-label">@Lb["Periodo"]:</label>
+                <input id="LtPeriodos" list="LtPeriodoTrabajo" class="form-control"  autocomplete=on>
+                <datalist id="LtPeriodoTrabajo">
+                    @{
+                        foreach (var item in ViewBag.Periodos)
+                        {
+                         <option value="@item.Nombre">@item.FechaInicio.ToString("dd-MM-yy") | @item.FechaFinal.ToString("dd-MM-yy") </option>                                                 
+                        }
+
+                    }
+
+                </datalist>
+                <span hidden id="numDocumentoValid" class="text-danger">@Lb["AsientoValid"]</span>
+            </div>
+            <div class="row">
+                <label asp-for="Codigo" class="control-label">@Lb["Asiento"]:</label>
+                <input readonly="readonly" asp-for="Codigo" id="Asiento" class="form-control" />
+                <span hidden id="numDocumentoValid" class="text-danger">@Lb["AsientoValid"]</span>
+            </div>
+
+        </div>
+        <div class="form-group col-md-3 col-sm-6 col-xs-12" style="margin-left:1rem">
+            <div class="row">
+                <label asp-for="Estado" class="control-label">@Lb["Estado"]:</label>         
+                <input id="LtEstados" list="LtEstado" class="form-control" autocomplete=on>
+                <datalist id="LtEstado">
+                    <option value="@Lb["ACTIVO"]">@Lb["ACTIVO"]</option>
+                    <option value="@Lb["BLOQUEADO"]">@Lb["BLOQUEADO"]</option>
+                    <option value="@Lb["ANULADO"]">@Lb["ANULADO"]</option>             
+
+                </datalist>
+            </div>
+            <div class="row">
+                <label asp-for="CodigoMoneda" class="control-label">@Lb["Moneda"]:</label>
+                <input id="LtMonedas" list="LtCodigoMoneda" class="form-control" autocomplete=on>
+                <datalist id="LtCodigoMoneda">
+                    @{
+                        foreach (var item in ViewBag.Monedas)
+                        {
+                            <option>@item.Simbolo</option>
+                        }
+                    }
+
+                </datalist>
+            </div>
+            <div class="row">
+                <label asp-for="IdTipoDocumento" class="control-label">@Lb["Tipo"]:</label>
+                <input id="LtTipos" list="LtTipoDoc" class="form-control" autocomplete=on>
+                <datalist id="LtTipoDoc">
+                    @{
+                        foreach (var item in ViewBag.Tipos)
+                        {
+                            <option>@Lb[item.Descripcion]</option>
+                        }
+                    }
+
+                </datalist>
+                <span hidden id="numDocumentoValid" class="text-danger">@Lb["AsientoValid"]</span>
+            </div>
+        </div>
+        <div class="form-group col-md-4 col-sm-12 col-xs-12">
+            <div class="form-group shadow-textarea">
+                <label for="exampleFormControlTextarea2">@Lb["Descripcion"]</label>
+                <textarea class="form-control rounded-0" id="exampleFormControlTextarea2" rows="8"></textarea>
+            </div>
+
+
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4 col-sm-6 col-xs-6">
+            <label class="control-label">@Lb["Cuenta"]:</label>
+            <select @estado class="form-control categorias" id="categoria"></select>
+        </div>
+        <div class="form-group col-md-4 col-sm-6 col-xs-6">
+            <label id="lblItem" class="control-label">@Lb["Nombre"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+            <input @estado class="form-control" id="articulo" autofocus onkeyup="pasarSigCampo(event,'cantidad')" />
+        </div>
+        <div class="form-group col-md-4 col-sm-6 col-xs-6">
+            <label id="lblItem" class="control-label">@Lb["TipoCambioDolar"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+            <input @estado class="form-control" id="articulo" autofocus onkeyup="pasarSigCampo(event,'cantidad')" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4 col-sm-6 col-xs-6">
+            <label class="control-label">@Lb["CentroCosto"]:</label>
+            <select @estado class="form-control categorias" id="categoria"></select>
+        </div>
+        <div class="form-group col-md-4 col-sm-6 col-xs-6">
+            <label id="lblItem" class="control-label">@Lb["Nombre"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+            <input @estado class="form-control" id="articulo" autofocus onkeyup="pasarSigCampo(event,'cantidad')" />
+        </div>
+        <div class="form-group col-md-4 col-sm-6 col-xs-6">
+            <label id="lblItem" class="control-label">@Lb["TipoCambioEuro"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+            <input @estado class="form-control" id="articulo" autofocus onkeyup="pasarSigCampo(event,'cantidad')" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4 col-sm-6 col-xs-6">
+            <label class="control-label">@Lb["Monto"] CRC:</label>
+            <input @estado class="form-control" id="articulo" autofocus onkeyup="pasarSigCampo(event,'cantidad')" />
+        </div>
+        <div class="form-group col-md-4 col-sm-6 col-xs-6">
+            <label id="lblItem" class="control-label">@Lb["Monto"] $: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+            <input @estado class="form-control" id="articulo" autofocus onkeyup="pasarSigCampo(event,'cantidad')" />
+        </div>
+        <div class="form-group col-md-4 col-sm-6 col-xs-6">
+            <label id="lblItem" class="control-label">@Lb["Monto"] EUR: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+            <input @estado class="form-control" id="articulo" autofocus onkeyup="pasarSigCampo(event,'cantidad')" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4 col-sm-6 col-xs-6">
+            <label class="control-label">@Lb["Agregar"]:</label>
+            <button id="btnEditGasto" onclick="editarGasto()" class="btn btn-success"><span>@Lb["Debe"] </span><span><i class="fas fa-save"></i></span></button>
+            <button id="btnEditGasto" onclick="editarGasto()" class="btn btn-success"><span>@Lb["Haber"] </span><span><i class="fas fa-save"></i></span></button>
+        </div>
+
+
+
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped" id="tblCompra" style="min-width:1250px">
+            <thead>
+                <tr>
+                    <th style="width:10%"><span>@Lb["Cuenta"]</span></th>
+                    <th style="width:18%"><span>@Lb["Nombre"]</span></th>
+                    <th style="width:11%"><span>@Lb["Debe"] CRC</span></th>
+                    <th style="width:11%"><span>@Lb["Haber"] CRC</span></th>
+                    <th style="width:11%"><span>@Lb["Debe"] CRC</span></th>
+                    <th style="width:11%"><span>@Lb["Haber"] CRC</span></th>
+                    <th style="width:11%"><span>@Lb["Debe"] EUR</span></th>
+                    <th style="width:11%"><span>@Lb["Haber"] EUR</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="lineaForm">
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-lg-4 col-md-12 col-xs-12">
+                <label class="control-label">@Lb["TotalDebe"] CRC:</label>
+                <input readonly id="subTotal" class="form-control currency" />
+            </div>
+            <div class="col-lg-4 col-md-12 col-xs-12">
+                <label class="control-label">@Lb["TotalHaber"] CRC:</label>
+                <input readonly id="totalDescuento" class="form-control currency" />
+            </div>
+        </div>
+        <hr />
+
+        <div class="row">
+            <div class="col-lg-4 col-md-12 col-xs-12">
+                <label class="control-label">@Lb["TotalDebe"] $:</label>
+                <input readonly id="totalImpuesto" class="form-control currency" />
+            </div>
+            <div class="col-lg-4 col-md-12 col-xs-12">
+                <label class="control-label">@Lb["TotalHaber"] $:</label>
+                <input readonly id="total" class="form-control currency" />
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col-lg-4 col-md-12 col-xs-12">
+                <label class="control-label">@Lb["TotalDebe"] EUR:</label>
+                <input readonly id="totalImpuesto" class="form-control currency" />
+            </div>
+            <div class="col-lg-4 col-md-12 col-xs-12">
+                <label class="control-label">@Lb["TotalHaber"] EUR:</label>
+                <input readonly id="total" class="form-control currency" />
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<div class="row well">
+    <div class="col-md-12">
+        <div class="form-group col-md-3">
+            <button @estado2 @estado class="btn btn-success btnAccion" onclick="guardarSalir()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
+            <a onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div id="comentarios">
 
         </div>
     </div>
-</body>
-</html>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="cargarXmlModal" tabindex="-1" role="dialog" aria-labelledby="xmlModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="xmlModalLabel">@Lb["ImportarXML"]</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <span data-translate="cargaArchivos" class="input-group-text" id="inputGroup-sizing-sm">@Lb["CargaXML"]</span>
+                    <input type="file" accept="text/xml" class="form-control" id="fileUpload">
+                    @*<span hidden class="text-danger" data-translate="tamanoArchivoValid" id="tamanoArchivos">El tamaño máximo del archivo es de 25MB.</span>
+                        <span hidden data-translate="cantidadArchivosValid" id="cantidadArchivos" class="text-danger">No puede agregar más de 5 archivos.</span>*@
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">@Lb["Cancelar"]</button>
+                <button type="button" class="btn btn-primary" onclick="crearXMLaJSON()">@Lb["Guardar"]</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Editar -->
+<div class="modal fade" id="modalEditar" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <div class="modal-header">
+                <div class="col-md-6"> <h5 data-translate="editarGasto" class="modal-title" id="bodegaIventarioLabel">@Lb["editarGasto"]</h5></div>
+            </div>
+            <div class="modal-body" id="editar">
+
+                <div class="row">
+                    <input id="editId" type="hidden" class="form-control" />
+                    <input id="editArticulo" type="hidden" class="form-control" />
+                    <input id="nSubTotal" type="hidden" class="form-control" />
+
+                    <div class="form-group col-sm-7">
+                        <label class="control-label">@Lb["Cantidad"]</label>
+                        <input id="editCantidad" class="form-control numerico" onkeyup="pasar(event,'editPrecio')" />
+                        <span hidden id="editCantidadValid" class="text-danger">@Lb["AlertCompraCantidad"]</span>
+
+                    </div>
+                    <div class="form-group col-sm-7">
+                        <label class="control-label ">@Lb["PrecioUnitario"]</label>
+                        <input id="editPrecio" class="form-control numerico" onkeyup="pasar(event,'editDescuento')" />
+                        <span hidden id="editPrecioValid" class="text-danger">@Lb["AlertCompraPrecio"]</span>
+
+                    </div>
+                    <div class="form-group col-sm-7">
+                        <label class="control-label ">@Lb["Descuento"]</label>
+                        <input id="editDescuento" class="form-control numerico" onkeyup="pasar(event,'editIva')" />
+                    </div>
+                    <div class="form-group col-sm-7">
+                        <label class="control-label ">@Lb["IVA"]</label>
+                        <input id="editIva" type="text" class="form-control numerico" onkeyup="pasar(event,'btnEditGasto')" />
+                    </div>
+                    <div class="form-group col-sm-7">
+
+                        <button id="btnEditGasto" onclick="editarGasto()" class="btn btn-success"><span>@Lb["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
+
+                        <button class="btn btn-default" data-dismiss="modal"><span>@Lb["Cancelar"]</span></button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var periodos = [];  
+  
+        @foreach (var item in ViewBag.Periodos)
+        {
+        @:      var model = {FechaInicio:@item.FechaInicio,FechaFinal:@item.FechaFinal,Nombre: @item.Nombre,IdPeriodoT: @item.IdPeriodoTrabajo};
+        @:      periodos.push(model);
+        }       
+
+
+
+</script>
+<input readonly hidden id="monedaFormater" />
+<div hidden><input hidden id="formater" class="currency" type="text" /></div>
+
+<script src="~/js/comentario.js"></script>
+<script src="~/js/base64ImageCreator.js"></script>
+
+
+
+<script src="~/lib/vendors/jsPDF/CI.js"></script>
+<script src="~/js/XMLtoJSON.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/x2js/1.2.0/xml2json.min.js"></script>

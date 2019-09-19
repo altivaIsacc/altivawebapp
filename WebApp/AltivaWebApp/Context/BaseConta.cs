@@ -23,5 +23,8 @@ namespace AltivaWebApp.Context
         public DbSet<CatalogoContable> CatalogoContable { get; set; }
         public DbSet<Asiento> Asiento { get; set; }
         public DbSet<AsientoDetalle> AsientoDetalle { get; set; }
+        public DbSet<Moneda> Moneda { get; set; }
+        public DbSet<Usuario> Usuario { get; set; }
+        public DbSet<TiposDocumentosConta> TiposDoc { get; set; }
     }
 }

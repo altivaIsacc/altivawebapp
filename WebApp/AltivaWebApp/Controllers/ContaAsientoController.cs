@@ -41,7 +41,9 @@ namespace AltivaWebApp.Controllers
             item.FechaCreacion = DateTime.Now;
             item.FechaMod = DateTime.Now;
             item.Frecuente = true;
-            
+            ViewBag.Periodos = bd.PeriodoTrabajo.Where(p => p.Estado == "ABIERTO");
+            ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == false);
+            ViewBag.Tipos = bd.TiposDoc;
             return View("../ContaAsiento/u", item);
         }
 
