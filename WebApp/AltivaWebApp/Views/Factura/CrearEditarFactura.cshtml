@@ -35,17 +35,20 @@
 @if (Model.Id != 0)
 {
     <div class="btn-group">
-        <button type="button" onclick="GetPDF()" class="btn btn-primary">@Lb["Imprimir"]</button>
+        <button type="button" onclick="GetPDF(1)" class="btn btn-primary">@Lb["Imprimir"]</button>
         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
             <span class="caret"></span>
             <span class="sr-only">Toggle Dropdown</span>
         </button>
         <ul class="dropdown-menu" role="menu">
             <li>
-                <a href="#carta">@Lb["Carta"]</a>
+                <a href="#carta" onclick="GetPDF(1)">@Lb["Carta"]</a>
             </li>
             <li>
-                <a href="#ticket" onclick="GetPDF(1)">@Lb["Ticket"]</a>
+                <a href="#ticket" onclick="GetPDF(2)">@Lb["MediaCarta"]</a>
+            </li>
+            <li>
+                <a href="#ticket" onclick="GetPDF(3)">@Lb["Ticket"]</a>
             </li>
         </ul>
     </div>
@@ -128,12 +131,19 @@
                 <li>
                     <a class="dropdown-item" href="#">@Lb["AplicarApartado"]</a>
                 </li>
-                <li class="divider"></li>
+
                 <li>
                     <a class="dropdown-item" href="#">@Lb["ImportarCotizacion"]</a>
                 </li>
+                <li class="divider">@Lb["Reportes"]</li>
                 <li>
-                    <a class="dropdown-item" href="#" onclick="GetReporte()">@Lb["Reporte"]</a>
+                    <a class="dropdown-item" href="#" onclick="GetReporte(1)">@Lb["Carta"]</a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="GetReporte(2)">@Lb["MediaCarta"]</a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="GetReporte(3)">@Lb["Tiquete"]</a>
                 </li>
             </ul>
 
@@ -1312,7 +1322,26 @@
         });
     }
 
-    function GetReporte() {
+    function GetReporte(tipo) {
+        
+        //1 carta
+        //2 media carta
+        //3 tiquete
+
+        var reporte = "";
+        switch (parseInt(tipo)) {
+            case 1:
+                reporte = "FacturaCarta";
+                break;
+            case 2:
+                reporte = "FacturaMediaCarta";
+                break;
+            case 3:
+                reporte = "Facturaticket";
+                break;
+            default:
+                reporte = "FacturaCarta";
+        }
 
         var parametros = [];
 
@@ -1322,7 +1351,7 @@
         $.ajax({
             type: "POST",
             url: '@Url.Action("ReporteGeneral", "VistaReporte")',
-            data: { NombreReporte: "Facturaticket", parametros: parametros },
+            data: { NombreReporte: reporte, parametros: parametros },
              success: function (data) {
 
                  var myWindow = window.open('', '', '');
@@ -1340,14 +1369,29 @@
 
     }
 
-    function GetPDF(imprimir) {
+    function GetPDF(tipo) {
+
+        var reporte = "";
+        switch (parseInt(tipo)) {
+            case 1:
+                reporte = "FacturaCarta";
+                break;
+            case 2:
+                reporte = "FacturaMediaCarta";
+                break;
+            case 3:
+                reporte = "Facturaticket";
+                break;
+            default:
+                reporte = "FacturaCarta";
+        }
 
         var parametros = [];
 
         parametros.push({ nombre: "idFactura", valor: '@Model.Id'});
         parametros.push({ nombre: "idEmpresa", valor: '@Context.Session.GetInt32("idEmpresa")' });
 
-        var data = { NombreReporte: "Facturaticket", parametros: parametros };
+        var data = { NombreReporte: reporte, parametros: parametros };
 
         $.ajax({
             type: "POST",
@@ -1360,40 +1404,43 @@
             },
             data:data,
             success: function (data) {
-                var reader = new FileReader();
-                reader.readAsDataURL(data);
+                //var reader = new FileReader();
+                //reader.readAsDataURL(data);
 
-                reader.onloadend = function () {
-                    base64data = reader.result;
+                var file = new Blob([data], { type: 'application/pdf' });
+                var fileURL = URL.createObjectURL(file);
+                var w = window.open(fileURL);
+                w.print();
 
-                    var w = 0;
-                    var h = 0;
+                //reader.onloadend = function () {
+                //    base64data = reader.result;
 
-                    var img = new Image;
+                //    var w = 0;
+                //    var h = 0;
 
-                    img.onload = function () {
-                        w = (img.width / 595) * 100;
-                        h = (img.height / 842) * 100;
+                //    var img = new Image;
 
-                        console.log(w); // image is loaded; sizes are available
-                        console.log(h);
+                //    img.onload = function () {
+                //        w = (img.width / 1240) * 100;
+                //        h = (img.height / 1754) * 100;
 
-                        var doc = new jsPDF('p', 'pt', 'a4');
+                //        console.log(w); // image is loaded; sizes are available
+                //        console.log(h);
 
-                        doc.addImage(base64data, 'JPEG', 0, 0, w, h);
-                        if (imprimir == 1) {
-                            doc.autoPrint();
-                        }
-                        window.open(doc.output('bloburl'), '_blank');
+                //        var doc = new jsPDF('p', 'mm', 'letter');
 
-                    };
+                //        doc.addImage(base64data, 'JPEG', 0, 0, w, h);
+                //        doc.autoPrint();
+                //        window.open(doc.output('bloburl'), '_blank');
 
-                    img.src = base64data;
+                //    };
 
-
+                //    img.src = base64data;
 
 
-                }
+
+
+                //}
 
             },
             error: function () {
