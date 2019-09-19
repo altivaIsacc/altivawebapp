@@ -19,7 +19,6 @@ namespace AltivaWebApp.Domains
         public bool Anulado { get; set; }
         public double CostoTraslado { get; set; }
         public string Comentario { get; set; }
-
         public virtual TbPrBodega IdBodegaDestinoNavigation { get; set; }
         public virtual TbPrBodega IdBodegaOrigenNavigation { get; set; }
         public virtual ICollection<TbPrTrasladoInventario> TbPrTrasladoInventario { get; set; }

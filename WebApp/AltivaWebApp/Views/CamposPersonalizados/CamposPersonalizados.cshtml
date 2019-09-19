@@ -1,0 +1,88 @@
+﻿@inject IStringLocalizer<SharedResources> Lb
+@{
+    ViewData["Title"] = Lb["CamposPersonalizados"];
+}
+
+
+<div class="row">
+    <div class="col-md-4 col-ms-6 col-xs-8">
+        <h3>@Lb["CamposPersonalizados"]</h3>
+    </div>
+    <div class="col-md-7 col-sm-4 col-xs-3" style="margin-left:1rem; padding-top:0.7rem">
+        <p>
+            <a onclick="getCrearEditarPartial(0)" class="btn btn-primary"><span>@Lb["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+        </p>
+    </div>
+
+</div>
+<hr />
+
+<div id="listarCampos">
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modalCampos" tabindex="-1" role="dialog" aria-labelledby="camposModallabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-body" id="crearEditarPartial">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        getlistarPartial();
+
+    });
+
+
+    function getlistarPartial()
+    {
+        var url = "@Url.Action("_ListarCamposPersonalizados", "CamposPersonalizados")";
+
+         $.ajax({
+            type: "GET",
+            url: url,
+            success: function (data) {
+                $('#listarCampos').html(data);
+            },
+             error: function (err, scnd) {
+                 cargarAlert("@Lb["errorGeneral"]");
+                 console.log(err.statusText);
+            }
+
+        });
+    }
+
+
+    function getCrearEditarPartial(id)
+    {
+        var url = "@Url.Action("NuevoCP", "CamposPersonalizados")";
+        if (id != 0) {
+            url = '@Url.Action("EditarCP", "CamposPersonalizados", new { id = "__id__"})';
+            url = url.replace("__id__", id);
+        }
+
+         $.ajax({
+            type: "GET",
+            url: url,
+            success: function (data) {
+                $('#crearEditarPartial').html(data);
+                $('#modalCampos').modal('show');
+            },
+             error: function (err, scnd) {
+                cargarAlert("@Lb["errorGeneral"]");
+                console.log(err.statusText);
+            }
+
+        });
+    }
+
+
+</script>

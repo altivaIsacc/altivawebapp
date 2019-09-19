@@ -33,22 +33,24 @@
         tipoProveedor = "hidden";
     }
 
+
+    var titulo = Lb["Editar"] + " " + Lb["Contacto"];
+
+    if (Model.IdContacto == 0)
+    {
+        titulo = Lb["Nuevo"] + " " + Lb["Contacto"];
+    }
+
+    ViewData["Title"] = titulo;
+
+
 }
 
 
 <div class="row">
-    @if (Model.IdContacto != 0)
-    {
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            <h3> @Lb["Editar"] @Lb["Contacto"]</h3>
-        </div>
-    }
-    else
-    {
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            <h3> @Lb["Nuevo"] @Lb["Contacto"]</h3>
-        </div>
-    }
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <h3> @titulo</h3>
+    </div>
 </div>
 
 
@@ -127,9 +129,9 @@
             </select>
         </div>
 
-        <div class="form-group col-md-4 col-sm-4 col-xs-12">
+        <div class="form-group col-md-4 col-sm-4 col-xs-12" style="padding:0; margin:0; padding-left:1rem">
             <label class="input-group-text" id="inputGroup-sizing-sm">@Lb["CargarImagen"] (6MB)</label>
-            <input type="file" accept="image/*" id="fileUploadC" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+            <input type="file" accept="image/*" id="fileUploadC" class="jfilestyle" data-theme="blue" data-text="@Lb["Examinar"]">
             <span hidden id="tamanoArchivoC" class="text-danger">@Lb["tamanoArchivo"]</span>
             <span hidden id="tipoArchivoC" class="text-danger">@Lb["tipoArchivo"]</span>
         </div>
@@ -408,10 +410,13 @@
         return indexed_array;
     }
 
-    function editarCCPersonalizado(value, key) {
+    function editarCCPersonalizado(value, key, id) {
+
+
+        if (ccPersonalizados[key].tipo == "casilla")
+            value = $('#' + id).prop('checked');
 
         ccPersonalizados[key].valor = value;
-
     }
 
     function validarCampos() {
@@ -1027,27 +1032,36 @@
 
             if (data[i].tipo != "lista") {
 
-                if (data[i].tipo === "checkbox") {
-                    input = '<div class="form-group col-md-2 col-sm-3 col-xs-12" >'
-                        + '<label for="' + data[i].id + '"> ' + data[i].nombre + ' <input onchange="editarCCPersonalizado(value, ' + contador + ')" id="' + data[i].id + '" type="' + data[i].tipo + '" checked="' + value + '" /></label>'
+                if (data[i].tipo === "casilla") {
+
+                    var idC = data[i].id;
+                    if (@Model.IdContacto == 0) {
+                        idC = i;
+                    }
+
+                    if (value == "" || value.toString() == "false")
+                        value = "";
+                    else
+                        value = "checked='checked'";
+
+                    input = '<div class="form-group col-md-4 col-sm-4 col-xs-12" >'
+                        + '<label style="padding-top:2.8rem" for="' + idC + '"> ' + data[i].nombre + ' <input onchange="editarCCPersonalizado(value, ' + contador + ', ' + idC + ')" id="' + idC + '" type="checkbox" ' + value + '  /></label>'
                         + '</div > ';
                 }
-                else if (data[i].tipo === "text") {
-                    input = '<div class="form-group col-md-4 col-sm-4 col-xs-12">'
+                else if (data[i].tipo === "texto") {
+                    input = '<div class="form-group col-md-4 col-sm-4 col-xs-12" >'
                         + '<label for="' + data[i].id + '">' + data[i].nombre + ':</label>'
-                        + '<input onchange="editarCCPersonalizado(value, ' + contador + ', 0)" id="' + data[i].id + '" class="form-control" value="' + value + '" type="' + data[i].tipo + '" />'
+                        + '<input onchange="editarCCPersonalizado(value, ' + contador + ', null)" id="' + data[i].id + '" class="form-control" value="' + value + '" type="' + data[i].tipo + '" />'
                         + '</div>';
                 }
                 else if (data[i].tipo === "fecha") {
-                    input = '<div class="form-group col-md-4 col-sm-4 col-xs-12">'
+                    input = '<div class="form-group col-md-4 col-sm-4 col-xs-12" style="margin: 0; padding:0; margin-left:1rem">'
                         + '<label for="' + data[i].id + '">' + data[i].nombre + ':</label>'
-                        + '<div class="input-group date fechaPicker" >'
-                        + '<input onchange="editarCCPersonalizado(value, ' + contador + ', 0)" id="' + data[i].id + '" class="form-control" value="' + value + '" type="text" />'
+                        + '<div class="input-group date fechaPickerCP" style="width:95%" >'
+                        + '<input onchange="editarCCPersonalizado(value, ' + contador + ', null)" id="' + data[i].id + '" class="form-control" value="' + value + '" type="text" />'
                         + '<span class="input-group-addon"><span class="fas fa-calendar"></span></span>'
                         + '</div>'
                         + '</div>';
-
-
                 }
 
             }
@@ -1065,13 +1079,20 @@
 
                 input = '<div class="form-group col-md-4 col-sm-4 col-xs-12">'
                     + '<label for="' + data[i].id + '">' + data[i].nombre + ':</label>'
-                    + '<select onchange="editarCCPersonalizado(value, ' + contador + ')" id="' + data[i].id + '" class="form-control">'
+                    + '<select onchange="editarCCPersonalizado(value, ' + contador + ', null)" id="' + data[i].id + '" class="form-control">'
                     + valoresLista
                     + '</select></div>';
             }
 
             contador++;
             $('#frmCP').append(input);
+
+            if (data[i].tipo == "fecha"){
+                $('.fechaPickerCP').datetimepicker({
+                    locale: localStorage.getItem("idioma")
+                });
+            }
+
 
         }
 

@@ -49,6 +49,8 @@ namespace AltivaWebApp.Mappers
             domain.Nombre = model.Nombre;
             domain.Telefono1 = model.Telefono1;
             domain.Telefono2 = model.Telefono2;
+            domain.TienePuntoVentaDefecto = model.TienePuntoVentaDefecto;
+            domain.IdPuntoVenta = model.IdPuntoVenta;
             //domain.IdGrupoEmpresarial = model.Id_GE;
             if (model.Foto != null)
             {
@@ -74,7 +76,9 @@ namespace AltivaWebApp.Mappers
                 Nombre = model.Nombre,
                 Telefono1 = model.Telefono1,
                 Telefono2 = model.Telefono2,
-                IdGrupoEmpresarial = model.Id_GE             
+                IdGrupoEmpresarial = model.Id_GE,
+                TienePuntoVentaDefecto = model.TienePuntoVentaDefecto,
+                IdPuntoVenta = model.IdPuntoVenta
             };
 
             if (model.Foto != null)
@@ -99,7 +103,9 @@ namespace AltivaWebApp.Mappers
                 Id_GE = (int)domain.IdGrupoEmpresarial,
                 Nombre = domain.Nombre,
                 Telefono1 = domain.Telefono1,
-                Telefono2 = domain.Telefono2
+                Telefono2 = domain.Telefono2,
+                TienePuntoVentaDefecto = domain.TienePuntoVentaDefecto,
+                IdPuntoVenta = domain.IdPuntoVenta
             };
 
             return model;

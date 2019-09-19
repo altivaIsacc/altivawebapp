@@ -36,6 +36,7 @@ namespace AltivaWebApp.Controllers
             this.geMap = geMap;
             this.userService = userService;
             this._sharedLocalizer = sharedLocalizer;
+           
         }
         
         [HttpGet("Empresas")]
@@ -53,7 +54,7 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpGet("Empresa/{nombre}")]
-        public ActionResult DetallesEmpresa(string nombre)
+        public ActionResult DetallesEmpresa(string nombre, string contexto="")
         {
 
             var model = service.GetEmpresaByNombre(nombre);
@@ -71,8 +72,13 @@ namespace AltivaWebApp.Controllers
                         conn.Open();
                         conn.Close();
                         HttpContext.Session.SetInt32("idEmpresa", (int)model.Id);
-                        //Sesion.Sesion.SetIdEmpresa((int)model.Id);
-                        return View(model);
+
+                        if (contexto != ""){
+                            return RedirectToAction("Index","AccesoRapido");
+                        }else{
+                            return View(model);
+                        }
+                       
                     }
                 }
                 catch (Exception ex)

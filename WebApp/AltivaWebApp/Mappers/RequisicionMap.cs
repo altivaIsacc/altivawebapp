@@ -23,17 +23,13 @@ namespace AltivaWebApp.Mappers
 
         public TbPrRequisicion Update(RequisicionViewModel viewModel)
         {
-            return service.Update(ViewModelToDomainEdit(viewModel));
+            return service.Update(ViewModelToDomain(viewModel));
         }
 
-        public IList<TbPrRequisicionDetalle> SaveRD(RequisicionViewModel viewModel)
+        public IList<TbPrRequisicionDetalle> SaveOrUpdateRD(IList<RequisicionDetalleViewModel> viewModel)
         {
-            return service.SaveRD(ViewModelToDomaineRD(viewModel.RequisicionDetalle));
-        }
+            return service.SaveOrUpdateRD(ViewModelToDomaineRD(viewModel));
 
-        public void UpdateRD(IList<RequisicionDetalleViewModel> viewModel)
-        {
-            service.UpdateRD(ViewModelToDomaineRD(viewModel));
         }
 
         public TbPrRequisicion ViewModelToDomain(RequisicionViewModel viewModel)
@@ -41,7 +37,7 @@ namespace AltivaWebApp.Mappers
             return new TbPrRequisicion
             {
                 Id = viewModel.Id,
-                Anulado = false,
+                Anulado = viewModel.Anulado,
                 Descripcion = viewModel.Descripcion,
                 Fecha = viewModel.Fecha,
                 FechaCreacion = DateTime.Now,
@@ -49,25 +45,9 @@ namespace AltivaWebApp.Mappers
                 IdBodega = viewModel.IdBodega,
                 IdUsuario = viewModel.IdUsuario,
                 Total = viewModel.Total,
-                TbPrRequisicionDetalle = ViewModelToDomaineRD(viewModel.RequisicionDetalle)
+                TbPrRequisicionDetalle = viewModel.RequisicionDetalle != null ? ViewModelToDomaineRD(viewModel.RequisicionDetalle) : null
             };
         }
-
-        public TbPrRequisicion ViewModelToDomainEdit(RequisicionViewModel viewModel)
-        {
-            var req = service.GetReqById((int)viewModel.Id);
-
-            req.Anulado = viewModel.Anulado;
-            req.Descripcion = viewModel.Descripcion;
-            req.Fecha = viewModel.Fecha;
-            req.Total = viewModel.Total;
-            req.IdDepartamento = viewModel.IdDepartamento;
-
-            return req;
-            
-        }
-
-
 
         public IList<TbPrRequisicionDetalle> ViewModelToDomaineRD(IList<RequisicionDetalleViewModel> viewModel)
         {

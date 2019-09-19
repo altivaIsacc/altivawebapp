@@ -1,1 +1,179 @@
-﻿
+﻿@model IList<TbCrCamposPersonalizados>
+@inject IStringLocalizer<SharedResources> Lb
+@{
+    Layout = null;
+}
+
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12 checkbox" style="padding-top:1.5rem">
+        <label class="control-label">
+            <input type="checkbox" id="estado" onchange="filtroActivo()"> @Lb["VerInactivos"]
+        </label>
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="table-responsive col-md-9 col-sm-10 col-xs-12">
+        <table id="tblCP" class="table table-bordered " style="width: 100%">
+            <thead>
+                <tr>
+                    <th style="width: 10%">@Lb["Tipo"]</th>
+                    <th style="width: 60%">@Lb["Nombre"]</th>
+                    <th hidden></th>
+                    <th style="width: 20%">@Lb["Estado"]</th>
+                    <th style="width: 10%">@Lb["Acción"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td style="text-align:center">
+                            @switch (item.Tipo)
+                            {
+                                case "lista":
+                                    <a style="font-size: 1.8rem" onclick="getCrearEditarPartial(@item.Id)" href="#"><i class="fas fa-list-ul"></i></a>
+                                    break;
+                                case "texto":
+                                    <a style="font-size: 1.8rem" onclick="getCrearEditarPartial(@item.Id)" href="#"><i class="fas fa-font"></i></a>
+                                    break;
+                                case "casilla":
+                                    <a style="font-size: 1.8rem" onclick="getCrearEditarPartial(@item.Id)" href="#"><i class="far fa-check-square"></i></a>
+                                    break;
+                                case "fecha":
+                                    <a style="font-size: 1.8rem" onclick="getCrearEditarPartial(@item.Id)" href="#"><i class="fas fa-calendar-week"></i></a>
+                                    break;
+                                default:
+                                    <a style="font-size: 1.8rem" onclick="getCrearEditarPartial(@item.Id)" href="#"><i class="fas fa-font"></i></a>
+                                    break;
+                            }
+                        </td>
+                        <td>
+                            @item.Nombre
+                        </td>
+                        <td hidden>
+                            @if (item.Estado == "Activo")
+                            {
+                                <span>true</span>
+                            }
+                            else
+                            {
+                                <span>false</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.Estado == "Activo")
+                            {
+                                <span>@Lb["Activo"]</span>
+                            }
+                            else
+                            {
+                                <span>@Lb["Inactivo"]</span>
+                            }
+                        </td>
+                        <td>
+                            <a onclick="getCrearEditarPartial(@item.Id)" href="#" style="font-size: 1.8rem"><span><i class="fas fa-edit"></i></span></a>&nbsp;
+                            @if (item.Estado == "Activo")
+                            {
+                                <a onclick="cambiarEstadoCP(@item.Id)" href="#"><span><i class="fas fa-trash" style="font-size: 1.8rem"></i></span></a>
+                            }
+                            else
+                            {
+                                <a onclick="cambiarEstadoCP(@item.Id)" href="#"><span><i class="fas fa-trash-restore" style="font-size: 1.8rem"></i></span></a>
+                            }
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+
+    var tblCP = "";
+
+    $(document).ready(function () {
+
+        inicializarTabla();
+        filtroActivo();
+
+    });
+
+
+    function cambiarEstadoCP(id) {
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: '@Url.Action("CambiarEstadoCampo", "CamposPersonalizados", new { id = "__id__" })'.replace("__id__", id),
+            success: function (data) {
+                getlistarPartial();
+            },
+            error: function (err, scnd) {
+                cargarAlert("@Lb["errorGeneral"]");
+            }
+
+        });
+    }
+
+
+
+    function filtroActivo() {
+
+        var estado = "true";
+        if ($('#estado').prop('checked')) {
+            estado = "false";
+        }
+        tblCP
+            .columns(2)
+            .search(estado)
+            .draw();
+    }
+
+    function inicializarTabla() {
+
+
+        $('#tblCP').DataTable().destroy();
+
+        tblCP = $('#tblCP').DataTable({
+            "info": false,
+            "bSort": false,
+            "bPaginate": false,
+            "bLengthChange": false,
+            "bFilter": true,
+            "bInfo": false,
+            "bAutoWidth": false,
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+        });
+
+    }
+
+</script>
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

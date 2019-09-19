@@ -1,5 +1,4 @@
 ﻿@model AltivaWebApp.Domains.TbFdConfiguracionFiltros
-@inject IStringLocalizer<SharedResources> SharedLocalizer
 @inject IStringLocalizer<SharedResources> Lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
@@ -139,9 +138,9 @@
         <thead>
             <tr>
 
-                <th style="width:10%">
+                @*<th style="width:10%">
                     <span>@Lb["Prioridad"]</span>
-                </th>
+                </th>*@
                 <th style="width:15%">
                     <span>@Lb["Título"]</span>
                 </th>
@@ -181,9 +180,8 @@
                 <th style="width:8%">
                     <span>@Lb["Final"]</span>
                 </th>
-
                 <th style="width:8%">
-                    <span>@SharedLocalizer["Acción"]</span>
+                    <span>@Lb["Acción"]</span>
                 </th>
             </tr>
         </thead>
@@ -409,7 +407,7 @@
             }
 
                 var body = '<tr class="fila' + contadorFila + ' filas">'
-                    + '<td><button class="btn btn-link dark" onclick="darPrioridad(' + data[i].id + ')">' + icono + '</button><button class="btn btn-link dark" onclick="quitarPrioridad(' + data[i].id + ')">' + icono2 + '</i></button></td>'
+                    //+ '<td><button class="btn btn-link dark" onclick="darPrioridad(' + data[i].id + ')">' + icono + '</button><button class="btn btn-link dark" onclick="quitarPrioridad(' + data[i].id + ')">' + icono2 + '</i></button></td>'
                     + '<td>' + data[i].titulo + '</td>'
                     + '<td ><img style="width:2rem; height: 2rem; border-radius: 1rem; background: ' + data[i].idTipoNavigation.color + ';"><span>  ' + data[i].idTipoNavigation.titulo + '</span></td>'
                     + '<td ><img style="width:2rem; height: 2rem; border-radius: 1rem; background: ' + data[i].idEstadoNavigation.color + ';"><span>' + data[i].idEstadoNavigation.titulo + '</span></td>'
@@ -596,7 +594,7 @@
 
     function buscarPorTitulo(titulo) {
         TablaTareas
-            .columns(1)
+            .columns(0)
             .search(titulo)
             .draw();
     }
@@ -693,29 +691,36 @@
         var arrayTareas = JSON.parse(JSON.stringify(TareasMostrar));
         if (_desde == _hasta || _desde === null) {
 
-            return TareasMostrar;
+            return arrayTareas;
         } else {
 
-            var desdeLocal = new Date(_desde).getTime();
-            var hastaLocal = new Date(_hasta).getTime();
-
-            for (var i = 0; i < tareas.length; i++) {
-
-                var documento = new Date(tareas[i].fechaLimite).getTime();
-                var flag = false;
-
-                if (documento >= desdeLocal && documento <= hastaLocal)
-                    flag = true;
-
-                // else flag = true;
-
-                if (!flag)
+     
+            var desdeLocal = soloFecha(_desde);
+            var hastaLocal = soloFecha(_hasta);
+     
+            for (var i = 0; i < arrayTareas.length; i++) {
+                var fechaTarea = soloFecha(arrayTareas[i].fechaLimite);
+         
+                if (fechaTarea >= desdeLocal && fechaTarea <= hastaLocal) {
+                }
+                else {
                     arrayTareas.splice(i, 1);
+                    i = -1;
+                }
             }
+
             return arrayTareas;
         }
     }
+    function soloFecha(_fecha) {
+        var soloMyFecha = _fecha.substring(0, 10);
+        var soloMyFecha = soloMyFecha.replace('-', '');
+        soloMyFecha = soloMyFecha.replace('-', '');
+        var fechaLong = parseInt(soloMyFecha);
+        return fechaLong;
 
+    }
+   
 
 
     $('.selectFiltro').change(function () {

@@ -81,7 +81,7 @@ namespace AltivaWebApp.Mappers
 
         public TbPrInventario Update(int id, InventarioViewModel viewModel)
         {
-            return service.Update(ViewModelToDomainEditar(id, viewModel));
+            return service.Update(ViewModelToDomainNuevo(viewModel));
         }
 
         public IList<TbPrInventarioBodega> ViewModelToDomainIB(IList<InventarioBodegaViewModel> viewModel)
@@ -139,8 +139,9 @@ namespace AltivaWebApp.Mappers
         {
             return new TbPrInventario
             {
-                CantidadUnidad = viewModel.CantidadUnidad,
+                IdInventario = viewModel.IdInventario,
                 Codigo = viewModel.Codigo,
+                CantidadUnidad = viewModel.CantidadUnidad,
                 CodigoMoneda = viewModel.CodigoMoneda,
                 CodigoMonedaVenta = viewModel.CodigoMonedaVenta,
                 CostoPromedioGeneral = viewModel.CostoPromedioGeneral,
@@ -157,7 +158,7 @@ namespace AltivaWebApp.Mappers
                 Inactiva = viewModel.Inactiva,
                 PrecioCredito = viewModel.PrecioCredito,
                 PrecioCreditoFinal = viewModel.PrecioCreditoFinal,
-                Notas = viewModel.Notas,
+                Notas = viewModel.Notas ?? "",
                 PrecioTemporal = viewModel.PrecioTemporal,
                 PrecioTemporalFinal = viewModel.PrecioTemporalFinal,
                 PrecioVenta = viewModel.PrecioVenta,
@@ -167,12 +168,12 @@ namespace AltivaWebApp.Mappers
                 UtilidadDeseada = viewModel.UtilidadDeseada,
                 UtilidadTemporal = viewModel.UtilidadTemporal,
                 IdFamiliaOnline = viewModel.IdFamiliaOnline,
-                NombreCarrito = viewModel.NombreCarrito,
+                NombreCarrito = viewModel.NombreCarrito ?? "",
                 PrecioVentaOnline = viewModel.PrecioVentaOnline,
-                AbreviacionFacturas = viewModel.AbreviacionFactura,
+                AbreviacionFacturas = viewModel.AbreviacionFactura ?? "",
                 IdMonedaVentaOnline = viewModel.CodigoMonedaOnline,
                 HabilitarVentaOnline = viewModel.HabilitarVentaOnline,
-                SkuOnline = viewModel.SkuOnline
+                SkuOnline = viewModel.SkuOnline ?? ""
                 
             };
         }
@@ -211,7 +212,7 @@ namespace AltivaWebApp.Mappers
             inventario.PrecioVentaOnline = viewModel.PrecioVentaOnline;
             inventario.AbreviacionFacturas = viewModel.AbreviacionFactura;
             inventario.HabilitarVentaOnline = viewModel.HabilitarVentaOnline;
-            inventario.SkuOnline = viewModel.SkuOnline;
+            inventario.SkuOnline = viewModel.SkuOnline ?? "";
             inventario.IdMonedaVentaOnline = viewModel.CodigoMonedaOnline;
            
             return inventario;

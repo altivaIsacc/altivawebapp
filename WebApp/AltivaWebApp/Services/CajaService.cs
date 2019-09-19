@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AltivaWebApp.Domains;
 using AltivaWebApp.Repositories;
+using AltivaWebApp.ViewModels;
+
 namespace AltivaWebApp.Services
 {
     public class CajaService:ICajaService
@@ -40,9 +42,9 @@ namespace AltivaWebApp.Services
             return repository.GetAllCajaCierreByIdCaja(id);
         }
 
-        public IList<TbFaCaja> GetInfoCaja()
+        public IList<TbFaCaja> GetInfoCaja(FiltroFechaViewModel _filtroFecha, long _filtroNum, long _filtroPV)
         {
-            return repository.GetInfoCaja();
+            return repository.GetInfoCaja(_filtroFecha, _filtroNum, _filtroPV);
         }
 
         public bool UpdateCajaAperturaDenominacion(IList<TbFaCajaAperturaDenominacion> domain)

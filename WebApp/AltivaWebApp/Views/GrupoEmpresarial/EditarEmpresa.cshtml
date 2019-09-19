@@ -17,6 +17,10 @@
 <div class="row">
     <div class="col-md-6 col-sm-6 col-xs-12">
         <form asp-action="EditarEmpresa" method="post">
+            @Html.HiddenFor(x => x.TienePuntoVentaDefecto)
+            @Html.HiddenFor(x => x.IdPuntoVenta)
+            @Html.HiddenFor(x => x.Estado)
+
 
             <div class="form-group" hidden>
                 <label asp-for="Id" class="control-label"></label>
@@ -25,26 +29,26 @@
             </div>
             <div class="form-group">
                 <label asp-for="@Model.Nombre" class="control-label">@SharedLocalizer["Nombre"]:</label>
-                <input asp-for="@Model.Nombre"  onpaste="return false" maxlength="50" id="txt_nombre" class="form-control sinCaracteresE" />
+                <input asp-for="@Model.Nombre" onpaste="return false" maxlength="50" id="txt_nombre" class="form-control sinCaracteresE" onkeyup="pasarSigCampo(event,'txtCorreo')" />
                 <span hidden id="nombreValid" class="text-danger">@SharedLocalizer["nombreRequerido"]</span>
             </div>
             <div class="form-group">
                 <label asp-for="@Model.Correo" class="control-label">@SharedLocalizer["Correo"]:</label>
-                <input asp-for="@Model.Correo" type="email" maxlength="100" id="txtCorreo" class="form-control" />
+                <input asp-for="@Model.Correo" type="email" maxlength="100" id="txtCorreo" class="form-control" onkeyup="pasarSigCampo(event,'txtTelefono1')" />
                 <span hidden id="correoValid" class="text-danger">@SharedLocalizer["correoRequerido"]</span>
             </div>
             <div class="form-group">
                 <label asp-for="@Model.Telefono1" class="control-label">@SharedLocalizer["Teléfono"] 1:</label>
-                <input asp-for="@Model.Telefono1" maxlength="25"  onpaste="return false" id="txtTelefono1" class="form-control telefono" />
+                <input asp-for="@Model.Telefono1" maxlength="25" onpaste="return false" id="txtTelefono1" class="form-control telefono" onkeyup="pasarSigCampo(event,'txtTelefono2')" />
                 <span hidden id="telefonoValid" class="text-danger">@SharedLocalizer["telefonoRequerido"]</span>
             </div>
             <div class="form-group">
                 <label asp-for="@Model.Telefono2" class="control-label">@SharedLocalizer["Teléfono"] 2:</label>
-                <input asp-for="@Model.Telefono2" maxlength="25"  onpaste="return false" id="txtTelefono2" class="form-control telefono" />
+                <input asp-for="@Model.Telefono2" maxlength="25" onpaste="return false" id="txtTelefono2" class="form-control telefono" onkeyup="pasarSigCampo(event,'txtCedJuridica')" />
             </div>
             <div class="form-group">
                 <label asp-for="@Model.CedJuridica" class="control-label">@SharedLocalizer["cedulaJuridica"]:</label>
-                <input asp-for="@Model.CedJuridica" id="txtCedJuridica" class="form-control" />
+                <input asp-for="@Model.CedJuridica" id="txtCedJuridica" class="form-control" onkeyup="pasarSigCampo(event,'txtDireccion')"/>
                 <span hidden id="cedJuridicaValid" class="text-danger">@SharedLocalizer["cedulaRequerido"]</span>
             </div>
             <div class="form-group" hidden>
@@ -53,15 +57,24 @@
             </div>
             <div class="form-group">
                 <label asp-for="@Model.Direccion" class="control-label">@SharedLocalizer["Dirección"]:</label>
-                <textarea asp-for="@Model.Direccion" maxlength="500" rows="4" id="txtDireccion" class="form-control" ></textarea>
+                <textarea asp-for="@Model.Direccion" maxlength="500" rows="4" id="txtDireccion" class="form-control"></textarea>
                 <span hidden id="direccionValid" class="text-danger">@SharedLocalizer["direccionRequerido"]</span>
             </div>
-            <div class="form-group" hidden>
-                <div class="checkbox">
-                    <label>
-                        <input readonly value="true" asp-for="@Model.Estado" /> @SharedLocalizer["Activa"]
-                    </label>
+            <div class="form-group ">
+                <input type="checkbox" class="form-check-input" id="tienePuntoVenta" />
+                <label class="form-check-label">@SharedLocalizer["PuntoVenta"]</label>
+            </div>
+            <div class="row collapse puntoVentaForm">
+
+                <div class="form-group col-md-6">
+                    <select class="form-control selectItems" id="puntosVenta"></select>
                 </div>
+
+
+            </div>
+            <div class="form-group ">
+                <input type="checkbox" class="form-check-input" id="estado" />
+                <label class="form-check-label">@SharedLocalizer["Activa"]</label>
             </div>
             <div class="form-group" hidden>
                 <input asp-for="Id_GE" readonly class="form-control" />
@@ -78,15 +91,73 @@
 </div>
 
 <script>
-
+   
+    var puntos = [];
     $(document).ready(function () {
+        getPuntosVentas();
+
+        if ($('#Estado').val() == "True")
+            $('#estado').prop('checked', true);
+        else
+            $('#estado').prop('checked', false);
+
+        if ($('#TienePuntoVentaDefecto').val() == "True") {
+            $('#tienePuntoVenta').prop('checked', true);
+            $('.puntoVentaForm').collapse('toggle');
+            $("#puntosVenta option[value='15']").attr("selected", true);
+
+        }
+        else
+            $('#tienePuntoVenta').prop('checked', false);
+        
 
         $("input:text:visible:first").focus();
 
         $('#txtCedJuridica').mask('0-000-000000');
 
     });
+    
+      $('#tienePuntoVenta').change(function () {
+          $('.puntoVentaForm').collapse('toggle');
+          if ($('#tienePuntoVenta').prop('checked')) {
+              $("#TienePuntoVentaDefecto").val(true);
+              $('#IdPuntoVenta').val($("#puntosVenta option:selected").val());
+          }
+          else {
+              $("#TienePuntoVentaDefecto").val(false);
+                 $('#IdPuntoVenta').val(0);
+            
+          }
 
+        
+      });
+    $('#puntosVenta').change(function () {
+          $('#IdPuntoVenta').val($("#puntosVenta option:selected").val());
+     });
+
+    $('#estado').change(function () {
+         if($('#estado').prop('checked'))
+            $('#Estado').val(true);
+        else
+           $('#Estado').val(false);
+     });
+       function getPuntosVentas() {
+          $.ajax({
+            type: "get",
+
+            dataType: "json",
+            url: '@Url.Action("GetPuntosVentas", "PuntoVenta")',
+              success: function (data) {
+                  puntos = data;
+                  llenarSelect();
+               
+            },
+            error: function (err, scnd) {
+                cargarAlert('@SharedLocalizer["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
 
     function formValid() {
 
@@ -135,8 +206,7 @@
         if (flag)
             guardarEmpresa();
     }
-
-
+   
     function guardarEmpresa() {
 
         var model = $('form').serialize();
@@ -166,8 +236,22 @@
             });
 
     }
-
-
+    
+    function llenarSelect() {
+        var id = parseInt($("#IdPuntoVenta").val());
+        for (var i = 0; i < puntos.length; i++) {
+            if (id == puntos[i].idPuntoVenta) {
+                var o = new Option(puntos[i].nombre, puntos[i].idPuntoVenta);
+                $("#puntosVenta").append(o);
+            }
+        }
+         for (var i = 0; i < puntos.length; i++) {
+            if (id != puntos[i].idPuntoVenta) {
+                var o = new Option(puntos[i].nombre, puntos[i].idPuntoVenta);
+                $("#puntosVenta").append(o);
+            }
+         }
+    }
     function cancelar() {
         bootbox.confirm("@SharedLocalizer["confirmCancelar"]", function (result) {
             if (result)
@@ -178,7 +262,16 @@
                 
         });
     }
+       function pasarSigCampo(e,id)
+    {
 
+	    (e.keyCode)?k=e.keyCode:k=e.which;
+
+	      if(k==13)
+	      {		      
+           document.getElementById(id).focus();		      
+	      }
+    }
    
 
 

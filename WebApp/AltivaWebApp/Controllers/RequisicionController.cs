@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
@@ -58,9 +59,18 @@ namespace AltivaWebApp.Controllers
             {
                 if (viewModel.Id != 0)
                 {
-                    var req = map.Update(viewModel);
+                    
                     if (viewModel.RequisicionDetalle != null)
-                        kardexMap.CreateKardexRD(map.SaveRD(viewModel), false);
+                    {
+                        IList<TbPrRequisicionDetalle> detallesToAnular = service.GetAllReqDetalleById(viewModel.RequisicionDetalle.Select(d => (int)d.Id).Where(d => d != 0).ToList());
+                        kardexMap.CreateKardexRD(detallesToAnular, true);
+
+                        var detalles = map.SaveOrUpdateRD(viewModel.RequisicionDetalle);
+                        kardexMap.CreateKardexRD(detalles, false);
+                    }
+
+                    viewModel.RequisicionDetalle = null;
+                    var req = map.Update(viewModel);
                 }
                 else
                 {
@@ -80,24 +90,9 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        [HttpPost("Editar-RequisicionDetalle")]
-        public ActionResult RequisicionDetalle( IList<RequisicionDetalleViewModel> viewModel)
-        {
-            try
-            {
-                map.UpdateRD(viewModel);
-
-                return Json(new { success = true });
-            }
-            catch (Exception ex)
-            {
-                AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                return BadRequest();
-            }
-        }
 
         [HttpPost("AnularRequisicion")]
-        public ActionResult RequisicionDetalle(int id)
+        public ActionResult AnularRequisicion(int id)
         {
             try
             {

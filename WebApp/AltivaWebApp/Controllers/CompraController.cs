@@ -43,9 +43,30 @@ namespace AltivaWebApp.Controllers
         }
 
         // GET: Compra
-        public ActionResult ListarCompras()
+        public IActionResult ListarCompras()
         {
+            ViewData["monedas"] = monedaService.GetAll();
             return View();
+        }
+        [HttpPost("_ListarCompras")]
+        public IActionResult _ListarCompras(FiltroFechaViewModel filtro)
+        {
+            try
+            {
+                ViewData["monedas"] = monedaService.GetAll();
+
+                if (filtro.Filtrando)
+                    return PartialView(service.GetAllCompras().Where(c => c.FechaDocumento.Date >= filtro.Desde.Date && c.FechaDocumento.Date <= filtro.Hasta.Date).ToList());
+                else
+                    return PartialView(service.GetAllCompras());
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
+
         }
 
 

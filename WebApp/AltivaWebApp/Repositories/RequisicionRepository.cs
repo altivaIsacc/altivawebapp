@@ -22,7 +22,7 @@ namespace AltivaWebApp.Repositories
 
         public TbPrRequisicion GetReqById(int id)
         {
-            return context.TbPrRequisicion.FirstOrDefault(r => r.Id == id);//.Include(r => r.TbPrRequisicionDetalle)
+            return context.TbPrRequisicion.AsNoTracking().FirstOrDefault(r => r.Id == id);
         }
 
         public TbPrRequisicion GetRequisicionWithDetails(int id)
@@ -44,11 +44,25 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public IList<TbPrRequisicionDetalle> SaveRD(IList<TbPrRequisicionDetalle> domain)
+        public IList<TbPrRequisicionDetalle> SaveOrUpdateRD(IList<TbPrRequisicionDetalle> domain)
         {
             try
             {
-                context.TbPrRequisicionDetalle.AddRange(domain);
+
+                var actualizar = new List<TbPrRequisicionDetalle>();
+                var crear = new List<TbPrRequisicionDetalle>();
+
+                foreach (var item in domain)
+                {
+                    if (item.Id != 0)
+                        actualizar.Add(item);
+                    else
+                        crear.Add(item);
+                }
+
+                context.TbPrRequisicionDetalle.AddRange(crear);
+                context.TbPrRequisicionDetalle.UpdateRange(actualizar);
+
                 context.SaveChanges();
 
                 return domain;
@@ -60,24 +74,10 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public void UpdateRD(IList<TbPrRequisicionDetalle> domain)
-        {
-            try
-            {
-                context.TbPrRequisicionDetalle.UpdateRange(domain);
-                context.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                AltivaLog.Log.Insertar(ex.ToString(), "Error");
-
-                throw;
-            }
-        }
 
         public IList<TbPrRequisicionDetalle> GetAllReqDetalleById(IList<int> domain)
         {
-            return context.TbPrRequisicionDetalle.Where(r => domain.Any(id => id == r.Id)).ToList();
+            return context.TbPrRequisicionDetalle.Where(r => domain.Any(id => id == r.Id)).AsNoTracking().ToList();
         }
 
         public bool DeleteRD(IList<TbPrRequisicionDetalle> domain)

@@ -26,6 +26,11 @@ namespace AltivaWebApp.Repositories
             return context.TbCrCamposPersonalizados.Where(u => u.Id == id).FirstOrDefault();
         }
 
+        public TbCrCamposPersonalizados GetCPPorNombre(string nombre)
+        {
+            return context.TbCrCamposPersonalizados.AsNoTracking().FirstOrDefault(c => c.Nombre == nombre);
+        }
+
         public IList<TbCrCamposPersonalizados> GetCampos(int id)
         {
             return context.TbCrCamposPersonalizados.Where(c => c.Estado == "Activo")

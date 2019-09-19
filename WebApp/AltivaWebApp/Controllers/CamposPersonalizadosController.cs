@@ -12,121 +12,141 @@ namespace AltivaWebApp.Controllers
 {
 
 
-    [Route("{culture}/CamposPersonalizadosController")]
+    [Route("{culture}/Campos-Personalizados")]
     public class CamposPersonalizadosController : Controller
     {
         //variable service
-        public ICamposPersonalizadosService pCamposPersonalizados;
-
-        public IContactoMap IcontactoMap;
-        IListaDesplegableMapper map;
+        private readonly ICamposPersonalizadosService cpService;
+        private readonly IContactoMap contactoMap;
+        private readonly IListaDesplegableMapper listaDesMap;
+        private readonly IListaDesplegableService listaService;
         //contructor
-        public CamposPersonalizadosController(IContactoMap IcontactoMap, ICamposPersonalizadosService pCamposPersonalizados, IListaDesplegableMapper map)
+        public CamposPersonalizadosController(IListaDesplegableService listaService,IContactoMap IcontactoMap, ICamposPersonalizadosService pCamposPersonalizados, IListaDesplegableMapper map)
         {
-            this.pCamposPersonalizados = pCamposPersonalizados;
-            this.IcontactoMap = IcontactoMap;
-            this.map = map;
+            this.cpService = pCamposPersonalizados;
+            this.contactoMap = IcontactoMap;
+            this.listaDesMap = map;
+            this.listaService = listaService;
         }
-        [HttpGet("TraerCamposPersonalizados")]
-        public IActionResult TraerCamposPersonalizados()
-        {
-            IList<TbCrCamposPersonalizados> campos = new List<TbCrCamposPersonalizados>();
-            campos = this.pCamposPersonalizados.GetCampos();
-            return new JsonResult(campos);
 
-        }
+
         // GET: CamposPersonalizados
-        [HttpGet("Index")]
-        public ActionResult Index()
-        {
-            IList<TbCrCamposPersonalizados> campos = new List<TbCrCamposPersonalizados>();
-            campos = this.pCamposPersonalizados.GetAll(0);
-            return View(campos);
-            // return View(campos);
-        }
-
-        // GET: CamposPersonalizados/Details/5
-        [HttpGet("Details/{id?}")]
-        public IActionResult Details(int id)
-        {
-
-
-            TbCrCamposPersonalizados contactoMap = new TbCrCamposPersonalizados();
-            contactoMap = this.pCamposPersonalizados.getById(id);
-            return View(contactoMap);
-
-        }
-        [HttpPost("CrearCamposPersonalizados")]
-    
-        public IActionResult CrearCamposPersonalizados(CamposPersonalizadosViewModelSingle domain2)
-        {
-            ViewBag.id = 0;
-            return PartialView("_CrearEditarCampos",domain2);
-        }
-        // GET: CamposPersonalizados/Create
-        [HttpGet("Create")]
-        public IActionResult Create()
+        [Route("Lista")]
+        public ActionResult CamposPersonalizados()
         {
             return View();
         }
-        [HttpPost("CrearNuevoCamposPersonalizados")]
-        public IActionResult CrearNuevoCamposPersonalizados(CamposPersonalizadosViewModel domain)
+
+        [HttpGet("_ListarCamposPersonalizados")]
+        public IActionResult _ListarCamposPersonalizados()
         {
-            List<TbCrCamposPersonalizados> ListaCampos = new List<TbCrCamposPersonalizados>();
-          
+            return PartialView(cpService.GetAll());
+        }
+
+        [HttpGet("Nuevo-CP")]
+        public IActionResult NuevoCP()
+        {
+            return PartialView("_CrearEditarCampos", new CamposPersonalizadosViewModel { Estado = "Activo" });
+        }
+
+        [HttpGet("Editar-CP/{id}")]
+        public IActionResult EditarCP(int id)
+        {
+            return PartialView("_CrearEditarCampos", contactoMap.DomainToViewModelCP(cpService.getById(id)));
+        }
+
+        [HttpPost("CrearEditarCampo")]
+        public IActionResult CrearEditarCampo(CamposPersonalizadosViewModel viewModel, IList<ListaViewModel> lista, IList<long> optListaEliminados )
+        {
             try
             {
-                TbCrCamposPersonalizados vd = new TbCrCamposPersonalizados();
-                vd = this.map.Save(domain);
-                return new JsonResult(vd);
-         
+                var campo = new TbCrCamposPersonalizados();
+
+                var existeCampo = cpService.GetCPPorNombre(viewModel.Nombre);
+                if(viewModel.Id != 0)
+                {
+                    if (existeCampo != null && existeCampo.Id != viewModel.Id)
+                        return Json(new { success = false });
+
+                    campo = contactoMap.UpdateCP(viewModel);
+                    if(viewModel.Tipo == "lista" && lista.Count() != 0)
+                    {
+                        listaDesMap.SaveOrUpdate(lista);
+                    }
+
+                    if(optListaEliminados.Count() > 0)
+                    {
+                        listaService.DeleteRange(optListaEliminados);
+                    }
+
+                }
+                else
+                {
+                    if (existeCampo != null)
+                        return Json(new { success = false });
+
+                    campo = contactoMap.SaveCP(viewModel);
+
+                    
+
+                    if (viewModel.Tipo == "lista" && lista.Count() != 0)
+                    {
+                        foreach (var item in lista)
+                        {
+                            item.IdCamposPersonalizados =(int) campo.Id;
+                        }
+                        listaDesMap.SaveOrUpdate(lista);
+                    }
+                }
+                campo.TbCrListaDesplegables = null;
+
+                return Json( new { success = true, campo = campo });
             }
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                return new JsonResult(1);
+                throw;
             }
         }
 
-        // GET: CamposPersonalizados/Ed/it5
-        [HttpGet("EditCampos/{id?}")]
-        public ActionResult EditCampos(int id)
-        {
-            ViewBag.id = 1;
-            TbCrCamposPersonalizados contactoMap = new TbCrCamposPersonalizados();
-            contactoMap = this.pCamposPersonalizados.getById(id);
-            CamposPersonalizadosViewModel domain2 = new CamposPersonalizadosViewModel();
-            domain2.Id = Convert.ToInt32( contactoMap.Id);
-            domain2.Nombre = contactoMap.Nombre;
-            domain2.Tipo = contactoMap.Tipo;
-            domain2.Estado = contactoMap.Estado;
-            return PartialView("_CrearEditarCampos", domain2);
-        }
-        [HttpPost("Editar")]
-        public ActionResult Editar(CamposPersonalizadosViewModel model1)
+        [HttpPost("CambiarEstadoCampo/{id}")]
+        public IActionResult CambiarEstadoCampo(int id)
         {
             try
             {
-               
-                TbCrCamposPersonalizados contactoMap = new TbCrCamposPersonalizados();
-                contactoMap = this.IcontactoMap.UpdateCP(model1);
-                return new JsonResult(true);
+                var cp = cpService.getById(id);
+                if (cp.Estado == "Inactivo")
+                    cp.Estado = "Activo";
+                else
+                    cp.Estado = "Inactivo";
+
+                cpService.Edit(cp);
+
+                return Json(new { succes = true, estado = cp.Estado });
+
+
             }
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                return View();
+                throw;
             }
         }
-        [HttpGet("Delete/{id?}")]
-       public ActionResult Delete(int id)
+
+        [HttpGet("GetValorLista/{id}")]
+        public IActionResult GetValorLista(int id)
         {
-            TbCrCamposPersonalizados cp = new TbCrCamposPersonalizados();
-            cp = this.IcontactoMap.EliminarCP(id);
-
-            return new JsonResult(1);
-
+            try
+            {
+                return Ok(listaService.GetListaByIdCampo(id));
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+            }
         }
+
 
     }
 }

@@ -186,7 +186,7 @@ namespace AltivaWebApp.Mappers
 
                 domain.TotalDescuentoBase = viewModel.TotalDescuento * domain.TipoCambioEuro;
                 domain.TotalDescuentoDolar = domain.TotalDescuentoBase / domain.TipoCambioDolar;
-                domain.TotalEuro = viewModel.TotalDescuento;
+                domain.TotalDescuentoEuro = viewModel.TotalDescuento;
             }
 
             return domain;
@@ -202,7 +202,7 @@ namespace AltivaWebApp.Mappers
             domain.IdUsuario = viewModel.IdUsuario;
             domain.Observacion = viewModel.Observacion;
             domain.Anulado = viewModel.Anulado;
-            domain.Fecha = viewModel.Fecha;
+            domain.Fecha = DateTime.Now;
             domain.TipoCambioDolar = viewModel.TipoCambioDolar;
             domain.TipoCambioEuro = viewModel.TipoCambioEuro;
           

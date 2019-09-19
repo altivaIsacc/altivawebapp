@@ -17,5 +17,7 @@ namespace AltivaWebApp.Services
         TbCrListaDesplegables Update(TbCrListaDesplegables domain);
         bool Delete(int idLista);
         IList<ListaDesplegableGETViewModel> GetCampos(int id);
+        IList<TbCrListaDesplegables> GetListaByIdCampo(int idCampo);
+        void DeleteRange(IList<long> domain);
     }
 }

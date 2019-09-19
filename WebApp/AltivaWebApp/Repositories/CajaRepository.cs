@@ -1,5 +1,6 @@
 ﻿using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
+using AltivaWebApp.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Repositories
 {
-    public class CajaRepository: BaseRepository<TbFaCaja>, ICajaRepository
+    public class CajaRepository : BaseRepository<TbFaCaja>, ICajaRepository
     {
 
         public CajaRepository(EmpresasContext context) : base(context)
@@ -35,8 +36,8 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-       
-     public IList<TbFaCajaArqueo> GetAllById(int id)
+
+        public IList<TbFaCajaArqueo> GetAllById(int id)
         {
             return context.TbFaCajaArqueo.ToList();
         }
@@ -113,11 +114,32 @@ namespace AltivaWebApp.Repositories
             }
         }
 
-        public IList<TbFaCaja> GetInfoCaja()
+        public IList<TbFaCaja> GetInfoCaja(FiltroFechaViewModel _filtroFecha, long _filtroNum, long _filtroPV)
         {
             try
             {
-               return context.TbFaCaja.ToList();
+                string filtroFecha = _filtroFecha.Filtrando ? $"Convert(date, FechaCreacion) >= '{_filtroFecha.Desde.Date}' and Convert(date, FechaCreacion) <= '{_filtroFecha.Hasta.Date}' " : "";
+                string filtroNum = _filtroNum != 0 ? $"IdCaja = '{_filtroNum}'" : "";
+                string filtroPV = _filtroPV != 0 ? $"IdPuntoVenta = '{_filtroPV}'" : "";
+
+                var and1 = "";
+                var and2 = "";
+                
+                var where = "";
+                if (filtroFecha != "" && filtroNum != "")
+                    and1 = "and";
+
+                if (filtroPV != "" && (filtroFecha != "" || filtroNum != ""))
+                    and2 = "and";
+
+                if (filtroFecha != "" || filtroNum != "" || filtroPV != "")
+                    where = "where";
+
+                var qry = $"select * from tb_FA_Caja {where} {filtroFecha} {and1} {filtroNum} {and2} {filtroPV}";
+
+                var caja = context.TbFaCaja.FromSql(qry).Include(c => c.IdPuntoVentaNavigation).ToList();
+                return caja;
+
 
             }
             catch (Exception ex)

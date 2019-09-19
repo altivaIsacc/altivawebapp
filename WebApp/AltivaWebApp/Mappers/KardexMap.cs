@@ -406,6 +406,9 @@ namespace AltivaWebApp.Mappers
         ///
         public bool CreateKardexRD(IList<TbPrRequisicionDetalle> rq, bool isDeteled)
         {
+            if (rq.Count() == 0 || rq == null)
+                return false;
+
             var domain = reqService.GetReqById((int)rq.First().IdRequisicion);
             var kardex = new List<TbPrKardex>();
             var cd = new List<TbPrCompraDetalle>();
@@ -415,10 +418,6 @@ namespace AltivaWebApp.Mappers
 
             if (domain.Anulado)
                 tipoDoc = "REA";
-
-
-
-
 
             foreach (var item in rq)
             {
@@ -445,7 +444,7 @@ namespace AltivaWebApp.Mappers
                     IdDocumento = domain.Id,
                     IdUsuario = domain.IdUsuario,
                     IdMoneda = 1,
-                    Observaciones = "N/A",
+                    Observaciones = domain.Descripcion,
                     PrecioPromedio = 0,
                     PrecioUnit = item.PrecioUnitario,
                     IdInventario = item.IdInventario,
