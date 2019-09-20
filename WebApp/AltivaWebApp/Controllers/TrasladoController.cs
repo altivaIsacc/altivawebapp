@@ -113,6 +113,10 @@ namespace AltivaWebApp.Controllers
 
                 try
                 {
+                    if (traslado.Comentario == null)
+                    {
+                        traslado.Comentario = "";
+                    }
 
                     if (traslado.IdTraslado != 0)
                     {
@@ -194,8 +198,7 @@ namespace AltivaWebApp.Controllers
                     AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
                     if (ex.HResult.ToString() == "-2146233088")
-                    {
-                        
+                    {                       
                         return BadRequest(new { rollback = true });
                     }
                     else
