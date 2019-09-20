@@ -1,0 +1,240 @@
+﻿@*monto*@
+@model FormaPagoViewModel
+@inject IStringLocalizer<SharedResources> Lb
+
+
+<div class="modal fade" id="formaPagoModal" tabindex="-1" role="dialog" aria-labelledby="formaPagoModalCenter" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header row" style="padding-bottom:0; margin-bottom: 0; ">
+
+                <div class="col-md-3 col-sm-3 col-xs-6">
+                    <div class="form-group row">
+                        <label for="monto" class="col-sm-3 col-xs-4 col-md-3 col-form-label col-form-label-sm">@Lb["Monto"]:</label>
+                        <div class="col-sm-9 col-md-9 col-xs-8">
+                            <input readonly class="form-control input-sm formaPagoMoneda" value="@Model.Monto" id="monto">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-3 col-xs-6">
+                    <div class="form-group row">
+                        <label for="pago" class="col-sm-3 col-xs-4 col-md-3 col-form-label col-form-label-sm">@Lb["Pagos"]:</label>
+                        <div class="col-sm-9 col-md-9 col-xs-8">
+                            <input class="form-control input-sm formaPagoMoneda" onkeyup="calcularBalance()" value="@Model.Monto" id="pago">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-8">
+                    <div class="form-group row">
+                        <label for="balance" class="col-sm-3 col-xs-3 col-md-3 col-form-label col-form-label-sm">@Lb["Balance"]:</label>
+                        <div class="col-sm-9 col-md-9 col-xs-9">
+                            <input class="form-control input-sm " id="balance">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-4" style="margin: 0; padding: 0; text-align:right">
+                    <button class="btn btn-link" data-dismiss="modal">
+                        <span aria-hidden="true">@Lb["Terminar"]</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3 col-sm-4 col-xs-12">
+                        <div class="list-group" id="metodosPago" role="tablist">
+                            <a class="list-group-item list-group-item-action active" id="efectivoTab" data-toggle="list" href="#list-efectivo" role="tab" aria-controls="efectivo">@Lb["Efectivo"]</a>
+                            <a class="list-group-item list-group-item-action" id="tarjetaTab" data-toggle="list" href="#list-tarjeta" role="tab" aria-controls="tarjeta">@Lb["Tarjeta"]</a>
+                            <a class="list-group-item list-group-item-action" id="transferenciaTab" data-toggle="list" href="#list-transferencia" role="tab" aria-controls="transferencia">@Lb["Transferencia"]</a>
+                            <a class="list-group-item list-group-item-action" id="chequeTab" data-toggle="list" href="#list-cheque" role="tab" aria-controls="cheque">@Lb["Cheque"]</a>
+                            <a class="list-group-item list-group-item-action" id="saldoTab" data-toggle="list" href="#list-saldo" role="tab" aria-controls="saldo">@Lb["AplicarSaldo"]</a>
+                        </div>
+                    </div>
+                    <div class="col-md-5 col-sm-8 col-xs-12">
+                        <div class="tab-content" id="nav-tabContent">
+                            <div class="tab-pane fade" id="list-efectivo" role="tabpanel" aria-labelledby="efectivoTab">
+                                <div class="row">
+                                    <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align:right">
+                                        <label class="form-check-label" for="rdMonedaBaseE"><input class="form-check-input rdMonedaBase" onclick="setMonedaFormaPago(1)" type="radio" name="rdMonedaE" id="rdMonedaBaseE" value="1"><span class="lbMonedaBase"></span></label>&nbsp;&nbsp;
+                                        <label class="form-check-label" for="rdMonedaDolarE"><input class="form-check-input rdMonedaDolar" onclick="setMonedaFormaPago(2)" type="radio" name="rdMonedaE" id="rdMonedaDolarE" value="2"><span class="lbMonedaDolar"></span></label>&nbsp;&nbsp;
+                                        <label class="form-check-label" for="rdMonedaEuroE"> <input class="form-check-input rdMonedaEuro" onclick="setMonedaFormaPago(3)" type="radio" name="rdMonedaE" id="rdMonedaEuroE" value="3"><span class="lbMonedaEuro"></span></label>&nbsp;&nbsp;
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <hr style="padding:0; margin:0; margin-bottom:1rem" />
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Monto"]:</stron></span>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm" id="montoEfectivo" />
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12" style="text-align: right">
+                                            <button class="btn btn-link">@Lb["Borrar"]</button>
+                                            |
+                                            <button class="btn btn-link">@Lb["Listo"]</button>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="row">
+                                                @foreach (var item in ViewData["denominaciones"] as IList<TbFaDenominacion>)
+                                                {
+                                                    var claseD = "digito" + item.IdMoneda.ToString();
+                                                    var claseT = "tipo" + item.Tipo.ToString();
+                                                    var claseM = "moneda" + item.IdMoneda.ToString();
+                                                    <div class="col-md-2 col-sm-3 col-xs-4 @claseD @claseT" hidden>
+                                                        @{ CultureInfo us = CultureInfo.CreateSpecificCulture("en-US"); }
+
+                                                        @if (item.Tipo == 2)
+                                                        {
+                                                            <button class="btn btn-sm" value="@item.Valor"><i class="fas fa-coins"></i><span class="@claseM"></span> @item.Valor.ToString("#,#", us)</button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button class="btn btn-sm" value="@item.Valor"><i class="fas fa-money-bill"></i><span class="@claseM"></span> @item.Valor.ToString("#,#", us)</button>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="list-tarjeta" role="tabpanel" aria-labelledby="tarjetaTab">Tarjeta</div>
+                            <div class="tab-pane fade" id="list-transferencia" role="tabpanel" aria-labelledby="transferenciaTab">Transferencia</div>
+                            <div class="tab-pane fade" id="list-cheque" role="tabpanel" aria-labelledby="chequeTab">Cheque</div>
+                            <div class="tab-pane fade" id="list-saldo" role="tabpanel" aria-labelledby="saldoTab">Saldo</div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-8 col-xs-12 pull-right">
+
+                        <table class="table table-borderless pull-right" style="width:100%">
+                            <tbody>
+                                <tr>
+                                    <th>Prueba</th>
+                                    <td>p</td>
+                                    <td>p</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+        setMonedaGeneral(@Model.Moneda);
+
+    });
+
+    $('#metodosPago a').on('click', function (e) {
+        e.preventDefault();
+        $('#metodosPago a').removeClass('active');
+        $(this).tab('show');
+        $(this).addClass('active');
+    })
+
+    /////////////////////////calculos efectivo/////////////////////
+
+
+    ////////////validar si es la primera vez
+    function btnDenominacion(value) {
+
+    }
+
+
+    /////////////////////////fin calculos efectivo/////////////////////
+    //////////////////////////calculos general/////////////////////
+
+
+    function calcularBalance() {
+        var balance = parseFloat($('#pago').inputmask('unmaskedvalue')) - parseFloat($('#monto').inputmask('unmaskedvalue'));
+
+        $('#balance').val(balance);
+    }
+
+
+    /////////////////////////fin calculos general/////////////////
+
+    /////////////////////////formato//////////////////////
+    function setMonedaFormaPago(codigo) {
+
+        var simbolo = "";
+        switch (codigo) {
+            case 1:
+                simbolo = monedas[0].simbolo;
+                $('.digito1').prop('hidden', false);
+                $('.digito2').prop('hidden', true);
+                $('.digito3').prop('hidden', true);
+                break;
+            case 2:
+                simbolo = monedas[1].simbolo;
+                $('.digito2').prop('hidden', false);
+                $('.digito1').prop('hidden', true);
+                $('.digito3').prop('hidden', true);
+                break;
+            case 3:
+                simbolo = monedas[2].simbolo;
+                $('.digito3').prop('hidden', false);
+                $('.digito2').prop('hidden', true);
+                $('.digito1').prop('hidden', true);
+                break;
+            default:
+        }
+
+
+
+    }
+
+
+    function setMonedaGeneral(codigo) {
+
+
+        setMonedaFormaPago(codigo);
+
+        var simbolo = "";
+        switch (codigo) {
+            case 1:
+                simbolo = monedas[0].simbolo;
+                $('.rdMonedaBase').prop('checked', true);
+                break;
+            case 2:
+                simbolo = monedas[1].simbolo;
+                $('.rdMonedaDolar').prop('checked', true);
+                break;
+            case 3:
+                simbolo = monedas[2].simbolo;
+                $('.rdMonedaEuro').prop('checked', true);
+                break;
+            default:
+        }
+
+        $('.lbMonedaBase').text(monedas[0].nombre);
+        $('.lbMonedaDolar').text(monedas[1].nombre);
+        $('.lbMonedaEuro').text(monedas[2].nombre);
+
+        $(".formaPagoMoneda").inputmask('currency', {
+            prefix: simbolo,
+            rightAlign: true,
+            min: 0
+        });
+
+        $("#balance").inputmask('currency', {
+            prefix: simbolo,
+            rightAlign: true,
+        });
+
+    }
+
+
+
+</script>

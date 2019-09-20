@@ -34,26 +34,32 @@
 
 @if (Model.Id != 0)
 {
-    <div class="btn-group">
-        <button type="button" onclick="GetPDF(1)" class="btn btn-primary">@Lb["Imprimir"]</button>
-        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-            <span class="caret"></span>
-            <span class="sr-only">Toggle Dropdown</span>
-        </button>
-        <ul class="dropdown-menu" role="menu">
-            <li>
-                <a href="#carta" onclick="GetPDF(1)">@Lb["Carta"]</a>
-            </li>
-            <li>
-                <a href="#ticket" onclick="GetPDF(2)">@Lb["MediaCarta"]</a>
-            </li>
-            <li>
-                <a href="#ticket" onclick="GetPDF(3)">@Lb["Ticket"]</a>
-            </li>
-        </ul>
+    <div class="row">
+        <div class="btn-group  col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <button type="button" onclick="GetPDF(1)" class="btn btn-primary">@Lb["Imprimir"]</button>
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li>
+                    <a href="#carta" onclick="GetPDF(1)">@Lb["Carta"]</a>
+                </li>
+                <li>
+                    <a href="#mediacarta" onclick="GetPDF(2)">@Lb["MediaCarta"]</a>
+                </li>
+                <li>
+                    <a href="#ticket" onclick="GetPDF(3)">@Lb["Ticket"]</a>
+                </li>
+                <li>
+                    <a href="#personalizado" onclick="GetPDF(4)">@Lb["Personalizado"]</a>
+                </li>
+            </ul>
+        </div>
     </div>
 }
 
+<br />
 
 <div class="row">
     <form id="frmFactura">
@@ -78,6 +84,7 @@
         @Html.HiddenFor(x => x.MontoIva)
         @Html.HiddenFor(x => x.TotalDescuento)
         @Html.HiddenFor(x => x.Total)
+        @Html.HiddenFor(x => x.Consecutivo)
 
         <div class="form-group col-md-3 col-sm-3 col-xs-6">
             <label asp-for="IdVendedor" class="control-label">@Lb["Vendedor"]:</label>
@@ -88,7 +95,10 @@
                     {
                         <option selected value="@item.Id">@item.Nombre</option>
                     }
-                    <option value="@item.Id">@item.Nombre</option>
+                    else
+                    {
+                        <option value="@item.Id">@item.Nombre</option>
+                    }
                 }
             </select>
         </div>
@@ -145,11 +155,14 @@
                 <li>
                     <a class="dropdown-item" href="#" onclick="GetReporte(3)">@Lb["Tiquete"]</a>
                 </li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="GetReporte(4)">@Lb["Personalizado"]</a>
+                </li>
             </ul>
 
         </div>
 
-        
+
 
     </form>
 
@@ -198,7 +211,8 @@
 </div>
 <div class="row">
     <div class="form-group col-md-12 col-sm-12 col-xs-12" style="padding-top: 1rem;">
-        <a class="btn btn-success pull-right" onclick="guardarCambios()">@Lb["Guardar"]</a>
+        @*<a class="btn btn-success pull-right" onclick="guardarCambios()">@Lb["Facturar"]</a>*@
+        <a class="btn btn-success pull-right" onclick="facturar()">@Lb["Facturar"]</a>
         <a class="btn btn-default pull-right" onclick="cancelar()">@Lb["Cancelar"]</a>
     </div>
 </div>
@@ -292,15 +306,11 @@
     </div>
 </div>
 
-<div class="modal fade bd-example-modal-xl" id="reporteModal" tabindex="-2" role="dialog" aria-labelledby="reporteModalCenter" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div id="repContainer">
 
-            </div>
-        </div>
-    </div>
+<div id="formaPagoPartial">
+
 </div>
+
 
 <input hidden id="monedaFormatter" class="moneda" type="text" />
 <input hidden id="moneyFormatter" class="money" type="text" />
@@ -362,7 +372,7 @@
         facturaModel = getFormData();
 
 
-        getMonedas();       
+        getMonedas();
         getInventario();
         comprobarBorrador();
 
@@ -384,11 +394,11 @@
             getIdTipoPrecioCliente();
             limpiarLinea();
         });
-        
+
 
     });
 
-    
+
 
     function getFormData() {
         var unindexed_array = $('#frmFactura ').serializeArray();
@@ -413,7 +423,7 @@
         $('#cantidad').val(1);
         $('#precio').val(0);
         $('#descProducto').text("");
-        
+
     }
 
     $('#submitFrmFD').on('click', function () {
@@ -550,7 +560,7 @@
             lineas.push(model);
             lineasCrOrUp.push(model);
         }
-        
+
         calcularTotales();
         setFacturaModel();
 
@@ -743,11 +753,11 @@
     function setConfiguracionPV() {
 
         var pv = getPuntoVentaLocal();
-       
+
         $('#IdCliente').val(pv.idContactoClienteDefecto);
         $('#IdCliente').trigger('change');
 
-        setMonedaFactura(pv.idMonedaFacturaDefecto);         
+        setMonedaFactura(pv.idMonedaFacturaDefecto);
 
         //se llama en el trigger change de select cliente
         //getIdTipoPrecioCliente();
@@ -779,7 +789,7 @@
             min: 0
         });
 
-        
+
     }
 
     ///////////////////////////////////////////////calculos de factura/////////////////////////////////////
@@ -815,6 +825,42 @@
     }
 
     /////////////////////////////////////////////////fin calc factura//////////////////////////////////////////
+
+    function facturar() {
+        
+        if ($('#Tipo').val() == "1") {
+            cargarFormaPago();
+        }
+        else {
+
+        }
+
+    }
+    function cargarFormaPago() {
+        
+        var model = {
+            idCaja: 0,
+            monto: facturaModel.Total,
+            tcDolar: $('#TipoCambioDolar').val(),
+            tcEuro: $('#TipoCambioEuro').val(),
+            moneda: $('#IdMoneda').val()
+        };
+       
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("_FormaPago", "MovimientoCaja")',
+            data: { viewModel: model },
+            success: function (data) {
+                $('#formaPagoPartial').html(data);
+                $('#formaPagoModal').modal('show');
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+
+    }
 
     function guardarCambios() {
 
@@ -882,7 +928,8 @@
             estado: '@Model.Estado',
             tipo: facturaModel.Tipo,
             idPuntoVenta: $('#selectPuntoVenta').val(),
-            enCola: false
+            enCola: false,
+            consecutivo: $('#Consecutivo').val()
         };
 
         return model;
@@ -1036,7 +1083,7 @@
     }
 
     function getPrecioFromLista(lista) {
-        
+
         for (var i = 0; i < lista.length; i++) {
             if (idTipoPrecio == lista[i].idTipoPrecio)
                 return lista[i].precioSinImpuesto;
@@ -1049,13 +1096,13 @@
              dataType: "json",
              url: '@Url.Action("GetIdTipoPrecioCliente", "Factura", new { idCliente = "__id__" })'.replace("__id__", $('#IdCliente').val()),
              success: function (data) {
-                 
+
                  var pv = getPuntoVentaLocal();
                  if (data != 0 && pv.idContactoClienteDefecto != $('#IdCliente').val())
                      idTipoPrecio = data;
                  else
                      idTipoPrecio = pv.idTipoPrecioDefecto;
-                
+
              },
              error: function (err, scnd) {
                   cargarAlert('@Lb["errorGeneral"]');
@@ -1117,11 +1164,11 @@
                         $('#IdCliente').val(arrayPV[i].idContactoClienteDefecto);
                         $(o).attr('selected', true);
 
-                    }                   
+                    }
 
                     $('#selectPuntoVenta').append(o);
                 }
-                
+
                 setConfiguracionPV();
 
             },
@@ -1146,7 +1193,7 @@
                  }
                  else
                      $('#frmFDfieldset').prop('disabled', false);
-                 
+
              },
              error: function (err, scnd) {
                   cargarAlert('@Lb["errorGeneral"]');
@@ -1322,13 +1369,14 @@
         });
     }
 
-    function GetReporte(tipo) {
-        
+    function getTipoReporte(tipo) {
         //1 carta
         //2 media carta
         //3 tiquete
+        //4 personalizado
 
         var reporte = "";
+
         switch (parseInt(tipo)) {
             case 1:
                 reporte = "FacturaCarta";
@@ -1339,9 +1387,22 @@
             case 3:
                 reporte = "Facturaticket";
                 break;
+            case 4:
+                reporte = JSON.parse(localStorage.getItem("empresaInfo")).ced;
+                break;
             default:
                 reporte = "FacturaCarta";
         }
+
+        return reporte;
+    }
+
+    function GetReporte(tipo) {
+
+
+
+        var reporte = getTipoReporte(tipo);
+
 
         var parametros = [];
 
@@ -1371,20 +1432,7 @@
 
     function GetPDF(tipo) {
 
-        var reporte = "";
-        switch (parseInt(tipo)) {
-            case 1:
-                reporte = "FacturaCarta";
-                break;
-            case 2:
-                reporte = "FacturaMediaCarta";
-                break;
-            case 3:
-                reporte = "Facturaticket";
-                break;
-            default:
-                reporte = "FacturaCarta";
-        }
+        var reporte = getTipoReporte(tipo);
 
         var parametros = [];
 
@@ -1484,13 +1532,6 @@
 
                     $('#wordContent').html(reader.result);
                     $('#wordContent').wordExport();
-
-                    //var myWindow = window.open('', '', '');
-                    //var doc = myWindow.document;
-                    //doc.open();
-                    //doc.write(reader.result);
-                    //$(doc).wordExport();
-                    //doc.close();
 
                 }
 
