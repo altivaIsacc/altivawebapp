@@ -21,7 +21,7 @@ namespace AltivaWebApp.Controllers
         [HttpPost("_FormaPago")]
         public IActionResult _FormaPago(FormaPagoViewModel viewModel)
         {
-            ViewData["denominaciones"] = denService.GetAllDenominaciones();
+            ViewData["denominaciones"] = denService.GetAllDenominaciones().OrderBy(m => m.Valor).ToList();
             return PartialView(viewModel);
         }
     }

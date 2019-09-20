@@ -20,7 +20,7 @@
                     <div class="form-group row">
                         <label for="pago" class="col-sm-3 col-xs-4 col-md-3 col-form-label col-form-label-sm">@Lb["Pagos"]:</label>
                         <div class="col-sm-9 col-md-9 col-xs-8">
-                            <input class="form-control input-sm formaPagoMoneda" onkeyup="calcularBalance()" value="@Model.Monto" id="pago">
+                            <input readonly class="form-control input-sm formaPagoMoneda" value="@Model.Monto" id="pago">
                         </div>
                     </div>
                 </div>
@@ -28,7 +28,7 @@
                     <div class="form-group row">
                         <label for="balance" class="col-sm-3 col-xs-3 col-md-3 col-form-label col-form-label-sm">@Lb["Balance"]:</label>
                         <div class="col-sm-9 col-md-9 col-xs-9">
-                            <input class="form-control input-sm " id="balance">
+                            <input readonly class="form-control input-sm " id="balance">
                         </div>
                     </div>
                 </div>
@@ -40,36 +40,38 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-3 col-sm-4 col-xs-12">
+                    <div class="col-md-2 col-sm-4 col-xs-12">
                         <div class="list-group" id="metodosPago" role="tablist">
-                            <a class="list-group-item list-group-item-action active" id="efectivoTab" data-toggle="list" href="#list-efectivo" role="tab" aria-controls="efectivo">@Lb["Efectivo"]</a>
-                            <a class="list-group-item list-group-item-action" id="tarjetaTab" data-toggle="list" href="#list-tarjeta" role="tab" aria-controls="tarjeta">@Lb["Tarjeta"]</a>
-                            <a class="list-group-item list-group-item-action" id="transferenciaTab" data-toggle="list" href="#list-transferencia" role="tab" aria-controls="transferencia">@Lb["Transferencia"]</a>
-                            <a class="list-group-item list-group-item-action" id="chequeTab" data-toggle="list" href="#list-cheque" role="tab" aria-controls="cheque">@Lb["Cheque"]</a>
-                            <a class="list-group-item list-group-item-action" id="saldoTab" data-toggle="list" href="#list-saldo" role="tab" aria-controls="saldo">@Lb["AplicarSaldo"]</a>
+                            <a onclick="setFormaPagoSeleccionada(1)" class="list-group-item list-group-item-action" id="efectivoTab" data-toggle="list" href="#list-efectivo" role="tab" aria-controls="efectivo">@Lb["Efectivo"]</a>
+                            <a onclick="setFormaPagoSeleccionada(2)" class="list-group-item list-group-item-action" id="tarjetaTab" data-toggle="list" href="#list-tarjeta" role="tab" aria-controls="tarjeta">@Lb["Tarjeta"]</a>
+                            <a onclick="setFormaPagoSeleccionada(3)" class="list-group-item list-group-item-action" id="transferenciaTab" data-toggle="list" href="#list-transferencia" role="tab" aria-controls="transferencia">@Lb["Transferencia"]</a>
+                            <a onclick="setFormaPagoSeleccionada(4)" class="list-group-item list-group-item-action" id="chequeTab" data-toggle="list" href="#list-cheque" role="tab" aria-controls="cheque">@Lb["Cheque"]</a>
+                            <a onclick="setFormaPagoSeleccionada(5)" class="list-group-item list-group-item-action" id="saldoTab" data-toggle="list" href="#list-saldo" role="tab" aria-controls="saldo">@Lb["AplicarSaldo"]</a>
                         </div>
                     </div>
                     <div class="col-md-5 col-sm-8 col-xs-12">
                         <div class="tab-content" id="nav-tabContent">
+                            <div class="row">
+                                <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align:right">
+                                    <label class="form-check-label" for="rdMonedaBase"><input class="form-check-input rdMonedaBase" onclick="setMonedaFormaPago(1)" type="radio" name="rdMoneda" id="rdMonedaBase" value="1"><span class="lbMonedaBase"></span></label>&nbsp;&nbsp;
+                                    <label class="form-check-label" for="rdMonedaDolar"><input class="form-check-input rdMonedaDolar" onclick="setMonedaFormaPago(2)" type="radio" name="rdMoneda" id="rdMonedaDolar" value="2"><span class="lbMonedaDolar"></span></label>&nbsp;&nbsp;
+                                    <label class="form-check-label" for="rdMonedaEuro"> <input class="form-check-input rdMonedaEuro" onclick="setMonedaFormaPago(3)" type="radio" name="rdMoneda" id="rdMonedaEuro" value="3"><span class="lbMonedaEuro"></span></label>&nbsp;&nbsp;
+                                </div>
+                            </div>
                             <div class="tab-pane fade" id="list-efectivo" role="tabpanel" aria-labelledby="efectivoTab">
-                                <div class="row">
-                                    <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align:right">
-                                        <label class="form-check-label" for="rdMonedaBaseE"><input class="form-check-input rdMonedaBase" onclick="setMonedaFormaPago(1)" type="radio" name="rdMonedaE" id="rdMonedaBaseE" value="1"><span class="lbMonedaBase"></span></label>&nbsp;&nbsp;
-                                        <label class="form-check-label" for="rdMonedaDolarE"><input class="form-check-input rdMonedaDolar" onclick="setMonedaFormaPago(2)" type="radio" name="rdMonedaE" id="rdMonedaDolarE" value="2"><span class="lbMonedaDolar"></span></label>&nbsp;&nbsp;
-                                        <label class="form-check-label" for="rdMonedaEuroE"> <input class="form-check-input rdMonedaEuro" onclick="setMonedaFormaPago(3)" type="radio" name="rdMonedaE" id="rdMonedaEuroE" value="3"><span class="lbMonedaEuro"></span></label>&nbsp;&nbsp;
-                                    </div>
+                                <div class="row">                    
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <hr style="padding:0; margin:0; margin-bottom:1rem" />
                                         <div class="col-md-6 col-sm-6 col-xs-6">
                                             <span><stron>@Lb["Monto"]:</stron></span>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-6">
-                                            <input class="form-control input-sm" id="montoEfectivo" />
+                                            <input class="form-control input-sm montoFormaPago" id="montoFP1" />
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-xs-12" style="text-align: right">
-                                            <button class="btn btn-link">@Lb["Borrar"]</button>
+                                            <button onclick="borrarMontoFormaPago()" class="btn btn-link">@Lb["Borrar"]</button>
                                             |
-                                            <button class="btn btn-link">@Lb["Listo"]</button>
+                                            <button onclick="guardarFormaPago(2)" class="btn btn-link">@Lb["Listo"]</button>
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-xs-12">
                                             <div class="row">
@@ -78,16 +80,16 @@
                                                     var claseD = "digito" + item.IdMoneda.ToString();
                                                     var claseT = "tipo" + item.Tipo.ToString();
                                                     var claseM = "moneda" + item.IdMoneda.ToString();
-                                                    <div class="col-md-2 col-sm-3 col-xs-4 @claseD @claseT" hidden>
+                                                    <div class="col-md-4 col-sm-4 col-xs-4 @claseD @claseT" hidden>
                                                         @{ CultureInfo us = CultureInfo.CreateSpecificCulture("en-US"); }
 
                                                         @if (item.Tipo == 2)
                                                         {
-                                                            <button class="btn btn-sm" value="@item.Valor"><i class="fas fa-coins"></i><span class="@claseM"></span> @item.Valor.ToString("#,#", us)</button>
+                                                            <button style="width:100%" class="btn btn-sm" value="@item.Valor" onclick="btnDenominacion(value)"><i class="fas fa-coins"></i><span class="@claseM"></span> @item.Valor.ToString("#,#", us)</button>
                                                         }
                                                         else
                                                         {
-                                                            <button class="btn btn-sm" value="@item.Valor"><i class="fas fa-money-bill"></i><span class="@claseM"></span> @item.Valor.ToString("#,#", us)</button>
+                                                            <button style="width:100%" class="btn btn-sm" value="@item.Valor" onclick="btnDenominacion(value)"><i class="fas fa-money-bill"></i><span class="@claseM"></span> @item.Valor.ToString("#,#", us)</button>
                                                         }
                                                     </div>
                                                 }
@@ -103,14 +105,15 @@
 
                         </div>
                     </div>
-                    <div class="col-md-4 col-sm-8 col-xs-12 pull-right">
-
-                        <table class="table table-borderless pull-right" style="width:100%">
+                    <div class="col-md-5 col-sm-8 col-xs-12 pull-right" >
+                        <h4 style="padding:0; margin:0; margin-top:0.3rem; margin-bottom: 1.5rem;">@Lb["MetodosAgreados"]</h4>
+                        <table class="table table-borderless pull-right" style="width:100%" id="tblFormaPago">
                             <tbody>
-                                <tr>
-                                    <th>Prueba</th>
-                                    <td>p</td>
-                                    <td>p</td>
+                                <tr id="lineaTotalesFP">
+                                    <td></td>
+                                    <td><strong>@Lb["Total"]</strong></td>
+                                    <td style="text-align:right"><label id="totalFormasPago"></label></td>
+                                    <td></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -121,18 +124,36 @@
     </div>
 </div>
 
-
-
-
-
-
-
+<div hidden><input hidden id="formater1" type="text" /></div>
+<div hidden><input hidden id="formater2" type="text" /></div>
+<div hidden><input hidden id="formater3" type="text" /></div>
+<div hidden><input hidden id="formater4" class="formaPagoMoneda" type="text" /></div>
 
 <script>
+    var formaPagoSeleccionada;
+    var formasPago = [];
 
     $(document).ready(function () {
 
         setMonedaGeneral(@Model.Moneda);
+
+        $("#formater1").inputmask('currency', {
+            prefix: monedas[0].simbolo,
+            rightAlign: true,
+            min: 0
+        });
+        $("#formater2").inputmask('currency', {
+            prefix: monedas[1].simbolo,
+            rightAlign: true,
+            min: 0
+
+        });
+
+        $("#formater3").inputmask('currency', {
+            prefix: monedas[2].simbolo,
+            rightAlign: true,
+            min: 0
+        });
 
     });
 
@@ -141,7 +162,14 @@
         $('#metodosPago a').removeClass('active');
         $(this).tab('show');
         $(this).addClass('active');
-    })
+    });
+
+    function setFormaPagoSeleccionada(value) {
+        formaPagoSeleccionada = value;
+        setMonedaGeneral(@Model.Moneda);
+
+        setTimeout(function () { $('#montoFP' + value).select(); $('#montoFP' + value).focus(); }, 250);
+    }
 
     /////////////////////////calculos efectivo/////////////////////
 
@@ -149,23 +177,188 @@
     ////////////validar si es la primera vez
     function btnDenominacion(value) {
 
+        var montoAct = $('#montoFP1').inputmask('unmaskedvalue');
+        if (montoAct == null)
+            montoAct = 0;
+
+        $('#montoFP1').val(parseFloat(montoAct) + parseFloat(value));
+
+        setTimeout(function () { $('#montoFP1').focus();}, 1);
+
     }
+
 
 
     /////////////////////////fin calculos efectivo/////////////////////
     //////////////////////////calculos general/////////////////////
 
+    function getMontosTipoCambio(idMoneda) {
+
+
+        var monto = parseFloat($('#montoFP' + formaPagoSeleccionada).inputmask('unmaskedvalue'));
+        if ($('#montoFP' + formaPagoSeleccionada).inputmask('unmaskedvalue') == null)
+            monto = 0;
+
+
+        var model = {
+            base: 0,
+            dolar: 0,
+            euro: 0
+        };
+
+        switch (idMoneda) {
+            case 1:
+                model.base = monto;
+                model.dolar = monto / monedas[1].valorCompra;
+                model.euro = monto / monedas[2].valorCompra;
+                break;
+            case 2:
+                model.base = monto * monedas[1].valorCompra;
+                model.dolar = monto;
+                model.euro = (monto * monedas[1].valorCompra) / monedas[2].valorCompra;
+                break;
+            case 3:
+                model.base = monto * monedas[2].valorCompra;
+                model.dolar = (monto * monedas[2].valorCompra) / monedas[1].valorCompra;
+                model.euro = monto;
+                break;
+            default:
+        }
+
+        return model;
+
+    }
 
     function calcularBalance() {
         var balance = parseFloat($('#pago').inputmask('unmaskedvalue')) - parseFloat($('#monto').inputmask('unmaskedvalue'));
-
         $('#balance').val(balance);
     }
 
 
     /////////////////////////fin calculos general/////////////////
 
-    /////////////////////////formato//////////////////////
+    /////////////////////////general////////////////////////////
+
+    function crearModeloFormaPago(tipoCategoriaFlujo) {
+
+        var idMoneda = parseInt($("input[name='rdMoneda']:checked").val());
+        var montos = getMontosTipoCambio(idMoneda);
+
+        var montoOriginal = parseFloat($('#montoFP' + formaPagoSeleccionada).inputmask('unmaskedvalue'));
+        if ($('#montoFP' + formaPagoSeleccionada).inputmask('unmaskedvalue') == null)
+            montoOriginal = 0;
+
+        var model = {
+            idCajaMovimiento: 0,
+            tipoCategoriaFlujo: tipoCategoriaFlujo,
+            idCategoriaFlujo: 0,
+            fechaCreacion: new Date(),
+            estado: true,
+            idMoneda: idMoneda,
+            montoOriginal: montoOriginal,
+            montoBase: montos.base,
+            montoDolar: montos.dolar,
+            montoEuro: montos.euro,
+            compraDolarTc: monedas[1].valorCompra,
+            ventaDolarTc: monedas[1].valorVenta,
+            compraEuroTc: monedas[2].valorCompra,
+            ventaEuroTc: monedas[2].valorVenta,
+            idTipoCajaMovimiento: 1,
+            idCaja: @Model.IdCaja,
+            idMovimiento: 0
+        };
+
+        return model;
+    }
+
+
+    function guardarFormaPago(tipoCategoriaFlujo) {
+
+        var fp = crearModeloFormaPago(tipoCategoriaFlujo);
+        formasPago.push(fp);
+
+        $('#pago').val(totalFomasPago());
+
+        borrarMontoFormaPago();
+        cargarFormasPago(formasPago);
+
+
+        calcularBalance();
+    }
+
+    function cargarFormasPago(data) {
+
+        $('.filasCargadasFP').remove();
+        var pos = 0;
+        for (var i = 0; i < data.length; i++) {
+
+            var body =
+                '<tr class="filasCargadasFP">'
+                + '<th>' + getNombreFormaPago(data[i].idTipoCajaMovimiento) + '</th>'
+                + '<td>' + formatCurrencyFP(data[i].montoOriginal, data[i].idMoneda) + '</td>'
+                + '<td style="text-align: right">' + formatCurrencyFactura(data[i]) + '</td>'
+                + '<td><a onclick="eliminarFP(' + data[i].idCajaMovimiento + ',' + pos + ')" href="#"><i class="fas fa-trash"></i></a></td>'
+                + '</tr>';
+
+            $('#lineaTotalesFP').before(body);
+
+            pos++;
+
+        }
+
+    }
+
+    function totalFomasPago() {
+
+        var montoPago = 0;
+
+        for (var i = 0; i < formasPago.length; i++) {
+            montoPago += getMontoAlCambio(formasPago[i]);
+        }
+
+        $('#formater4').val(montoPago);
+        $('#totalFormasPago').text($('#formater4').val());
+
+        return montoPago;
+    }
+
+    function eliminarFP(id, pos) {
+
+        formasPago.splice(pos, 1);
+        $('#pago').val(totalFomasPago());
+        cargarFormasPago(formasPago);
+
+    }
+
+
+    function getNombreFormaPago(forma) {
+        var nombre = "";
+        switch (forma) {
+            case 1:
+                nombre = "@Lb["Efectivo"]";
+                break;
+            case 2:
+                nombre = "@Lb["Tarjeta"]";
+                break;
+            case 3:
+                nombre = "@Lb["Transferencia"]";
+                break;
+            case 4:
+                nombre = "@Lb["Cheque"]";
+                break;
+            case 5:
+                nombre = "@Lb["AplicarSaldo"]";
+                break;
+            default:
+                nombre = "";
+        }
+
+        return nombre;
+    }
+
+    /////////////////////////fin general///////////////////////
+
+    /////////////////////////formato///////////////////////////
     function setMonedaFormaPago(codigo) {
 
         var simbolo = "";
@@ -191,14 +384,22 @@
             default:
         }
 
+        borrarMontoFormaPago();
 
+        $(".montoFormaPago").inputmask('currency', {
+            prefix: simbolo,
+            rightAlign: true,
+            min: 0
+        });
 
     }
 
 
+    function borrarMontoFormaPago() {
+        $(".montoFormaPago").val(0);
+    }
+
     function setMonedaGeneral(codigo) {
-
-
         setMonedaFormaPago(codigo);
 
         var simbolo = "";
@@ -236,5 +437,35 @@
     }
 
 
+    //////////////////////////////////////////////////////auxiliares/////////////////////////////////////////
+    function formatCurrencyFP(value, idMoneda) {
+        $('#formater' + idMoneda).val(value);
+        return $('#formater' + idMoneda).val();
+    }
+    function formatCurrencyFactura(data) {
+
+        $('#formater' + @Model.Moneda).val(getMontoAlCambio(data));
+        return $('#formater' + @Model.Moneda).val();
+    }
+
+    function getMontoAlCambio(data) {
+        var monto = 0;
+
+
+        switch (@Model.Moneda) {
+            case 1:
+                monto = data.montoBase;
+                break;
+            case 2:
+                monto = data.montoDolar;
+                break;
+            case 3:
+                monto = data.montoEuro;
+                break;
+            default:
+        }
+
+        return monto;
+    }
 
 </script>

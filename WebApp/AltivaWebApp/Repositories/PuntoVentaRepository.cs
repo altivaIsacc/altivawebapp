@@ -33,11 +33,13 @@ namespace AltivaWebApp.Repositories
             var pv = context.TbSePuntoVenta.Include(p => p.TbFaCaja).FirstOrDefault(p => p.IdPuntoVenta == idPV);
             if (pv.TieneCajaIndependiente)
             {
-                return pv.TbFaCaja.Where(c => c.Estado == 1 && c.IdUsuario == idUsuario).Count();
+                var caja = pv.TbFaCaja.FirstOrDefault(c => c.Estado == 1 && c.IdUsuario == idUsuario);
+                return caja != null ? (int)caja.IdCaja : 0; 
             }
             else
             {
-                return context.TbFaCaja.Where(c => c.Estado == 1 && c.IdUsuario == idUsuario).Count();
+                var caja = context.TbFaCaja.FirstOrDefault(c => c.Estado == 1 && c.IdUsuario == idUsuario);
+                return caja != null ? (int)caja.IdCaja : 0;
             }
            
         }

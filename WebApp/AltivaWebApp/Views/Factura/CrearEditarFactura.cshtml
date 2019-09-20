@@ -326,6 +326,8 @@
     var $totalFactura = $('#totalFactura');
     var idTipoPrecio = 0;
 
+    var idCajaPuntoVenta = 0;
+
     ///////linea
     var $item = $('#producto');
     var $cantidad = $('#cantidad');
@@ -839,12 +841,15 @@
     function cargarFormaPago() {
         
         var model = {
-            idCaja: 0,
+            idCaja: idCajaPuntoVenta,
             monto: facturaModel.Total,
             tcDolar: $('#TipoCambioDolar').val(),
             tcEuro: $('#TipoCambioEuro').val(),
             moneda: $('#IdMoneda').val()
         };
+
+        if (model.idCaja == 0)
+            return;
        
         $.ajax({
             type: "POST",
@@ -1187,12 +1192,16 @@
             url: '@Url.Action("GetEstadoCajasPuntoVenta", "PuntoVenta")',
             data: { idPV: $('#selectPuntoVenta').val(), idUsuario: $('#IdVendedor').val() },
             success: function (data) {
-                 if (data <= 0) {
-                     $('#frmFDfieldset').prop('disabled', true);
-                     cargarAlert('@Lb["PuntoVentaSinCajasAbiertas"]');
-                 }
-                 else
-                     $('#frmFDfieldset').prop('disabled', false);
+                if (data <= 0) {
+                    $('#frmFDfieldset').prop('disabled', true);
+                    cargarAlert('@Lb["PuntoVentaSinCajasAbiertas"]');
+                    idCajaPuntoVenta = data;
+                }
+                else {
+                    $('#frmFDfieldset').prop('disabled', false);
+                    idCajaPuntoVenta = data;
+                }
+                     
 
              },
              error: function (err, scnd) {
