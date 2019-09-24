@@ -1,7 +1,13 @@
 ﻿@model IList<TbPrCompra>
 @inject IStringLocalizer<SharedResources> Lb
-
-@{ 
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
     var monedas = ViewData["monedas"] as IList<TbSeMoneda>;
 }
 
@@ -43,8 +49,8 @@
                         <td>@monedas.FirstOrDefault(m => m.Codigo == item.IdMoneda).Nombre</td>
                         @{
                             var total = item.IdMoneda == 1 ? item.TotalBase : item.IdMoneda == 2 ? item.TotalDolar : item.TotalEuro;
-                        }                 
-                        <td style="text-align:right">  @monedas.FirstOrDefault(m => m.Codigo == item.IdMoneda).Simbolo @total</td>
+                        }
+                        <td style="text-align:right">  @monedas.FirstOrDefault(m => m.Codigo == item.IdMoneda).Simbolo  @total</td>
                         <td><a href="@Url.Action("EditarCompra", new { id=item.Id })" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a></td>
                     </tr>
                 }
@@ -53,15 +59,61 @@
     </div>
 </div>
 
+<input readonly hidden id="monedaFormater" />
+
+
+
+
 <script>
 
     var tblCompras;
+    var moneda = [];
 
     $(document).ready(function () {
 
         inicializarTabla();
+        getMonedas();
 
     });
+
+
+
+     function getMonedas() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+
+                 moneda = data[0];
+                 $("#monedaFormater").inputmask('currency', {
+                     prefix: moneda.nombre + ' ',
+                     rightAlign: true
+                 });
+
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+
+
+    function fomartearMoneda(value) {
+        $('#monedaFormater').val(value);
+
+        return $('#monedaFormater').val();
+    }
+
+
+
+
 
     function inicializarTabla() {
 
