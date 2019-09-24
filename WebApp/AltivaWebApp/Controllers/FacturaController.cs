@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using AltivaWebApp.Domains;
 using AltivaWebApp.Helpers;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
@@ -20,13 +21,17 @@ namespace AltivaWebApp.Controllers
         private readonly IUserService userService;
         private readonly IContactoService contactoService;
         private readonly IPuntoVentaService pvService;
-        public FacturaController(IPuntoVentaService pvService, IFacturaMap map, IFacturaService service, IUserService userService, IContactoService contactoService)
+        private readonly IMovimientoMap movMap;
+        private readonly ICajaMovimientoMap cajaMovMap;
+        public FacturaController(ICajaMovimientoMap cajaMovMap, IMovimientoMap movMap,IPuntoVentaService pvService, IFacturaMap map, IFacturaService service, IUserService userService, IContactoService contactoService)
         {
             this.map = map;
             this.service = service;
             this.userService = userService;
             this.contactoService = contactoService;
             this.pvService = pvService;
+            this.movMap = movMap;
+            this.cajaMovMap = cajaMovMap;
         }
 
         [Route("Todo")]
@@ -76,14 +81,14 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("CrearEditarFactura")]
-        public IActionResult CrearEditarFactura(FacturaViewModel viewModel, IList<FacturaDetalleViewModel> detalle, IList<long> eliminadas)
+        public IActionResult CrearEditarFactura(FacturaViewModel viewModel, IList<FacturaDetalleViewModel> detalle, IList<long> eliminadas, IList<CajaMovimientoViewModel> formaPago)
         {
             try
             {
-
+                var factura = new TbFdFactura(); 
                 if (viewModel.Id != 0)
                 {
-                    var factura = map.Update(viewModel);
+                    factura = map.Update(viewModel);
                     viewModel.FacturaDetalle = detalle;
                     if (detalle.Count() > 0)
                     {
@@ -98,8 +103,17 @@ namespace AltivaWebApp.Controllers
 
                     viewModel.IdUsuarioCreador = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     viewModel.FechaCreacion = DateTime.Now;
-                    var factura = map.Create(viewModel);
+                    factura = map.Create(viewModel);
                 }
+
+
+                ////valida factura tipo contado
+                //if(factura.Tipo == 1)
+                //{
+                //    var movimientos = movMap.CreateMovmientoDetalle(factura.Id);
+                //    cajaMovMap.CreateCajaMovimiento(formaPago, movimientos.First().IdMovimientoHasta);
+                //}
+
                 return Json(new { success = true });
             }
             catch (Exception ex)
@@ -108,6 +122,8 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
         }
+
+
         [HttpGet("GetAllFacturas")]
         public IActionResult GetAllFacturas()
         {
