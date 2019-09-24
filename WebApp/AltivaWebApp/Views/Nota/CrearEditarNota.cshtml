@@ -1,0 +1,939 @@
+﻿@model AltivaWebApp.ViewModels.NotaViewModel
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+
+    ViewData["Title"] = @Lb["Notas"];
+
+    var select = "checked";
+    var select1 = "";
+
+    var estado = "";
+    var titulo = @Lb["Crear"];
+    if (Model.IdNotaCredito != 0)
+    {
+        if (Model.Estado == 2)
+        {
+            select1 = "checked";
+            select = "";
+
+        }
+        titulo = @Lb["Editar"];
+        estado = "disabled";
+    }
+
+}
+<div class="well col-md-12 col-sm-12 col-xs-12">
+    <input type="hidden" id="IdMovimiento" value="0" />
+    <input type="hidden" id="IdUsuario" value="0" />
+
+    <div class="row">
+        <div class="col-md-3"><h3>@titulo @Lb["Nota"]</h3></div>
+    </div>
+    <div class="row">
+        <div class="col-md-2 col-sm-2 col-xs-12">
+            <label>@Lb["tipo"]:</label>
+            <select class="form-control" id="tipo" @estado>
+                <option value="1"> @Lb["CXP"]</option>
+                <option value="2">@Lb["CXC"]</option>
+            </select>
+        </div>
+        <div class="col-md-2 col-sm-2 col-xs-12">
+            <label>@Lb["TipoDocumento"]:</label>
+            <select class="form-control" @estado id="tipoDocumento"></select>
+        </div>
+        <div class="form-group col-md-2 col-sm-3 col-xs-12">
+            <div class="form-group">
+                <label for="fecha">@Lb["Fecha"]:</label>
+                <div class='input-group date' id='fechaPicker'>
+                    <input type='text' asp-for="Fecha" class="form-control" id="fecha" readonly />
+                    <span class="input-group-addon">
+                        <span class="fas fa-calendar"></span>
+                    </span>
+                </div>
+            </div>
+
+        </div>
+        <div class="form-group col-md-3 col-sm-3 col-xs-12">
+            <label class="control-label">@Lb["Contacto"]:</label>
+            <select class="selectItems form-control" data-live-search="true" id="contactos" @estado></select>
+        </div>
+        <div class="form-group col-md-3 col-sm-3 col-xs-12" style="padding-top:25px;">
+            <div class="checkbox-inline">
+                <input id="activo1" type="checkbox" value="1" name="estado1" @select /> @Lb["activo"]
+            </div>
+
+            <div class="checkbox-inline">
+                <input id="inactivo1" type="checkbox" value="2" name="estado1" @select1 /> @Lb["inactivo"]
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-2 col-sm-2 col-xs-12">
+            <label class="control-label">@Lb["Moneda"]:</label>
+            <select class="selectItems form-control" data-live-search="true" id="tipoMoneda">
+                <option value="1">@Lb["CRC"]</option>
+                <option value="2">@Lb["USD"]</option>
+                <option value="3">@Lb["EUR"]</option>
+            </select>
+        </div>
+        <div class="form-group  col-md-2 col-sm-2 col-xs-12">
+            <label class="control-label">@Lb["Dolar"]:</label>
+            <input class="form-control moneda" value="@ViewBag.Dolar" id="dolar" @estado />
+            <input class="form-control moneda" type="hidden" value="@ViewBag.DolarVenta" id="dolarVenta" />
+
+        </div>
+        <div class="form-group  col-md-2 col-sm-2 col-xs-12">
+            <label class="control-label">@Lb["Euro"]:</label>
+            <input class="form-control moneda" value="@ViewBag.Euro" id="euro" @estado />
+            <input class="form-control moneda" type="hidden" value="@ViewBag.EuroVenta" id="euroVenta" />
+
+        </div>
+        <div class="form-group col-md-3 col-sm-3 col-xs-12">
+            <label class="control-label">@Lb["Nota"]:</label>
+            <textarea class="form-control" asp-for="Nota" id="nota"></textarea>
+            <span hidden id="notaValid" class="text-danger">@Lb["notaValid"]</span>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-3 col-sm-3 col-xs-6">
+            <label class="control-label">@Lb["Descripción"]:</label>
+            <input class="form-control" id="descripcion" />
+            <span hidden id="descripcionValid" class="text-danger">@Lb["descripcionValid"]</span>
+
+        </div>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-6">
+            <label class="control-label">@Lb["tipo"]:</label>
+            <select class="selectItems form-control" data-live-search="true" id="tipoJustificante"></select>
+        </div>
+        <div class="form-group col-md-1 col-sm-1 col-xs-2">
+            <br />
+            <a style="padding:0; margin:0; margin-top:1rem" class="btn btn-link" id="crearJustificante">
+                <span><i style="font-size: 2rem" class="fas fa-plus-circle"></i></span>
+            </a>
+            <a style="padding:0; margin:0; margin-top:1rem" class="btn btn-link" id="editarJustificante">
+                <span><i style="font-size: 2rem" class="fas fa-edit"></i></span>
+            </a>
+        </div>
+        <div class="form-group col-md-2 col-sm-2 col-xs-12">
+            <label class="control-label">@Lb["Monto"]:</label>
+            <input class="form-control moneda" type="text" min="1" id="monto" />
+            <span hidden id="montoValid" class="text-danger">@Lb["montoValid"]</span>
+
+        </div>
+
+        <div class="form-group col-md-1 col-sm-1 col-xs-2" style="padding-top: 2.3rem;">
+            <button onclick=" guardarLinea()" id="guardar" class="btn btn-success"><span><i class="fas fa-save"></i></span></button>
+        </div>
+
+    </div>
+
+    <div class=" row col-md-12 table-responsive">
+
+        <table class="table table-bordered table-striped" id="tblOrdenCompra">
+            <thead>
+                <tr>
+
+                    <th><span>@Lb["Descripción"]</span></th>
+                    <th><span>@Lb["tipo"]</span></th>
+                    <th><span>@Lb["Monto"]</span></th>
+                    <th><span>@Lb["Acción"]</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="lineaForm"></tr>
+            </tbody>
+        </table>
+        <div class="col-md-offset-9 col-md-3">
+            <div class="form-group">
+                <label class="control-label">@Lb["Total"]</label>
+                <input readonly id="total" class="form-control  currency" />
+            </div>
+        </div>
+    </div>
+</div>
+<span hidden id="lineasValid" class="text-danger">@Lb["lineasValid"]</span>
+<div class="row">
+    <div class="form-group col-md-3">
+        <button class="btn btn-success btnAccion" onclick="guardarCambios()">@Lb["Guardar"]<i class="fas fa-save"></i></button>
+        <a onclick="" class="btn btn-default">@Lb["Cancelar"]</a>
+    </div>
+</div>
+<div class="row">
+    <!-- Modal -->
+    <div class="modal fade" id="modalNotas" tabindex="-1" role="dialog" aria-labelledby="departamentoModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body row" id="crearEditarPartial">
+                    <div class="form-group col-md-10 col-sm-10 col-xs-12">
+                        <input id="IdMovimientoJ" type="hidden" class="form-control" style="text-align:right;" />
+
+                        <div class="form-group col-md-8 col-sm-10 col-xs-12">
+                            <label class="control-label">@Lb["Descripción"]:</label>
+                            <input id="editDescripcion" class="form-control" style="text-align:right;" />
+                            <span hidden id="editDescripcionValid" class="text-danger">@Lb["descripcionValid"]</span>
+
+
+                        </div>
+                        <div class="form-group  col-md-8 col-sm-8 col-xs-12">
+                            <label class="control-label">@Lb["tipo"]:</label>
+                            <select class="selectItems form-control" data-live-search="true" dir="rtl" id="editTipoJustificante"></select>
+                        </div>
+                        <div class="form-group col-md-8 col-sm-8 col-xs-12">
+                            <label class="control-label">@Lb["Monto"]:</label>
+                            <input class="form-control moneda" type="text" min="1" id="editMonto" />
+                            <span hidden id="editMontoValid" class="text-danger">@Lb["montoValid"]</span>
+
+
+                        </div>
+
+                        <div class="form-group col-sm-7">
+
+                            <button id="btnEditOrden" onclick="EditarLinea()" class="btn btn-success"><span>@Lb["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
+
+                            <button class="btn btn-default" data-dismiss="modal"><span>@Lb["Cancelar"]</span></button>
+
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <!-- Modal -->
+    <div class="modal fade" id="modalTipoJustificante" tabindex="-1" role="dialog" aria-labelledby="departamentoModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+
+                <div class="modal-body" id="EditarPartial">
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+     var editDescripcion = "";
+    var lineas = [];
+    var lineasAgregadas = [];
+    var lineasActualizadas = [];
+    var lineasEliminadas = [];
+    var lineasTJustificante = [];
+    var lineasCargadas = [];
+
+    $(document).ready(function () {
+        getContactos(1);
+        getTipoDocumento();
+        getTipoJustificante();
+        if (@Model.IdNotaCredito == 0) {
+            $("#activo1").attr('checked', true);
+        }
+        var date = new Date();
+
+        if (@Model.IdNotaCredito != 0) {
+            var valor = 3;
+            $("#contactos option[value="+ valor +"]").attr("selected",true);
+            $("#tipoDocumento").val(@Model.IdTipoDocumento).prop('selected', true);
+            getMovimiento();
+            date = new Date(formatearFecha());
+        }
+        $('#fechaPicker').datetimepicker({
+            defaultDate: date,
+            locale: localStorage.getItem("idioma")
+        });
+
+        $(".moneda").inputmask('currency', {
+            prefix: '',
+            rightAlign: true,
+            min: 0
+        });
+    });
+    //eventos directos
+    $("#btnTipo").on("click", function () {
+        alert("hola");
+        cargarTabla(lineas);
+    });
+     $('#tipo').change(function () {
+         if ($(this).val() == 1)
+             getContactos(1);
+         if ($(this).val() == 2)
+             getContactos(2);
+
+    });
+    $("#tipoMoneda").on("change", function () {
+        if (@Model.IdNotaCredito==0) {
+           for (var i = 0; i < lineas.length; i++) {
+             lineas[i].monto = recalcularMonto(lineas[i]);
+             lineas[i].idMoneda = parseInt($('#tipoMoneda').val());
+           }
+            if (lineasAgregadas > 0) {
+              for (var i = 0; i < lineasAgregadas.length; i++) {
+                  lineasAgregadas[i].monto = recalcularMonto(lineasAgregadas[i]);
+                  lineasAgregadas[i].idMoneda = parseInt($('#tipoMoneda').val());
+              }
+            }
+        }
+
+        if (@Model.IdNotaCredito != 0) {
+            for (var i = 0; i < lineas.length; i++) {
+                for (var j = 0; j < lineasCargadas.length; j++) {
+                    if (lineas[i].id == lineasCargadas[j].idMovimientoJustificante)
+                       lineas[i].monto = recuperarMonto(lineasCargadas[j]);
+
+                }
+            }
+        }
+        setTotal();
+        cargarTabla(lineas);
+    });
+      $('#activo1').change(function () {
+        if ($(this).prop('checked') == true)
+            $('#inactivo1').prop('checked', false);
+    });
+
+    $('#inactivo1').change(function () {
+        if ($(this).prop('checked') == true)
+            $('#activo1').prop('checked', false);
+    });
+    $("#editarJustificante").on("click", function () {
+        var id = parseInt($("#tipoJustificante").val());
+        getCrearEditarPartial(id);
+    });
+     $("#crearJustificante").on("click", function () {
+        getCrearEditarPartial(0);
+    });
+    //AJAX
+     function getCrearEditarPartial(id)
+     {
+        var url = "@Url.Action("_CrearTipoJustificante", "TipoJustificante",  new {tipo = 2}))";
+        if (id != 0) {
+            url = '@Url.Action("_EditarTipoJustificante", "TipoJustificante", new { id = "__id__", tipo = 2})';
+            url = url.replace("__id__", id);
+        }
+         $.ajax({
+            type: "GET",
+            url: url,
+            success: function (data) {
+                $('#EditarPartial').html(data);
+                $('#modalTipoJustificante').modal('show');
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+      }
+    function getContactos(tipo) {
+        $('#contactos').html('');
+            $.ajax({
+              type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetAllContactos", "Contacto")',
+                success: function (data) {
+                    if (@Model.IdNotaCredito == 0) {
+                        console.log(tipo);
+
+                             for (var i = 0; i < data.length; i++) {
+                                 if (tipo == 1) {
+                                     var nombre = "";
+                                     if (data[i].cliente) {
+                                         if (data[i].persona)
+                                             nombre = data[i].nombre + ' ' + data[i].apellidos;
+                                         else
+                                             nombre = data[i].nombreComercial;
+
+                                         var o = new Option(nombre, data[i].idContacto);
+                                         $("#contactos").append(o);
+                                     }
+                                 }
+                                  if (tipo == 2) {
+
+                                     if (!data[i].cliente) {
+                                          if (data[i].persona)
+                                             nombre = data[i].nombre + ' ' + data[i].apellidos;
+                                         else
+                                             nombre = data[i].nombreComercial;
+                                           var o = new Option(nombre, data[i].idContacto);
+                                           $("#contactos").append(o);
+                                     }
+                                  }
+
+                             }
+                    }
+                     if (@Model.IdNotaCredito != 0) {
+                        for (var i = 0; i < data.length; i++) {
+                             var nombre = "";
+                            if (data[i].idContacto == @Model.IdContacto) {
+                                 if (data[i].persona)
+                                nombre = data[i].nombre + ' ' + data[i].apellidos;
+                            else
+                                nombre = data[i].nombreComercial;
+                            var o = new Option(nombre, data[i].idContacto);
+                            $("#contactos").append(o);
+                            }
+
+                        }
+                    }
+
+                },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+            });
+    }
+    function getTipoJustificante() {
+         $("#tipoJustificante").html('');
+         $("#editTipoJustificante").html('');
+         $.ajax({
+              type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetTipoJustificante", "TipoJustificante")',
+             success: function (data) {
+                 lineasTJustificante = data;
+                 cargarTabla(lineas);
+                 for (var i = 0; i < data.length; i++) {
+                     if (data[i].estado == 1) {
+                         var o = new Option(data[i].nombre, data[i].idTipoJustificante);
+                         var e = new Option(data[i].nombre, data[i].idTipoJustificante);
+                         $("#tipoJustificante").append(o);
+                         $("#editTipoJustificante").append(e);
+                     }
+                 }
+             },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+         });
+    }
+     function getTipoDocumento() {
+         $.ajax({
+              type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetAllTipoDocumento", "Nota")',
+             success: function (data) {
+                 if (@Model.IdNotaCredito != 0) {
+                     for (var i = 0; i < data.length; i++) {
+                         if (@Model.IdTipoDocumento == data[i].idTipoDocumento) {
+                             var o = new Option(data[i].nombre, data[i].idTipoDocumento);
+                         $("#tipoDocumento").append(o);
+                         }
+                     }
+                 } if (@Model.IdNotaCredito == 0) {
+                     for (var i = 0; i < data.length; i++) {
+                         var o = new Option(data[i].nombre, data[i].idTipoDocumento);
+                         $("#tipoDocumento").append(o);
+                     }
+                 }
+             },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+         });
+    }
+    function guardarCambios() {
+        if (validarCampoNota()) {
+              if (lineasEliminadas.length > 0)
+                eliminarMovimientoJustificante();
+            $.ajax({
+                type: "post",
+                dataType: "json",
+                data: { modelNota: crearModeloNota(), modelMovimiento: crearModeloMovimiento(), modelMovimientoJustificante: crearLineasActualizadas(lineasActualizadas) },
+                url: '@Url.Action("CrearEditarNota", "Nota")',
+                success: function (data) {                   
+                    window.location.href = '@Url.Action("ListarNotas", "Nota")';
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@Lb["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+        }
+    }
+
+    function getMovimientoJustificante(id) {
+          $.ajax({
+            type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetMovimientoJustificante", new { id = "__id__"} )'.replace("__id__",id),
+              success: function (data) {
+                  lineasCargadas = data;
+                  $("#dolar").val(data[0].compraDolarTc);
+                  $("#euro").val(data[0].compraEuroTc);
+                  $("#dolarVenta").val(data[0].ventaDolatTc);
+                  $("#euroVenta").val(data[0].ventaEuroTc);
+                  cargarLineas(data);
+
+
+             },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+         });
+    }
+    function getMovimiento() {
+        var idNota = @Model.IdNotaCredito;
+          $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetMovimiento", new { id = Model.IdNotaCredito })',
+
+            success: function (data) {
+                    $("#tipoMoneda").val(data.idMoneda);
+                    if (data.cxp)
+                        $("#tipo").val("1");
+                    else
+                    $("#tipo").val("2");
+
+                recuperarTotal(data);
+                $("#IdMovimiento").val(data.idMovimiento);
+                $("#IdUsuario").val(data.idUsuario);
+                getMovimientoJustificante(data.idMovimiento);
+
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+        function eliminarMovimientoJustificante() {
+
+
+        $.ajax({
+            type: "POST",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("EliminarMovimientoJustificante", new { id = "__id__" })'.replace("__id__", parseInt($("#IdMovimiento").val())),
+            data: { viewModel: lineasEliminadas },
+            success: function (data) {
+
+               },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+    //helpers
+
+    function eliminarLinea(id, idLinea) {
+        bootbox.confirm("@Lb["confirmEliminarLinea"]", function (result) {
+            if (result) {
+                if (idLinea != 0) {
+                    lineasEliminadas.push(lineas[id].id);
+                    lineasActualizadas.splice(id, 1);
+                }
+
+                else {
+                    if (lineasAgregadas.length > 0) {
+                        for (var i = 0; i < lineasAgregadas.length; i++) {
+                            if (lineasAgregadas[i].descripcion.toString() === lineas[id].descripcion.toString())
+                                lineasAgregadas.splice(i, 1);
+                        }
+                    }
+                }
+
+            }
+            lineas.splice(id, 1);
+            setTotal();
+            cargarTabla(lineas);
+        });
+      
+    } 
+
+
+    
+     function comprobarRepetido(nombre, id) {
+         var flag = true;
+         for (var i = 0; i < lineasTJustificante.length; i++) {
+            if (lineasTJustificante[i].nombre === nombre && lineasTJustificante[i].idTipoJustificante != parseInt(id))
+                flag = false;
+        }
+          return flag;
+    }
+    function validarCampoNota() {
+        var flag = true;
+        $('#notaValid').attr('hidden', true);
+        $('#lineasValid').attr('hidden', true);
+
+        if ($("#nota").val() === "") {
+            $('#notaValid').attr('hidden', false);
+            flag = false;
+        }
+        if (lineas.length <= 0) {
+           $('#lineasValid').attr('hidden', false);
+            flag = false;
+        }
+        return flag;
+    }
+    function validarCampos() {
+        var flag = true;
+         $('#montoValid').attr('hidden', true);
+        $('#descripcionValid').attr('hidden', true);
+
+        if ($("#descripcion").val() === "") {
+            $('#descripcionValid').attr('hidden', false);
+            flag = false;
+        }
+        if ($("#monto").inputmask('unmaskedvalue') == null) {
+            $('#montoValid').attr('hidden', false);
+            flag = false;
+        }
+        return flag;
+    }
+    function validarCamposEditar() {
+       var flag = true;
+         $('#editMontoValid').attr('hidden', true);
+        $('#editDescripcionValid').attr('hidden', true);
+
+        if ($("#editDescripcion").val() === "") {
+            $('#editDescripcionValid').attr('hidden', false);
+            flag = false;
+        }
+        if ($("#editMonto").inputmask('unmaskedvalue') == null) {
+            $('#editMontoValid').attr('hidden', false);
+            flag = false;
+        }
+        return flag;
+
+    }
+    function cargarModalEditNota(i) {
+         console.log(lineas);
+        console.log(lineasAgregadas);
+        editDescripcion = lineas[i].descripcion;
+        $("#IdMovimientoJ").val(lineas[i].id);
+        $("#editDescripcion").val(lineas[i].descripcion);
+        $("#editTipoJustificante").val(lineas[i].tipo);
+        $("#editMonto").val(lineas[i].monto);
+        $("#modalNotas").modal("show");
+    }
+    function EditarLinea() {
+        var flag = false;
+        var id = $("#IdMovimientoJ").val();
+        if (validarCamposEditar()) {
+            for (var i = 0; i < lineas.length; i++) {
+                if (id == lineas[i].id && editDescripcion == lineas[i].descripcion) {
+                    if (id == 0 && @Model.IdNotaCredito == 0) {
+                        lineas[i].descripcion = $("#editDescripcion").val();
+                        lineas[i].monto = parseFloat($("#editMonto").inputmask('unmaskedvalue'));
+                        lineas[i].tipo = $("#editTipoJustificante").val();
+                        for (var j = 0; j < lineasAgregadas.length; j++) {
+                            if (editDescripcion == lineasAgregadas[j].descripcion)
+                                lineasAgregadas[j] = lineas[i];
+
+                        }
+                    }
+                    else if (id == 0 && @Model.IdNotaCredito != 0) {
+                        for (var j = 0; j < lineasAgregadas.length; j++) {
+                            if (editDescripcion == lineasAgregadas[j].descripcion) {
+                                lineasAgregadas[j].descripcion = $("#editDescripcion").val();
+                                lineasAgregadas[j].monto = parseFloat($("#editMonto").inputmask('unmaskedvalue'));
+                                lineasAgregadas[j].tipo = $("#editTipoJustificante").val();
+                                lineas[i] = lineasAgregadas[j];
+                            }
+                        }
+                    }
+                    else {
+                        lineas[i].descripcion = $("#editDescripcion").val();
+                        lineas[i].monto = parseFloat($("#editMonto").inputmask('unmaskedvalue'));
+                        lineas[i].tipo = $("#editTipoJustificante").val();
+                        lineasActualizadas.push(lineas[i]);
+                    }
+                }
+            }
+            setTotal();
+            cargarTabla(lineas);
+            $("#modalNotas").modal("hide");
+        }
+    }
+    function cargarLineas(data) {
+        for (var i = 0; i < data.length; i++) {
+            var model = {
+                id: data[i].idMovimientoJustificante,
+                idMoneda: data[i].idMoneda,
+                idNotaCredito: @Model.IdNotaCredito,
+                descripcion: data[i].descripcion,
+                monto: recuperarMonto(data[i]),
+                tipo: data[i].idTipoJustificante
+            };
+            lineas.push(model);
+
+        }
+        setTotal();
+        cargarTabla(lineas);
+    }
+    function guardarLinea() {
+        if (validarCampos()) {
+          $('#lineasValid').attr('hidden', true);
+            var model = {
+                id: 0,
+                idMoneda: parseInt($("#tipoMoneda").val()),
+                idNotaCredito: @Model.IdNotaCredito,
+                descripcion: $("#descripcion").val(),
+                monto: parseFloat($("#monto").inputmask('unmaskedvalue')),
+                tipo: $("#tipoJustificante").val()
+            };
+            lineasAgregadas.push(model);
+            lineas.push(model);
+            setTotal();
+            cargarTabla(lineas);
+            $("#descripcion").val("");
+            $("#monto").val(0.00);
+        }
+    }
+    function setTotal() {
+        var monto = 0;
+        for (var i = 0; i < lineas.length; i++) {
+            monto = lineas[i].monto + monto;
+        }
+        $("#total").val(monto);
+    }
+    function cargarTabla(data) {
+        $('.filasCargadas').remove();
+        contadorFila = 0;
+        for (var i = 0; i < data.length; i++) {
+            contadorFila++;
+
+
+            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + data[i].descripcion + '</td>'
+                + '<td style="padding-top:2rem;"><input readonly style="border:0; background-color : #F7F7F7" value="' + getTipo(data[i].tipo) + '"/></td>'
+                + '<td ><input readonly style="border:0; background-color : #F7F7F7" class=" currency" value="' + data[i].monto + '"/></td>'
+                + '<td><button  class="btn btn-link" value="' + contadorFila + '" onclick="cargarModalEditNota(' + i + ')" ><i class="fas fa-edit"></i></button><button  class="btn btn-link" value="' + i + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+
+            $('.lineaForm').before(body);
+
+        }
+
+
+        var simbolo = "₡";
+        if (parseInt($('#tipoMoneda').val()) === 2)
+            simbolo = "$";
+        else if (parseInt($('#tipoMoneda').val()) === 3)
+            simbolo = "€";
+         $(".currency").inputmask('currency', {
+            prefix: simbolo,
+            rightAlign: true
+          });
+
+          $(".moneda").inputmask('currency', {
+           prefix: '',
+           rightAlign: true,
+           min: 0
+       });
+
+    }
+    function crearModeloNota() {
+         var NotaModel = {
+            idNotaCredito: @Model.IdNotaCredito,
+            idContacto: parseInt($("#contactos").val()),
+            fecha: $('#fecha').val(),
+            idTipoDocumento:parseInt($("#tipoDocumento").val()),
+            estado: parseInt($('input:checkbox[name=estado1]:checked').val()),
+            nota:$("#nota").val()
+        };
+        return NotaModel;
+    }
+     function crearModeloMovimiento() {
+         var MovimientoModel = {
+             IdMovimiento: parseInt($("#IdMovimiento").val()),
+             IdContacto: parseInt($("#contactos").val()),
+             IdDocumento: parseInt(@Model.IdNotaCredito),
+             IdTipoDocumento:parseInt($("#tipoDocumento").val()),
+             IdUsuario: parseInt($("#IdUsuario").val()),
+             IdMoneda: parseInt($("#tipoMoneda").val()),
+             Cxp:getCx(1),
+             Cxc:getCx(2),
+             Monto: parseFloat($("#total").inputmask('unmaskedvalue').replace(".", ",")),
+             DisponibleDolar: 0,
+             DisponibleBase: 0,
+             DisponibleEuro: 0,
+             AplicadoBase: 0,
+             AplicadoDolar: 0,
+             AplicadoEuro: 0,
+             SaldoBase: 0,
+             SaldoDolar: 0,
+             SaldoEuro: 0,
+             FechaCreacion: $("#fecha").val(),
+             MovimientoJustificante: crearModeloMJustificante(lineasAgregadas)
+
+
+         };
+         return MovimientoModel;
+    }
+
+    function crearModeloMJustificante(model) {
+        var array = [];
+        for (var i = 0; i < model.length; i++) {
+            var MJustificante = {
+                IdMovimientoJustificante : 0,
+                 IdMovimiento: parseInt($("#IdMovimiento").val()),
+                idTipoJustificante: parseInt(model[i].tipo),
+                IdUsuario: parseInt($("#IdUsuario").val()),
+                estado: parseInt($('input:checkbox[name=estado1]:checked').val()),
+                idMoneda: parseInt($("#tipoMoneda").val()),
+                CompraDolarTC:parseFloat($("#dolar").inputmask('unmaskedvalue')),
+                VentaDolatTC:parseFloat($("#dolarVenta").inputmask('unmaskedvalue')),
+                CompraEuroTC:parseFloat($("#euro").inputmask('unmaskedvalue')),
+                VentaEuroTC: parseFloat($("#euroVenta").inputmask('unmaskedvalue')),
+                Monto: parseFloat(model[i].monto.toFixed(2)).toString().replace(".", ","),
+                descripcion: model[i].descripcion
+            };
+            array.push(MJustificante);
+        }
+        return array;
+    }
+    function crearLineasActualizadas(model) {
+         var array = [];
+        for (var i = 0; i < model.length; i++) {
+            var MJustificante = {
+                IdMovimientoJustificante:parseInt(model[i].id),
+                IdMovimiento: parseInt($("#IdMovimiento").val()),
+                idTipoJustificante: parseInt(model[i].tipo),
+                IdUsuario: parseInt($("#IdUsuario").val()),
+                estado: parseInt($('input:checkbox[name=estado1]:checked').val()),
+                idMoneda: parseInt($("#tipoMoneda").val()),
+                CompraDolarTC:parseFloat($("#dolar").inputmask('unmaskedvalue')),
+                VentaDolatTC:parseFloat($("#dolarVenta").inputmask('unmaskedvalue')),
+                CompraEuroTC:parseFloat($("#euro").inputmask('unmaskedvalue')),
+                VentaEuroTC:parseFloat($("#euroVenta").inputmask('unmaskedvalue')),
+                Monto: parseFloat(model[i].monto.toFixed(2)).toString().replace(".", ","),
+                descripcion: model[i].descripcion
+            };
+            array.push(MJustificante);
+        }
+        return array;
+    }
+    function getCx(tipo) {
+        var flag = false;
+        var cx = $("#tipo").val();
+        if (cx == 1 && tipo == 1)
+            flag = true;
+
+        if (cx == 2 && tipo == 2)
+            flag = true;
+
+        return flag;
+    }
+    function recuperarMonto(item) {
+         var moneda = parseInt($('#tipoMoneda').val());
+        if (moneda == 1)
+            return item.montoBase
+        if (moneda == 2)
+            return item.montoDolar;
+        if (moneda == 3)
+            return item.montoEuro;
+
+    }
+    function getTipo(tipo) {
+        var id = parseInt(tipo);
+        for ( i = 0; i < lineasTJustificante.length; i++) {
+            if (lineasTJustificante[i].idTipoJustificante == id)
+                return lineasTJustificante[i].nombre;
+        }
+
+    }
+    function recalcularMonto(item) {
+
+        var moneda = parseInt($('#tipoMoneda').val());
+        var dolar = parseFloat($("#dolar").inputmask('unmaskedvalue'));
+        var euro = parseFloat($("#euro").inputmask('unmaskedvalue'));
+
+        if (moneda === 1 && item.idMoneda === 1)
+            return item.monto;
+        else if (moneda === 1 && item.idMoneda === 2)
+            return item.monto * dolar;
+        else if (moneda === 1 && item.idMoneda === 3)
+            return item.monto * euro;
+        else if (moneda === 2 && item.idMoneda === 1)
+            return item.monto / dolar;
+        else if (moneda === 2 && item.idMoneda === 2)
+            return item.monto;
+        else if (moneda === 2 && item.idMoneda === 3)
+            return (item.monto * euro) / dolar;
+        else if (moneda === 3 && item.idMoneda === 1)
+            return item.monto / euro;
+        else if (moneda === 3 && item.idMoneda === 2)
+            return (item.monto * dolar) / euro;
+        else if (moneda === 3 && item.idMoneda === 3)
+            return item.monto;
+    }
+    function calcularMontoTotal(tipo) {
+        var dolar = parseFloat($("#dolar").val());
+        var euro = parseFloat($("#euro").val());
+        var monto = parseFloat($("#total").inputmask('unmaskedvalue'));
+        var moneda = parseInt($("#tipoMoneda").val());
+        var total = 0;
+        if (moneda == 1) {
+            if (tipo == 1)
+                total = monto;
+            else if (tipo == 2)
+                total = monto * dolar;
+            else if (tipo == 3)
+                total = monto * euro;
+        }
+        if (moneda == 2)
+        {
+               if (tipo == 1)
+                total = monto / dolar;
+            else if (tipo == 2)
+                total = monto;
+            else if (tipo == 3)
+                total = (monto * euro) / dolar;
+        }
+          if (moneda == 3)
+       {
+               if (tipo == 1)
+                total = monto / euro;
+            else if (tipo == 2)
+                total =( monto* dolar) / euro;
+            else if (tipo == 3)
+                total = monto ;
+       }
+
+
+        return total;
+
+    }
+ 
+    function formatearFecha() {
+
+        return '@Model.Fecha.Month' + "-" + '@Model.Fecha.Day' + "-" + '@Model.Fecha.Year' + " " + '@Model.Fecha.TimeOfDay';
+
+        }
+    function recuperarTotal(item) {
+        if (item.idMoneda == 1)
+            total = item.montoBase;
+        else if (item.idMoneda == 2)
+            total = item.montoDolar;
+
+        else if (item.idMoneda == 3)
+            total = item.montoEuro;
+
+
+        $("#total").val(total);
+    }
+
+</script>

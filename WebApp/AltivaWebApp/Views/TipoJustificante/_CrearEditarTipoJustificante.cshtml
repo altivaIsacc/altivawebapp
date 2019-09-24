@@ -62,7 +62,7 @@
         </form>
         <div class="form-group col-sm-7">
 
-            <button id="btnEditOrden" onclick="crearEditarTipoJustificante()" class="btn btn-success"><span>@Lb["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
+            <button id="btnTipo"  onclick="crearEditarTipoJustificante()" class="btn btn-success"><span>@Lb["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
 
             <button class="btn btn-default" data-dismiss="modal"><span>@Lb["Cancelar"]</span></button>
 
@@ -73,7 +73,8 @@
 
 <script>
     $(document).ready(function () {
-       $('#activo').prop('checked', true);
+        getTipoJustificantes();
+        $('#activo').prop('checked', true);
         if ('@Model.IdTipoJustificante' != 0) {
             if ($('#Cxp').val() == "True")
                 $('#xp').prop('checked', true);
@@ -137,6 +138,7 @@
         }
         return flag;
     }
+
     function crearEditarTipoJustificante() {
         if (validarCampos()) {
             $.ajax({
@@ -147,7 +149,7 @@
                 success: function (data) {
 
                     $('#modalTipoJustificante').modal('hide');
-                    getTipoJustificante();
+                        getTipoJustificante();               
                 },
                 error: function (err, scnd) {
                     cargarAlert('@Lb["errorGeneral"]');
@@ -156,7 +158,21 @@
             });
         }
     }
-
+     function getTipoJustificantes() {
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetTipoJustificante", "TipoJustificante")',
+            success: function (data) {
+                lineasJ = data;
+                
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+      }
 
 
 </script>

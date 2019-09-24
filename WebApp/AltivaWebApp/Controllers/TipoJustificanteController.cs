@@ -38,7 +38,6 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Crear-TipoJustificante")]
         public IActionResult _CrearTipoJustificante()
         {
-
             return PartialView("_CrearEditarTipoJustificante", new TipoJustificanteViewModel());
         }
 

@@ -21,7 +21,7 @@ namespace AltivaWebApp.Domains
         public bool Cxp { get; set; }
         public bool Cxc { get; set; }
         public int IdMoneda { get; set; }
-        public double? MontoBase { get; set; }
+        public double MontoBase { get; set; }
         public double MontoDolar { get; set; }
         public double MontoEuro { get; set; }
         public string DisponibleDolar { get; set; }

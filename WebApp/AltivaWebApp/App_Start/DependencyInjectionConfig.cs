@@ -307,7 +307,15 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<ITipoJustificanteRepository, TipoJustificanteRepository>();
             services.AddScoped<ITipoJustificanteService, TipoJustificanteService>();
             services.AddScoped<ITipoJustificanteMap, TipoJustificanteMap>();
+            //Nota
+            services.AddScoped<INotaRepository, NotaRepository>();
+            services.AddScoped<INotaService, NotaService>();
+            services.AddScoped<INotaMap, NotaMap>();
 
+            //Movimiento
+            services.AddScoped<IMovimientoRepository, MovimientoRepository>();
+            services.AddScoped<IMovimientoService, MovimientoService>();
+            services.AddScoped<IMovimientoMap, MovimientoMap>();
 
         }
     }
