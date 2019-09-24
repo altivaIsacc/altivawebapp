@@ -102,17 +102,20 @@ else
 
         <div class="form-group col-md-3 col-sm-6 col-xs-12">
 
+
+
+
+
             <div class="form-group col-md-6 col-sm-6 col-xs-12">
                 <label asp-for="IdMoneda" class="control-label">@Lb["Moneda"]:</label>
-                <select onchange="recalcularPrecio()" id="moneda" class="form-control tipoMoneda">
-                    @*@{
-                        foreach (var item in monedas)
-                        {
-                            <option value="@item.Codigo">@item.Nombre</option>
-                        }
-                    }*@
+                <select onchange="capturar(value)" id="moneda" class="form-control tipoMoneda">
+                    <option id="option" value="">@Lb["seleccione"]</option>
                 </select>
             </div>
+
+
+
+
 
             <div class="form-group col-md-6 col-sm-6 col-xs-12">
                 <label class="control-label">@Lb["Dolar"]:</label>
@@ -546,7 +549,7 @@ else
          });
     }
 
-
+    var array = [];
     function getMonedas() {
          $.ajax({
               type: "get",
@@ -557,12 +560,32 @@ else
               url: '@Url.Action("GetMonedas", "Monedas")',
               success: function (data) {
 
-                 monedas = data;
+                  monedas = data;
+                //console.log(data);
+                  array = [];
                  for (var i = 0; i < data.length; i++) {
-                     var o = new Option(data[i].nombre, data[i].codigo);
-                    $(".tipoMoneda").append(o);
+                  
+                     var model = {
+                         codigo: data[i].nombre,
+                         nombre: data[i].codigo,
+                     };
 
-                 }
+                     array.push(model);
+                  //console.log(array);
+                  }
+
+                
+
+                  document.getElementById('moneda').options.length = 0;
+                  for (var i = 0; i < array.length; i++) {
+                      var o = new Option(array[i].codigo, array[i].nombre);
+                      $("#moneda").append(o);
+                      
+                  }
+
+
+
+
                  if(@Model.Id!= 0)
                      $(".tipoMoneda").val(@Model.IdMoneda);
                  else
@@ -1499,6 +1522,15 @@ else
 
     }
 
+    var monedaSeleccionada = 0;
+    function capturar(value) {
+        monedaSeleccionada = value;
+        console.log(monedaSeleccionada);
+    }
+
+
+
+
     function recalcularPrecio() {
 
         console.log(lineas);
@@ -1507,7 +1539,7 @@ else
         for (var i = 0; i < lineas.length; i++) {
 
             lineas[i].PrecioUnidad = getPrecioAlCambioLocal(lineas[i]);
-            lineas[i].idMonedaCDS = parseInt($('.tipoMoneda').val());
+            lineas[i].idMonedaCDS = parseInt(monedaSeleccionada);
 
             subtotal = lineas[i].PrecioUnidad * lineas[i].cantidad;
             lineas[i].totalDescuento = (lineas[i].porcDescuento / 100) * subtotal;
