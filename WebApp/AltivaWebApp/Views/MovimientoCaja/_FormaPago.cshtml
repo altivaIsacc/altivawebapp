@@ -20,7 +20,7 @@
                     <div class="form-group row">
                         <label for="pago" class="col-sm-3 col-xs-4 col-md-3 col-form-label col-form-label-sm">@Lb["Pagos"]:</label>
                         <div class="col-sm-9 col-md-9 col-xs-8">
-                            <input readonly class="form-control input-sm formaPagoMoneda" value="@Model.Monto" id="pago">
+                            <input readonly class="form-control input-sm formaPagoMoneda" value="0" id="pago">
                         </div>
                     </div>
                 </div>
@@ -33,7 +33,7 @@
                     </div>
                 </div>
                 <div class="col-md-2 col-sm-2 col-xs-4" style="margin: 0; padding: 0; text-align:right">
-                    <button class="btn btn-link" onclick="procesarPago()">
+                    <button class="btn btn-link" onclick="guardarMovimientosCaja()">
                         <span aria-hidden="true">@Lb["Terminar"]</span>
                     </button>
                 </div>
@@ -124,6 +124,7 @@
     </div>
 </div>
 
+<div hidden><input hidden id="vuelto" type="text" /></div>
 <div hidden><input hidden id="formater1" type="text" /></div>
 <div hidden><input hidden id="formater2" type="text" /></div>
 <div hidden><input hidden id="formater3" type="text" /></div>
@@ -131,11 +132,29 @@
 
 <script>
     var formaPagoSeleccionada;
+    var monedaFormaPagoSeleccionada;
+    var primeraVez = true;
     var formasPago = [];
+
+    var monto = 0;
+    var montoFP = 0;
+    var balance = 0;
+    var vuelto = 0;
+    var pago = 0;
+
 
     $(document).ready(function () {
 
         setMonedaGeneral(@Model.Moneda);
+
+        setMonto();
+        setBalance();
+
+        $("#vuelto").inputmask('currency', {
+            prefix: monedas[@Model.Moneda - 1].simbolo,
+            rightAlign: true,
+            min: 0
+        });
 
         $("#formater1").inputmask('currency', {
             prefix: monedas[0].simbolo,
@@ -165,10 +184,18 @@
     });
 
     function setFormaPagoSeleccionada(value) {
+
+        primeraVez = true;
+
         formaPagoSeleccionada = value;
         setMonedaGeneral(@Model.Moneda);
 
-        setTimeout(function () { $('#montoFP' + value).select(); $('#montoFP' + value).focus(); }, 250);
+
+        setTimeout(function () {
+            $('#montoFP' + value).val(getBalance());
+            $('#montoFP' + value).select();
+            $('#montoFP' + value).focus();
+        }, 250);
     }
 
     /////////////////////////calculos efectivo/////////////////////
@@ -177,13 +204,18 @@
     ////////////validar si es la primera vez
     function btnDenominacion(value) {
 
+        if (primeraVez)
+            $('#montoFP1').val(0);
+
         var montoAct = $('#montoFP1').inputmask('unmaskedvalue');
         if (montoAct == null)
             montoAct = 0;
 
         $('#montoFP1').val(parseFloat(montoAct) + parseFloat(value));
 
-        setTimeout(function () { $('#montoFP1').focus();}, 1);
+        setTimeout(function () { $('#montoFP1').focus(); }, 1);
+
+        primeraVez = false;
 
     }
 
@@ -229,11 +261,108 @@
 
     }
 
-    function calcularBalance() {
-        var balance = parseFloat($('#pago').inputmask('unmaskedvalue')) - parseFloat($('#monto').inputmask('unmaskedvalue'));
-        $('#balance').val(balance);
+    function calcularMovimientos() {
+
+        setPago();
+        setBalance();
+        setVuelto();
     }
 
+    ////////////////////////////get and set///////////////////////////////////
+    function setBalance() {
+        balance = (getMonto() - getPago()); //parseFloat($('#monto').inputmask('unmaskedvalue')) - parseFloat($('#pago').inputmask('unmaskedvalue'));
+
+        if (balance < 0)
+            balance = 0;
+
+        $('#balance').val(balance * -1);
+    }
+
+    function getBalance() {
+        return balance;
+    }
+    function setPago() {
+        pago = totalFomasPago(); 
+        $('#pago').val(pago);
+    }
+    function getPago() {
+        return pago;
+    }
+    function setVuelto() {
+        vuelto = getPago() - getMonto();
+        if (vuelto < 0)
+            vuelto = 0;
+    }
+    function getVuelto() {
+        return vuelto;
+    }
+    function getMonto() {
+        return monto;
+    }
+    function setMonto() {
+        monto = @Model.Monto;
+        $('#monto').val(monto);
+        
+    }
+
+    function getMontoFP() {
+        return monto;
+    }
+    function setMontoFP() {
+        monto = @Model.Monto;
+        $('.montoFormaPago').val(monto);
+        
+    }
+
+    ////////////////////////////fin get and set///////////////////////////////////
+
+
+    function calcularMontoRestanteFormaPago(monedaNueva) {
+
+        var montoFP = getBalance();
+
+        switch (@Model.Moneda) {
+            case 1:
+                switch (monedaNueva) {
+                    case 1:
+                        return montoFP;
+                        break;
+                    case 2:
+                        return montoFP / monedas[1].valorCompra;
+                        break;
+                    case 3:
+                        return montoFP / monedas[2].valorCompra;
+                        break;
+                }
+                break;
+            case 2:
+                switch (monedaNueva) {
+                    case 1:
+                        return montoFP * monedas[1].valorCompra ;
+                        break;
+                    case 2:
+                        return montoFP;
+                        break;
+                    case 3:
+                        return (montoFP * monedas[1].valorCompra) / monedas[2].valorCompra;
+                        break;
+                }
+                break;
+            case 3:
+                switch (monedaNueva) {
+                    case 1:
+                        return montoFP * monedas[2].valorCompra ;
+                        break;
+                    case 2:
+                        return (montoFP * monedas[2].valorCompra) / monedas[1].valorCompra;
+                        break;
+                    case 3:
+                        return montoFP;
+                        break;
+                }
+                break;
+        }
+    }
 
     /////////////////////////fin calculos general/////////////////
 
@@ -251,7 +380,7 @@
         var model = {
             idCajaMovimiento: 0,
             tipoCategoriaFlujo: tipoCategoriaFlujo,
-            idCategoriaFlujo: 0,
+            idCategoriaFlujo: tipoCategoriaFlujo,
             fechaCreacion: new Date(),
             estado: true,
             idMoneda: idMoneda,
@@ -277,13 +406,11 @@
         var fp = crearModeloFormaPago(tipoCategoriaFlujo);
         formasPago.push(fp);
 
-        $('#pago').val(totalFomasPago());
+        calcularMovimientos();
 
         borrarMontoFormaPago();
         cargarFormasPago(formasPago);
-
-
-        calcularBalance();
+        
     }
 
     function cargarFormasPago(data) {
@@ -325,8 +452,9 @@
     function eliminarFP(id, pos) {
 
         formasPago.splice(pos, 1);
-        $('#pago').val(totalFomasPago());
+        calcularMovimientos();
         cargarFormasPago(formasPago);
+
 
     }
 
@@ -384,7 +512,7 @@
             default:
         }
 
-        borrarMontoFormaPago();
+        $(".montoFormaPago").val(calcularMontoRestanteFormaPago(codigo));
 
         $(".montoFormaPago").inputmask('currency', {
             prefix: simbolo,
@@ -399,9 +527,10 @@
         $(".montoFormaPago").val(0);
     }
 
+
     function setMonedaGeneral(codigo) {
         setMonedaFormaPago(codigo);
-
+        monedaFormaPagoSeleccionada = codigo;
         var simbolo = "";
         switch (codigo) {
             case 1:
@@ -449,23 +578,23 @@
     }
 
     function getMontoAlCambio(data) {
-        var monto = 0;
+        var montoAux = 0;
 
 
         switch (@Model.Moneda) {
             case 1:
-                monto = data.montoBase;
+                montoAux = data.montoBase;
                 break;
             case 2:
-                monto = data.montoDolar;
+                montoAux = data.montoDolar;
                 break;
             case 3:
-                monto = data.montoEuro;
+                montoAux = data.montoEuro;
                 break;
             default:
         }
 
-        return monto;
+        return montoAux;
     }
 
     function retornaFormasPago() {
@@ -481,6 +610,12 @@
         }
 
         return formasPago;
+    }
+
+    function guardarMovimientosCaja() {
+        //procesarPago()
+        $('#vuelto').val(getVuelto());
+        alert($('#vuelto').val());
     }
 
 </script>

@@ -21,17 +21,19 @@ namespace AltivaWebApp.Controllers
         private readonly IUserService userService;
         private readonly IContactoService contactoService;
         private readonly IPuntoVentaService pvService;
-        private readonly IMovimientoMap movMap;
+        private readonly IMovimientoService movService;
         private readonly ICajaMovimientoMap cajaMovMap;
-        public FacturaController(ICajaMovimientoMap cajaMovMap, IMovimientoMap movMap,IPuntoVentaService pvService, IFacturaMap map, IFacturaService service, IUserService userService, IContactoService contactoService)
+        private readonly IFlujoCategoriaService flujoService;
+        public FacturaController(IFlujoCategoriaService flujoService, ICajaMovimientoMap cajaMovMap, IMovimientoService movService, IPuntoVentaService pvService, IFacturaMap map, IFacturaService service, IUserService userService, IContactoService contactoService)
         {
             this.map = map;
             this.service = service;
             this.userService = userService;
             this.contactoService = contactoService;
             this.pvService = pvService;
-            this.movMap = movMap;
+            this.movService = movService;
             this.cajaMovMap = cajaMovMap;
+            this.flujoService = flujoService;
         }
 
         [Route("Todo")]
@@ -107,12 +109,11 @@ namespace AltivaWebApp.Controllers
                 }
 
 
-                ////valida factura tipo contado
-                //if(factura.Tipo == 1)
-                //{
-                //    var movimientos = movMap.CreateMovmientoDetalle(factura.Id);
-                //    cajaMovMap.CreateCajaMovimiento(formaPago, movimientos.First().IdMovimientoHasta);
-                //}
+                //valida factura tipo contado
+                if (factura.Tipo == 1)
+                {
+                    cajaMovMap.CreateCajaMovimiento(formaPago, movService.GetUltimoMovimientoPagoId(factura.Id));
+                }
 
                 return Json(new { success = true });
             }
@@ -165,5 +166,21 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpGet("ExisteCatFlujo")]
+        public IActionResult ExisteCatFlujo()
+        {
+            try
+            {
+                return Ok(flujoService.ExisteCatFlujoCadaTipo());
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return BadRequest();
+            }
+        }
+
+
     }
 }

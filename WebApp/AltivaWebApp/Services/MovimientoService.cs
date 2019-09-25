@@ -20,6 +20,11 @@ namespace AltivaWebApp.Services
             return repository.GetMovimientosByIdDocumento(idDoc);
         }
 
+        public long GetUltimoMovimientoPagoId(long idDoc)
+        {
+            return repository.GetUltimoMovimientoPagoId(idDoc);
+        }
+
         public TbFaMovimiento Save(TbFaMovimiento domain)
         {
             return repository.Save(domain);

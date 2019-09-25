@@ -15,5 +15,7 @@ namespace AltivaWebApp.Repositories
         IList<TbBaFlujoCategoria> GetAllFlujoCategoria();
         TbBaFlujoCategoria GetFlujoCategoriaById(int id);
         TbBaFlujoCategoria GetFlujoCategoriaByDesc(string cod, int idTipo);
+        TbBaFlujoCategoria GetFlujoCategoriaByTipo(int tipo);
+        bool ExisteCatFlujoCadaTipo();
     }
 }

@@ -68,11 +68,10 @@
         $.ajax({
             type: "GET",
             url: '@Url.Action("ValidarPV", "Factura")',
-            data: { pv: $('#filtroPV').val() },
             dataType: 'json', 
             success: function (data) {
                 if (data) {
-                    window.location.href = '@Url.Action("CrearFactura")';
+                    validarExisteFlujoCategoria();
                 }
                 else
                     cargarAlert("@Lb["puntoVentaInvalido"]");
@@ -82,8 +81,28 @@
                 console.log(err.statusText);
             }
         });
-
        
     }
+
+    function validarExisteFlujoCategoria() {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ExisteCatFlujo", "Factura")',
+            dataType: 'json', 
+            success: function (data) {
+
+                if (data) {
+                    window.location.href = '@Url.Action("CrearFactura")';
+                }
+                else
+                    cargarAlert("@Lb["configurarCategoriaFlujo"]");
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+    
 
 </script>

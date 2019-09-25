@@ -11,14 +11,18 @@ namespace AltivaWebApp.Mappers
     public class CajaMovimientoMap: ICajaMovimientoMap
     {
         private readonly ICajaMovimientoService service;
-
-        public CajaMovimientoMap(ICajaMovimientoService service)
+        private readonly IFlujoCategoriaService flujoService;
+        public CajaMovimientoMap(ICajaMovimientoService service, IFlujoCategoriaService flujoService)
         {
             this.service = service;
+            this.flujoService = flujoService;
         }
 
         public IList<TbFaCajaMovimiento> CreateCajaMovimiento(IList<CajaMovimientoViewModel> viewModel, long idMovimiento)
         {
+            var catFlujo = flujoService.GetFlujoCategoriaByTipo((int)viewModel[0].IdCategoriaFlujo) != null ? flujoService.GetFlujoCategoriaByTipo((int)viewModel[0].IdCategoriaFlujo).IdCategoriaFlujo : 0;
+            
+
             var cajaMov = new List<TbFaCajaMovimiento>();
             foreach (var item in viewModel)
             {
@@ -28,7 +32,7 @@ namespace AltivaWebApp.Mappers
                     Estado = item.Estado,
                     FechaCreacion = DateTime.Now,
                     IdCaja = item.IdCaja,
-                    IdCategoriaFlujo = item.IdCategoriaFlujo,
+                    IdCategoriaFlujo = catFlujo,
                     IdMoneda = item.IdMoneda,
                     IdMovimiento = idMovimiento,
                     IdTipoCajaMovimiento = item.IdTipoCajaMovimiento,

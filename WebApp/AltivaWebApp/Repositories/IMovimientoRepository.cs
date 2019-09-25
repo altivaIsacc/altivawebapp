@@ -13,5 +13,6 @@ namespace AltivaWebApp.Repositories
         IList<TbFaMovimientoDetalle> SaveMovDetalle(IList<TbFaMovimientoDetalle> domain);
         IList<TbFaMovimiento> GetMovimientosByIdDocumento(long idDoc);
         IList<TbFaMovimientoDetalle> UpdateMovDetalle(IList<TbFaMovimientoDetalle> domain);
+        long GetUltimoMovimientoPagoId(long idDoc);
     }
 }

@@ -1,7 +1,9 @@
 ﻿using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,6 +18,20 @@ namespace AltivaWebApp.Repositories
         public IList<TbFaMovimiento> GetMovimientosByIdDocumento(long idDoc)
         {
             return context.TbFaMovimiento.Where(m => m.IdDocumento == idDoc).ToList();
+        }
+
+        public long GetUltimoMovimientoPagoId(long idDoc)
+        {
+            var qry = "SELECT top 1 m2.*"
+                + "FROM tb_FA_Movimiento as m INNER JOIN "
+                + "tb_FA_MovimientoDetalle as md ON m.IdMovimiento = md.IdMovimientoDesde INNER JOIN "
+                + "tb_FA_Movimiento as m2 ON md.IdMovimientoHasta = m2.IdMovimiento "
+            + "WHERE m.IdDocumento = " + idDoc + " order by m2.IdMovimiento desc";
+
+
+            var mov = context.TbFaMovimiento.FromSql(qry).FirstOrDefault();
+
+            return mov != null ? mov.IdMovimiento : 0;
         }
 
         public IList<TbFaMovimientoDetalle> SaveMovDetalle(IList<TbFaMovimientoDetalle> domain)
