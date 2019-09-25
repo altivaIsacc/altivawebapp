@@ -20,6 +20,8 @@ namespace AltivaWebApp.Context
         }
 
         public virtual DbSet<CompraAutomaticoViewModel> CompraAutomatico { get; set; }
+        public virtual DbSet<DocumentosContactoViewModel> DocumentosContacto { get; set; }
+
         //agregado por lenin
         public virtual DbSet<TbBaFlujoCategoria> TbBaFlujoCategoria { get; set; }
 
@@ -271,10 +273,40 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.emed).HasColumnType("float");
                 entity.Property(e => e.emin).HasColumnType("float");
                 entity.Property(e => e.emax).HasColumnType("float");
+            });
+            modelBuilder.Entity<DocumentosContactoViewModel>(entity =>
+            {
+                entity.HasKey(e => e.IdMovimiento);
 
+                entity.ToTable("vs_FA_DocumentosContacto");
 
-
-
+                entity.Property(e => e.Nombre).HasMaxLength(150);
+                entity.Property(e => e.IdContacto).HasColumnName("IdContacto");
+                entity.Property(e => e.IdTipoDocumento).HasColumnName("IdTipoDocumento");
+                entity.Property(e => e.IdUsuario).HasColumnName("IdUsuario");
+                entity.Property(e => e.Cxp).HasColumnName("Cxp");
+                entity.Property(e => e.Cxc).HasColumnName("Cxc");
+                entity.Property(e => e.IdMoneda).HasColumnName("IdMoneda");
+                //entity.Property(e => e.MontoBase).HasColumnName("MontoBase");
+                //entity.Property(e => e.MontoDolar).HasColumnName("MontoDolar");
+                //entity.Property(e => e.MontoEuro).HasColumnName("MontoEuro");
+                //entity.Property(e => e.DisponibleDolar).HasColumnName("DisponibleDolar");
+                //entity.Property(e => e.DisponibleBase).HasColumnName("DisponibleBase");
+                //entity.Property(e => e.DisponibleEuro).HasColumnName("DisponibleEuro");
+                //entity.Property(e => e.AplicadoBase).HasColumnName("AplicadoBase");
+                //entity.Property(e => e.AplicadoDolar).HasColumnName("AplicadoDolar");
+                //entity.Property(e => e.AplicadoEuro).HasColumnName("AplicadoEuro");
+                //entity.Property(e => e.SaldoBase).HasColumnName("SaldoBase");
+                //entity.Property(e => e.SaldoDolar).HasColumnName("SaldoDolar");
+                //entity.Property(e => e.SaldoEuro).HasColumnName("SaldoEuro");
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+                entity.Property(e => e.EsDebito).HasColumnName("EsDebito");
+                entity.Property(e => e.Concecutivo).HasColumnName("Concecutivo");
+                entity.Property(e => e.FechaDocumento).HasColumnType("datetime");
+                entity.Property(e => e.IdVendedor).HasColumnName("IdVendedor");
+                entity.Property(e => e.IdPuntoVenta).HasColumnName("IdPuntoVenta");
+                entity.Property(e => e.FechaVencimiento).HasColumnType("datetime");
+                entity.Property(e => e.Estado).HasColumnName("Estado");
 
             });
 

@@ -53,5 +53,9 @@ namespace AltivaWebApp.Services
         {
             return repository.DeleteMovimientoJustificante(domain, idMovimiento);
         }
+        public IList<DocumentosContactoViewModel> getDocumentosContacto()
+        {
+            return repository.getDocumentosContacto();
+        }
     }
 }

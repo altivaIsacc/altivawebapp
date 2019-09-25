@@ -26,6 +26,7 @@ namespace AltivaWebApp.Repositories
 
             return facturas;
         }
+       
 
         public TbFdFactura GetFacturaById(long id)
         {

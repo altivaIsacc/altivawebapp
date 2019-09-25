@@ -131,7 +131,7 @@
 
         </div>
 
-        <div class="form-group col-md-1 col-sm-1 col-xs-2" style="padding-top: 2.3rem;">
+        <div class="form-group col-md-1 col-sm-1 col-xs-12" style="padding-top: 2.3rem;">
             <button onclick=" guardarLinea()" id="guardar" class="btn btn-success"><span><i class="fas fa-save"></i></span></button>
         </div>
 
@@ -160,7 +160,33 @@
             </div>
         </div>
     </div>
+
 </div>
+<div class="row">
+    <div class="form-group col-md-3 col-sm-3 col-xs-12">
+        <input type="checkbox" class="form-check-input" id="aplicado" /> @Lb["Aplicado"]
+    </div>
+</div>  
+    <div class="collapse aplicadoForm">
+        <div class="well col-md-12 col-sm-12 col-xs-12">
+            <table class="table table-bordered table-striped" id="tblOrdenCompra">
+                <thead>
+                    <tr>
+
+                        <th><span>@Lb["tipo"]</span></th>
+                        <th><span>@Lb["Documento"]</span></th>
+                        <th><span>@Lb["Fecha"]</span></th>
+                        <th><span>@Lb["Pendiente"]</span></th>
+                        <th><span>@Lb["Aplicado"]</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="lineaForm"></tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
 <span hidden id="lineasValid" class="text-danger">@Lb["lineasValid"]</span>
 <div class="row">
     <div class="form-group col-md-3">
@@ -262,8 +288,17 @@
         });
     });
     //eventos directos
+    $('#aplicado').change(function () {
+        getDocumentos();
+        $('.aplicadoForm').collapse('toggle');
+        if (  $('#aplicado').val() === "False") {
+            $('#aplicado').val("True");
+        } else {
+            $('#aplicado').val("False");
+
+        }
+   });
     $("#btnTipo").on("click", function () {
-        alert("hola");
         cargarTabla(lineas);
     });
      $('#tipo').change(function () {
@@ -316,6 +351,23 @@
         getCrearEditarPartial(0);
     });
     //AJAX
+    function getDocumentos() {
+        var contacto = "@Model.IdContacto";
+        var id = parseInt(contacto);
+   var url = '@Url.Action("GetDocumentosByContacto", "Nota", new { id = "__id__"})'.replace("__id__", id);
+        $.ajax({
+           type: "get",
+           dataType: "json",
+           url: url,
+            success: function (data) {
+                console.log(data);
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+    }
      function getCrearEditarPartial(id)
      {
         var url = "@Url.Action("_CrearTipoJustificante", "TipoJustificante",  new {tipo = 2}))";
@@ -455,7 +507,7 @@
                 dataType: "json",
                 data: { modelNota: crearModeloNota(), modelMovimiento: crearModeloMovimiento(), modelMovimientoJustificante: crearLineasActualizadas(lineasActualizadas) },
                 url: '@Url.Action("CrearEditarNota", "Nota")',
-                success: function (data) {                   
+                success: function (data) {
                     window.location.href = '@Url.Action("ListarNotas", "Nota")';
                 },
                 error: function (err, scnd) {
@@ -561,11 +613,11 @@
             setTotal();
             cargarTabla(lineas);
         });
-      
-    } 
+
+    }
 
 
-    
+
      function comprobarRepetido(nombre, id) {
          var flag = true;
          for (var i = 0; i < lineasTJustificante.length; i++) {
@@ -917,7 +969,7 @@
         return total;
 
     }
- 
+
     function formatearFecha() {
 
         return '@Model.Fecha.Month' + "-" + '@Model.Fecha.Day' + "-" + '@Model.Fecha.Year' + " " + '@Model.Fecha.TimeOfDay';

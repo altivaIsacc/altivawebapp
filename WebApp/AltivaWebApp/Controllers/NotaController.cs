@@ -76,6 +76,24 @@ namespace AltivaWebApp.Controllers
             }
 
         }
+        [HttpGet("GetDocumentosByContacto/{id}")]
+        public IActionResult GetDocumentosByContacto(long id)
+        {
+            try
+            {
+                var docs = movimientoService.getDocumentosContacto();
+
+              
+
+                return Ok(docs);
+
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
         [HttpGet("GetMovimientoJustificante/{id}")]
         public IActionResult GetMovimientoJustificante(long id)
         {
@@ -91,6 +109,7 @@ namespace AltivaWebApp.Controllers
             }
 
         }
+      
         [HttpGet("TipoDocumento")]
         public IActionResult GetAllTipoDocumento()
         {
