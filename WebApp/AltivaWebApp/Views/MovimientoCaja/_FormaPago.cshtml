@@ -12,7 +12,7 @@
                     <div class="form-group row">
                         <label for="monto" class="col-sm-3 col-xs-4 col-md-3 col-form-label col-form-label-sm">@Lb["Monto"]:</label>
                         <div class="col-sm-9 col-md-9 col-xs-8">
-                            <input readonly class="form-control input-sm formaPagoMoneda" value="@Model.Monto" id="monto">
+                            <input readonly class="form-control input-sm formaPagoMoneda" value="@Model.Monto.ToString("N").Replace(",",".")" id="monto">
                         </div>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
                                             <span><stron>@Lb["Monto"]:</stron></span>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-6">
-                                            <input class="form-control input-sm montoFormaPago" id="montoFP1" />
+                                            <input class="form-control input-sm montoFormaPago" onkeypress="enterMonto(event, 2)" id="montoFP1" />
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-xs-12" style="text-align: right">
                                             <button onclick="borrarMontoFormaPago()" class="btn btn-link">@Lb["Borrar"]</button>
@@ -124,11 +124,37 @@
     </div>
 </div>
 
-<div hidden><input hidden id="vuelto" type="text" /></div>
+
+<div class="modal fade" id="vueltoModal" tabindex="-1" role="dialog" aria-labelledby="vueltoModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="vueltoModalCenterTitle">@Lb["Vuelto"]</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <h4><span id="lbVuelto"></span></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="closeVueltoModal" class="btn btn-primary" data-dismiss="modal">@Lb["Aceptar"]</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div hidden><input hidden id="montoFormat" value="@Model.Monto.ToString().Replace(",", ".")" type="number" /></div>
+<div hidden><input hidden id="auxMontoFormat" class="montoFormaPago" type="text" /></div>
 <div hidden><input hidden id="formater1" type="text" /></div>
 <div hidden><input hidden id="formater2" type="text" /></div>
 <div hidden><input hidden id="formater3" type="text" /></div>
 <div hidden><input hidden id="formater4" class="formaPagoMoneda" type="text" /></div>
+<div hidden><input hidden id="vueltoFormat" class="formaPagoMoneda" type="text" /></div>
 
 <script>
     var formaPagoSeleccionada;
@@ -136,25 +162,45 @@
     var primeraVez = true;
     var formasPago = [];
 
-    var monto = 0;
-    var montoFP = 0;
-    var balance = 0;
-    var vuelto = 0;
-    var pago = 0;
+    ////////varibales general
+    var _MONTO = 1;
+    var _APLICADO = 2;
+    var _VISUAL = 3;
+    var _BALANCE = 4;
+    var _BASE = 1;
+    var _DOLAR = 2;
+    var _EURO = 3;
+    var _MONEDADEFAULT = @Model.Moneda;
+
+
+    var montosGeneral = {
+        monto: {
+            montoBase: 0,
+            montoDolar: 0,
+            montoEuro: 0
+        },
+        aplicado: {
+            aplicadoBase: 0,
+            aplicadoDolar: 0,
+            aplicadoEuro: 0
+        },
+        visual: {
+            visualBase: 0,
+            visualDolar: 0,
+            visualEuro: 0
+        },
+        balance: {
+            balanceBase: 0,
+            balanceDolar: 0,
+            balanceEuro: 0
+        }
+    };
 
 
     $(document).ready(function () {
 
-        setMonedaGeneral(@Model.Moneda);
-
         setMonto();
-        setBalance();
-
-        $("#vuelto").inputmask('currency', {
-            prefix: monedas[@Model.Moneda - 1].simbolo,
-            rightAlign: true,
-            min: 0
-        });
+        calcularMovimientos();        
 
         $("#formater1").inputmask('currency', {
             prefix: monedas[0].simbolo,
@@ -174,6 +220,10 @@
             min: 0
         });
 
+        showTab('efectivoTab');
+
+        setTimeout(function () { $('#montoFP1').focus(); }, 500);
+
     });
 
     $('#metodosPago a').on('click', function (e) {
@@ -183,19 +233,20 @@
         $(this).addClass('active');
     });
 
+    function showTab(id) {
+        $('#metodosPago a').removeClass('active');
+        $('#' + id).tab('show');
+        $('#' + id).addClass('active');
+        $('#' + id).click();
+    }
+
     function setFormaPagoSeleccionada(value) {
 
         primeraVez = true;
 
         formaPagoSeleccionada = value;
-        setMonedaGeneral(@Model.Moneda);
-
-
-        setTimeout(function () {
-            $('#montoFP' + value).val(getBalance());
-            $('#montoFP' + value).select();
-            $('#montoFP' + value).focus();
-        }, 250);
+        setMonedaGeneral(_MONEDADEFAULT);
+      
     }
 
     /////////////////////////calculos efectivo/////////////////////
@@ -220,17 +271,146 @@
     }
 
 
-
     /////////////////////////fin calculos efectivo/////////////////////
     //////////////////////////calculos general/////////////////////
 
-    function getMontosTipoCambio(idMoneda) {
+    
 
+    function calcularMovimientos() {
 
-        var monto = parseFloat($('#montoFP' + formaPagoSeleccionada).inputmask('unmaskedvalue'));
-        if ($('#montoFP' + formaPagoSeleccionada).inputmask('unmaskedvalue') == null)
-            monto = 0;
+        setPago();
+        setBalance();
+    }
 
+    ////////////////////////////get and set///////////////////////////////////
+    function setBalance() {
+        var balance = (getMonto(_MONEDADEFAULT) - getPago(_MONEDADEFAULT)); 
+
+        if (balance < 0)
+            balance = 0;
+
+        setterGeneral(_BALANCE, balance);
+
+        $('#balance').val(balance * -1);
+
+        setterGeneral(_VISUAL, $('#balance').inputmask('unmaskedvalue'));
+    }
+
+    function getBalance(moneda) {
+        return getterGeneral(_BALANCE, moneda);
+    }
+
+    function setPago() {
+        var pago = totalFomasPago();
+        setterGeneral(_APLICADO, pago);
+
+        $('#pago').val(pago);
+
+    }
+    function getPago(moneda) {
+        return getterGeneral(_APLICADO, moneda);
+    }
+    function getVuelto() {
+        var vuelto = getPago(_MONEDADEFAULT) - getMonto(_MONEDADEFAULT);
+        if (vuelto < 0)
+            vuelto = 0;
+
+        return vuelto;
+    }
+    
+    function getMonto(moneda) {
+        return getterGeneral(_MONTO, moneda);
+    }
+    function setMonto() {
+        setterGeneral(_MONTO, parseFloat($('#montoFormat').val()));
+    }
+
+    function getMontoFP(moneda) {
+        return getterGeneral(_BALANCE, moneda);
+    }
+    function setMontoFP(moneda) {
+        $('.montoFormaPago').val(getBalance(moneda));
+    }
+
+    function setterGeneral(tipoMonto, valor) {
+
+        switch (tipoMonto) {
+            case 1:
+                montosGeneral.monto.montoBase = calcularMontoAlCambio(_MONEDADEFAULT, 1, valor);
+                montosGeneral.monto.montoDolar = calcularMontoAlCambio(_MONEDADEFAULT, 2, valor);
+                montosGeneral.monto.montoEuro = calcularMontoAlCambio(_MONEDADEFAULT, 3, valor);
+                break;
+            case 2:
+                montosGeneral.aplicado.aplicadoBase = calcularMontoAlCambio(_MONEDADEFAULT, 1, valor);
+                montosGeneral.aplicado.aplicadoDolar = calcularMontoAlCambio(_MONEDADEFAULT, 2, valor);
+                montosGeneral.aplicado.aplicadoEuro = calcularMontoAlCambio(_MONEDADEFAULT, 3, valor);
+                break;
+            case 3:
+                montosGeneral.visual.visualBase = calcularMontoAlCambio(_MONEDADEFAULT, 1, valor);
+                montosGeneral.visual.visualDolar = calcularMontoAlCambio(_MONEDADEFAULT, 2, valor);
+                montosGeneral.visual.visualEuro = calcularMontoAlCambio(_MONEDADEFAULT, 3, valor);
+                break;
+            case 4:
+                montosGeneral.balance.balanceBase = calcularMontoAlCambio(_MONEDADEFAULT, 1, valor);
+                montosGeneral.balance.balanceDolar = calcularMontoAlCambio(_MONEDADEFAULT, 2, valor);
+                montosGeneral.balance.balanceEuro = calcularMontoAlCambio(_MONEDADEFAULT, 3, valor);
+                break;
+        }
+    }
+
+    function getterGeneral(tipoMonto, moneda) {
+
+        var model = {
+            base: 0,
+            dolar: 0,
+            euro:0
+        };
+
+        var res = 0;
+
+        switch (tipoMonto) {
+            case 1:
+                model.base = montosGeneral.monto.montoBase;
+                model.dolar = montosGeneral.monto.montoDolar;
+                model.euro = montosGeneral.monto.montoEuro;
+                break;
+            case 2:
+                model.base = montosGeneral.aplicado.aplicadoBase;
+                model.dolar = montosGeneral.aplicado.aplicadoDolar;
+                model.euro = montosGeneral.aplicado.aplicadoEuro;
+                break;
+            case 3:
+                model.base = montosGeneral.visual.visualBase;
+                model.dolar = montosGeneral.visual.visualDolar;
+                model.euro = montosGeneral.visual.visualEuro;
+                break;
+            case 4:
+                model.base = montosGeneral.balance.balanceBase;
+                model.dolar = montosGeneral.balance.balanceDolar;
+                model.euro = montosGeneral.balance.balanceEuro;
+                break;
+        }
+
+        switch (moneda) {
+            case 1:
+                res = model.base;
+                break;
+            case 2:
+                res = model.dolar;
+                break;
+            case 3:
+                res = model.euro;
+                break;
+        }
+
+        return res;
+    }
+
+    
+
+    ////////////////////////////fin get and set///////////////////////////////////
+
+    function getMontosModel(idMoneda, monto) {
 
         var model = {
             base: 0,
@@ -261,121 +441,84 @@
 
     }
 
-    function calcularMovimientos() {
+    function calcularMontoAlCambio(monedaAnte, monedaNueva, monto) {
 
-        setPago();
-        setBalance();
-        setVuelto();
-    }
+        var montoFPRest = monto;
 
-    ////////////////////////////get and set///////////////////////////////////
-    function setBalance() {
-        balance = (getMonto() - getPago()); //parseFloat($('#monto').inputmask('unmaskedvalue')) - parseFloat($('#pago').inputmask('unmaskedvalue'));
-
-        if (balance < 0)
-            balance = 0;
-
-        $('#balance').val(balance * -1);
-    }
-
-    function getBalance() {
-        return balance;
-    }
-    function setPago() {
-        pago = totalFomasPago(); 
-        $('#pago').val(pago);
-    }
-    function getPago() {
-        return pago;
-    }
-    function setVuelto() {
-        vuelto = getPago() - getMonto();
-        if (vuelto < 0)
-            vuelto = 0;
-    }
-    function getVuelto() {
-        return vuelto;
-    }
-    function getMonto() {
-        return monto;
-    }
-    function setMonto() {
-        monto = @Model.Monto;
-        $('#monto').val(monto);
-        
-    }
-
-    function getMontoFP() {
-        return monto;
-    }
-    function setMontoFP() {
-        monto = @Model.Monto;
-        $('.montoFormaPago').val(monto);
-        
-    }
-
-    ////////////////////////////fin get and set///////////////////////////////////
-
-
-    function calcularMontoRestanteFormaPago(monedaNueva) {
-
-        var montoFP = getBalance();
-
-        switch (@Model.Moneda) {
+        switch (monedaAnte) {
             case 1:
                 switch (monedaNueva) {
                     case 1:
-                        return montoFP;
+                        montoFPRest = montoFPRest;
                         break;
                     case 2:
-                        return montoFP / monedas[1].valorCompra;
+                        montoFPRest = montoFPRest / monedas[1].valorCompra;
                         break;
                     case 3:
-                        return montoFP / monedas[2].valorCompra;
+                        montoFPRest = montoFPRest / monedas[2].valorCompra;
                         break;
                 }
                 break;
             case 2:
                 switch (monedaNueva) {
                     case 1:
-                        return montoFP * monedas[1].valorCompra ;
+                        montoFPRest = montoFPRest * monedas[1].valorCompra ;
                         break;
                     case 2:
-                        return montoFP;
+                        montoFPRest = montoFPRest;
                         break;
                     case 3:
-                        return (montoFP * monedas[1].valorCompra) / monedas[2].valorCompra;
+                        montoFPRest = (montoFPRest * monedas[1].valorCompra) / monedas[2].valorCompra;
                         break;
                 }
                 break;
             case 3:
                 switch (monedaNueva) {
                     case 1:
-                        return montoFP * monedas[2].valorCompra ;
+                        montoFPRest = montoFPRest * monedas[2].valorCompra ;
                         break;
                     case 2:
-                        return (montoFP * monedas[2].valorCompra) / monedas[1].valorCompra;
+                        montoFPRest = (montoFPRest * monedas[2].valorCompra) / monedas[1].valorCompra;
                         break;
                     case 3:
-                        return montoFP;
+                        montoFPRest = montoFPRest;
                         break;
                 }
                 break;
         }
+
+        return montoFPRest;
     }
 
     /////////////////////////fin calculos general/////////////////
+
+
+    //////////////////////////calculos Forma pago////////////////
+
+    function totalFomasPago() {
+
+        var montoPago = 0;
+
+        for (var i = 0; i < formasPago.length; i++) {
+            montoPago += getMontoAlCambio(formasPago[i]);
+        }
+
+        $('#formater4').val(montoPago);
+        $('#totalFormasPago').text($('#formater4').val());
+
+        return montoPago;
+    }
+
 
     /////////////////////////general////////////////////////////
 
     function crearModeloFormaPago(tipoCategoriaFlujo) {
 
         var idMoneda = parseInt($("input[name='rdMoneda']:checked").val());
-        var montos = getMontosTipoCambio(idMoneda);
 
-        var montoOriginal = parseFloat($('#montoFP' + formaPagoSeleccionada).inputmask('unmaskedvalue'));
-        if ($('#montoFP' + formaPagoSeleccionada).inputmask('unmaskedvalue') == null)
-            montoOriginal = 0;
+        var montoOriginal = getMontoReal(idMoneda);
+
+        var montos = getMontosModel(idMoneda, montoOriginal);
 
         var model = {
             idCajaMovimiento: 0,
@@ -397,20 +540,51 @@
             idMovimiento: 0
         };
 
+        
         return model;
     }
 
+    function getMontoReal(moneda) {
+
+        var monto = $('#montoFP' + formaPagoSeleccionada).inputmask('unmaskedvalue');
+        if (monto != null)
+            monto = parseFloat(monto);
+        else monto = 0;
+
+        var aux = $('#auxMontoFormat').inputmask('unmaskedvalue');
+        if (aux != null)
+            aux = parseFloat(aux);
+        else aux = 0;
+
+        if (aux == monto) {
+            return getBalance(moneda);
+        }
+        else
+            return monto;
+    }
+
+    
 
     function guardarFormaPago(tipoCategoriaFlujo) {
 
         var fp = crearModeloFormaPago(tipoCategoriaFlujo);
         formasPago.push(fp);
-
+        
+        setPago(totalFomasPago());
         calcularMovimientos();
 
-        borrarMontoFormaPago();
+        setMontoFP(fp.idMoneda);
         cargarFormasPago(formasPago);
-        
+
+    }
+
+    function enterMonto(e, tipoCat) {
+
+        (e.keyCode) ? k = e.keyCode : k = e.which;
+
+        if (k == 13) {
+            guardarFormaPago(tipoCat);
+        }
     }
 
     function cargarFormasPago(data) {
@@ -435,24 +609,14 @@
 
     }
 
-    function totalFomasPago() {
-
-        var montoPago = 0;
-
-        for (var i = 0; i < formasPago.length; i++) {
-            montoPago += getMontoAlCambio(formasPago[i]);
-        }
-
-        $('#formater4').val(montoPago);
-        $('#totalFormasPago').text($('#formater4').val());
-
-        return montoPago;
-    }
-
     function eliminarFP(id, pos) {
 
         formasPago.splice(pos, 1);
+        setPago(totalFomasPago());
         calcularMovimientos();
+        $('.montoFormaPago').val(getBalance(_MONEDADEFAULT));
+        $('.montoFormaPago').focus();
+        $('.montoFormaPago').select();
         cargarFormasPago(formasPago);
 
 
@@ -512,24 +676,35 @@
             default:
         }
 
-        $(".montoFormaPago").val(calcularMontoRestanteFormaPago(codigo));
 
         $(".montoFormaPago").inputmask('currency', {
             prefix: simbolo,
             rightAlign: true,
             min: 0
         });
+        $("#montoAux").inputmask('decimal', {
+            rightAlign: true,
+            min: 0
+        });
+        
+
+        setTimeout(function () {
+            $(".montoFormaPago").val(calcularMontoAlCambio(_MONEDADEFAULT, codigo, getBalance(_MONEDADEFAULT)));
+            $(".montoFormaPago").select();
+            $(".montoFormaPago").focus();
+        }, 1);
 
     }
 
 
     function borrarMontoFormaPago() {
+        
         $(".montoFormaPago").val(0);
     }
 
 
     function setMonedaGeneral(codigo) {
-        setMonedaFormaPago(codigo);
+       
         monedaFormaPagoSeleccionada = codigo;
         var simbolo = "";
         switch (codigo) {
@@ -563,6 +738,7 @@
             rightAlign: true,
         });
 
+        setMonedaFormaPago(codigo);
     }
 
 
@@ -614,8 +790,20 @@
 
     function guardarMovimientosCaja() {
         //procesarPago()
-        $('#vuelto').val(getVuelto());
-        alert($('#vuelto').val());
+
+        $('#vueltoFormat').val(getVuelto());
+        $('#lbVuelto').text($('#vueltoFormat').val());
+        
+        $('#vueltoModal').modal('show');
+        
+        
     }
 
+    $('#vueltoModal').on('shown.bs.modal', function (e) {
+        $('#closeVueltoModal').focus();
+    });
+
+    $('a[data-toggle="list"]').on('shown.bs.tab', function (e) {
+        $('.montoFormaPago').focus();
+    });
 </script>
