@@ -17,12 +17,19 @@ namespace AltivaWebApp.Controllers
         public IActionResult Index()
         {
             ViewBag.Titulo = "Asientos";
+            ViewBag.FechaDesde = DateTime.Now.Date;
+            ViewBag.FechaHasta = DateTime.Now.Date;
+            ViewBag.Periodos = bd.PeriodoTrabajo.Where(p => p.Estado == "ABIERTO");
+            ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == false);
+            ViewBag.Catalogo = bd.CatalogoContable.Where(p => p.Movimiento == true);
+            ViewBag.Tipos = bd.TiposDoc;
             return View("../ContaAsiento/Index");
         }
         [Route("ContaAsiento/nItem")]
         public IActionResult nItem()
         {
             Asiento item = new Asiento();
+            
             item.Codigo = "";
             item.Fecha = DateTime.Now;
             item.Estado = "ANULADO";
@@ -43,7 +50,13 @@ namespace AltivaWebApp.Controllers
             item.Frecuente = true;
             ViewBag.Periodos = bd.PeriodoTrabajo.Where(p => p.Estado == "ABIERTO");
             ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == false);
-            ViewBag.Tipos = bd.TiposDoc;
+            ViewBag.Catalogo = bd.CatalogoContable.Where(p => p.Movimiento == true);
+            ViewBag.Tipos = bd.TiposDoc.Where(p => p.Automatico == false);
+            Moneda v = bd.Moneda.Find(2);
+            ViewBag.TipoCambioDolar = v.ValorCompra;
+            v = bd.Moneda.Find(3);
+            ViewBag.TipoCambioEuro = v.ValorCompra;
+
             return View("../ContaAsiento/u", item);
         }
 
@@ -53,6 +66,7 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var asiento = bd.Asiento.ToList();
+                
                 return Ok(asiento);
             }
             catch (Exception ex)
@@ -61,6 +75,29 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
                 throw;
             }
+        }
+        [HttpPost("upAsiento")]
+        public ActionResult updateAsiento(Asiento datos)
+        {
+            try
+            {
+                if (datos.Codigo == null) {
+                    datos.Codigo = "";
+                }
+                if (datos.Descripcion == null) {
+
+                    datos.Descripcion = "";
+                }                
+                bd.Add(datos);
+                bd.SaveChanges();
+                return Json(new { success = true, idAsiento = datos.IdAsientoContable});
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "ERROR");
+                return Json(new { success = false });
+            }
+                
         }
     }
 }

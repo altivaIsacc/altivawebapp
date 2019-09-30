@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -26,7 +27,7 @@ namespace AltivaWebApp.DomainsConta
         public DateTime FechaCreacion { get; set; }
         public DateTime FechaMod { get; set; }
         public bool Frecuente { get; set; }
-
+        public IList<AsientoDetalle> detalle { get; set; }
     }
 
     [Table("tb_CO_AsientoContableDetalle")]

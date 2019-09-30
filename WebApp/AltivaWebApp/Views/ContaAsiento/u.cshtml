@@ -16,350 +16,635 @@
     {
         estado = "disabled";
     }
-  
+
     var numDocumento = Model.IdDocumento;
     ViewData["Title"] = Lb["Asiento"];
 }
+<div id="contenido">
 
-@if (Model.IdAsientoContable != 0)
-{
-    <div class="row">
-        <div class="col-md-3"><h3>@Lb["editarAsiento"]</h3></div>
-        <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
-    </div>
 
-}
-else
-{
-    <div class="row">
-        <h3 class="col-md-3">@Lb["nuevoAsiento"]</h3>
-
-    </div>
-}
-<div class="row">
-    @if (Model.IdAsientoContable != 0 && !(Model.Estado == ""))
+    @if (Model.IdAsientoContable != 0)
     {
-        <div class="col-md-12 text-right"><button @estado2 class="btn btn-danger btn-sm" onclick="anularCompra()">@Lb["Anular"]</button></div>
+        <div class="row">
+            <div class="col-md-3"><h3>@Lb["editarAsiento"]</h3></div>
+            <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
+        </div>
+
     }
-    else if (Model.IdAsientoContable != 0)
+    else
     {
-        <div class="col-md-12 text-left"><h4 class="text-danger">@Lb["gastoAnulado"]</h4></div>
+        <div class="row">
+            <h3 class="col-md-3">@Lb["nuevoAsiento"]</h3>
+
+        </div>
     }
+    <div class="row">
+        @if (Model.IdAsientoContable != 0 && !(Model.Estado == ""))
+        {
+            <div class="col-md-12 text-right"><button @estado2 class="btn btn-danger btn-sm" onclick="anularCompra()">@Lb["Anular"]</button></div>
+        }
+        else if (Model.IdAsientoContable != 0)
+        {
+            <div class="col-md-12 text-left"><h4 class="text-danger">@Lb["gastoAnulado"]</h4></div>
+        }
 
-</div>
+    </div>
 
-<div class="row well">
-    <div class="container">
+    <div class="row well">
+        <div class="container">
 
-        @Html.HiddenFor(x => x.IdAsientoContable)
-        @Html.HiddenFor(x => x.Estado)
-        @Html.HiddenFor(x => x.FechaCreacion)
-        @Html.HiddenFor(x => x.IdUsuarioCreador)
-        @Html.HiddenFor(x => x.Frecuente)
-        <div class="form-group col-md-3 col-sm-12 col-xs-12">
-            <div class="row">
-                <label for="fecha">@Lb["Fecha"]:</label>
-                <input type="date" asp-for="Fecha" class="form-control date" name="fecha" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+            @Html.HiddenFor(x => x.IdAsientoContable)
+            @Html.HiddenFor(x => x.Estado)
+            @Html.HiddenFor(x => x.FechaCreacion)
+            @Html.HiddenFor(x => x.IdUsuarioCreador)
+            @Html.HiddenFor(x => x.Frecuente)
+            <div class="form-group col-md-3 col-sm-12 col-xs-12">
+                <div class="row">
+                    <label for="fecha">@Lb["Fecha"]:</label>
+                    <input id="dtFechaAsiento" type="date" asp-for="Fecha" onchange="CambioFecha()" class="form-control date" name="fecha" value="@DateTime.Now.ToString("yyyy-MM-dd")">
 
-            </div>
-            <div class="row">
-                <label asp-for="IdPeriodoTrabajo" class="control-label">@Lb["Periodo"]:</label>
-                <input id="LtPeriodos" list="LtPeriodoTrabajo" class="form-control"  autocomplete=on>
-                <datalist id="LtPeriodoTrabajo">
-                    @{
-                        foreach (var item in ViewBag.Periodos)
-                        {
-                         <option value="@item.Nombre">@item.FechaInicio.ToString("dd-MM-yy") | @item.FechaFinal.ToString("dd-MM-yy") </option>                                                 
+                </div>
+                <div class="row">
+                    <label asp-for="IdPeriodoTrabajo" class="control-label">@Lb["Periodo"]:</label>
+                    <input id="LtPeriodos" list="LtPeriodoTrabajo" class="form-control" autocomplete=on onchange="cambioPeriodo()">
+                    <datalist id="LtPeriodoTrabajo">
+                        @{
+                            foreach (var item in ViewBag.Periodos)
+                            {
+                                <option value="@item.Nombre">@item.FechaInicio.ToString("yyyy/MM/dd") | @item.FechaFinal.ToString("yyyy/MM/dd") </option>
+
+                            }
+
                         }
 
-                    }
+                    </datalist>
+                    <span hidden id="numDocumentoValid" class="text-danger">@Lb["AsientoValid"]</span>
+                </div>
+                <div class="row">
+                    <label asp-for="Codigo" class="control-label">@Lb["Asiento"]:</label>
+                    <input readonly="readonly" asp-for="Codigo" id="CodigoAsiento" class="form-control" />
+                    <span hidden id="numDocumentoValid" class="text-danger">@Lb["AsientoValid"]</span>
+                </div>
 
-                </datalist>
-                <span hidden id="numDocumentoValid" class="text-danger">@Lb["AsientoValid"]</span>
             </div>
-            <div class="row">
-                <label asp-for="Codigo" class="control-label">@Lb["Asiento"]:</label>
-                <input readonly="readonly" asp-for="Codigo" id="Asiento" class="form-control" />
-                <span hidden id="numDocumentoValid" class="text-danger">@Lb["AsientoValid"]</span>
-            </div>
+            <div class="form-group col-md-3 col-sm-6 col-xs-12" style="margin-left:1rem">
+                <div class="row">
+                    <label asp-for="Estado" class="control-label">@Lb["Estado"]:</label>
+                    <input id="LtEstados" list="LtEstado" class="form-control" autocomplete=on>
+                    <datalist id="LtEstado">
+                        <option value="@Lb["ACTIVO"]">@Lb["ACTIVO"]</option>
+                        <option value="@Lb["BLOQUEADO"]">@Lb["BLOQUEADO"]</option>
+                        <option value="@Lb["ANULADO"]">@Lb["ANULADO"]</option>
 
-        </div>
-        <div class="form-group col-md-3 col-sm-6 col-xs-12" style="margin-left:1rem">
-            <div class="row">
-                <label asp-for="Estado" class="control-label">@Lb["Estado"]:</label>         
-                <input id="LtEstados" list="LtEstado" class="form-control" autocomplete=on>
-                <datalist id="LtEstado">
-                    <option value="@Lb["ACTIVO"]">@Lb["ACTIVO"]</option>
-                    <option value="@Lb["BLOQUEADO"]">@Lb["BLOQUEADO"]</option>
-                    <option value="@Lb["ANULADO"]">@Lb["ANULADO"]</option>             
-
-                </datalist>
-            </div>
-            <div class="row">
-                <label asp-for="CodigoMoneda" class="control-label">@Lb["Moneda"]:</label>
-                <input id="LtMonedas" list="LtCodigoMoneda" class="form-control" autocomplete=on>
-                <datalist id="LtCodigoMoneda">
-                    @{
-                        foreach (var item in ViewBag.Monedas)
-                        {
-                            <option>@item.Simbolo</option>
+                    </datalist>
+                </div>
+                <div class="row">
+                    <label asp-for="CodigoMoneda" class="control-label">@Lb["Moneda"]:</label>
+                    <input id="LtMonedas" list="LtCodigoMoneda" class="form-control" autocomplete=on onchange="cambioMoneda()">
+                    <datalist id="LtCodigoMoneda">
+                        @{
+                            foreach (var item in ViewBag.Monedas)
+                            {
+                                <option>@item.Simbolo</option>
+                            }
                         }
-                    }
 
-                </datalist>
-            </div>
-            <div class="row">
-                <label asp-for="IdTipoDocumento" class="control-label">@Lb["Tipo"]:</label>
-                <input id="LtTipos" list="LtTipoDoc" class="form-control" autocomplete=on>
-                <datalist id="LtTipoDoc">
-                    @{
-                        foreach (var item in ViewBag.Tipos)
-                        {
-                            <option>@Lb[item.Descripcion]</option>
+                    </datalist>
+                </div>
+                <div class="row">
+                    <label asp-for="IdTipoDocumento" class="control-label">@Lb["Tipo"]:</label>
+                    <input id="LtTipos" list="LtTipoDoc" class="form-control" autocomplete=on onchange="cambioTipoDoc()">
+                    <datalist id="LtTipoDoc">
+                        @{
+                            foreach (var item in ViewBag.Tipos)
+                            {
+                                <option>@Lb[item.Descripcion]</option>
+                            }
                         }
-                    }
 
-                </datalist>
-                <span hidden id="numDocumentoValid" class="text-danger">@Lb["AsientoValid"]</span>
-            </div>
-        </div>
-        <div class="form-group col-md-4 col-sm-12 col-xs-12">
-            <div class="form-group shadow-textarea">
-                <label for="exampleFormControlTextarea2">@Lb["Descripcion"]</label>
-                <textarea class="form-control rounded-0" id="exampleFormControlTextarea2" rows="8"></textarea>
-            </div>
-
-
-        </div>
-
-    </div>
-    <div class="row">
-        <div class="form-group col-md-4 col-sm-6 col-xs-6">
-            <label class="control-label">@Lb["Cuenta"]:</label>
-            <select @estado class="form-control categorias" id="categoria"></select>
-        </div>
-        <div class="form-group col-md-4 col-sm-6 col-xs-6">
-            <label id="lblItem" class="control-label">@Lb["Nombre"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
-            <input @estado class="form-control" id="articulo" autofocus onkeyup="pasarSigCampo(event,'cantidad')" />
-        </div>
-        <div class="form-group col-md-4 col-sm-6 col-xs-6">
-            <label id="lblItem" class="control-label">@Lb["TipoCambioDolar"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
-            <input @estado class="form-control" id="articulo" autofocus onkeyup="pasarSigCampo(event,'cantidad')" />
-        </div>
-    </div>
-    <div class="row">
-        <div class="form-group col-md-4 col-sm-6 col-xs-6">
-            <label class="control-label">@Lb["CentroCosto"]:</label>
-            <select @estado class="form-control categorias" id="categoria"></select>
-        </div>
-        <div class="form-group col-md-4 col-sm-6 col-xs-6">
-            <label id="lblItem" class="control-label">@Lb["Nombre"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
-            <input @estado class="form-control" id="articulo" autofocus onkeyup="pasarSigCampo(event,'cantidad')" />
-        </div>
-        <div class="form-group col-md-4 col-sm-6 col-xs-6">
-            <label id="lblItem" class="control-label">@Lb["TipoCambioEuro"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
-            <input @estado class="form-control" id="articulo" autofocus onkeyup="pasarSigCampo(event,'cantidad')" />
-        </div>
-    </div>
-    <div class="row">
-        <div class="form-group col-md-4 col-sm-6 col-xs-6">
-            <label class="control-label">@Lb["Monto"] CRC:</label>
-            <input @estado class="form-control" id="articulo" autofocus onkeyup="pasarSigCampo(event,'cantidad')" />
-        </div>
-        <div class="form-group col-md-4 col-sm-6 col-xs-6">
-            <label id="lblItem" class="control-label">@Lb["Monto"] $: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
-            <input @estado class="form-control" id="articulo" autofocus onkeyup="pasarSigCampo(event,'cantidad')" />
-        </div>
-        <div class="form-group col-md-4 col-sm-6 col-xs-6">
-            <label id="lblItem" class="control-label">@Lb["Monto"] EUR: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
-            <input @estado class="form-control" id="articulo" autofocus onkeyup="pasarSigCampo(event,'cantidad')" />
-        </div>
-    </div>
-    <div class="row">
-        <div class="form-group col-md-4 col-sm-6 col-xs-6">
-            <label class="control-label">@Lb["Agregar"]:</label>
-            <button id="btnEditGasto" onclick="editarGasto()" class="btn btn-success"><span>@Lb["Debe"] </span><span><i class="fas fa-save"></i></span></button>
-            <button id="btnEditGasto" onclick="editarGasto()" class="btn btn-success"><span>@Lb["Haber"] </span><span><i class="fas fa-save"></i></span></button>
-        </div>
-
-
-
-    </div>
-
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped" id="tblCompra" style="min-width:1250px">
-            <thead>
-                <tr>
-                    <th style="width:10%"><span>@Lb["Cuenta"]</span></th>
-                    <th style="width:18%"><span>@Lb["Nombre"]</span></th>
-                    <th style="width:11%"><span>@Lb["Debe"] CRC</span></th>
-                    <th style="width:11%"><span>@Lb["Haber"] CRC</span></th>
-                    <th style="width:11%"><span>@Lb["Debe"] CRC</span></th>
-                    <th style="width:11%"><span>@Lb["Haber"] CRC</span></th>
-                    <th style="width:11%"><span>@Lb["Debe"] EUR</span></th>
-                    <th style="width:11%"><span>@Lb["Haber"] EUR</span></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="lineaForm">
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="container">
-
-        <div class="row">
-            <div class="col-lg-4 col-md-12 col-xs-12">
-                <label class="control-label">@Lb["TotalDebe"] CRC:</label>
-                <input readonly id="subTotal" class="form-control currency" />
-            </div>
-            <div class="col-lg-4 col-md-12 col-xs-12">
-                <label class="control-label">@Lb["TotalHaber"] CRC:</label>
-                <input readonly id="totalDescuento" class="form-control currency" />
-            </div>
-        </div>
-        <hr />
-
-        <div class="row">
-            <div class="col-lg-4 col-md-12 col-xs-12">
-                <label class="control-label">@Lb["TotalDebe"] $:</label>
-                <input readonly id="totalImpuesto" class="form-control currency" />
-            </div>
-            <div class="col-lg-4 col-md-12 col-xs-12">
-                <label class="control-label">@Lb["TotalHaber"] $:</label>
-                <input readonly id="total" class="form-control currency" />
-            </div>
-        </div>
-        <hr />
-        <div class="row">
-            <div class="col-lg-4 col-md-12 col-xs-12">
-                <label class="control-label">@Lb["TotalDebe"] EUR:</label>
-                <input readonly id="totalImpuesto" class="form-control currency" />
-            </div>
-            <div class="col-lg-4 col-md-12 col-xs-12">
-                <label class="control-label">@Lb["TotalHaber"] EUR:</label>
-                <input readonly id="total" class="form-control currency" />
-            </div>
-        </div>
-
-    </div>
-
-</div>
-<div class="row well">
-    <div class="col-md-12">
-        <div class="form-group col-md-3">
-            <button @estado2 @estado class="btn btn-success btnAccion" onclick="guardarSalir()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
-            <a onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <div id="comentarios">
-
-        </div>
-    </div>
-</div>
-<!-- Modal -->
-<div class="modal fade" id="cargarXmlModal" tabindex="-1" role="dialog" aria-labelledby="xmlModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="xmlModalLabel">@Lb["ImportarXML"]</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <span data-translate="cargaArchivos" class="input-group-text" id="inputGroup-sizing-sm">@Lb["CargaXML"]</span>
-                    <input type="file" accept="text/xml" class="form-control" id="fileUpload">
-                    @*<span hidden class="text-danger" data-translate="tamanoArchivoValid" id="tamanoArchivos">El tamaño máximo del archivo es de 25MB.</span>
-                        <span hidden data-translate="cantidadArchivosValid" id="cantidadArchivos" class="text-danger">No puede agregar más de 5 archivos.</span>*@
+                    </datalist>
+                    <span hidden id="numDocumentoValid" class="text-danger">@Lb["AsientoValid"]</span>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">@Lb["Cancelar"]</button>
-                <button type="button" class="btn btn-primary" onclick="crearXMLaJSON()">@Lb["Guardar"]</button>
+            <div class="form-group col-md-4 col-sm-12 col-xs-12">
+                <div class="form-group shadow-textarea">
+                    <label for="exampleFormControlTextarea2">@Lb["Descripción"]</label>
+                    <textarea asp-for="Descripcion" class="form-control rounded-0" id="descripcionAsiento" rows="8"></textarea>
+                </div>
+
+
             </div>
+
         </div>
-    </div>
-</div>
-<!-- Modal Editar -->
-<div class="modal fade" id="modalEditar" aria-labelledby="bodegaIventarioLabel" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-            <div class="modal-header">
-                <div class="col-md-6"> <h5 data-translate="editarGasto" class="modal-title" id="bodegaIventarioLabel">@Lb["editarGasto"]</h5></div>
+        <div class="row">
+            <div class="form-group col-md-4 col-sm-6 col-xs-6">
+                <label class="control-label">@Lb["Cuenta"]:</label>
+                <input list="ltCuentas" class="form-control" id="catalogoCuentas" onkeydown="pasarSigCampo(event,'tipoCambioDolar')">
+                <datalist id="ltCuentas">
+                    @{
+                        foreach (var item in ViewBag.Catalogo)
+                        {
+                            <option value="@Lb[item.Descripcion]">@Lb[item.CuentaContable]</option>
+                        }
+                    }
+
+                </datalist>
             </div>
-            <div class="modal-body" id="editar">
+            <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                    <label id="lblItem" class="control-label">@Lb["TipoCambio"] $: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                    <input class="form-control" id="tipoCambioDolar" autofocus onkeyup="pasarSigCampo(event,'tipoCambioEuro')" style="text-align:right" />
+                </div>
+                <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                    <label id="lblItem" class="control-label">@Lb["TipoCambio"] Eur: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                    <input class="form-control" id="tipoCambioEuro" autofocus onkeyup="pasarSigCampo(event,'MontoBase')" style="text-align:right" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-10 col-sm-12 col-xs-12">
+                    <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                        <label class="control-label">@Lb["Monto"] CRC:</label>
+                        <input type="number" class="form-control" id="MontoBase" onchange="fnMontoColon()" autofocus onkeyup="pasarSigCampo(event,'Monto2')" style="text-align:right" />
+                    </div>
+                    <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                        <label id="lblItem" class="control-label">@Lb["Monto"] $: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                        <input type="number" class="form-control" id="Monto2" onchange="fnMontoDolar()" autofocus onkeyup="pasarSigCampo(event,'Monto3')" style="text-align:right" />
+                    </div>
+                    <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                        <label id="lblItem" class="control-label">@Lb["Monto"] EUR: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                        <input type="number" class="form-control" id="Monto3" onchange="fnMontoEuro()" autofocus onkeyup="pasarSigCampo(event,'btnAgregarDebe')" style="text-align:right" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4 col-sm-6 col-xs-6">
+                    <button id="btnAgregarDebe" onclick="agregar('Debe')" class="btn btn-success"><span>@Lb["Debe"] </span><span><i class="fas fa-save"></i></span></button>
+                    <button id="btnAgregarHaber" onclick="agregar('Haber')" class="btn btn-success"><span>@Lb["Haber"] </span><span><i class="fas fa-save"></i></span></button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped" id="tbAsientoDetalle" style="min-width:1250px">
+                    <thead>
+                        <tr>
+                            <th style="width:10%"><span>@Lb["Cuenta"]</span></th>
+                            <th style="width:18%"><span>@Lb["Nombre"]</span></th>
+                            <th style="width:11%"><span>@Lb["Debe"] CRC</span></th>
+                            <th style="width:11%"><span>@Lb["Haber"] CRC</span></th>
+                            <th style="width:11%"><span>@Lb["Debe"] CRC</span></th>
+                            <th style="width:11%"><span>@Lb["Haber"] CRC</span></th>
+                            <th style="width:11%"><span>@Lb["Debe"] EUR</span></th>
+                            <th style="width:11%"><span>@Lb["Haber"] EUR</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="lineaForm">
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="container">
 
                 <div class="row">
-                    <input id="editId" type="hidden" class="form-control" />
-                    <input id="editArticulo" type="hidden" class="form-control" />
-                    <input id="nSubTotal" type="hidden" class="form-control" />
-
-                    <div class="form-group col-sm-7">
-                        <label class="control-label">@Lb["Cantidad"]</label>
-                        <input id="editCantidad" class="form-control numerico" onkeyup="pasar(event,'editPrecio')" />
-                        <span hidden id="editCantidadValid" class="text-danger">@Lb["AlertCompraCantidad"]</span>
-
+                    <div class="col-lg-4 col-md-12 col-xs-12">
+                        <label class="control-label">@Lb["TotalDebe"] CRC:</label>
+                        <input readonly id="totalDebeBase" class="form-control" style="text-align: right" />
                     </div>
-                    <div class="form-group col-sm-7">
-                        <label class="control-label ">@Lb["PrecioUnitario"]</label>
-                        <input id="editPrecio" class="form-control numerico" onkeyup="pasar(event,'editDescuento')" />
-                        <span hidden id="editPrecioValid" class="text-danger">@Lb["AlertCompraPrecio"]</span>
-
+                    <div class="col-lg-4 col-md-12 col-xs-12">
+                        <label class="control-label">@Lb["TotalHaber"] CRC:</label>
+                        <input readonly id="totalHaberBase" class="form-control" style="text-align: right" />
                     </div>
-                    <div class="form-group col-sm-7">
-                        <label class="control-label ">@Lb["Descuento"]</label>
-                        <input id="editDescuento" class="form-control numerico" onkeyup="pasar(event,'editIva')" />
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-12 col-xs-12">
+                        <label class="control-label">@Lb["TotalDebe"] $:</label>
+                        <input readonly id="totalDebeDolar" class="form-control" style="text-align: right" />
                     </div>
-                    <div class="form-group col-sm-7">
-                        <label class="control-label ">@Lb["IVA"]</label>
-                        <input id="editIva" type="text" class="form-control numerico" onkeyup="pasar(event,'btnEditGasto')" />
+                    <div class="col-lg-4 col-md-12 col-xs-12">
+                        <label class="control-label">@Lb["TotalHaber"] $:</label>
+                        <input readonly id="totalHaberDolar" class="form-control" style="text-align: right" />
                     </div>
-                    <div class="form-group col-sm-7">
-
-                        <button id="btnEditGasto" onclick="editarGasto()" class="btn btn-success"><span>@Lb["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
-
-                        <button class="btn btn-default" data-dismiss="modal"><span>@Lb["Cancelar"]</span></button>
-
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-12 col-xs-12">
+                        <label class="control-label">@Lb["TotalDebe"] EUR:</label>
+                        <input readonly id="totalDebeEuro" class="form-control" style="text-align: right" />
+                    </div>
+                    <div class="col-lg-4 col-md-12 col-xs-12">
+                        <label class="control-label">@Lb["TotalHaber"] EUR:</label>
+                        <input readonly id="totalHaberEuro" class="form-control" style="text-align: right" />
                     </div>
                 </div>
             </div>
+
         </div>
+        <div class="row" style="margin-top:10px">
+            <div class="col-md-12">
+                <div class="form-group col-md-3">
+                    <button class="btn btn-success btnAccion" onclick="guardar()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
+                    <a onclick="salvar()" class="btn btn-default">@Lb["Cancelar"]</a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="comentarios">
+
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <script type="text/javascript">
-    var periodos = [];
-    var model;
+        var periodos = [];
+        var catalogo = [];
+        var monedas = [];
+        var tiposDoc = [];
+        var tipoDoc;
+        var monedaItem;
+        var cuenta;
+        var periodo;
+
         @foreach (var item in ViewBag.Periodos)
         {
-        @:      model = {FechaInicio:'@item.FechaInicio',FechaFinal:'@item.FechaFinal',Nombre: '@item.Nombre',IdPeriodoT: '@item.IdPeriodoTrabajo'};
-        @:      periodos.push(model);
+        @:      periodo = {FechaInicio:'@item.FechaInicio.ToString("yyyy/MM/dd")',FechaFinal:'@item.FechaFinal.ToString("yyyy/MM/dd")',Nombre: '@item.Nombre',IdPeriodoTrabajo: '@item.IdPeriodoTrabajo'};
+        @:      periodos.push(periodo);
         }
-    function fnPeriodoExacto(_fecha) {
-        array1.forEach(function (element) {
-            if (element.FechaInicio)
-        });
+          @foreach (var item in ViewBag.Catalogo)
+        {
+        @:      cuenta = {IdCuentaContable:'@item.IdCuentaContable',Descripcion:'@item.Descripcion',CuentaContable: '@item.CuentaContable'};
+        @:      catalogo.push(cuenta);
+        }
+         @foreach (var item in ViewBag.Monedas)
+        {
+        @:      monedaItem = {Codigo:'@item.Codigo',Nombre:'@item.Nombre',Simbolo: '@item.Simbolo'};
+        @:      monedas.push(monedaItem);
+        }
+          @foreach (var item in ViewBag.Tipos)
+        {
+        @:      tipoDoc = { IdTipoDocumento: '@item.IdTipoDocumento', Descripcion: '@item.Descripcion', Abreviatura: '@item.Abreviatura', Automatico: '@item.Automatico' };
+        @:      tiposDoc.push(tipoDoc);
+        }
+    var TipoCambioDolar = '@ViewBag.TipoCambioDolar';
+    var TipoCambioEuro = '@ViewBag.TipoCambioEuro';
+    var IdAsiento = '@Model.IdAsientoContable';
+        Cargar();
+        function Cargar() {
 
+            if (IdAsiento == '0') {
+                document.getElementById('tipoCambioDolar').value = TipoCambioDolar;
+                document.getElementById('tipoCambioEuro').value = TipoCambioEuro;
+            } else {
+
+                document.getElementById('tipoCambioDolar').value = TipoCambioDolar;
+                document.getElementById('tipoCambioEuro').value = TipoCambioEuro;
+            }
+        }
+        var fechaAsiento;
+        function CambioFecha() {
+            fechaAsiento = document.getElementById("dtFechaAsiento").value;
+            document.getElementById("LtPeriodos").value = fnPeriodoExacto(fechaAsiento);
+        }
+
+        function fnPeriodoExacto(_fecha) {
+            var nombre = '';
+
+            periodos.forEach(function (element) {
+                var fDesde = fnFecha(element.FechaInicio);
+                var fHasta = fnFecha(element.FechaFinal);
+                var fech = fnFecha(_fecha);
+
+                if (fDesde < fech && fHasta > fech) {
+                    nombre = element.Nombre;
+                }
+            });
+            return nombre;
+
+        }
+        function fnMontoColon() {
+            obtenerLinea();
+            montoDolar = 0;
+            if (TipoCambioDolar > 0) {
+                montoDolar = montoBase / TipoCambioDolar;
+                 document.getElementById("Monto2").value = montoDolar;
+            }
+            montoEuro=0
+            if (TipoCambioDolar > 0) {
+                montoEuro = montoBase / TipoCambioEuro;
+                 document.getElementById("Monto3").value = montoEuro;
+            }
+            document.getElementById("MontoBase").value = montoBase;
+        }
+        function fnMontoDolar() {
+            obtenerLinea();
+            if (TipoCambioDolar > 0) {
+                montoBase = montoDolar * TipoCambioDolar;
+                 document.getElementById("MontoBase").value = montoBase;
+            }
+            if (TipoCambioEuro > 0) {
+                montoEuro = montoDolar * TipoCambioDolar / TipoCambioEuro;
+                document.getElementById("Monto3").value = montoEuro;
+            }
+
+            document.getElementById("Monto2").value = montoDolar;
+
+        }
+        function fnMontoEuro() {
+            obtenerLinea();
+            if (TipoCambioDolar > 0) {
+                montoBase = montoEuro * TipoCambioEuro;
+                document.getElementById("MontoBase").value = montoBase;
+            }
+            if (TipoCambioEuro > 0) {
+                montoDolar = montoEuro * TipoCambioEuro / TipoCambioDolar;
+                 document.getElementById("Monto2").value = montoDolar;
+            }
+            document.getElementById("Monto3").value = montoEuro;
+        }
+        function fnFecha(_fecha) {
+            var date = _fecha.substring(0, 10);
+            date = date.replace('/', '');
+            date = date.replace('/', '');
+            date = date.replace('-', '');
+            date = date.replace('-', '');
+            var num = parseFloat(date);
+            return num;
+        }
+        function pasarSigCampo(e, id) {
+            (e.keyCode) ? k = e.keyCode : k = e.which;
+            if (k == 13) {
+                if (id == "btn") {
+                    agregar();
+                }
+                else {
+                    document.getElementById(id).focus();
+                }
+                $('#' + id).select();
+            }
+        }
+        var lineas = [];
+        function agregar(tipo) {
+            obtenerLinea();
+            var linea = { MDolar: montoDolar, MEuro: montoEuro, MBase: montoBase, cuenta: obtenerCuenta(cuenta), Tipo: tipo, TCDolar: TipoCambioDolar, TCEuro:TipoCambioEuro, Id: lineas.length * -1 };
+            lineas.push(linea);
+            tabla();
+        }
+         var TotalDebeBase=0;
+         var TotalHaberBase=0;
+         var TotalDebeDolar=0;
+         var TotalHaberDolar=0;
+         var TotalDebeEuro=0;
+         var TotalHaberEuro=0;
+        function tabla() {
+            $("#tbAsientoDetalle > tbody").remove();
+            $('#tbAsientoDetalle').append('<tbody></tbody>');
+
+            contadorFila = 0;
+            TotalDebeBase = 0;
+            TotalHaberBase = 0;
+            TotalDebeDolar = 0;
+            TotalHaberDolar = 0;
+            TotalDebeEuro = 0;
+            TotalHaberEuro = 0;
+            lineas.forEach(function (linea) {
+                var montoDebeBase = 0;
+                var montoHaberBase = 0;
+                var montoDebeDolar = 0;
+                var montoHaberDolar = 0;
+                var montoDebeEuro = 0;
+                var montoHaberEuro = 0;
+                if (linea.Tipo == 'Debe') {
+                    montoDebeBase = linea.MBase;
+                    montoDebeDolar = linea.MDolar;
+                    montoDebeEuro = linea.MEuro;
+                }
+                if (linea.Tipo == 'Haber') {
+                    montoHaberBase = linea.MBase;
+                    montoHaberDolar = linea.MDolar;
+                    montoHaberEuro = linea.MEuro;
+                }
+
+                var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td >' + linea.cuenta.CuentaContable + '</td>'
+                    + '<td>' + linea.cuenta.Descripcion + '</td>'
+                     + '<td style="text-align: right">' + darFomatoMoneda(montoDebeBase,'1') + '</td>'
+                     + '<td style="text-align: right">' + darFomatoMoneda(montoHaberBase, '1') + '</td>'
+                     + '<td style="text-align: right">' + darFomatoMoneda(montoDebeDolar,'2') + '</td>'
+                     + '<td style="text-align: right">' + darFomatoMoneda(montoHaberDolar, '2') + '</td>'
+                     + '<td style="text-align: right">' + darFomatoMoneda(montoDebeEuro, '3') + '</td>'
+                     + '<td style="text-align: right">' + darFomatoMoneda(montoHaberEuro, '3') + '</td>'
+                     + '<td> <button class="btn btn-link" style="margin:0; padding:0; font-size:1.8rem;" onclick="modalEditarLinea(' + contadorFila + ', ' + linea.Id + ')" ><i class="fas fa-edit"></i></button>&nbsp;&nbsp; <button @estado @estado2 class="btn btn-link" style="margin:0; padding:0; font-size:1.8rem;" value="' + contadorFila + '" onclick="elimarCompraDetalle(' + contadorFila + ', ' + linea.Id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                    $('#tbAsientoDetalle > tbody').append(body);
+                     contadorFila++;
+                TotalDebeBase = parseFloat(TotalDebeBase) + parseFloat(montoDebeBase);
+                TotalHaberBase = parseFloat(TotalHaberBase) + parseFloat(montoHaberBase);
+                TotalDebeDolar =  parseFloat(TotalDebeDolar) + parseFloat(montoDebeDolar);
+                TotalHaberDolar = parseFloat(TotalHaberDolar) + parseFloat(montoHaberDolar);
+                TotalDebeEuro = parseFloat(TotalDebeEuro) + parseFloat(montoDebeEuro);
+                TotalHaberEuro = parseFloat(TotalHaberEuro) + parseFloat(montoHaberEuro);
+            });
+            $('#totalDebeBase').val(darFomatoMoneda(TotalDebeBase,'1'));
+            $('#totalHaberBase').val(darFomatoMoneda(TotalHaberBase,'1'));
+            $('#totalDebeDolar').val(darFomatoMoneda(TotalDebeDolar,'2'));
+            $('#totalHaberDolar').val(darFomatoMoneda(TotalHaberDolar,'2'));
+            $('#totalDebeEuro').val(darFomatoMoneda(TotalDebeEuro,'3'));
+            $('#totalHaberEuro').val(darFomatoMoneda(TotalHaberEuro,'3'));
+
+        }
+
+        function darFomatoMoneda(_value,moneda) {
+
+            var value = parseFloat(_value);
+            var clase = "";
+
+            if (moneda === "1")
+                clase = "colon";
+            else if (moneda === "2")
+                clase = "dolar"
+            else if (moneda === "3")
+                clase = "euro"
+
+            $('#monedaFormater').removeClass("colon dolar euro");
+            $('#monedaFormater').addClass(clase);
+
+            //inicializa formato
+            $(".colon").inputmask('currency', {
+                prefix: "₡",
+                rightAlign: true
+            });
+            $(".dolar").inputmask('currency', {
+                prefix: "$",
+                rightAlign: true
+            });
+            $(".euro").inputmask('currency', {
+                prefix: "€",
+                rightAlign: true
+            });
+
+            $('#monedaFormater').val(value);
+            return $('#monedaFormater').val();
+
+        }
+        var cuenta;
+        var montoDolar;
+        var montoEuro;
+        var montoBase;
+        var monedaSeleccionada = [];
+        function obtenerMoneda(nombre) {
+            monedas.forEach(function (item) {
+                if (nombre == item.Nombre) {
+                    monedaSeleccionada = item;
+                }
+            });
+        }
+        function cambioMoneda() {
+            var nombreMoneda = document.getElementById("LtMonedas").value;
+            obtenerMoneda(nombreMoneda);
+
+        }
+        var periodoSeleccionado
+          function obtenerPeriodo(nombre) {
+              periodos.forEach(function (item) {
+                  if (nombre == item.Nombre) {
+                      periodoSeleccionado = item;                      
+                  }
+              });
+        }
+        function cambioPeriodo() {
+            var nombrePeriodo = document.getElementById("LtPeriodos").value;
+            obtenerPeriodo(nombrePeriodo);
+
+        }
+        var tipoSeleccionado
+        function obtenerTipoDoc(nombre) {
+
+            tiposDoc.forEach(function (item) {
+                if (nombre == item.Descripcion) {
+                    tipoSeleccionado = item;
+                }
+            });
+        }
+        function cambioTipoDoc() {
+            var nombreTipoDoc = document.getElementById("LtTipos").value;
+            obtenerTipoDoc(nombreTipoDoc);
+
+        }
+        function obtenerLinea() {
+            montoDolar = document.getElementById("Monto2").value;
+            montoEuro = document.getElementById("Monto3").value;
+            montoBase = document.getElementById("MontoBase").value;
+            cuenta = document.getElementById("catalogoCuentas").value;
+            TipoCambioDolar = document.getElementById("tipoCambioDolar").value;
+            TipoCambioEuro = document.getElementById("tipoCambioEuro").value;
+        }
+        function obtenerCuenta(_DescripcionCuenta) {
+            var cuenta;
+            catalogo.forEach(function (item) {
+                if (_DescripcionCuenta == item.Descripcion) {
+                    cuenta = item;
+                }
+            });
+            return cuenta;
+        }
+    function guardar() {
+        var asiento = crearModelo();
+        console.log(asiento);
+       
+     
     }
+      function salvar() {
+        var asiento = crearModelo();
+        console.log(asiento);
+       
+          enviarAjax(asiento);
+    }
+    function enviarAjax(asiento) {
+           $.ajax({
+            type: "POST",
+            headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("upAsiento")',
+            data: asiento,
+            success: function (data) {
+                if (data.success) {
+                    window.location.href = "@Url.Action("Index")";
+                }
+                else {
+
+                }
+                 },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+    }
+        function crearModelo() {
+            var codigoAsiento = document.getElementById("CodigoAsiento").value;
+            var EstadoAsiento = document.getElementById("LtEstados").value;
+            var DescripcionAsiento = document.getElementById("descripcionAsiento").value;
+            CambioFecha();
+            cambioPeriodo();
+            cambioTipoDoc();
+            cambioMoneda();
+            var asientoModelo = {
+                IdAsientoContable: IdAsiento,
+                Fecha: fechaAsiento,
+                Codigo: codigoAsiento,
+                Estado: EstadoAsiento,
+                Descripcion: DescripcionAsiento,
+                CodigoMoneda: monedaSeleccionada.Codigo,
+                MontoColones: String(TotalDebeBase).replace('.',','),
+                MontoDolar: String(TotalDebeDolar).replace('.',','),
+                MontoEuro: String(TotalDebeEuro).replace('.',','),
+                Modulo: tipoSeleccionado.Descripcion,
+                IdPeriodoTrabajo: periodoSeleccionado.IdPeriodoTrabajo,
+                IdTipoDocumento: tipoSeleccionado.IdTipoDocumento,
+                IdDocumento: 0,
+                IdUsuarioCreador: 1,
+                IdUsuarioMod: 1,
+                FechaCreacion: fechaAsiento,
+                FechaMod: fechaAsiento,
+                Frecuente: 0,
+                detalle: generarLineas(lineas)
+            };
+        
+            return asientoModelo;
+    }
+    
+
+        function generarLineas(lineas) {
+            var lineasAsiento = [];
+            for (var i = 0; i < lineas.length; i++) {
+                var detalle = {
+                    IdDetalleAsientoContable: 0,
+                    IdAsientoContable: IdAsiento,
+                    Observacion: '',
+                    IdCuentaContable: lineas[i].cuenta.IdCuentaContable,
+                    MontoColones: String(lineas[i].MBase).replace('.',','),
+                    MontoDolares: String(lineas[i].MDolar).replace('.',','),
+                    MontoEuro:  String(lineas[i].MEuro).replace('.',','),
+                    Debe : lineas[i].Tipo == 'Debe',
+                    Haber: lineas[i].Tipo == 'Haber',
+                    TipoCambioDolar: parseFloat(lineas[i].TCDolar),
+                    TipoCambioEuro: parseFloat(lineas[i].TCEuro),
+                    IdCentroDeGastos: 0
+                }
+                lineasAsiento.push(detalle);
+            }
+            console.log(lineasAsiento);
+            return lineasAsiento;
+        }
 
 </script>
 <input readonly hidden id="monedaFormater" />
 <div hidden><input hidden id="formater" class="currency" type="text" /></div>
-
 <script src="~/js/comentario.js"></script>
 <script src="~/js/base64ImageCreator.js"></script>
-
-
-
 <script src="~/lib/vendors/jsPDF/CI.js"></script>
 <script src="~/js/XMLtoJSON.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/x2js/1.2.0/xml2json.min.js"></script>
