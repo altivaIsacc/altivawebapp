@@ -70,7 +70,6 @@ namespace AltivaWebApp.Controllers
         {
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["clientes"] = contactoService.GetAllClientes();
-
             return View("CrearEditarFactura", new FacturaViewModel { Estado = "Enviada", FechaFactura = DateTime.Now, FechaCreacion = DateTime.Now, FechaVencimiento = DateTime.Now.AddDays(30), IdMoneda = 1 });
         }
 
@@ -115,7 +114,7 @@ namespace AltivaWebApp.Controllers
                     cajaMovMap.CreateCajaMovimiento(formaPago, movService.GetUltimoMovimientoPagoId(factura.Id));
                 }
 
-                return Json(new { success = true });
+                return Json(new { success = true, idDoc = factura.Id });
             }
             catch (Exception ex)
             {

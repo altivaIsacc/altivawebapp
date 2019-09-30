@@ -36,23 +36,23 @@
 {
     <div class="row">
         <div class="btn-group  col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <button type="button" onclick="GetPDF(1)" class="btn btn-primary">@Lb["Imprimir"]</button>
+            <button type="button" onclick="GetPDF(1, false)" class="btn btn-primary">@Lb["Imprimir"]</button>
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                 <span class="caret"></span>
                 <span class="sr-only">Toggle Dropdown</span>
             </button>
             <ul class="dropdown-menu" role="menu">
                 <li>
-                    <a href="#carta" onclick="GetPDF(1)">@Lb["Carta"]</a>
+                    <a href="#carta" onclick="GetPDF(1, false)">@Lb["Carta"]</a>
                 </li>
                 <li>
-                    <a href="#mediacarta" onclick="GetPDF(2)">@Lb["MediaCarta"]</a>
+                    <a href="#mediacarta" onclick="GetPDF(2, false)">@Lb["MediaCarta"]</a>
                 </li>
                 <li>
-                    <a href="#ticket" onclick="GetPDF(3)">@Lb["Ticket"]</a>
+                    <a href="#ticket" onclick="GetPDF(3, false)">@Lb["Ticket"]</a>
                 </li>
                 <li>
-                    <a href="#personalizado" onclick="GetPDF(4)">@Lb["Personalizado"]</a>
+                    <a href="#personalizado" onclick="GetPDF(4, false)">@Lb["Personalizado"]</a>
                 </li>
             </ul>
         </div>
@@ -312,7 +312,37 @@
 </div>
 
 
+<div class="modal fade" id="impresionModal" tabindex="-1" role="dialog" aria-labelledby="impresionModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header row">
+                <div class="col-md-10 col-sm-10 col-xs-10">
+                    <h4 class="modal-title" id="impresionModalCenterTitle">@Lb["Impresión"]</h4>
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="btn-group col-md-12 col-sm-12 col-xs-12">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="GetPDF(1, true)">@Lb["Carta"]</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="GetPDF(2, true)">@Lb["MediaCarta"]</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="GetPDF(3, true)">@Lb["Tiquete"]</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="GetPDF(4, true)">@Lb["Personalizado"]</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <input hidden id="monedaFormatter" class="moneda" type="text" />
+<input hidden id="auxFormat" class="moneda" type="text" />
 <input hidden id="moneyFormatter" class="money" type="text" />
 
 
@@ -375,7 +405,6 @@
 
 
         getMonedas();
-        getInventario();
         comprobarBorrador();
 
         $('.selectItems').on('change', function () {
@@ -515,12 +544,16 @@
 
         var producto = getItemPorCodigo($item.val());
 
+        var precioItem = getPrecioItem(producto);
+        $('#auxFormat').val(precioItem);
+
+
         var model = {
             id: 0,
             idFactura: @Model.Id,
             idInventario: producto.idInventario,
             cantidad: parseFloat($('#cantidad').val()),
-            precio: parseFloat($('#precio').inputmask('unmaskedvalue')),
+            precio: $('#auxFormat').inputmask('unmaskedvalue') == $('#precio').inputmask('unmaskedvalue') ? precioItem : parseFloat($('#precio').inputmask('unmaskedvalue')),
             porcIva: parseFloat($('#iva').val()),
             porcDescuento: parseFloat($('#descuento').inputmask('unmaskedvalue')),
             porcExoneracion: 0,
@@ -604,8 +637,13 @@
     function editarLinea() {
         var key = parseInt($('#idLinea').val());
 
+        var producto = getItemPorId(lineas[key].idInventario);
+
+        var precioItem = getPrecioItem(producto);
+        $('#auxFormat').val(precioItem);
+
         lineas[key].cantidad = parseFloat($('#cantidadEditar').val());
-        lineas[key].precio = parseFloat($('#precioEditar').inputmask('unmaskedvalue'));
+        lineas[key].precio = $('#auxFormat').inputmask('unmaskedvalue') == $('#precioEditar').inputmask('unmaskedvalue') ? precioItem : parseFloat($('#precioEditar').inputmask('unmaskedvalue'));//parseFloat($('#precioEditar').inputmask('unmaskedvalue'));
         lineas[key].porcDescuento = parseFloat($('#descuentoEditar').inputmask('unmaskedvalue'));
 
         var subTotal = lineas[key].cantidad * lineas[key].precio;
@@ -647,7 +685,13 @@
     ////////////////////////////////calcular totales linea///////////////////////////////////
 
     function calcularSubtotalLinea() {
-        return parseFloat($('#cantidad').val()) * parseFloat($('#precio').inputmask('unmaskedvalue'));
+
+        var precioItem = getPrecioItem(getItemPorCodigo($item.val()));
+        $('#auxFormat').val(precioItem);
+
+        var nuevoPrecio = $('#auxFormat').inputmask('unmaskedvalue') == $('#precio').inputmask('unmaskedvalue') ? precioItem : parseFloat($('#precio').inputmask('unmaskedvalue'));
+
+        return parseFloat($('#cantidad').val()) * nuevoPrecio;//parseFloat($('#precio').inputmask('unmaskedvalue'));
     }
 
     function calcularSubTotalGravadoLinea() {
@@ -829,17 +873,19 @@
     /////////////////////////////////////////////////fin calc factura//////////////////////////////////////////
 
     function facturar() {
-        
-        if ($('#Tipo').val() == "1") {
-            cargarFormaPago();
-        }
-        else {
 
+        if (lineas.length > 0) {
+            if ($('#Tipo').val() == "1") {
+                cargarFormaPago();
+            }
+            else {
+                procesarPago();
+            }
         }
 
     }
     function cargarFormaPago() {
-        
+
         var model = {
             idCaja: idCajaPuntoVenta,
             monto: facturaModel.Total.toString().replace(".", ","),
@@ -877,9 +923,26 @@
             data: { viewModel: crearModelo(), detalle: crearModeloDetalle(lineasCrOrUp), eliminadas: lineasEliminadas, formaPago: retornaFormasPago() },
             success: function (data) {
 
+                $('#Id').val(data.idDoc);
+
                 localStorage.removeItem("FacturaBorrador");
                 $('#formaPagoModal').modal('hide');
-                window.location.href = "@Url.Action("ListarFacturas")";
+
+                var pv = getPuntoVentaLocal();
+
+                if (pv.opcionImpresion == 5) {
+                    $('#impresionModal').modal('show');
+                }
+                else if (pv.opcionImpresion == 0) {
+                    window.location.href = "@Url.Action("ListarFacturas")";
+                }
+                else {
+
+                    GetPDF(pv.opcionImpresion, true);
+                   
+                }
+
+
             },
             error: function (err, scnd) {
                 cargarAlert('@Lb["errorGeneral"]');
@@ -1127,8 +1190,8 @@
              success: function (data) {
 
                  monedas = data;
-                 $('#TipoCambioDolar').val(data[1].valorVenta);
-                 $('#TipoCambioEuro').val(data[2].valorVenta);
+                 $('#TipoCambioDolar').val(data[1].valorCompra);
+                 $('#TipoCambioEuro').val(data[2].valorCompra);
 
                  getPuntoVenta();
 
@@ -1177,6 +1240,7 @@
                 }
 
                 setConfiguracionPV();
+                getInventario();
 
             },
             error: function (err, scnd) {
@@ -1203,7 +1267,7 @@
                     $('#frmFDfieldset').prop('disabled', false);
                     idCajaPuntoVenta = data;
                 }
-                     
+
 
              },
              error: function (err, scnd) {
@@ -1410,10 +1474,7 @@
 
     function GetReporte(tipo) {
 
-
-
         var reporte = getTipoReporte(tipo);
-
 
         var parametros = [];
 
@@ -1441,13 +1502,13 @@
 
     }
 
-    function GetPDF(tipo) {
+    function GetPDF(tipo, volver) {
 
         var reporte = getTipoReporte(tipo);
 
         var parametros = [];
 
-        parametros.push({ nombre: "idFactura", valor: '@Model.Id'});
+        parametros.push({ nombre: "idFactura", valor: $('#Id').val()});
         parametros.push({ nombre: "idEmpresa", valor: '@Context.Session.GetInt32("idEmpresa")' });
 
         var data = { NombreReporte: reporte, parametros: parametros };
@@ -1471,35 +1532,8 @@
                 var w = window.open(fileURL);
                 w.print();
 
-                //reader.onloadend = function () {
-                //    base64data = reader.result;
-
-                //    var w = 0;
-                //    var h = 0;
-
-                //    var img = new Image;
-
-                //    img.onload = function () {
-                //        w = (img.width / 1240) * 100;
-                //        h = (img.height / 1754) * 100;
-
-                //        console.log(w); // image is loaded; sizes are available
-                //        console.log(h);
-
-                //        var doc = new jsPDF('p', 'mm', 'letter');
-
-                //        doc.addImage(base64data, 'JPEG', 0, 0, w, h);
-                //        doc.autoPrint();
-                //        window.open(doc.output('bloburl'), '_blank');
-
-                //    };
-
-                //    img.src = base64data;
-
-
-
-
-                //}
+                if (volver)
+                     window.location.href = "@Url.Action("ListarFacturas")";
 
             },
             error: function () {
@@ -1507,10 +1541,7 @@
             }
         });
 
-
     }
-
-
 
     function GetWORD() {
 

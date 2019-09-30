@@ -59,7 +59,7 @@
                                 </div>
                             </div>
                             <div class="tab-pane fade" id="list-efectivo" role="tabpanel" aria-labelledby="efectivoTab">
-                                <div class="row">                    
+                                <div class="row">
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <hr style="padding:0; margin:0; margin-bottom:1rem" />
                                         <div class="col-md-6 col-sm-6 col-xs-6">
@@ -98,14 +98,50 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane fade" id="list-tarjeta" role="tabpanel" aria-labelledby="tarjetaTab">Tarjeta</div>
-                            <div class="tab-pane fade" id="list-transferencia" role="tabpanel" aria-labelledby="transferenciaTab">Transferencia</div>
-                            <div class="tab-pane fade" id="list-cheque" role="tabpanel" aria-labelledby="chequeTab">Cheque</div>
-                            <div class="tab-pane fade" id="list-saldo" role="tabpanel" aria-labelledby="saldoTab">Saldo</div>
+
+                            <div class="tab-pane fade" id="list-tarjeta" role="tabpanel" aria-labelledby="tarjetaTab">
+                                <div class="row">
+                                    <hr style="padding:0; margin:0; margin-bottom:1rem" />
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        <label><stron>@Lb["Operador"]:</stron></label>
+                                    </div>
+                                    <div class="col-md-8 col-sm-8 col-xs-8">
+                                        @foreach (var item in ViewData["operadores"] as IList<TbBaFlujoCategoria>)
+                                        {
+                                            <div class="form-group" style="margin:0">
+                                                <input class="form-check-input rdOperador" type="radio" name="rdOperador" id="rdOperador+@item.IdCategoriaFlujo" value="@item.IdCategoriaFlujo">
+                                                <label class="form-check-label" for="rdOperador+@item.IdCategoriaFlujo">@item.Nombre</label>
+                                            </div>
+
+                                        }
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <hr style="padding:0; margin:0; margin-bottom:1rem" />
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Monto"]:</stron></span>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm montoFormaPago" onkeypress="enterMonto(event, 2)" id="montoFP2" />
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12" style="text-align: right">
+                                            <button onclick="borrarMontoFormaPago()" class="btn btn-link">@Lb["Borrar"]</button>
+                                            |
+                                            <button onclick="guardarFormaPago(2)" class="btn btn-link">@Lb["Listo"]</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
 
                         </div>
+                        <div class="tab-pane fade" id="list-transferencia" role="tabpanel" aria-labelledby="transferenciaTab">Transferencia</div>
+                        <div class="tab-pane fade" id="list-cheque" role="tabpanel" aria-labelledby="chequeTab">Cheque</div>
+                        <div class="tab-pane fade" id="list-saldo" role="tabpanel" aria-labelledby="saldoTab">Saldo</div>
                     </div>
-                    <div class="col-md-5 col-sm-8 col-xs-12 pull-right" >
+                    <div class="col-md-5 col-sm-8 col-xs-12 pull-right">
                         <h4 style="padding:0; margin:0; margin-top:0.3rem; margin-bottom: 1.5rem;">@Lb["MetodosAgregados"]</h4>
                         <table class="table table-borderless pull-right" style="width:100%" id="tblFormaPago">
                             <tbody>
@@ -119,20 +155,27 @@
                         </table>
                     </div>
                 </div>
+
             </div>
+
         </div>
     </div>
 </div>
+
 
 
 <div class="modal fade" id="vueltoModal" tabindex="-1" role="dialog" aria-labelledby="vueltoModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="vueltoModalCenterTitle">@Lb["Vuelto"]</h3>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <div class="col-md-10 col-sm-10 col-xs-10">
+                    <h3 class="modal-title" id="vueltoModalCenterTitle">@Lb["Vuelto"]</h3>
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -200,7 +243,7 @@
     $(document).ready(function () {
 
         setMonto();
-        calcularMovimientos();        
+        calcularMovimientos();
 
         $("#formater1").inputmask('currency', {
             prefix: monedas[0].simbolo,
@@ -246,7 +289,7 @@
 
         formaPagoSeleccionada = value;
         setMonedaGeneral(_MONEDADEFAULT);
-      
+
     }
 
     /////////////////////////calculos efectivo/////////////////////
@@ -274,7 +317,7 @@
     /////////////////////////fin calculos efectivo/////////////////////
     //////////////////////////calculos general/////////////////////
 
-    
+
 
     function calcularMovimientos() {
 
@@ -284,7 +327,7 @@
 
     ////////////////////////////get and set///////////////////////////////////
     function setBalance() {
-        var balance = (getMonto(_MONEDADEFAULT) - getPago(_MONEDADEFAULT)); 
+        var balance = (getMonto(_MONEDADEFAULT) - getPago(_MONEDADEFAULT));
 
         if (balance < 0)
             balance = 0;
@@ -317,7 +360,7 @@
 
         return vuelto;
     }
-    
+
     function getMonto(moneda) {
         return getterGeneral(_MONTO, moneda);
     }
@@ -406,7 +449,7 @@
         return res;
     }
 
-    
+
 
     ////////////////////////////fin get and set///////////////////////////////////
 
@@ -540,7 +583,7 @@
             idMovimiento: 0
         };
 
-        
+
         return model;
     }
 
@@ -563,13 +606,19 @@
             return monto;
     }
 
-    
+
 
     function guardarFormaPago(tipoCategoriaFlujo) {
 
+        var idMoneda = parseInt($("input[name='rdMoneda']:checked").val());
+
+        if (getMontoReal(idMoneda) <= 0) {
+            cargarAlert('@Lb["montoValid"]');
+            return;
+        }
         var fp = crearModeloFormaPago(tipoCategoriaFlujo);
         formasPago.push(fp);
-        
+
         setPago(totalFomasPago());
         calcularMovimientos();
 
@@ -583,7 +632,11 @@
         (e.keyCode) ? k = e.keyCode : k = e.which;
 
         if (k == 13) {
-            guardarFormaPago(tipoCat);
+            var monto = parseFloat($('#balance').inputmask('unmaskedvalue'));
+            if (monto < 0)
+                guardarFormaPago(tipoCat);
+            else
+                guardarMovimientosCaja();
         }
     }
 
@@ -686,7 +739,7 @@
             rightAlign: true,
             min: 0
         });
-        
+
 
         setTimeout(function () {
             $(".montoFormaPago").val(calcularMontoAlCambio(_MONEDADEFAULT, codigo, getBalance(_MONEDADEFAULT)));
@@ -698,13 +751,13 @@
 
 
     function borrarMontoFormaPago() {
-        
+
         $(".montoFormaPago").val(0);
     }
 
 
     function setMonedaGeneral(codigo) {
-       
+
         monedaFormaPagoSeleccionada = codigo;
         var simbolo = "";
         switch (codigo) {
@@ -789,18 +842,27 @@
     }
 
     function guardarMovimientosCaja() {
-        //procesarPago()
 
-        $('#vueltoFormat').val(getVuelto());
-        $('#lbVuelto').text($('#vueltoFormat').val());
-        
-        $('#vueltoModal').modal('show');
-        
-        
+
+        var vuelto = getVuelto();
+        var balance = parseFloat($('#balance').inputmask('unmaskedvalue'));
+
+        if (vuelto > 0) {
+            $('#vueltoFormat').val(vuelto);
+            $('#lbVuelto').text($('#vueltoFormat').val());
+            $('#vueltoModal').modal('show');
+        }
+        else if (balance >= 0)
+            procesarPago();
+        else
+             cargarAlert('@Lb["pagadoMenorAlMonto"]');
     }
 
     $('#vueltoModal').on('shown.bs.modal', function (e) {
         $('#closeVueltoModal').focus();
+    });
+    $('#vueltoModal').on('hidden.bs.modal', function (e) {
+        procesarPago();
     });
 
     $('a[data-toggle="list"]').on('shown.bs.tab', function (e) {
