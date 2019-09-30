@@ -108,7 +108,7 @@ else
 
             <div class="form-group col-md-6 col-sm-6 col-xs-12">
                 <label asp-for="IdMoneda" class="control-label">@Lb["Moneda"]:</label>
-                <select onchange="capturar(value)" id="moneda" class="form-control tipoMoneda">
+                <select onchange="recalcularPrecio()" id="moneda" class="form-control tipoMoneda">
                     <option id="option" value="">@Lb["seleccione"]</option>
                 </select>
             </div>
@@ -1255,7 +1255,7 @@ else
     }
 
     function cargarTabla(data) {
-                 getMonedas();
+                // getMonedas();
 
         $('.filasCargadas').remove();
         contadorFila = 0;
@@ -1522,12 +1522,7 @@ else
 
     }
 
-    var monedaSeleccionada = 0;
-    function capturar(value) {
-        monedaSeleccionada = value;
-        console.log(monedaSeleccionada);
-    }
-
+    
 
 
 
@@ -1539,7 +1534,7 @@ else
         for (var i = 0; i < lineas.length; i++) {
 
             lineas[i].PrecioUnidad = getPrecioAlCambioLocal(lineas[i]);
-            lineas[i].idMonedaCDS = parseInt(monedaSeleccionada);
+            lineas[i].idMonedaCDS = parseInt($('.tipoMoneda').val());
 
             subtotal = lineas[i].PrecioUnidad * lineas[i].cantidad;
             lineas[i].totalDescuento = (lineas[i].porcDescuento / 100) * subtotal;
@@ -1562,33 +1557,8 @@ else
             lineas[i].total = (lineas[i].subTotalExcentoNeto + lineas[i].subTotalGravadoNeto) + lineas[i].totalIva;
         }
 
-        //if (lineasAgregadas.length > 0)
-        //    for (var i = 0; i < lineasAgregadas.length; i++) {
-
-        //        lineasAgregadas[i].PrecioUnidad = getPrecioAlCambioLocal(lineasAgregadas[i]);
-        //        lineasAgregadas[i].idMonedaCDS = parseInt($('.tipoMoneda').val());
-        //        subtotal = lineasAgregadas[i].PrecioUnidad * lineasAgregadas[i].cantidad;
-        //        lineasAgregadas[i].totalDescuento = (lineasAgregadas[i].porcDescuento / 100) * subtotal;
-
-        //        if (lineasAgregadas[i].PorcIVA > 0) {
-        //            lineasAgregadas[i].subTotalExcento = 0;
-        //            lineasAgregadas[i].subTotalGravado = subtotal;
-        //            lineasAgregadas[i].subTotalExcentoNeto = 0;
-        //            lineasAgregadas[i].subTotalGravadoNeto = subtotal - lineas[i].totalDescuento;
-        //        }
-        //        else {
-        //            lineasAgregadas[i].subTotalExcento = subtotal;
-        //            lineasAgregadas[i].subTotalGrabado = 0;
-        //            lineasAgregadas[i].subTotalExcentoNeto = subtotal - lineas[i].totalDescuento;
-        //            lineasAgregadas[i].subTotalGravadoNeto = 0;
-        //        }
-
-        //        lineasAgregadas[i].totalIva = (lineasAgregadas[i].PorcIVA / 100) * (lineasAgregadas[i].subTotalExcentoNeto + lineasAgregadas[i].subTotalGravadoNeto);
-        //        lineas[i].total = (lineasAgregadas[i].subTotalExcentoNeto + lineasAgregadas[i].subTotalGravadoNeto) + lineasAgregadas[i].totalIva;
-        //    }
-
         cargarTabla(lineas);
-        calcularTotales();
+        //calcularTotales();
 
     }
 
