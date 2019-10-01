@@ -36,17 +36,7 @@ namespace AltivaWebApp.Services
         public bool GetByDefecto(bool? defecto)
         {
             return this.IEstadoRepository.GetByDefecto(defecto);
-        }
-
-        public bool GetByEsInicial(bool? inicial)
-        {
-            return this.IEstadoRepository.GetByEsInicial(inicial);
-        }
-
-        public bool GetByEsFinal(bool? final)
-        {
-            return this.IEstadoRepository.GetByEsFinal(final);
-        }
+                }
 
         public TbFdTareaEstado GetById(int idEstado)
         {
@@ -66,16 +56,6 @@ namespace AltivaWebApp.Services
         public TbFdTareaEstado GetDefecto(bool flag)
         {
             return this.IEstadoRepository.GetDefecto(flag);
-        }
-
-        public TbFdTareaEstado GetInicial(bool flag)
-        {
-            return this.IEstadoRepository.GetInicial(flag);
-        }
-
-        public TbFdTareaEstado GetFinal(bool flag)
-        {
-            return this.IEstadoRepository.GetFinal(flag);
         }
 
         public TbFdTareaEstado GetTitulo(string idTipo)

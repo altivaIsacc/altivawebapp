@@ -25,9 +25,6 @@ namespace AltivaWebApp.Controllers
             this.IEstadoMapper = IEstadoMapper;
         }
 
-
-
-
         [HttpGet("ListarEstados")]
         public JsonResult GetEstados()
         {
@@ -37,21 +34,16 @@ namespace AltivaWebApp.Controllers
             return new JsonResult(te);
         }
 
-
-
-
-
         [HttpGet("Lisar-Estados")]
         // GET: EstadoTarea
         public ActionResult ListarEstados()
         {
+
+
             return View();
         }
-
-
-
-
         [HttpGet("ListarEstadosTareas/{inactivo?}")]
+
         public IActionResult ListarEstadosTareas(string inactivo)
         {
             IList<TbFdTareaEstado> te = new List<TbFdTareaEstado>();
@@ -83,9 +75,6 @@ namespace AltivaWebApp.Controllers
             }
             return PartialView("_ListarEstados", tpL);
         }
-
-
-
         [HttpGet("CrearEstadoVista")]
         [HttpGet]
         public IActionResult CrearEstadoVista()
@@ -94,10 +83,6 @@ namespace AltivaWebApp.Controllers
 
             return PartialView("_CrearEditarEstados", EstadoTarea);
         }
-
-
-
-
         [HttpGet("EditarEstadoVista/{idEstado?}")]
         [HttpGet]
         public IActionResult EditarEstadoVista(int idEstado)
@@ -107,9 +92,6 @@ namespace AltivaWebApp.Controllers
 
             return PartialView("_CrearEditarEstados", EstadoTarea);
         }
-
-
-
         [HttpPost("EditarEstado")]
         [HttpPost]
         public IActionResult EditarEstado(EstadoTareaViewModel domain)
@@ -118,14 +100,9 @@ namespace AltivaWebApp.Controllers
             TbFdTareaEstado titulo = new TbFdTareaEstado();
             TbFdTareaEstado color = new TbFdTareaEstado();
             TbFdTareaEstado porDefecto = new TbFdTareaEstado();
-            TbFdTareaEstado esInicial = new TbFdTareaEstado();
-            TbFdTareaEstado esFinal = new TbFdTareaEstado();
             titulo = this.IEstadoService.GetTitulo(domain.Titulo);
             color = this.IEstadoService.GetColor(domain.Color);
             porDefecto = this.IEstadoService.GetDefecto(true);
-            esInicial = this.IEstadoService.GetInicial(true);
-            esFinal = this.IEstadoService.GetFinal(true);
-
             if (this.IEstadoService.GetByTitulo(domain.Titulo))
             {
                 if (titulo.Id != domain.Id)
@@ -133,7 +110,6 @@ namespace AltivaWebApp.Controllers
                     return Json(new { titulo = true });
                 }
             }
-
             if (this.IEstadoService.GetByColor(domain.Color))
             {
                 if (color.Id != domain.Id)
@@ -142,7 +118,6 @@ namespace AltivaWebApp.Controllers
 
                 }
             }
-
             if (this.IEstadoService.GetByDefecto(domain.EsDefecto) == true)
             {
                 if (domain.EsDefecto == true)
@@ -154,41 +129,12 @@ namespace AltivaWebApp.Controllers
                 }
             }
 
-            if (this.IEstadoService.GetByEsInicial(domain.EsInicial) == true)
-            {
-                if (domain.EsInicial == true)
-                {
-                    if (esInicial.Id != domain.Id)
-                    {
-                        return Json(new { inicial = true });
-                    }
-                }
-            }
-
-            if (this.IEstadoService.GetByEsFinal(domain.EsFinal) == true)
-            {
-                if (domain.EsFinal == true)
-                {
-                    if (esFinal.Id != domain.Id)
-                    {
-                        return Json(new { final = true });
-                    }
-                }
-            }
-
-
 
             estadoTarea = this.IEstadoMapper.Update(domain);
-
-
-            return Json(new { titulo = false, color = false, defecto = false, inicial = false, final = false});
+            return Json(new { titulo = false, color = false, defecto = false });
         }
-
-
-
-
-
         [HttpPost("CrearEstado")]
+
         public JsonResult CrearEstado(EstadoTareaViewModel domain)
         {
             try
@@ -198,14 +144,10 @@ namespace AltivaWebApp.Controllers
                 {
                     return Json(new { titulo = true });
                 }
-
-
                 else if (this.IEstadoService.GetByColor(domain.Color))
                 {
                     return Json(new { color = true });
                 }
-
-
                 if (domain.EsDefecto != false)
                 {
 
@@ -222,9 +164,6 @@ namespace AltivaWebApp.Controllers
                 {
                     var estadoTarea = this.IEstadoMapper.Save(domain);
                 }
-
-
-
             }
             catch (Exception ex)
             {
@@ -234,10 +173,6 @@ namespace AltivaWebApp.Controllers
 
             return Json(new { titulo = false, color = false, defecto = false });
         }
-
-
-
-
         [HttpGet("Eliminar-Estado")]
         public JsonResult Delete(int idEstado)
         {
@@ -262,9 +197,5 @@ namespace AltivaWebApp.Controllers
 
             return new JsonResult(true);
         }
-
-
-
-
     }
 }

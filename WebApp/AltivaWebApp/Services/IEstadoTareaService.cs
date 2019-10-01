@@ -18,11 +18,7 @@ namespace AltivaWebApp.Services
         bool GetByTitulo(string titulo);
         bool GetByColor(string color);
         bool GetByDefecto(bool? defecto);
-        bool GetByEsInicial(bool? inicial);
-        bool GetByEsFinal(bool? final);
         TbFdTareaEstado GetDefecto(bool flag);
-        TbFdTareaEstado GetInicial(bool flag);
-        TbFdTareaEstado GetFinal(bool flag);
         TbFdTareaEstado GetTitulo(string idTipo);
         TbFdTareaEstado GetColor(string idTipo);
     }

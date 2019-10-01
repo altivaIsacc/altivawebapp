@@ -22,16 +22,6 @@ namespace AltivaWebApp.Repositories
             return context.TbFdTareaEstado.Any(u => u.EsDefecto == defecto);
         }
 
-        public bool GetByEsInicial(bool? inicial)
-        {
-            return context.TbFdTareaEstado.Any(u => u.EsInicial == inicial);
-        }
-
-        public bool GetByEsFinal(bool? final)
-        {
-            return context.TbFdTareaEstado.Any(u => u.EsFinal == final);
-        }
-
         public TbFdTareaEstado GetById(int idEstado)
         {
             return this.context.TbFdTareaEstado.Where(te => te.Id == idEstado).FirstOrDefault();
@@ -48,14 +38,6 @@ namespace AltivaWebApp.Repositories
         public TbFdTareaEstado GetDefecto(bool flag)
         {
             return context.TbFdTareaEstado.FirstOrDefault(i => i.EsDefecto == flag);
-        }
-        public TbFdTareaEstado GetInicial(bool flag)
-        {
-            return context.TbFdTareaEstado.FirstOrDefault(i => i.EsInicial == flag);
-        }
-        public TbFdTareaEstado GetFinal(bool flag)
-        {
-            return context.TbFdTareaEstado.FirstOrDefault(i => i.EsFinal == flag);
         }
         public TbFdTareaEstado GetTitulo(string titulo)
         {
