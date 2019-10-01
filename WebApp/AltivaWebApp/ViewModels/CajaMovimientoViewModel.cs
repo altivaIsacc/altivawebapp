@@ -23,6 +23,6 @@ namespace AltivaWebApp.ViewModels
         public int? IdTipoCajaMovimiento { get; set; }
         public long IdCaja { get; set; }
         public long IdMovimiento { get; set; }
-
+        public CajaMovimientoTarjetaViewModel CajaMovTarjeta { get; set; }
     }
 }

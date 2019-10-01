@@ -29,7 +29,7 @@ namespace AltivaWebApp.Repositories
             + "WHERE m.IdDocumento = " + idDoc + " order by m2.IdMovimiento desc";
 
 
-            var mov = context.TbFaMovimiento.FromSql(qry).FirstOrDefault();
+            var mov = context.TbFaMovimiento.FromSql(qry).AsNoTracking().FirstOrDefault();
 
             return mov != null ? mov.IdMovimiento : 0;
         }

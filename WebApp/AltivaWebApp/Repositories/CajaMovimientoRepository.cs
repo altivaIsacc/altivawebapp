@@ -1,5 +1,6 @@
 ﻿using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,14 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                context.AddRange(domain);
+                foreach (var item in domain)
+                {
+                    //context.Entry(entity).State = EntityState.Modified;
+                    context.TbFaCajaMovimiento.Add(item);
+                    if(item.TbFaCajaMovimientoTarjeta != null)
+                        context.Entry(item).State = EntityState.Detached;
+                }
+                
                 context.SaveChanges();
 
                 return domain;

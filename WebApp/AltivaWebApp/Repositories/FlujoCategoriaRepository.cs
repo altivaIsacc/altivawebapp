@@ -22,7 +22,7 @@ namespace AltivaWebApp.Repositories
 
         public IList<TbBaFlujoCategoria> GetAllFlujoCategoria()
         {
-            return context.TbBaFlujoCategoria.ToList();
+            return context.TbBaFlujoCategoria.AsNoTracking().ToList();
         }
 
         public TbBaFlujoCategoria GetFlujoCategoriaById(int id)

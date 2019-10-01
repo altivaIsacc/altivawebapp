@@ -66,12 +66,12 @@
                                             <span><stron>@Lb["Monto"]:</stron></span>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-6">
-                                            <input class="form-control input-sm montoFormaPago" onkeypress="enterMonto(event, 2)" id="montoFP1" />
+                                            <input class="form-control input-sm montoFormaPago" onkeypress="enterMonto(event, efectivo = 2)" id="montoFP1" />
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-xs-12" style="text-align: right">
                                             <button onclick="borrarMontoFormaPago()" class="btn btn-link">@Lb["Borrar"]</button>
                                             |
-                                            <button onclick="guardarFormaPago(2)" class="btn btn-link">@Lb["Listo"]</button>
+                                            <button onclick="guardarFormaPago(efectivo = 2)" class="btn btn-link">@Lb["Listo"]</button>
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-xs-12">
                                             <div class="row">
@@ -98,7 +98,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="tab-pane fade" id="list-tarjeta" role="tabpanel" aria-labelledby="tarjetaTab">
                                 <div class="row">
                                     <hr style="padding:0; margin:0; margin-bottom:1rem" />
@@ -106,13 +105,12 @@
                                         <label><stron>@Lb["Operador"]:</stron></label>
                                     </div>
                                     <div class="col-md-8 col-sm-8 col-xs-8">
-                                        @foreach (var item in ViewData["operadores"] as IList<TbBaFlujoCategoria>)
+                                        @foreach (var item in ViewData["operadoresTarjeta"] as IList<TbBaFlujoCategoria>)
                                         {
                                             <div class="form-group" style="margin:0">
-                                                <input class="form-check-input rdOperador" type="radio" name="rdOperador" id="rdOperador+@item.IdCategoriaFlujo" value="@item.IdCategoriaFlujo">
+                                                <input class="form-check-input rdOperador" type="radio" name="rdOperadorTarjeta" id="rdOperador+@item.IdCategoriaFlujo" value="@item.IdCategoriaFlujo">
                                                 <label class="form-check-label" for="rdOperador+@item.IdCategoriaFlujo">@item.Nombre</label>
                                             </div>
-
                                         }
                                     </div>
                                 </div>
@@ -120,27 +118,101 @@
                                     <hr style="padding:0; margin:0; margin-bottom:1rem" />
                                     <div class="col-md-12 col-sm-12 col-xs-12">
 
-                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
                                             <span><stron>@Lb["Monto"]:</stron></span>
                                         </div>
+                                        <div class=" form-group col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm montoFormaPago" id="montoFP2" onkeypress="pasarSigCampo(event,'autorizacion')" />
+                                            <span hidden class="text-danger" id="montoMayorValid">@Lb["montoMayorValid"].</span>
+                                        </div>
+
+                                        <hr style="padding:0; margin:0; margin-bottom:1rem" />
+
                                         <div class="col-md-6 col-sm-6 col-xs-6">
-                                            <input class="form-control input-sm montoFormaPago" onkeypress="enterMonto(event, 2)" id="montoFP2" />
+                                            <span><stron>@Lb["Autorización"]:</stron></span>
+                                        </div>
+                                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm soloInt" id="autorizacion" onkeypress="pasarSigCampo(event,'voucher')" />
+                                            <span hidden class="text-danger" id="autorizacionValid">@Lb["autorizacionValid"].</span>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Voucher"]:</stron></span>
+                                        </div>
+                                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm soloInt" id="voucher" onkeypress="enterMonto(event, tarjeta = 3)" />
+                                            <span hidden class="text-danger" id="voucherValid">@Lb["voucherValid"].</span>
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-xs-12" style="text-align: right">
                                             <button onclick="borrarMontoFormaPago()" class="btn btn-link">@Lb["Borrar"]</button>
                                             |
-                                            <button onclick="guardarFormaPago(2)" class="btn btn-link">@Lb["Listo"]</button>
+                                            <button onclick="guardarFormaPago(tarjeta = 3)" class="btn btn-link">@Lb["Listo"]</button>
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
+                            <div class="tab-pane fade" id="list-transferencia" role="tabpanel" aria-labelledby="transferenciaTab">
+                                <div class="row">
+                                    <hr style="padding:0; margin:0; margin-bottom:1rem" />
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        <label><stron>@Lb["Banco"]:</stron></label>
+                                    </div>
+                                    <div class="col-md-8 col-sm-8 col-xs-8">
+                                        @foreach (var item in ViewData["bancos"] as IList<TbBaFlujoCategoria>)
+                                        {
+                                            <div class="form-group" style="margin:0">
+                                                <input class="form-check-input rdBanco" type="radio" name="rdBanco" id="rdBanco+@item.IdCategoriaFlujo" value="@item.IdCategoriaFlujo">
+                                                <label class="form-check-label" for="rdBanco+@item.IdCategoriaFlujo">@item.Nombre</label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <hr style="padding:0; margin:0; margin-bottom:1rem" />
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
 
+                                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Monto"]:</stron></span>
+                                        </div>
+                                        <div class=" form-group col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm montoFormaPago" id="montoFP3" onkeypress="pasarSigCampo(event,'documento')" />
+                                            <span hidden class="text-danger" id="montoMayorValidT">@Lb["montoMayorValid"].</span>
+                                        </div>
+
+                                        <hr style="padding:0; margin:0; margin-bottom:1rem" />
+
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Documento"]:</stron></span>
+                                        </div>
+                                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm soloInt" id="documento" onkeypress="pasarSigCampo(event,'fechaTransferencia')" />
+                                            <span hidden class="text-danger" id="documentoValid">@Lb["documentoValid"].</span>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Fecha"]:</stron></span>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            @*<div class='input-group date' id='fechaPicker' >
+                                                    <input type='text' class="form-control input-sm" id="fecha" onkeypress="enterMonto(event, banco = 1)" />
+                                                    <span class="input-group-addon">
+                                                        <span class="fas fa-calendar"></span>
+                                                    </span>
+                                                </div>*@
+                                            <input type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" class="form-control input-sm" id="fechaTransferencia" onkeypress="enterMonto(event, banco = 1)" />
+                                            <span hidden class="text-danger" id="fechaValid">@Lb["fechaValid"].</span>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12" style="text-align: right">
+                                            <button onclick="borrarMontoFormaPago()" class="btn btn-link">@Lb["Borrar"]</button>
+                                            |
+                                            <button onclick="guardarFormaPago(banco = 1)" class="btn btn-link">@Lb["Listo"]</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="list-cheque" role="tabpanel" aria-labelledby="chequeTab">Cheque</div>
+                            <div class="tab-pane fade" id="list-saldo" role="tabpanel" aria-labelledby="saldoTab">Saldo</div>
                         </div>
-                        <div class="tab-pane fade" id="list-transferencia" role="tabpanel" aria-labelledby="transferenciaTab">Transferencia</div>
-                        <div class="tab-pane fade" id="list-cheque" role="tabpanel" aria-labelledby="chequeTab">Cheque</div>
-                        <div class="tab-pane fade" id="list-saldo" role="tabpanel" aria-labelledby="saldoTab">Saldo</div>
                     </div>
+
                     <div class="col-md-5 col-sm-8 col-xs-12 pull-right">
                         <h4 style="padding:0; margin:0; margin-top:0.3rem; margin-bottom: 1.5rem;">@Lb["MetodosAgregados"]</h4>
                         <table class="table table-borderless pull-right" style="width:100%" id="tblFormaPago">
@@ -242,6 +314,9 @@
 
     $(document).ready(function () {
 
+        $("input:radio[name=rdOperadorTarjeta]:first").prop('checked', true);
+        $("input:radio[name=rdBanco]:first").prop('checked', true);     
+
         setMonto();
         calcularMovimientos();
 
@@ -262,7 +337,12 @@
             rightAlign: true,
             min: 0
         });
-
+        $('.soloInt').inputmask({
+            alias: 'numeric',
+            allowMinus: false,
+            digits: 0,
+            rightAlign: false,
+        });
         showTab('efectivoTab');
 
         setTimeout(function () { $('#montoFP1').focus(); }, 500);
@@ -274,6 +354,7 @@
         $('#metodosPago a').removeClass('active');
         $(this).tab('show');
         $(this).addClass('active');
+        ocultarValidaciones();
     });
 
     function showTab(id) {
@@ -289,6 +370,7 @@
 
         formaPagoSeleccionada = value;
         setMonedaGeneral(_MONEDADEFAULT);
+        
 
     }
 
@@ -315,9 +397,7 @@
 
 
     /////////////////////////fin calculos efectivo/////////////////////
-    //////////////////////////calculos general/////////////////////
-
-
+    //////////////////////////calculos general/////////////////////////
 
     function calcularMovimientos() {
 
@@ -373,6 +453,7 @@
     }
     function setMontoFP(moneda) {
         $('.montoFormaPago').val(getBalance(moneda));
+        $('.montoFormaPago').select();
     }
 
     function setterGeneral(tipoMonto, valor) {
@@ -565,8 +646,7 @@
 
         var model = {
             idCajaMovimiento: 0,
-            tipoCategoriaFlujo: tipoCategoriaFlujo,
-            idCategoriaFlujo: tipoCategoriaFlujo,
+            idCategoriaFlujo: getIdCategoriaFlujo(tipoCategoriaFlujo),
             fechaCreacion: new Date(),
             estado: true,
             idMoneda: idMoneda,
@@ -578,14 +658,25 @@
             ventaDolarTc: monedas[1].valorVenta,
             compraEuroTc: monedas[2].valorCompra,
             ventaEuroTc: monedas[2].valorVenta,
-            idTipoCajaMovimiento: 1,
+            idTipoCajaMovimiento: formaPagoSeleccionada,
             idCaja: @Model.IdCaja,
-            idMovimiento: 0
+            idMovimiento: 0,                    //tarjeta = 2//
+            cajaMovTarjeta: formaPagoSeleccionada == 2 ? crearModelMovimientoTarjeta() : null
         };
 
 
         return model;
     }
+
+    function crearModelMovimientoTarjeta() {
+        return {
+            autorizacion: $('#autorizacion').val(),
+            voucher: $('#voucher').val(),
+            idCajaMovimeintoTarjeta: 0,
+            idCajaMovimiento: 0
+        };
+    }
+
 
     function getMontoReal(moneda) {
 
@@ -608,7 +699,8 @@
 
 
 
-    function guardarFormaPago(tipoCategoriaFlujo) {
+    function guardarFormaPago(_tipoCategoriaFlujo) {
+
 
         var idMoneda = parseInt($("input[name='rdMoneda']:checked").val());
 
@@ -616,15 +708,134 @@
             cargarAlert('@Lb["montoValid"]');
             return;
         }
-        var fp = crearModeloFormaPago(tipoCategoriaFlujo);
+
+        var fp = crearModeloFormaPago(_tipoCategoriaFlujo);
+
+        /////validaciones de inputs
+
+        if (!validarFormaPago(fp)) {
+            return;
+        }
+
+        var fp = crearModeloFormaPago(_tipoCategoriaFlujo);
+
         formasPago.push(fp);
 
         setPago(totalFomasPago());
+
         calcularMovimientos();
 
         setMontoFP(fp.idMoneda);
         cargarFormasPago(formasPago);
 
+        borrarInputs();
+
+    }
+
+    function validarFormaPago(fpSelected) {
+
+        var _efectivo = 1, _tarjeta = 2, _transferencia = 3, _cheque = 4, _saldo = 5;
+
+        var flag = true;
+
+
+        switch (fpSelected.idTipoCajaMovimiento) {
+            case _efectivo:
+                    flag = true;
+                break;
+            case _tarjeta:
+
+
+                if (getMontoAlCambio(fpSelected) > getBalance(_MONEDADEFAULT)) {
+                    $('#montoMayorValid').prop('hidden', false);
+                    flag = false;
+                }
+                else
+                    $('#montoMayorValid').prop('hidden', true);
+
+                if ($('#autorizacion').val() == "" || $('#autorizacion').val() == null) {
+                    $('#autorizacionValid').prop('hidden', false);
+                    flag = false;
+                }
+                else
+                    $('#autorizacionValid').prop('hidden', true);
+
+                if ($('#voucher').val() == "" || $('#voucher').val() == null) {
+                    $('#voucherValid').prop('hidden', false);
+                    flag = false;
+                }
+                else
+                    $('#voucherValid').prop('hidden', true);
+                break;
+            case _transferencia:
+
+
+                if (getMontoAlCambio(fpSelected) > getBalance(_MONEDADEFAULT)) {
+                    $('#montoMayorValidT').prop('hidden', false);
+                    flag = false;
+                }
+                else
+                    $('#montoMayorValidT').prop('hidden', true);
+
+                if ($('#documento').val() == "" || $('#documento').val() == null) {
+                    $('#documentoValid').prop('hidden', false);
+                    flag = false;
+                }
+                else
+                    $('#documentoValid').prop('hidden', true);
+
+                if ($('#fechaTransferencia').val() == "" || $('#fechaTransferencia').val() == null) {
+                    $('#fechaValid').prop('hidden', false);
+                    flag = false;
+                }
+                else
+                    $('#fechaValid').prop('hidden', true);
+                break;
+            case _cheque:
+                break;
+            case _saldo:
+                break;
+
+        }
+
+        return flag;
+
+    }
+
+    function borrarInputs() {
+
+        $('#voucher').val("");
+        $('#autorizacion').val("");
+        $('#documento').val("");
+        $('#fechaTransferencia').val("@DateTime.Today.ToString("yyyy-MM-dd")");
+
+    }
+    function ocultarValidaciones() {
+        $('#fechaValid').prop('hidden', true);
+        $('#documentoValid').prop('hidden', true);
+        $('#montoMayorValidT').prop('hidden', true);
+        $('#voucherValid').prop('hidden', true);
+        $('#montoMayorValid').prop('hidden', true);
+        $('#autorizacionValid').prop('hidden', true);
+    }
+
+    function getIdCategoriaFlujo(tipoCatFlujo) {
+
+        var id = 0;
+
+        switch (tipoCatFlujo) {
+            case 1:
+                id = parseInt($("input[name='rdBanco']:checked").val());
+                break;
+            case 2:
+                id = '@ViewBag.flujoEfectivo';
+                break;
+            case 3:
+                id = parseInt($("input[name='rdOperadorTarjeta']:checked").val());
+                break;
+        }
+
+        return id;
     }
 
     function enterMonto(e, tipoCat) {
@@ -637,6 +848,16 @@
                 guardarFormaPago(tipoCat);
             else
                 guardarMovimientosCaja();
+        }
+    }
+
+    function pasarSigCampo(e, id) {
+
+        (e.keyCode) ? k = e.keyCode : k = e.which;
+
+        if (k == 13) {
+            document.getElementById(id).focus();
+            $('#' + id).select();
         }
     }
 
@@ -753,6 +974,7 @@
     function borrarMontoFormaPago() {
 
         $(".montoFormaPago").val(0);
+        $(".montoFormaPago").select();
     }
 
 

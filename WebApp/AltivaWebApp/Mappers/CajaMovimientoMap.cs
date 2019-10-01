@@ -20,8 +20,6 @@ namespace AltivaWebApp.Mappers
 
         public IList<TbFaCajaMovimiento> CreateCajaMovimiento(IList<CajaMovimientoViewModel> viewModel, long idMovimiento)
         {
-            var catFlujo = flujoService.GetFlujoCategoriaByTipo((int)viewModel[0].IdCategoriaFlujo) != null ? flujoService.GetFlujoCategoriaByTipo((int)viewModel[0].IdCategoriaFlujo).IdCategoriaFlujo : 0;
-            
 
             var cajaMov = new List<TbFaCajaMovimiento>();
             foreach (var item in viewModel)
@@ -32,7 +30,7 @@ namespace AltivaWebApp.Mappers
                     Estado = item.Estado,
                     FechaCreacion = DateTime.Now,
                     IdCaja = item.IdCaja,
-                    IdCategoriaFlujo = catFlujo,
+                    IdCategoriaFlujo = item.IdCategoriaFlujo,
                     IdMoneda = item.IdMoneda,
                     IdMovimiento = idMovimiento,
                     IdTipoCajaMovimiento = item.IdTipoCajaMovimiento,
@@ -40,12 +38,27 @@ namespace AltivaWebApp.Mappers
                     MontoDolar = item.MontoDolar,
                     MontoEuro = item.MontoEuro,
                     VentaDolarTc = item.VentaDolarTc,
-                    VentaEuroTc = item.VentaEuroTc
-
+                    VentaEuroTc = item.VentaEuroTc,
+                    TbFaCajaMovimientoTarjeta = item.CajaMovTarjeta != null ? ViewModelToDomainTarjeta(item.CajaMovTarjeta) : null
                 });
             }
 
             return service.SaveRange(cajaMov);
+        }
+
+        public IList<TbFaCajaMovimientoTarjeta> ViewModelToDomainTarjeta(CajaMovimientoTarjetaViewModel viewModel)
+        {
+            IList<TbFaCajaMovimientoTarjeta> movList = new List<TbFaCajaMovimientoTarjeta>();
+
+            movList.Add(new TbFaCajaMovimientoTarjeta
+            {
+                Autorizacion = viewModel.Autorizacion,
+                IdCajaMovimiento = viewModel.IdCajaMovimiento,
+                Voucher = viewModel.Voucher,
+                IdCajaMovimientoTarjeta = viewModel.IdCajaMovimeintoTarjeta
+            });
+
+            return movList;
         }
     }
 }
