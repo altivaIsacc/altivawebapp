@@ -18,6 +18,7 @@ namespace AltivaWebApp.Repositories
         TbFaMovimiento GetMovimientoByNota(long id);
         IList<TbFaMovimientoJustificante> GetJustificantesByMovimientoId(long id);
         bool DeleteMovimientoJustificante(IList<int> domain, int idMovimiento);
-        IList<DocumentosContactoViewModel> getDocumentosContacto();
+         IList<DocumentosContactoViewModel> GetDocumentosContacto(long id, bool cxp, long idMovimiento);
+        bool SaveMD(IList<TbFaMovimientoDetalle> domain);
     }
 }

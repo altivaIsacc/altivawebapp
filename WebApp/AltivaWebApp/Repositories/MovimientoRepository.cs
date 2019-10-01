@@ -73,6 +73,22 @@ namespace AltivaWebApp.Repositories
                 throw;
             }
         }
+        public bool SaveMD(IList<TbFaMovimientoDetalle> domain)
+        {
+            try
+            {
+                context.TbFaMovimientoDetalle.AddRange(domain);
+                context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+
+                throw;
+            }
+        }
 
         public bool UpdateMovimientoJustificante(IList<TbFaMovimientoJustificante> domain)
         {
@@ -132,72 +148,18 @@ namespace AltivaWebApp.Repositories
                 throw;
             }
         }
-        public IList<DocumentosContactoViewModel> getDocumentosContacto()
+        public IList<DocumentosContactoViewModel> GetDocumentosContacto(long id, bool cxp, long idDocumento)
         {
-
-            IList<DocumentosContactoViewModel> domain = new List<DocumentosContactoViewModel>();
-            string connectionString = null;
-            SqlConnection connection;
-            SqlCommand command;
-            SqlDataAdapter adapter = new SqlDataAdapter();
-            DataSet ds = new DataSet();
-            int i = 0;
-            string sql = "Select * from vs_FA_DocumentosContacto";
-
-            connectionString = StringProvider.StringEmpresas;
-
-            connection = new SqlConnection(connectionString);
+            int cx = 0;
+            if (cxp)
+                cx = 1;
+            
 
             try
-            {
-                connection.Open();
-                command = new SqlCommand(sql, connection);
-                adapter.SelectCommand = command;
-                adapter.Fill(ds);
-                adapter.Dispose();
-                command.Dispose();
-                connection.Close();
-
-                for (i = 0; i <= ds.Tables[0].Rows.Count - 1; i++)
-                {
-
-                    domain.Add(new DocumentosContactoViewModel {
-                        
-                        Nombre = (string) ds.Tables[0].Rows[i].ItemArray[0],
-                        IdMovimiento = (long) ds.Tables[0].Rows[i].ItemArray[1],
-                        IdContacto = (long) ds.Tables[0].Rows[i].ItemArray[2],
-                        IdDocumento = (long)ds.Tables[0].Rows[i].ItemArray[3],
-                        IdTipoDocumento = (int)ds.Tables[0].Rows[i].ItemArray[4],
-                        IdUsuario = (long)ds.Tables[0].Rows[i].ItemArray[5],
-                        Cxp = (bool)ds.Tables[0].Rows[i].ItemArray[6],
-                        Cxc = (bool)ds.Tables[0].Rows[i].ItemArray[7],
-                        IdMoneda = (int)ds.Tables[0].Rows[i].ItemArray[8],
-                        MontoBase = (double)ds.Tables[0].Rows[i].ItemArray[9],
-                        MontoDolar = (double)ds.Tables[0].Rows[i].ItemArray[10],
-                        MontoEuro = (double)ds.Tables[0].Rows[i].ItemArray[11],
-                        DisponibleDolar = (string)ds.Tables[0].Rows[i].ItemArray[12],
-                        DisponibleBase = (double)ds.Tables[0].Rows[i].ItemArray[13],
-                        DisponibleEuro = (double)ds.Tables[0].Rows[i].ItemArray[14],
-                        AplicadoBase = (double)ds.Tables[0].Rows[i].ItemArray[15],
-                        AplicadoDolar = (double)ds.Tables[0].Rows[i].ItemArray[16],
-                        AplicadoEuro = (double)ds.Tables[0].Rows[i].ItemArray[17],
-                        SaldoBase = (double)ds.Tables[0].Rows[i].ItemArray[18],
-                        SaldoDolar = (double)ds.Tables[0].Rows[i].ItemArray[19],
-                        SaldoEuro = (double)ds.Tables[0].Rows[i].ItemArray[20],
-                        FechaCreacion = (DateTime)ds.Tables[0].Rows[i].ItemArray[21],
-                        EsDebito = (bool)ds.Tables[0].Rows[i].ItemArray[22],
-                        Concecutivo = (long)ds.Tables[0].Rows[i].ItemArray[23],
-                        FechaDocumento = (DateTime)ds.Tables[0].Rows[i].ItemArray[24],
-                        IdVendedor = (long)ds.Tables[0].Rows[i].ItemArray[25],
-                        IdUsuarioCreador = (long)ds.Tables[0].Rows[i].ItemArray[26],
-                        IdPuntoVenta = (long)ds.Tables[0].Rows[i].ItemArray[27],
-                        FechaVencimiento = (DateTime)ds.Tables[0].Rows[i].ItemArray[28],
-                        Estado = (int)ds.Tables[0].Rows[i].ItemArray[29]
-                    });
-
-                }
-
-                return domain;
+            {            
+                
+                var model = context.DocumentosContacto.FromSql($"Select * from vs_FA_DocumentosContacto where IdContacto = {id} and CXP = {cx} and IdDocumento != {idDocumento}").ToList();     
+                return model;
 
             }
             catch (Exception ex)

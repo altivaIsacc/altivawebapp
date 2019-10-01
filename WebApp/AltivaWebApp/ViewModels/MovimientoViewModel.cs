@@ -16,7 +16,7 @@ namespace AltivaWebApp.ViewModels
         public bool Cxc { get; set; }
         public int IdMoneda { get; set; }
         public double Monto { get; set; }
-        public string DisponibleDolar { get; set; }
+        public double DisponibleDolar { get; set; }
         public double DisponibleBase { get; set; }
         public double DisponibleEuro { get; set; }
         public double AplicadoBase { get; set; }

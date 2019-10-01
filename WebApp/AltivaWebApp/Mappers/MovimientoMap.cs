@@ -20,6 +20,10 @@ namespace AltivaWebApp.Mappers
             this.monedaService = monedaService;
         }
 
+        public bool CreateMD(IList<MovimientoDetalleViewModel> viewModel)
+        {
+            return service.SaveMD(ViewModelToDomainMD(viewModel));
+        }
         public TbFaMovimiento Create(MovimientoViewModel viewModel)
         {
             return service.Save(ViewModelToDomain(viewModel));
@@ -52,9 +56,6 @@ namespace AltivaWebApp.Mappers
             domain.Cxp = viewModel.Cxp;
             domain.Cxc = viewModel.Cxc;
             domain.IdMoneda = viewModel.IdMoneda;         
-            domain.DisponibleBase = viewModel.DisponibleBase;
-            domain.DisponibleDolar = viewModel.DisponibleDolar;
-            domain.DisponibleEuro = viewModel.DisponibleEuro;
             domain.AplicadoBase = viewModel.AplicadoBase;
             domain.AplicadoDolar = viewModel.AplicadoDolar;
             domain.AplicadoEuro = viewModel.AplicadoEuro;
@@ -78,7 +79,10 @@ namespace AltivaWebApp.Mappers
                 domain.MontoBase = montoBase;
                 domain.MontoDolar = montoDolar;
                 domain.MontoEuro = montoEuro;
-         
+                domain.DisponibleBase = montoBase;
+                domain.DisponibleDolar = montoDolar;
+                domain.DisponibleEuro = montoEuro;
+
 
             return domain;
         }
@@ -123,8 +127,8 @@ namespace AltivaWebApp.Mappers
 
             };
 
-            float dolar = (float)viewModel.CompraDolarTc;
-            float euro = (float)viewModel.CompraEuroTc;
+            float dolar = (float)viewModel.VentaDolatTc;
+            float euro = (float)viewModel.VentaEuroTc;
 
             if (viewModel.IdMoneda == 1)
             {
@@ -157,7 +161,7 @@ namespace AltivaWebApp.Mappers
             domain.IdUsuario = viewModel.IdUsuario;
             domain.Cxp = viewModel.Cxp;
             domain.Cxc = viewModel.Cxc;
-            domain.IdMoneda = viewModel.IdMoneda;         
+            domain.IdMoneda = viewModel.IdMoneda;
             domain.DisponibleBase = viewModel.DisponibleBase;
             domain.DisponibleDolar = viewModel.DisponibleDolar;
             domain.DisponibleEuro = viewModel.DisponibleEuro;
@@ -184,6 +188,7 @@ namespace AltivaWebApp.Mappers
             domain.MontoDolar = montoDolar;
             domain.MontoEuro = montoEuro;
 
+
             return domain;
         }
 
@@ -199,9 +204,6 @@ namespace AltivaWebApp.Mappers
             Cxp = domain.Cxp,
             Cxc = domain.Cxc,
             IdMoneda = domain.IdMoneda,            
-            DisponibleBase = domain.DisponibleBase,
-            DisponibleDolar = domain.DisponibleDolar,
-            DisponibleEuro = domain.DisponibleEuro,
             AplicadoBase = domain.AplicadoBase,
             AplicadoDolar = domain.AplicadoDolar,
             AplicadoEuro = domain.AplicadoEuro,
@@ -212,17 +214,70 @@ namespace AltivaWebApp.Mappers
          };
             if (viewModel.IdMoneda == 1)
             {
-                viewModel.Monto = domain.MontoBase;           
+                viewModel.Monto = domain.MontoBase;
+                viewModel.DisponibleBase = domain.DisponibleBase;
             }
             else if (viewModel.IdMoneda == 2)
             {
                 viewModel.Monto = domain.MontoDolar;
+                viewModel.DisponibleDolar = domain.DisponibleDolar;
             }
             else if (viewModel.IdMoneda == 3)
             {
                 viewModel.Monto = domain.MontoEuro;
+                viewModel.DisponibleEuro = domain.DisponibleEuro;
             }
             return viewModel;
        }
+        public IList<TbFaMovimientoDetalle> ViewModelToDomainMD(IList<MovimientoDetalleViewModel> viewModel)
+        {
+            var domain = new List<TbFaMovimientoDetalle>();
+            foreach (var item in viewModel)
+            {
+                domain.Add(ViewModelToDomainSingleMD(item));
+            }
+
+            return domain;
+        }
+        public TbFaMovimientoDetalle ViewModelToDomainSingleMD(MovimientoDetalleViewModel viewModel)
+        {
+            var domain = new TbFaMovimientoDetalle
+            {
+                IdMovimientoDetalle = viewModel.IdMovimientoDetalle,
+                IdMovimientoDesde = viewModel.IdMovimientoDesde,
+                IdMovimientoHasta = viewModel.IdMovimientoHasta,
+                CompraDolarTc = viewModel.CompraDolarTc,
+                VentaDolarTc = viewModel.VentaDolarTc,
+                CompraEuroTc = viewModel.CompraEuroTc,
+                VentaEuroTc = viewModel.VentaEuroTc,
+                Fecha = DateTime.Now
+
+
+            };
+
+            float dolar = (float)viewModel.VentaDolarTc;
+            float euro = (float)viewModel.VentaEuroTc;
+
+            if (viewModel.IdMoneda == 1)
+            {
+                domain.AplicadoBase = viewModel.Aplicado;
+                domain.AplicadoDolar = domain.AplicadoBase / dolar;
+                domain.AplicadoEuro = domain.AplicadoBase / euro;
+            }
+            else if (viewModel.IdMoneda == 2)
+            {
+                domain.AplicadoBase = viewModel.Aplicado * dolar;
+                domain.AplicadoDolar = viewModel.Aplicado;
+                domain.AplicadoEuro = domain.AplicadoBase / euro;
+            }
+            else if (viewModel.IdMoneda == 3)
+            {
+                domain.AplicadoBase = viewModel.Aplicado * euro;
+                domain.AplicadoDolar = domain.AplicadoBase / dolar;
+                domain.AplicadoEuro = viewModel.Aplicado;
+            }
+
+            return domain;
+        }
     }
 }

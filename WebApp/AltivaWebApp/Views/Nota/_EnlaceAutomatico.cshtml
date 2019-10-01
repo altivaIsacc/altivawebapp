@@ -1,0 +1,140 @@
+﻿@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+<h5 class="col-md-11 col-sm-11 col-xs-11" id="departamentoModallabel"> @Lb["EnlaceAutomatico"]</h5>
+<div class="col-md-1 col-sm-1 col-xs-1">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+        <div class="col-md-3 col-sm-3 col-xs-12">
+            <label>@Lb["Disponible"]:</label>
+            <input readonly class="form-control currency" id="disponible" />
+            <br />
+        </div>
+        <table class="table table-bordered table-striped col-md-2 col-sm-2 col-xs-12 well" id="tblOrdenCompra">
+            <thead>
+                <tr>
+
+                    <th><span>@Lb["tipo"]</span></th>
+                    <th><span>@Lb["Documento"]</span></th>
+                    <th><span>@Lb["Fecha"]</span></th>
+                    <th><span>@Lb["Pendiente"]</span></th>
+                    <th><span>@Lb["Aplicado"]</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="lineaAplicadoForm"></tr>
+            </tbody>
+        </table>
+        <div class="col-md-2 col-sm-2 col-xs-12" style="margin-left:700px">
+            <input readonly id="sumaAplicado" class="form-control currency" />
+
+        </div>
+        <div class="row">
+            <div class="form-group col-md-6">
+                <button class="btn btn-success btnAccion" onclick="GuardarEnlace()">@Lb["Aplicar"]</button>
+                <a id="cancelarEnlace" onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
+            </div>
+        </div>
+ 
+  <script>
+    $(document).ready(function () {
+        $("#disponible").val($("#totalDisponible").inputmask('unmaskedvalue'));
+        $("#sumaAplicado").val($("#totalAplicado").inputmask('unmaskedvalue'));
+
+    });
+    $("#cancelarEnlace").on("click", function () {
+       $('#modalTipoJustificante').modal('hide');
+
+    });
+         var simbolo = "₡";
+        if (parseInt($('#tipoMoneda').val()) === 2)
+            simbolo = "$";
+        else if (parseInt($('#tipoMoneda').val()) === 3)
+            simbolo = "€";
+       $(".currency").inputmask('currency', {
+            prefix: simbolo,
+            rightAlign: true
+       });
+
+       $(".moneda").inputmask('currency', {
+           prefix: '',
+           rightAlign: true,
+           min: 0
+       });
+    function calcularLinea(saldo) {
+        if (saldo > 0 && saldo != NaN) {
+            var disponible = $("#disponible").inputmask('unmaskedvalue');
+            var totalApli = $("#sumaAplicado").inputmask('unmaskedvalue');
+            var result = 0;
+            if (saldo <= disponible) {
+                result = disponible - saldo;
+                $("#disponible").val(result);
+                $("#sumaAplicado").val(parseFloat(totalApli) + saldo);
+                return saldo;
+            }
+            if (saldo > disponible) {
+                $("#disponible").val(0.00);
+                $("#sumaAplicado").val(parseFloat(disponible) + parseFloat(totalApli));
+                return disponible;
+            }
+        } else {
+            return 0;
+        }
+    }
+    ///AJAX///
+    function GuardarEnlace() {
+        var model = crearModeloEnlace();
+        console.log(model);
+        $.ajax({
+            type: "post",
+            dataType: "json",
+            data: {viewModel: model},
+           url: '@Url.Action("CrearEnlace", "Nota")',
+           success: function (data) {
+               $('#modalTipoJustificante').modal('hide');
+               cargarDatos();
+           },
+           error: function (err, scnd) {
+               cargarAlert('@Lb["errorGeneral"]');
+               console.log(err.statusText);
+           }
+       });
+        
+    }
+    function crearModeloEnlace() {
+        var array = [];
+        for (var i = 0; i < lineasEnlace.length; i++) {
+            if (lineasEnlace[i].idMovimiento != parseInt($("#IdMovimiento").val()) && lineasEnlace[i].saldoBase != 0){
+                var model = {
+                    num : lineasEnlace[i].idDocumento,
+                    IdMovimientoDesde: parseInt($("#IdMovimiento").val()),
+                    IdMovimientoHasta: lineasEnlace[i].idMovimiento,
+                    Aplicado: parseFloat(saldos[i]),
+                    CompraDolarTC: parseFloat($("#dolar").inputmask('unmaskedvalue')),
+                    VentaDolarTC: parseFloat($("#dolarVenta").inputmask('unmaskedvalue')),
+                    CompraEuroTC: parseFloat($("#euro").inputmask('unmaskedvalue')),
+                    VentaEuroTC: parseFloat($("#euroVenta").inputmask('unmaskedvalue')),
+                    IdMoneda: parseInt($("#tipoMoneda").val()),
+                };
+                array.push(model);
+            }
+        }
+        return array;
+    }
+
+    function cargarDatos() {
+        getDocumentos(2);
+        $("#totalDisponible").val($("#disponible").inputmask('unmaskedvalue'));
+        $("#totalAplicado").val($("#sumaAplicado").inputmask('unmaskedvalue'));     
+     }
+
+
+  </script>

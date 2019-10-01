@@ -41,6 +41,11 @@ namespace AltivaWebApp.Controllers
         {
             return View();
         }
+        [HttpGet("EnlaceAutomatico")]
+        public IActionResult _EnlaceAutomatico()
+        {
+            return PartialView("_EnlaceAutomatico");
+        }
         [HttpGet("CrearNota")]
         public IActionResult CrearNota()
         {
@@ -77,11 +82,11 @@ namespace AltivaWebApp.Controllers
 
         }
         [HttpGet("GetDocumentosByContacto/{id}")]
-        public IActionResult GetDocumentosByContacto(long id)
+        public IActionResult GetDocumentosByContacto(long id, bool cxp, long idDocumento)
         {
             try
             {
-                var docs = movimientoService.getDocumentosContacto();
+                var docs = movimientoService.GetDocumentosContacto(id, cxp, idDocumento);
 
               
 
@@ -109,7 +114,21 @@ namespace AltivaWebApp.Controllers
             }
 
         }
-      
+        [HttpPost("CrearEnlace")]
+        public IActionResult CrearEnlace(IList<MovimientoDetalleViewModel> viewModel)
+        {
+            try
+            {
+                movimientoMap.CreateMD(viewModel);
+                return Json(new { success = true });
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
+
         [HttpGet("TipoDocumento")]
         public IActionResult GetAllTipoDocumento()
         {
@@ -162,7 +181,7 @@ namespace AltivaWebApp.Controllers
             {
                 if(modelNota.IdNotaCredito != 0)
                 {
-                    map.Update(modelNota);
+                    var Nota = map.Update(modelNota);
                 
                     if (modelMovimiento.movimientoJustificante != null)
                     {
@@ -174,6 +193,7 @@ namespace AltivaWebApp.Controllers
                         movimientoMap.UpdateMJ(modelMovimiento);
                     }
                     var movimiento = movimientoMap.Update(modelMovimiento);
+                    return Json(new { success = true });
                 }
                 else
                 {
@@ -181,10 +201,10 @@ namespace AltivaWebApp.Controllers
                     modelMovimiento.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     modelMovimiento.IdDocumento = Nota.IdNotaCredito;
                     movimientoMap.Create(modelMovimiento);
-
+                    return Ok(Nota);
 
                 }
-                return Json(new { success = true });
+               
 
             }
             catch

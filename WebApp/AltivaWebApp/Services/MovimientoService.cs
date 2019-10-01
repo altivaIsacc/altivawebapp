@@ -21,6 +21,10 @@ namespace AltivaWebApp.Services
         {
             return repository.Save(domain);
         }
+        public bool SaveMD(IList<TbFaMovimientoDetalle> domain)
+        {
+            return repository.SaveMD(domain);
+        }
         public TbFaMovimiento Update(TbFaMovimiento domain)
         {
             return repository.Update(domain);
@@ -53,9 +57,9 @@ namespace AltivaWebApp.Services
         {
             return repository.DeleteMovimientoJustificante(domain, idMovimiento);
         }
-        public IList<DocumentosContactoViewModel> getDocumentosContacto()
+        public IList<DocumentosContactoViewModel> GetDocumentosContacto(long id, bool cxp, long idMovimiento)
         {
-            return repository.getDocumentosContacto();
+            return repository.GetDocumentosContacto(id, cxp, idMovimiento);
         }
     }
 }

@@ -17,5 +17,6 @@ namespace AltivaWebApp.Mappers
         TbFaMovimiento ViewModelToDomain(MovimientoViewModel viewModel);
         IList<TbFaMovimientoJustificante> ViewModelToDomainMJ(MovimientoViewModel viewModel);
         TbFaMovimientoJustificante ViewModelToDomainSingleMj(MovimientoJustificanteViewModel viewModel, MovimientoViewModel movimiento);
+        bool CreateMD(IList<MovimientoDetalleViewModel> viewModel);
     }
 }
