@@ -79,6 +79,8 @@ namespace AltivaWebApp.Mappers
                 PorcDescuento = viewModel.PorcDescuento,
                 Tipo = viewModel.Tipo,
                 IdPuntoVenta = viewModel.IdPuntoVenta,
+                Concecutivo = viewModel.Consecutivo,
+                EnCola = viewModel.EnCola,
                 TbFdFacturaDetalle = viewModel.FacturaDetalle != null ? ViewModelToDomainFD(viewModel) : null
             };
 
@@ -223,7 +225,9 @@ namespace AltivaWebApp.Mappers
                 IdVendedor = domain.IdVendedor,
                 PorcDescuento = domain.PorcDescuento,
                 Tipo = domain.Tipo,
-                IdPuntoVenta = domain.IdPuntoVenta
+                IdPuntoVenta = domain.IdPuntoVenta,
+                Consecutivo = domain.Concecutivo,
+                EnCola = domain.EnCola
 
             };
 

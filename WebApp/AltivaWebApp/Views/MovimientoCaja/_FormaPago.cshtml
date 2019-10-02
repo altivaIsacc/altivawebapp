@@ -1,0 +1,1203 @@
+﻿@*monto*@
+@model FormaPagoViewModel
+@inject IStringLocalizer<SharedResources> Lb
+
+
+<div class="modal fade" id="formaPagoModal" tabindex="-1" role="dialog" aria-labelledby="formaPagoModalCenter" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header row" style="padding-bottom:0; margin-bottom: 0; ">
+
+                <div class="col-md-3 col-sm-3 col-xs-6">
+                    <div class="form-group row">
+                        <label for="monto" class="col-sm-3 col-xs-4 col-md-3 col-form-label col-form-label-sm">@Lb["Monto"]:</label>
+                        <div class="col-sm-9 col-md-9 col-xs-8">
+                            <input readonly class="form-control input-sm formaPagoMoneda" value="@Model.Monto.ToString("N").Replace(",",".")" id="monto">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-3 col-xs-6">
+                    <div class="form-group row">
+                        <label for="pago" class="col-sm-3 col-xs-4 col-md-3 col-form-label col-form-label-sm">@Lb["Pagos"]:</label>
+                        <div class="col-sm-9 col-md-9 col-xs-8">
+                            <input readonly class="form-control input-sm formaPagoMoneda" value="0" id="pago">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-8">
+                    <div class="form-group row">
+                        <label for="balance" class="col-sm-3 col-xs-3 col-md-3 col-form-label col-form-label-sm">@Lb["Balance"]:</label>
+                        <div class="col-sm-9 col-md-9 col-xs-9">
+                            <input readonly class="form-control input-sm " id="balance">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-4" style="margin: 0; padding: 0; text-align:right">
+                    <button class="btn btn-link" onclick="guardarMovimientosCaja()">
+                        <span aria-hidden="true">@Lb["Terminar"]</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-2 col-sm-4 col-xs-12">
+                        <div class="list-group" id="metodosPago" role="tablist">
+                            <a onclick="setFormaPagoSeleccionada(efectivo = 1)" class="list-group-item list-group-item-action" id="efectivoTab" data-toggle="list" href="#list-efectivo" role="tab" aria-controls="efectivo">@Lb["Efectivo"]</a>
+                            <a onclick="setFormaPagoSeleccionada(tarjeta = 2)" class="list-group-item list-group-item-action" id="tarjetaTab" data-toggle="list" href="#list-tarjeta" role="tab" aria-controls="tarjeta">@Lb["Tarjeta"]</a>
+                            <a onclick="setFormaPagoSeleccionada(transferencia = 3)" class="list-group-item list-group-item-action" id="transferenciaTab" data-toggle="list" href="#list-transferencia" role="tab" aria-controls="transferencia">@Lb["Transferencia"]</a>
+                            <a onclick="setFormaPagoSeleccionada(cheque = 4)" class="list-group-item list-group-item-action" id="chequeTab" data-toggle="list" href="#list-cheque" role="tab" aria-controls="cheque">@Lb["Cheque"]</a>
+                            <a onclick="setFormaPagoSeleccionada(saldo = 5)" class="list-group-item list-group-item-action" id="saldoTab" data-toggle="list" href="#list-saldo" role="tab" aria-controls="saldo">@Lb["AplicarSaldo"]</a>
+                        </div>
+                    </div>
+                    <div class="col-md-5 col-sm-8 col-xs-12">
+                        <div class="tab-content" id="nav-tabContent">
+                            <div class="row">
+                                <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align:right">
+                                    <label class="form-check-label" for="rdMonedaBase"><input class="form-check-input rdMonedaBase" onclick="setMonedaFormaPago(1)" type="radio" name="rdMoneda" id="rdMonedaBase" value="1"><span class="lbMonedaBase"></span></label>&nbsp;&nbsp;
+                                    <label class="form-check-label" for="rdMonedaDolar"><input class="form-check-input rdMonedaDolar" onclick="setMonedaFormaPago(2)" type="radio" name="rdMoneda" id="rdMonedaDolar" value="2"><span class="lbMonedaDolar"></span></label>&nbsp;&nbsp;
+                                    <label class="form-check-label" for="rdMonedaEuro"> <input class="form-check-input rdMonedaEuro" onclick="setMonedaFormaPago(3)" type="radio" name="rdMoneda" id="rdMonedaEuro" value="3"><span class="lbMonedaEuro"></span></label>&nbsp;&nbsp;
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="list-efectivo" role="tabpanel" aria-labelledby="efectivoTab">
+                                <div class="row">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <hr style="padding:0; margin:0; margin-bottom:1rem" />
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Monto"]:</stron></span>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm montoFormaPago" onkeypress="enterMonto(event, efectivo = 2)" id="montoFP1" />
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12" style="text-align: right">
+                                            <button onclick="borrarMontoFormaPago()" class="btn btn-link">@Lb["Borrar"]</button>
+                                            |
+                                            <button onclick="guardarFormaPago(efectivo = 2)" class="btn btn-link">@Lb["Listo"]</button>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="row">
+                                                @foreach (var item in ViewData["denominaciones"] as IList<TbFaDenominacion>)
+                                                {
+                                                    var claseD = "digito" + item.IdMoneda.ToString();
+                                                    var claseT = "tipo" + item.Tipo.ToString();
+                                                    var claseM = "moneda" + item.IdMoneda.ToString();
+                                                    <div class="col-md-4 col-sm-4 col-xs-4 @claseD @claseT" hidden>
+                                                        @{ CultureInfo us = CultureInfo.CreateSpecificCulture("en-US"); }
+
+                                                        @if (item.Tipo == 2)
+                                                        {
+                                                            <button style="width:100%" class="btn btn-sm" value="@item.Valor" onclick="btnDenominacion(value)"><i class="fas fa-coins"></i><span class="@claseM"></span> @item.Valor.ToString("#,#", us)</button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button style="width:100%" class="btn btn-sm" value="@item.Valor" onclick="btnDenominacion(value)"><i class="fas fa-money-bill"></i><span class="@claseM"></span> @item.Valor.ToString("#,#", us)</button>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="list-tarjeta" role="tabpanel" aria-labelledby="tarjetaTab">
+                                <div class="row">
+                                    <hr style="padding:0; margin:0; margin-bottom:1rem" />
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        <label><stron>@Lb["Operador"]:</stron></label>
+                                    </div>
+                                    <div class="col-md-8 col-sm-8 col-xs-8">
+                                        @foreach (var item in ViewData["operadoresTarjeta"] as IList<TbBaFlujoCategoria>)
+                                        {
+                                            <div class="form-group" style="margin:0">
+                                                <input class="form-check-input rdOperador" type="radio" name="rdOperadorTarjeta" id="rdOperador+@item.IdCategoriaFlujo" value="@item.IdCategoriaFlujo">
+                                                <label class="form-check-label" for="rdOperador+@item.IdCategoriaFlujo">@item.Nombre</label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <hr style="padding:0; margin:0; margin-bottom:1rem" />
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+
+                                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Monto"]:</stron></span>
+                                        </div>
+                                        <div class=" form-group col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm montoFormaPago" id="montoFP2" onkeypress="pasarSigCampoFP(event,'autorizacion')" />
+                                            <span hidden class="text-danger" id="montoMayorValid">@Lb["montoMayorValid"].</span>
+                                        </div>
+
+                                        <hr style="padding:0; margin:0; margin-bottom:1rem" />
+
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Autorización"]:</stron></span>
+                                        </div>
+                                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm soloInt" id="autorizacion" onkeypress="pasarSigCampoFP(event,'voucher')" />
+                                            <span hidden class="text-danger" id="autorizacionValid">@Lb["autorizacionValid"].</span>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Voucher"]:</stron></span>
+                                        </div>
+                                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm soloInt" id="voucher" onkeypress="enterMonto(event, operador = 3)" />
+                                            <span hidden class="text-danger" id="voucherValid">@Lb["voucherValid"].</span>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12" style="text-align: right">
+                                            <button onclick="borrarMontoFormaPago()" class="btn btn-link">@Lb["Borrar"]</button>
+                                            |
+                                            <button onclick="guardarFormaPago(tarjeta = 3)" class="btn btn-link">@Lb["Listo"]</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="list-transferencia" role="tabpanel" aria-labelledby="transferenciaTab">
+                                <div class="row">
+                                    <hr style="padding:0; margin:0; margin-bottom:1rem" />
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        <label><stron>@Lb["Banco"]:</stron></label>
+                                    </div>
+                                    <div class="col-md-8 col-sm-8 col-xs-8">
+                                        @foreach (var item in ViewData["bancos"] as IList<TbBaFlujoCategoria>)
+                                        {
+                                            <div class="form-group" style="margin:0">
+                                                <input class="form-check-input rdBanco" type="radio" name="rdBanco" id="rdBanco+@item.IdCategoriaFlujo" value="@item.IdCategoriaFlujo">
+                                                <label class="form-check-label" for="rdBanco+@item.IdCategoriaFlujo">@item.Nombre</label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <hr style="padding:0; margin:0; margin-bottom:1rem" />
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+
+                                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Monto"]:</stron></span>
+                                        </div>
+                                        <div class=" form-group col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm montoFormaPago" id="montoFP3" onkeypress="pasarSigCampoFP(event,'documento')" />
+                                            <span hidden class="text-danger" id="montoMayorValidT">@Lb["montoMayorValid"].</span>
+                                        </div>
+
+                                        <hr style="padding:0; margin:0; margin-bottom:1rem" />
+
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Documento"]:</stron></span>
+                                        </div>
+                                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm soloInt" id="documento" onkeypress="pasarSigCampoFP(event,'fechaTransferencia')" />
+                                            <span hidden class="text-danger" id="documentoValid">@Lb["documentoValid"].</span>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Fecha"]:</stron></span>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <input type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" class="form-control input-sm" id="fechaTransferencia" onkeypress="enterMonto(event, banco = 1)" />
+                                            <span hidden class="text-danger" id="fechaValid">@Lb["fechaValid"].</span>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12" style="text-align: right">
+                                            <button onclick="borrarMontoFormaPago()" class="btn btn-link">@Lb["Borrar"]</button>
+                                            |
+                                            <button onclick="guardarFormaPago(banco = 1)" class="btn btn-link">@Lb["Listo"]</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="list-cheque" role="tabpanel" aria-labelledby="chequeTab">
+
+                                <div class="row">
+                                    <hr style="padding:0; margin:0; margin-bottom:1rem" />
+                                    <div class="col-md-4 col-sm-4 col-xs-4">
+                                        <label><stron>@Lb["Banco"]:</stron></label>
+                                    </div>
+                                    <div class="col-md-8 col-sm-8 col-xs-8">
+                                        @foreach (var item in ViewData["bancos"] as IList<TbBaFlujoCategoria>)
+                                        {
+                                            <div class="form-group" style="margin:0">
+                                                <input class="form-check-input rdBancoCheque" type="radio" name="rdBancoCheque" id="rdBancoCheque+@item.IdCategoriaFlujo" value="@item.IdCategoriaFlujo">
+                                                <label class="form-check-label" for="rdBancoCheque+@item.IdCategoriaFlujo">@item.Nombre</label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <hr style="padding:0; margin:0; margin-bottom:1rem" />
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+
+                                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Monto"]:</stron></span>
+                                        </div>
+                                        <div class=" form-group col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm montoFormaPago" id="montoFP4" onkeypress="pasarSigCampoFP(event,'documentoCheque')" />
+                                            <span hidden class="text-danger" id="montoMayorValidC">@Lb["montoMayorValid"].</span>
+                                        </div>
+
+                                        <hr style="padding:0; margin:0; margin-bottom:1rem" />
+
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Documento"]:</stron></span>
+                                        </div>
+                                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm soloInt" id="documentoCheque" onkeypress="pasarSigCampoFP(event,'fechaCheque')" />
+                                            <span hidden class="text-danger" id="documentoChequeValid">@Lb["documentoValid"].</span>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Fecha"]:</stron></span>
+                                        </div>
+                                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                                            <input type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" class="form-control input-sm" id="fechaCheque" onkeypress="pasarSigCampoFP(event,'portador')" />
+                                            <span hidden class="text-danger" id="fechaChequeValid">@Lb["fechaValid"].</span>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            <span><stron>@Lb["Portador"]:</stron></span>
+                                        </div>
+                                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                                            <input class="form-control input-sm" maxlength="100" id="portador" onkeypress="pasarSigCampoFP(event,'notaCheque')" />
+                                            <span hidden class="text-danger" id="portadorValid">@Lb["portadorValid"].</span>
+                                        </div>
+                                        <div class="col-md-2 col-sm-2 col-xs-2">
+                                            <span><stron>@Lb["Nota"]:</stron></span>
+                                        </div>
+                                        <div class="form-group col-md-10 col-sm-10 col-xs-10">
+                                            <input class="form-control input-sm" maxlength="100" id="notaCheque" onkeypress="enterMonto(event, banco = 1)" />
+                                            <span hidden class="text-danger" id="notaValid">@Lb["notaValid"].</span>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12" style="text-align: right">
+                                            <button onclick="borrarMontoFormaPago()" class="btn btn-link">@Lb["Borrar"]</button>
+                                            |
+                                            <button onclick="guardarFormaPago(banco = 1)" class="btn btn-link">@Lb["Listo"]</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="tab-pane fade" id="list-saldo" role="tabpanel" aria-labelledby="saldoTab">Saldo</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5 col-sm-8 col-xs-12 pull-right">
+                        <h4 style="padding:0; margin:0; margin-top:0.3rem; margin-bottom: 1.5rem;">@Lb["MetodosAgregados"]</h4>
+                        <table class="table table-borderless pull-right" style="width:100%" id="tblFormaPago">
+                            <tbody>
+                                <tr id="lineaTotalesFP">
+                                    <td></td>
+                                    <td><strong>@Lb["Total"]</strong></td>
+                                    <td style="text-align:right"><label id="totalFormasPago"></label></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="vueltoModal" tabindex="-1" role="dialog" aria-labelledby="vueltoModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="col-md-10 col-sm-10 col-xs-10">
+                    <h3 class="modal-title" id="vueltoModalCenterTitle">@Lb["Vuelto"]</h3>
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <h4><span id="lbVuelto"></span></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="closeVueltoModal" class="btn btn-primary" data-dismiss="modal">@Lb["Aceptar"]</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div hidden><input hidden id="montoFormat" value="@Model.Monto.ToString().Replace(",", ".")" type="number" /></div>
+<div hidden><input hidden id="auxMontoFormat" class="montoFormaPago" type="text" /></div>
+<div hidden><input hidden id="formater1" type="text" /></div>
+<div hidden><input hidden id="formater2" type="text" /></div>
+<div hidden><input hidden id="formater3" type="text" /></div>
+<div hidden><input hidden id="formater4" class="formaPagoMoneda" type="text" /></div>
+<div hidden><input hidden id="vueltoFormat" class="formaPagoMoneda" type="text" /></div>
+
+<script>
+    var formaPagoSeleccionada;
+    var monedaFormaPagoSeleccionada;
+    var primeraVez = true;
+    var formasPago = [];
+
+    ////////varibales general
+    var _MONTO = 1;
+    var _APLICADO = 2;
+    var _VISUAL = 3;
+    var _BALANCE = 4;
+    var _BASE = 1;
+    var _DOLAR = 2;
+    var _EURO = 3;
+    var _MONEDADEFAULT = @Model.Moneda;
+
+
+    var montosGeneral = {
+        monto: {
+            montoBase: 0,
+            montoDolar: 0,
+            montoEuro: 0
+        },
+        aplicado: {
+            aplicadoBase: 0,
+            aplicadoDolar: 0,
+            aplicadoEuro: 0
+        },
+        visual: {
+            visualBase: 0,
+            visualDolar: 0,
+            visualEuro: 0
+        },
+        balance: {
+            balanceBase: 0,
+            balanceDolar: 0,
+            balanceEuro: 0
+        }
+    };
+
+
+    $(document).ready(function () {
+
+        $("input:radio[name=rdOperadorTarjeta]:first").prop('checked', true);
+        $("input:radio[name=rdBanco]:first").prop('checked', true);     
+        $("input:radio[name=rdBancoCheque]:first").prop('checked', true);     
+
+        setMonto();
+        calcularMovimientos();
+
+        $("#formater1").inputmask('currency', {
+            prefix: monedas[0].simbolo,
+            rightAlign: true,
+            min: 0
+        });
+        $("#formater2").inputmask('currency', {
+            prefix: monedas[1].simbolo,
+            rightAlign: true,
+            min: 0
+
+        });
+
+        $("#formater3").inputmask('currency', {
+            prefix: monedas[2].simbolo,
+            rightAlign: true,
+            min: 0
+        });
+        $('.soloInt').inputmask({
+            alias: 'numeric',
+            allowMinus: false,
+            digits: 0,
+            rightAlign: false,
+        });
+        showTab('efectivoTab');
+
+        setTimeout(function () { $('#montoFP1').focus(); }, 500);
+
+    });
+
+    $('#metodosPago a').on('click', function (e) {
+        e.preventDefault();
+        $('#metodosPago a').removeClass('active');
+        $(this).tab('show');
+        $(this).addClass('active');
+        ocultarValidaciones();
+    });
+
+    function showTab(id) {
+        $('#metodosPago a').removeClass('active');
+        $('#' + id).tab('show');
+        $('#' + id).addClass('active');
+        $('#' + id).click();
+    }
+
+    function setFormaPagoSeleccionada(value) {
+
+        primeraVez = true;
+
+        formaPagoSeleccionada = value;
+        setMonedaGeneral(_MONEDADEFAULT);
+        
+
+    }
+
+    /////////////////////////calculos efectivo/////////////////////
+
+
+    ////////////validar si es la primera vez
+    function btnDenominacion(value) {
+
+        if (primeraVez)
+            $('#montoFP1').val(0);
+
+        var montoAct = $('#montoFP1').inputmask('unmaskedvalue');
+        if (montoAct == null)
+            montoAct = 0;
+
+        $('#montoFP1').val(parseFloat(montoAct) + parseFloat(value));
+
+        setTimeout(function () { $('#montoFP1').focus(); }, 1);
+
+        primeraVez = false;
+
+    }
+
+
+    /////////////////////////fin calculos efectivo/////////////////////
+    //////////////////////////calculos general/////////////////////////
+
+    function calcularMovimientos() {
+
+        setPago();
+        setBalance();
+    }
+
+    ////////////////////////////get and set///////////////////////////////////
+    function setBalance() {
+        var balance = (getMonto(_MONEDADEFAULT) - getPago(_MONEDADEFAULT));
+
+        if (balance < 0)
+            balance = 0;
+
+        setterGeneral(_BALANCE, balance);
+
+        $('#balance').val(balance * -1);
+
+        setterGeneral(_VISUAL, $('#balance').inputmask('unmaskedvalue'));
+    }
+
+    function getBalance(moneda) {
+        return getterGeneral(_BALANCE, moneda);
+    }
+
+    function setPago() {
+        var pago = totalFomasPago();
+        setterGeneral(_APLICADO, pago);
+
+        $('#pago').val(pago);
+
+    }
+    function getPago(moneda) {
+        return getterGeneral(_APLICADO, moneda);
+    }
+    function getVuelto() {
+        var vuelto = getPago(_MONEDADEFAULT) - getMonto(_MONEDADEFAULT);
+        if (vuelto < 0)
+            vuelto = 0;
+
+        return vuelto;
+    }
+
+    function getMonto(moneda) {
+        return getterGeneral(_MONTO, moneda);
+    }
+    function setMonto() {
+        setterGeneral(_MONTO, parseFloat($('#montoFormat').val()));
+    }
+
+    function getMontoFP(moneda) {
+        return getterGeneral(_BALANCE, moneda);
+    }
+    function setMontoFP(moneda) {
+        $('.montoFormaPago').val(getBalance(moneda));
+        $('.montoFormaPago').select();
+    }
+
+    function setterGeneral(tipoMonto, valor) {
+
+        switch (tipoMonto) {
+            case 1:
+                montosGeneral.monto.montoBase = calcularMontoAlCambio(_MONEDADEFAULT, 1, valor);
+                montosGeneral.monto.montoDolar = calcularMontoAlCambio(_MONEDADEFAULT, 2, valor);
+                montosGeneral.monto.montoEuro = calcularMontoAlCambio(_MONEDADEFAULT, 3, valor);
+                break;
+            case 2:
+                montosGeneral.aplicado.aplicadoBase = calcularMontoAlCambio(_MONEDADEFAULT, 1, valor);
+                montosGeneral.aplicado.aplicadoDolar = calcularMontoAlCambio(_MONEDADEFAULT, 2, valor);
+                montosGeneral.aplicado.aplicadoEuro = calcularMontoAlCambio(_MONEDADEFAULT, 3, valor);
+                break;
+            case 3:
+                montosGeneral.visual.visualBase = calcularMontoAlCambio(_MONEDADEFAULT, 1, valor);
+                montosGeneral.visual.visualDolar = calcularMontoAlCambio(_MONEDADEFAULT, 2, valor);
+                montosGeneral.visual.visualEuro = calcularMontoAlCambio(_MONEDADEFAULT, 3, valor);
+                break;
+            case 4:
+                montosGeneral.balance.balanceBase = calcularMontoAlCambio(_MONEDADEFAULT, 1, valor);
+                montosGeneral.balance.balanceDolar = calcularMontoAlCambio(_MONEDADEFAULT, 2, valor);
+                montosGeneral.balance.balanceEuro = calcularMontoAlCambio(_MONEDADEFAULT, 3, valor);
+                break;
+        }
+    }
+
+    function getterGeneral(tipoMonto, moneda) {
+
+        var model = {
+            base: 0,
+            dolar: 0,
+            euro:0
+        };
+
+        var res = 0;
+
+        switch (tipoMonto) {
+            case 1:
+                model.base = montosGeneral.monto.montoBase;
+                model.dolar = montosGeneral.monto.montoDolar;
+                model.euro = montosGeneral.monto.montoEuro;
+                break;
+            case 2:
+                model.base = montosGeneral.aplicado.aplicadoBase;
+                model.dolar = montosGeneral.aplicado.aplicadoDolar;
+                model.euro = montosGeneral.aplicado.aplicadoEuro;
+                break;
+            case 3:
+                model.base = montosGeneral.visual.visualBase;
+                model.dolar = montosGeneral.visual.visualDolar;
+                model.euro = montosGeneral.visual.visualEuro;
+                break;
+            case 4:
+                model.base = montosGeneral.balance.balanceBase;
+                model.dolar = montosGeneral.balance.balanceDolar;
+                model.euro = montosGeneral.balance.balanceEuro;
+                break;
+        }
+
+        switch (moneda) {
+            case 1:
+                res = model.base;
+                break;
+            case 2:
+                res = model.dolar;
+                break;
+            case 3:
+                res = model.euro;
+                break;
+        }
+
+        return res;
+    }
+
+
+
+    ////////////////////////////fin get and set///////////////////////////////////
+
+    function getMontosModel(idMoneda, monto) {
+
+        var model = {
+            base: 0,
+            dolar: 0,
+            euro: 0
+        };
+
+        switch (idMoneda) {
+            case 1:
+                model.base = monto;
+                model.dolar = monto / monedas[1].valorCompra;
+                model.euro = monto / monedas[2].valorCompra;
+                break;
+            case 2:
+                model.base = monto * monedas[1].valorCompra;
+                model.dolar = monto;
+                model.euro = (monto * monedas[1].valorCompra) / monedas[2].valorCompra;
+                break;
+            case 3:
+                model.base = monto * monedas[2].valorCompra;
+                model.dolar = (monto * monedas[2].valorCompra) / monedas[1].valorCompra;
+                model.euro = monto;
+                break;
+            default:
+        }
+
+        return model;
+
+    }
+
+    function calcularMontoAlCambio(monedaAnte, monedaNueva, monto) {
+
+        var montoFPRest = monto;
+
+        switch (monedaAnte) {
+            case 1:
+                switch (monedaNueva) {
+                    case 1:
+                        montoFPRest = montoFPRest;
+                        break;
+                    case 2:
+                        montoFPRest = montoFPRest / monedas[1].valorCompra;
+                        break;
+                    case 3:
+                        montoFPRest = montoFPRest / monedas[2].valorCompra;
+                        break;
+                }
+                break;
+            case 2:
+                switch (monedaNueva) {
+                    case 1:
+                        montoFPRest = montoFPRest * monedas[1].valorCompra ;
+                        break;
+                    case 2:
+                        montoFPRest = montoFPRest;
+                        break;
+                    case 3:
+                        montoFPRest = (montoFPRest * monedas[1].valorCompra) / monedas[2].valorCompra;
+                        break;
+                }
+                break;
+            case 3:
+                switch (monedaNueva) {
+                    case 1:
+                        montoFPRest = montoFPRest * monedas[2].valorCompra ;
+                        break;
+                    case 2:
+                        montoFPRest = (montoFPRest * monedas[2].valorCompra) / monedas[1].valorCompra;
+                        break;
+                    case 3:
+                        montoFPRest = montoFPRest;
+                        break;
+                }
+                break;
+        }
+
+        return montoFPRest;
+    }
+
+    /////////////////////////fin calculos general/////////////////
+
+
+    //////////////////////////calculos Forma pago////////////////
+
+    function totalFomasPago() {
+
+        var montoPago = 0;
+
+        for (var i = 0; i < formasPago.length; i++) {
+            montoPago += getMontoAlCambio(formasPago[i]);
+        }
+
+        $('#formater4').val(montoPago);
+        $('#totalFormasPago').text($('#formater4').val());
+
+        return montoPago;
+    }
+
+
+    /////////////////////////general////////////////////////////
+
+    function crearModeloFormaPago(tipoCategoriaFlujo) {
+
+        var idMoneda = parseInt($("input[name='rdMoneda']:checked").val());
+
+        var montoOriginal = getMontoReal(idMoneda);
+
+        var montos = getMontosModel(idMoneda, montoOriginal);
+
+        var model = {
+            idCajaMovimiento: 0,
+            tipoCategoriaFlujo: tipoCategoriaFlujo,
+            idCategoriaFlujo: getIdCategoriaFlujo(tipoCategoriaFlujo),
+            fechaCreacion: new Date(),
+            estado: true,
+            idMoneda: idMoneda,
+            montoOriginal: montoOriginal,
+            montoBase: montos.base,
+            montoDolar: montos.dolar,
+            montoEuro: montos.euro,
+            compraDolarTc: monedas[1].valorCompra,
+            ventaDolarTc: monedas[1].valorVenta,
+            compraEuroTc: monedas[2].valorCompra,
+            ventaEuroTc: monedas[2].valorVenta,
+            idTipoCajaMovimiento: formaPagoSeleccionada,
+            idCaja: @Model.IdCaja,
+            idMovimiento: 0,                   //tarjeta = 2//
+            cajaMovTarjeta: formaPagoSeleccionada == 2 ? crearModelMovimientoTarjeta() : null,
+                                               //cheque = 4//
+            cajaMovCheque: formaPagoSeleccionada == 4 ? crearModelMovimientoCheque() : null,
+            fechaTransferencia: $('#fechaTransferencia').val(),
+            documentoTransferencia: $('#documento').val()
+
+        };
+
+
+        return model;
+    }
+
+    function crearModelMovimientoTarjeta() {
+        return {
+            autorizacion: $('#autorizacion').val(),
+            voucher: $('#voucher').val(),
+            idCajaMovimeintoTarjeta: 0,
+            idCajaMovimiento: 0
+        };
+    }
+
+    function crearModelMovimientoCheque() {
+        return {
+            numero: $('#documentoCheque').val(),
+            fecha: $('#fechaCheque').val(),
+            banco: "",
+            nota: $('#notaCheque').val(),
+            portador: $('#portador').val(),
+            idCajaMovimientoTarjeta: 0,
+            idCajaMovimiento: 0
+        };
+    }
+
+
+    function getMontoReal(moneda) {
+
+        var monto = $('#montoFP' + formaPagoSeleccionada).inputmask('unmaskedvalue');
+        if (monto != null)
+            monto = parseFloat(monto);
+        else monto = 0;
+
+        var aux = $('#auxMontoFormat').inputmask('unmaskedvalue');
+        if (aux != null)
+            aux = parseFloat(aux);
+        else aux = 0;
+
+        if (aux == monto) {
+            return getBalance(moneda);
+        }
+        else
+            return monto;
+    }
+
+
+
+    function guardarFormaPago(_tipoCategoriaFlujo) {
+
+
+        var idMoneda = parseInt($("input[name='rdMoneda']:checked").val());
+
+        if (getMontoReal(idMoneda) <= 0) {
+            cargarAlert('@Lb["montoValid"]');
+            return;
+        }
+
+        var fp = crearModeloFormaPago(_tipoCategoriaFlujo);
+
+        /////validaciones de inputs
+
+        if (!validarFormaPago(fp)) {
+            return;
+        }
+
+        formasPago.push(fp);
+
+        setPago(totalFomasPago());
+
+        calcularMovimientos();
+
+        setMontoFP(fp.idMoneda);
+        cargarFormasPago(formasPago);
+
+        borrarInputs();
+
+    }
+
+    function validarFormaPago(fpSelected) {
+
+        var _efectivo = 1, _tarjeta = 2, _transferencia = 3, _cheque = 4, _saldo = 5;
+
+        var flag = true;
+
+
+        switch (fpSelected.idTipoCajaMovimiento) {
+            case _efectivo:
+                    flag = true;
+                break;
+            case _tarjeta:
+
+
+                if (getMontoAlCambio(fpSelected) > getBalance(_MONEDADEFAULT)) {
+                    $('#montoMayorValid').prop('hidden', false);
+                    flag = false;
+                }
+                else
+                    $('#montoMayorValid').prop('hidden', true);
+
+                if ($('#autorizacion').val() == "" || $('#autorizacion').val() == null) {
+                    $('#autorizacionValid').prop('hidden', false);
+                    flag = false;
+                }
+                else
+                    $('#autorizacionValid').prop('hidden', true);
+
+                if ($('#voucher').val() == "" || $('#voucher').val() == null) {
+                    $('#voucherValid').prop('hidden', false);
+                    flag = false;
+                }
+                else
+                    $('#voucherValid').prop('hidden', true);
+                break;
+            case _transferencia:
+
+
+                if (getMontoAlCambio(fpSelected) > getBalance(_MONEDADEFAULT)) {
+                    $('#montoMayorValidT').prop('hidden', false);
+                    flag = false;
+                }
+                else
+                    $('#montoMayorValidT').prop('hidden', true);
+
+                if ($('#documento').val() == "" || $('#documento').val() == null) {
+                    $('#documentoValid').prop('hidden', false);
+                    flag = false;
+                }
+                else
+                    $('#documentoValid').prop('hidden', true);
+
+                if ($('#fechaTransferencia').val() == "" || $('#fechaTransferencia').val() == null) {
+                    $('#fechaTransferencia').val("@DateTime.Today.ToString("yyyy-MM-dd")");
+                }
+               
+                break;
+            case _cheque:
+
+                if (getMontoAlCambio(fpSelected) > getBalance(_MONEDADEFAULT)) {
+                    $('#montoMayorValidC').prop('hidden', false);
+                    flag = false;
+                }
+                else
+                    $('#montoMayorValidC').prop('hidden', true);
+
+                if ($('#documentoCheque').val() == "" || $('#documentoCheque').val() == null) {
+                    $('#documentoChequeValid').prop('hidden', false);
+                    flag = false;
+                }
+                else
+                    $('#documentoChequeValid').prop('hidden', true);
+
+                if ($('#fechaCheque').val() == "" || $('#fechaCheque').val() == null) {                   
+                    $('#fechaCheque').val("@DateTime.Today.ToString("yyyy-MM-dd")");
+                    $('#fechaChequeValid').prop('hidden', false);
+                }
+                
+
+                break;
+            case _saldo:
+                break;
+
+        }
+
+        return flag;
+
+    }
+
+    function borrarInputs() {
+
+        $('#voucher').val("");
+        $('#autorizacion').val("");
+        $('#documento').val("");
+        $('#documentoCheque').val("");
+        $('#fechaTransferencia').val("@DateTime.Today.ToString("yyyy-MM-dd")");
+        $('#fechaCheque').val("@DateTime.Today.ToString("yyyy-MM-dd")");
+        $('#portador').val("");
+        $('#notaCheque').val("");
+
+    }
+    function ocultarValidaciones() {
+        $('#fechaValid').prop('hidden', true);
+        $('#documentoValid').prop('hidden', true);
+        $('#documentoChequeValid').prop('hidden', true);
+        $('#montoMayorValidT').prop('hidden', true);
+        $('#montoMayorValidC').prop('hidden', true);
+        $('#voucherValid').prop('hidden', true);
+        $('#montoMayorValid').prop('hidden', true);
+        $('#autorizacionValid').prop('hidden', true);
+    }
+
+    function getIdCategoriaFlujo(tipoCatFlujo) {
+
+        var id = 0;
+
+        switch (tipoCatFlujo) {
+            case 1://bancaria
+                                         //fp trasnferencia                                                                          ////fp cheque
+                id = formaPagoSeleccionada == 3 ? parseInt($("input[name='rdBanco']:checked").val()) : parseInt($("input[name='rdBancoCheque']:checked").val());
+                break;
+            case 2://efectivo
+                id = '@ViewBag.flujoEfectivo';
+                break;
+            case 3://tarjeta
+                id = parseInt($("input[name='rdOperadorTarjeta']:checked").val());
+                break;
+        }
+
+        return id;
+    }
+
+    function enterMonto(e, tipoCat) {
+
+        (e.keyCode) ? k = e.keyCode : k = e.which;
+
+        if (k == 13) {
+            var monto = parseFloat($('#balance').inputmask('unmaskedvalue'));
+            if (monto < 0)
+                guardarFormaPago(tipoCat);
+            else
+                guardarMovimientosCaja();
+        }
+    }
+
+    function pasarSigCampoFP(e, id, submitMonto = false, tipoCat) {
+
+        (e.keyCode) ? k = e.keyCode : k = e.which;
+
+        if (k == 13) {
+
+
+            document.getElementById(id).focus();
+            $('#' + id).select();
+
+            
+
+        }
+    }
+
+    function cargarFormasPago(data) {
+
+        $('.filasCargadasFP').remove();
+        var pos = 0;
+        for (var i = 0; i < data.length; i++) {
+
+            var body =
+                '<tr class="filasCargadasFP">'
+                + '<th>' + getNombreFormaPago(data[i].idTipoCajaMovimiento) + '</th>'
+                + '<td>' + formatCurrencyFP(data[i].montoOriginal, data[i].idMoneda) + '</td>'
+                + '<td style="text-align: right">' + formatCurrencyFactura(data[i]) + '</td>'
+                + '<td><a onclick="eliminarFP(' + data[i].idCajaMovimiento + ',' + pos + ')" href="#"><i class="fas fa-trash"></i></a></td>'
+                + '</tr>';
+
+            $('#lineaTotalesFP').before(body);
+
+            pos++;
+
+        }
+
+    }
+
+    function eliminarFP(id, pos) {
+
+        formasPago.splice(pos, 1);
+        setPago(totalFomasPago());
+        calcularMovimientos();
+        $('.montoFormaPago').val(getBalance(_MONEDADEFAULT));
+        $('.montoFormaPago').focus();
+        $('.montoFormaPago').select();
+        cargarFormasPago(formasPago);
+
+
+    }
+
+
+    function getNombreFormaPago(forma) {
+        var nombre = "";
+        switch (forma) {
+            case 1:
+                nombre = "@Lb["Efectivo"]";
+                break;
+            case 2:
+                nombre = "@Lb["Tarjeta"]";
+                break;
+            case 3:
+                nombre = "@Lb["Transferencia"]";
+                break;
+            case 4:
+                nombre = "@Lb["Cheque"]";
+                break;
+            case 5:
+                nombre = "@Lb["AplicarSaldo"]";
+                break;
+            default:
+                nombre = "";
+        }
+
+        return nombre;
+    }
+
+    /////////////////////////fin general///////////////////////
+
+    /////////////////////////formato///////////////////////////
+    function setMonedaFormaPago(codigo) {
+
+        var simbolo = "";
+        switch (codigo) {
+            case 1:
+                simbolo = monedas[0].simbolo;
+                $('.digito1').prop('hidden', false);
+                $('.digito2').prop('hidden', true);
+                $('.digito3').prop('hidden', true);
+                break;
+            case 2:
+                simbolo = monedas[1].simbolo;
+                $('.digito2').prop('hidden', false);
+                $('.digito1').prop('hidden', true);
+                $('.digito3').prop('hidden', true);
+                break;
+            case 3:
+                simbolo = monedas[2].simbolo;
+                $('.digito3').prop('hidden', false);
+                $('.digito2').prop('hidden', true);
+                $('.digito1').prop('hidden', true);
+                break;
+            default:
+        }
+
+
+        $(".montoFormaPago").inputmask('currency', {
+            prefix: simbolo,
+            rightAlign: true,
+            min: 0
+        });
+        $("#montoAux").inputmask('decimal', {
+            rightAlign: true,
+            min: 0
+        });
+
+
+        setTimeout(function () {
+            $(".montoFormaPago").val(calcularMontoAlCambio(_MONEDADEFAULT, codigo, getBalance(_MONEDADEFAULT)));
+            $(".montoFormaPago").select();
+            $(".montoFormaPago").focus();
+        }, 1);
+
+    }
+
+
+    function borrarMontoFormaPago() {
+
+        $(".montoFormaPago").val(0);
+        $(".montoFormaPago").select();
+    }
+
+
+    function setMonedaGeneral(codigo) {
+
+        monedaFormaPagoSeleccionada = codigo;
+        var simbolo = "";
+        switch (codigo) {
+            case 1:
+                simbolo = monedas[0].simbolo;
+                $('.rdMonedaBase').prop('checked', true);
+                break;
+            case 2:
+                simbolo = monedas[1].simbolo;
+                $('.rdMonedaDolar').prop('checked', true);
+                break;
+            case 3:
+                simbolo = monedas[2].simbolo;
+                $('.rdMonedaEuro').prop('checked', true);
+                break;
+            default:
+        }
+
+        $('.lbMonedaBase').text(monedas[0].nombre);
+        $('.lbMonedaDolar').text(monedas[1].nombre);
+        $('.lbMonedaEuro').text(monedas[2].nombre);
+
+        $(".formaPagoMoneda").inputmask('currency', {
+            prefix: simbolo,
+            rightAlign: true,
+            min: 0
+        });
+
+        $("#balance").inputmask('currency', {
+            prefix: simbolo,
+            rightAlign: true,
+        });
+
+        setMonedaFormaPago(codigo);
+    }
+
+
+    //////////////////////////////////////////////////////auxiliares/////////////////////////////////////////
+    function formatCurrencyFP(value, idMoneda) {
+        $('#formater' + idMoneda).val(value);
+        return $('#formater' + idMoneda).val();
+    }
+    function formatCurrencyFactura(data) {
+
+        $('#formater' + @Model.Moneda).val(getMontoAlCambio(data));
+        return $('#formater' + @Model.Moneda).val();
+    }
+
+    function getMontoAlCambio(data) {
+        var montoAux = 0;
+
+
+        switch (@Model.Moneda) {
+            case 1:
+                montoAux = data.montoBase;
+                break;
+            case 2:
+                montoAux = data.montoDolar;
+                break;
+            case 3:
+                montoAux = data.montoEuro;
+                break;
+            default:
+        }
+
+        return montoAux;
+    }
+
+    function retornaFormasPago() {
+        for (var i = 0; i < formasPago.length; i++) {
+
+            formasPago[i].montoBase = formasPago[i].montoBase.toString().replace(".", ",");
+            formasPago[i].montoDolar = formasPago[i].montoDolar.toString().replace(".", ",");
+            formasPago[i].montoEuro = formasPago[i].montoEuro.toString().replace(".", ",");
+            formasPago[i].compraDolarTc = formasPago[i].compraDolarTc.toString().replace(".", ",");
+            formasPago[i].ventaDolarTc = formasPago[i].ventaDolarTc.toString().replace(".", ",");
+            formasPago[i].compraEuroTc = formasPago[i].compraEuroTc.toString().replace(".", ",");
+            formasPago[i].ventaEuroTc = formasPago[i].ventaEuroTc.toString().replace(".", ",");
+        }
+
+        return formasPago;
+    }
+
+    function guardarMovimientosCaja() {
+
+
+        var vuelto = getVuelto();
+        var balance = parseFloat($('#balance').inputmask('unmaskedvalue'));
+
+        if (vuelto > 0) {
+            $('#vueltoFormat').val(vuelto);
+            $('#lbVuelto').text($('#vueltoFormat').val());
+            $('#vueltoModal').modal('show');
+        }
+        else if (balance >= 0)
+            procesarPago();
+        else
+             cargarAlert('@Lb["pagadoMenorAlMonto"]');
+    }
+
+    $('#vueltoModal').on('shown.bs.modal', function (e) {
+        $('#closeVueltoModal').focus();
+    });
+    $('#vueltoModal').on('hidden.bs.modal', function (e) {
+        procesarPago();
+    });
+
+    $('a[data-toggle="list"]').on('shown.bs.tab', function (e) {
+        $('.montoFormaPago').focus();
+    });
+</script>

@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
+using Microsoft.EntityFrameworkCore;
+
 namespace AltivaWebApp.Repositories
 {
-    public class TipoClienteRepository :BaseRepository<TbFdTipoCliente> ,ITipoClienteRepository
+    public class TipoClienteRepository : BaseRepository<TbFdTipoCliente>, ITipoClienteRepository
     {
         public TipoClienteRepository(EmpresasContext context) : base(context)
         {
@@ -14,7 +16,13 @@ namespace AltivaWebApp.Repositories
         //devuelve un tipo de cliente
         public TbFdTipoCliente GetById(int idTipoCliente)
         {
-            return context.TbFdTipoCliente.FirstOrDefault(tc => tc.Id == idTipoCliente);
+            var model = context.TbFdTipoCliente.FirstOrDefault(tc => tc.Id == idTipoCliente);
+            if (model.IdTipoPrecio != 0)
+            {
+                model.IdTipoPrecioNavigation = context.TbPrPrecios.FirstOrDefault(p => p.Id == model.IdTipoPrecio);
+            }
+
+            return model;
         }
         //devuelve todos las familia de los tipos de clientes
         public IList<TbFdTipoCliente> GetFamiliaTipoCliente(int IdTipoCLiente)

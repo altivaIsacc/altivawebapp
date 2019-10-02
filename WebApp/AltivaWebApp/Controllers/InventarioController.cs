@@ -368,7 +368,17 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                return Ok(service.GetInventarioFacturable());
+                var inv = service.GetInventarioFacturable();
+
+                foreach (var item in inv)
+                {
+                    foreach (var i in item.TbPrPrecioCatalogo)
+                    {
+                        i.IdInventarioNavigation = null;
+                    }
+                }
+
+                return Ok(inv);
             }
             catch (Exception ex)
             {

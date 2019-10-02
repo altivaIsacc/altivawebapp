@@ -10,6 +10,8 @@
     {
         edita = "hidden";
     }
+
+    var optValid = "hidden";
 }
 <div class="enter">
 <div class="row">
@@ -68,6 +70,32 @@
                 <span hidden id="tcNombreValid" class="text-danger">@Lb["nombreValid"]</span>
                 <span hidden id="nombreExiste" class="text-danger">@Lb["repetidoValid"]</span>
             </div>
+
+            <div class="form-group" id="tipoPrecioContainer">
+                <label asp-for="IdTipoPrecio" class="control-label">@Lb["TipoPrecioDefecto"]:</label>
+                <select asp-for="IdTipoPrecio" class="form-control search-key" onchange="validarTipoPrecio(value, '@ViewBag.tipoPrecio.Anulado')">
+                    @{
+                        <option value="0" >@Lb["N/A"]</option>
+                        if (Model.Id != 0)
+                        {
+
+                            var tipoPrecio = ViewBag.tipoPrecio as TbPrPrecios;
+                            if (tipoPrecio.Anulado)
+                            {
+                                optValid = "";
+                                <option value="@tipoPrecio.Id">@tipoPrecio.Nombre</option>
+                            }
+
+                        }
+                        foreach (var item in ViewData["tipoprecios"] as IList<TbPrPrecios>)
+                        {
+                            <option value="@item.Id">@item.Nombre</option>
+                        }
+                    }
+                </select>
+                <span class="text-danger" @optValid id="tipoPrecioValid">@Lb["tipoPrecioValid"].</span>
+            </div>
+
             <div class="form-group">
 
                 <label asp-for="Inactivo" id="tcInactivo" class="form-check-label">
@@ -117,13 +145,15 @@
             $("#tipoC").prop("checked", true);
             $('#tipoCContainer').prop('hidden', true);
             $('#familiaCContainer').prop('hidden', true);
+            $('#tipoPrecioContainer').prop('hidden', false);
         }
         else if (key === 2) {
             $("#familiaC").prop("checked", true);
             $('#familiaCContainer').prop('hidden', false);
             $('#tipoCContainer').prop('hidden', true);
             $('#idPadreLabel').text('@Lb["Tipo"]:');
-
+            $('#tipoPrecioContainer').prop('hidden', true);
+            $('#IdTipoPrecio').val(0);
 
             cargarPadreItems(0, @ViewBag.idTipo);
 
@@ -133,6 +163,8 @@
             $('#tipoCContainer').prop('hidden', false);
             $('#familiaCContainer').prop('hidden', false);
             $('#idPadreLabel').text('@Lb["Familia"]:');
+            $('#tipoPrecioContainer').prop('hidden', true);
+            $('#IdTipoPrecio').val(0);
 
             cargarPadreItems(@ViewBag.idTipo, @ViewBag.idFamilia);
         }
@@ -232,7 +264,7 @@
         }
 
         }
-     function validarForm() {
+    function validarForm() {
 
       
                 $.ajax({
@@ -265,7 +297,18 @@
                 });
 
 
+    }
+
+
+    function validarTipoPrecio(value, anulado) {
+
+        if (value == @Model.IdTipoPrecio && anulado == "True") {
+            $('#tipoPrecioValid').prop('hidden', false);
+        } else {
+            $('#tipoPrecioValid').prop('hidden', true);
         }
+
+    }
 
 </script>
 

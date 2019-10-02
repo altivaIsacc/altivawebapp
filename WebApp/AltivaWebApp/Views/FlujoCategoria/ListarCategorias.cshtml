@@ -42,10 +42,11 @@
     <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
         <label>@SL["Tipo"]:</label>
         <select id="filtroTipo" class="form-control search-key selectFiltro">
-            <option value="0" selected>@SL["todos"]</option>
-            <option value="Bancario" selected>@SL["bancario"]</option>
-            <option value="Canje" selected>@SL["canje"]</option>
-            <option value="Efectivo" selected>@SL["Efectivo"]</option>
+            <option value="" selected>@SL["todos"]</option>
+            <option value="1" >@SL["Bancaria"]</option>
+            <option value="2" >@SL["Efectivo"]</option>
+            <option value="3" >@SL["OperadorTarjeta"]</option>
+            <option value="4" >@SL["PlanillaDistribuir"]</option>
         </select>
     </div>
 
@@ -74,6 +75,7 @@
                     <th>
                         <span>@SL["tipo"]</span>
                     </th>
+                    <th hidden></th>
                     <th>
                         <span>@SL["Nombre"]</span>
                     </th>
@@ -122,40 +124,13 @@
 
         getFlujoCategoria(); //lleno la tabla
 
-        $('.selectFiltro').val(0);
-        $('.selectFiltro').change(function () {
-            var tipo = $('#filtroTipo').val();
-            console.log(tipo);
+        $('#filtroTipo').change(function () {
 
-            if (tipo == 0) {
-
-                tblFlujoCategoria
-                    .columns(1)
-                    .search('')
-                    .draw();
-
-            } else if (tipo == 'Bancario') {
-
-                tblFlujoCategoria
-                    .columns(1)
-                    .search(tipo)
-                    .draw();
-
-            } else if (tipo == 'Canje') {
-
-                tblFlujoCategoria
-                    .columns(1)
-                    .search(tipo)
-                    .draw();
-
-            } else if (tipo == 'Efectivo') {
-
-                tblFlujoCategoria
-                    .columns(1)
-                    .search(tipo)
-                    .draw();
-
-            }
+            console.log(this.value);
+            tblFlujoCategoria
+                .columns(2)
+                .search(this.value)
+                .draw();
 
         });
 
@@ -173,7 +148,7 @@
             dataType: "json",
             url: '@Url.Action("GetCategoria", "FlujoCategoria")',
             success: function (data) {
-                //console.log(data);
+                
                 FlujoCategoria = JSON.parse(JSON.stringify(data));
                 cargarDatos(data);
                 validarLista();
@@ -215,6 +190,7 @@
                 var body = '<tr class="fila' + contadorFila + ' filas">'
                     + '<td><p style="padding-top:1rem">' + data[i].idCategoriaFlujo + '</p></td>'
                     + '<td><p style="padding-top:1rem">' + respTipoFlujo + '</p></td>'
+                    + '<td hidden> ' + data[i].idTipoFlujo + ' </td>'
                     + '<td><p style="padding-top:1rem">' + data[i].nombre + '</p></td>'
                     + '<td><p style="padding-top:1rem">' + data[i].codigo + '</p></td>'
                     + '<td hidden><p style="padding-top:1rem">' + data[i].estado + '</p></td>'
@@ -236,7 +212,7 @@
 
         if (idTipoFlujo == 1) {
 
-            respTipoF = '@SL["Bancario"]';
+            respTipoF = '@SL["Bancaria"]';
             return respTipoF;
 
         } else if (idTipoFlujo == 2) {
@@ -244,12 +220,18 @@
             respTipoF = '@SL["Efectivo"]';
             return respTipoF;
 
-        } else {
+        } else if (idTipoFlujo == 3){
 
-            respTipoF = '@SL["Canje"]';
+            respTipoF = '@SL["OperadorTarjeta"]';
+            return respTipoF;
+
+        } else if (idTipoFlujo == 4){
+
+            respTipoF = '@SL["PlanillaDistribuir"]';
             return respTipoF;
 
         }
+
 
     }
 
@@ -311,12 +293,10 @@
                     var regex = new RegExp('/[^/]*$');
                     history.pushState(null, "", url.replace(regex, '/'));
                             
-                           //alert("Buscar el codigo y estado del registro editado");
+                          
                            codigoEncontrado = buscarCodigoRegistro(@ViewBag.id); 
                            estadoEncontrado = buscarEstadoRegistro(@ViewBag.id);   
-                          // alert(codigoEncontrado);
-                          // alert(estadoEncontrado);
-                          // alert('Proceda a listar');
+                          
 
                               if (estadoEncontrado == 1) {
 
@@ -351,7 +331,7 @@
 
         function buscarPorCodigo(codigo) {
             tblFlujoCategoria
-                .columns(3)
+                .columns(4)
                 .search(codigo)
                 .draw();
         }
@@ -380,7 +360,7 @@
     function filtroInactivoId(val) {
        
             tblFlujoCategoria
-            .columns(4)
+            .columns(5)
             .search(val)
             .draw();
         }
@@ -390,7 +370,7 @@
         //alert("entro");
         //alert(val);
         tblFlujoCategoria
-            .columns(4)
+            .columns(5)
             .search(val)
             .draw();
     } 

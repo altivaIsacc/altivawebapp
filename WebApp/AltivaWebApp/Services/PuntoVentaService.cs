@@ -32,5 +32,14 @@ namespace AltivaWebApp.Services
         {
             return repository.GetPuntoVentaById(id);
         }
+        public bool ExistePuntoVentaValido()
+        {
+            return repository.ExistePuntoVentaValido();
+        }
+
+        public int GetEstadoCajasPV(long idPV, long idUsuario)
+        {
+            return repository.GetEstadoCajasPV(idPV, idUsuario);
+        }
     }
 }

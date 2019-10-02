@@ -52,7 +52,9 @@ namespace AltivaWebApp.Mappers
                 Web = viewModel.Web,
                 Imagen = viewModel.Imagen,
                 FechaCreacion = DateTime.Now,
-                IdUsuarioCreacion = viewModel.IdUsuarioCreacion
+                IdUsuarioCreacion = viewModel.IdUsuarioCreacion,
+                IdTipoPrecioDefecto = viewModel.IdTipoPrecioDefecto
+                
             };
         }
         public TbSePuntoVenta ViewModelToDomainEditar(PuntoVentaViewModel viewModel)
@@ -80,6 +82,7 @@ namespace AltivaWebApp.Mappers
             domain.Telefono = viewModel.Telefono;
             domain.Web = viewModel.Web;
             domain.Imagen = viewModel.Imagen;
+            domain.IdTipoPrecioDefecto = viewModel.IdTipoPrecioDefecto;
 
 
             return domain;
@@ -110,8 +113,8 @@ namespace AltivaWebApp.Mappers
                 Telefono = domain.Telefono,
                 Web = domain.Web,
                 Imagen = domain.Imagen,
-                IdUsuarioCreacion = domain.IdUsuarioCreacion
-
+                IdUsuarioCreacion = domain.IdUsuarioCreacion,
+                IdTipoPrecioDefecto = domain.IdTipoPrecioDefecto
 
             };
         }
