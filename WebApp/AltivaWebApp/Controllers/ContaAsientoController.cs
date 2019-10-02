@@ -25,29 +25,43 @@ namespace AltivaWebApp.Controllers
             ViewBag.Tipos = bd.TiposDoc;
             return View("../ContaAsiento/Index");
         }
-        [Route("ContaAsiento/nItem")]
-        public IActionResult nItem()
+        [Route("ContaAsiento/item")]
+        public IActionResult Item(long Id)
         {
-            Asiento item = new Asiento();
-            
-            item.Codigo = "";
-            item.Fecha = DateTime.Now;
-            item.Estado = "ANULADO";
-            item.Descripcion = "";
-            item.CodigoMoneda = 1;
-            item.MontoColones = 0;
-            item.MontoDolar = 0;
-            item.MontoDolar = 0;
-            item.MontoEuro = 0;
-            item.Modulo = "";
-            item.IdTipoDocumento = 1;
-            item.IdDocumento = 0;
-            item.IdDocumento = 0;
-            item.IdUsuarioCreador = 0;
-            item.IdUsuarioMod = 0;
-            item.FechaCreacion = DateTime.Now;
-            item.FechaMod = DateTime.Now;
-            item.Frecuente = true;
+            Asiento item;
+            if (Id != 0) {
+                item = bd.Asiento.Find(Id);
+                ViewBag.Moneda = bd.Moneda.Find(item.CodigoMoneda);
+                ViewBag.TipoDoc = bd.TiposDoc.Find(item.IdTipoDocumento);
+                ViewBag.Periodo = bd.PeriodoTrabajo.Find(item.IdPeriodoTrabajo);
+                ViewBag.UsuarioCreador = bd.Usuario.Find(item.IdUsuarioCreador);
+                ViewBag.UsuarioMod = bd.Usuario.Find(item.IdUsuarioMod);
+                ViewBag.Detalle = bd.AsientoDetalle.Where(p=>p.IdAsientoContable==item.IdAsientoContable);
+            }
+            else {              
+
+                item =  new Asiento();
+                item.IdAsientoContable = 0;
+                item.Codigo = "";
+                item.Fecha = DateTime.Now;
+                item.Estado = 1;
+                item.Descripcion = "";
+                item.CodigoMoneda = 1;
+                item.MontoColones = 0;
+                item.MontoDolar = 0;
+                item.MontoDolar = 0;
+                item.MontoEuro = 0;
+                item.Modulo = "";
+                item.IdTipoDocumento = 1;
+                item.IdDocumento = 0;
+                item.IdDocumento = 0;
+                item.IdUsuarioCreador = 0;
+                item.IdUsuarioMod = 0;
+                item.FechaCreacion = DateTime.Now;
+                item.FechaMod = DateTime.Now;
+                item.Frecuente = true;
+            }
+
             ViewBag.Periodos = bd.PeriodoTrabajo.Where(p => p.Estado == "ABIERTO");
             ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == false);
             ViewBag.Catalogo = bd.CatalogoContable.Where(p => p.Movimiento == true);
@@ -60,13 +74,14 @@ namespace AltivaWebApp.Controllers
             return View("../ContaAsiento/u", item);
         }
 
+      
         [HttpGet("GetAsientosWithReqs")]
         public IActionResult GetAsientosWithReqs()
         {
             try
             {
                 var asiento = bd.Asiento.ToList();
-                
+
                 return Ok(asiento);
             }
             catch (Exception ex)
@@ -76,28 +91,33 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
         }
+
         [HttpPost("upAsiento")]
         public ActionResult updateAsiento(Asiento datos)
         {
             try
             {
-                if (datos.Codigo == null) {
+                if (datos.Codigo == null)
+                {
                     datos.Codigo = "";
                 }
-                if (datos.Descripcion == null) {
+                if (datos.Descripcion == null)
+                {
 
                     datos.Descripcion = "";
-                }                
+                }
                 bd.Add(datos);
                 bd.SaveChanges();
-                return Json(new { success = true, idAsiento = datos.IdAsientoContable});
+                return Json(new { success = true, idAsiento = datos.IdAsientoContable });
             }
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "ERROR");
                 return Json(new { success = false });
             }
-                
+
         }
+
+
     }
 }

@@ -12,7 +12,7 @@
     var estado = "";
     var estado2 = "";
     var usuario = ViewData["usuario"] as TbSeUsuario;
-    if (Model.Estado == "ANULADO")
+    if (Model.Estado == 3)
     {
         estado = "disabled";
     }
@@ -26,8 +26,8 @@
     @if (Model.IdAsientoContable != 0)
     {
         <div class="row">
-            <div class="col-md-3"><h3>@Lb["editarAsiento"]</h3></div>
-            <div class="col-md-offset-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
+            <div class="col-md-6"><h3>@Lb["editarAsiento"]</h3></div>
+            <div class="col-md-offset-6 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
         </div>
 
     }
@@ -39,7 +39,7 @@
         </div>
     }
     <div class="row">
-        @if (Model.IdAsientoContable != 0 && !(Model.Estado == ""))
+        @if (Model.IdAsientoContable != 0 && !(Model.Estado == 1))
         {
             <div class="col-md-12 text-right"><button @estado2 class="btn btn-danger btn-sm" onclick="anularCompra()">@Lb["Anular"]</button></div>
         }
@@ -49,7 +49,7 @@
         }
 
     </div>
-
+    <div hidden><input hidden id="formater" class="currency" type="text" /></div>
     <div class="row well">
         <div class="container">
 
@@ -248,6 +248,12 @@
             </div>
         </div>
         <div class="row">
+            <div class="col-md-6">
+                <p>@Lb["Creación"]:@ViewBag.UsuarioCreador.Nombre | @Model.FechaCreacion<p>
+            </div>
+
+        </div>
+        <div class="row">
             <div class="col-md-12">
                 <div id="comentarios">
 
@@ -257,7 +263,11 @@
 
     </div>
 </div>
-
+<script src="~/js/comentario.js"></script>
+<script src="~/js/base64ImageCreator.js"></script>
+<script src="~/lib/vendors/jsPDF/CI.js"></script>
+<script src="~/js/XMLtoJSON.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/x2js/1.2.0/xml2json.min.js"></script>
 <script type="text/javascript">
         var periodos = [];
         var catalogo = [];
@@ -291,18 +301,48 @@
     var TipoCambioDolar = '@ViewBag.TipoCambioDolar';
     var TipoCambioEuro = '@ViewBag.TipoCambioEuro';
     var IdAsiento = '@Model.IdAsientoContable';
-        Cargar();
-        function Cargar() {
+    var lineas = [];
+    Cargar();
 
-            if (IdAsiento == '0') {
+    function Cargar() {
+        if (IdAsiento == '0') {
                 document.getElementById('tipoCambioDolar').value = TipoCambioDolar;
                 document.getElementById('tipoCambioEuro').value = TipoCambioEuro;
-            } else {
+        } else {
 
+                document.getElementById('LtEstados').value = obtenerNombreEstado('@Model.Estado');
+            document.getElementById('LtMonedas').value = '@ViewBag.Moneda.Nombre';
+            document.getElementById('LtTipos').value = '@ViewBag.TipoDoc.Descripcion';
+            document.getElementById('LtPeriodos').value = '@ViewBag.Periodo.Nombre';
                 document.getElementById('tipoCambioDolar').value = TipoCambioDolar;
                 document.getElementById('tipoCambioEuro').value = TipoCambioEuro;
-            }
         }
+
+        var linea
+        var tipolinea
+        @foreach (AltivaWebApp.DomainsConta.AsientoDetalle item in ViewBag.Detalle)
+        {
+        @: var EsDebe='@item.Debe'
+        @: if (EsDebe == 'True') { tipolinea = 'Debe'; }
+        @: if (EsDebe != 'True') { tipolinea = 'Haber';}
+        @:  linea ={ MDolar: '@item.MontoDolares', MEuro: '@item.MontoEuro', MBase: '@item.MontoColones', cuenta: obtenerCuentaPorId('@item.IdCuentaContable'), Tipo:tipolinea, TCDolar: '@item.TipoCambioDolar', TCEuro:'@item.TipoCambioEuro', Id: '@item.IdDetalleAsientoContable' };
+        @:  lineas.push(linea);
+        }
+        console.log(lineas);
+        tabla();
+    }
+    function obtenerNombreEstado(estadoId) {
+        if (estadoId == '1') {
+            return 'ACTIVO';
+        }
+        if (estadoId == '3') {
+            return 'ANULADO';
+        }
+        if (estadoId == '2') {
+            return 'BLOQUEADO';
+        }
+        return '';
+    }
         var fechaAsiento;
         function CambioFecha() {
             fechaAsiento = document.getElementById("dtFechaAsiento").value;
@@ -385,7 +425,7 @@
                 $('#' + id).select();
             }
         }
-        var lineas = [];
+
         function agregar(tipo) {
             obtenerLinea();
             var linea = { MDolar: montoDolar, MEuro: montoEuro, MBase: montoBase, cuenta: obtenerCuenta(cuenta), Tipo: tipo, TCDolar: TipoCambioDolar, TCEuro:TipoCambioEuro, Id: lineas.length * -1 };
@@ -459,12 +499,14 @@
             var value = parseFloat(_value);
             var clase = "";
 
-            if (moneda === "1")
+            if (moneda === "1") {
                 clase = "colon";
-            else if (moneda === "2")
-                clase = "dolar"
-            else if (moneda === "3")
-                clase = "euro"
+            }
+            else if (moneda === "2") {
+                clase = "dolar";
+            }
+            else if (moneda === "3") {
+                clase = "euro";}
 
             $('#monedaFormater').removeClass("colon dolar euro");
             $('#monedaFormater').addClass(clase);
@@ -494,7 +536,7 @@
         var monedaSeleccionada = [];
         function obtenerMoneda(nombre) {
             monedas.forEach(function (item) {
-                if (nombre == item.Nombre) {
+                if (nombre == item.Simbolo) {
                     monedaSeleccionada = item;
                 }
             });
@@ -504,14 +546,14 @@
             obtenerMoneda(nombreMoneda);
 
         }
-        var periodoSeleccionado
-          function obtenerPeriodo(nombre) {
-              periodos.forEach(function (item) {
-                  if (nombre == item.Nombre) {
-                      periodoSeleccionado = item;                      
-                  }
-              });
-        }
+    var periodoSeleccionado;
+    function obtenerPeriodo(nombre) {
+        periodos.forEach(function (item) {
+            if (nombre == item.Nombre) {
+                periodoSeleccionado = item;
+            }
+        });
+    }
         function cambioPeriodo() {
             var nombrePeriodo = document.getElementById("LtPeriodos").value;
             obtenerPeriodo(nombrePeriodo);
@@ -530,6 +572,25 @@
             var nombreTipoDoc = document.getElementById("LtTipos").value;
             obtenerTipoDoc(nombreTipoDoc);
 
+    }
+    var anulado = '@Lb["ANULADO"]'
+    var activo = '@Lb["ACTIVO"]'
+    var bloqueado = '@Lb["BLOQUEADO"]'
+    var IdEstadoSeleccionado = 0;
+      function cambioEstado() {
+          var estadoNombre = document.getElementById("LtEstados").value;
+
+
+          if (estadoNombre == anulado) {
+              IdEstadoSeleccionado = 3
+          }
+          if (estadoNombre == activo) {
+               IdEstadoSeleccionado = 1
+          }
+          if (estadoNombre == bloqueado) {
+               IdEstadoSeleccionado = 2
+          }
+
         }
         function obtenerLinea() {
             montoDolar = document.getElementById("Monto2").value;
@@ -547,17 +608,26 @@
                 }
             });
             return cuenta;
+    }
+     function obtenerCuentaPorId(_IdCuentaContable) {
+            var cuenta;
+         catalogo.forEach(function (item) {
+             if (_IdCuentaContable == item.IdCuentaContable) {
+                    cuenta = item;
+                }
+            });
+            return cuenta;
         }
     function guardar() {
         var asiento = crearModelo();
         console.log(asiento);
-       
-     
+
+
     }
       function salvar() {
         var asiento = crearModelo();
         console.log(asiento);
-       
+
           enviarAjax(asiento);
     }
     function enviarAjax(asiento) {
@@ -585,8 +655,9 @@
     }
         function crearModelo() {
             var codigoAsiento = document.getElementById("CodigoAsiento").value;
-            var EstadoAsiento = document.getElementById("LtEstados").value;
+
             var DescripcionAsiento = document.getElementById("descripcionAsiento").value;
+           cambioEstado();
             CambioFecha();
             cambioPeriodo();
             cambioTipoDoc();
@@ -595,7 +666,7 @@
                 IdAsientoContable: IdAsiento,
                 Fecha: fechaAsiento,
                 Codigo: codigoAsiento,
-                Estado: EstadoAsiento,
+                Estado: IdEstadoSeleccionado,
                 Descripcion: DescripcionAsiento,
                 CodigoMoneda: monedaSeleccionada.Codigo,
                 MontoColones: String(TotalDebeBase).replace('.',','),
@@ -612,10 +683,10 @@
                 Frecuente: 0,
                 detalle: generarLineas(lineas)
             };
-        
+
             return asientoModelo;
     }
-    
+
 
         function generarLineas(lineas) {
             var lineasAsiento = [];
@@ -642,9 +713,5 @@
 
 </script>
 <input readonly hidden id="monedaFormater" />
-<div hidden><input hidden id="formater" class="currency" type="text" /></div>
-<script src="~/js/comentario.js"></script>
-<script src="~/js/base64ImageCreator.js"></script>
-<script src="~/lib/vendors/jsPDF/CI.js"></script>
-<script src="~/js/XMLtoJSON.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/x2js/1.2.0/xml2json.min.js"></script>
+
+

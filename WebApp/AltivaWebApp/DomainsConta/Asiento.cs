@@ -12,9 +12,9 @@ namespace AltivaWebApp.DomainsConta
         public long IdAsientoContable { get; set; }
         public DateTime Fecha { get; set; }
         public string Codigo { get; set; }
-        public string Estado { get; set; }
+        public int Estado { get; set; }
         public string Descripcion { get; set; }
-        public long CodigoMoneda { get; set; }
+        public int CodigoMoneda { get; set; }
         public double MontoColones { get; set; }
         public double MontoDolar { get; set; }
         public double MontoEuro { get; set; }
@@ -22,8 +22,8 @@ namespace AltivaWebApp.DomainsConta
         public long IdTipoDocumento { get; set; }
         public long IdDocumento { get; set; }
         public long IdPeriodoTrabajo { get; set; }
-        public int IdUsuarioCreador { get; set; }
-        public int IdUsuarioMod { get; set; }
+        public long IdUsuarioCreador { get; set; }
+        public long IdUsuarioMod { get; set; }
         public DateTime FechaCreacion { get; set; }
         public DateTime FechaMod { get; set; }
         public bool Frecuente { get; set; }
@@ -36,7 +36,7 @@ namespace AltivaWebApp.DomainsConta
         [Key]
         public long IdDetalleAsientoContable { get; set; }
         public long IdAsientoContable { get; set; }
-        public string IdCuentaContable { get; set; }
+        public long IdCuentaContable { get; set; }
         public double MontoColones { get; set; }
         public double MontoDolares { get; set; }
         public double MontoEuro { get; set; }

@@ -21,14 +21,14 @@
     <div class="row">
         <div class="col-md-2"><h3>@lb["Asientos"]</h3></div>
         <div class="col-md-10" style="padding-top: 0.5rem">
-            <a class="btn btn-primary" asp-action="nItem"><span>@lb["Agregar"]</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+            <a class="btn btn-primary" asp-action="item"><span>@lb["Agregar"]</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
             <label>@lb["Periodo"]:</label>
-            <input id="LtPeriodos" list="LtPeriodoTrabajo" class="form-control" autocomplete=on onchange="buscar()">
+            <input id="LtPeriodos" list="LtPeriodoTrabajo" class="form-control" autocomplete=on onchange="buscar()" placeholder="@lb["Periodo"]">
             <datalist id="LtPeriodoTrabajo">
                 @{
                     foreach (var item in ViewBag.Periodos)
@@ -42,8 +42,8 @@
             </datalist>
         </div>
         <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
-            <label>@lb["Tipo"]:</label>
-            <input id="LtTipos" list="LtTipoDoc" class="form-control" autocomplete=on onchange="buscar()">
+            <label>@lb["tipo"]:</label>
+            <input id="LtTipos" list="LtTipoDoc" class="form-control" autocomplete=on onchange="buscar()" placeholder="@lb["tipo"]">
             <datalist id="LtTipoDoc">
                 @{
                     foreach (var item in ViewBag.Tipos)
@@ -54,12 +54,12 @@
             </datalist>
         </div>
         <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
-            <label>@lb["Codigo"]:</label>
-            <input type="search" id="filtroBuscarNombre" class="form-control" placeholder="@lb["Codigo"]">
+            <label>@lb["Código"]:</label>
+            <input type="search" id="codigoAsiento" class="form-control" placeholder="@lb["Codigo"]">
         </div>
         <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
             <label>@lb["Estado"]:</label>
-            <input id="LtEstados" list="LtEstado" class="form-control" autocomplete=on onchange="buscar()">
+            <input id="LtEstados" list="LtEstado" class="form-control" autocomplete=on onchange="buscar()" placeholder="@lb["Estado"]">
             <datalist id="LtEstado">
                 <option value="@lb["ACTIVO"]">@lb["ACTIVO"]</option>
                 <option value="@lb["BLOQUEADO"]">@lb["BLOQUEADO"]</option>
@@ -69,61 +69,84 @@
     </div>
 
     <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12" style="margin-top: 0.2rem">           
-                <label class="control-label">
-                    <input id="chEntreFechas" type="checkbox" value="false" onchange="buscar()">@lb["EntreFechas"]:
-                </label>
+        <div class="col-md-12 col-sm-12 col-xs-12" style="margin-top: 0.2rem">
+            <label class="control-label">
+                <input id="chEntreFechas" type="checkbox" onchange="buscar()">@lb["FiltroFecha"]:
+            </label>
+            <div id="contenedorFecha">
                 <form id="frmFecha" class="form-horizontal">
                     <fieldset>
                         <div class="control-group">
                             <div class="controls">
                                 <div class="input-prepend input-group">
                                     <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
-                                    <input type="text" style="width: 250px" name="filtroFecha" id="filtroFecha" class="form-control" value="@ViewBag.FechaDesde - @ViewBag.FechaHasta" />
+                                    <input type="text" style="width: 250px;" name="filtroFecha" id="filtroFecha" class="form-control" value="@ViewBag.FechaDesde - @ViewBag.FechaHasta" />
                                 </div>
                             </div>
                         </div>
                     </fieldset>
-                </form>       
+                </form>
+            </div>
+
 
         </div>
-        <div class="col-md-4 col-sm-4 col-xs-12" style="margin-top:0.2rem">
-            <label class="control-label">
-                <input type="checkbox" id="estado" onchange="filtroAnuladas()"> @lb["VerAnulados"]
-            </label>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-xs-12 table-responsive">
+            <table class="table table-bordered" id="tblAsiento">
+                <thead>
+                    <tr>
+                        <th>
+                            Id
+                        </th>
+                        <th>
+                            @lb["Fecha"]
+                        </th>
+                        <th>
+                            @lb["Codigo"]
+                        </th>
+                        <th>
+                            @lb["Monto"]
+                        </th>
+                        <th>
+                            @lb["Estado"]
+                        </th>
+                        <th>
+                            @lb["Acción"]
+                        </th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 col-xs-12 table-responsive">
-                <table class="table table-bordered" id="tblAsiento">
-                    <thead>
-                        <tr>
-                            <th>
-                                Id
-                            </th>
-                            <th>
-                                @Html.DisplayNameFor(model => model.Fecha)
-                            </th>
-                            <th>
-                                @Html.DisplayNameFor(model => model.Codigo)
-                            </th>
-                            <th>
-                                @lb["Acción"]
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
+    </div>
+    <input readonly hidden id="monedaFormater" />
 </body>
 </html>
 
 <script>
 
     var asientos = [];
+    var periodos = [];
+    var tiposDoc = [];
+    var desde;
+    var hasta;
+    $(document).ready(function () {   
+    
+    var tipoDoc;
+    var periodo;
 
-    $(document).ready(function () {
+        @foreach (var item in ViewBag.Periodos)
+        {
+        @:      periodo = {FechaInicio:'@item.FechaInicio.ToString("yyyy/MM/dd")',FechaFinal:'@item.FechaFinal.ToString("yyyy/MM/dd")',Nombre: '@item.Nombre',IdPeriodoTrabajo: '@item.IdPeriodoTrabajo'};
+        @:      periodos.push(periodo);
+        }      
+    
+          @foreach (var item in ViewBag.Tipos)
+        {
+        @:      tipoDoc = { IdTipoDocumento: '@item.IdTipoDocumento', Descripcion: '@item.Descripcion', Abreviatura: '@item.Abreviatura', Automatico: '@item.Automatico' };
+        @:      tiposDoc.push(tipoDoc);
+        }
         getAsientos(1);
 
           $('#filtroFecha').attr('disabled', false);
@@ -170,8 +193,8 @@
 
                 desde = start.format('YYYY-MM-DD');
                 hasta = end.format('YYYY-MM-DD');
-                cargarFiltros();
-                //filtroFecha(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+                buscar();
+
 
             });
 
@@ -186,12 +209,9 @@
             },
             dataType: "json",
             url: '@Url.Action("GetAsientosWithReqs", "ContaAsiento")',
-            success: function (data) {
-
-                console.log(data);
+            success: function (data) {          
                 asientos = data;
-                filtroAnuladas();
-
+                buscar();
             },
             error: function (err, scnd) {
                 cargarAlert('@lb["errorGeneral"]');
@@ -199,82 +219,119 @@
             }
         });
     }
-     function buscar() {
-
-        asientosFiltrados = JSON.parse(JSON.stringify(asientos));
-
-        asientosFiltrados = filtroItem(asientosFiltrados);
-
-        asientosFiltrados = filtroFecha(asientosFiltrados, desde, hasta);
-
-        cargarDatos(ajusteFiltrado);
-
+    function buscar() {
+        obtenerPeriodo();
+        obtenerTipos();
+        obtenerEstado();
+        aplicarFiltros(asientos);
     }
-     function filtroFecha(array){
-
-
-        var arrayAjustes = [];
-
-        if ($('#chEntreFechas').prop('checked')) {
-            var desdeLocal = new Date(_desde).getTime();
-            var hastaLocal = new Date(_hasta).getTime();
-
-            for (var i = 0; i < array.length; i++) {
-
-                var documento = new Date(array[i].fecha.substring(0, 10)).getTime();
-                var flag = false;
-
-                if (documento >= desdeLocal && documento <= hastaLocal)
-                    arrayAjustes.push(array[i]);
+    function aplicarFiltros(datos) {
+        var arrayMostrar = [];
+        for (var i = 0; i < datos.length; i++) {
+            if (filtroPeriodo(datos[i].idPeriodoTrabajo) && filtroTipoDoc(datos[i].idTipoDocumento) && filtroEstado(datos[i].estado) && filtroCodigo(datos[i].codigo) && filtroEntreFechas(datos[i].fecha))
+            {
+                arrayMostrar.push(datos[i]);
             }
-            return arrayAjustes;
         }
-        else
-            return array;
-
+        cargarDatos(arrayMostrar);
     }
-    function anularAsientoDirect(id) {
-        $.ajax({
-            type: "post",
-            headers: {"RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-            },
-            dataType: "json",
-            url: '@Url.Action("AnularAsiento", "ContaAsiento")',
-            data: { id: id },
-            success: function (data) {
-                getAsientos();
-            },
-            error: function (err, scnd) {
-                cargarAlert('@lb["errorGeneral"]');
-                console.log(err.statusText);
-            }
-        });
-    }
-
-    function anularAsiento(id, key) {
-
-
-        var msj = "@lb["confirmAnularAsientoConReq"]";
-
-        if (Asientos[key].tbPrRequisicion.length <= 0)
-            msj = "@lb["confirmAnularAsientoSinReq"]";
-
-        if (Asientos[key].anulado) {
-             msj = "@lb["confirmHabilitarAsiento"]";
+    function filtroEntreFechas(valor)
+    {
+        var activo = document.getElementById('chEntreFechas').checked;
+        element = document.getElementById("contenedorFecha")
+        if (activo) { element.style.display = 'block';}
+        else {
+            element.style.display = 'none';
         }
-
-        bootbox.confirm(msj, function (result) {
-            if (result) {
-                anularAsientoDirect(id);
-            }
-        });
+        if (activo == true && desde != null && hasta != null) {
+            return soloFecha(desde) <= soloFecha(valor) && soloFecha(hasta) >= soloFecha(valor);
+        } else {return true;}
+     
     }
+    
+    function soloFecha(_fecha) {
+        var soloMyFecha = _fecha.substring(0, 10);
+        var soloMyFecha = soloMyFecha.replace('-', '');
+        soloMyFecha = soloMyFecha.replace('-', '');
+        var fechaLong = parseInt(soloMyFecha);
+        return fechaLong;
+    }
+    function filtroTipoDoc(valor)
+    {
+        if (tipoDocSeleccionado == null) {
+            return true;
+        }
+        else {
+            return valor == tipoDocSeleccionado.IdTipoDocumento;
+        }
+    }
+    function filtroEstado(valor)
+    {        
+        if (estadoSeleccionado == null || estadoSeleccionado == '') {
+            return true;
+        }
+        else {
+            return valor == estadoSeleccionado;
+        }
+    }
+    function filtroCodigo(valor) {
+        if (codigoSeleccionado == null || codigoSeleccionado == '') {
+            return true;
+        }
+        else {
+            return valor == codigoSeleccionado;
+        }
+    }
+    function filtroPeriodo(valor)
+    {
+        if (periodoSeleccionado == null) {
+        
+            return true;
+        }
+        else {
 
+            return valor == periodoSeleccionado.IdPeriodoTrabajo;
+        }
+    }
+    function darFormatoMoneda(_value, moneda) {
+    
+        var value = parseFloat(_value);
+        var clase = "";
+
+        if (moneda === 1)
+            clase = "colon";
+        else if (moneda === 2)
+            clase = "dolar"
+        else if (moneda === 3)
+            clase = "euro"
+
+        $('#monedaFormater').removeClass("colon dolar euro");
+        $('#monedaFormater').addClass(clase);
+
+        //inicializa formato
+        $(".colon").inputmask('currency', {
+            prefix: "₡",
+            rightAlign: true
+        });
+        $(".dolar").inputmask('currency', {
+            prefix: "$",
+            rightAlign: true
+        });
+        $(".euro").inputmask('currency', {
+            prefix: "€",
+            rightAlign: true
+        });
+
+        $('#monedaFormater').val(value);
+        return $('#monedaFormater').val();
+
+    }
+   
     function cargarDatos(data) {
 
         $("#tblAsiento> tbody").remove();
         $('#tblAsiento').append('<tbody></tbody>');
-
+        console.log(data);
         var contadorFila = 0;
         var colorFila = "";
         var disabled = "";
@@ -289,15 +346,31 @@
 
             var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
                 + '<td><p style="padding-top:1rem;">' + data[i].idAsientoContable + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + FormatoFecha(data[i].fecha) + '</p></td>'
+                + '<td><p hidden>'+ soloFecha(data[i].fecha) + '</p><p style="padding-top:1rem;">' + FormatoFecha(data[i].fecha) + '</p></td>'
                 + '<td><p style="padding-top:1rem;">' + data[i].codigo + '</p></td>'
-                + '<td>  <button ' + disabled + ' value="' + data[i].IdAsientoContable + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i>';
+                + '<td><p style="padding-top:1rem; text-align:right;">' + darFormatoMoneda(data[i].montoColones, data[i].codigoMoneda) + '</p></td>'              
+                + '<td><p style="padding-top:1rem;">' + obtenerNombreEstado(data[i].estado) + '</p></td>'
+                + '<td>  <button onclick=editarItem("' + data[i].idAsientoContable + '") class="btn btn-link btnEditar"><i class="fas fa-edit"></i>';
                 $('#tblAsiento > tbody').append(body);
                 contadorFila++;
         }
         inicializarTabla();
     }
-
+    var anulado = '@lb["ANULADO"]'
+    var activo = '@lb["ACTIVO"]'
+    var bloqueado = '@lb["BLOQUEADO"]'
+    function obtenerNombreEstado(estadoId) {
+        if (estadoId == 1) {
+            return activo;
+          }
+          if (estadoId == 3) {
+              return anulado;
+          }
+        if (estadoId == 2) {
+            return bloqueado;
+        }
+        return '';
+    }
     function inicializarTabla() {
 
         $('#tblAsiento').DataTable().destroy();
@@ -360,35 +433,53 @@
         });
 
     }
-
-    $("#filtroBuscarNombre").on("keyup", function () {
-        tblCompras
-            .columns(2)
-            .search(this.value)
-            .draw();
-    });
-
-    function filtroAnuladas() {
-
-        var array = asientos;
-
-        var arrayCompras = [];
-
-        if ($('#estado').prop('checked')) {
-
-            for (var i = 0; i < array.length; i++) {
-                if (array[i].estado == "ANULADO")
-                    arrayCompras.push(array[i]);
-            }
-        }
-        else
-            for (var i = 0; i < array.length; i++) {
-                if (!(array[i].estado == "ANULADO"))
-                    arrayCompras.push(array[i]);
-            }
-        cargarDatos(arrayCompras);
+    var fechaDesdeSeleccionada;
+    var fechaHastaSeleccionada;
+    function obtenerCodigo() {
+        fechaDesdeSeleccionada = document.getElementById("codigoAsiento").value;
     }
 
+    var codigoSeleccionado;
+    function obtenerCodigo() {
+        codigoSeleccionado = document.getElementById("codigoAsiento").value;
+    }
+
+  
+    var periodoSeleccionado;
+    function obtenerPeriodo() {
+        var nombreDoc = document.getElementById("LtPeriodos").value;
+        periodoSeleccionado = null;
+        periodos.forEach(function (item) {
+            if (nombreDoc == item.Nombre) {
+                periodoSeleccionado = item;           
+            }
+        });
+
+    }
+    var tipoDocSeleccionado;
+    function obtenerTipos() {
+        var nombreDoc = document.getElementById("LtTipos").value;
+        tipoDocSeleccionado = null;
+        tiposDoc.forEach(function (item) {
+            if (nombreDoc == item.Descripcion) {
+                tipoDocSeleccionado = item;
+            }
+        });   
+    }
+    var estadoSeleccionado;
+    function obtenerEstado() {
+        estadoSeleccionado = null;
+        estadoNombre = document.getElementById("LtEstados").value;
+         if (estadoNombre == anulado) {
+              estadoSeleccionado = 3
+          }
+          if (estadoNombre == activo) {
+               estadoSeleccionado = 1
+          }
+          if (estadoNombre == bloqueado) {
+               estadoSeleccionado = 2
+          }
+    }
     function FormatoFecha(_fecha) {
                 var monthNames = [
             "01", "02", "03",
@@ -405,7 +496,12 @@
 
     }
        
-    
+     function editarItem(id) {
+
+        var url = '@Url.Action("Item", "ContaAsiento", new { id = "__id__" })';
+
+        window.location.href = url.replace("__id__", id);
+    }
 </script>
 <style>
     .dataTables_wrapper .dataTables_filter {
