@@ -65,6 +65,22 @@ namespace AltivaWebApp.Repositories
             return flag;
         }
 
+        public IList<TbBaFlujo> SaveFlujo(IList<TbBaFlujo> flujos)
+        {
+            try
+            {
+                context.TbBaFlujo.AddRange(flujos);
+                context.SaveChanges();
+
+                return flujos;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
 
     }
 

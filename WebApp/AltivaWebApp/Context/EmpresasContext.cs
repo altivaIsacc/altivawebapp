@@ -1471,8 +1471,6 @@ namespace AltivaWebApp.Context
 
                 entity.ToTable("tb_FA_CajaMovimientoTarjeta");
 
-                entity.Property(e => e.IdCajaMovimientoTarjeta).ValueGeneratedNever();
-
                 entity.Property(e => e.Autorizacion)
                     .IsRequired()
                     .HasMaxLength(50)

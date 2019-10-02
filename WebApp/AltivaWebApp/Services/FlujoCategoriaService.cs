@@ -52,5 +52,10 @@ namespace AltivaWebApp.Services
         {
             return repository.ExisteCatFlujoCadaTipo();
         }
+
+        public IList<TbBaFlujo> SaveFlujo(IList<TbBaFlujo> flujos)
+        {
+            return repository.SaveFlujo(flujos);
+        }
     }
 }

@@ -19,21 +19,13 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                foreach (var item in domain)
-                {
-                    //context.Entry(entity).State = EntityState.Modified;
-                    context.TbFaCajaMovimiento.Add(item);
-                    if(item.TbFaCajaMovimientoTarjeta != null)
-                        context.Entry(item).State = EntityState.Detached;
-                }
-                
+                context.TbFaCajaMovimiento.AddRange(domain);
                 context.SaveChanges();
 
                 return domain;
             }
             catch (Exception)
             {
-
                 throw;
             }
         }

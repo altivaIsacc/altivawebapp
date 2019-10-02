@@ -24,5 +24,9 @@ namespace AltivaWebApp.ViewModels
         public long IdCaja { get; set; }
         public long IdMovimiento { get; set; }
         public CajaMovimientoTarjetaViewModel CajaMovTarjeta { get; set; }
+        public CajaMovimientoChequeViewModel CajaMovCheque { get; set; }
+        public string DocumentoTransferencia { get; set; }
+        public DateTime FechaTransferencia { get; set; }
+        public int tipoCategoriaFlujo { get; set; }
     }
 }

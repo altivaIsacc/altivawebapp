@@ -17,6 +17,7 @@ namespace AltivaWebApp.Services
         TbBaFlujoCategoria GetFlujoCategoriaByDesc(string cod, int idTipo);//valida existencia
         TbBaFlujoCategoria GetFlujoCategoriaByTipo(int tipo);
         bool ExisteCatFlujoCadaTipo();
+        IList<TbBaFlujo> SaveFlujo(IList<TbBaFlujo> flujos);
 
     }
 }
