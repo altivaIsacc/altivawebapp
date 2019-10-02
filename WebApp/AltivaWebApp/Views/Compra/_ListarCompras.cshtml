@@ -21,7 +21,7 @@
                     <th>@Lb["Fecha"]</th>
                     <th>@Lb["Proveedor"]</th>
                     <th hidden></th>
-                    <th>@Lb["Moneda"]</th>
+                    <th>@Lb["monedas"]</th>
                     <th>@Lb["Total"]</th>
                     <th>@Lb["Acción"]</th>
                 </tr>
@@ -36,7 +36,7 @@
                     <tr style="color:@color">
                         <td>@item.Id</td>
                         @{
-                            var tipo = item.TipoDocumento == "1" ? Lb["Contado"] : item.TipoDocumento == "2" ? Lb["Contado"] : Lb["Consignación"];
+                            var tipo = item.TipoDocumento == "1" ? Lb["Contado"] : item.TipoDocumento == "2" ? Lb["Crédito"] : Lb["Consignación"];
 
                         }
                         <td>@tipo</td>
@@ -50,7 +50,17 @@
                         @{
                             var total = item.IdMoneda == 1 ? item.TotalBase : item.IdMoneda == 2 ? item.TotalDolar : item.TotalEuro;
                         }
-                        <td style="text-align:right">  @monedas.FirstOrDefault(m => m.Codigo == item.IdMoneda).Simbolo  @total</td>
+                       
+                        
+                        <td style="text-align:right" class="colon">
+
+                            @{ CultureInfo us = CultureInfo.CreateSpecificCulture("en-US"); }
+                            <p>@monedas.FirstOrDefault(m => m.Codigo == item.IdMoneda).Simbolo  @total.ToString("0,0.00", us)</p>
+
+                        </td>
+                       
+                        
+                        
                         <td><a href="@Url.Action("EditarCompra", new { id=item.Id })" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a></td>
                     </tr>
                 }
@@ -59,15 +69,15 @@
     </div>
 </div>
 
-<input readonly hidden id="monedaFormater" />
 
+<div hidden><input hidden id="formater" class="currency" type="text" /></div>
 
 
 
 <script>
 
     var tblCompras;
-    var moneda = [];
+    var monedas = [];
 
     $(document).ready(function () {
 
@@ -88,11 +98,15 @@
               url: '@Url.Action("GetMonedas", "Monedas")',
              success: function (data) {
 
-                 moneda = data[0];
-                 $("#monedaFormater").inputmask('currency', {
-                     prefix: moneda.nombre + ' ',
+                 monedas = data[0];
+
+
+                 //inicializa formato
+                 $(".colon").inputmask('currency', {
+                     prefix: monedas[0].simbolo + " ",
                      rightAlign: true
                  });
+
 
 
               },
@@ -106,8 +120,8 @@
 
 
     function fomartearMoneda(value) {
-        $('#monedaFormater').val(value);
 
+        $('#monedaFormater').val(value);
         return $('#monedaFormater').val();
     }
 

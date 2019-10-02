@@ -128,20 +128,20 @@
                         @Lb["diasEstimados"]
                     </th>
                     <th hidden>
-                        @Lb["diasReales"]
+                        @Lb["diasReales"]:
                     </th>
                     <th>
-                        <span>@Lb["costoEstimado"]</span>   
+                        <span>@Lb["costoEstimado"]: </span>   
                     </th>
                     <th>
-                        <span> @Lb["costoReal"]</span> 
+                        <span> @Lb["costoReal"]:</span> 
                     </th>
 
                     <th hidden>
-                        @Lb["fechaInicio"]
+                        @Lb["fechaInicio"]:
                     </th>
                     <th hidden>
-                        @Lb["fechaFinal"]
+                        @Lb["fechaFinal"]:
                     </th>
 
                 </tr>
@@ -157,6 +157,7 @@
 
 <input readonly hidden id="monedaFormatter" />
 <script>
+
         var reportes = [];
         var TareasMostrar = [];
         TareasMostrar = null;
@@ -165,182 +166,191 @@
 
         });
         var desde;
-    var hasta;
-    $('.selectFiltro').change(function () {
-
-        cargarFiltros();
-
-    });
-    function cargarFiltros() {
+        var hasta;
 
 
 
+        $('.selectFiltro').change(function () {
 
-        TareasMostrar = JSON.parse(JSON.stringify(reportes));
+            cargarFiltros();
 
-
-            TareasMostrar = filtroContacto(TareasMostrar);
-            TareasMostrar = FistroAsignados(TareasMostrar);
-            TareasMostrar = filtroEstado(TareasMostrar);
-            TareasMostrar = filtroTipos(TareasMostrar);
-           // TareasMostrar = filtroFecha(desde, hasta);
+        });
 
 
-        cargarDatos(TareasMostrar);
 
-    }
-    function filtroEstado(TareasMostrar) {
+        function cargarFiltros() {
 
+            TareasMostrar = JSON.parse(JSON.stringify(reportes));
 
-        var IdEstado = parseInt($('#filtroEstados').val());
+                TareasMostrar = filtroContacto(TareasMostrar);
+                TareasMostrar = FistroAsignados(TareasMostrar);
+                TareasMostrar = filtroEstado(TareasMostrar);
+                TareasMostrar = filtroTipos(TareasMostrar);
+               // TareasMostrar = filtroFecha(desde, hasta);
 
-        var EstadosFiltrado = [];
+               cargarDatos(TareasMostrar);
 
-
-        if (IdEstado === 0) {
-            return TareasMostrar;
         }
-        else {
-
-            for (var i = 0; i < TareasMostrar.length; i++) {
-                var estados = TareasMostrar[i].idEstadoNavigation;
-                ;
-                if (estados.id === IdEstado) {
-
-                    EstadosFiltrado.push(TareasMostrar[i]);
 
 
 
 
+        function filtroEstado(TareasMostrar) {
 
-                }
+            var IdEstado = parseInt($('#filtroEstados').val());
+            var EstadosFiltrado = [];
+
+            if (IdEstado === 0) {
+                return TareasMostrar;
             }
-            console.log( TareasMostrar);
-            return EstadosFiltrado;
+            else {
 
-        }
+                for (var i = 0; i < TareasMostrar.length; i++) {
+                    var estados = TareasMostrar[i].idEstadoNavigation;
+                    ;
+                    if (estados.id === IdEstado) {
 
-    }
-    function filtroTipos(TareasMostrar) {
-        var IdTipo = parseInt($('#filtroTipos').val());
-
-        var tiposFiltrado = [];
-
-
-        if (IdTipo === 0) {
-            return TareasMostrar;
-        }
-        else {
-
-            for (var i = 0; i < TareasMostrar.length; i++) {
-                var tipos = TareasMostrar[i].idTipoNavigation;
-
-                if (tipos.id === IdTipo) {
-
-                    tiposFiltrado.push(TareasMostrar[i]);
-
-                }
-
-            }
-            console.log(tiposFiltrado);
-            return tiposFiltrado;
-
-        }
-
-    }
-    function filtroFecha(_desde, _hasta) {
-
-
-        var arrayTareas = JSON.parse(JSON.stringify(reportes));
-        if (_desde == _hasta || _desde === null) {
-
-            return TareasMostrar;
-        } else {
-
-            var desdeLocal = new Date(_desde).getTime();
-            var hastaLocal = new Date(_hasta).getTime();
+                        EstadosFiltrado.push(TareasMostrar[i]);
 
 
 
-            for (var i = 0; i < reportes.length; i++) {
-
-                var documento = new Date(reportes[i].fechaLimite).getTime();
-                var flag = false;
-
-                if (documento >= desdeLocal && documento <= hastaLocal)
-                    flag = true;
-
-                // else flag = true;
-
-                if (!flag)
-                    arrayTareas.splice(i, 1);
-            }
-            return arrayTareas;
-
-        }
 
 
-    }
-    function FistroAsignados(TareasMostrar) {
-
-        var IdAsignado = parseInt($('#filtroAsignado').val());
-
-        var AsignadosFiltrado = [];
-
-
-        if (IdAsignado === 0) {
-
-            return TareasMostrar;
-        }
-        else {
-
-            for (var i = 0; i < TareasMostrar.length; i++) {
-
-                if (TareasMostrar[i].idUsuario != 0) {
-
-                    var asignados = TareasMostrar[i].idUsuario;
-
-                    if (asignados === IdAsignado) {
-
-                        AsignadosFiltrado.push(TareasMostrar[i]);
-                        console.log(AsignadosFiltrado);
                     }
                 }
+                console.log( TareasMostrar);
+                return EstadosFiltrado;
 
             }
-            console.log(AsignadosFiltrado);
-            return AsignadosFiltrado;
 
         }
-    }
-    function filtroContacto(TareasMostrar) {
 
 
-        var IdContacto = parseInt($('#filtroContacto').val());
 
-        var TareasFiltrado = [];
+        function filtroTipos(TareasMostrar) {
 
+            var IdTipo = parseInt($('#filtroTipos').val());
+            var tiposFiltrado = [];
 
-        if (IdContacto === 0) {
-            return TareasMostrar;
-        }
-        else {
+            if (IdTipo === 0) {
+                return TareasMostrar;
+            }
+            else {
 
-            for (var i = 0; i < TareasMostrar.length; i++) {
+                for (var i = 0; i < TareasMostrar.length; i++) {
+                    var tipos = TareasMostrar[i].idTipoNavigation;
 
-                if (TareasMostrar[i].idContacto === IdContacto) {
+                    if (tipos.id === IdTipo) {
 
-                    TareasFiltrado.push(TareasMostrar[i]);
+                        tiposFiltrado.push(TareasMostrar[i]);
+
+                    }
 
                 }
+                console.log(tiposFiltrado);
+                return tiposFiltrado;
             }
-            console.log(TareasFiltrado);
-            return TareasFiltrado;
+        }
+
+
+
+        function filtroFecha(_desde, _hasta) {
+
+            var arrayTareas = JSON.parse(JSON.stringify(reportes));
+            if (_desde == _hasta || _desde === null) {
+
+                return TareasMostrar;
+            } else {
+
+                var desdeLocal = new Date(_desde).getTime();
+                var hastaLocal = new Date(_hasta).getTime();
+
+
+
+                for (var i = 0; i < reportes.length; i++) {
+
+                    var documento = new Date(reportes[i].fechaLimite).getTime();
+                    var flag = false;
+
+                    if (documento >= desdeLocal && documento <= hastaLocal)
+                        flag = true;
+
+                    // else flag = true;
+
+                    if (!flag)
+                        arrayTareas.splice(i, 1);
+                }
+                return arrayTareas;
+
+            }
 
         }
 
 
-    }
+
+
+        function FistroAsignados(TareasMostrar) {
+
+            var IdAsignado = parseInt($('#filtroAsignado').val());
+
+            var AsignadosFiltrado = [];
+
+
+            if (IdAsignado === 0) {
+
+                return TareasMostrar;
+            }
+            else {
+
+                for (var i = 0; i < TareasMostrar.length; i++) {
+
+                    if (TareasMostrar[i].idUsuario != 0) {
+
+                        var asignados = TareasMostrar[i].idUsuario;
+
+                        if (asignados === IdAsignado) {
+
+                            AsignadosFiltrado.push(TareasMostrar[i]);
+                            console.log(AsignadosFiltrado);
+                        }
+                    }
+
+                }
+                console.log(AsignadosFiltrado);
+                return AsignadosFiltrado;
+
+            }
+        }
+
+
+
+
+        function filtroContacto(TareasMostrar) {
+
+
+            var IdContacto = parseInt($('#filtroContacto').val());
+
+            var TareasFiltrado = [];
+
+
+            if (IdContacto === 0) {
+                return TareasMostrar;
+            }
+            else {
+
+                for (var i = 0; i < TareasMostrar.length; i++) {
+
+                    if (TareasMostrar[i].idContacto === IdContacto) {
+
+                        TareasFiltrado.push(TareasMostrar[i]);
+
+                    }
+                }
+                console.log(TareasFiltrado);
+                return TareasFiltrado;
+            }
+
+        }
 
 
 
@@ -399,6 +409,10 @@
         });
 
 
+
+
+
+
         function getMonedaBase() {
             $.ajax({
                 type: "get",
@@ -419,6 +433,10 @@
                 }
             });
         }
+
+
+
+
 
 
         //cargar datos de las tareas..
@@ -466,11 +484,11 @@
 
                     + '<td hidden>' + data[i].descripcion + '</td>'
                     + '<td hidden>' + data[i].diasEstimados + '</td>'
-                    + '<td hidden>' + data[i].diasReales + '</td>'
+                    + '<td hidden>' + validarDiasReales(data[i].diasReales)  + '</td>'
                     + '<td style="text-align:right" >' + fomatearMoneda(data[i].costoEstimado) + '</td>'
-                    + '<td style="text-align:right" bgColor=' + color + '>' + fomatearMoneda(data[i].costoReal) + '</td>'
-                    + '<td hidden hidden>' + data[i].fechaInicio + '</td>'
-                    + '<td hidden hidden>' + data[i].fechaFinal + '</td>'
+                    + '<td style="text-align:right" bgColor=' + color + '>' + validarCostoReal(data[i].costoReal) + '</td>'
+                    + '<td hidden hidden>' + validarFechas(data[i].fechaInicio) + '</td>'
+                    + '<td hidden hidden>' + validarFechas(data[i].fechaFinal) + '</td>'
 
                 $('#TablaTareas > tbody').append(body);
                 contadorFila++;
@@ -534,43 +552,97 @@
             });
         }
 
+    // ------------------------------- lenin --------------------------------
+
+
+        function validarDiasReales(diasReales) {
+            var resp ="";
+
+            if (diasReales == null) {
+                resp = 0;
+                return resp;
+            } else {
+               return diasReales;
+            }
+
+        }
+
+
+        function validarCostoReal(costoReal){
+            var resp = "";
+
+            if (costoReal == null) {
+                resp = 0;
+                $('#monedaFormatter').val(resp);
+                return $('#monedaFormatter').val();
+                
+            } else if (costoReal == 0) {
+                $('#monedaFormatter').val(costoReal);
+
+                return $('#monedaFormatter').val();
+            }
+
+        }
+
+
+
+        function validarFechas(fecha) {
+
+        var f = new Date(fecha);
+      
+            var resp = "";
+            if (fecha == null) {
+                resp = "vacio";
+                return resp;
+            } else {
+                return f.toLocaleString();
+            }
+        }
+
+
+
         function fomatearMoneda(val) {
             $('#monedaFormatter').val(val);
-
             return $('#monedaFormatter').val();
         }
 
+
+
+
          //cargar tabla
         function cargarTabla() {
-         var url = '@Url.Action("GetTareas", "Tarea")';
-        $.ajax({
-                    type: "get",
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            var url = '@Url.Action("GetTareas", "Tarea")';
+                $.ajax({
+                        type: "get",
+                        headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                  url: url ,
+                dataType: "json",
+
+                success: function (data) {
+                    reportes = JSON.parse(JSON.stringify(data));
+                    console.log(reportes);
+                    cargarDatos(reportes );
+
+
                     },
-              url: url ,
-            dataType: "json",
-
-            success: function (data) {
-                reportes = JSON.parse(JSON.stringify(data));
-
-                cargarDatos(reportes );
-
-
-                },
-            error: function (err, scnd) {
-                alert('error');
-                        console.log(err.statusText);
-                }
-            });
+                error: function (err, scnd) {
+                    alert('error');
+                            console.log(err.statusText);
+                    }
+                });
         }
+
+
+
+
         function recuperarFecha(_fecha) {
-
-
             var f = new Date(_fecha);
             return f.toLocaleString();
-
         }
+
+
 
         function recuperarFechaSinHora(_fecha) {
 
@@ -578,13 +650,14 @@
             var y = fecha.substr(0, 4);
             var m = fecha.substr(6, 1);
             var d = fecha.substr(8, 3);
-
             //var date = new Date();
             //console.log(fecha);
-
             return d + "/" + m + "/" + y;
 
         }
+
+
+
 </script>
 
 <style>
