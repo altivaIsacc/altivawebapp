@@ -3088,6 +3088,7 @@ namespace AltivaWebApp.Context
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_SE_PuntoVenta_tb_PR_Precios");
             });
+
         }
     }
 }
