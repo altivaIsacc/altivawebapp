@@ -14,10 +14,12 @@ namespace AltivaWebApp.Controllers
     {
         private readonly IDenominacionesService denService;
         private readonly IFlujoCategoriaService flujoService;
-        public MovimientoCajaController(IFlujoCategoriaService flujoService, IDenominacionesService denService)
+        private readonly IMovimientoService movimientoService;
+        public MovimientoCajaController(IMovimientoService movimientoService, IFlujoCategoriaService flujoService, IDenominacionesService denService)
         {
             this.denService = denService;
             this.flujoService = flujoService;
+            this.movimientoService = movimientoService;
         }
 
         [HttpPost("_FormaPago")]
@@ -30,7 +32,25 @@ namespace AltivaWebApp.Controllers
             ViewData["bancos"] = flujoCategoria.Where(o => o.IdTipoFlujo == 1).ToList();
             ViewBag.flujoEfectivo = flujoCategoria.FirstOrDefault(e => e.IdTipoFlujo == 2).IdCategoriaFlujo;
 
+            ViewBag.saldoDisponible = RetornaSaldo(viewModel.IdContacto);
+
             return PartialView(viewModel);
+        }
+
+
+
+        private TbFaMovimiento RetornaSaldo(long idContacto)
+        {
+            IList<TbFaMovimiento> saldoMov = movimientoService.GetSaldoContacto(idContacto);
+
+            TbFaMovimiento mov = new TbFaMovimiento();
+            foreach (var item in saldoMov)
+            {
+                mov.DisponibleBase += item.DisponibleBase;
+                mov.DisponibleDolar += item.DisponibleDolar;
+                mov.DisponibleEuro += item.DisponibleEuro;
+            }
+            return mov;
         }
     }
 }
