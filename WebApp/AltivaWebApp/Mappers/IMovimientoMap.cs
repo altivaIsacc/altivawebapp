@@ -9,6 +9,6 @@ namespace AltivaWebApp.Mappers
     public interface IMovimientoMap
     {
         IList<TbFaMovimientoDetalle> CreateMovmientoDetalle(long idDocumento);
-
+        void CrearEnlance(long idUltimoMov, double montoPrepago);
     }
 }

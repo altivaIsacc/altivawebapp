@@ -2,6 +2,24 @@
 @model FormaPagoViewModel
 @inject IStringLocalizer<SharedResources> Lb
 
+@{
+    var movimiento = ViewBag.saldoDisponible as TbFaMovimiento;
+    double saldoDisponible = 0;
+    switch (Model.Moneda)
+    {
+        case 1:
+            saldoDisponible = movimiento.DisponibleBase;
+            break;
+        case 2:
+            saldoDisponible = movimiento.DisponibleDolar;
+            break;
+        case 3:
+            saldoDisponible = movimiento.DisponibleEuro;
+            break;
+    }
+
+}
+
 
 <div class="modal fade" id="formaPagoModal" tabindex="-1" role="dialog" aria-labelledby="formaPagoModalCenter" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -46,7 +64,11 @@
                             <a onclick="setFormaPagoSeleccionada(tarjeta = 2)" class="list-group-item list-group-item-action" id="tarjetaTab" data-toggle="list" href="#list-tarjeta" role="tab" aria-controls="tarjeta">@Lb["Tarjeta"]</a>
                             <a onclick="setFormaPagoSeleccionada(transferencia = 3)" class="list-group-item list-group-item-action" id="transferenciaTab" data-toggle="list" href="#list-transferencia" role="tab" aria-controls="transferencia">@Lb["Transferencia"]</a>
                             <a onclick="setFormaPagoSeleccionada(cheque = 4)" class="list-group-item list-group-item-action" id="chequeTab" data-toggle="list" href="#list-cheque" role="tab" aria-controls="cheque">@Lb["Cheque"]</a>
-                            <a onclick="setFormaPagoSeleccionada(saldo = 5)" class="list-group-item list-group-item-action" id="saldoTab" data-toggle="list" href="#list-saldo" role="tab" aria-controls="saldo">@Lb["AplicarSaldo"]</a>
+                            <div class="col-md-12 col-sm-12 col-xs-12" style="margin:0; padding:0; margin-top:1rem">
+                                <label>@Lb["SaldoDisponible"]:</label>
+                                <input readonly class="form-control input-sm formaPagoMoneda" id="lblSaldoDisponible" value="@saldoDisponible" />
+                                <button style="margin-top:0.5rem"  onclick="setMontoPrepago()" class="btn btn-info btn-sm" id="btnSaldoDisponible">@Lb["Aplicar"]</button>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-5 col-sm-8 col-xs-12">
@@ -122,7 +144,7 @@
                                             <span><stron>@Lb["Monto"]:</stron></span>
                                         </div>
                                         <div class=" form-group col-md-6 col-sm-6 col-xs-6">
-                                            <input class="form-control input-sm montoFormaPago" id="montoFP2" onkeypress="pasarSigCampoFP(event,'autorizacion')" />
+                                            <input class="form-control input-sm montoFormaPago" id="montoFP2" onkeypress="pasarSigCampoFP(event,'autorizacion', true, operador = 3)" />
                                             <span hidden class="text-danger" id="montoMayorValid">@Lb["montoMayorValid"].</span>
                                         </div>
 
@@ -174,7 +196,7 @@
                                             <span><stron>@Lb["Monto"]:</stron></span>
                                         </div>
                                         <div class=" form-group col-md-6 col-sm-6 col-xs-6">
-                                            <input class="form-control input-sm montoFormaPago" id="montoFP3" onkeypress="pasarSigCampoFP(event,'documento')" />
+                                            <input class="form-control input-sm montoFormaPago" id="montoFP3" onkeypress="pasarSigCampoFP(event,'documento', true, banco = 1)" />
                                             <span hidden class="text-danger" id="montoMayorValidT">@Lb["montoMayorValid"].</span>
                                         </div>
 
@@ -227,7 +249,7 @@
                                             <span><stron>@Lb["Monto"]:</stron></span>
                                         </div>
                                         <div class=" form-group col-md-6 col-sm-6 col-xs-6">
-                                            <input class="form-control input-sm montoFormaPago" id="montoFP4" onkeypress="pasarSigCampoFP(event,'documentoCheque')" />
+                                            <input class="form-control input-sm montoFormaPago" id="montoFP4" onkeypress="pasarSigCampoFP(event,'documentoCheque', true, banco = 1)" />
                                             <span hidden class="text-danger" id="montoMayorValidC">@Lb["montoMayorValid"].</span>
                                         </div>
 
@@ -276,17 +298,38 @@
                     </div>
 
                     <div class="col-md-5 col-sm-8 col-xs-12 pull-right">
-                        <h4 style="padding:0; margin:0; margin-top:0.3rem; margin-bottom: 1.5rem;">@Lb["MetodosAgregados"]</h4>
-                        <table class="table table-borderless pull-right" style="width:100%" id="tblFormaPago">
-                            <tbody>
-                                <tr id="lineaTotalesFP">
-                                    <td></td>
-                                    <td><strong>@Lb["Total"]</strong></td>
-                                    <td style="text-align:right"><label id="totalFormasPago"></label></td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <h4 style="padding:0; margin:0; margin-top:0.3rem; margin-bottom: 1.5rem;">@Lb["MetodosAgregados"]</h4>
+                                <table class="table table-borderless pull-right" style="width:100%" id="tblFormaPago">
+                                    <tbody>
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <table class="table table-borderless pull-right" style="width:100%" id="tblPrePost">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width:20%"><strong>@Lb["Prepagos"]</strong></td>
+                                            <td style="width:35%"><span ></span></td>
+                                            <td style="width:35%;text-align:right"><label id="totalPrepago">0</label></td>
+                                            <td style="width:10%"><a href="#" ><i class="fas fa-edit"></i></a></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="width:20%"><strong>@Lb["Total"]</strong></td>
+                                            <td style="width:35%"></td>
+                                            <td style="width:35%; text-align:right"><label id="totalFormasPago"></label></td>
+                                            <td style="width:10%"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+
+                        </div>                       
+                        
                     </div>
                 </div>
 
@@ -326,6 +369,7 @@
 </div>
 
 <div hidden><input hidden id="montoFormat" value="@Model.Monto.ToString().Replace(",", ".")" type="number" /></div>
+<div hidden><input hidden id="saldoFormat" value="@saldoDisponible.ToString().Replace(",", ".")" type="number" /></div>
 <div hidden><input hidden id="auxMontoFormat" class="montoFormaPago" type="text" /></div>
 <div hidden><input hidden id="formater1" type="text" /></div>
 <div hidden><input hidden id="formater2" type="text" /></div>
@@ -373,12 +417,15 @@
         }
     };
 
+    var montoPrepago = 0;
+    var saldoDisponible = 0;
 
     $(document).ready(function () {
 
         $("input:radio[name=rdOperadorTarjeta]:first").prop('checked', true);
-        $("input:radio[name=rdBanco]:first").prop('checked', true);     
-        $("input:radio[name=rdBancoCheque]:first").prop('checked', true);     
+        $("input:radio[name=rdBanco]:first").prop('checked', true);
+        $("input:radio[name=rdBancoCheque]:first").prop('checked', true);
+
 
         setMonto();
         calcularMovimientos();
@@ -410,6 +457,8 @@
 
         setTimeout(function () { $('#montoFP1').focus(); }, 500);
 
+        setSaldoDisponible();
+
     });
 
     $('#metodosPago a').on('click', function (e) {
@@ -433,9 +482,10 @@
 
         formaPagoSeleccionada = value;
         setMonedaGeneral(_MONEDADEFAULT);
-        
+
 
     }
+    
 
     /////////////////////////calculos efectivo/////////////////////
 
@@ -466,6 +516,7 @@
 
         setPago();
         setBalance();
+        setSaldoDisponible();
     }
 
     ////////////////////////////get and set///////////////////////////////////
@@ -593,7 +644,48 @@
         return res;
     }
 
+    function setSaldoDisponible() {
 
+        var disponible = getSaldoDisponible();
+
+        if (disponible > 0)
+            $('#btnSaldoDisponible').prop('disabled', false);
+        else
+            $('#btnSaldoDisponible').prop('disabled', true);
+
+
+        $('#auxMontoFormat').val(disponible);
+        $('#lblSaldoDisponible').val($('#auxMontoFormat').val());
+
+    }
+    function getSaldoDisponible() {
+
+        saldoDisponible = parseFloat($('#saldoFormat').val());
+
+        return saldoDisponible - getMontoPrepago();
+    }
+
+    function setMontoPrepago() {
+        var montoBalance = getBalance(_MONEDADEFAULT);
+        var disponible = getSaldoDisponible();
+
+        if (disponible <= montoBalance) {
+            montoPrepago = disponible;
+        }
+        else {
+            montoPrepago = montoBalance;
+        }
+
+        $('#auxMontoFormat').val(montoPrepago);
+        $('#totalPrepago').text($('#auxMontoFormat').val());
+
+        calcularMovimientos();
+
+        setMontoFP(parseInt($("input[name='rdMoneda']:checked").val()));
+    }
+    function getMontoPrepago() {
+        return montoPrepago;
+    }
 
     ////////////////////////////fin get and set///////////////////////////////////
 
@@ -685,6 +777,8 @@
     function totalFomasPago() {
 
         var montoPago = 0;
+
+        montoPago += montoPrepago;
 
         for (var i = 0; i < formasPago.length; i++) {
             montoPago += getMontoAlCambio(formasPago[i]);
@@ -866,7 +960,7 @@
                 if ($('#fechaTransferencia').val() == "" || $('#fechaTransferencia').val() == null) {
                     $('#fechaTransferencia').val("@DateTime.Today.ToString("yyyy-MM-dd")");
                 }
-               
+
                 break;
             case _cheque:
 
@@ -884,11 +978,11 @@
                 else
                     $('#documentoChequeValid').prop('hidden', true);
 
-                if ($('#fechaCheque').val() == "" || $('#fechaCheque').val() == null) {                   
+                if ($('#fechaCheque').val() == "" || $('#fechaCheque').val() == null) {
                     $('#fechaCheque').val("@DateTime.Today.ToString("yyyy-MM-dd")");
                     $('#fechaChequeValid').prop('hidden', false);
                 }
-                
+
 
                 break;
             case _saldo:
@@ -956,17 +1050,22 @@
         }
     }
 
-    function pasarSigCampoFP(e, id, submitMonto = false, tipoCat) {
+    function pasarSigCampoFP(e, id, submitMonto) {
 
         (e.keyCode) ? k = e.keyCode : k = e.which;
 
         if (k == 13) {
 
+            if (submitMonto) {
+                var monto = parseFloat($('#balance').inputmask('unmaskedvalue'));
+                if (monto >= 0) {
+                    guardarMovimientosCaja();
+                    return;
+                }
+            }
 
             document.getElementById(id).focus();
             $('#' + id).select();
-
-            
 
         }
     }
@@ -979,17 +1078,19 @@
 
             var body =
                 '<tr class="filasCargadasFP">'
-                + '<th>' + getNombreFormaPago(data[i].idTipoCajaMovimiento) + '</th>'
-                + '<td>' + formatCurrencyFP(data[i].montoOriginal, data[i].idMoneda) + '</td>'
-                + '<td style="text-align: right">' + formatCurrencyFactura(data[i]) + '</td>'
-                + '<td><a onclick="eliminarFP(' + data[i].idCajaMovimiento + ',' + pos + ')" href="#"><i class="fas fa-trash"></i></a></td>'
+                + '<td style="width:20%">' + getNombreFormaPago(data[i].idTipoCajaMovimiento) + '</td>'
+                + '<td style="width:35%">' + formatCurrencyFP(data[i].montoOriginal, data[i].idMoneda) + '</td>'
+                + '<td style="width:35%; text-align: right">' + formatCurrencyFactura(data[i]) + '</td>'
+                + '<td style="width:10%"><a onclick="eliminarFP(' + data[i].idCajaMovimiento + ',' + pos + ')" href="#"><i class="fas fa-trash"></i></a></td>'
                 + '</tr>';
 
-            $('#lineaTotalesFP').before(body);
+            $('#tblFormaPago').html(body);
 
             pos++;
 
         }
+
+
 
     }
 
@@ -1002,7 +1103,6 @@
         $('.montoFormaPago').focus();
         $('.montoFormaPago').select();
         cargarFormasPago(formasPago);
-
 
     }
 
@@ -1140,7 +1240,6 @@
 
     function getMontoAlCambio(data) {
         var montoAux = 0;
-
 
         switch (@Model.Moneda) {
             case 1:

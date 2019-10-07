@@ -48,5 +48,26 @@ namespace AltivaWebApp.Mappers
             return service.SaveMovDetalle(movDetalle);
         }
 
+        public void CrearEnlance(long idUltMovimiento, double montoPrepago)
+        {
+            TbFaMovimiento ultMov = service.GetMovimientoById(idUltMovimiento);
+            IList<TbFaMovimiento> movList = service.GetSaldoContacto(ultMov.IdContacto);
+
+            IList<TbFaMovimientoDetalle> movDetlist = new List<TbFaMovimientoDetalle>();
+
+            double monto = 0;
+
+            //foreach (var item in movList)
+            //{
+            //    switch (ultMov)
+            //    {
+            //        default:
+            //            break;
+            //    }
+            //}
+
+
+        }
+
     }
 }
