@@ -94,28 +94,40 @@ namespace AltivaWebApp.Controllers
               
             //Datos Iniciales
             ViewBag.Moneda = bd.Moneda.Find(item.CodigoMoneda);
-            ViewBag.TipoDoc = bd.TiposDoc.Find(item.IdTipoDocumento);
+            TiposDocumentosConta tp = bd.TiposDoc.Find(item.IdTipoDocumento);
+
+            ViewBag.TipoDoc = tp;
             ViewBag.Periodo = bd.PeriodoTrabajo.Find(item.IdPeriodoTrabajo);
             ViewBag.UsuarioCreador = bd.Usuario.Find(item.IdUsuarioCreador);
             ViewBag.UsuarioMod = bd.Usuario.Find(item.IdUsuarioMod);
             ViewBag.CurrentIdUsuario = long.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
             //Datos para controles
-
             if (Id == 0)
             {
                 ViewBag.FechaDesdePeriodo = bd.PeriodoTrabajo.Where(p => p.Estado == "ABIERTO").Min(p => p.FechaInicio).Date;
                 ViewBag.FechaHastaPeriodo = bd.PeriodoTrabajo.Where(p => p.Estado == "ABIERTO").Max(p => p.FechaFinal).Date;
                 ViewBag.Periodos = bd.PeriodoTrabajo.Where(p => p.Estado == "ABIERTO");
+                ViewBag.Tipos = bd.TiposDoc.Where(p => p.Automatico == false);
             }
             else {
                 ViewBag.FechaDesdePeriodo = bd.PeriodoFiscal.Min(p => p.FechaDesde).Date;
                 ViewBag.FechaHastaPeriodo = bd.PeriodoFiscal.Max(p => p.FechaHasta).Date;
                 ViewBag.Periodos = bd.PeriodoTrabajo.Where(p => p.IdPeriodoTrabajo == item.IdPeriodoTrabajo || p.Estado == "ABIERTO");
+
+                if (tp.Automatico == false)
+                {
+                    ViewBag.Tipos = bd.TiposDoc.Where(p => p.Automatico == false);
+                }
+                else {
+                    ViewBag.Tipos = bd.TiposDoc.Where(p=>p.IdTipoDocumento==tp.IdTipoDocumento);
+                }            
+
+              
             }
           
             ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == false);
             ViewBag.Catalogo = bd.CatalogoContable.Where(p => p.Movimiento == true);
-            ViewBag.Tipos = bd.TiposDoc.Where(p => p.Automatico == false);
+            
 
             Moneda v = bd.Moneda.Find(1);
             ViewBag.SimboloBase = v.Simbolo;
