@@ -6,15 +6,14 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Services
 {
-  public interface IPuntoVentaService
+    public interface IPuntoVentaService
     {
-       
+
         TbSePuntoVenta Save(TbSePuntoVenta domain);
-       
         TbSePuntoVenta Update(TbSePuntoVenta domain);
         IList<TbSePuntoVenta> GetAll();
-
-         TbSePuntoVenta GetPuntoVentaById(int id);
-       
-    }
+        TbSePuntoVenta GetPuntoVentaById(int id);
+        bool ExistePuntoVentaValido();
+        int GetEstadoCajasPV(long idPV, long idUsuario);
+      }
 }

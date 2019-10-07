@@ -7,56 +7,58 @@
 }
 
 <div class="row">
-    <form id="frmRelacion">
-        @Html.HiddenFor(x => x.Id)
+    <form id="frmRelacion" class="col-md-11">
 
-        <div class="form-group col-md-3 col-sm-3 col-xs-6">
-            <label asp-for="IdContactoPadre" class="control-label">@Lb["Contacto"]:</label>
-            <select asp-for="IdContactoPadre" class="form-control contactosSelect">
+        <fieldset id="fieldsetRelacion">
+            @Html.HiddenFor(x => x.Id)
 
-                @if ((bool)contacto.Empresa)
-                {
-                    <option data-subtext="@contacto.Cedula" value="@contacto.IdContacto">@contacto.NombreComercial</option>
-                }
-                else
-                {
-                    <option data-subtext="@contacto.Cedula" value="@contacto.IdContacto">@contacto.Nombre @contacto.Apellidos</option>
-                }
+            <div class="form-group col-md-3 col-sm-3 col-xs-6">
+                <label asp-for="IdContactoPadre" class="control-label">@Lb["Contacto"]:</label>
+                <select asp-for="IdContactoPadre" class="form-control contactosSelect">
 
-            </select>
-        </div>
-        <div class="form-group col-md-3 col-sm-3 col-xs-6">
-            <label asp-for="IdContactoHijo" class="control-label">@Lb["RelacionadoCon"]:</label>
-            <select data-show-subtext="true" data-live-search="true" asp-for="IdContactoHijo" class="form-control contactosSelect">
-                @foreach (var item in ViewBag.contactos as IList<TbCrContacto>)
-                {
-                    if (item.IdContacto != contacto.IdContacto)
+                    @if ((bool)contacto.Empresa)
                     {
-                        @if (!(bool)item.Persona)
-                        {
-                            <option data-subtext="@item.Cedula" value="@item.IdContacto">@item.NombreComercial</option>
-                        }
-                        else
-                        {
-                            <option data-subtext="@item.Cedula" value="@item.IdContacto">@item.Nombre @item.Apellidos</option>
-                        }
+                        <option data-subtext="@contacto.Cedula" value="@contacto.IdContacto">@contacto.NombreComercial</option>
+                    }
+                    else
+                    {
+                        <option data-subtext="@contacto.Cedula" value="@contacto.IdContacto">@contacto.Nombre @contacto.Apellidos</option>
                     }
 
-                }
-            </select>
+                </select>
+            </div>
+            <div class="form-group col-md-3 col-sm-3 col-xs-6">
+                <label asp-for="IdContactoHijo" class="control-label">@Lb["RelacionadoCon"]:</label>
+                <select data-show-subtext="true" data-live-search="true" asp-for="IdContactoHijo" class="form-control contactosSelect">
+                    @foreach (var item in ViewBag.contactos as IList<TbCrContacto>)
+                    {
+                        if (item.IdContacto != contacto.IdContacto)
+                        {
+                            @if (!(bool)item.Persona)
+                            {
+                                <option data-subtext="@item.Cedula" value="@item.IdContacto">@item.NombreComercial</option>
+                            }
+                            else
+                            {
+                                <option data-subtext="@item.Cedula" value="@item.IdContacto">@item.Nombre @item.Apellidos</option>
+                            }
+                        }
 
-        </div>
-        <div class="form-group col-md-5 col-sm-5 col-xs-11">
-            <label asp-for="NotaRelacion" class="control-label">@Lb["nota"]:</label>
-            <input asp-for="NotaRelacion" maxlength="100" class="form-control" />
-        </div>
+                    }
+                </select>
 
-        <div class="form-group col-md-1 col-sm-1 col-xs-1" style="padding-top: 2.5rem;">
-            <a onclick="guardarRelacion()" id="submitFrmRelacion" class="btn btn-sm btn-success"><span><i class="fas fa-save"></i></span></a>
-        </div>
+            </div>
+            <div class="form-group col-md-5 col-sm-5 col-xs-10">
+                <label asp-for="NotaRelacion" class="control-label">@Lb["nota"]:</label>
+                <input asp-for="NotaRelacion" maxlength="100" class="form-control" />
+            </div>
 
+            <div class="form-group col-md-1 col-sm-1 col-xs-2">
+                <a style="margin-top: 2.5rem;" onclick="guardarRelacion()" id="submitFrmRelacion" class="btn btn-sm btn-success"><span><i class="fas fa-save"></i></span></a>
+            </div>
+        </fieldset>
     </form>
-
+    
 </div>
 <script>
 
@@ -64,6 +66,11 @@
 
     $(document).ready(function () {
         $('.contactosSelect').selectpicker();
+
+
+        ///desactivar si el contacto es por defecto en punto de venta
+        $('#fieldsetRelacion').prop('disabled', esPorDefectoPV);
+
     });
 
 

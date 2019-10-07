@@ -98,6 +98,11 @@ namespace AltivaWebApp.Repositories
             return context.TbCrContacto.AsNoTracking().Where(u => u.IdContacto == id).FirstOrDefault();
         }
 
+        public bool EsPorDefectoPV(int id)
+        {
+            return context.TbSePuntoVenta.Any(c => c.IdContactoClienteDefecto == id);
+        }
+
         public IList<TbCeCanton> GetCantones(int idProvincia)
         {
             return context.TbCeCanton.Where(u => u.IdProvincia == idProvincia).ToList();

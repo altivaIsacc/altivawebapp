@@ -90,7 +90,7 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Nuevo")]
         public IActionResult CrearContacto()
         {
-
+            ViewBag.esPorDefectoPV = false;
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["paises"] = paisService.GetAll();
 
@@ -103,7 +103,7 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Editar/{id}")]
         public IActionResult EditarContacto(int id)
         {
-
+            ViewBag.esPorDefectoPV = contactoService.EsPorDefectoPV(id);
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["paises"] = paisService.GetAll();
             var contacto = contactoMap.DomainToViewModelC(contactoService.GetByIdContacto(id));

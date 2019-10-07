@@ -43,9 +43,19 @@ namespace AltivaWebApp.Services
             return repository.GetFlujoCategoriaByDesc(cod, idTipo);
         }
 
+        public TbBaFlujoCategoria GetFlujoCategoriaByTipo(int tipo)
+        {
+            return repository.GetFlujoCategoriaByTipo(tipo);
+        }
 
+        public bool ExisteCatFlujoCadaTipo()
+        {
+            return repository.ExisteCatFlujoCadaTipo();
+        }
 
-
-
+        public IList<TbBaFlujo> SaveFlujo(IList<TbBaFlujo> flujos)
+        {
+            return repository.SaveFlujo(flujos);
+        }
     }
 }

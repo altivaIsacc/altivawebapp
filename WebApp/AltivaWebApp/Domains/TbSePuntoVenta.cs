@@ -35,7 +35,9 @@ namespace AltivaWebApp.Domains
         public string Imagen { get; set; }
         public DateTime FechaCreacion { get; set; }
         public long IdUsuarioCreacion { get; set; }
+        public int IdTipoPrecioDefecto { get; set; }
 
+        public virtual TbPrPrecios IdTipoPrecioDefectoNavigation { get; set; }
         public virtual ICollection<TbFaCaja> TbFaCaja { get; set; }
         public virtual ICollection<TbFdFactura> TbFdFactura { get; set; }
     }
