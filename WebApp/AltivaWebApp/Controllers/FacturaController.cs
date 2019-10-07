@@ -86,7 +86,7 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var factura = new TbFdFactura(); 
+                var factura = new TbFdFactura();
                 if (viewModel.Id != 0)
                 {
                     factura = map.Update(viewModel);

@@ -41,7 +41,7 @@ namespace AltivaWebApp.Mappers
                 VentaEuroTc = moneda[2].ValorVenta,
                 IdMovimientoDesde = movimientoDesde.IdMovimiento,
                 IdMovimientoHasta = movimientoHasta.IdMovimiento
-                
+
             });
 
 

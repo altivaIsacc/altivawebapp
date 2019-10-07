@@ -24,7 +24,7 @@ namespace AltivaWebApp.Domains
         public double MontoBase { get; set; }
         public double MontoDolar { get; set; }
         public double MontoEuro { get; set; }
-        public string DisponibleDolar { get; set; }
+        public double DisponibleDolar { get; set; }
         public double DisponibleBase { get; set; }
         public double DisponibleEuro { get; set; }
         public double AplicadoBase { get; set; }

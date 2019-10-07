@@ -20,6 +20,11 @@ namespace AltivaWebApp.Repositories
             return context.TbFaMovimiento.Where(m => m.IdDocumento == idDoc).ToList();
         }
 
+        public TbFaMovimiento GetMovimientoById(long idMov)
+        {
+            return context.TbFaMovimiento.FirstOrDefault(m => m.IdMovimiento == idMov);
+        }
+
         public long GetUltimoMovimientoPagoId(long idDoc)
         {
             var qry = "SELECT top 1 m2.*"
@@ -32,6 +37,11 @@ namespace AltivaWebApp.Repositories
             var mov = context.TbFaMovimiento.FromSql(qry).AsNoTracking().FirstOrDefault();
 
             return mov != null ? mov.IdMovimiento : 0;
+        }
+
+        public IList<TbFaMovimiento> GetSaldoContacto(long idContacto)
+        {
+            return context.TbFaMovimiento.Where(m => m.IdContacto == idContacto && m.IdDocumento == 0 && m.Cxc).ToList();
         }
 
         public IList<TbFaMovimientoDetalle> SaveMovDetalle(IList<TbFaMovimientoDetalle> domain)

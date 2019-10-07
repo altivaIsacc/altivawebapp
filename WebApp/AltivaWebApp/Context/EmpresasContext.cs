@@ -1362,8 +1362,6 @@ namespace AltivaWebApp.Context
 
                 entity.Property(e => e.Cxp).HasColumnName("CXP");
 
-                entity.Property(e => e.DisponibleDolar).HasMaxLength(10);
-
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");

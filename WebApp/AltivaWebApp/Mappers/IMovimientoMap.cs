@@ -1,4 +1,5 @@
-﻿using AltivaWebApp.Domains;
+﻿
+using AltivaWebApp.Domains;
 using System;
 using System.Collections.Generic;
 using System.Linq;
