@@ -109,17 +109,18 @@ namespace AltivaWebApp.Controllers
                     factura = map.Create(viewModel);
                 }
 
+                ///crear movimiento de pago factura//
+                var newMov = movMap.CreateMovimientoPago(factura.Id, formaPago, prepago);
+
+                
 
                 IList<TbFaCajaMovimiento> movimiento = new List<TbFaCajaMovimiento>();
-                long ultMovimiento = movService.GetUltimoMovimientoPagoId(factura.Id);
+                
                 if (formaPago.Count() > 0)
                 {
-                    movimiento = cajaMovMap.CreateCajaMovimiento(formaPago, ultMovimiento);
+                    movimiento = cajaMovMap.CreateCajaMovimiento(formaPago, newMov.IdMovimiento);
                 }
-                if(prepago > 0)
-                {
-                    movMap.CrearEnlance(factura, ultMovimiento, prepago);
-                }
+                
 
                 return Json(new { success = true, idDoc = factura.Id });
             }

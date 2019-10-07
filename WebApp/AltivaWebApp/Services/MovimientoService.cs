@@ -20,9 +20,9 @@ namespace AltivaWebApp.Services
             return repository.GetMovimientoById(idMov);
         }
 
-        public IList<TbFaMovimiento> GetMovimientosByIdDocumento(long idDoc)
+        public TbFaMovimiento GetMovimientoByIdDocumento(long idDoc)
         {
-            return repository.GetMovimientosByIdDocumento(idDoc);
+            return repository.GetMovimientoByIdDocumento(idDoc);
         }
 
         public IList<TbFaMovimiento> GetSaldoContacto(long idContacto)
