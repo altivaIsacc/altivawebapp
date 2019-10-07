@@ -1,4 +1,5 @@
-﻿using AltivaWebApp.Domains;
+﻿
+using AltivaWebApp.Domains;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace AltivaWebApp.Mappers
     public interface IMovimientoMap
     {
         IList<TbFaMovimientoDetalle> CreateMovmientoDetalle(long idDocumento);
-        void CrearEnlance(long idUltimoMov, double montoPrepago);
+
     }
 }
