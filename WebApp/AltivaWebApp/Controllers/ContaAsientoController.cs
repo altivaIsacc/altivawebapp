@@ -98,9 +98,9 @@ namespace AltivaWebApp.Controllers
             ViewBag.Periodo = bd.PeriodoTrabajo.Find(item.IdPeriodoTrabajo);
             ViewBag.UsuarioCreador = bd.Usuario.Find(item.IdUsuarioCreador);
             ViewBag.UsuarioMod = bd.Usuario.Find(item.IdUsuarioMod);
-
+            ViewBag.CurrentIdUsuario = long.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
             //Datos para controles
-        
+
             if (Id == 0)
             {
                 ViewBag.FechaDesdePeriodo = bd.PeriodoTrabajo.Where(p => p.Estado == "ABIERTO").Min(p => p.FechaInicio).Date;
