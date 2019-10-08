@@ -1,18 +1,15 @@
 ﻿
 function GetComentarios(referencia, idRefernecia) {
 
-    
-
     var comentarioModel = {
         mensaje: '',
         tipoMensaje: 'CO',
         tipoReferencia: referencia,
         id: idRefernecia
     };
-
     $.ajax({
         type: "POST",
-        url: '../../Mensajes/Nuevo-Comentario',
+        url: '@Url.Action("Nuevo-Comentario", "Mensajes")',
         data: comentarioModel,
         success: function (data) {
             $('#comentarios').html(data);

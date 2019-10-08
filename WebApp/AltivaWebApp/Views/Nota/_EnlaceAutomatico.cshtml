@@ -13,41 +13,47 @@
     </button>
 </div>
 
-        <div class="col-md-3 col-sm-3 col-xs-12">
-            <label>@Lb["Disponible"]:</label>
-            <input readonly class="form-control currency" id="disponible" />
-            <br />
-        </div>
-        <table class="table table-bordered table-striped col-md-2 col-sm-2 col-xs-12 well" id="tblOrdenCompra">
-            <thead>
-                <tr>
+<div class="col-md-3 col-sm-3 col-xs-12">
+    <label>@Lb["Disponible"]:</label>
+    <input readonly class="form-control currency" id="disponible" />
+    <br />
+</div>
 
-                    <th><span>@Lb["tipo"]</span></th>
-                    <th><span>@Lb["Documento"]</span></th>
-                    <th><span>@Lb["Fecha"]</span></th>
-                    <th><span>@Lb["Pendiente"]</span></th>
-                    <th><span>@Lb["Aplicado"]</span></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="lineaAplicadoForm"></tr>
-            </tbody>
-        </table>
-        <div class="col-md-2 col-sm-2 col-xs-12" style="margin-left:700px">
-            <input readonly id="sumaAplicado" class="form-control currency" />
+    <table class="table table-bordered table-striped col-md-2 col-sm-2 col-xs-12 well" id="tblOrdenCompra">
+        <thead>
+            <tr>
 
-        </div>
-        <div class="row">
-            <div class="form-group col-md-6">
-                <button class="btn btn-success btnAccion" onclick="GuardarEnlace()">@Lb["Aplicar"]</button>
-                <a id="cancelarEnlace" onclick="" class="btn btn-default">@Lb["Cancelar"]</a>
-            </div>
-        </div>
+                <th><span>@Lb["tipo"]</span></th>
+                <th><span>@Lb["Documento"]</span></th>
+                <th><span>@Lb["Fecha"]</span></th>
+                <th><span>@Lb["Pendiente"]</span></th>
+                <th><span>@Lb["Aplicado"]</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="lineaAplicadoForm"></tr>
+        </tbody>
+    </table>
  
-  <script>
+    <div class="col-md-3 col-sm-3 col-xs-12" style="margin-left:600px">
+        <label>@Lb["Aplicado"]:</label>
+        <input readonly id="sumaAplicado" class="form-control currency" />
+
+    </div>
+    <div class="row">
+        <div class="form-group col-md-6 col-sm-6 col-xs-12">
+            <button class="btn btn-success btnAccion" onclick="GuardarEnlace()">@Lb["Aplicar"]</button>
+            <a id="cancelarEnlace" onclick="" class="btn btn-default">@Lb["Cancelar"]</a>
+            <span id="saldoValid" class="text-danger" hidden>@Lb["saldoValid"]</span>
+
+        </div>
+
+    </div>
+
+    <script>
     $(document).ready(function () {
         $("#disponible").val($("#totalDisponible").inputmask('unmaskedvalue'));
-        $("#sumaAplicado").val($("#totalAplicado").inputmask('unmaskedvalue'));
+        $("#sumaAplicado").val(0.00);
 
     });
     $("#cancelarEnlace").on("click", function () {
@@ -91,55 +97,42 @@
     }
     ///AJAX///
     function GuardarEnlace() {
-          lineasAplicado =  lineasEnlace;
-         $('#modalTipoJustificante').modal('hide');
-         cargarTotal();
-         $("#totalDisponible").val($("#disponible").inputmask('unmaskedvalue'));
-         $("#totalAplicado").val($("#sumaAplicado").inputmask('unmaskedvalue'));  
-    
-       // var model = crearModeloEnlace();
-        //console.log(model);
-        @*$.ajax({
-            type: "post",
-            dataType: "json",
-            data: {viewModel: model},
-           url: '@Url.Action("CrearEnlace", "Nota")',
-           success: function (data) {
-               $('#modalTipoJustificante').modal('hide');
-               cargarDatos();
-           },
-           error: function (err, scnd) {
-               cargarAlert('@Lb["errorGeneral"]');
-               console.log(err.statusText);
-           }
-       });*@
-        
-    }
-    function crearModeloEnlace() {
-        var array = [];
-        for (var i = 0; i < lineasEnlace.length; i++) {
-            if (lineasEnlace[i].idMovimiento != parseInt($("#IdMovimiento").val()) && lineasEnlace[i].saldoBase != 0){
-                var model = {
-                    num : lineasEnlace[i].idDocumento,
-                    IdMovimientoDesde: parseInt($("#IdMovimiento").val()),
-                    IdMovimientoHasta: lineasEnlace[i].idMovimiento,
-                    Aplicado: parseFloat(saldos[i]),
-                    CompraDolarTC: parseFloat($("#dolar").inputmask('unmaskedvalue')),
-                    VentaDolarTC: parseFloat($("#dolarVenta").inputmask('unmaskedvalue')),
-                    CompraEuroTC: parseFloat($("#euro").inputmask('unmaskedvalue')),
-                    VentaEuroTC: parseFloat($("#euroVenta").inputmask('unmaskedvalue')),
-                    IdMoneda: parseInt($("#tipoMoneda").val()),
-                };
-                array.push(model);
-            }
+         $('#saldoValid').prop('hidden', true);
+        var total = $("#disponible").inputmask('unmaskedvalue');
+        if (total < 0) {
+          $('#saldoValid').prop('hidden', false);
+        } else {
+              lineasAplicado = JSON.parse(JSON.stringify(lineasEnlace));
+            cargarTotal();
+            $("#totalDisponible").val($("#disponible").inputmask('unmaskedvalue'));
+            $("#totalAplicado").val(parseFloat($("#sumaAplicado").inputmask('unmaskedvalue')) + parseFloat($("#totalAplicado").inputmask('unmaskedvalue')));
+            $('#modalTipoJustificante').modal('hide');
+
         }
-        return array;
     }
 
+    function recuperarSaldoOriginal(pos) {
+         var moneda = parseInt($("#tipoMoneda").val());
+        if (moneda == 1)
+            return aplicadosOriginal[pos].saldoBase;
+                if (moneda == 2)
+            return aplicadosOriginal[pos].saldoDolar;
+                if (moneda == 3)
+            return aplicadosOriginal[pos].saldoEuro;
+    }
+    function recuperarAplicadoOriginal(pos) {
+         var moneda = parseInt($("#tipoMoneda").val());
+        if (moneda == 1)
+            return aplicadosOriginal[pos].aplicadoBase;
+                if (moneda == 2)
+            return aplicadosOriginal[pos].aplicadoDolar;
+                if (moneda == 3)
+            return aplicadosOriginal[pos].aplicadoEuro;
+    }
     function cargarDatos() {
         getDocumentos(2);
         $("#totalDisponible").val($("#disponible").inputmask('unmaskedvalue'));
-        $("#totalAplicado").val($("#sumaAplicado").inputmask('unmaskedvalue'));     
+        $("#totalAplicado").val($("#sumaAplicado").inputmask('unmaskedvalue'));
      }
     function calcularLinea(pos) {
         var moneda = parseInt($("#tipoMoneda").val());
@@ -149,7 +142,7 @@
          if(moneda == 3)
             saldo = lineasEnlace[pos].saldoEuro;
         if (saldo > 0 && saldo != NaN) {
-            
+
             var disponible = $("#disponible").inputmask('unmaskedvalue');
             var totalApli = $("#sumaAplicado").inputmask('unmaskedvalue');
             var result = 0;
@@ -169,4 +162,4 @@
         }
           }
 
-  </script>
+    </script>

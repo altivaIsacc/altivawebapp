@@ -20,5 +20,8 @@ namespace AltivaWebApp.Repositories
         bool DeleteMovimientoJustificante(IList<int> domain, int idMovimiento);
          IList<DocumentosContactoViewModel> GetDocumentosContacto(long id, bool cxp, long idMovimiento);
         bool SaveMD(IList<TbFaMovimientoDetalle> domain);
+        TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimiento(long idMovimiento);
+        bool UpdateMD(IList<TbFaMovimientoDetalle> domain);
+        bool DeleteMD(long id);
     }
 }

@@ -115,11 +115,15 @@ namespace AltivaWebApp.Controllers
 
         }
         [HttpPost("CrearEnlace")]
-        public IActionResult CrearEnlace(IList<MovimientoDetalleViewModel> viewModel)
+        public IActionResult CrearEnlace(IList<MovimientoDetalleViewModel> viewModel, IList<MovimientoDetalleViewModel> lineasActualizadas)
         {
             try
             {
-                movimientoMap.CreateMD(viewModel);
+                if (lineasActualizadas.Count > 0)
+                    movimientoMap.UpdateMD(lineasActualizadas);
+                if (viewModel.Count > 0)
+                    movimientoMap.CreateMD(viewModel);
+
                 return Json(new { success = true });
             }
             catch
@@ -128,7 +132,21 @@ namespace AltivaWebApp.Controllers
             }
 
         }
+        [HttpPost("EliminarMovimientoDetalle")]
+        public IActionResult EliminarMovimientoDetalle(long id)
+        {
+            try
+            {
+                    movimientoService.DeleteMD(id);
 
+                return Json(new { success = true });
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
         [HttpGet("TipoDocumento")]
         public IActionResult GetAllTipoDocumento()
         {

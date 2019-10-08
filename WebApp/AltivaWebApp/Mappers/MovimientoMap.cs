@@ -24,6 +24,11 @@ namespace AltivaWebApp.Mappers
         {
             return service.SaveMD(ViewModelToDomainMD(viewModel));
         }
+        public bool UpdateMD(IList<MovimientoDetalleViewModel> viewModel)
+        {
+            return service.UpdateMD(ViewModelToDomainMDEdit(viewModel));
+        }
+
         public TbFaMovimiento Create(MovimientoViewModel viewModel)
         {
             return service.Save(ViewModelToDomain(viewModel));
@@ -154,25 +159,7 @@ namespace AltivaWebApp.Mappers
         public TbFaMovimiento ViewModelToDomainEdit(MovimientoViewModel viewModel)
         {
             var domain = service.GetMovimientoById(viewModel.IdMovimiento);
-            domain.IdMovimiento = viewModel.IdMovimiento;
-            domain.IdContacto = viewModel.IdContacto;
-            domain.IdDocumento = viewModel.IdDocumento;
-            domain.IdTipoDocumento = viewModel.IdTipoDocumento;
-            domain.IdUsuario = viewModel.IdUsuario;
-            domain.Cxp = viewModel.Cxp;
-            domain.Cxc = viewModel.Cxc;
             domain.IdMoneda = viewModel.IdMoneda;
-            domain.DisponibleBase = viewModel.DisponibleBase;
-            domain.DisponibleDolar = viewModel.DisponibleDolar;
-            domain.DisponibleEuro = viewModel.DisponibleEuro;
-            domain.AplicadoBase = viewModel.AplicadoBase;
-            domain.AplicadoDolar = viewModel.AplicadoDolar;
-            domain.AplicadoEuro = viewModel.AplicadoEuro;
-            domain.SaldoBase = viewModel.SaldoBase;
-            domain.SaldoDolar = viewModel.SaldoDolar;
-            domain.SaldoEuro = viewModel.SaldoEuro;
-            domain.FechaCreacion = viewModel.FechaCreacion;
-
             double montoBase = 0;
             double montoDolar = 0;
             double montoEuro = 0;
@@ -187,6 +174,9 @@ namespace AltivaWebApp.Mappers
             domain.MontoBase = montoBase;
             domain.MontoDolar = montoDolar;
             domain.MontoEuro = montoEuro;
+            domain.DisponibleBase = montoBase - domain.AplicadoBase;
+            domain.DisponibleDolar = montoDolar - domain.DisponibleDolar;
+            domain.DisponibleEuro = montoEuro - domain.DisponibleEuro;
 
 
             return domain;
@@ -235,6 +225,54 @@ namespace AltivaWebApp.Mappers
             foreach (var item in viewModel)
             {
                 domain.Add(ViewModelToDomainSingleMD(item));
+            }
+
+            return domain;
+        }
+        public IList<TbFaMovimientoDetalle> ViewModelToDomainMDEdit(IList<MovimientoDetalleViewModel> viewModel)
+        {
+            var domain = new List<TbFaMovimientoDetalle>();
+            foreach (var item in viewModel)
+            {
+                domain.Add(ViewModelToDomainSingleMDEdit(item));
+            }
+
+            return domain;
+        }
+        public TbFaMovimientoDetalle ViewModelToDomainSingleMDEdit(MovimientoDetalleViewModel viewModel)
+        {
+            var domain = service.GetMovimientoDetalleByIdMovimiento(viewModel.IdMovimientoHasta);
+
+
+            domain.CompraDolarTc = viewModel.CompraDolarTc;
+            domain.VentaDolarTc = viewModel.VentaDolarTc;
+            domain.CompraEuroTc = viewModel.CompraEuroTc;
+            domain.VentaEuroTc = viewModel.VentaEuroTc;
+            domain.Fecha = DateTime.Now;
+
+
+            
+
+            float dolar = (float)viewModel.VentaDolarTc;
+            float euro = (float)viewModel.VentaEuroTc;
+
+            if (viewModel.IdMoneda == 1)
+            {
+                domain.AplicadoBase = viewModel.Aplicado;
+                domain.AplicadoDolar = domain.AplicadoBase / dolar;
+                domain.AplicadoEuro = domain.AplicadoBase / euro;
+            }
+            else if (viewModel.IdMoneda == 2)
+            {
+                domain.AplicadoBase = viewModel.Aplicado * dolar;
+                domain.AplicadoDolar = viewModel.Aplicado;
+                domain.AplicadoEuro = domain.AplicadoBase / euro;
+            }
+            else if (viewModel.IdMoneda == 3)
+            {
+                domain.AplicadoBase = viewModel.Aplicado * euro;
+                domain.AplicadoDolar = domain.AplicadoBase / dolar;
+                domain.AplicadoEuro = viewModel.Aplicado;
             }
 
             return domain;

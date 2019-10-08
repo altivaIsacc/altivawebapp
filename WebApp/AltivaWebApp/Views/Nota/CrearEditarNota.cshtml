@@ -14,7 +14,7 @@
 
     var select = "checked";
     var select1 = "";
-
+    var guardar = "guardarCambios()";
     var estado = "";
     var estado2 = "disabled";
     var titulo = @Lb["Crear"];
@@ -29,6 +29,7 @@
         titulo = @Lb["Editar"];
         estado = "disabled";
          estado2 = "";
+        guardar = "Guardar()";
     }
 
 }
@@ -108,7 +109,7 @@
 
         <div class="row">
             <div class="col-md-3">
-                <input type="checkbox" class="form-check-input" id="notaDetalle" /> @Lb["Detalle"]  <span class="tdetalle">@Lb["total"]</span> <span readonly id="totalDetalle" class="currency total tdetalle"></span>
+                <input type="checkbox" class="form-check-input" id="notaDetalle" /> @Lb["Total"]  <span class="tdetalle">@Lb["Detalle"]</span> <span readonly id="totalDetalle" class="currency total tdetalle"></span>
             </div>
         </div>
         <div class="collapse notaDetalleForm">
@@ -147,56 +148,58 @@
 
             </div>
 
-            <div class=" row col-md-9 table-responsive">
-
-                <table class="table table-bordered table-striped" id="tblOrdenCompra">
-                    <thead>
-                        <tr>
-
-                            <th><span>@Lb["Descripción"]</span></th>
-                            <th><span>@Lb["tipo"]</span></th>
-                            <th><span>@Lb["Monto"]</span></th>
-                            <th><span>@Lb["Acción"]</span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="lineaForm"></tr>
-                    </tbody>
-                </table>
-                <div class="col-md-offset-9 col-md-3">
-                    <div class="form-group">
-                        <label class="control-label">@Lb["Total"]</label>
-                        <input  readonly id="total" class="form-control currency total" />
+            <div class=" row col-md-8">
+                <div class="table-responsive " style="overflow-y:scroll;height:200px;">
+                    <table class="table table-bordered table-fixed"  id="tblOrdenCompra">
+                        <thead>
+                            <tr>
+                                <th><span>@Lb["Descripción"]</span></th>
+                                <th><span>@Lb["tipo"]</span></th>
+                                <th><span>@Lb["Monto"]</span></th>
+                                <th><span>@Lb["Acción"]</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="lineaForm"></tr>
+                        </tbody>
+                    </table>
+                </div>
+                    <div class="col-md-offset-9 col-md-3">
+                        <div class="form-group">
+                            <label class="control-label">@Lb["Total"]</label>
+                            <input readonly id="total" class="form-control currency total" />
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         <div class="row">
             <div class="col-md-8">
                 <input @estado2 type="checkbox" class="form-check-input" id="aplicado"  /> @Lb["Aplicado"] <span readonly id="totalAplicado" class="currency"></span>
             </div>
         </div>
         <div class="collapse aplicadoForm">
-            <div class=" row col-md-8 col-sm-8 col-xs-12 table-responsive">
-                <table class="table table-bordered table-striped" id="tblOrdenCompra">
-                    <thead>
-                        <tr>
-                            <th><span>@Lb["Nombre"]</span></th>
-                            <th><span>@Lb["Documento"]</span></th>
-                            <th><span>@Lb["Monto"]</span></th>
-                            <th><span>@Lb["Acción"]</span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="lineasTotalesForm"></tr>
-                    </tbody>
-                </table>
+            <div class=" row col-md-8 col-sm-8 col-xs-12">
+                <div class="table-responsive " style="overflow-y:scroll;height:200px;">
 
+                    <table class="table table-bordered table-striped" id="tblOrdenCompra">
+                        <thead>
+                            <tr>
+                                <th><span>@Lb["Nombre"]</span></th>
+                                <th><span>@Lb["Documento"]</span></th>
+                                <th><span>@Lb["Monto"]</span></th>
+                                <th><span>@Lb["Acción"]</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="lineasTotalesForm"></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+                <div class="form-group col-md-8 col-sm-8 col-xs-12" style="padding-top: 1.3rem;">
+                    <a onclick="getEnlace()" id=""><span><i class="fas fa-plus-circle"></i></span> @Lb["Agregar"]</a>
+                </div>
             </div>
-            <div class="form-group col-md-8 col-sm-8 col-xs-12" style="padding-top: 1.3rem;">
-                <a onclick="getEnlace()" id=""><span><i class="fas fa-plus-circle"></i></span> @Lb["Agregar"]</a>
-            </div>
-        </div>
         <div class="row">
             <div @estado2 class="col-md-12">
              @Lb["Disponible"] <span readonly id="totalDisponible" class="currency"></span>
@@ -207,7 +210,9 @@
 <span hidden id="lineasValid" class="text-danger">@Lb["lineasValid"]</span>
 <div class="row">
     <div class="form-group col-md-8">
-        <button class="btn btn-success btnAccion" onclick="guardarCambios()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
+        <button class="btn btn-success btnAccion" onclick="probar()">@Lb["probar"] <i class="fas fa-save"></i></button>
+
+        <button class="btn btn-success btnAccion" onclick="@guardar">@Lb["Guardar"] <i class="fas fa-save"></i></button>
         <a onclick="" class="btn btn-default">@Lb["Cancelar"]</a>
     </div>
 </div>
@@ -285,6 +290,8 @@
                     <div class="col-md-5 col-sm-5 col-xs-12">
                         <label>@Lb["Aplicado"]:</label>
                         <input class="form-control currency" id="editAplicado" />
+                        <span id="aplicadoValid" class="text-danger" hidden >@Lb["aplicadoValid"]</span>
+
                         <br />
                     </div>
 
@@ -293,6 +300,7 @@
                         <button id="btnEditOrden" onclick="editarAplicado()" class="btn btn-success"><span>@Lb["Guardar"] </span><span><i class="fas fa-save"></i></span></button>
 
                         <button class="btn btn-default" data-dismiss="modal"><span>@Lb["Cancelar"]</span></button>
+                        <button class="btn btn-link" onclick="eliminarMovimientoDetalle('idFila')"><i class="fas fa-trash"></i></button>
 
                     </div>
 
@@ -315,11 +323,11 @@
     var lineasAplicado = [];
     var tipoDocumento = [];
     var movimientosDetalle = [];
-    var movimientosDetalleAplicado = [];
-    var prueba = [];
+    var aplicadosOriginal = [];
+    var lineasActualizadasAplicadas = [];
 
 
-    $(document).ready(function () {      
+    $(document).ready(function () {
         $("#totalDisponible").val($(".total").inputmask('unmaskedvalue'));
         getContactos(2);
         getTipoDocumento(1);
@@ -329,13 +337,13 @@
         }
         var date = new Date();
 
-        if (@Model.IdNotaCredito != 0) {    
+        if (@Model.IdNotaCredito != 0) {
             var valor = 3;
             $("#contactos option[value="+ valor +"]").attr("selected",true);
             $("#tipoDocumento").val(@Model.IdTipoDocumento).prop('selected', true);
             getMovimiento();
             date = new Date(formatearFecha());
-            
+
         }
         $('#fechaPicker').datetimepicker({
             defaultDate: date,
@@ -349,9 +357,12 @@
         });
     });
     //eventos directos
+    function probar() {
+        console.log(crearModeloMovimiento());
+    }
     $('#aplicado').change(function () {
         $('.aplicadoForm').collapse('toggle');
-        if ($('#aplicado').val() === "False") {         
+        if ($('#aplicado').val() === "False") {
             $('#aplicado').val("True");
         } else {
             $('#aplicado').val("False");
@@ -399,6 +410,8 @@
         }
 
         if (@Model.IdNotaCredito != 0) {
+            recalcularDatos();
+            cargarTotal();
             for (var i = 0; i < lineas.length; i++) {
                 for (var j = 0; j < lineasCargadas.length; j++) {
                     if (lineas[i].id == lineasCargadas[j].idMovimientoJustificante)
@@ -434,7 +447,7 @@
             type: "GET",
             url: url,
             success: function (data) {
-                $('#EditarPartial').html(data);               
+                $('#EditarPartial').html(data);
                 $('#modalTipoJustificante').modal('show');
                 cargarTablaAplicado();
             },
@@ -458,21 +471,20 @@
            dataType: "json",
            url: url,
             success: function (data) {
+                aplicadosOriginal = data;
                 lineasAplicado = data;
                 lineasEnlace = data;
-                for (var i = 0; i < data.length; i++) {                 
-                    if (data[i].aplicadoBase > 0) {
-                        
+                for (var i = 0; i < data.length; i++) {
+                    if (recuperarAplicadoAnterior(data[i].idDocumento)) {
+                        data[i].tipo = 2;
                         movimientosDetalle.push(data[i]);
+                        
                     }
-                    if (data[i].saldoBase != 0 && data[i].aplicadoBase < data[i].saldoBase) {
-                         
-                        movimientosDetalleAplicado.push(data[i]);
-                    }
+
                 }
                    cargarTotal();
                 $("#totalDisponible").val(recuperarDisponible(@Model.IdNotaCredito));
-                $("#totalAplicado").val(recuperarAplicado(@Model.IdNotaCredito));  
+                $("#totalAplicado").val(recuperarAplicado(@Model.IdNotaCredito));
 
             },
             error: function (err, scnd) {
@@ -639,7 +651,7 @@
                     if('@Model.IdNotaCredito' != 0)
                     window.location.href = '@Url.Action("ListarNotas")';
 
-                    
+
                 },
                 error: function (err, scnd) {
                     cargarAlert('@Lb["errorGeneral"]');
@@ -722,13 +734,40 @@
      }
 
     //helpers
+    function eliminarMovimientoDetalle(id) {
+        var idFila = $("#" + id).val();
+        var disponible = parseFloat($("#totalDisponible").inputmask('unmaskedvalue'));
+        var aplicado =  parseFloat($("#totalAplicado").inputmask('unmaskedvalue'));
+        $("#totalDisponible").val(disponible + recuperarAplicado(lineasEnlace[idFila].idDocumento));
+        $("#totalAplicado").val(aplicado - recuperarAplicado(lineasEnlace[idFila].idDocumento));
+         for (var i = 0; i < lineasActualizadasAplicadas.length; i++) {
+                if (lineasActualizadasAplicadas[i].idMovimiento == lineasEnlace[idFila].idMovimiento)
+                   lineasActualizadasAplicadas.splice(i, 1);
+         }
+          var idMov = lineasEnlace[idFila].idMovimiento;
+           $.ajax({
+                type: "post",
+                dataType: "json",
+                data: { id: idMov },
+                url: '@Url.Action("EliminarMovimientoDetalle", "Nota")',
+               success: function (data) {
+                   getDocumentos(2);
+                    $("#modalEditAplicado").modal("hide");
+               },
+               error: function (err, scnd) {
+                    cargarAlert('@Lb["errorGeneral"]');
+                    console.log(err.statusText);
+               }
+           });
 
-    function eliminarLinea(id, idLinea) {
-        var aplicado =  $("#sumaAplicado").inputmask('unmaskedvalue');
+
+    }
+    function eliminarLinea(id, idLinea) { 
+        var aplicado =  $("#totalAplicado").inputmask('unmaskedvalue');
          var total = $(".total").inputmask('unmaskedvalue');
         var result = parseFloat(total) - parseFloat(lineas[id].monto);
         if (result < parseFloat(aplicado)) {
-            cargarAlert(@Lb["aplicadoValid"]);
+           cargarAlert('@Lb["aplicadoValid"]');
         }
         else {
             bootbox.confirm("@Lb["confirmEliminarLinea"]", function (result) {
@@ -750,7 +789,7 @@
                      setTotal();
                     cargarTabla(lineas);
                 }
-               
+
             });
         }
     }
@@ -796,7 +835,7 @@
         return flag;
     }
     function validarCamposEditar() {
-        
+
        var flag = true;
          $('#editMontoValid').attr('hidden', true);
         $('#editDescripcionValid').attr('hidden', true);
@@ -810,16 +849,16 @@
             flag = false;
         }
         if (flag) {
-            var monto = $("#editMonto").inputmask('unmaskedvalue'); 
+            var monto = $("#editMonto").inputmask('unmaskedvalue');
             if (monto < editMonto) {
-               var aplicado =  $("#sumaAplicado").inputmask('unmaskedvalue');
+               var aplicado =  $("#totalAplicado").inputmask('unmaskedvalue');
                 var total = $(".total").inputmask('unmaskedvalue');
-                var result = editMonto - monto;
-                 result = total - result;
-                if (result < aplicado) {
-                    cargarAlert(@Lb["aplicadoValid"]);
+                var result = editMonto - parseFloat(monto);
+                var result1 = parseFloat(total) - result;
+                if (result1 < aplicado) {
+                    cargarAlert('@Lb["aplicadoValid"]');
                     flag = false;
-                }                   
+                }
             }
         }
         return flag;
@@ -836,36 +875,35 @@
     }
     function cargarModalEditAplicado(i) {
         $("#idFila").val(i);
-        $("#editAplicado").val(recuperarAplicado(lineasEnlace[i].idDocumento));
+        $("#editAplicado").val(recuperarAplicadoAnterior(lineasAplicado[i].idDocumento));
         $("#modalEditAplicado").modal("show");
     }
     function editarAplicado() {
+        $('#aplicadoValid').prop('hidden', true);
         var pos = parseInt($("#idFila").val());
         var aplicado = $("#editAplicado").inputmask('unmaskedvalue');
         var total = $(".total").inputmask('unmaskedvalue');
         var monto = recuperarMonto(lineasEnlace[pos]);
-        var aplicados = 0;
-        for (var j = 0; j < lineasEnlace.length; j++) {
-            if (lineasEnlace[j].idMovimiento != @Model.IdNotaCredito && j != pos) {
-                if (moneda == 1)
-                    aplicados = lineasEnlace[j].aplicadoBase + aplicados;
-                if (moneda == 2)
-                    aplicados = lineasEnlace[j].aplicadoDolar + aplicados;
-                if (moneda == 3)
-                    aplicados = lineasEnlace[j].aplicadoEuro + aplicados;
-            }
-        }
-        var disponible = parseFloat(total) - parseFloat(aplicados);
 
+
+        var disponible = parseFloat(total) - (parseFloat($("#totalAplicado").inputmask('unmaskedvalue')) - parseFloat(recuperarAplicadoAnterior(lineasEnlace[pos].idDocumento)));
         if (aplicado > monto || aplicado > disponible) {
-            cargarAlert("esto es una prueba");
-            $("#editAplicado").val(recuperarAplicado(lineasEnlace[i+1].idDocumento));
+             $('#aplicadoValid').prop('hidden', false);
+            $("#editAplicado").val(recuperarAplicadoAnterior(lineasEnlace[pos].idDocumento));
         } else {
-            var result =parseFloat(monto) - parseFloat(aplicado);
-            console.log(aplicado);
-            console.log(result);
+            var result = parseFloat(monto) - parseFloat(aplicado);
             guardarSaldo(aplicado, result, pos, 1);
+            if (lineasEnlace[pos].tipo == 2) {
+                for (var i = 0; i < lineasActualizadasAplicadas.length; i++) {
+                    if (lineasActualizadasAplicadas[i].idMovimiento == lineasEnlace[pos].idMovimiento)
+                        lineasActualizadasAplicadas.splice(i, 1);
+                }
+               lineasActualizadasAplicadas.push(lineasEnlace[pos]);
+
+            }
+            lineasAplicado = JSON.parse(JSON.stringify(lineasEnlace));
             cargarTotal();
+            recalcularDatos();
             $("#modalEditAplicado").modal("hide");
 
         }
@@ -942,7 +980,7 @@
             cargarTabla(lineas);
             $("#descripcion").val("");
             $("#monto").val(0.00);
-            
+
         }
     }
     function setTotal() {
@@ -960,14 +998,14 @@
             contadorFila++;
 
 
-            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + data[i].descripcion + '</td>'
-                + '<td style="padding-top:2rem;"><input readonly style="border:0; background-color : #F7F7F7" value="' + getTipo(data[i].tipo) + '"/></td>'
-                + '<td ><input readonly style="border:0; background-color : #F7F7F7" class=" currency" value="' + data[i].monto + '"/></td>'
+            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td>' + data[i].descripcion + '</td>'
+                + '<td ><span>' + getTipo(data[i].tipo) + '</span></td>'
+                + '<td ><span class="currency">' + data[i].monto + '</span></td>'
                 + '<td><button  class="btn btn-link" value="' + contadorFila + '" onclick="cargarModalEditNota(' + i + ')" ><i class="fas fa-edit"></i></button><button  class="btn btn-link" value="' + i + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
 
             $('.lineaForm').before(body);
 
-        }      
+        }
         var simbolo = "₡";
         if (parseInt($('#tipoMoneda').val()) === 2)
             simbolo = "$";
@@ -991,12 +1029,12 @@
         $('.filasAplicadoCargadas').remove();
         contadorFila = 0;
         for (var i = 0; i < lineasEnlace.length; i++) {
-            contadorFila++;          
-            if (lineasEnlace[i].idDocumento != @Model.IdNotaCredito && lineasEnlace[i].saldoBase !=0 ) {
-                var aplicado = 0;                            
-                  aplicado = calcularLinea(i);        
+            contadorFila++;
+            if (lineasEnlace[i].idMovimiento != $("#IdMovimiento").val() && parseFloat(recuperarSaldoAnterior(lineasEnlace[i].idDocumento)) != 0 ) {
+                var aplicado = 0;
+                  aplicado = calcularLinea(i);
                 var moneda = parseInt($("#tipoMoneda").val());
-                
+
                  if (moneda == 1) {
                        lineasEnlace[i].aplicadoBase = parseFloat(aplicado) + parseFloat(lineasEnlace[i].aplicadoBase);
                        lineasEnlace[i].saldoBase = lineasEnlace[i].saldoBase - aplicado;
@@ -1009,17 +1047,28 @@
                         lineasEnlace[i].aplicadoEuro = aplicado +  lineasEnlace[i].aplicadoEuro;
                         lineasEnlace[i].saldoEuro = lineasEnlace[i].saldoEuro - aplicado;
                  }
-               
+
                 var body = '<tr class="filasAplicadoCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + recuperarTipoDocumento(lineasEnlace[i].idTipoDocumento) + '</td>'
-                    + '<td style="padding-top:2rem;"><input readonly style="border:0; background-color : #F7F7F7" value="' + lineasEnlace[i].idDocumento + '"/></td>'
-                    + '<td ><input readonly style="border:0; background-color : #F7F7F7"  value="' + recuperarFecha(lineasEnlace[i].fechaCreacion) + '"/></td>'
+                    + '<td style="padding-top:2rem;"><span>' + lineasEnlace[i].idDocumento + '</span></td>'
+                    + '<td ><span >' + recuperarFecha(lineasEnlace[i].fechaCreacion) + '</span></td>'
                     + '<td ><span id="pendiente'+i+'" class="currency">' + recuperarSaldo(lineasEnlace[i].idDocumento) + '</span></td>'
-                    + '<td ><input id="aplicado'+i+'" onkeyup="cambiarAplicado(' + i + ')"  class="form-control currency" value="' + aplicado + '"/></td></tr>';                 
+                    + '<td ><input id="aplicado'+i+'" onkeyup="cambiarAplicado(' + i + ')"  class="form-control currency" value="' + aplicado + '"/></td></tr>';
                 $('.lineaAplicadoForm').before(body);
+                if (aplicadosOriginal[i].aplicadoBase == 0)
+                    lineasEnlace[i].tipo = 1;
+                if (aplicadosOriginal[i].aplicadoBase != 0) {
+                  for (var j = 0; j < lineasActualizadasAplicadas.length; j++) {
+                    if (lineasActualizadasAplicadas[j].idMovimiento == lineasEnlace[i].idMovimiento)
+                        lineasActualizadasAplicadas.splice(j, 1);
+                  }
+                    lineasActualizadasAplicadas.push(lineasEnlace[i]);
+                     lineasEnlace[i].tipo = 2;
+                }
+
             }
 
- 
-            
+
+
 
         }
         var simbolo = "₡";
@@ -1042,11 +1091,11 @@
 
     function recuperarSaldoTabla(idDoc, idLbl) {
 
-        $("#pendiente" + idLbl).text(formatInput(recuperarSaldo(lineasEnlace[idDoc].idDocumento))); 
+        $("#pendiente" + idLbl).text(formatInput(recuperarSaldo(lineasEnlace[idDoc].idDocumento)));
     }
     function recuperarAplicadoTabla(pos) {
 
-        $("#aplicado" + pos).val(recuperarAplicado(lineasEnlace[pos].idDocumento)); 
+        $("#aplicado" + pos).val(recuperarAplicado(lineasEnlace[pos].idDocumento));
     }
     function formatInput(monto) {
 
@@ -1077,15 +1126,15 @@
              Cxp:getCx(1),
              Cxc:getCx(2),
              Monto: parseFloat($(".total").inputmask('unmaskedvalue').replace(".", ",")),
-             DisponibleBase:  calcularMontoTotal(parseInt($("#tipoMoneda").val()), 2),
-             DisponibleDolar: calcularMontoTotal(parseInt($("#tipoMoneda").val()), 2),           
-             DisponibleEuro:  calcularMontoTotal(parseInt($("#tipoMoneda").val()), 2),
-             AplicadoBase:  calcularMontoTotal(parseInt($("#tipoMoneda").val()), 3),
-             AplicadoDolar:  calcularMontoTotal(parseInt($("#tipoMoneda").val()), 3),
-             AplicadoEuro:  calcularMontoTotal(parseInt($("#tipoMoneda").val()), 3),
-             SaldoBase: calcularMontoTotal(parseInt($("#tipoMoneda").val()), 2),
-             SaldoDolar: calcularMontoTotal(parseInt($("#tipoMoneda").val()), 2),
-             SaldoEuro: calcularMontoTotal(parseInt($("#tipoMoneda").val()), 2),
+             DisponibleBase:  0,
+             DisponibleDolar: 0,
+             DisponibleEuro:  0,
+             AplicadoBase:  0,
+             AplicadoDolar:  0,
+             AplicadoEuro:  0,
+             SaldoBase: 0,
+             SaldoDolar: 0,
+             SaldoEuro: 0,
              FechaCreacion: $("#fecha").val(),
              MovimientoJustificante: crearModeloMJustificante(lineasAgregadas)
 
@@ -1190,51 +1239,7 @@
         else if (moneda === 3 && item.idMoneda === 3)
             return item.monto;
     }
-    function calcularMontoTotal(tipo, tipoMonto) {
-        if ('@Model.IdNotaCredito' != 0) {
-        var dolar = parseFloat($("#dolar").val());
-        var euro = parseFloat($("#euro").val());
-        var moneda = parseInt($("#tipoMoneda").val());
-        var monto = parseFloat($(".total").inputmask('unmaskedvalue'));
-        if (tipoMonto == 2)
-            monto = parseFloat($("#totalDisponible").inputmask('unmaskedvalue'));
-        if (tipoMonto == 3)
-            monto = parseFloat($("#totalAplicado").inputmask('unmaskedvalue'));
 
-        var total = 0;
-        if (moneda == 1) {
-            if (tipo == 1)
-                total = monto;
-            else if (tipo == 2)
-                total = monto * dolar;
-            else if (tipo == 3)
-                total = monto * euro;
-        }
-        if (moneda == 2) {
-            if (tipo == 1)
-                total = monto / dolar;
-            else if (tipo == 2)
-                total = monto;
-            else if (tipo == 3)
-                total = (monto * euro) / dolar;
-        }
-        if (moneda == 3) {
-            if (tipo == 1)
-                total = monto / euro;
-            else if (tipo == 2)
-                total = (monto * dolar) / euro;
-            else if (tipo == 3)
-                total = monto;
-        }
-
-
-        return total;
-    }//fin
-    else {
-        return 0;
-    }
-
-    }
 
     function formatearFecha() {
 
@@ -1271,19 +1276,21 @@
         movimientosDetalle = [];
         $('.filasAplicadoTotal').remove();
         contadorFila = 0;
-        for (var i = 0; i < lineasEnlace.length; i++) {
+        for (var i = 0; i < lineasAplicado.length; i++) {
             contadorFila++;
-            if (lineasEnlace[i].aplicadoBase > 0 && lineasEnlace[i].idMovimiento != @Model.IdNotaCredito) {
-                var body = '<tr class="filasAplicadoTotal" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + lineasEnlace[i].nombre + '</td>'
-                    + '<td style="padding-top:2rem;"><input readonly style="border:0; background-color : #F7F7F7" value="' + lineasEnlace[i].idDocumento + '"/></td>'
-                    + '<td style="padding-top:2rem;"><input readonly style="border:0; background-color : #F7F7F7"  class=" currency" value="' + recuperarAplicado(lineasEnlace[i].idDocumento) + '"/></td>'
+            if (recuperarAplicado(lineasEnlace[i].idDocumento) > 0 && lineasAplicado[i].idMovimiento != $("#IdMovimiento").val()) {
+                var body = '<tr class="filasAplicadoTotal" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + lineasAplicado[i].nombre + '</td>'
+                    + '<td style="padding-top:2rem;"><span>' + lineasAplicado[i].idDocumento + '</span></td>'
+                    + '<td style="padding-top:2rem;"><span id="aplicadoFinal'+i+'" class=" currency">' + recuperarAplicadoAnterior(lineasAplicado[i].idDocumento) + '</span></td>'
                     + '<td><button  class="btn btn-link" value="' + contadorFila + '" onclick="cargarModalEditAplicado(' + i + ')" ><i class="fas fa-edit"></i></button><button  class="btn btn-link" value="' + i + '" onclick="ver(' + lineasEnlace[i].idDocumento + ')" ><i class="fas fa-eye"></i></button></td></tr>';
                 $('.lineasTotalesForm').before(body);
-                movimientosDetalle.push(lineasEnlace[i]);
+                movimientosDetalle.push(lineasAplicado[i]);
             }
-            
+
         }
-     
+        console.log(lineasEnlace);
+        console.log(lineasAplicado);
+        console.log(aplicadosOriginal);
         var simbolo = "₡";
            if (parseInt($('#tipoMoneda').val()) === 2)
             simbolo = "$";
@@ -1357,6 +1364,7 @@
             if (lineasEnlace[i].idDocumento == id)
                 pos = i;
         }
+        console.log(lineasEnlace[pos].aplicadoBase);
         if (moneda == 1)
             return lineasEnlace[pos].aplicadoBase;
                 if (moneda == 2)
@@ -1378,71 +1386,39 @@
                 if (moneda == 3)
             return lineasAplicado[pos].aplicadoEuro;
     }
-    //function recuperarMonto(id) {
-    //    var pos = 0;
-    //    var moneda = parseInt($("#tipoMoneda").val());
-    //    for (var i = 0; i < lineasEnlace.length; i++) {
-    //        if (lineasEnlace[i].idDocumento == id)
-    //            pos = i;
-    //    }
-    //       if (moneda == 1)
-    //         return lineasEnlace[pos].montoBase;
-    //            if (moneda == 2)
-    //        return lineasEnlace[pos].montoDolar;
-    //            if (moneda == 3)
-    //        return lineasEnlace[pos].montoEuro;
-    //}
 
     function cambiarAplicado(pos) {
-        var moneda = parseInt($("#tipoMoneda").val());
-        var total = $(".total").inputmask('unmaskedvalue');
         var aplicado = parseFloat($("#aplicado" + pos).inputmask('unmaskedvalue'));
-        var saldo = recuperarSaldo(lineasEnlace[pos].idDocumento);
         var saldoAnterior = recuperarSaldoAnterior(lineasEnlace[pos].idDocumento);
         var monto = recuperarMonto(lineasEnlace[pos]);
         var tAplicadoAnterior = recuperarAplicadoAnterior(lineasEnlace[pos].idDocumento);
 
-        var aplicados = 0;
-        for (var j = 0; j < lineasEnlace.length; j++) {
-            if (lineasEnlace[j].idMovimiento != @Model.IdNotaCredito && j != pos) {
-                if (moneda == 1)
-                    aplicados = lineasEnlace[j].aplicadoBase + aplicados;
-                if (moneda == 2)
-                    aplicados = lineasEnlace[j].aplicadoDolar + aplicados;
-                if (moneda == 3)
-                    aplicados = lineasEnlace[j].aplicadoEuro + aplicados;
-            }
-        }
-        var disponible = parseFloat(total) - parseFloat(aplicados);
-
-        if (aplicado > monto || aplicado > disponible){
-            cargarAlert("esto es una prueba");
+        if (aplicado > monto) {
+            cargarAlert('@Lb["montoValid"]');
             recuperarAplicadoTabla(pos);
         }
-        
-          if (saldoAnterior == 0) {
-              if (aplicado <= monto && aplicado <= disponible) {
-                       var result = monto - aplicado;
-                       guardarSaldo(aplicado, result, pos, 1);
-              }
-          }
-          else if (saldoAnterior != 0 && tAplicadoAnterior != 0) {
-            if (aplicado <= saldoAnterior && aplicado <= disponible) {
+
+      else {
+        if (saldoAnterior == 0) {
+            if (aplicado <= monto) {
+                var result = monto - aplicado;
+                guardarSaldo(aplicado, result, pos, 1);
+            }
+        }
+        else if (saldoAnterior != 0 && tAplicadoAnterior != 0) {
+            if (aplicado <= saldoAnterior) {
                 var result = saldoAnterior - aplicado;
                 guardarSaldo(aplicado, result, pos, 2);
             }
-          }
-           
-            else if (tAplicadoAnterior == 0 && saldoAnterior == monto) {
-                  if (aplicado <= saldoAnterior && aplicado <= disponible) {
-                    var result = saldoAnterior - aplicado;
-                    guardarSaldo(aplicado, result, pos, 1);
-                  }
+        }
+
+        else if (tAplicadoAnterior == 0 && saldoAnterior == monto) {
+            if (aplicado <= saldoAnterior) {
+                var result = saldoAnterior - aplicado;
+                guardarSaldo(aplicado, result, pos, 1);
             }
-
-         
-               
-
+        }
+      }
     }
     function guardarSaldo(aplicado, result, pos, tipo) {
         var moneda = parseInt($("#tipoMoneda").val());
@@ -1471,23 +1447,93 @@
         }
         var aplicados = 0;
         for (var j = 0; j < lineasEnlace.length; j++) {
-            if (lineasEnlace[j].idMovimiento != @Model.IdNotaCredito) {
-                  if (moneda == 1) 
-                        aplicados = lineasEnlace[j].aplicadoBase + aplicados;             
-                  if (moneda == 2) 
-                        aplicados = lineasEnlace[j].aplicadoDolar + aplicados;     
-                  if (moneda == 3) 
-                    aplicados = lineasEnlace[j].aplicadoEuro + aplicados;
+            if (lineasEnlace[j].idMovimiento != $("#IdMovimiento").val() && parseFloat(recuperarSaldoAnterior(lineasEnlace[j].idDocumento)) != 0) {
+              aplicados += parseFloat($("#aplicado" + j).inputmask('unmaskedvalue'));
+           
+                
+                  
             }
         }
-        
-        var total = $(".total").inputmask('unmaskedvalue');
-         $("#disponible").val(total - aplicados);
-        $("#sumaAplicado").val(aplicados);  
-         recuperarSaldoTabla(pos, pos);
+        var total = $("#totalDisponible").inputmask('unmaskedvalue');
+        $("#disponible").val(total - aplicados);
+        $("#sumaAplicado").val(aplicados);
+        recuperarSaldoTabla(pos, pos);
+             if (aplicadosOriginal[pos].aplicadoBase != 0) {
+                  for (var i = 0; i < lineasActualizadasAplicadas.length; i++) {
+                    if (lineasActualizadasAplicadas[i].idMovimiento == lineasEnlace[pos].idMovimiento)
+                        lineasActualizadasAplicadas.splice(i, 1);
+                  }
+                    lineasActualizadasAplicadas.push(lineasEnlace[pos]);
+                     lineasEnlace[pos].tipo = 2;
+             }
     }
-  
 
+    function recalcularDatos() {
+        var aplicados = 0;
+        for (var i = 0; i < lineasAplicado.length; i++) {
+            if (lineasAplicado[i].idMovimiento != $("#IdMovimiento").val() && recuperarAplicado(lineasAplicado[i].idDocumento) > 0)
+            aplicados += parseFloat(recuperarAplicado(lineasAplicado[i].idDocumento));
+        }
+       var total = $(".total").inputmask('unmaskedvalue');
+        $("#totalDisponible").val(parseFloat(total) - parseFloat(aplicados));
+        $("#totalAplicado").val(aplicados);
+    }
+        function Guardar() {
+        var model = crearModeloEnlace();
+         $.ajax({
+                type: "post",
+                dataType: "json",
+             data: { viewModel: crearModeloEnlace(), lineasActualizadas: crearLineasEditadas()},
+                url: '@Url.Action("CrearEnlace", "Nota")',
+                success: function (data) {
+                    guardarCambios();
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@Lb["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+         });
+    }
+    function crearModeloEnlace() {
+        var array = [];
+        for (var i = 0; i < movimientosDetalle.length; i++) {
+                if (movimientosDetalle[i].tipo ==1) {
+                             var model = {
+                                    num : movimientosDetalle[i].idDocumento,
+                                    IdMovimientoDesde: parseInt($("#IdMovimiento").val()),
+                                    IdMovimientoHasta: movimientosDetalle[i].idMovimiento,
+                                    Aplicado: parseFloat($("#aplicadoFinal" + i).inputmask('unmaskedvalue')),
+                                    CompraDolarTC: parseFloat($("#dolar").inputmask('unmaskedvalue')),
+                                    VentaDolarTC: parseFloat($("#dolarVenta").inputmask('unmaskedvalue')),
+                                    CompraEuroTC: parseFloat($("#euro").inputmask('unmaskedvalue')),
+                                    VentaEuroTC: parseFloat($("#euroVenta").inputmask('unmaskedvalue')),
+                                    IdMoneda: parseInt($("#tipoMoneda").val()),
+                             };
+                                array.push(model);
+                }
+        }
+        return array;
+    }
+    function crearLineasEditadas() {
+        var array = [];
+        for (var i = 0; i < movimientosDetalle.length; i++) {
+                if (movimientosDetalle[i].tipo ==2) {
+                             var model = {
+                                    num : movimientosDetalle[i].idDocumento,
+                                    IdMovimientoDesde: parseInt($("#IdMovimiento").val()),
+                                    IdMovimientoHasta: movimientosDetalle[i].idMovimiento,
+                                    Aplicado: parseFloat($("#aplicadoFinal" + i).inputmask('unmaskedvalue')),
+                                    CompraDolarTC: parseFloat($("#dolar").inputmask('unmaskedvalue')),
+                                    VentaDolarTC: parseFloat($("#dolarVenta").inputmask('unmaskedvalue')),
+                                    CompraEuroTC: parseFloat($("#euro").inputmask('unmaskedvalue')),
+                                    VentaEuroTC: parseFloat($("#euroVenta").inputmask('unmaskedvalue')),
+                                    IdMoneda: parseInt($("#tipoMoneda").val()),
+                             };
+                                array.push(model);
+                }
+        }
+        return array;
+        }
 
 
 </script>

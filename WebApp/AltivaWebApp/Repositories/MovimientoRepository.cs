@@ -89,7 +89,39 @@ namespace AltivaWebApp.Repositories
                 throw;
             }
         }
+        public bool UpdateMD(IList<TbFaMovimientoDetalle> domain)
+        {
+            try
+            {
+                context.TbFaMovimientoDetalle.UpdateRange(domain);
+                context.SaveChanges();
 
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+
+                throw;
+            }
+        }
+        public bool DeleteMD(long id)
+        {
+            try
+            {
+                var MD = context.TbFaMovimientoDetalle.FirstOrDefault(d => d.IdMovimientoHasta == id);
+                context.TbFaMovimientoDetalle.Remove(MD);
+                context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+
+                throw;
+            }
+        }
         public bool UpdateMovimientoJustificante(IList<TbFaMovimientoJustificante> domain)
         {
             try
@@ -169,6 +201,10 @@ namespace AltivaWebApp.Repositories
 
             }
 
+        }
+        public TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimiento(long idMovimiento)
+        {
+            return context.TbFaMovimientoDetalle.FirstOrDefault(d => d.IdMovimientoHasta == idMovimiento);
         }
 
     }
