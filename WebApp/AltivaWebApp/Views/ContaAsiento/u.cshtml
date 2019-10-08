@@ -133,7 +133,7 @@
         <div class="row">
             <div class="form-group col-md-4 col-sm-6 col-xs-6">
                 <label class="control-label">@Lb["Cuenta"]:</label>
-                <input @estado list="ltCuentas" class="form-control" id="catalogoCuentas" onkeydown="pasarSigCampo(event,'tipoCambioDolar')">
+                <input @estado list="ltCuentas" class="form-control" id="catalogoCuentas" onkeydown="pasarSigCampo(event,'tipoCambioDolar','true')">
                 <datalist id="ltCuentas">
                     @{
                         foreach (var item in ViewBag.Catalogo)
@@ -159,26 +159,26 @@
             <div class="row">
                 <div class="form-group col-md-10 col-sm-12 col-xs-12">
                     <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                        <label class="control-label">@Lb["Monto"] CRC:</label>
-                        <input @estado type="number" class="form-control" id="MontoBase" onchange="fnMontoColon()" autofocus onkeyup="pasarSigCampo(event,'Monto2')" style="text-align:right" />
+                        <label class="control-label">@Lb["Monto"] @ViewBag.SimboloBase:</label>
+                        <input @estado type="number" class="form-control" id="MontoBase" onchange="fnMontoColon('')" autofocus onkeyup="pasarSigCampo(event,'Monto2')" style="text-align:right" />
                         <span hidden id="montoBaseCorregir" class="text-danger">@Lb["montoBaseCorregir"]</span>
                     </div>
                     <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                        <label id="lblItem" class="control-label">@Lb["Monto"] $: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
-                        <input @estado type="number" class="form-control" id="Monto2" onchange="fnMontoDolar()" autofocus onkeyup="pasarSigCampo(event,'Monto3')" style="text-align:right" />
+                        <label id="lblItem" class="control-label">@Lb["Monto"] @ViewBag.SimboloDolar: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                        <input @estado type="number" class="form-control" id="Monto2" onchange="fnMontoDolar('')" autofocus onkeyup="pasarSigCampo(event,'Monto3')" style="text-align:right" />
                         <span hidden id="montoDolarCorregir" class="text-danger">@Lb["montoDolarCorregir"]</span>
                     </div>
                     <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                        <label id="lblItem" class="control-label">@Lb["Monto"] EUR: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
-                        <input @estado type="number" class="form-control" id="Monto3" onchange="fnMontoEuro()" autofocus onkeyup="pasarSigCampo(event,'btnAgregarDebe')" style="text-align:right" />
+                        <label id="lblItem" class="control-label">@Lb["Monto"] @ViewBag.SimboloEuro: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                        <input @estado type="number" class="form-control" id="Monto3" onchange="fnMontoEuro('')" autofocus onkeyup="pasarSigCampo(event,'btnAgregarDebe')" style="text-align:right" />
                         <span hidden id="montoEuroCorregir" class="text-danger">@Lb["montoEuroCorregir"]</span>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="form-group col-md-4 col-sm-6 col-xs-6">
-                    <button @estado id="btnAgregarDebe" onclick="agregarLinea('Debe')" class="btn btn-success"><span>@Lb["Debe"] </span><span><i class="fas fa-save"></i></span></button>
-                    <button @estado id="btnAgregarHaber" onclick="agregarLinea('Haber')" class="btn btn-success"><span>@Lb["Haber"] </span><span><i class="fas fa-save"></i></span></button>
+                    <button @estado id="btnAgregarDebe" onclick="agregarLinea('Debe')" onkeyup="pasarSigCampo(event,'btnAgregarHaber')" class="btn btn-success"><span>@Lb["Debe"] </span><span><i class="fas fa-save"></i></span></button>
+                    <button @estado id="btnAgregarHaber" onclick="agregarLinea('Haber')" onkeyup="pasarSigCampo(event,'btnAgregarDebe')" class="btn btn-success"><span>@Lb["Haber"] </span><span><i class="fas fa-save"></i></span></button>
                 </div>
             </div>
 
@@ -188,8 +188,8 @@
                         <tr>
                             <th style="width:10%"><span>@Lb["Cuenta"]</span></th>
                             <th style="width:18%"><span>@Lb["Nombre"]</span></th>
-                            <th style="width:11%"><span>@Lb["Debe"] @ViewBag.SimboloBse</span></th>
-                            <th style="width:11%"><span>@Lb["Haber"] @ViewBag.SimboloBse</span></th>
+                            <th style="width:11%"><span>@Lb["Debe"] @ViewBag.SimboloBase</span></th>
+                            <th style="width:11%"><span>@Lb["Haber"] @ViewBag.SimboloBase</span></th>
                             <th style="width:11%"><span>@Lb["Debe"] @ViewBag.SimboloDolar</span></th>
                             <th style="width:11%"><span>@Lb["Haber"] @ViewBag.SimboloDolar</span></th>
                             <th style="width:11%"><span>@Lb["Debe"] @ViewBag.SimboloEuro</span></th>
@@ -257,6 +257,80 @@
         <input readonly hidden id="monedaFormater" />
 
 
+    </div>
+    <!------------------------------------------modal para editar----------------------------------------------------------->
+
+    <div class="modal fade" id="lineaModal" tabindex="-1" role="dialog" aria-labelledby="lineaModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header row">
+                    <div class="col-md-10 col-sm-10 col-xs-10" style="text-align:left">
+                        <h4 class="modal-title" id="lineaModalLabel">@Lb["Editar"] @Lb["Línea"]</h4>
+                    </div>
+                    <div class="col-md-2 col-sm-2 col-xs-2" style="text-align:right">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body row">
+                        <div hidden class="form-group col-md-2 col-sm-2 col-xs-12">
+                            <input readonly id="idLinea" class="form-control" type="number" />
+                        </div>
+                        <div class="form-group col-md-12 col-sm-6 col-xs-6">
+                            <label class="control-label">@Lb["Cuenta"]:</label>
+                            <input @estado list="ltCuentas" class="form-control" id="catalogoCuentasModal" onkeydown="pasarSigCampo(event,'tipoCambioDolar')">
+                            <datalist id="ltCuentas">
+                                @{
+                                    foreach (var item in ViewBag.Catalogo)
+                                    {
+                                        <option value="@Lb[item.Descripcion]">@Lb[item.CuentaContable]</option>
+                                    }
+                                }
+                            </datalist>
+                            <span hidden id="cuentaCorregirModal" class="text-danger">@Lb["cuentaCorregir"]</span>
+                        </div>
+                        <div class="form-group col-md-12 col-sm-12 col-xs-6">
+                            <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                                <label id="lblItem" class="control-label">@Lb["TipoCambio"] @ViewBag.SimboloDolar:</label>
+                                <input @estado class="form-control" id="tipoCambioDolarModal" autofocus onkeyup="pasarSigCampo(event,'tipoCambioEuroModal')" style="text-align:right" />
+                                <span hidden id="tipoCambioDolarCorregirModal" class="text-danger">@Lb["tipoCambioDolarCorregir"]</span>
+                            </div>
+                            <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                                <label id="lblItem" class="control-label">@Lb["TipoCambio"] @ViewBag.SimboloEuro:</label>
+                                <input @estado class="form-control" id="tipoCambioEuroModal" autofocus onkeyup="pasarSigCampo(event,'MontoBaseModal')" style="text-align:right" />
+                                <span hidden id="tipoCambioEuroCorregirModal" class="text-danger">@Lb["tipoCambioEuroCorregir"]</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-12 col-sm-12 col-xs-12">
+                                <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                                    <label class="control-label">@Lb["Monto"] @ViewBag.SimboloBase:</label>
+                                    <input @estado type="number" class="form-control" id="MontoBaseModal" onchange="fnMontoColon('Modal')" autofocus onkeyup="pasarSigCampo(event,'Monto2Modal')" style="text-align:right" />
+                                    <span hidden id="montoBaseCorregirModal" class="text-danger">@Lb["montoBaseCorregir"]</span>
+                                </div>
+                                <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                                    <label id="lblItem" class="control-label">@Lb["Monto"] @ViewBag.SimboloDolar: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                                    <input @estado type="number" class="form-control" id="Monto2Modal" onchange="fnMontoDolar('Modal')" autofocus onkeyup="pasarSigCampo(event,'Monto3Modal')" style="text-align:right" />
+                                    <span hidden id="montoDolarCorregirModal" class="text-danger">@Lb["montoDolarCorregir"]</span>
+                                </div>
+                                <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                                    <label id="lblItem" class="control-label">@Lb["Monto"] @ViewBag.SimboloEuro: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                                    <input @estado type="number" class="form-control" id="Monto3Modal" onchange="fnMontoEuro('Modal')" autofocus onkeyup="pasarSigCampo(event,'btnAgregarDebeModal')" style="text-align:right" />
+                                    <span hidden id="montoEuroCorregirModal" class="text-danger">@Lb["montoEuroCorregir"]</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-12 col-sm-6 col-xs-6">
+                                <button @estado id="btnAgregarDebeModal" onclick="actualizarLinea('Debe')" onkeyup="pasarSigCampo(event,'btnAgregarHaberModal')" class="btn btn-success"><span>@Lb["Debe"] </span><span><i class="fas fa-save"></i></span></button>
+                                <button @estado id="btnAgregarHaberModal" onclick="actualizarLinea('Haber')" onkeyup="pasarSigCampo(event,'btnAgregarDebeModal')" class="btn btn-success"><span>@Lb["Haber"] </span><span><i class="fas fa-save"></i></span></button>
+                            </div>
+                        </div>                 
+                </div>
+
+            </div>
+        </div>
     </div>
     <div class="row well">
         <div class="col-md-12">
@@ -371,45 +445,45 @@
             return nombre;
 
         }
-        function fnMontoColon() {
-            obtenerLinea();
+        function fnMontoColon(deModal) {
+            obtenerLinea(deModal);
             montoDolar = 0;
             if (TipoCambioDolar > 0) {
                 montoDolar = montoBase / TipoCambioDolar;
-                 document.getElementById("Monto2").value = montoDolar;
+                 document.getElementById('Monto2'+ deModal).value = montoDolar;
             }
             montoEuro=0
             if (TipoCambioDolar > 0) {
                 montoEuro = montoBase / TipoCambioEuro;
-                 document.getElementById("Monto3").value = montoEuro;
+                document.getElementById('Monto3' + deModal).value = montoEuro;
             }
-            document.getElementById("MontoBase").value = montoBase;
+            document.getElementById('MontoBase' + deModal).value = montoBase;
         }
-        function fnMontoDolar() {
-            obtenerLinea();
+        function fnMontoDolar(deModal) {
+            obtenerLinea(deModal);
             if (TipoCambioDolar > 0) {
                 montoBase = montoDolar * TipoCambioDolar;
-                 document.getElementById("MontoBase").value = montoBase;
+                document.getElementById('MontoBase' + deModal).value = montoBase;
             }
             if (TipoCambioEuro > 0) {
                 montoEuro = montoDolar * TipoCambioDolar / TipoCambioEuro;
-                document.getElementById("Monto3").value = montoEuro;
+                document.getElementById('Monto3' + deModal).value = montoEuro;
             }
 
-            document.getElementById("Monto2").value = montoDolar;
+            document.getElementById('Monto2' + deModal).value = montoDolar;
 
         }
-        function fnMontoEuro() {
-            obtenerLinea();
+        function fnMontoEuro(deModal) {
+            obtenerLinea(deModal);
             if (TipoCambioDolar > 0) {
                 montoBase = montoEuro * TipoCambioEuro;
-                document.getElementById("MontoBase").value = montoBase;
+                document.getElementById('MontoBase' + deModal).value = montoBase;
             }
             if (TipoCambioEuro > 0) {
                 montoDolar = montoEuro * TipoCambioEuro / TipoCambioDolar;
-                 document.getElementById("Monto2").value = montoDolar;
+                 document.getElementById('Monto2' + deModal).value = montoDolar;
             }
-            document.getElementById("Monto3").value = montoEuro;
+            document.getElementById('Monto3'+  deModal).value = montoEuro;
         }
         function fnFecha(_fecha) {
             var date = _fecha.substring(0, 10);
@@ -419,25 +493,39 @@
             date = date.replace('-', '');
             var num = parseFloat(date);
             return num;
-        }
-        function pasarSigCampo(e, id) {
-            (e.keyCode) ? k = e.keyCode : k = e.which;
-            if (k == 13) {
-                if (id == "btn") {
-                    agregar();
-                }
-                else {
-                    document.getElementById(id).focus();
-                }
-                $('#' + id).select();
+    }
+        var solo1 = 0;
+        function pasarSigCampo(e, id, esLt) {
+            (e.keyCode) ? k = e.keyCode : k = e.which;           
+            if (k == 13 || k == 39 || k == 37) {
+              
+                if (solo1 == 0) {
+
+                    if (esLt == null) {
+                        document.getElementById(id).focus();
+                        $('#' + id).select();
+                    }
+                    else {
+                        if (solo1 == 0) {
+                            document.getElementById(id).focus();
+                            $('#' + id).select();
+
+                            solo1 = 1;
+                        }
+                        else {
+                            solo1 = 0;
+                        }
+                    }
+                } else { solo1 = 0;} 
             }
         }
     var cuentaSeleccionada;
     function agregarLinea(tipo) {
+        
+        obtenerLinea('');
         cuentaSeleccionada = obtenerCuenta(cuenta);
-        obtenerLinea();
-        if (validarLinea() == true) {
-            var linea = { MDolar: montoDolar, MEuro: montoEuro, MBase: montoBase, cuenta: cuentaSeleccionada, Tipo: tipo, TCDolar: TipoCambioDolar, TCEuro: TipoCambioEuro, Id: lineas.length * -1 };
+        if (validarLinea('') == true) {
+            var linea = { MDolar: montoDolar, MEuro: montoEuro, MBase: montoBase, cuenta: cuentaSeleccionada, Tipo: tipo, TCDolar: TipoCambioDolar, TCEuro: TipoCambioEuro, Id: (lineas.length + 1) * -1 };
             lineas.push(linea);
             tabla();
         }
@@ -460,12 +548,15 @@
             TotalDebeEuro = 0;
             TotalHaberEuro = 0;
             lineas.forEach(function (linea) {
+
                 var montoDebeBase = 0;
                 var montoHaberBase = 0;
                 var montoDebeDolar = 0;
                 var montoHaberDolar = 0;
                 var montoDebeEuro = 0;
                 var montoHaberEuro = 0;
+                if (parseFloat(linea.MBase) >= 0) {
+
                 if (linea.Tipo == 'Debe') {
                     montoDebeBase = linea.MBase;
                     montoDebeDolar = linea.MDolar;
@@ -477,7 +568,8 @@
                     montoHaberEuro = linea.MEuro;
                 }
 
-                var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td >' + linea.cuenta.CuentaContable + '</td>'
+                
+                      var filaVisual = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td >' + linea.cuenta.CuentaContable + '</td>'
                     + '<td>' + linea.cuenta.Descripcion + '</td>'
                      + '<td style="text-align: right">' + darFomatoMoneda(montoDebeBase,'1') + '</td>'
                      + '<td style="text-align: right">' + darFomatoMoneda(montoHaberBase,'1') + '</td>'
@@ -485,9 +577,11 @@
                      + '<td style="text-align: right">' + darFomatoMoneda(montoHaberDolar, '2') + '</td>'
                      + '<td style="text-align: right">' + darFomatoMoneda(montoDebeEuro, '3') + '</td>'
                      + '<td style="text-align: right">' + darFomatoMoneda(montoHaberEuro, '3') + '</td>'
-                     + '<td> <button class="btn btn-link" @estado style="margin:0; padding:0; font-size:1.8rem;" onclick="modalEditarLinea(' + contadorFila + ', ' + linea.Id + ')" ><i class="fas fa-edit"></i></button>&nbsp;&nbsp; <button @estado class="btn btn-link" style="margin:0; padding:0; font-size:1.8rem;" value="' + contadorFila + '" onclick="elimarCompraDetalle(' + contadorFila + ', ' + linea.Id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
-                    $('#tbAsientoDetalle > tbody').append(body);
+                     + '<td> <button class="btn btn-link" @estado style="margin:0; padding:0; font-size:1.8rem;" onclick="modalEditarLinea(' + linea.Id + ')" ><i class="fas fa-edit"></i></button>&nbsp;&nbsp; <button @estado class="btn btn-link" style="margin:0; padding:0; font-size:1.8rem;" value="' + contadorFila + '" onclick="removerLinea(' + linea.Id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                    $('#tbAsientoDetalle > tbody').append(filaVisual);
                      contadorFila++;
+                }
+              
                 TotalDebeBase = parseFloat(TotalDebeBase) + parseFloat(montoDebeBase);
                 TotalHaberBase = parseFloat(TotalHaberBase) + parseFloat(montoHaberBase);
                 TotalDebeDolar =  parseFloat(TotalDebeDolar) + parseFloat(montoDebeDolar);
@@ -523,6 +617,64 @@
 
             return simbolo + ' ' + document.getElementById('monedaFormater').value;
 
+    }
+    var lineaEdit;
+    function modalEditarLinea(Id) {
+
+        $('#cuentaCorregirModal').prop('hidden', true);
+        $('#tipoCambioDolarCorregirModal').prop('hidden', true);
+        $('#tipoCambioEuroCorregirModal').prop('hidden', true);
+        $('#montoBaseCorregirModal').prop('hidden', true);
+        $('#montoDolarCorregirModal').prop('hidden', true);
+        $('#montoEuroCorregirModal').prop('hidden', true);
+
+   
+        lineas.forEach(function (linea) {
+            if (linea.Id == Id) {
+                lineaEdit = linea;
+            }
+        });
+     
+   
+        $('#idLinea').val(Id);
+        $('#catalogoCuentasModal').val(lineaEdit.cuenta.Descripcion);
+        $('#tipoCambioDolarModal').val(lineaEdit.TCDolar);
+        $('#tipoCambioEuroModal').val(lineaEdit.TCEuro);
+        $('#MontoBaseModal').val(String(lineaEdit.MBase).replace(',','.'));
+        $('#Monto2Modal').val(String(lineaEdit.MDolar).replace(',','.'));
+        $('#Monto3Modal').val(String(lineaEdit.MEuro).replace(',','.'));
+        $('#lineaModal').modal('show');
+
+    }
+    function actualizarLinea(tipo) {      
+        
+        obtenerLinea('Modal');
+        cuentaSeleccionada = obtenerCuenta(cuenta);
+    
+        if (validarLinea('Modal') == true) {
+            lineaEdit.MDolar = montoDolar;
+            lineaEdit.MEuro = montoEuro;
+            lineaEdit.MBase = montoBase;
+            lineaEdit.cuenta = cuentaSeleccionada;
+            lineaEdit.Tipo = tipo;
+            lineaEdit.TCDolar = TipoCambioDolar;
+            lineaEdit.TCEuro = TipoCambioEuro; 
+        }
+    
+        tabla();
+        $('#lineaModal').modal('hide');
+   
+    }
+    function removerLinea(Id) {      
+        
+        lineas.forEach(function (linea) {
+            if (linea.Id == Id) {
+                lineaEdit = linea;
+            }
+        });      
+        lineaEdit.MBase = -1;     
+        tabla();
+   
     }
     // formatea un numero según una mascara dada ej: "-$###,###,##0.00"
     //
@@ -665,13 +817,13 @@
 
 
         }
-        function obtenerLinea() {
-            montoDolar = document.getElementById("Monto2").value;
-            montoEuro = document.getElementById("Monto3").value;
-            montoBase = document.getElementById("MontoBase").value;
-            cuenta = document.getElementById("catalogoCuentas").value;
-            TipoCambioDolar = document.getElementById("tipoCambioDolar").value;
-            TipoCambioEuro = document.getElementById("tipoCambioEuro").value;
+        function obtenerLinea(deModal) {
+            montoDolar = document.getElementById('Monto2' + deModal).value;
+            montoEuro = document.getElementById('Monto3' + deModal).value;
+            montoBase = document.getElementById('MontoBase' + deModal).value;
+            cuenta = document.getElementById('catalogoCuentas' + deModal).value;
+            TipoCambioDolar = document.getElementById('tipoCambioDolar'  + deModal).value;
+            TipoCambioEuro = document.getElementById('tipoCambioEuro' + deModal).value;
         }
         function obtenerCuenta(_DescripcionCuenta) {
             var cuenta = null;
@@ -766,103 +918,101 @@
         else { return null; }
 
     }
-    function validarLinea() {
+    function validarLinea(esModal) {
 
         var estado = true;
 
         if (cuentaSeleccionada == null) {
-            document.getElementById('cuentaCorregir').style.display = 'block';
+            document.getElementById('cuentaCorregir' + esModal).style.display = 'block';
             estado = false;
 
         } else {
-            document.getElementById('cuentaCorregir').style.display = 'none';
+            document.getElementById('cuentaCorregir' + esModal).style.display = 'none';
 
         }
-        montoDolar = document.getElementById("Monto2").value;
-        montoEuro = document.getElementById("Monto3").value;
-        montoBase = document.getElementById("MontoBase").value;
+        montoDolar = document.getElementById("Monto2" + esModal).value;
+        montoEuro = document.getElementById("Monto3" + esModal).value;
+        montoBase = document.getElementById("MontoBase" + esModal).value;
 
         pasBase = parseFloat(montoBase);
         pasEuro = parseFloat(montoEuro);
         pasDolar = parseFloat(montoDolar);
-        console.log("pasBase:" + pasBase);
-        console.log("Val Base:" + Number.isNaN(pasBase));
         pasTCD = parseFloat(TipoCambioDolar);
         pasTCE = parseFloat(TipoCambioEuro);
         if (montoBase == null) {
 
-                document.getElementById('montoBaseCorregir').style.display = 'block';
+                document.getElementById('montoBaseCorregir' + esModal).style.display = 'block';
                 estado = false;
 
         } else {
             if (Number.isNaN(pasBase) == true) {
-                document.getElementById('montoBaseCorregir').style.display = 'block';
+                document.getElementById('montoBaseCorregir' + esModal).style.display = 'block';
                 estado = false;
 
             } else {
-                document.getElementById('montoBaseCorregir').style.display = 'none';
+                document.getElementById('montoBaseCorregir' + esModal).style.display = 'none';
 
             }
         }
          if (montoDolar == null) {
 
-                document.getElementById('montoDolarCorregir').style.display = 'block';
+                document.getElementById('montoDolarCorregir' + esModal).style.display = 'block';
                 estado = false;
 
         } else {
             if (Number.isNaN(pasDolar) == true) {
-                document.getElementById('montoDolarCorregir').style.display = 'block';
+                document.getElementById('montoDolarCorregir' + esModal).style.display = 'block';
                 estado = false;
 
             } else {
-                document.getElementById('montoDolarCorregir').style.display = 'none';
+                document.getElementById('montoDolarCorregir' + esModal).style.display = 'none';
 
             }
         }
 
          if (montoEuro == null) {
 
-                document.getElementById('montoEuroCorregir').style.display = 'block';
+                document.getElementById('montoEuroCorregir' + esModal).style.display = 'block';
                 estado = false;
 
         } else {
             if (Number.isNaN(pasEuro) == true) {
-                document.getElementById('montoEuroCorregir').style.display = 'block';
+                document.getElementById('montoEuroCorregir' + esModal).style.display = 'block';
                 estado = false;
 
             } else {
-                document.getElementById('montoEuroCorregir').style.display = 'none';
+                document.getElementById('montoEuroCorregir' + esModal).style.display = 'none';
 
             }
         }
 
         if (TipoCambioDolar == null) {
 
-                document.getElementById('tipoCambioDolarCorregir').style.display = 'block';
+                document.getElementById('tipoCambioDolarCorregir' + esModal).style.display = 'block';
                 estado = false;
 
         } else {
             if (Number.isNaN(pasTCD) == true) {
-                document.getElementById('tipoCambioDolarCorregir').style.display = 'block';
+                document.getElementById('tipoCambioDolarCorregir' + esModal).style.display = 'block';
                 estado = false;
 
             } else {
-                document.getElementById('tipoCambioDolarCorregir').style.display = 'none';
+                document.getElementById('tipoCambioDolarCorregir' + esModal).style.display = 'none';
 
             }
         }
         if (TipoCambioEuro == null) {
 
-                document.getElementById('tipoCambioEuroCorregir').style.display = 'block';
+                document.getElementById('tipoCambioEuroCorregir' + esModal).style.display = 'block';
                 estado = false;
 
         } else {
             if (Number.isNaN(pasTCE) == true) {
-                document.getElementById('tipoCambioEuroCorregir').style.display = 'block';
+                document.getElementById('tipoCambioEuroCorregir' + esModal).style.display = 'block';
                 estado = false;
 
             } else {
-                document.getElementById('tipoCambioEuroCorregir').style.display = 'none';
+                document.getElementById('tipoCambioEuroCorregir' + esModal).style.display = 'none';
 
             }
         }

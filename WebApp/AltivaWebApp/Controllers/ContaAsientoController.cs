@@ -199,12 +199,10 @@ namespace AltivaWebApp.Controllers
                    
                     if (lineaDatos.IdDetalleAsientoContable > 0)
                     {
-                        foreach (AsientoDetalle lineaItem in datos.detalle)
+                        foreach (AsientoDetalle lineaItem in item.detalle)
                         {
                             if (lineaDatos.IdDetalleAsientoContable == lineaItem.IdDetalleAsientoContable)
-                            {
-                                if (lineaDatos.MontoColones > 0)
-                                {
+                            {                               
                                     lineaItem.IdCuentaContable = lineaDatos.IdCuentaContable;
                                     lineaItem.MontoColones = lineaDatos.MontoColones;
                                     lineaItem.MontoDolares = lineaDatos.MontoDolares;
@@ -213,13 +211,10 @@ namespace AltivaWebApp.Controllers
                                     lineaItem.Haber = lineaDatos.Haber;
                                     lineaItem.TipoCambioDolar = lineaDatos.TipoCambioDolar;
                                     lineaItem.TipoCambioEuro = lineaDatos.TipoCambioEuro;
-                                    lineaItem.IdCentrosDeGastos = lineaDatos.IdCentrosDeGastos;
-                                }
-                                else
-                                {
-                                    item.detalle.Remove(lineaItem);
-                                }
+                                    lineaItem.IdCentrosDeGastos = lineaDatos.IdCentrosDeGastos;                              
+                               
                             }
+                            
                         }
                     }
                     else
@@ -239,15 +234,20 @@ namespace AltivaWebApp.Controllers
                     }
                    
                 }
-
+             
                 if (datos.IdAsientoContable == 0)
                 {
                     bd.Add(item);
                 }
                 else {
                     bd.Update(item);
+
                 }                
               
+                bd.SaveChanges();
+                bd.AsientoDetalle.RemoveRange(
+                    bd.AsientoDetalle.Where(p => (p.IdAsientoContable == item.IdAsientoContable) && (p.MontoColones < 0))
+                    );
                 bd.SaveChanges();
                 return Json(new { success = true, idAsiento = datos.IdAsientoContable });
             }
