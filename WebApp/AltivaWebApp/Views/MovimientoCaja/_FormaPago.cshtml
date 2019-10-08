@@ -458,6 +458,10 @@
         setTimeout(function () { $('#montoFP1').focus(); }, 500);
 
         setSaldoDisponible();
+        if (@Model.IdDocumento != 0) {
+            getFormasPago();
+        }
+        
 
     });
 
@@ -1072,8 +1076,11 @@
 
     function cargarFormasPago(data) {
 
-        $('.filasCargadasFP').remove();
-        var pos = 0;
+        console.log(data);
+
+        $("#tblFormaPago > tbody").remove();
+        $('#tblFormaPago').append('<tbody></tbody>');
+        
         for (var i = 0; i < data.length; i++) {
 
             var body =
@@ -1081,12 +1088,12 @@
                 + '<td style="width:20%">' + getNombreFormaPago(data[i].idTipoCajaMovimiento) + '</td>'
                 + '<td style="width:35%">' + formatCurrencyFP(data[i].montoOriginal, data[i].idMoneda) + '</td>'
                 + '<td style="width:35%; text-align: right">' + formatCurrencyFactura(data[i]) + '</td>'
-                + '<td style="width:10%"><a onclick="eliminarFP(' + data[i].idCajaMovimiento + ',' + pos + ')" href="#"><i class="fas fa-trash"></i></a></td>'
+                + '<td style="width:10%"><a onclick="eliminarFP(' + data[i].idCajaMovimiento + ',' + i + ')" href="#"><i class="fas fa-trash"></i></a></td>'
                 + '</tr>';
 
-            $('#tblFormaPago').html(body);
+            $('#tblFormaPago > tbody').append(body);
 
-            pos++;
+            
 
         }
 
@@ -1299,4 +1306,91 @@
     $('a[data-toggle="list"]').on('shown.bs.tab', function (e) {
         $('.montoFormaPago').focus();
     });
+
+
+    function getFormasPago() {
+         $.ajax({
+              type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetFormasPago", "MovimientoCaja", new { idDoc = Model.IdDocumento })',
+             success: function (data) {
+                 cargarMetodosPago(data);
+             },
+             error: function (err, scnd) {
+                 cargarAlert('@Lb["errorGeneral"]');
+                 console.log(err.statusText);
+             }
+         });
+    }
+
+    function cargarMetodosPago(data) {
+
+        var fps = retornaFormasPago(data); 
+
+        console.log(data);
+
+
+        //setPago(totalFomasPago());
+
+        //calcularMovimientos();
+
+        //setMontoFP(fp.idMoneda);
+        //cargarFormasPago(formasPago);
+        
+    }
+
+    function retornaFormasPago(data) {
+
+        //var fp = {
+        //    prepago: {
+        //        base: 0,
+        //        dolar: 0,
+        //        euro: 0
+        //    },
+        //    cajaMovimiento: []
+        //};
+
+        for (var i = 0; i < data.length; i++) {
+            var cm = data[i].idMovimientoHastaNavigation.tbFaCajaMovimiento;
+            if (cm != null) {
+                var fp = {
+                    idCajaMovimiento: cm.idCajaMovimiento,
+                    tipoCategoriaFlujo: 0,
+                    idCategoriaFlujo: cm.idCategoriaFlujo,
+                    fechaCreacion: cm.fechaCreacion,
+                    estado: cm.estado,
+                    idMoneda: cm.idMoneda,
+                    montoOriginal: cm.idMoneda == 1 ? cm.montoBase : cm.idMoneda == 2 ? cm.montoDolar : cm.montoEuro,
+                    montoBase: cm.montoBase,
+                    montoDolar: cm.montoDolar,
+                    montoEuro: cm.montoEuro,
+                    compraDolarTc: cm.compraDolarTc,
+                    ventaDolarTc: cm.ventaDolarTc,
+                    compraEuroTc: cm.compraEuroTc,
+                    ventaEuroTc: cm.ventaEuroTc,
+                    idTipoCajaMovimiento: cm.idTipoCajaMovimiento,
+                    idCaja: cm.idCaja,
+                    idMovimiento: cm.idMovimiento,                   //tarjeta = 2//
+                    cajaMovTarjeta: null,//tbFaCajaMovimientoTarjeta != null ? cm.tbFaCajaMovimientoTarjeta : null,
+                    //cheque = 4//
+                    cajaMovCheque: null//tbFaCajaMovimientoCheque != null ? cm.tbFaCajaMovimientoCheque : null,
+                    //fechaTransferencia: $('#fechaTransferencia').val(),
+                    //documentoTransferencia: $('#documento').val()
+
+
+                };
+
+                formasPago.push(fp);
+            }
+            else {
+                //fp.prepago.base += cm.montoBase;
+                //fp.prepago.dolar += cm.montoDolar;
+                //fp.prepago.euro += cm.montoEuro;
+            }
+            
+        }
+
+    }
+
+
 </script>

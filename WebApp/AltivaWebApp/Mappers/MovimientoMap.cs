@@ -55,8 +55,14 @@ namespace AltivaWebApp.Mappers
                 
             };
 
-            TbFaMovimiento newMov = service.Save(movPago);
-            CreateMovmientoDetalle(movDoc, newMov);
+            TbFaMovimiento newMov = null;
+
+            if (formasPago.Count() > 0)
+            {
+                newMov = service.Save(movPago);
+                CreateMovmientoDetalle(movDoc, newMov);
+            }
+                
             if (montoPrepago > 0)
                 AplicarSaldo(movDoc.IdMovimiento, montoPrepago);
 
@@ -113,15 +119,15 @@ namespace AltivaWebApp.Mappers
                 {
                     if (item.DisponibleBase <= saldoB)
                     {
-                        aplicadoB += item.DisponibleBase;
-                        aplicadoD += item.DisponibleDolar;
-                        aplicadoE += item.DisponibleEuro;
+                        aplicadoB = item.DisponibleBase;
+                        aplicadoD = item.DisponibleDolar;
+                        aplicadoE = item.DisponibleEuro;
                     }
                     else
                     {
-                        aplicadoB += saldoB;
-                        aplicadoE += saldoD;
-                        aplicadoE += saldoE;
+                        aplicadoB = saldoB;
+                        aplicadoD = saldoD;
+                        aplicadoE = saldoE;
                     }
 
 
