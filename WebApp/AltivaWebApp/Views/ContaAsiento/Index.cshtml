@@ -55,7 +55,7 @@
         </div>
         <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
             <label>@lb["Código"]:</label>
-            <input type="search" id="codigoAsiento" class="form-control" placeholder="@lb["Codigo"]">
+            <input type="search" id="codigoAsiento" class="form-control" placeholder="@lb["Codigo"]" onchange="buscar()">
         </div>
         <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
             <label>@lb["Estado"]:</label>
@@ -87,8 +87,6 @@
                     </fieldset>
                 </form>
             </div>
-
-
         </div>
     </div>
     <div class="row">
@@ -100,10 +98,10 @@
                             Id
                         </th>
                         <th>
-                            @lb["Fecha"]
+                            @lb["Codigo"]
                         </th>
                         <th>
-                            @lb["Codigo"]
+                            @lb["Fecha"]
                         </th>
                         <th>
                             @lb["Monto"] @ViewBag.SimboloBase
@@ -229,6 +227,7 @@
         obtenerPeriodo();
         obtenerTipos();
         obtenerEstado();
+        obtenerCodigo();
         aplicarFiltros(asientos);
     }
     function aplicarFiltros(datos) {
@@ -281,11 +280,13 @@
         }
     }
     function filtroCodigo(valor) {
+        console.log('CodigoSelect:' + codigoSeleccionado);
+        console.log('Valor:' + valor);
         if (codigoSeleccionado == null || codigoSeleccionado == '') {
             return true;
         }
         else {
-            return valor == codigoSeleccionado;
+            return valor.includes(codigoSeleccionado);
         }
     }
     function filtroPeriodo(valor)
@@ -351,9 +352,9 @@
             }
 
             var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
-                + '<td><p style="padding-top:1rem;">' + data[i].idAsientoContable + '</p></td>'
+                + '<td><label class="link" onclick=editarItem("' + data[i].idAsientoContable + '") style="padding-top:1rem;">' + data[i].idAsientoContable + '</label></td>'               
+                + '<td><label class="link" onclick=editarItem("' + data[i].idAsientoContable + '") style="padding-top:1rem;">' + data[i].codigo + '</label></td>'
                 + '<td><p hidden>'+ soloFecha(data[i].fecha) + '</p><p style="padding-top:1rem;">' + FormatoFecha(data[i].fecha) + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].codigo + '</p></td>'
                 + '<td><p style="padding-top:1rem; text-align:right;">' + darFormatoMoneda(data[i].montoColones, 1) + '</p></td>'              
                 + '<td><p style="padding-top:1rem; text-align:right;">' + darFormatoMoneda(data[i].montoDolar, 2) + '</p></td>'              
                 + '<td><p style="padding-top:1rem; text-align:right;">' + darFormatoMoneda(data[i].montoEuro, 3) + '</p></td>'  
@@ -440,11 +441,6 @@
             ]
         });
 
-    }
-    var fechaDesdeSeleccionada;
-    var fechaHastaSeleccionada;
-    function obtenerCodigo() {
-        fechaDesdeSeleccionada = document.getElementById("codigoAsiento").value;
     }
 
     var codigoSeleccionado;
