@@ -23,7 +23,10 @@ namespace AltivaWebApp.Context
 
         //no autogenerado / no borrar
         public virtual DbSet<CompraAutomaticoViewModel> CompraAutomatico { get; set; }
-        //*************
+        public virtual DbSet<DocumentosContactoViewModel> DocumentosContacto { get; set; }
+
+        //agregado por lenin
+        public virtual DbSet<TbBaFlujoCategoria> TbBaFlujoCategoria { get; set; }
 
         public virtual DbSet<TbBaFlujo> TbBaFlujo { get; set; }
         public virtual DbSet<TbBaFlujoCategoria> TbBaFlujoCategoria { get; set; }
@@ -150,6 +153,41 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.emed).HasColumnType("float");
                 entity.Property(e => e.emin).HasColumnType("float");
                 entity.Property(e => e.emax).HasColumnType("float");
+            });
+            modelBuilder.Entity<DocumentosContactoViewModel>(entity =>
+            {
+                entity.HasKey(e => e.IdMovimiento);
+
+                entity.ToTable("vs_FA_DocumentosContacto");
+
+                entity.Property(e => e.Nombre).HasMaxLength(150);
+                entity.Property(e => e.IdContacto).HasColumnName("IdContacto");
+                entity.Property(e => e.IdTipoDocumento).HasColumnName("IdTipoDocumento");
+                entity.Property(e => e.IdUsuario).HasColumnName("IdUsuario");
+                entity.Property(e => e.Cxp).HasColumnName("Cxp");
+                entity.Property(e => e.Cxc).HasColumnName("Cxc");
+                entity.Property(e => e.IdMoneda).HasColumnName("IdMoneda");
+                //entity.Property(e => e.MontoBase).HasColumnName("MontoBase");
+                //entity.Property(e => e.MontoDolar).HasColumnName("MontoDolar");
+                //entity.Property(e => e.MontoEuro).HasColumnName("MontoEuro");
+                //entity.Property(e => e.DisponibleDolar).HasColumnName("DisponibleDolar");
+                //entity.Property(e => e.DisponibleBase).HasColumnName("DisponibleBase");
+                //entity.Property(e => e.DisponibleEuro).HasColumnName("DisponibleEuro");
+                //entity.Property(e => e.AplicadoBase).HasColumnName("AplicadoBase");
+                //entity.Property(e => e.AplicadoDolar).HasColumnName("AplicadoDolar");
+                //entity.Property(e => e.AplicadoEuro).HasColumnName("AplicadoEuro");
+                //entity.Property(e => e.SaldoBase).HasColumnName("SaldoBase");
+                //entity.Property(e => e.SaldoDolar).HasColumnName("SaldoDolar");
+                //entity.Property(e => e.SaldoEuro).HasColumnName("SaldoEuro");
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+                entity.Property(e => e.EsDebito).HasColumnName("EsDebito");
+                entity.Property(e => e.Concecutivo).HasColumnName("Concecutivo");
+                entity.Property(e => e.FechaDocumento).HasColumnType("datetime");
+                entity.Property(e => e.IdVendedor).HasColumnName("IdVendedor");
+                entity.Property(e => e.IdPuntoVenta).HasColumnName("IdPuntoVenta");
+                entity.Property(e => e.FechaVencimiento).HasColumnType("datetime");
+                entity.Property(e => e.Estado).HasColumnName("Estado");
+
             });
 
             modelBuilder.Entity<TbBaFlujo>(entity =>
@@ -3013,6 +3051,609 @@ namespace AltivaWebApp.Context
                     .IsUnicode(false)
                     .HasDefaultValueSql("('')");
             });
+
+            modelBuilder.Entity<TbFaCotizacion>(entity =>
+            {
+                entity.HasKey(e => e.IdCotizacion);
+
+                entity.ToTable("Tb_FA_Cotizacion");
+
+                entity.Property(e => e.Estado)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.FechaCotizacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.FechaVencimiento)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdCliente).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdMoneda).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.IdUsuarioCreador).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdVendedor).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.MontoIvabase)
+                    .HasColumnName("MontoIVABase")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.MontoIvadolar)
+                    .HasColumnName("MontoIVADolar")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.MontoIvaeuro)
+                    .HasColumnName("MontoIVAEuro")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.PorcDescuentoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoNetoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoNetoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoNetoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoNetoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoNetoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoNetoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TipoCambioDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TipoCambioEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDescuentoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDescuentoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDescuentoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalEuro).HasDefaultValueSql("((0))");
+
+                entity.HasOne(d => d.IdClienteNavigation)
+                    .WithMany(p => p.TbFaCotizacion)
+                    .HasForeignKey(d => d.IdCliente)
+                    .HasConstraintName("FK_Tb_FA_Cotizacion_tb_CR_Contacto");
+            });
+
+            modelBuilder.Entity<TbFaCotizacionConfig>(entity =>
+            {
+                entity.HasKey(e => e.IdCotizacionConfig);
+
+                entity.ToTable("Tb_FA_CotizacionConfig");
+
+                entity.Property(e => e.DiasVenceDefecto).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdClienteDefecto).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdMonedaDefecto).HasDefaultValueSql("((1))");
+            });
+
+            modelBuilder.Entity<TbFaCotizacionDetalle>(entity =>
+            {
+                entity.HasKey(e => e.IdCotizacionDetalle);
+
+                entity.ToTable("Tb_FA_CotizacionDetalle");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdInventario).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdUsuarioCreador).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.MontoIvaBase).HasColumnName("MontoIVABase");
+
+                entity.Property(e => e.MontoIvaDolar)
+                    .HasColumnName("MontoIVADolar")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.PorcDescuento).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.PrecioBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.PrecioDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.PrecioEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoNetoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoNetoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalExcentoNetoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoNetoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoNetoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SubTotalGravadoNetoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDescuentoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDescuentoDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDescuentoEuro).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalDolar).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TotalEuro).HasDefaultValueSql("((0))");
+
+                entity.HasOne(d => d.IdCotizacionNavigation)
+                    .WithMany(p => p.TbFaCotizacionDetalle)
+                    .HasForeignKey(d => d.IdCotizacion)
+                    .HasConstraintName("FK_Tb_FA_CotizacionDetalle_tb_PR_Inventario");
+            });
+
+            modelBuilder.Entity<TbFaCaja>(entity =>
+            {
+                entity.HasKey(e => e.IdCaja);
+
+                entity.ToTable("tb_FA_Caja");
+
+                entity.Property(e => e.Estado).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdUsuario).HasDefaultValueSql("((0))");
+            });
+
+            modelBuilder.Entity<TbFaCajaAperturaDenominacion>(entity =>
+            {
+                entity.HasKey(e => e.IdCajaApertura);
+
+                entity.ToTable("tb_FA_CajaAperturaDenominacion");
+
+                entity.Property(e => e.Cantidad).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdCaja).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdDenominacion).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdUsuario).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Monto).HasDefaultValueSql("((0))");
+
+                entity.HasOne(d => d.IdCajaNavigation)
+                    .WithMany(p => p.TbFaCajaAperturaDenominacion)
+                    .HasForeignKey(d => d.IdCaja)
+                    .HasConstraintName("FK_tb_FA_CajaAperturaDenominacion_tb_FA_Caja");
+
+                entity.HasOne(d => d.IdDenominacionNavigation)
+                    .WithMany(p => p.TbFaCajaAperturaDenominacion)
+                    .HasForeignKey(d => d.IdDenominacion)
+                    .HasConstraintName("FK_tb_FA_CajaAperturaDenominacion_tb_FA_Denominacion");
+            });
+
+            modelBuilder.Entity<TbFaCajaArqueo>(entity =>
+            {
+                entity.HasKey(e => e.IdCajaArqueo);
+
+                entity.ToTable("tb_FA_CajaArqueo");
+
+                entity.Property(e => e.BancoReal).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.EfectivoReal).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdCaja).HasDefaultValueSql("((0))");
+
+
+                entity.Property(e => e.IdMoneda).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdUsuario).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TarjetaReal).HasDefaultValueSql("((0))");
+
+                entity.HasOne(d => d.IdCajaNavigation)
+                    .WithMany(p => p.TbFaCajaArqueo)
+                    .HasForeignKey(d => d.IdCaja)
+                    .HasConstraintName("FK_tb_FA_CajaArqueo_tb_FA_CajaArqueo");
+
+
+            });
+
+            modelBuilder.Entity<TbFaCajaArqueoDenominacion>(entity =>
+            {
+                entity.HasKey(e => e.IdCajaArqueoDenominacion);
+
+                entity.ToTable("tb_FA_CajaArqueoDenominacion");
+
+                entity.Property(e => e.Cantidad).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdCaja).HasDefaultValueSql("((0))");
+
+
+                entity.Property(e => e.IdDenominacion).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdUsuario).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Monto).HasDefaultValueSql("((0))");
+
+                entity.HasOne(d => d.IdCajaNavigation)
+                    .WithMany(p => p.TbFaCajaArqueoDenominacion)
+                    .HasForeignKey(d => d.IdCaja)
+                    .HasConstraintName("FK_tb_FA_CajaArqueoDenominacion_tb_FA_Caja");
+
+
+                entity.HasOne(d => d.IdDenominacionNavigation)
+                    .WithMany(p => p.TbFaCajaArqueoDenominacion)
+                    .HasForeignKey(d => d.IdDenominacion)
+                    .HasConstraintName("FK_tb_FA_CajaArqueoDenominacion_tb_FA_Denominacion");
+            });
+            modelBuilder.Entity<TbFaTipoJustificante>(entity =>
+            {
+                entity.HasKey(e => e.IdTipoJustificante);
+
+                entity.ToTable("tb_FA_TipoJustificante");
+
+                entity.Property(e => e.Cxc)
+                    .IsRequired()
+                    .HasColumnName("CXC")
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Cxp)
+                    .IsRequired()
+                    .HasColumnName("CXP")
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Estado).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Nombre)
+                 .IsRequired()
+                 .HasMaxLength(100)
+                 .IsUnicode(false);
+            });
+            modelBuilder.Entity<TbFaTipoDocumento>(entity =>
+            {
+                entity.HasKey(e => e.IdTipoDocumento);
+
+                entity.ToTable("tb_FA_TipoDocumento");
+
+                entity.Property(e => e.Cxc).HasColumnName("CXC");
+
+                entity.Property(e => e.EsDebito).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+            });
+            modelBuilder.Entity<TbFaCajaMovimientoCheque>(entity =>
+            {
+                entity.HasKey(e => e.IdCajaMovimientoCheque);
+
+                entity.ToTable("tb_FA_CajaMovimientoCheque");
+
+                entity.Property(e => e.Banco)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Fecha)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Nota)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Portador)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.HasOne(d => d.IdCajaMovimientoNavigation)
+                    .WithMany(p => p.TbFaCajaMovimientoCheque)
+                    .HasForeignKey(d => d.IdCajaMovimiento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_CajaMovimientoCheque_tb_FA_CajaMovimiento");
+            });
+
+            modelBuilder.Entity<TbFaCajaMovimientoTarjeta>(entity =>
+            {
+                entity.HasKey(e => e.IdCajaMovimientoTarjeta);
+
+                entity.ToTable("tb_FA_CajaMovimientoTarjeta");
+
+                entity.Property(e => e.IdCajaMovimientoTarjeta).ValueGeneratedNever();
+
+                entity.Property(e => e.Autorizacion)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Voucher)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
+
+                entity.HasOne(d => d.IdCajaMovimientoNavigation)
+                    .WithMany(p => p.TbFaCajaMovimientoTarjeta)
+                    .HasForeignKey(d => d.IdCajaMovimiento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_CajaMovimientoTarjeta_tb_FA_CajaMovimiento");
+            });
+            modelBuilder.Entity<TbFaNota>(entity =>
+            {
+                entity.HasKey(e => e.IdNotaCredito)
+                    .HasName("PK_tb_FA_NotaCredito");
+
+                entity.ToTable("tb_FA_Nota");
+
+                entity.Property(e => e.Estado).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Fecha)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Nota)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.HasOne(d => d.IdTipoDocumentoNavigation)
+                    .WithMany(p => p.TbFaNota)
+                    .HasForeignKey(d => d.IdTipoDocumento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_Nota_tb_FA_TipoDocumento");
+            });
+            modelBuilder.Entity<TbFaMovimiento>(entity =>
+            {
+                entity.HasKey(e => e.IdMovimiento);
+
+                entity.ToTable("tb_FA_Movimiento");
+
+                entity.Property(e => e.Cxc).HasColumnName("CXC");
+
+                entity.Property(e => e.Cxp).HasColumnName("CXP");
+
+                entity.Property(e => e.DisponibleDolar).HasMaxLength(10);
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdUsuario).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.MontoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SaldoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SaldoDolar).HasDefaultValueSql("((0))");
+
+                entity.HasOne(d => d.IdContactoNavigation)
+                    .WithMany(p => p.TbFaMovimiento)
+                    .HasForeignKey(d => d.IdContacto)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_Movimiento_tb_CR_Contacto");
+
+                entity.HasOne(d => d.IdTipoDocumentoNavigation)
+                    .WithMany(p => p.TbFaMovimiento)
+                    .HasForeignKey(d => d.IdTipoDocumento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_Movimiento_tb_FA_TipoDocumento");
+            });
+            modelBuilder.Entity<TbFaMovimientoDetalle>(entity =>
+            {
+                entity.HasKey(e => e.IdMovimientoDetalle);
+
+                entity.ToTable("tb_FA_MovimientoDetalle");
+
+                entity.Property(e => e.CompraDolarTc).HasColumnName("CompraDolarTC");
+
+                entity.Property(e => e.CompraEuroTc).HasColumnName("CompraEuroTC");
+
+                entity.Property(e => e.Fecha)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.VentaDolarTc).HasColumnName("VentaDolarTC");
+
+                entity.Property(e => e.VentaEuroTc).HasColumnName("VentaEuroTC");
+
+                entity.HasOne(d => d.IdMovimientoDesdeNavigation)
+                    .WithMany(p => p.TbFaMovimientoDetalleIdMovimientoDesdeNavigation)
+                    .HasForeignKey(d => d.IdMovimientoDesde)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_MovimientoDetalle_tb_FA_Movimiento");
+
+                entity.HasOne(d => d.IdMovimientoHastaNavigation)
+                    .WithMany(p => p.TbFaMovimientoDetalleIdMovimientoHastaNavigation)
+                    .HasForeignKey(d => d.IdMovimientoHasta)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_MovimientoDetalle_tb_FA_Movimiento1");
+            });
+            modelBuilder.Entity<TbFaMovimientoJustificante>(entity =>
+            {
+                entity.HasKey(e => e.IdMovimientoJustificante);
+
+                entity.ToTable("tb_FA_MovimientoJustificante");
+
+                entity.Property(e => e.CompraDolarTc).HasColumnName("CompraDolarTC");
+
+                entity.Property(e => e.CompraEuroTc).HasColumnName("CompraEuroTC");
+
+                entity.Property(e => e.Descripcion)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.Estado).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.IdMoneda).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.VentaDolatTc).HasColumnName("VentaDolatTC");
+
+                entity.Property(e => e.VentaEuroTc).HasColumnName("VentaEuroTC");
+
+                entity.HasOne(d => d.IdMovimientoNavigation)
+                    .WithMany(p => p.TbFaMovimientoJustificante)
+                    .HasForeignKey(d => d.IdMovimiento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_MovimientoJustificante_tb_FA_Movimiento");
+
+                entity.HasOne(d => d.IdTipoJustificanteNavigation)
+                    .WithMany(p => p.TbFaMovimientoJustificante)
+                    .HasForeignKey(d => d.IdTipoJustificante)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_MovimientoJustificante_tb_FA_TipoJustificante");
+            });
+            modelBuilder.Entity<TbFaCajaMovimiento>(entity =>
+            {
+                entity.HasKey(e => e.IdCajaMovimiento);
+
+                entity.ToTable("tb_FA_CajaMovimiento");
+
+                entity.Property(e => e.CompraDolarTc).HasColumnName("CompraDolarTC");
+
+                entity.Property(e => e.CompraEuroTc).HasColumnName("CompraEuroTC");
+
+                entity.Property(e => e.Estado).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdMoneda).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.VentaDolarTc).HasColumnName("VentaDolarTC");
+
+                entity.Property(e => e.VentaEuroTc).HasColumnName("VentaEuroTC");
+
+                entity.HasOne(d => d.IdCajaNavigation)
+                    .WithMany(p => p.TbFaCajaMovimiento)
+                    .HasForeignKey(d => d.IdCaja)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_CajaMovimiento_tb_FA_Caja");
+
+                entity.HasOne(d => d.IdCategoriaFlujoNavigation)
+                    .WithMany(p => p.TbFaCajaMovimiento)
+                    .HasForeignKey(d => d.IdCategoriaFlujo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_CajaMovimiento_tb_BA_FlujoCategoria");
+
+                entity.HasOne(d => d.IdMovimientoNavigation)
+                    .WithMany(p => p.TbFaCajaMovimiento)
+                    .HasForeignKey(d => d.IdMovimiento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_CajaMovimiento_tb_FA_Movimiento");
+            });
+
+            modelBuilder.Entity<TbFaCajaCierre>(entity =>
+            {
+                entity.HasKey(e => e.IdCajaCierre)
+                    .HasName("PK_tb_FA_CajaCierre+");
+
+                entity.ToTable("tb_FA_CajaCierre");
+
+                entity.Property(e => e.BancoReal).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Bancos).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Efectivo).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.EfectivoReal).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Entradas).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdCaja).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdMoneda).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IdUsuario).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Salidas).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Tarjeta).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.TarjetaReal).HasDefaultValueSql("((0))");
+
+                entity.HasOne(d => d.IdCajaNavigation)
+                    .WithMany(p => p.TbFaCajaCierre)
+                    .HasForeignKey(d => d.IdCaja)
+                    .HasConstraintName("FK_tb_FA_CajaCierre_tb_FA_Caja");
+            });
+
 
             modelBuilder.Entity<TbSePuntoVenta>(entity =>
             {

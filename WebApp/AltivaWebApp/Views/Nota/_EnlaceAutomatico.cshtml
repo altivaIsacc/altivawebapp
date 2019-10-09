@@ -1,0 +1,169 @@
+﻿@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+<h5 class="col-md-11 col-sm-11 col-xs-11" id="departamentoModallabel"> @Lb["EnlaceAutomatico"]</h5>
+<div class="col-md-1 col-sm-1 col-xs-1">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<div class="col-md-3 col-sm-3 col-xs-12">
+    <label>@Lb["Disponible"]:</label>
+    <input readonly class="form-control currency" id="disponible" />
+    <br />
+</div>
+
+    <table class="table table-bordered table-striped col-md-2 col-sm-2 col-xs-12 well" id="tblOrdenCompra">
+        <thead>
+            <tr>
+
+                <th><span>@Lb["tipo"]</span></th>
+                <th><span>@Lb["Documento"]</span></th>
+                <th><span>@Lb["Fecha"]</span></th>
+                <th><span>@Lb["Pendiente"]</span></th>
+                <th><span>@Lb["Aplicado"]</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="lineaAplicadoForm"></tr>
+        </tbody>
+    </table>
+ 
+    <div class="col-md-3 col-sm-3 col-xs-12" style="margin-left:600px">
+        <label>@Lb["Aplicado"]:</label>
+        <input readonly id="sumaAplicado" class="form-control currency" />
+
+    </div>
+    <div class="row">
+        <div class="form-group col-md-6 col-sm-6 col-xs-12">
+            <button class="btn btn-success btnAccion" onclick="GuardarEnlace()">@Lb["Aplicar"]</button>
+            <a id="cancelarEnlace" onclick="" class="btn btn-default">@Lb["Cancelar"]</a>
+            <span id="saldoValid" class="text-danger" hidden>@Lb["saldoValid"]</span>
+
+        </div>
+
+    </div>
+
+    <script>
+    $(document).ready(function () {
+        $("#disponible").val($("#totalDisponible").inputmask('unmaskedvalue'));
+        $("#sumaAplicado").val(0.00);
+
+    });
+    $("#cancelarEnlace").on("click", function () {
+       $('#modalTipoJustificante').modal('hide');
+
+    });
+         var simbolo = "₡";
+        if (parseInt($('#tipoMoneda').val()) === 2)
+            simbolo = "$";
+        else if (parseInt($('#tipoMoneda').val()) === 3)
+            simbolo = "€";
+       $(".currency").inputmask('currency', {
+            prefix: simbolo,
+            rightAlign: true
+       });
+
+       $(".moneda").inputmask('currency', {
+           prefix: '',
+           rightAlign: true,
+           min: 0
+       });
+    function calcularLinea(saldo) {
+        if (saldo > 0 && saldo != NaN) {
+            var disponible = $("#disponible").inputmask('unmaskedvalue');
+            var totalApli = $("#sumaAplicado").inputmask('unmaskedvalue');
+            var result = 0;
+            if (saldo <= disponible) {
+                result = disponible - saldo;
+                $("#disponible").val(result);
+                $("#sumaAplicado").val(parseFloat(totalApli) + saldo);
+                return saldo;
+            }
+            if (saldo > disponible) {
+                $("#disponible").val(0.00);
+                $("#sumaAplicado").val(parseFloat(disponible) + parseFloat(totalApli));
+                return disponible;
+            }
+        } else {
+            return 0;
+        }
+    }
+    ///AJAX///
+    function GuardarEnlace() {
+         $('#saldoValid').prop('hidden', true);
+        var total = $("#disponible").inputmask('unmaskedvalue');
+        if (total < 0) {
+          $('#saldoValid').prop('hidden', false);
+        } else {           
+            lineasAplicado = JSON.parse(JSON.stringify(lineasEnlace));
+            cargarTotal();
+            console.log(crearModeloEnlace());
+            console.log(crearLineasEditadas());
+            Guardar();
+             
+            //$("#totalDisponible").val($("#disponible").inputmask('unmaskedvalue'));
+            //$("#totalAplicado").val(parseFloat($("#sumaAplicado").inputmask('unmaskedvalue')) + parseFloat($("#totalAplicado").inputmask('unmaskedvalue')));
+            $('#modalTipoJustificante').modal('hide');
+
+        }
+    }
+
+    function recuperarSaldoOriginal(pos) {
+         var moneda = parseInt($("#tipoMoneda").val());
+        if (moneda == 1)
+            return aplicadosOriginal[pos].saldoBase;
+                if (moneda == 2)
+            return aplicadosOriginal[pos].saldoDolar;
+                if (moneda == 3)
+            return aplicadosOriginal[pos].saldoEuro;
+    }
+    function recuperarAplicadoOriginal(pos) {
+         var moneda = parseInt($("#tipoMoneda").val());
+        if (moneda == 1)
+            return aplicadosOriginal[pos].aplicadoBase;
+                if (moneda == 2)
+            return aplicadosOriginal[pos].aplicadoDolar;
+                if (moneda == 3)
+            return aplicadosOriginal[pos].aplicadoEuro;
+    }
+    function cargarDatos() {
+        getDocumentos(2);
+        $("#totalDisponible").val($("#disponible").inputmask('unmaskedvalue'));
+        $("#totalAplicado").val($("#sumaAplicado").inputmask('unmaskedvalue'));
+     }
+    function calcularLinea(pos) {
+        var moneda = parseInt($("#tipoMoneda").val());
+        var saldo = lineasEnlace[pos].saldoBase;
+        if(moneda == 2)
+            saldo = lineasEnlace[pos].saldoDolar;
+         if(moneda == 3)
+            saldo = lineasEnlace[pos].saldoEuro;
+        if (saldo > 0 && saldo != NaN) {
+
+            var disponible = $("#disponible").inputmask('unmaskedvalue');
+            var totalApli = $("#sumaAplicado").inputmask('unmaskedvalue');
+            var result = 0;
+            if (saldo <= disponible) {
+                result = disponible - saldo;
+                $("#disponible").val(result);
+                $("#sumaAplicado").val(parseFloat(totalApli) + saldo);
+                return saldo;
+            }
+            if (saldo > disponible) {
+                $("#disponible").val(0.00);
+                $("#sumaAplicado").val(parseFloat(disponible) + parseFloat(totalApli));
+                return disponible;
+            }
+        } else {
+            return 0;
+        }
+          }
+
+    </script>

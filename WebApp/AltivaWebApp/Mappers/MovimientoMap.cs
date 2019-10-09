@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Mappers
 {
-    public class MovimientoMap : IMovimientoMap
+    public class MovimientoMap: IMovimientoMap
     {
         private readonly IMovimientoService service;
         private readonly IMonedaService monedaService;

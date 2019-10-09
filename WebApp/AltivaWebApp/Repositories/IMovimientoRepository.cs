@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AltivaWebApp.ViewModels;
 
 namespace AltivaWebApp.Repositories
 {
@@ -17,5 +18,19 @@ namespace AltivaWebApp.Repositories
         long GetUltimoMovimientoPagoId(long idDoc);
         IList<TbFaMovimiento> GetSaldoContacto(long idContacto);
         TbFaMovimiento GetMovimientoById(long idMov);
+        TbFaMovimiento GetMovimientoById(long id);
+        bool SaveMovimientoJustificante(IList<TbFaMovimientoJustificante> domain);
+        bool UpdateMovimientoJustificante(IList<TbFaMovimientoJustificante> domain);
+        TbFaMovimiento Save(TbFaMovimiento domain);
+        TbFaMovimiento Update(TbFaMovimiento domain);
+        IList<TbFaMovimiento> GetAllMovimientos();
+        TbFaMovimiento GetMovimientoByNota(long id);
+        IList<TbFaMovimientoJustificante> GetJustificantesByMovimientoId(long id);
+        bool DeleteMovimientoJustificante(IList<int> domain, int idMovimiento);
+         IList<DocumentosContactoViewModel> GetDocumentosContacto(long id, bool cxp, long idMovimiento);
+        bool SaveMD(IList<TbFaMovimientoDetalle> domain);
+        TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimiento(long idMovimiento);
+        bool UpdateMD(IList<TbFaMovimientoDetalle> domain);
+        bool DeleteMD(long id);
     }
 }
