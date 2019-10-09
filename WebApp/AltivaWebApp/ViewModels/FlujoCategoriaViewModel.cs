@@ -15,6 +15,7 @@ namespace AltivaWebApp.ViewModels
         public DateTime FechaCreacion { get; set; }
         public long IdUsuario { get; set; }
         public int IdTipoFlujo { get; set; }
+        public int IdMoneda { get; set; }
         public string Nombre { get; set; }
         public string Codigo { get; set; }
         public int Estado { get; set; }

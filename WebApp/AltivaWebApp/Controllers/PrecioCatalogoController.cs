@@ -29,14 +29,10 @@ namespace AltivaWebApp.Controllers
         public ActionResult ListarPrecioCatalogo()
         {
             var precio= preciosService.GetFirstPrecioCatalogo();
-            if (precio == null)
-            {
-                ViewBag.IdPrecio = 0;
-            }
-            else {
+            if(precio != null)
                 ViewBag.IdPrecio = precio.Id;
-            }
-           
+            else
+                ViewBag.IdPrecio = 0;
 
             return View();
         }

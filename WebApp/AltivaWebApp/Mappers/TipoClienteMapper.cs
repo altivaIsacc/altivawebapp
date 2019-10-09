@@ -11,7 +11,7 @@ namespace AltivaWebApp.Mappers
     {
         //variable que instacia al servicio del tipo del cliente
         public ITipoClienteService ItipoCliente;
-        //contructor
+        //constructor
         public TipoClienteMapper(ITipoClienteService ItipoCliente)
         {
             this.ItipoCliente = ItipoCliente;
@@ -36,7 +36,8 @@ namespace AltivaWebApp.Mappers
                 IdPadre = viewModel.IdPadre,
                 Nombre = viewModel.Nombre,
                 Inactivo = viewModel.Inactivo,
-                FechaCreacion = viewModel.FechaCreacion
+                FechaCreacion = viewModel.FechaCreacion,
+                IdTipoPrecio = viewModel.IdTipoPrecio
             };
 
             return Tc;
@@ -51,7 +52,8 @@ namespace AltivaWebApp.Mappers
                 IdPadre = domain.IdPadre,
                 Nombre = domain.Nombre,
                 Inactivo = (bool) domain.Inactivo,
-                FechaCreacion = domain.FechaCreacion
+                FechaCreacion = domain.FechaCreacion,
+                IdTipoPrecio = domain.IdTipoPrecio
             };
 
             return Tc;

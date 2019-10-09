@@ -71,6 +71,9 @@
     <table class="table table-bordered" id="tblReq">
         <thead>
             <tr>
+                <th hidden>
+                    @SharedLocalizer["id"]
+                </th>
 
                 <th class="col-md-2">
                     @SharedLocalizer["Fecha"]
@@ -165,7 +168,8 @@
             dataType: "json",
             url: '@Url.Action("GetRequisiciones")',
             success: function (data) {
-                console.log(data);
+                data = data.reverse();
+                console.log(data);              
                 reqs = JSON.parse(JSON.stringify(data));
                 //cargarDatos(data);
                 cargarFiltros();
@@ -180,6 +184,7 @@
 
     function cargarDatos(data) {
 
+     
         $("#tblReq > tbody").remove();
         $('#tblReq').append('<tbody></tbody>');
 
@@ -193,6 +198,8 @@
                 colorFila = "#2A3F54"
 
             var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
+
+                + '<td hidden ><p style="padding-top:1rem;">' + data[i].id + '</p></td>'
                 + '<td><p style="padding-top:1rem;">' + recuperarFecha(data[i].fecha) + '</p></td>'
                 + '<td><p style="padding-top:1rem;">' + data[i].idDepartamentoNavigation.descripcion + '</p></td>'
                 + '<td><p style="padding-top:1rem;">' + data[i].descripcion + '</p></td>'
@@ -213,9 +220,9 @@
         $('#tblReq').DataTable().destroy();
 
         tblCompras = $('#tblReq').DataTable({
-            "info": false,
-            dom: 'Bfrtip',
+            "info": false,         
             "order": [[0, "desc"]],
+            dom: 'Bfrtip',
             language: {
                 "decimal": "",
                 "emptyTable": "@SharedLocalizer["NoDatos"]",
@@ -246,27 +253,7 @@
                         columns: [0, 1,2]
                     }
 
-                },
-                {
-                    extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel  "></i>',
-                    titleAttr: 'Excel',
-                    title: '@SharedLocalizer["Requisiciones"]',
-                    exportOptions: {
-                        columns: [0, 1, 2]
-                    }
-
-                },
-
-                {
-                    extend: 'pdfHtml5',
-                    text: '<i class="fas fa-file-pdf   "></i>',
-                    titleAttr: 'PDF',
-                    title: '@SharedLocalizer["Requisiciones"]',
-                    exportOptions: {
-                        columns: [0, 1, 2]
-                    }
-                }
+                }           
             ]
         });
 
@@ -318,7 +305,7 @@
         reqsFiltrado = filtroFecha(reqsFiltrado, desde, hasta);
 
         reqsFiltrado = filtroAnuladas(reqsFiltrado);
-
+   
         cargarDatos(reqsFiltrado);
 
     }

@@ -15,24 +15,22 @@ namespace AltivaWebApp.Controllers
     [Route("{culture}/Tipo")]
     public class TipoClienteController : Controller
     {
-
+        private readonly IPreciosService precioService;
         //variable que instacia a al servicio del tipo cliente:
         public ITipoClienteService service;
         //variable para mappear datos de la vista por seguridad de la aplicacion.
         public ITipoClienteMapper map;
         //controlador
-        public TipoClienteController(ITipoClienteService ITipoClientes, ITipoClienteMapper ITipoMapper)
+        public TipoClienteController(IPreciosService precioService, ITipoClienteService ITipoClientes, ITipoClienteMapper ITipoMapper)
         {
             this.service = ITipoClientes;
             this.map = ITipoMapper;
+            this.precioService = precioService;
         }
 
         [Route("Cliente/{last?}")]
         public IActionResult ListarTipoClientes(string last)
         {
-         
-
-           
             return View(service.GetAll().OrderByDescending(p => p.Id));
         }
 
@@ -42,16 +40,25 @@ namespace AltivaWebApp.Controllers
             ViewBag.tipoC = viewModel.Tipo;
             ViewBag.idFamilia = viewModel.idFamilia;
             ViewBag.idTipo = viewModel.idTipo;
-            
+
+            ViewData["tipoPrecios"] = precioService.GetPreciosSinAnular();
+
+            ViewBag.tipoPrecio = ViewBag.tipoPrecio = new TbPrPrecios();
             if (id != 0)
             {
-                return PartialView("_CrearEditarTipoCliente", map.DomainToViewModel(service.GetById(id)));
+                var model = service.GetById(id);
+                if (viewModel.Tipo == 1 && model.IdTipoPrecio != 0)
+                {
+                    ViewBag.tipoPrecio = model.IdTipoPrecioNavigation;
+                }
+                
+                return PartialView("_CrearEditarTipoCliente", map.DomainToViewModel(model));
             }
             else
             {
                 return PartialView("_CrearEditarTipoCliente", new TipoClienteViewModel());
             }
-            
+
         }
 
         [HttpPost("CrearEditarTipoCliente")]
@@ -59,10 +66,8 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                if (viewModel.IdPadre == null)
-                    viewModel.IdPadre = 0;
                 var tipoC = new TbFdTipoCliente();
-                if(viewModel.Id != 0)
+                if (viewModel.Id != 0)
                 {
                     tipoC = map.Update(viewModel);
                 }
@@ -70,7 +75,7 @@ namespace AltivaWebApp.Controllers
                 {
                     viewModel.FechaCreacion = DateTime.Now;
                     viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
-                    
+
                     tipoC = map.Save(viewModel);
                 }
 
@@ -89,10 +94,7 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-             
-
-                    return Ok(service.GetAll().OrderByDescending(p => p.Id));
-              
+                return Ok(service.GetAll().OrderByDescending(p => p.Id));
             }
             catch (Exception ex)
             {
@@ -104,9 +106,8 @@ namespace AltivaWebApp.Controllers
         public IActionResult GetTiposClientesCrear()
         {
             try
-            {             
-                    return Ok(service.GetAll().OrderByDescending(p => p.Id));
-
+            {
+                return Ok(service.GetAll().OrderByDescending(p => p.Id));
             }
             catch (Exception ex)
             {
@@ -127,8 +128,8 @@ namespace AltivaWebApp.Controllers
                     if (item.Nombre == nombre && id != item.Id)
                         flag = true;
                 }
-                    return Json(new { data = flag });
-                
+                return Json(new { data = flag });
+
             }
             catch
             {

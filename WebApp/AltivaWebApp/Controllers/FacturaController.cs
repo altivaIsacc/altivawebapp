@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using AltivaWebApp.Domains;
 using AltivaWebApp.Helpers;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
@@ -20,13 +21,19 @@ namespace AltivaWebApp.Controllers
         private readonly IUserService userService;
         private readonly IContactoService contactoService;
         private readonly IPuntoVentaService pvService;
-        public FacturaController(IPuntoVentaService pvService, IFacturaMap map, IFacturaService service, IUserService userService, IContactoService contactoService)
+        private readonly IMovimientoService movService;
+        private readonly ICajaMovimientoMap cajaMovMap;
+        private readonly IFlujoCategoriaService flujoService;
+        public FacturaController(IFlujoCategoriaService flujoService, ICajaMovimientoMap cajaMovMap, IMovimientoService movService, IPuntoVentaService pvService, IFacturaMap map, IFacturaService service, IUserService userService, IContactoService contactoService)
         {
             this.map = map;
             this.service = service;
             this.userService = userService;
             this.contactoService = contactoService;
             this.pvService = pvService;
+            this.movService = movService;
+            this.cajaMovMap = cajaMovMap;
+            this.flujoService = flujoService;
         }
 
         [Route("Todo")]
@@ -34,6 +41,19 @@ namespace AltivaWebApp.Controllers
         {
             ViewData["puntoVenta"] = pvService.GetAll();
             return View();
+        }
+        [HttpGet("ValidarPV")]
+        public IActionResult ValidarPV()
+        {
+            try
+            {
+                return Ok(pvService.ExistePuntoVentaValido());
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+            }
         }
 
         [HttpPost("_ListarFacturas")]
@@ -50,7 +70,6 @@ namespace AltivaWebApp.Controllers
         {
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["clientes"] = contactoService.GetAllClientes();
-
             return View("CrearEditarFactura", new FacturaViewModel { Estado = "Enviada", FechaFactura = DateTime.Now, FechaCreacion = DateTime.Now, FechaVencimiento = DateTime.Now.AddDays(30), IdMoneda = 1 });
         }
 
@@ -63,14 +82,14 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("CrearEditarFactura")]
-        public IActionResult CrearEditarFactura(FacturaViewModel viewModel, IList<FacturaDetalleViewModel> detalle, IList<long> eliminadas)
+        public IActionResult CrearEditarFactura(FacturaViewModel viewModel, IList<FacturaDetalleViewModel> detalle, IList<long> eliminadas, IList<CajaMovimientoViewModel> formaPago)
         {
             try
             {
-
+                var factura = new TbFdFactura();
                 if (viewModel.Id != 0)
                 {
-                    var factura = map.Update(viewModel);
+                    factura = map.Update(viewModel);
                     viewModel.FacturaDetalle = detalle;
                     if (detalle.Count() > 0)
                     {
@@ -85,9 +104,17 @@ namespace AltivaWebApp.Controllers
 
                     viewModel.IdUsuarioCreador = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     viewModel.FechaCreacion = DateTime.Now;
-                    var factura = map.Create(viewModel);
+                    factura = map.Create(viewModel);
                 }
-                return Json(new { success = true });
+
+
+                //valida factura tipo contado
+                if (factura.Tipo == 1)
+                {
+                    cajaMovMap.CreateCajaMovimiento(formaPago, movService.GetUltimoMovimientoPagoId(factura.Id));
+                }
+
+                return Json(new { success = true, idDoc = factura.Id });
             }
             catch (Exception ex)
             {
@@ -95,6 +122,8 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
         }
+
+
         [HttpGet("GetAllFacturas")]
         public IActionResult GetAllFacturas()
         {
@@ -122,5 +151,35 @@ namespace AltivaWebApp.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpGet("GetIdTipoPrecioCliente/{idCliente}")]
+        public IActionResult GetIdTipoPrecioCliente(long idCliente)
+        {
+            try
+            {
+                return Ok(service.GetIdTipoPrecioCliente(idCliente));
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("ExisteCatFlujo")]
+        public IActionResult ExisteCatFlujo()
+        {
+            try
+            {
+                return Ok(flujoService.ExisteCatFlujoCadaTipo());
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return BadRequest();
+            }
+        }
+
+
     }
 }

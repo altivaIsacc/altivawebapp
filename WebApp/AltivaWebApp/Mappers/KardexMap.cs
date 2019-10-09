@@ -2,6 +2,7 @@
 using AltivaWebApp.Services;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -474,75 +475,225 @@ namespace AltivaWebApp.Mappers
 
         ///////////////////////////traslado
        
-        public bool CreateKardexTRI(IList<TbPrTrasladoInventario> tr, bool isDeteled)
+        public bool CreateKardexTRI(TbPrTraslado cambios, TbPrTraslado original, IList<long> eliminados)
         {
-            if (tr.Count() == 0 || tr == null)
+            if (cambios.TbPrTrasladoInventario.Count() == 0 || cambios == null)
                 return false;
 
-            var domain = trService.GetTrasladoById((long)tr.First().IdTraslado);//adquiere lo que tenia ese item en el pasado
+          
+            
             var kardex = new List<TbPrKardex>();
 
-            foreach (var item in tr)
+            foreach (var item in cambios.TbPrTrasladoInventario)
             {
 
                 //agrega la entrada
-                var k = new TbPrKardex
+                var kOrigen = new TbPrKardex
                 {
                     IdInventario = item.IdInventario,
-                    IdDocumento = domain.IdTraslado,
+                    IdDocumento = cambios.IdTraslado,
                     TipoDocumento = "TRE",
                     Fecha = DateTime.Now,
                     ExistAnt = 0,
-                    CantidadMov = !isDeteled ? item.Cantidad : item.Cantidad * -1,//       true I -2 
+                    CantidadMov = 0,
                     ExistAct = 0,
                     PrecioUnit = item.PrecioUnitario,
                     CostoMov = 0,
                     IdMoneda = 1,
-                    IdBodegaOrigen = domain.IdBodegaDestino,
-                    IdBodegaDestino = domain.IdBodegaOrigen,
-                   // IdBodegaOrigen = domain.IdBodegaOrigen,
-                   // IdBodegaDestino = domain.IdBodegaDestino,
+                    IdBodegaOrigen = cambios.IdBodegaOrigen,
+                    IdBodegaDestino = cambios.IdBodegaDestino,
+                   
                     ExistAntBod = 0,
                     ExistActBod = 0,
-                    Observaciones = domain.Comentario,
+                    Observaciones = cambios.Comentario,
                     CostoPromedio = 0,
                     SaldoFinal = 0,
                     PrecioPromedio = 0,
-                    IdUsuario = domain.IdUsuario
+                    IdUsuario = cambios.IdUsuario
                 };
-
-                kardex.Add(k);
-
-                //agrega la salida
-                var kS = new TbPrKardex
+                var kDestino = new TbPrKardex
                 {
                     IdInventario = item.IdInventario,
-                    IdDocumento = domain.IdTraslado,
+                    IdDocumento = cambios.IdTraslado,
                     TipoDocumento = "TRS",
                     Fecha = DateTime.Now,
                     ExistAnt = 0,
-                    CantidadMov = isDeteled ? item.Cantidad : item.Cantidad * -1,// true d +2
+                    CantidadMov = 0,// true d +2
                     ExistAct = 0,
                     PrecioUnit = item.PrecioUnitario,
                     CostoMov = 0,
                     IdMoneda = 1,
-                    IdBodegaOrigen = domain.IdBodegaOrigen,
-                    IdBodegaDestino = domain.IdBodegaDestino,
+                    IdBodegaOrigen = cambios.IdBodegaDestino,
+                    IdBodegaDestino = cambios.IdBodegaOrigen,
                     ExistAntBod = 0,
                     ExistActBod = 0,
-                    Observaciones = domain.Comentario,
+                    Observaciones = cambios.Comentario,
                     CostoPromedio = 0,
                     SaldoFinal = 0,
                     PrecioPromedio = 0,
-                    IdUsuario = domain.IdUsuario
+                    IdUsuario = cambios.IdUsuario
                 };
 
-                kardex.Add(kS);
+               
+                bool isDeleted = eliminados.Contains(item.Id);
+                if (cambios.Anulado == true) { //anulo
+                    kOrigen.CantidadMov = item.Cantidad;
+                    kDestino.CantidadMov = item.Cantidad * -1;
+                    kardex.Add(kDestino);
+                    kardex.Add(kOrigen);
+                }
+                else {
 
+                    if (item.Id <= 0 || original == null) //inserto
+                    {
+                        kOrigen.CantidadMov = item.Cantidad * -1;
+                        kDestino.CantidadMov = item.Cantidad;
+                        kardex.Add(kDestino);
+                        kardex.Add(kOrigen);
+                    }
+                    else
+                    {
+                        if (isDeleted)
+                        {
+                            kOrigen.CantidadMov = item.Cantidad;
+                            kDestino.CantidadMov = item.Cantidad * -1;
+                            kardex.Add(kDestino);
+                            kardex.Add(kOrigen);
+                        }
+                        else
+                        {
+                            var lineaVieja = original.TbPrTrasladoInventario.FirstOrDefault(a => a.Id == item.Id);
+
+                            if (lineaVieja.CostoTotal != item.CostoTotal || lineaVieja.Cantidad != item.Cantidad)
+                            {
+                                kOrigen.CantidadMov = lineaVieja.Cantidad;
+                                kOrigen.PrecioUnit = lineaVieja.PrecioUnitario;
+                                kDestino.CantidadMov = lineaVieja.Cantidad * -1;
+                                kardex.Add(kDestino);
+                                kardex.Add(kOrigen);
+
+                                var kOrigenN = new TbPrKardex
+                                {
+                                    IdInventario = item.IdInventario,
+                                    IdDocumento = cambios.IdTraslado,
+                                    TipoDocumento = "TRE",
+                                    Fecha = DateTime.Now,
+                                    ExistAnt = 0,
+                                    CantidadMov = item.Cantidad*-1,
+                                    ExistAct = 0,
+                                    PrecioUnit = item.PrecioUnitario,
+                                    CostoMov = 0,
+                                    IdMoneda = 1,
+                                    IdBodegaOrigen = cambios.IdBodegaOrigen,
+                                    IdBodegaDestino = cambios.IdBodegaDestino,
+
+                                    ExistAntBod = 0,
+                                    ExistActBod = 0,
+                                    Observaciones = cambios.Comentario,
+                                    CostoPromedio = 0,
+                                    SaldoFinal = 0,
+                                    PrecioPromedio = 0,
+                                    IdUsuario = cambios.IdUsuario
+                                };
+                                var kDestinoN = new TbPrKardex
+                                {
+                                    IdInventario = item.IdInventario,
+                                    IdDocumento = cambios.IdTraslado,
+                                    TipoDocumento = "TRS",
+                                    Fecha = DateTime.Now,
+                                    ExistAnt = 0,
+                                    CantidadMov = item.Cantidad,// true d +2
+                                    ExistAct = 0,
+                                    PrecioUnit = item.PrecioUnitario,
+                                    CostoMov = 0,
+                                    IdMoneda = 1,
+                                    IdBodegaOrigen = cambios.IdBodegaDestino,
+                                    IdBodegaDestino = cambios.IdBodegaOrigen,
+                                    ExistAntBod = 0,
+                                    ExistActBod = 0,
+                                    Observaciones = cambios.Comentario,
+                                    CostoPromedio = 0,
+                                    SaldoFinal = 0,
+                                    PrecioPromedio = 0,
+                                    IdUsuario = cambios.IdUsuario
+                                };
+                            
+                                kardex.Add(kDestinoN);
+                                kardex.Add(kOrigenN);
+
+                            }
+                           
+                        }
+                    }
+                }              
 
             }
+            if (original != null) {
+                foreach (var item in original.TbPrTrasladoInventario)
+                {
+                    bool isDeleted = eliminados.Contains(item.Id);
+                    if (isDeleted)
+                    {
 
-            try
+
+                        //agrega la entrada
+                        var kOrigen = new TbPrKardex
+                        {
+                            IdInventario = item.IdInventario,
+                            IdDocumento = cambios.IdTraslado,
+                            TipoDocumento = "TRE",
+                            Fecha = DateTime.Now,
+                            ExistAnt = 0,
+                            CantidadMov = 0,
+                            ExistAct = 0,
+                            PrecioUnit = item.PrecioUnitario,
+                            CostoMov = 0,
+                            IdMoneda = 1,
+                            IdBodegaOrigen = cambios.IdBodegaOrigen,
+                            IdBodegaDestino = cambios.IdBodegaDestino,
+
+                            ExistAntBod = 0,
+                            ExistActBod = 0,
+                            Observaciones = cambios.Comentario,
+                            CostoPromedio = 0,
+                            SaldoFinal = 0,
+                            PrecioPromedio = 0,
+                            IdUsuario = cambios.IdUsuario
+                        };
+                        var kDestino = new TbPrKardex
+                        {
+                            IdInventario = item.IdInventario,
+                            IdDocumento = cambios.IdTraslado,
+                            TipoDocumento = "TRS",
+                            Fecha = DateTime.Now,
+                            ExistAnt = 0,
+                            CantidadMov = 0,// true d +2
+                            ExistAct = 0,
+                            PrecioUnit = item.PrecioUnitario,
+                            CostoMov = 0,
+                            IdMoneda = 1,
+                            IdBodegaOrigen = cambios.IdBodegaDestino,
+                            IdBodegaDestino = cambios.IdBodegaOrigen,
+                            ExistAntBod = 0,
+                            ExistActBod = 0,
+                            Observaciones = cambios.Comentario,
+                            CostoPromedio = 0,
+                            SaldoFinal = 0,
+                            PrecioPromedio = 0,
+                            IdUsuario = cambios.IdUsuario
+                        };
+                        kOrigen.CantidadMov = item.Cantidad;
+                        kDestino.CantidadMov = item.Cantidad * -1;
+                        kardex.Add(kDestino);
+                        kardex.Add(kOrigen);
+                    }
+
+                }
+
+            }
+          
+
+                try
             {
                 service.SaveAll(kardex);
                 return true;
@@ -550,7 +701,7 @@ namespace AltivaWebApp.Mappers
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                return true;
+              
                 throw;
             }
 

@@ -1,7 +1,13 @@
 ﻿@model IList<TbPrCompra>
 @inject IStringLocalizer<SharedResources> Lb
-
-@{ 
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
     var monedas = ViewData["monedas"] as IList<TbSeMoneda>;
 }
 
@@ -15,7 +21,7 @@
                     <th>@Lb["Fecha"]</th>
                     <th>@Lb["Proveedor"]</th>
                     <th hidden></th>
-                    <th>@Lb["Moneda"]</th>
+                    <th>@Lb["monedas"]</th>
                     <th>@Lb["Total"]</th>
                     <th>@Lb["Acción"]</th>
                 </tr>
@@ -26,11 +32,11 @@
                     var color = "";
 
                     color = item.Anulado ? "#5a0b0a" : item.Borrador ? "#A9A9A9" : "#2A3F54";
-                    
+
                     <tr style="color:@color">
                         <td>@item.Id</td>
                         @{
-                            var tipo = item.TipoDocumento == "1" ? Lb["Contado"] : item.TipoDocumento == "2" ? Lb["Contado"] : Lb["Consignación"];
+                            var tipo = item.TipoDocumento == "1" ? Lb["Contado"] : item.TipoDocumento == "2" ? Lb["Crédito"] : Lb["Consignación"];
 
                         }
                         <td>@tipo</td>
@@ -44,7 +50,17 @@
                         @{
                             var total = item.IdMoneda == 1 ? item.TotalBase : item.IdMoneda == 2 ? item.TotalDolar : item.TotalEuro;
                         }
-                        <td style="text-align:right">@total</td>
+                       
+                        
+                        <td style="text-align:right" class="colon">
+
+                            @{ CultureInfo us = CultureInfo.CreateSpecificCulture("en-US"); }
+                            <p>@monedas.FirstOrDefault(m => m.Codigo == item.IdMoneda).Simbolo  @total.ToString("0,0.00", us)</p>
+
+                        </td>
+                       
+                        
+                        
                         <td><a href="@Url.Action("EditarCompra", new { id=item.Id })" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a></td>
                     </tr>
                 }
@@ -53,15 +69,65 @@
     </div>
 </div>
 
+
+<div hidden><input hidden id="formater" class="currency" type="text" /></div>
+
+
+
 <script>
 
     var tblCompras;
+    var monedas = [];
 
     $(document).ready(function () {
 
         inicializarTabla();
+        getMonedas();
 
     });
+
+
+
+     function getMonedas() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+
+                 monedas = data[0];
+
+
+                 //inicializa formato
+                 $(".colon").inputmask('currency', {
+                     prefix: monedas[0].simbolo + " ",
+                     rightAlign: true
+                 });
+
+
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb');
+                  console.log(err.statusText);
+              }
+          });
+    }
+
+
+
+    function fomartearMoneda(value) {
+
+        $('#monedaFormater').val(value);
+        return $('#monedaFormater').val();
+    }
+
+
+
+
 
     function inicializarTabla() {
 

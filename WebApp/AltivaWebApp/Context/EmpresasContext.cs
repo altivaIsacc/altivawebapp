@@ -1353,6 +1353,41 @@ namespace AltivaWebApp.Context
                     .HasConstraintName("FK_tb_FA_CajaCierre_tb_FA_Caja");
             });
 
+            modelBuilder.Entity<TbFaMovimiento>(entity =>
+            {
+                entity.HasKey(e => e.IdMovimiento);
+
+                entity.ToTable("tb_FA_Movimiento");
+
+                entity.Property(e => e.Cxc).HasColumnName("CXC");
+
+                entity.Property(e => e.Cxp).HasColumnName("CXP");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IdUsuario).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.MontoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SaldoBase).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.SaldoDolar).HasDefaultValueSql("((0))");
+
+                entity.HasOne(d => d.IdContactoNavigation)
+                    .WithMany(p => p.TbFaMovimiento)
+                    .HasForeignKey(d => d.IdContacto)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_Movimiento_tb_CR_Contacto");
+
+                entity.HasOne(d => d.IdTipoDocumentoNavigation)
+                    .WithMany(p => p.TbFaMovimiento)
+                    .HasForeignKey(d => d.IdTipoDocumento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_Movimiento_tb_FA_TipoDocumento");
+            });
+
             modelBuilder.Entity<TbFaCajaMovimiento>(entity =>
             {
                 entity.HasKey(e => e.IdCajaMovimiento);
@@ -1434,8 +1469,6 @@ namespace AltivaWebApp.Context
                 entity.HasKey(e => e.IdCajaMovimientoTarjeta);
 
                 entity.ToTable("tb_FA_CajaMovimientoTarjeta");
-
-                entity.Property(e => e.IdCajaMovimientoTarjeta).ValueGeneratedNever();
 
                 entity.Property(e => e.Autorizacion)
                     .IsRequired()
@@ -2041,12 +2074,21 @@ namespace AltivaWebApp.Context
             {
                 entity.ToTable("TB_FD_TipoCliente");
 
-                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
 
                 entity.Property(e => e.Nombre)
                     .IsRequired()
                     .HasMaxLength(100)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.HasOne(d => d.IdTipoPrecioNavigation)
+                    .WithMany(p => p.TbFdTipoCliente)
+                    .HasForeignKey(d => d.IdTipoPrecio)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_TB_FD_TipoCliente_tb_PR_Precios");
             });
 
             modelBuilder.Entity<TbFdTipoProveedor>(entity =>
@@ -3038,7 +3080,14 @@ namespace AltivaWebApp.Context
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasDefaultValueSql("('')");
+
+                entity.HasOne(d => d.IdTipoPrecioDefectoNavigation)
+                    .WithMany(p => p.TbSePuntoVenta)
+                    .HasForeignKey(d => d.IdTipoPrecioDefecto)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_SE_PuntoVenta_tb_PR_Precios");
             });
+
         }
     }
 }

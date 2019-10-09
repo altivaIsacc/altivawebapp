@@ -310,11 +310,19 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<ITrasladoInventarioMap, TrasladoInventarioMap>();
 
             //Punto de Venta
-
             services.AddScoped<IPuntoVentaRepository, PuntoVentaRepository>();
             services.AddScoped<IPuntoVentaService, PuntoVentaService>();
             services.AddScoped<IPuntoVentaMap, PuntoVentaMap>();
 
+            //Movmiento
+            services.AddScoped<IMovimientoRepository, MovimientoRepository>();
+            services.AddScoped<IMovimientoService, MovimientoService>();
+            services.AddScoped<IMovimientoMap, MovimientoMap>();
+
+            //CajaMovmiento
+            services.AddScoped<ICajaMovimientoRepository, CajaMovimientoRepository>();
+            services.AddScoped<ICajaMovimientoService, CajaMovimientoService>();
+            services.AddScoped<ICajaMovimientoMap, CajaMovimientoMap>();
 
         }
     }
