@@ -85,7 +85,29 @@ namespace AltivaWebApp.Controllers
             ViewBag.SimboloEuro = v.Simbolo;
             return View("../ContaAsiento/Index");
         }
-    
+
+        public IActionResult Balance()
+        {
+            ViewBag.Titulo = "Asientos";
+            ViewBag.FechaDesde = DateTime.Now.Date;
+            ViewBag.FechaHasta = DateTime.Now.Date;
+            ViewBag.Periodos = bd.PeriodoTrabajo.Where(p => p.Estado == "ABIERTO");
+            ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == false);
+            ViewBag.Catalogo = bd.CatalogoContable.Where(p => p.Movimiento == true);
+            ViewBag.Tipos = bd.TiposDoc;
+            Moneda v = bd.Moneda.Find(1);
+            ViewBag.SimboloBase = v.Simbolo;
+
+            v = bd.Moneda.Find(2);
+            ViewBag.TipoCambioDolar = v.ValorCompra;
+            ViewBag.SimboloDolar = v.Simbolo;
+
+            v = bd.Moneda.Find(3);
+            ViewBag.TipoCambioEuro = v.ValorCompra;
+            ViewBag.SimboloEuro = v.Simbolo;
+            return View("../ContaAsiento/Index");
+        }
+
         [Route("ContaAsiento/item")]      
         public IActionResult Item(long Id)
         {
@@ -126,7 +148,7 @@ namespace AltivaWebApp.Controllers
             }
           
             ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == false);
-            ViewBag.Catalogo = bd.CatalogoContable.Where(p => p.Movimiento == true);
+            ViewBag.Catalogo = bd.CatalogoContable.Where(p => p.Movimiento == true).OrderBy(p=>p.CuentaContable);
             
 
             Moneda v = bd.Moneda.Find(1);
@@ -179,7 +201,7 @@ namespace AltivaWebApp.Controllers
                 Asiento item;
                 item = getAsiento(datos.IdAsientoContable);
                 item.IdDocumento = datos.IdDocumento;
-                item.Fecha = item.Fecha;
+                item.Fecha = datos.Fecha;
                 item.FechaMod = DateTime.Now;
                 item.Frecuente = datos.Frecuente;
                 item.Codigo = datos.Codigo;
