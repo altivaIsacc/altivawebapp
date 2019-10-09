@@ -64,13 +64,14 @@ namespace AltivaWebApp.Controllers
 
             return item;
         }
+        [Route("Index")]
         public IActionResult Index()
         {
             ViewBag.Titulo = "Asientos";
             ViewBag.FechaDesde = DateTime.Now.Date;
             ViewBag.FechaHasta = DateTime.Now.Date;
             ViewBag.Periodos = bd.PeriodoTrabajo.Where(p => p.Estado == "ABIERTO");
-            ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == false);
+            ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == true);
             ViewBag.Catalogo = bd.CatalogoContable.Where(p => p.Movimiento == true);
             ViewBag.Tipos = bd.TiposDoc;
             Moneda v = bd.Moneda.Find(1);
@@ -86,15 +87,17 @@ namespace AltivaWebApp.Controllers
             return View("../ContaAsiento/Index");
         }
 
+        [Route("Balance")]
         public IActionResult Balance()
         {
-            ViewBag.Titulo = "Asientos";
+            ViewBag.Titulo = "Balance";
             ViewBag.FechaDesde = DateTime.Now.Date;
             ViewBag.FechaHasta = DateTime.Now.Date;
-            ViewBag.Periodos = bd.PeriodoTrabajo.Where(p => p.Estado == "ABIERTO");
-            ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == false);
+            ViewBag.Periodos = bd.PeriodoTrabajo;
+            ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == true);
             ViewBag.Catalogo = bd.CatalogoContable.Where(p => p.Movimiento == true);
-            ViewBag.Tipos = bd.TiposDoc;
+            ViewBag.PeriodosFiscales = bd.PeriodoFiscal;
+
             Moneda v = bd.Moneda.Find(1);
             ViewBag.SimboloBase = v.Simbolo;
 
@@ -105,10 +108,10 @@ namespace AltivaWebApp.Controllers
             v = bd.Moneda.Find(3);
             ViewBag.TipoCambioEuro = v.ValorCompra;
             ViewBag.SimboloEuro = v.Simbolo;
-            return View("../ContaAsiento/Index");
+            return View();
         }
 
-        [Route("ContaAsiento/item")]      
+        [Route("item")]      
         public IActionResult Item(long Id)
         {
             Asiento item;        
@@ -147,7 +150,7 @@ namespace AltivaWebApp.Controllers
               
             }
           
-            ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == false);
+            ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == true);
             ViewBag.Catalogo = bd.CatalogoContable.Where(p => p.Movimiento == true).OrderBy(p=>p.CuentaContable);
             
 
