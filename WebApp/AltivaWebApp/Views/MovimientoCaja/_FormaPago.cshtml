@@ -377,11 +377,15 @@
 <div hidden><input hidden id="formater4" class="formaPagoMoneda" type="text" /></div>
 <div hidden><input hidden id="vueltoFormat" class="formaPagoMoneda" type="text" /></div>
 
+
 <script>
     var formaPagoSeleccionada;
     var monedaFormaPagoSeleccionada;
     var primeraVez = true;
     var formasPago = [];
+    var fpCrOrUp = [];
+    var fpEliminadas = [];
+    var _idMovimientoPago = 0;
 
     ////////varibales general
     var _MONTO = 1;
@@ -822,7 +826,7 @@
             ventaEuroTc: monedas[2].valorVenta,
             idTipoCajaMovimiento: formaPagoSeleccionada,
             idCaja: @Model.IdCaja,
-            idMovimiento: 0,                   //tarjeta = 2//
+            idMovimiento: _idMovimientoPago,                   //tarjeta = 2//
             cajaMovTarjeta: formaPagoSeleccionada == 2 ? crearModelMovimientoTarjeta() : null,
                                                //cheque = 4//
             cajaMovCheque: formaPagoSeleccionada == 4 ? crearModelMovimientoCheque() : null,
@@ -897,6 +901,7 @@
         }
 
         formasPago.push(fp);
+        fpCrOrUp.push(fp);
 
         setPago(totalFomasPago());
 
@@ -1076,8 +1081,6 @@
 
     function cargarFormasPago(data) {
 
-        console.log(data);
-
         $("#tblFormaPago > tbody").remove();
         $('#tblFormaPago').append('<tbody></tbody>');
         
@@ -1103,7 +1106,12 @@
 
     function eliminarFP(id, pos) {
 
+        if (id != 0) {
+            fpEliminadas.push(id);
+        }
+        fpCrOrUp.splice($.inArray(formasPago[pos], fpCrOrUp), 1);
         formasPago.splice(pos, 1);
+
         setPago(totalFomasPago());
         calcularMovimientos();
         $('.montoFormaPago').val(getBalance(_MONEDADEFAULT));
@@ -1307,6 +1315,27 @@
         $('.montoFormaPago').focus();
     });
 
+    function procesarPago() {
+        if (@Model.IdDocumento != 0) {
+
+            $.ajax({
+                type: "post",
+                dataType: "json",
+                url: '@Url.Action("CrearEditarFormasPago", "MovimientoCaja")',
+                data: { viewModel: fpCrOrUp, fpEliminadas: fpEliminadas, montoPrepago: getMontoPrepago().toString().replace(".", ",") },
+                success: function (data) {
+                    postProcesarPago(@Model.IdDocumento);
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@Lb["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+            });
+
+        } else {
+            procesarPagoDoc();
+        }
+    }
 
     function getFormasPago() {
          $.ajax({
@@ -1314,7 +1343,8 @@
               dataType: "json",
               url: '@Url.Action("GetFormasPago", "MovimientoCaja", new { idDoc = Model.IdDocumento })',
              success: function (data) {
-                 cargarMetodosPago(data);
+                 if (data.length > 0)
+                    cargarMetodosPagoBD(data);
              },
              error: function (err, scnd) {
                  cargarAlert('@Lb["errorGeneral"]');
@@ -1323,35 +1353,12 @@
          });
     }
 
-    function cargarMetodosPago(data) {
+    function cargarMetodosPagoBD(data) {
+        var cajamov = data[0].idMovimientoHastaNavigation.tbFaCajaMovimiento;
 
-        var fps = retornaFormasPago(data); 
-
-        console.log(data);
-
-
-        //setPago(totalFomasPago());
-
-        //calcularMovimientos();
-
-        //setMontoFP(fp.idMoneda);
-        //cargarFormasPago(formasPago);
-        
-    }
-
-    function retornaFormasPago(data) {
-
-        //var fp = {
-        //    prepago: {
-        //        base: 0,
-        //        dolar: 0,
-        //        euro: 0
-        //    },
-        //    cajaMovimiento: []
-        //};
-
-        for (var i = 0; i < data.length; i++) {
-            var cm = data[i].idMovimientoHastaNavigation.tbFaCajaMovimiento;
+        for (var i = 0; i < cajamov.length; i++) {
+            var cm = cajamov[i];
+            
             if (cm != null) {
                 var fp = {
                     idCajaMovimiento: cm.idCajaMovimiento,
@@ -1380,6 +1387,8 @@
 
                 };
 
+                _idMovimientoPago = cm.idMovimiento;
+
                 formasPago.push(fp);
             }
             else {
@@ -1387,9 +1396,16 @@
                 //fp.prepago.dolar += cm.montoDolar;
                 //fp.prepago.euro += cm.montoEuro;
             }
-            
+
         }
 
+        setPago(totalFomasPago());
+
+        calcularMovimientos();
+
+        setMontoFP(fp.idMoneda);
+        cargarFormasPago(formasPago);
+        
     }
 
 

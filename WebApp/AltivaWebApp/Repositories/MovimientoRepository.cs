@@ -9,33 +9,26 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Repositories
 {
-    public class MovimientoRepository: BaseRepository<TbFaMovimiento>, IMovimientoRepository
+    public class MovimientoRepository : BaseRepository<TbFaMovimiento>, IMovimientoRepository
     {
-        public MovimientoRepository(EmpresasContext context) : base(context){
+        public MovimientoRepository(EmpresasContext context) : base(context)
+        {
 
         }
 
         public IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc)
         {
-            //var mov = context.TbFaMovimiento
-            //    .Include(m => m.TbFaMovimientoDetalleIdMovimientoDesdeNavigation)
-            //        .ThenInclude(mp => mp.IdMovimientoHastaNavigation)
-            //            .ThenInclude(c => c.TbFaCajaMovimiento)
-            //                .ThenInclude(ct => ct.TbFaCajaMovimientoCheque)
-            //     .Include(m => m.TbFaMovimientoDetalleIdMovimientoDesdeNavigation)
-            //        .ThenInclude(mp => mp.IdMovimientoHastaNavigation)
-            //            .ThenInclude(c => c.TbFaCajaMovimiento)
-            //                .ThenInclude(ct => ct.TbFaCajaMovimientoTarjeta)
-            //    .FirstOrDefault(m => m.IdDocumento == idDoc);
 
             return context.TbFaMovimientoDetalle.Select(md => new TbFaMovimientoDetalle
             {
-                IdMovimientoDesdeNavigation = new TbFaMovimiento {
+                IdMovimientoDesdeNavigation = new TbFaMovimiento
+                {
                     IdDocumento = md.IdMovimientoDesdeNavigation.IdDocumento
                 },
                 IdMovimientoHastaNavigation = new TbFaMovimiento
                 {
-                    TbFaCajaMovimiento = md.IdMovimientoHastaNavigation.TbFaCajaMovimiento.Count() > 0 ? md.IdMovimientoHastaNavigation.TbFaCajaMovimiento.Select(cm => new TbFaCajaMovimiento {
+                    TbFaCajaMovimiento = md.IdMovimientoHastaNavigation.TbFaCajaMovimiento.Count() > 0 ? md.IdMovimientoHastaNavigation.TbFaCajaMovimiento.Select(cm => new TbFaCajaMovimiento
+                    {
 
                         IdTipoCajaMovimiento = cm.IdTipoCajaMovimiento,
                         IdMovimiento = cm.IdMovimiento,
@@ -47,25 +40,31 @@ namespace AltivaWebApp.Repositories
                         FechaCreacion = cm.FechaCreacion,
                         IdCaja = cm.IdCaja,
                         IdCajaMovimiento = cm.IdCajaMovimiento,
-                        IdCategoriaFlujoNavigation = cm.IdCategoriaFlujoNavigation != null ?  new TbBaFlujoCategoria {
+                        IdCategoriaFlujoNavigation = cm.IdCategoriaFlujoNavigation != null ? new TbBaFlujoCategoria
+                        {
                             IdTipoFlujo = cm.IdCategoriaFlujoNavigation.IdTipoFlujo,
                             IdMoneda = cm.IdCategoriaFlujoNavigation.IdMoneda,
                             Codigo = cm.IdCategoriaFlujoNavigation.Codigo,
                             Nombre = cm.IdCategoriaFlujoNavigation.Nombre,
-                            IdCategoriaFlujo = cm.IdCategoriaFlujoNavigation.IdCategoriaFlujo,
-                            TbBaFlujo = cm.IdCategoriaFlujoNavigation.TbBaFlujo.Select(f => new TbBaFlujo {
-                                Fecha = f.Fecha,
-                                Documento = f.Documento,
-                                Monto = f.Monto,
-                                IdCategoriaFlujo = f.IdCategoriaFlujo
-                            }).Where(cf => cf.IdCategoriaFlujo == cm.IdCategoriaFlujoNavigation.IdCategoriaFlujo).ToList()
+                            IdCategoriaFlujo = cm.IdCategoriaFlujoNavigation.IdCategoriaFlujo
+
                         } : null,
+                        TbFaCajaMovimientoFlujo = cm.TbFaCajaMovimientoFlujo.Count() > 0 ? cm.TbFaCajaMovimientoFlujo.Select(cmf => new TbFaCajaMovimientoFlujo
+                        {
+                            IdFlujoNavigation = new TbBaFlujo
+                            {
+                                Documento = cmf.IdFlujoNavigation.Documento,
+                                Monto = cmf.IdFlujoNavigation.Monto,
+                                Fecha = cmf.IdFlujoNavigation.Fecha
+                            }
+                        }).ToList() : null,
                         IdMoneda = cm.IdMoneda,
                         IdCategoriaFlujo = cm.IdCategoriaFlujo,
                         MontoBase = cm.MontoBase,
                         MontoDolar = cm.MontoDolar,
                         MontoEuro = cm.MontoEuro,
-                        TbFaCajaMovimientoCheque = cm.TbFaCajaMovimientoCheque.Count() > 0 ? cm.TbFaCajaMovimientoCheque.Select(cmc => new TbFaCajaMovimientoCheque {
+                        TbFaCajaMovimientoCheque = cm.TbFaCajaMovimientoCheque.Count() > 0 ? cm.TbFaCajaMovimientoCheque.Select(cmc => new TbFaCajaMovimientoCheque
+                        {
                             Banco = cmc.Banco,
                             Fecha = cmc.Fecha,
                             Numero = cmc.Numero,
@@ -73,7 +72,8 @@ namespace AltivaWebApp.Repositories
                             Portador = cmc.Portador
 
                         }).ToList() : null,
-                        TbFaCajaMovimientoTarjeta = cm.TbFaCajaMovimientoTarjeta.Count() > 0 ? cm.TbFaCajaMovimientoTarjeta.Select(cmt => new TbFaCajaMovimientoTarjeta {
+                        TbFaCajaMovimientoTarjeta = cm.TbFaCajaMovimientoTarjeta.Count() > 0 ? cm.TbFaCajaMovimientoTarjeta.Select(cmt => new TbFaCajaMovimientoTarjeta
+                        {
                             Autorizacion = cmt.Autorizacion,
                             IdCajaMovimiento = cmt.IdCajaMovimiento,
                             Voucher = cmt.Voucher
@@ -91,7 +91,7 @@ namespace AltivaWebApp.Repositories
                     AplicadoEuro = md.IdMovimientoHastaNavigation.AplicadoEuro
 
                 }
-                
+
 
             }).Where(md => md.IdMovimientoDesdeNavigation.IdDocumento == idDoc).ToList();
 

@@ -5,6 +5,11 @@ namespace AltivaWebApp.Domains
 {
     public partial class TbBaFlujo
     {
+        public TbBaFlujo()
+        {
+            TbFaCajaMovimientoFlujo = new HashSet<TbFaCajaMovimientoFlujo>();
+        }
+
         public long IdFlujo { get; set; }
         public bool Debito { get; set; }
         public long IdCategoriaFlujo { get; set; }
@@ -18,5 +23,6 @@ namespace AltivaWebApp.Domains
         public DateTime FechaUltimaMod { get; set; }
 
         public virtual TbBaFlujoCategoria IdCategoriaFlujoNavigation { get; set; }
+        public virtual ICollection<TbFaCajaMovimientoFlujo> TbFaCajaMovimientoFlujo { get; set; }
     }
 }
