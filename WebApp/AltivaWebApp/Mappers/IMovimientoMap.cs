@@ -1,5 +1,5 @@
-﻿
 using AltivaWebApp.Domains;
+using AltivaWebApp.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace AltivaWebApp.Mappers
 {
     public interface IMovimientoMap
     {
-        IList<TbFaMovimientoDetalle> CreateMovmientoDetalle(long idDocumento);
-
+        TbFaMovimiento CreateMovimientoPago(long idDoc, IList<CajaMovimientoViewModel> formasPago, double montoPrepago);
+        void AplicarSaldo(long idUltimoMov, double montoPrepago);
     }
 }

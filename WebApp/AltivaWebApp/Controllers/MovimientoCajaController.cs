@@ -31,12 +31,27 @@ namespace AltivaWebApp.Controllers
             ViewData["operadoresTarjeta"] = flujoCategoria.Where(o => o.IdTipoFlujo == 3).ToList();
             ViewData["bancos"] = flujoCategoria.Where(o => o.IdTipoFlujo == 1).ToList();
             ViewBag.flujoEfectivo = flujoCategoria.FirstOrDefault(e => e.IdTipoFlujo == 2).IdCategoriaFlujo;
-
             ViewBag.saldoDisponible = RetornaSaldo(viewModel.IdContacto);
+
 
             return PartialView(viewModel);
         }
 
+        [HttpGet("GetFormasPago/{idDoc}")]
+        public IActionResult GetFormasPago(long idDoc)
+        {
+            try
+            {
+                var movs = movimientoService.GetMovimientoByIdDocConPagos(idDoc);
+
+                return Ok(movs);
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+            }
+        }
 
 
         private TbFaMovimiento RetornaSaldo(long idContacto)
