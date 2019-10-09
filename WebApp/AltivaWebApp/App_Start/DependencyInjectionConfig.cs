@@ -215,6 +215,10 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IRequisicionService, RequisicionService>();
             services.AddScoped<IRequisicionMap, RequisicionMap>();
 
+            //RequisionDetalle agregado por lenin
+            services.AddScoped<IRequisicionDetalleMap, RequisicionDetalleMap>();
+
+
             /// Toma
             services.AddScoped<ITomaRepository, TomaRepository>();
             services.AddScoped<ITomaService, TomaService>();

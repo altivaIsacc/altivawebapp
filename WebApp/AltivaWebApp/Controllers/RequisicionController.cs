@@ -1,8 +1,12 @@
-﻿using System;
+﻿
+
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
@@ -16,17 +20,23 @@ namespace AltivaWebApp.Controllers
     {
         private readonly IRequisicionService service;
         private readonly IRequisicionMap map;
+        private readonly IRequisicionDetalleMap requisicionDetalleMap;
         private readonly IDepartamentoService depaService;
         private readonly IKardexMap kardexMap;
         private readonly ITomaService tomaService;
+     
 
-        public RequisicionController(ITomaService tomaService, IKardexMap kardexMap, IDepartamentoService depaService, IRequisicionService service, IRequisicionMap map)
+        EmpresasContext context;
+
+        public RequisicionController(ITomaService tomaService, IKardexMap kardexMap, IDepartamentoService depaService, IRequisicionService service, IRequisicionMap map, IRequisicionDetalleMap requisicionDetalleMap, EmpresasContext bd)
         {
             this.service = service;
             this.map = map;
+            this.requisicionDetalleMap = requisicionDetalleMap;
             this.depaService = depaService;
             this.kardexMap = kardexMap;
             this.tomaService = tomaService;
+            context = bd;
         }
 
         [Route("Listar-Requisiciones")]
@@ -55,38 +65,62 @@ namespace AltivaWebApp.Controllers
         [HttpPost("CrearEditar-Requisicion")]
         public IActionResult CrearEditarRequisicion(RequisicionViewModel viewModel)
         {
-            try
+            Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction trans = context.Database.BeginTransaction();
+            TbPrRequisicion tr;
+            using (trans)
             {
-                if (viewModel.Id != 0)
-                {
-                    
-                    if (viewModel.RequisicionDetalle != null)
-                    {
-                        IList<TbPrRequisicionDetalle> detallesToAnular = service.GetAllReqDetalleById(viewModel.RequisicionDetalle.Select(d => (int)d.Id).Where(d => d != 0).ToList());
-                        kardexMap.CreateKardexRD(detallesToAnular, true);
 
-                        var detalles = map.SaveOrUpdateRD(viewModel.RequisicionDetalle);
-                        kardexMap.CreateKardexRD(detalles, false);
+                try
+                {
+                    if (viewModel.Id != 0)
+                    {
+                        if (viewModel.RequisicionDetalle != null)
+                        {
+                            IList<TbPrRequisicionDetalle> detallesToAnular = service.GetAllReqDetalleById(viewModel.RequisicionDetalle.Select(d => (int)d.Id).Where(d => d != 0).ToList());
+                            kardexMap.CreateKardexRD(detallesToAnular, true);
+
+                            var detalles = map.SaveOrUpdateRD(viewModel.RequisicionDetalle);
+                            kardexMap.CreateKardexRD(detalles, false);
+                        }
+
+                        viewModel.RequisicionDetalle = null;
+                        var req = map.Update(viewModel);
+
+                    }
+                    else
+                    {
+                        viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+                        //var req = map.Create(viewModel);
+                        tr = map.ViewModelToDomainTransaccion(viewModel);
+                        foreach (var item in viewModel.RequisicionDetalle)
+                        {
+                            tr.TbPrRequisicionDetalle.Add(requisicionDetalleMap.ViewModelToDomain(item));//adquiere los hijos
+                        }
+                        context.Add(tr);
+                        context.SaveChanges();
+                        kardexMap.CreateKardexRD(tr.TbPrRequisicionDetalle.ToList(), false);
+
+                    }
+                    trans.Commit();
+                    return Json(new { success = true });
+
+                }
+                catch (Exception ex)
+                {
+                    trans.Rollback();
+                    AltivaLog.Log.Insertar(ex.ToString(), "Error");
+
+                    if (ex.HResult.ToString() == "-2146233088")
+                    {
+                        return BadRequest(new { rollback = true });
+                    }
+                    else
+                    {
+                        return BadRequest(new { rollback = false }); 
                     }
 
-                    viewModel.RequisicionDetalle = null;
-                    var req = map.Update(viewModel);
-                }
-                else
-                {
-                    viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
-                    var req = map.Create(viewModel);
-                    kardexMap.CreateKardexRD(req.TbPrRequisicionDetalle.ToList(), false);
-
                 }
 
-                return Json(new { success = true });
-                
-            }
-            catch (Exception ex)
-            {
-                AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                throw;
             }
         }
 
@@ -165,7 +199,7 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var req = service.GetAllRDByRequisicionId(id);
-                
+
                 return Ok(req);
             }
             catch (Exception ex)
@@ -193,3 +227,16 @@ namespace AltivaWebApp.Controllers
 
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
