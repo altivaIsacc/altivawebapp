@@ -22,9 +22,10 @@ namespace AltivaWebApp.Controllers
         private readonly IContactoService contactoService;
         private readonly IPuntoVentaService pvService;
         private readonly IMovimientoService movService;
+        private readonly IMovimientoMap movMap;
         private readonly ICajaMovimientoMap cajaMovMap;
         private readonly IFlujoCategoriaService flujoService;
-        public FacturaController(IFlujoCategoriaService flujoService, ICajaMovimientoMap cajaMovMap, IMovimientoService movService, IPuntoVentaService pvService, IFacturaMap map, IFacturaService service, IUserService userService, IContactoService contactoService)
+        public FacturaController(IMovimientoMap movMap, IFlujoCategoriaService flujoService, ICajaMovimientoMap cajaMovMap, IMovimientoService movService, IPuntoVentaService pvService, IFacturaMap map, IFacturaService service, IUserService userService, IContactoService contactoService)
         {
             this.map = map;
             this.service = service;
@@ -34,6 +35,7 @@ namespace AltivaWebApp.Controllers
             this.movService = movService;
             this.cajaMovMap = cajaMovMap;
             this.flujoService = flujoService;
+            this.movMap = movMap;
         }
 
         [Route("Todo")]
@@ -82,7 +84,7 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("CrearEditarFactura")]
-        public IActionResult CrearEditarFactura(FacturaViewModel viewModel, IList<FacturaDetalleViewModel> detalle, IList<long> eliminadas, IList<CajaMovimientoViewModel> formaPago)
+        public IActionResult CrearEditarFactura(FacturaViewModel viewModel, IList<FacturaDetalleViewModel> detalle, IList<long> eliminadas, IList<CajaMovimientoViewModel> formaPago, double prepago)
         {
             try
             {
@@ -110,15 +112,15 @@ namespace AltivaWebApp.Controllers
                 ///crear movimiento de pago factura//
                 var newMov = movMap.CreateMovimientoPago(factura.Id, formaPago, prepago);
 
-                
+
 
                 IList<TbFaCajaMovimiento> movimiento = new List<TbFaCajaMovimiento>();
-                
+
                 if (formaPago.Count() > 0)
                 {
                     movimiento = cajaMovMap.CreateCajaMovimiento(formaPago, newMov.IdMovimiento);
                 }
-                
+
 
                 return Json(new { success = true, idDoc = factura.Id });
             }
