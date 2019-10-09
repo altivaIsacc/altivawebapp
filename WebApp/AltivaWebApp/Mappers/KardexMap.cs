@@ -427,8 +427,6 @@ namespace AltivaWebApp.Mappers
                 else
                     cantidad = item.Cantidad * -1;
 
-
-
                 var k = new TbPrKardex
                 {
                     CantidadMov = cantidad,
@@ -456,8 +454,6 @@ namespace AltivaWebApp.Mappers
 
             }
 
-
-
             try
             {
                 service.SaveAll(kardex);
@@ -466,7 +462,7 @@ namespace AltivaWebApp.Mappers
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                return true;
+
                 throw;
             }
 
