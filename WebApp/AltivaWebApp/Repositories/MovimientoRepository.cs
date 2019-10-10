@@ -46,14 +46,6 @@ namespace AltivaWebApp.Repositories
                             IdMoneda = cm.IdCategoriaFlujoNavigation.IdMoneda,
                             Codigo = cm.IdCategoriaFlujoNavigation.Codigo,
                             Nombre = cm.IdCategoriaFlujoNavigation.Nombre,
-                            IdCategoriaFlujo = cm.IdCategoriaFlujoNavigation.IdCategoriaFlujo,
-                            TbBaFlujo = cm.IdCategoriaFlujoNavigation.TbBaFlujo.Select(f => new TbBaFlujo
-                            {
-                                Fecha = f.Fecha,
-                                Documento = f.Documento,
-                                Monto = f.Monto,
-                                IdCategoriaFlujo = f.IdCategoriaFlujo
-                            }).Where(cf => cf.IdCategoriaFlujo == cm.IdCategoriaFlujoNavigation.IdCategoriaFlujo).ToList()
                             IdCategoriaFlujo = cm.IdCategoriaFlujoNavigation.IdCategoriaFlujo
 
                         } : null,
