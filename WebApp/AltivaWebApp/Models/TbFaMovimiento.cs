@@ -17,7 +17,7 @@ namespace AltivaWebApp.Models
         public long IdContacto { get; set; }
         public long IdDocumento { get; set; }
         public int IdTipoDocumento { get; set; }
-        public long? IdUsuario { get; set; }
+        public long IdUsuario { get; set; }
         public bool Cxp { get; set; }
         public bool Cxc { get; set; }
         public int IdMoneda { get; set; }

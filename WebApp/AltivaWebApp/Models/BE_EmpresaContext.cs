@@ -56,6 +56,7 @@ namespace AltivaWebApp.Models
         public virtual DbSet<TbFaCajaCierre> TbFaCajaCierre { get; set; }
         public virtual DbSet<TbFaCajaMovimiento> TbFaCajaMovimiento { get; set; }
         public virtual DbSet<TbFaCajaMovimientoCheque> TbFaCajaMovimientoCheque { get; set; }
+        public virtual DbSet<TbFaCajaMovimientoFlujo> TbFaCajaMovimientoFlujo { get; set; }
         public virtual DbSet<TbFaCajaMovimientoTarjeta> TbFaCajaMovimientoTarjeta { get; set; }
         public virtual DbSet<TbFaCotizacion> TbFaCotizacion { get; set; }
         public virtual DbSet<TbFaCotizacionConfig> TbFaCotizacionConfig { get; set; }
@@ -1448,13 +1449,30 @@ namespace AltivaWebApp.Models
                     .HasConstraintName("FK_tb_FA_CajaMovimientoCheque_tb_FA_CajaMovimiento");
             });
 
+            modelBuilder.Entity<TbFaCajaMovimientoFlujo>(entity =>
+            {
+                entity.HasKey(e => e.IdCajaMovimientoFlujo);
+
+                entity.ToTable("tb_FA_CajaMovimientoFlujo");
+
+                entity.HasOne(d => d.IdCajaMovimientoNavigation)
+                    .WithMany(p => p.TbFaCajaMovimientoFlujo)
+                    .HasForeignKey(d => d.IdCajaMovimiento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_CajaMovimientoFlujo_tb_FA_CajaMovimiento");
+
+                entity.HasOne(d => d.IdFlujoNavigation)
+                    .WithMany(p => p.TbFaCajaMovimientoFlujo)
+                    .HasForeignKey(d => d.IdFlujo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_CajaMovimientoFlujo_tb_BA_Flujo");
+            });
+
             modelBuilder.Entity<TbFaCajaMovimientoTarjeta>(entity =>
             {
                 entity.HasKey(e => e.IdCajaMovimientoTarjeta);
 
                 entity.ToTable("tb_FA_CajaMovimientoTarjeta");
-
-                entity.Property(e => e.IdCajaMovimientoTarjeta).ValueGeneratedNever();
 
                 entity.Property(e => e.Autorizacion)
                     .IsRequired()
@@ -1667,19 +1685,9 @@ namespace AltivaWebApp.Models
 
                 entity.Property(e => e.Cxp).HasColumnName("CXP");
 
-                entity.Property(e => e.DisponibleDolar).HasMaxLength(10);
-
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
-
-                entity.Property(e => e.IdUsuario).HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.MontoBase).HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.SaldoBase).HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.SaldoDolar).HasDefaultValueSql("((0))");
 
                 entity.HasOne(d => d.IdContactoNavigation)
                     .WithMany(p => p.TbFaMovimiento)

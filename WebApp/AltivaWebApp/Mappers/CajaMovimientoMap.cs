@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Mappers
 {
-    public class CajaMovimientoMap: ICajaMovimientoMap
+    public class CajaMovimientoMap : ICajaMovimientoMap
     {
         private readonly ICajaMovimientoService service;
         private readonly IFlujoCategoriaService flujoService;
@@ -26,10 +26,12 @@ namespace AltivaWebApp.Mappers
             int _deposito = 1;
 
             var cajaMov = new List<TbFaCajaMovimiento>();
-            var flujo = new List<TbBaFlujo>();
+            var flujoCaja = new List<TbFaCajaMovimientoFlujo>();
             foreach (var item in viewModel)
             {
-                cajaMov.Add(new TbFaCajaMovimiento {
+
+                TbFaCajaMovimiento cm = new TbFaCajaMovimiento
+                {
                     CompraDolarTc = item.CompraDolarTc,
                     CompraEuroTc = item.CompraEuroTc,
                     Estado = item.Estado,
@@ -37,7 +39,7 @@ namespace AltivaWebApp.Mappers
                     IdCaja = item.IdCaja,
                     IdCategoriaFlujo = item.IdCategoriaFlujo,
                     IdMoneda = item.IdMoneda,
-                    IdMovimiento = idMovimiento,
+                    IdMovimiento = idMovimiento == 0 ? item.IdMovimiento : idMovimiento,
                     IdTipoCajaMovimiento = item.IdTipoCajaMovimiento,
                     MontoBase = item.MontoBase,
                     MontoDolar = item.MontoDolar,
@@ -45,29 +47,39 @@ namespace AltivaWebApp.Mappers
                     VentaDolarTc = item.VentaDolarTc,
                     VentaEuroTc = item.VentaEuroTc,
                     TbFaCajaMovimientoTarjeta = item.CajaMovTarjeta != null ? ViewModelToDomainTarjeta(item.CajaMovTarjeta) : null,
-                    TbFaCajaMovimientoCheque = item.CajaMovCheque != null ? ViewModelToDomainCheque(item.CajaMovCheque,(int) item.IdCategoriaFlujo) : null
-                });
+                    TbFaCajaMovimientoCheque = item.CajaMovCheque != null ? ViewModelToDomainCheque(item.CajaMovCheque, (int)item.IdCategoriaFlujo) : null
+                };
 
-                if(item.tipoCategoriaFlujo == _bancaria && item.CajaMovCheque == null)
+
+                if (item.tipoCategoriaFlujo == _bancaria && item.CajaMovCheque == null)
                 {
-                    flujo.Add(new TbBaFlujo {
-                        Debito = false,
-                        Documento = Convert.ToInt64(item.DocumentoTransferencia),
-                        Estado = 1,
-                        Fecha = item.FechaTransferencia,
-                        FechaCreacion = DateTime.Now,
-                        FechaUltimaMod = DateTime.Now,
-                        IdCategoriaFlujo = item.IdCategoriaFlujo,
-                        IdFlujo = 0,
-                        IdTipo = _deposito,
-                        IdUsuario = (int) cajaService.GetCajaById((int)item.IdCaja).IdUsuario,
-                        Monto = item.IdMoneda == 1 ? item.MontoBase : item.IdMoneda == 2 ? item.MontoDolar : item.MontoEuro
+                    flujoCaja.Add(new TbFaCajaMovimientoFlujo
+                    {
+                        IdCajaMovimientoNavigation = cm,
+                        IdFlujoNavigation = new TbBaFlujo
+                        {
+                            Debito = false,
+                            Documento = Convert.ToInt64(item.DocumentoTransferencia),
+                            Estado = 1,
+                            Fecha = item.FechaTransferencia,
+                            FechaCreacion = DateTime.Now,
+                            FechaUltimaMod = DateTime.Now,
+                            IdCategoriaFlujo = item.IdCategoriaFlujo,
+                            IdFlujo = 0,
+                            IdTipo = _deposito,
+                            IdUsuario = (int)cajaService.GetCajaById((int)item.IdCaja).IdUsuario,
+                            Monto = item.IdMoneda == 1 ? item.MontoBase : item.IdMoneda == 2 ? item.MontoDolar : item.MontoEuro
+                        }
                     });
                 }
+                else
+                {
+                    cajaMov.Add(cm);
+                }
+
             }
 
-            flujoService.SaveFlujo(flujo);
-
+            service.SaveRangeCMF(flujoCaja);
             return service.SaveRange(cajaMov);
         }
 
@@ -96,7 +108,7 @@ namespace AltivaWebApp.Mappers
                 Banco = flujoService.GetFlujoCategoriaById(idFlujoCat).Nombre,
                 Fecha = viewModel.Fecha,
                 Nota = viewModel.Nota ?? "",
-                Numero = viewModel.Numero ,
+                Numero = viewModel.Numero,
                 Portador = viewModel.Portador ?? ""
             });
 

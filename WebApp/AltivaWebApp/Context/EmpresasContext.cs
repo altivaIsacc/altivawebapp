@@ -67,6 +67,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFaCajaCierre> TbFaCajaCierre { get; set; }
         public virtual DbSet<TbFaCajaMovimiento> TbFaCajaMovimiento { get; set; }
         public virtual DbSet<TbFaCajaMovimientoCheque> TbFaCajaMovimientoCheque { get; set; }
+        public virtual DbSet<TbFaCajaMovimientoFlujo> TbFaCajaMovimientoFlujo { get; set; }
         public virtual DbSet<TbFaCajaMovimientoTarjeta> TbFaCajaMovimientoTarjeta { get; set; }
         public virtual DbSet<TbFaCotizacion> TbFaCotizacion { get; set; }
         public virtual DbSet<TbFaCotizacionConfig> TbFaCotizacionConfig { get; set; }
@@ -1464,6 +1465,25 @@ namespace AltivaWebApp.Context
                     .HasForeignKey(d => d.IdMovimiento)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_FA_CajaMovimiento_tb_FA_Movimiento");
+            });
+
+            modelBuilder.Entity<TbFaCajaMovimientoFlujo>(entity =>
+            {
+                entity.HasKey(e => e.IdCajaMovimientoFlujo);
+
+                entity.ToTable("tb_FA_CajaMovimientoFlujo");
+
+                entity.HasOne(d => d.IdCajaMovimientoNavigation)
+                    .WithMany(p => p.TbFaCajaMovimientoFlujo)
+                    .HasForeignKey(d => d.IdCajaMovimiento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_CajaMovimientoFlujo_tb_FA_CajaMovimiento");
+
+                entity.HasOne(d => d.IdFlujoNavigation)
+                    .WithMany(p => p.TbFaCajaMovimientoFlujo)
+                    .HasForeignKey(d => d.IdFlujo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_CajaMovimientoFlujo_tb_BA_Flujo");
             });
 
             modelBuilder.Entity<TbFaCajaMovimientoCheque>(entity =>

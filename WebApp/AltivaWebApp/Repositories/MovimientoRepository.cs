@@ -18,16 +18,6 @@ namespace AltivaWebApp.Repositories
 
         public IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc)
         {
-            //var mov = context.TbFaMovimiento
-            //    .Include(m => m.TbFaMovimientoDetalleIdMovimientoDesdeNavigation)
-            //        .ThenInclude(mp => mp.IdMovimientoHastaNavigation)
-            //            .ThenInclude(c => c.TbFaCajaMovimiento)
-            //                .ThenInclude(ct => ct.TbFaCajaMovimientoCheque)
-            //     .Include(m => m.TbFaMovimientoDetalleIdMovimientoDesdeNavigation)
-            //        .ThenInclude(mp => mp.IdMovimientoHastaNavigation)
-            //            .ThenInclude(c => c.TbFaCajaMovimiento)
-            //                .ThenInclude(ct => ct.TbFaCajaMovimientoTarjeta)
-            //    .FirstOrDefault(m => m.IdDocumento == idDoc);
 
             return context.TbFaMovimientoDetalle.Select(md => new TbFaMovimientoDetalle
             {
@@ -64,7 +54,18 @@ namespace AltivaWebApp.Repositories
                                 Monto = f.Monto,
                                 IdCategoriaFlujo = f.IdCategoriaFlujo
                             }).Where(cf => cf.IdCategoriaFlujo == cm.IdCategoriaFlujoNavigation.IdCategoriaFlujo).ToList()
+                            IdCategoriaFlujo = cm.IdCategoriaFlujoNavigation.IdCategoriaFlujo
+
                         } : null,
+                        TbFaCajaMovimientoFlujo = cm.TbFaCajaMovimientoFlujo.Count() > 0 ? cm.TbFaCajaMovimientoFlujo.Select(cmf => new TbFaCajaMovimientoFlujo
+                        {
+                            IdFlujoNavigation = new TbBaFlujo
+                            {
+                                Documento = cmf.IdFlujoNavigation.Documento,
+                                Monto = cmf.IdFlujoNavigation.Monto,
+                                Fecha = cmf.IdFlujoNavigation.Fecha
+                            }
+                        }).ToList() : null,
                         IdMoneda = cm.IdMoneda,
                         IdCategoriaFlujo = cm.IdCategoriaFlujo,
                         MontoBase = cm.MontoBase,

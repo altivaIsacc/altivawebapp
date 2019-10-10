@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AltivaWebApp.Domains;
+using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +16,15 @@ namespace AltivaWebApp.Controllers
         private readonly IDenominacionesService denService;
         private readonly IFlujoCategoriaService flujoService;
         private readonly IMovimientoService movimientoService;
-        public MovimientoCajaController(IMovimientoService movimientoService, IFlujoCategoriaService flujoService, IDenominacionesService denService)
+        private readonly ICajaMovimientoMap cajaMovMap;
+        private readonly ICajaMovimientoService cajaMovService;
+        public MovimientoCajaController(ICajaMovimientoService cajaMovService, ICajaMovimientoMap cajaMovMap, IMovimientoService movimientoService, IFlujoCategoriaService flujoService, IDenominacionesService denService)
         {
             this.denService = denService;
             this.flujoService = flujoService;
             this.movimientoService = movimientoService;
+            this.cajaMovMap = cajaMovMap;
+            this.cajaMovService = cajaMovService;
         }
 
         [HttpPost("_FormaPago")]
@@ -35,6 +40,23 @@ namespace AltivaWebApp.Controllers
 
 
             return PartialView(viewModel);
+        }
+
+        [HttpPost("CrearEditarFormasPago")]
+        public IActionResult CrearEditarFormasPago(IList<CajaMovimientoViewModel> viewModel, IList<long> fpEliminadas, double montoPrepago)
+        {
+            try
+            {
+                var cm = cajaMovMap.CreateCajaMovimiento(viewModel, 0);
+                cajaMovService.DeleteRangeCM(fpEliminadas);
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+            }
         }
 
         [HttpGet("GetFormasPago/{idDoc}")]

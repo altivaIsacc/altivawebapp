@@ -916,34 +916,16 @@
 
     }
 
-    function procesarPago() {
+    function procesarPagoDoc() {
 
         $.ajax({
             type: "POST",
             dataType: "json",
             url: '@Url.Action("CrearEditarFactura")',
-            data: { viewModel: crearModelo(), detalle: crearModeloDetalle(lineasCrOrUp), eliminadas: lineasEliminadas, formaPago: retornaFormasPago(), prepago: montoPrepago.toString().replace(".", ",") },
+            data: { viewModel: crearModelo(), detalle: crearModeloDetalle(lineasCrOrUp), eliminadas: lineasEliminadas, formaPago: retornaFormasPago(), prepago: getMontoPrepago().toString().replace(".", ",") },
             success: function (data) {
-
-                $('#Id').val(data.idDoc);
-
-                localStorage.removeItem("FacturaBorrador");
-                $('#formaPagoModal').modal('hide');
-
-                var pv = getPuntoVentaLocal();
-
-                if (pv.opcionImpresion == 5) {
-                    $('#impresionModal').modal('show');
-                }
-                else if (pv.opcionImpresion == 0) {
-                    window.location.href = "@Url.Action("ListarFacturas")";
-                }
-                else {
-
-                    GetPDF(pv.opcionImpresion, true);
-                   
-                }
-
+                
+                postProcesarPago(data.idDoc);
 
             },
             error: function (err, scnd) {
@@ -952,6 +934,26 @@
             }
         });
 
+    }
+
+    function postProcesarPago(idDocumento) {
+
+        $('#Id').val(idDocumento);
+
+        localStorage.removeItem("FacturaBorrador");
+        $('#formaPagoModal').modal('hide');
+
+        var pv = getPuntoVentaLocal();
+
+        if (pv.opcionImpresion == 5) {
+            $('#impresionModal').modal('show');
+        }
+        else if (pv.opcionImpresion == 0) {
+            window.location.href = "@Url.Action("ListarFacturas")";
+        }
+        else {
+            GetPDF(pv.opcionImpresion, true);
+        }
     }
 
     function setFacturaModel() {
