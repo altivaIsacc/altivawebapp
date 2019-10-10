@@ -22,8 +22,7 @@ namespace AltivaWebApp.Services
       
         bool SaveMovimientoJustificante(IList<TbFaMovimientoJustificante> domain);
         bool UpdateMovimientoJustificante(IList<TbFaMovimientoJustificante> domain);
-        TbFaMovimiento GetMovimientoById(long id);
-        IList<TbFaMovimiento> GetAllMovimientos();
+         IList<TbFaMovimiento> GetAllMovimientos();
         TbFaMovimiento GetMovimientoByNota(long id);
         IList<TbFaMovimientoJustificante> GetJustificantesByMovimientoId(long id);
         bool DeleteMovimientoJustificante(IList<int> domain, int idMovimiento);

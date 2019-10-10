@@ -3,21 +3,16 @@ using AltivaWebApp.Domains;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using AltivaWebApp.Helpers;
 using AltivaWebApp.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace AltivaWebApp.Repositories
 {
-    public class MovimientoRepository: BaseRepository<TbFaMovimiento>, IMovimientoRepository
+    public class MovimientoRepository : BaseRepository<TbFaMovimiento>, IMovimientoRepository
     {
-        public MovimientoRepository(EmpresasContext context) : base(context){
+        public MovimientoRepository(EmpresasContext context) : base(context)
+        {
 
         }
 
@@ -36,12 +31,14 @@ namespace AltivaWebApp.Repositories
 
             return context.TbFaMovimientoDetalle.Select(md => new TbFaMovimientoDetalle
             {
-                IdMovimientoDesdeNavigation = new TbFaMovimiento {
+                IdMovimientoDesdeNavigation = new TbFaMovimiento
+                {
                     IdDocumento = md.IdMovimientoDesdeNavigation.IdDocumento
                 },
                 IdMovimientoHastaNavigation = new TbFaMovimiento
                 {
-                    TbFaCajaMovimiento = md.IdMovimientoHastaNavigation.TbFaCajaMovimiento.Count() > 0 ? md.IdMovimientoHastaNavigation.TbFaCajaMovimiento.Select(cm => new TbFaCajaMovimiento {
+                    TbFaCajaMovimiento = md.IdMovimientoHastaNavigation.TbFaCajaMovimiento.Count() > 0 ? md.IdMovimientoHastaNavigation.TbFaCajaMovimiento.Select(cm => new TbFaCajaMovimiento
+                    {
 
                         IdTipoCajaMovimiento = cm.IdTipoCajaMovimiento,
                         IdMovimiento = cm.IdMovimiento,
@@ -53,13 +50,15 @@ namespace AltivaWebApp.Repositories
                         FechaCreacion = cm.FechaCreacion,
                         IdCaja = cm.IdCaja,
                         IdCajaMovimiento = cm.IdCajaMovimiento,
-                        IdCategoriaFlujoNavigation = cm.IdCategoriaFlujoNavigation != null ?  new TbBaFlujoCategoria {
+                        IdCategoriaFlujoNavigation = cm.IdCategoriaFlujoNavigation != null ? new TbBaFlujoCategoria
+                        {
                             IdTipoFlujo = cm.IdCategoriaFlujoNavigation.IdTipoFlujo,
                             IdMoneda = cm.IdCategoriaFlujoNavigation.IdMoneda,
                             Codigo = cm.IdCategoriaFlujoNavigation.Codigo,
                             Nombre = cm.IdCategoriaFlujoNavigation.Nombre,
                             IdCategoriaFlujo = cm.IdCategoriaFlujoNavigation.IdCategoriaFlujo,
-                            TbBaFlujo = cm.IdCategoriaFlujoNavigation.TbBaFlujo.Select(f => new TbBaFlujo {
+                            TbBaFlujo = cm.IdCategoriaFlujoNavigation.TbBaFlujo.Select(f => new TbBaFlujo
+                            {
                                 Fecha = f.Fecha,
                                 Documento = f.Documento,
                                 Monto = f.Monto,
@@ -71,7 +70,8 @@ namespace AltivaWebApp.Repositories
                         MontoBase = cm.MontoBase,
                         MontoDolar = cm.MontoDolar,
                         MontoEuro = cm.MontoEuro,
-                        TbFaCajaMovimientoCheque = cm.TbFaCajaMovimientoCheque.Count() > 0 ? cm.TbFaCajaMovimientoCheque.Select(cmc => new TbFaCajaMovimientoCheque {
+                        TbFaCajaMovimientoCheque = cm.TbFaCajaMovimientoCheque.Count() > 0 ? cm.TbFaCajaMovimientoCheque.Select(cmc => new TbFaCajaMovimientoCheque
+                        {
                             Banco = cmc.Banco,
                             Fecha = cmc.Fecha,
                             Numero = cmc.Numero,
@@ -79,7 +79,8 @@ namespace AltivaWebApp.Repositories
                             Portador = cmc.Portador
 
                         }).ToList() : null,
-                        TbFaCajaMovimientoTarjeta = cm.TbFaCajaMovimientoTarjeta.Count() > 0 ? cm.TbFaCajaMovimientoTarjeta.Select(cmt => new TbFaCajaMovimientoTarjeta {
+                        TbFaCajaMovimientoTarjeta = cm.TbFaCajaMovimientoTarjeta.Count() > 0 ? cm.TbFaCajaMovimientoTarjeta.Select(cmt => new TbFaCajaMovimientoTarjeta
+                        {
                             Autorizacion = cmt.Autorizacion,
                             IdCajaMovimiento = cmt.IdCajaMovimiento,
                             Voucher = cmt.Voucher
@@ -97,7 +98,7 @@ namespace AltivaWebApp.Repositories
                     AplicadoEuro = md.IdMovimientoHastaNavigation.AplicadoEuro
 
                 }
-                
+
 
             }).Where(md => md.IdMovimientoDesdeNavigation.IdDocumento == idDoc).ToList();
 
@@ -108,11 +109,7 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbFaMovimiento.FirstOrDefault(m => m.IdDocumento == idDoc);
         }
-
-        public TbFaMovimiento GetMovimientoById(long idMov)
-        {
-            return context.TbFaMovimiento.FirstOrDefault(m => m.IdMovimiento == idMov);
-        }
+      
 
         public long GetUltimoMovimientoPagoId(long idDoc)
         {
@@ -141,9 +138,12 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
                 return domain;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "ERROR");
+                throw null;
             }
+        }
         public TbFaMovimiento GetMovimientoById(long id)
         {
             try
@@ -278,6 +278,7 @@ namespace AltivaWebApp.Repositories
 
                 throw;
             }
+        }
         public IList<TbFaMovimientoJustificante> GetJustificantesByMovimientoId(long id)
         {
             try
@@ -325,12 +326,12 @@ namespace AltivaWebApp.Repositories
             int cx = 0;
             if (cxp)
                 cx = 1;
-            
+
 
             try
-            {            
-                
-                var model = context.DocumentosContacto.FromSql($"Select * from vs_FA_DocumentosContacto where IdContacto = {id} and CXP = {cx} and IdDocumento != {idDocumento}").ToList();     
+            {
+
+                var model = context.DocumentosContacto.FromSql($"Select * from vs_FA_DocumentosContacto where IdContacto = {id} and CXP = {cx} and IdDocumento != {idDocumento}").ToList();
                 return model;
 
             }
@@ -346,6 +347,7 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbFaMovimientoDetalle.FirstOrDefault(d => d.IdMovimientoHasta == idMovimiento);
         }
-
     }
+
+
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AltivaWebApp.Domains;
 using AltivaWebApp.Repositories;
+using AltivaWebApp.ViewModels;
 
 namespace AltivaWebApp.Services
 {
@@ -30,7 +31,10 @@ namespace AltivaWebApp.Services
         {
             return repository.GetMovimientoByIdDocumento(idDoc);
         }
-
+        public IList<DocumentosContactoViewModel> GetDocumentosContacto(long id, bool cxp, long idMovimiento)
+        {
+            return repository.GetDocumentosContacto(id, cxp, idMovimiento);
+        }
         public IList<TbFaMovimiento> GetSaldoContacto(long idContacto)
         {
             return repository.GetSaldoContacto(idContacto);
@@ -41,21 +45,10 @@ namespace AltivaWebApp.Services
             return repository.GetUltimoMovimientoPagoId(idDoc);
         }
 
-        public TbFaMovimiento Save(TbFaMovimiento domain)
-        {
-            return repository.Save(domain);
-        }
-
-        public IList<TbFaMovimientoDetalle> SaveMovDetalle(IList<TbFaMovimientoDetalle> domain)
+            public IList<TbFaMovimientoDetalle> SaveMovDetalle(IList<TbFaMovimientoDetalle> domain)
         {
             return repository.SaveMovDetalle(domain);
         }
-
-        public TbFaMovimiento Update(TbFaMovimiento domain)
-        {
-            return repository.Update(domain);
-        }
-
         public IList<TbFaMovimientoDetalle> UpdateMovDetalle(IList<TbFaMovimientoDetalle> domain)
         {
             return repository.UpdateMovDetalle(domain);
@@ -88,11 +81,7 @@ namespace AltivaWebApp.Services
         {
             return repository.UpdateMovimientoJustificante(domain);
         }
-        public TbFaMovimiento GetMovimientoById(long id)
-        {
-            return repository.GetMovimientoById(id);
-        }
-        public TbFaMovimiento GetMovimientoByNota(long id)
+            public TbFaMovimiento GetMovimientoByNota(long id)
         {
             return repository.GetMovimientoByNota(id);
         }
@@ -108,10 +97,7 @@ namespace AltivaWebApp.Services
         {
             return repository.DeleteMovimientoJustificante(domain, idMovimiento);
         }
-        public IList<DocumentosContactoViewModel> GetDocumentosContacto(long id, bool cxp, long idMovimiento)
-        {
-            return repository.GetDocumentosContacto(id, cxp, idMovimiento);
-        }
+      
         public TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimiento(long idMovimiento)
         {
             return repository.GetMovimientoDetalleByIdMovimiento(idMovimiento);

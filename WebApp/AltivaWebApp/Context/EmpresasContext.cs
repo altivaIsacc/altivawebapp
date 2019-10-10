@@ -27,9 +27,7 @@ namespace AltivaWebApp.Context
 
         //agregado por lenin
         public virtual DbSet<TbBaFlujoCategoria> TbBaFlujoCategoria { get; set; }
-
         public virtual DbSet<TbBaFlujo> TbBaFlujo { get; set; }
-        public virtual DbSet<TbBaFlujoCategoria> TbBaFlujoCategoria { get; set; }
         public virtual DbSet<TbCeCanton> TbCeCanton { get; set; }
         public virtual DbSet<TbCeCodigosReferencia> TbCeCodigosReferencia { get; set; }
         public virtual DbSet<TbCeCofiguracion> TbCeCofiguracion { get; set; }
@@ -39,6 +37,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbCeDistrito> TbCeDistrito { get; set; }
         public virtual DbSet<TbCeProvincias> TbCeProvincias { get; set; }
         public virtual DbSet<TbCeSucursal> TbCeSucursal { get; set; }
+        public virtual DbSet<TbFaNota> TbFaNota { get; set; }
         public virtual DbSet<TbCeTipoIdentificacion> TbCeTipoIdentificacion { get; set; }
         public virtual DbSet<TbCeTiposDocElectronicos> TbCeTiposDocElectronicos { get; set; }
         public virtual DbSet<TbCoAsientoContable> TbCoAsientoContable { get; set; }
