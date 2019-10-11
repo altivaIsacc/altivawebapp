@@ -314,8 +314,11 @@
                                         <tr>
                                             <td style="width:20%"><strong>@Lb["Prepagos"]</strong></td>
                                             <td style="width:35%"><span ></span></td>
-                                            <td style="width:35%;text-align:right"><label id="totalPrepago">0</label></td>
-                                            <td style="width:10%"><a href="#" ><i class="fas fa-edit"></i></a></td>
+                                            <td style="width:35%;text-align:right"><input readonly id="totalPrepago" class="form-control input-sm formaPagoMoneda" /></td>
+                                            <td style="width:10%">
+                                                <a href="#" id="btnEditarPrepago" onclick="habilitarPrepago()"><i class="fas fa-edit"></i></a>
+                                                <a href="#" id="btnGuardarPrepago" hidden onclick="editarMontoPrepago()"><i class="fas fa-save"></i></a>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td style="width:20%"><strong>@Lb["Total"]</strong></td>
@@ -466,9 +469,60 @@
         if (@Model.IdDocumento != 0) {
             getFormasPago();
         }
-        
 
     });
+
+    function habilitarPrepago(){
+        $('#totalPrepago').prop('readonly', false);
+        $('#totalPrepago').focus();
+        $('#btnEditarPrepago').prop('hidden', true);
+        $('#btnGuardarPrepago').prop('hidden', false);
+
+
+    }
+
+    function editarMontoPrepago() {
+        $('#totalPrepago').prop('readonly', true);
+        $('#btnEditarPrepago').prop('hidden', false);
+        $('#btnGuardarPrepago').prop('hidden', true);
+
+
+        var aplicado = getMontoPrepago();
+        $('#auxMontoFormat').val(aplicado);
+        var totalOld = parseFloat($('#auxMontoFormat').inputmask('unmaskedvalue'));
+
+        var totalNew = parseFloat($('#totalPrepago').inputmask('unmaskedvalue'));
+
+        //si son iguales retorna el monto real con decimales
+        if (totalOld == totalNew)
+            totalNew = getMontoPrepago();
+
+        var balance = (getBalance(_MONEDADEFAULT) + aplicado) - totalNew;
+
+        //es mas
+        if (balance < 0) {
+            //no puede ingresar una cantidad mayor al monto pendiente
+            console.log('no puede ingresar una cantidad mayor al monto pendiente');
+        }
+        else if (balance > 0) {
+            //es menos, queda un saldo pendiente
+            console.log('es menos, queda un saldo pendiente');
+            setMontoPrepagoFromBD(totalNew);
+        }
+        else {
+            setMontoPrepagoFromBD(totalNew);
+        }
+
+        calcularMovimientos();
+
+        setMontoFP(_MONEDADEFAULT);
+
+        cargarFormasPago(formasPago);
+        
+
+
+    }
+
 
     $('#metodosPago a').on('click', function (e) {
         e.preventDefault();
@@ -657,7 +711,7 @@
 
         var disponible = getSaldoDisponible();
 
-        if (disponible >= 0 || getBalance(_MONEDADEFAULT) == 0)
+        if (disponible <= 0 || getBalance(_MONEDADEFAULT) == 0)
             $('#btnSaldoDisponible').prop('disabled', true);
         else
             $('#btnSaldoDisponible').prop('disabled', false);
@@ -687,7 +741,7 @@
         }
 
         $('#auxMontoFormat').val(montoPrepago);
-        $('#totalPrepago').text($('#auxMontoFormat').val());
+        $('#totalPrepago').val(montoPrepago);
 
         calcularMovimientos();
 
@@ -1423,9 +1477,6 @@
         setSaldoDisponible();
         setMontoPrepago();
 
-        
-
-        setPago(totalFomasPago());
 
         calcularMovimientos();
 
@@ -1433,7 +1484,7 @@
 
         cargarFormasPago(formasPago);
 
-        setMontoPrepagoFromBD(0);
+        //setMontoPrepagoFromBD(0);
         
     }
 
