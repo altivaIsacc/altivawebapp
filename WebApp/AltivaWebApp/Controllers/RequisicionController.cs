@@ -74,7 +74,7 @@ namespace AltivaWebApp.Controllers
                 {
                     if (viewModel.Id != 0)
                     {
-                        if (viewModel.RequisicionDetalle != null)
+                        if (viewModel.RequisicionDetalle != null)// si el detalle viene lleno
                         {
                             IList<TbPrRequisicionDetalle> detallesToAnular = service.GetAllReqDetalleById(viewModel.RequisicionDetalle.Select(d => (int)d.Id).Where(d => d != 0).ToList());
                             kardexMap.CreateKardexRD(detallesToAnular, true);
