@@ -16,21 +16,23 @@ namespace AltivaWebApp.Controllers
         private readonly IDenominacionesService denService;
         private readonly IFlujoCategoriaService flujoService;
         private readonly IMovimientoService movimientoService;
+        private readonly IMovimientoMap movimientoMap;
         private readonly ICajaMovimientoMap cajaMovMap;
         private readonly ICajaMovimientoService cajaMovService;
-        public MovimientoCajaController(ICajaMovimientoService cajaMovService, ICajaMovimientoMap cajaMovMap, IMovimientoService movimientoService, IFlujoCategoriaService flujoService, IDenominacionesService denService)
+        public MovimientoCajaController(IMovimientoMap movimientoMap, ICajaMovimientoService cajaMovService, ICajaMovimientoMap cajaMovMap, IMovimientoService movimientoService, IFlujoCategoriaService flujoService, IDenominacionesService denService)
         {
             this.denService = denService;
             this.flujoService = flujoService;
             this.movimientoService = movimientoService;
             this.cajaMovMap = cajaMovMap;
             this.cajaMovService = cajaMovService;
+            this.movimientoMap = movimientoMap;
         }
 
         [HttpPost("_FormaPago")]
         public IActionResult _FormaPago(FormaPagoViewModel viewModel)
         {
-            IList<TbBaFlujoCategoria> flujoCategoria = new List<TbBaFlujoCategoria>(); 
+            IList<TbBaFlujoCategoria> flujoCategoria = new List<TbBaFlujoCategoria>();
             flujoCategoria = flujoService.GetAllFlujoCategoria();
             ViewData["denominaciones"] = denService.GetAllDenominaciones().OrderBy(m => m.Valor).ToList();
             ViewData["operadoresTarjeta"] = flujoCategoria.Where(o => o.IdTipoFlujo == 3).ToList();
@@ -43,12 +45,28 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("CrearEditarFormasPago")]
-        public IActionResult CrearEditarFormasPago(IList<CajaMovimientoViewModel> viewModel, IList<long> fpEliminadas, double montoPrepago)
+        public IActionResult CrearEditarFormasPago(long idDocumento, IList<CajaMovimientoViewModel> viewModel, IList<long> fpEliminadas, double montoPrepago)
+
         {
             try
             {
-                var cm = cajaMovMap.CreateCajaMovimiento(viewModel, 0);
-                cajaMovService.DeleteRangeCM(fpEliminadas);
+                if (viewModel.Count() > 0)
+                {
+                    TbFaMovimiento movPago = null;
+                    if (viewModel.First().IdMovimiento == 0)
+                    {
+                        movPago = movimientoMap.CreateMovimientoPago(idDocumento, viewModel, montoPrepago);
+                    }
+
+                    var cm = cajaMovMap.CreateCajaMovimiento(viewModel, movPago.IdMovimiento);
+
+                }
+                else if (montoPrepago > 0)
+                    movimientoMap.AplicarSaldo(0, montoPrepago, idDocumento);
+
+
+                if(idDocumento != 0 && fpEliminadas.Count() > 0)
+                    cajaMovService.DeleteRangeCM(fpEliminadas);
 
                 return Json(new { success = true });
             }

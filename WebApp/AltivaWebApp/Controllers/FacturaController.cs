@@ -84,7 +84,7 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("CrearEditarFactura")]
-        public IActionResult CrearEditarFactura(FacturaViewModel viewModel, IList<FacturaDetalleViewModel> detalle, IList<long> eliminadas, IList<CajaMovimientoViewModel> formaPago, double prepago)
+        public IActionResult CrearEditarFactura(FacturaViewModel viewModel, IList<FacturaDetalleViewModel> detalle, IList<long> eliminadas)
         {
             try
             {
@@ -107,15 +107,7 @@ namespace AltivaWebApp.Controllers
                     viewModel.IdUsuarioCreador = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     viewModel.FechaCreacion = DateTime.Now;
                     factura = map.Create(viewModel);
-                }
-
-                ///crear movimiento de pago factura//
-                var newMov = movMap.CreateMovimientoPago(factura.Id, formaPago, prepago);
-                IList<TbFaCajaMovimiento> movimiento = new List<TbFaCajaMovimiento>();
-                if (formaPago.Count() > 0)
-                {
-                    cajaMovMap.CreateCajaMovimiento(formaPago, newMov.IdMovimiento);
-                }
+                }      
 
                 return Json(new { success = true, idDoc = factura.Id });
             }

@@ -10,7 +10,7 @@ namespace AltivaWebApp.Mappers
     public interface IMovimientoMap
     {
         TbFaMovimiento CreateMovimientoPago(long idDoc, IList<CajaMovimientoViewModel> formasPago, double montoPrepago);
-        void AplicarSaldo(long idUltimoMov, double montoPrepago);
+        void AplicarSaldo(long idUltimoMov, double montoPrepago, long idDocumento);
         TbFaMovimiento Create(MovimientoViewModel viewModel);
         TbFaMovimiento Update(MovimientoViewModel viewModel);
         bool CreateMJ(MovimientoViewModel viewModel);

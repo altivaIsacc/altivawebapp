@@ -347,7 +347,7 @@ namespace AltivaWebApp.Mappers
             }
                 
             if (montoPrepago > 0)
-                AplicarSaldo(movDoc.IdMovimiento, montoPrepago);
+                AplicarSaldo(movDoc.IdMovimiento, montoPrepago, idDoc);
 
             return newMov;
         }
@@ -374,10 +374,11 @@ namespace AltivaWebApp.Mappers
 
             return service.SaveMovDetalle(movDetalle);
         }
-        public void AplicarSaldo(long idMovDoc, double montoPrepago)
+
+        public void AplicarSaldo(long idMovDoc, double montoPrepago, long idDocumento)
         {
             IList<TbSeMoneda> monedas = monedaService.GetAll();
-            var movDoc = service.GetMovimientoById(idMovDoc);
+            TbFaMovimiento movDoc = idMovDoc != 0 ? service.GetMovimientoById(idMovDoc) : service.GetMovimientoByIdDocumento(idDocumento);
             IList<TbFaMovimiento> movList = service.GetSaldoContacto(movDoc.IdContacto).OrderBy(m => m.FechaCreacion).ToList();
 
             IList<TbFaMovimientoDetalle> movDetlist = new List<TbFaMovimientoDetalle>();
