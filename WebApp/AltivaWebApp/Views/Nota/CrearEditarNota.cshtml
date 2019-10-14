@@ -9,7 +9,6 @@
 }
 
 @{
-
     ViewData["Title"] = @Lb["Notas"];
 
     var select = "checked";
@@ -103,7 +102,10 @@
             <label class="control-label">@Lb["Nota"]:</label>
             <textarea class="form-control" asp-for="Nota" id="nota"></textarea>
             <span hidden id="notaValid" class="text-danger">@Lb["notaValid"]</span>
-
+        </div>
+        <div class="form-group col-md-3 col-sm-3 col-xs-12" style="padding-top: 0.5rem">
+            <br />
+            <a class="btn btn-default" href="#" onclick="GetReporte()" >@Lb["generarReporte"] <i class="fa fa-print"></i></a>
         </div>
     </div>
 
@@ -335,6 +337,7 @@
 
 
     $(document).ready(function () {
+        $("#monto").val(0.00);
         $("#totalDisponible").val($(".total").inputmask('unmaskedvalue'));
         getContactos(2);
         getTipoDocumento(1);
@@ -345,6 +348,7 @@
         var date = new Date();
 
         if (@Model.IdNotaCredito != 0) {
+            GetComentarios("Nota", @Model.IdNotaCredito, '@Url.Action("Nuevo-Comentario", "Mensajes")');
             var valor = 3;
             $("#contactos option[value="+ valor +"]").attr("selected",true);
             $("#tipoDocumento").val(@Model.IdTipoDocumento).prop('selected', true);
@@ -487,8 +491,7 @@
 
                 }
                    cargarTotal();
-                $("#totalDisponible").val(recuperarDisponible(@Model.IdNotaCredito));
-                $("#totalAplicado").val(recuperarAplicado(@Model.IdNotaCredito));
+                recalcularDatos();
 
             },
             error: function (err, scnd) {
@@ -739,30 +742,36 @@
 
     //helpers
     function eliminarMovimientoDetalle(id) {
-        var idFila = $("#" + id).val();
-        var disponible = parseFloat($("#totalDisponible").inputmask('unmaskedvalue'));
-        var aplicado =  parseFloat($("#totalAplicado").inputmask('unmaskedvalue'));
-        $("#totalDisponible").val(disponible + recuperarAplicado(lineasEnlace[idFila].idDocumento));
-        $("#totalAplicado").val(aplicado - recuperarAplicado(lineasEnlace[idFila].idDocumento));
-         for (var i = 0; i < lineasActualizadasAplicadas.length; i++) {
-                if (lineasActualizadasAplicadas[i].idMovimiento == lineasEnlace[idFila].idMovimiento)
-                   lineasActualizadasAplicadas.splice(i, 1);
-         }
-          var idMov = lineasEnlace[idFila].idMovimiento;
-           $.ajax({
-                type: "post",
-                dataType: "json",
-                data: { id: idMov },
-                url: '@Url.Action("EliminarMovimientoDetalle", "Nota")',
-               success: function (data) {
-                   getDocumentos(2);
-                    $("#modalEditAplicado").modal("hide");
-               },
-               error: function (err, scnd) {
-                    cargarAlert('@Lb["errorGeneral"]');
-                    console.log(err.statusText);
-               }
-           });
+        bootbox.confirm("@Lb["confirmEliminarLinea"]", function (result) {
+            if (result) {
+                var idFila = $("#" + id).val();
+                var disponible = parseFloat($("#totalDisponible").inputmask('unmaskedvalue'));
+                var aplicado =  parseFloat($("#totalAplicado").inputmask('unmaskedvalue'));
+                $("#totalDisponible").val(disponible + recuperarAplicado(lineasEnlace[idFila].idDocumento));
+                $("#totalAplicado").val(aplicado - recuperarAplicado(lineasEnlace[idFila].idDocumento));
+                  for (var i = 0; i < lineasActualizadasAplicadas.length; i++) {
+                            if (lineasActualizadasAplicadas[i].idMovimiento == lineasEnlace[idFila].idMovimiento)
+                          lineasActualizadasAplicadas.splice(i, 1);
+                   }
+                         var idMov = lineasEnlace[idFila].idMovimiento;
+                $.ajax({
+                         type: "post",
+                         dataType: "json",
+                         data: { id: idMov },
+                         url: '@Url.Action("EliminarMovimientoDetalle", "Nota")',
+                        success: function (data) {
+                           getDocumentos(2);
+                          $("#modalEditAplicado").modal("hide");
+                        },
+                       error: function (err, scnd) {
+                           cargarAlert('@Lb["errorGeneral"]');
+                           console.log(err.statusText);
+                       }
+               });
+
+             }
+
+         });
 
 
     }
@@ -824,6 +833,7 @@
         return flag;
     }
     function validarCampos() {
+        console.log($("#monto").inputmask('unmaskedvalue'));
         var flag = true;
          $('#montoValid').attr('hidden', true);
         $('#descripcionValid').attr('hidden', true);
@@ -832,7 +842,7 @@
             $('#descripcionValid').attr('hidden', false);
             flag = false;
         }
-        if ($("#monto").inputmask('unmaskedvalue') == null) {
+        if ($("#monto").inputmask('unmaskedvalue') == 0) {
             $('#montoValid').attr('hidden', false);
             flag = false;
         }
@@ -892,7 +902,7 @@
 
         var disponible = parseFloat(total) - (parseFloat($("#totalAplicado").inputmask('unmaskedvalue')) - parseFloat(recuperarAplicadoAnterior(lineasEnlace[pos].idDocumento)));
         if (aplicado > monto || aplicado > disponible) {
-             $('#aplicadoValid').prop('hidden', false);
+             $('#aplicadoMayorValid').prop('hidden', false);
             $("#editAplicado").val(recuperarAplicadoAnterior(lineasEnlace[pos].idDocumento));
         } else {
             var result = parseFloat(monto) - parseFloat(aplicado);
@@ -1055,8 +1065,8 @@
                 var body = '<tr class="filasAplicadoCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + recuperarTipoDocumento(lineasEnlace[i].idTipoDocumento) + '</td>'
                     + '<td style="padding-top:2rem;"><span>' + lineasEnlace[i].idDocumento + '</span></td>'
                     + '<td ><span >' + recuperarFecha(lineasEnlace[i].fechaCreacion) + '</span></td>'
-                    + '<td ><span id="pendiente'+i+'" class="currency">' + recuperarSaldo(lineasEnlace[i].idDocumento) + '</span></td>'
-                    + '<td ><input id="aplicado'+i+'" onkeyup="cambiarAplicado(' + i + ')"  class="form-control currency" value="' + aplicado + '"/></td></tr>';
+                    + '<td ><span id="pendiente' + i + '" class="currency">' + recuperarSaldo(lineasEnlace[i].idDocumento) + '</span></td>'
+                    + '<td ><input id="aplicado' + i + '" onkeyup="cambiarAplicado(' + i + ')"  class="form-control currency" value="' + aplicado + '"/></td></tr>';
                 $('.lineaAplicadoForm').before(body);
                 if (aplicadosOriginal[i].aplicadoBase == 0)
                     lineasEnlace[i].tipo = 1;
@@ -1099,7 +1109,7 @@
     }
     function recuperarAplicadoTabla(pos) {
 
-        $("#aplicado" + pos).val(recuperarAplicado(lineasEnlace[pos].idDocumento));
+        $("#aplicado" + pos).val(recuperarAplicadoAnterior(lineasEnlace[pos].idDocumento));
     }
     function formatInput(monto) {
 
@@ -1395,9 +1405,9 @@
         var monto = recuperarMonto(lineasEnlace[pos]);
         var tAplicadoAnterior = recuperarAplicadoAnterior(lineasEnlace[pos].idDocumento);
 
-        if (aplicado > monto) {
-            cargarAlert('@Lb["saldoValid"]');
-            recuperarAplicadoTabla(pos);
+        if (aplicado > saldoAnterior) {
+            cargarAlert('@Lb["saldoMenorValid"]');
+            $("#aplicado" + pos).val(0.00);
         }
 
       else {
@@ -1476,7 +1486,7 @@
             if (lineasAplicado[i].idMovimiento != $("#IdMovimiento").val() && recuperarAplicado(lineasAplicado[i].idDocumento) > 0)
             aplicados += parseFloat(recuperarAplicado(lineasAplicado[i].idDocumento));
         }
-       var total = $(".total").inputmask('unmaskedvalue');
+        var total = $(".total").inputmask('unmaskedvalue');
         $("#totalDisponible").val(parseFloat(total) - parseFloat(aplicados));
         $("#totalAplicado").val(aplicados);
     }
@@ -1535,7 +1545,34 @@
                 }
         }
         return array;
-        }
+    }
+    function GetReporte() {
+
+        var parametros = [];
+
+        parametros.push({ nombre: "idNota", valor: '@Model.IdNotaCredito'});
+        parametros.push({ nombre: "idEmpresa", valor: '@Context.Session.GetInt32("idEmpresa")' });
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("ReporteGeneral", "VistaReporte")',
+            data: { NombreReporte: "ReporteNota", parametros: parametros },
+             success: function (data) {
+
+                 var myWindow = window.open('', '', '');
+                 var doc = myWindow.document;
+                 doc.open();
+                 doc.write(data);
+                 doc.close();
+
+             },
+             error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+             }
+        });
+
+    }
 
 
 </script>
