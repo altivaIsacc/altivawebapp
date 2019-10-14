@@ -9,37 +9,37 @@ namespace AltivaWebApp.Services
 {
     public class NotaService: INotaService
     {
-        private readonly INotaRepository reposistory;
+        private readonly INotaRepository repository;
 
-        public NotaService(INotaRepository reposistory)
+        public NotaService(INotaRepository repository)
         {
-            this.reposistory = reposistory;
+            this.repository = repository;
         }
         public IList<TbFaNota> GetAll()
         {
-            return reposistory.GetAll(); 
+            return repository.GetAll(); 
         }     
 
         public TbFaNota GetNotaById(long id)
         {
-            return reposistory.GetNotaById(id);
+            return repository.GetNotaById(id);
         }
         
         public TbFaNota Save(TbFaNota domain)
         {
-            return reposistory.Save(domain);
+            return repository.Save(domain);
         }
         public TbFaNota Update(TbFaNota domain)
         {
-            return reposistory.Update(domain);
+            return repository.Update(domain);
         }
         public IList<TbFaTipoDocumento> GetAllTipoDocumento()
         {
-            return reposistory.GetAllTipoDocumento();
+            return repository.GetAllTipoDocumento();
         }
         public TbFaMovimiento SaveMovimiento(TbFaMovimiento domain)
         {
-            return reposistory.SaveMovimiento(domain);
+            return repository.SaveMovimiento(domain);
         }
  
 

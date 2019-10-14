@@ -1,6 +1,4 @@
-﻿
-function GetComentarios(referencia, idRefernecia, urlComentarios = '../../ Mensajes / Nuevo - Comentario') {
-
+﻿function GetComentarios(referencia, idRefernecia, urlComentarios = '../../Mensajes/Nuevo-Comentario') {
     var comentarioModel = {
         mensaje: '',
         tipoMensaje: 'CO',
@@ -17,11 +15,8 @@ function GetComentarios(referencia, idRefernecia, urlComentarios = '../../ Mensa
         },
         error: function (err, scnd) {
             console.log(err.statusText);
-
         }
-
     });
 }
-
 
 
