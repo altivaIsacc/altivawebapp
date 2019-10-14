@@ -25,7 +25,7 @@ namespace AltivaWebApp.Repositories
 
         public bool ExistePuntoVentaValido()
         {
-            return context.TbSePuntoVenta.Any(p => p.EsPorDefecto && !p.Inactivo && p.IdBodega != 0 && p.IdContactoClienteDefecto != 0 && p.IdTipoPrecioDefecto != 0 );
+            return context.TbSePuntoVenta.Any(p => p.EsPorDefecto && !p.Inactivo);
         }
 
         public int GetEstadoCajasPV(long idPV, long idUsuario)
