@@ -466,6 +466,7 @@
         setTimeout(function () { $('#montoFP1').focus(); }, 500);
 
         setSaldoDisponible();
+
         if (@Model.IdDocumento != 0) {
             getFormasPago();
         }
@@ -491,7 +492,7 @@
         $('#auxMontoFormat').val(aplicado);
         var totalOld = parseFloat($('#auxMontoFormat').inputmask('unmaskedvalue'));
 
-        var totalNew = parseFloat($('#totalPrepago').inputmask('unmaskedvalue'));
+        var totalNew = $('#totalPrepago').inputmask('unmaskedvalue') != null ? parseFloat($('#totalPrepago').inputmask('unmaskedvalue')) : 0;
 
         //si son iguales retorna el monto real con decimales
         if (totalOld == totalNew)
@@ -518,7 +519,7 @@
         setMontoFP(_MONEDADEFAULT);
 
         cargarFormasPago(formasPago);
-        
+
 
 
     }
@@ -548,7 +549,7 @@
 
 
     }
-    
+
 
     /////////////////////////calculos efectivo/////////////////////
 
@@ -733,11 +734,10 @@
         var disponible = getSaldoDisponible();
 
         if (disponible <= montoBalance) {
-            montoPrepago = disponible;
-            
+            montoPrepago += disponible;
         }
         else {
-            montoPrepago = montoBalance;
+            montoPrepago += montoBalance;
         }
 
         $('#auxMontoFormat').val(montoPrepago);
@@ -750,6 +750,7 @@
 
     function setMontoPrepagoFromBD(monto) {
         montoPrepago = monto;
+        $('#totalPrepago').val(monto);
     }
 
     function getMontoPrepago() {
@@ -1144,7 +1145,7 @@
 
         $("#tblFormaPago > tbody").remove();
         $('#tblFormaPago').append('<tbody></tbody>');
-        
+
         for (var i = 0; i < data.length; i++) {
 
             var body =
@@ -1157,7 +1158,7 @@
 
             $('#tblFormaPago > tbody').append(body);
 
-            
+
 
         }
 
@@ -1376,22 +1377,22 @@
         $('.montoFormaPago').focus();
     });
 
-    function procesarPago() {
+    function procesarPago(idDocumento) {
 
         $.ajax({
             type: "post",
             dataType: "json",
             url: '@Url.Action("CrearEditarFormasPago", "MovimientoCaja")',
-            data: { idDocumento: @Model.IdDocumento, viewModel: retornaFormasPago(), fpEliminadas: fpEliminadas, montoPrepago: getMontoPrepago().toString().replace(".", ",") },
+            data: { idDocumento: idDocumento, viewModel: retornaFormasPago(), fpEliminadas: fpEliminadas, montoPrepago: getMontoPrepago().toString().replace(".", ",") },
             success: function (data) {
-                    postProcesarPago(@Model.IdDocumento);
+                    postProcesarPago(idDocumento);
             },
             error: function (err, scnd) {
                 cargarAlert('@Lb["errorGeneral"]');
                 console.log(err.statusText);
             }
-        });    
-        
+        });
+
     }
 
     function getFormasPago() {
@@ -1415,68 +1416,70 @@
 
         var montoPrepagoAux = 0;
 
+        var _pagoPrepago = 3;
+        var _pagoSaldo = 4;
+
         for (var i = 0; i < data.length; i++) {
 
-            var cajamov = data[i].idMovimientoHastaNavigation.tbFaCajaMovimiento;
-
-            if (cajamov != null) {
-                for (var i = 0; i < cajamov.length; i++) {
-                    var cm = cajamov[i];
-
-                    var fp = {
-                        idCajaMovimiento: cm.idCajaMovimiento,
-                        tipoCategoriaFlujo: 0,
-                        idCategoriaFlujo: cm.idCategoriaFlujo,
-                        fechaCreacion: cm.fechaCreacion,
-                        estado: cm.estado,
-                        idMoneda: cm.idMoneda,
-                        montoOriginal: retornaMontoOrigilaFP(cm.idMoneda, cm),
-                        montoBase: cm.montoBase,
-                        montoDolar: cm.montoDolar,
-                        montoEuro: cm.montoEuro,
-                        compraDolarTc: cm.compraDolarTc,
-                        ventaDolarTc: cm.ventaDolarTc,
-                        compraEuroTc: cm.compraEuroTc,
-                        ventaEuroTc: cm.ventaEuroTc,
-                        idTipoCajaMovimiento: cm.idTipoCajaMovimiento,
-                        idCaja: cm.idCaja,
-                        idMovimiento: cm.idMovimiento,                   //tarjeta = 2//
-                        cajaMovTarjeta: null,//tbFaCajaMovimientoTarjeta != null ? cm.tbFaCajaMovimientoTarjeta : null,
-                        //cheque = 4//
-                        cajaMovCheque: null//tbFaCajaMovimientoCheque != null ? cm.tbFaCajaMovimientoCheque : null,
-                        //fechaTransferencia: $('#fechaTransferencia').val(),
-                        //documentoTransferencia: $('#documento').val()        
-
-                    };
-
-                    _idMovimientoPago = cm.idMovimiento;
-
-                    formasPago.push(fp);
-                }
-
-            }
-            else {
-
-                var cm = data[i].idMovimientoHastaNavigation;
-
+            if (data[i].idMovimientoHastaNavigation.idTipoDocumento == _pagoPrepago || data[i].idMovimientoHastaNavigation.idTipoDocumento == _pagoSaldo) {
                 var modelMontos = {
-                    montoBase: cm.aplicadoBase,
-                    montoDolar: cm.aplicadoDolar,
-                    montoEuro: cm.aplicadoEuro
+                    montoBase: data[i].aplicadoBase,
+                    montoDolar: data[i].aplicadoDolar,
+                    montoEuro: data[i].aplicadoEuro
                 }
 
                 montoPrepagoAux += getMontoAlCambio(modelMontos);
+
+            }
+            else {
+                var cajamov = data[i].idMovimientoHastaNavigation.tbFaCajaMovimiento;
+
+                if (cajamov != null) {
+                    for (var k = 0; k < cajamov.length; k++) {
+                        var cm = cajamov[k];
+
+                        var fp = {
+                            idCajaMovimiento: cm.idCajaMovimiento,
+                            tipoCategoriaFlujo: 0,
+                            idCategoriaFlujo: cm.idCategoriaFlujo,
+                            fechaCreacion: cm.fechaCreacion,
+                            estado: cm.estado,
+                            idMoneda: cm.idMoneda,
+                            montoOriginal: retornaMontoOrigilaFP(cm.idMoneda, cm),
+                            montoBase: cm.montoBase,
+                            montoDolar: cm.montoDolar,
+                            montoEuro: cm.montoEuro,
+                            compraDolarTc: cm.compraDolarTc,
+                            ventaDolarTc: cm.ventaDolarTc,
+                            compraEuroTc: cm.compraEuroTc,
+                            ventaEuroTc: cm.ventaEuroTc,
+                            idTipoCajaMovimiento: cm.idTipoCajaMovimiento,
+                            idCaja: cm.idCaja,
+                            idMovimiento: cm.idMovimiento,                   //tarjeta = 2//
+                            cajaMovTarjeta: null,//tbFaCajaMovimientoTarjeta != null ? cm.tbFaCajaMovimientoTarjeta : null,
+                            //cheque = 4//
+                            cajaMovCheque: null//tbFaCajaMovimientoCheque != null ? cm.tbFaCajaMovimientoCheque : null,
+                            //fechaTransferencia: $('#fechaTransferencia').val(),
+                            //documentoTransferencia: $('#documento').val()
+
+                        };
+
+                        _idMovimientoPago = cm.idMovimiento;
+
+                        formasPago.push(fp);
+                    }
+                }
             }
 
         }
 
+        console.log(montoPrepagoAux);
 
-        
         $('#saldoFormat').val(parseFloat($('#saldoFormat').val()) + montoPrepagoAux);
 
         setSaldoDisponible();
-        setMontoPrepago();
 
+        setMontoPrepagoFromBD(montoPrepagoAux);
 
         calcularMovimientos();
 
@@ -1484,8 +1487,7 @@
 
         cargarFormasPago(formasPago);
 
-        //setMontoPrepagoFromBD(0);
-        
+
     }
 
     function retornaMontoOrigilaFP(idMoneda, montos) {

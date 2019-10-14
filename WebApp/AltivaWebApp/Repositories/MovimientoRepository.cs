@@ -19,8 +19,19 @@ namespace AltivaWebApp.Repositories
         public IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc)
         {
 
-            return context.TbFaMovimientoDetalle.Select(md => new TbFaMovimientoDetalle
+            return context.TbFaMovimientoDetalle.AsNoTracking().Select(md => new TbFaMovimientoDetalle
             {
+                AplicadoBase = md.AplicadoBase,
+                AplicadoEuro = md.AplicadoEuro,
+                AplicadoDolar = md.AplicadoEuro,
+                CompraDolarTc = md.CompraDolarTc,
+                CompraEuroTc = md.CompraEuroTc,
+                Fecha = md.Fecha,
+                IdMovimientoDesde = md.IdMovimientoDesde,
+                IdMovimientoDetalle = md.IdMovimientoDetalle,
+                IdMovimientoHasta = md.IdMovimientoHasta,
+                VentaDolarTc = md.VentaDolarTc,
+                VentaEuroTc = md.VentaEuroTc,
                 IdMovimientoDesdeNavigation = new TbFaMovimiento
                 {
                     IdDocumento = md.IdMovimientoDesdeNavigation.IdDocumento
@@ -88,8 +99,8 @@ namespace AltivaWebApp.Repositories
                     IdMoneda = md.IdMovimientoHastaNavigation.IdMoneda,
                     AplicadoBase = md.IdMovimientoHastaNavigation.AplicadoBase,
                     AplicadoDolar = md.IdMovimientoHastaNavigation.AplicadoDolar,
-                    AplicadoEuro = md.IdMovimientoHastaNavigation.AplicadoEuro
-
+                    AplicadoEuro = md.IdMovimientoHastaNavigation.AplicadoEuro,
+                    IdTipoDocumento = md.IdMovimientoHastaNavigation.IdTipoDocumento
                 }
 
 
@@ -124,7 +135,7 @@ namespace AltivaWebApp.Repositories
 
         public IList<TbFaMovimiento> GetSaldoContacto(long idContacto)
         {
-            return context.TbFaMovimiento.Where(m => m.IdContacto == idContacto && m.IdDocumento == 0 && m.Cxc).ToList();
+            return context.TbFaMovimiento.Where(m => m.IdContacto == idContacto && m.IdDocumento == 0 && (m.Cxc && m.IdTipoDocumento == 3 || m.IdTipoDocumento == 4)).ToList();
         }
 
         public IList<TbFaMovimientoDetalle> SaveMovDetalle(IList<TbFaMovimientoDetalle> domain)
@@ -149,6 +160,38 @@ namespace AltivaWebApp.Repositories
                 context.TbFaMovimientoDetalle.UpdateRange(domain);
                 context.SaveChanges();
                 return domain;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public void DeleteMovimientoDetalle(IList<TbFaMovimientoDetalle> domain)
+        {
+            try
+            {
+                IList<TbFaMovimientoDetalle> mov = new List<TbFaMovimientoDetalle>();
+                foreach (var item in domain)
+                {
+                    mov.Add(new TbFaMovimientoDetalle {
+                        AplicadoBase = 0,
+                        AplicadoDolar = 0,
+                        AplicadoEuro = 0,
+                        CompraDolarTc = item.CompraDolarTc,
+                        CompraEuroTc = item.CompraEuroTc,
+                        Fecha = item.Fecha,
+                        IdMovimientoDesde = item.IdMovimientoDesde,
+                        IdMovimientoHasta = item.IdMovimientoHasta,
+                        VentaDolarTc = item.VentaDolarTc,
+                        IdMovimientoDetalle = item.IdMovimientoDetalle,
+                        VentaEuroTc = item.VentaEuroTc
+                    });
+                }
+
+                context.TbFaMovimientoDetalle.RemoveRange(UpdateMovDetalle(mov));
+                context.SaveChanges();
             }
             catch (Exception)
             {

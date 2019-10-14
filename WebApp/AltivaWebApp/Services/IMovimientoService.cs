@@ -17,5 +17,6 @@ namespace AltivaWebApp.Services
         long GetUltimoMovimientoPagoId(long idDoc);
         IList<TbFaMovimiento> GetSaldoContacto(long idContacto);
         TbFaMovimiento GetMovimientoById(long idMov);
+        void DeleteMovimientoDetalle(IList<TbFaMovimientoDetalle> domain);
     }
 }

@@ -97,6 +97,23 @@ namespace AltivaWebApp.Mappers
         {
             IList<TbSeMoneda> monedas = monedaService.GetAll();
             TbFaMovimiento movDoc = idMovDoc != 0 ? service.GetMovimientoById(idMovDoc) : service.GetMovimientoByIdDocumento(idDocumento);
+
+
+            //saldos aplicados
+            IList<TbFaMovimientoDetalle> docAplicado = service.GetMovimientoByIdDocConPagos(idDocumento).Where(m => m.IdMovimientoHastaNavigation.IdTipoDocumento == 4 || m.IdMovimientoHastaNavigation.IdTipoDocumento == 3).ToList();
+
+            double saldoAplicado = docAplicado.Sum(m =>movDoc.IdMoneda == 1 ? m.AplicadoBase : movDoc.IdMoneda == 2 ? m.AplicadoDolar : m.AplicadoEuro);
+
+            if (saldoAplicado == montoPrepago)
+                return;
+
+            if (docAplicado.Count() > 0 && saldoAplicado != montoPrepago)
+            {
+                //tiene prepagos o saldo, se borran todas las relaciones
+                service.DeleteMovimientoDetalle(docAplicado);
+            }
+
+
             IList<TbFaMovimiento> movList = service.GetSaldoContacto(movDoc.IdContacto).OrderBy(m => m.FechaCreacion).ToList();
 
             IList<TbFaMovimientoDetalle> movDetlist = new List<TbFaMovimientoDetalle>();
@@ -139,7 +156,7 @@ namespace AltivaWebApp.Mappers
                         CompraDolarTc = monedas[1].ValorCompra,
                         CompraEuroTc = monedas[2].ValorCompra,
                         Fecha = DateTime.Now,
-                        IdMovimientoDesde = idMovDoc,
+                        IdMovimientoDesde = movDoc.IdMovimiento,
                         IdMovimientoHasta = item.IdMovimiento,
                         IdMovimientoDetalle = 0,
                         VentaDolarTc = monedas[1].ValorVenta,

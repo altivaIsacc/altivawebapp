@@ -93,6 +93,7 @@ namespace AltivaWebApp.Controllers
 
 
         }
+
         [HttpPost("ReporteImg")]
         public IActionResult ReporteImg(string NombreReporte, IList<RepParametro> parametros)
         {

@@ -796,11 +796,13 @@
 
     }
 
-    function setConfiguracionPV() {
+    function setConfiguracionPV(primeraVez = false) {
 
         var pv = getPuntoVentaLocal();
-
-        $('#IdCliente').val(pv.idContactoClienteDefecto);
+        if (!primeraVez) {
+            $('#IdCliente').val(pv.idContactoClienteDefecto);
+            //$('#IdCliente').trigger('change');
+        }
         $('#IdCliente').trigger('change');
 
         setMonedaFactura(pv.idMonedaFacturaDefecto);
@@ -879,11 +881,12 @@
                 cargarFormaPago();
             }
             else {
-                procesarPago();
+                procesarPagoDoc();
             }
         }
 
     }
+
     function cargarFormaPago() {
 
         var model = {
@@ -925,7 +928,7 @@
             data: { viewModel: crearModelo(), detalle: crearModeloDetalle(lineasCrOrUp), eliminadas: lineasEliminadas },
             success: function (data) {
 
-                procesarPago();
+                procesarPago(data.idDoc);
 
             },
             error: function (err, scnd) {
@@ -1243,7 +1246,7 @@
                     $('#selectPuntoVenta').append(o);
                 }
 
-                setConfiguracionPV();
+                setConfiguracionPV(true);
                 getInventario();
 
             },
