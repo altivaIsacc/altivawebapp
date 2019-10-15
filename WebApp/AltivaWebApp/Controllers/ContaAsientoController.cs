@@ -234,7 +234,7 @@ namespace AltivaWebApp.Controllers
                 item.IdUsuarioMod = long.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                 item.Modulo = datos.Modulo;
                 item.MontoColones = datos.MontoColones;
-                item.MontoDolar = datos.MontoEuro;
+                item.MontoDolar = datos.MontoDolar;
                 item.MontoEuro = datos.MontoEuro;
 
                 foreach (AsientoDetalle lineaDatos in datos.detalle) {
