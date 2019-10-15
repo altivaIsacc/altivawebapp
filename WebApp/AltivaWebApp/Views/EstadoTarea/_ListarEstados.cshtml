@@ -77,8 +77,11 @@
     </table>
 </div>
 <script>
+
+
     function EliminarEstado(idEstado) {
- bootbox.confirm({
+
+        bootbox.confirm({
 
             message: "<h4 class='text-center'><span >Esta usted seguro que desea continuar?</span></h4>",
             buttons: {
@@ -94,45 +97,54 @@
                 if (result) {
 
                        $.ajax({
-                    headers: {
-                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                    },
-                    type: "GET",
+                            headers: {
+                                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                            },
+                            type: "GET",
+                            url: '@Url.Action("Delete", "EstadoTarea")',
+                            data: { idEstado: idEstado },
+                            success: function (data) {
 
+                               if (data.success) {
+                                        $('#tablaEstados').empty();
+                                        $('#ModalEstados').modal('hide');
+                                        if ($("#activos").css("display") == "block") {
 
-                           url: '@Url.Action("Delete", "EstadoTarea")',
-                           data: { idEstado: idEstado },
-                    success: function (data) {
-                        $('#tablaEstados').empty();
+                                            $("#inactivos").css("display", "none");
+                                            $("#activos").css("display", "block");
+                                            VerInactivos("inactivos");
+                                        } else {
+                                            $("#inactivos").css("display", "block");
+                                            $("#activos").css("display", "none");
+                                            verActivos(null);
 
-                        $('#ModalEstados').modal('hide');
-                        if ($("#activos").css("display") == "block") {
+                                        }
+                                         return false;
+                               } else {
+                                   cargarAlert("@SL["noPuedeEliminarTipoTarea"]"); //msj que le faltaba un punto
+                                   return false;
+                               }
 
-                            $("#inactivos").css("display", "none");
-                            $("#activos").css("display", "block");
-                            VerInactivos("inactivos");
-                        } else {
-                            $("#inactivos").css("display", "block");
-                            $("#activos").css("display", "none");
-                            verActivos(null);
+                            },
 
-                        }
+                            error: function (err, scnd) {
+                                console.log(err.statusText);
+                            }
 
-                        return false;
-                    },
-
-                    error: function (err, scnd) {
-                        console.log(err.statusText);
-                    }
-
-        });
+                   });
 
 
                 } else {
                     return;
                 }
             }
-        });    }
+        });
+
+    }
+
+
+
+
     $("#tablaEstadoTarea").DataTable({
         scrollY: '50rem',
         scrollX: '50rem',

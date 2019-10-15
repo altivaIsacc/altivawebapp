@@ -62,7 +62,7 @@ namespace AltivaWebApp.Controllers
             return View("CrearEditarRequisicion", req2);
         }
 
-        [HttpPost("CrearEditar-Requisicion")]
+         [HttpPost("CrearEditar-Requisicion")]
         public IActionResult CrearEditarRequisicion(RequisicionViewModel viewModel)
         {
             Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction trans = context.Database.BeginTransaction();
@@ -74,17 +74,41 @@ namespace AltivaWebApp.Controllers
                 {
                     if (viewModel.Id != 0)
                     {
+
+                        tr = service.GetReqById(viewModel.Id);
+
                         if (viewModel.RequisicionDetalle != null)// si el detalle viene lleno
                         {
-                            IList<TbPrRequisicionDetalle> detallesToAnular = service.GetAllReqDetalleById(viewModel.RequisicionDetalle.Select(d => (int)d.Id).Where(d => d != 0).ToList());
-                            kardexMap.CreateKardexRD(detallesToAnular, true);
 
-                            var detalles = map.SaveOrUpdateRD(viewModel.RequisicionDetalle);
-                            kardexMap.CreateKardexRD(detalles, false);
+                            foreach (var item in viewModel.RequisicionDetalle)
+
+                            {
+                                if (item.Id == 0)
+                                {
+                                    tr.TbPrRequisicionDetalle.Add(requisicionDetalleMap.ViewModelToDomain(item));//adquiere los hijos
+                                }
+                                else
+                                {
+
+                                    tr.TbPrRequisicionDetalle.FirstOrDefault(d => d.Id == item.Id).Id = item.Id;
+                                    tr.TbPrRequisicionDetalle.FirstOrDefault(d => d.Id == item.Id).IdRequisicion = item.IdRequisicion;
+                                    tr.TbPrRequisicionDetalle.FirstOrDefault(d => d.Id == item.Id).IdInventario = item.IdInventario;
+                                    tr.TbPrRequisicionDetalle.FirstOrDefault(d => d.Id == item.Id).Cantidad = item.Cantidad;
+                                    tr.TbPrRequisicionDetalle.FirstOrDefault(d => d.Id == item.Id).PrecioUnitario = item.PrecioUnitario;
+                                    tr.TbPrRequisicionDetalle.FirstOrDefault(d => d.Id == item.Id).Total= item.Total;
+                                   
+                                }
+                            }
+                            kardexMap.EditKardexRequisicionDetalle(tr.TbPrRequisicionDetalle.ToList(), false);
+
                         }
+                        tr.Fecha = viewModel.Fecha;
+                      //tr.FechaCreacion = viewModel.FechaCreacion;
+                        tr.IdDepartamento = viewModel.IdDepartamento;
+                        tr.Descripcion = viewModel.Descripcion;
+                        context.Update(tr);                    
+                        context.SaveChanges();
 
-                        viewModel.RequisicionDetalle = null;
-                        var req = map.Update(viewModel);
 
                     }
                     else
@@ -98,7 +122,7 @@ namespace AltivaWebApp.Controllers
                         }
                         context.Add(tr);
                         context.SaveChanges();
-                        kardexMap.CreateKardexRD(tr.TbPrRequisicionDetalle.ToList(), false);
+                        kardexMap.CreateKardexRequisicionDetalle(tr.TbPrRequisicionDetalle.ToList(), false);
 
                     }
                     trans.Commit();
@@ -132,7 +156,7 @@ namespace AltivaWebApp.Controllers
             {
                 var req = service.GetRequisicionWithDetails(id);
                 req.Anulado = true;
-                kardexMap.CreateKardexRD(req.TbPrRequisicionDetalle.ToList(), true);
+                kardexMap.CreateKardexRequisicionDetalle(req.TbPrRequisicionDetalle.ToList(), true);
 
                 service.Update(req);
 
@@ -153,7 +177,7 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var res = service.GetAllReqDetalleById(viewModel);
-                kardexMap.CreateKardexRD(res, true);
+                kardexMap.CreateKardexRequisicionDetalle(res, true);
                 service.DeleteRD(res);
 
                 return Json(new { success = true });
