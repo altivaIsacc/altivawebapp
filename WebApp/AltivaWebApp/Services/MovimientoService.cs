@@ -103,5 +103,10 @@ namespace AltivaWebApp.Services
             return repository.GetMovimientoDetalleByIdMovimiento(idMovimiento);
         }
 
+
+        public void DeleteMovimientoDetalle(IList<TbFaMovimientoDetalle> domain)
+        {
+            repository.DeleteMovimientoDetalle(domain);
+        }
     }
 }

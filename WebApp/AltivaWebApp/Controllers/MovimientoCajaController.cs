@@ -46,20 +46,24 @@ namespace AltivaWebApp.Controllers
 
         [HttpPost("CrearEditarFormasPago")]
         public IActionResult CrearEditarFormasPago(long idDocumento, IList<CajaMovimientoViewModel> viewModel, IList<long> fpEliminadas, double montoPrepago)
-
         {
             try
             {
                 if (viewModel.Count() > 0)
                 {
                     TbFaMovimiento movPago = null;
-                    if (viewModel.First().IdMovimiento == 0)
+                    long idMov = viewModel.First().IdMovimiento;
+                    if (idMov == 0)
                     {
                         movPago = movimientoMap.CreateMovimientoPago(idDocumento, viewModel, montoPrepago);
+                        idMov = movPago.IdMovimiento;
                     }
-
-                    var cm = cajaMovMap.CreateCajaMovimiento(viewModel, movPago.IdMovimiento);
-
+                    else if (montoPrepago > 0)
+                    {
+                        movimientoMap.AplicarSaldo(0, montoPrepago, idDocumento);
+                    }
+                    var cm = cajaMovMap.CreateCajaMovimiento(viewModel, idMov);
+                    
                 }
                 else if (montoPrepago > 0)
                     movimientoMap.AplicarSaldo(0, montoPrepago, idDocumento);

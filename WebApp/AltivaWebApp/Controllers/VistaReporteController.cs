@@ -95,6 +95,7 @@ namespace AltivaWebApp.Controllers
             }
             catch (Exception ex) { AltivaLog.Log.Insertar(ex.ToString(), "Error"); return null; }
         }
+
         [HttpPost("ReporteImg")]
         public IActionResult ReporteImg(string NombreReporte, IList<RepParametro> parametros)
         {

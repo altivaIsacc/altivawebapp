@@ -36,7 +36,7 @@
 {
     <div class="row">
         <div class="btn-group  col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <button type="button" onclick="GetPDF(1, false)" class="btn btn-primary">@Lb["Imprimir"]</button>
+            <button type="button" onclick="GetPDF(1, false)" class="btn btn-primary">@Lb["imprimir"]</button>
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                 <span class="caret"></span>
                 <span class="sr-only">Toggle Dropdown</span>
@@ -120,7 +120,7 @@
             </select>
         </div>
         <div class="form-group col-md-2 col-sm-2 col-xs-6">
-            <label asp-for="Tipo" class="control-label">@Lb["Tipo"]:</label>
+            <label asp-for="Tipo" class="control-label">@Lb["tipo"]:</label>
             <select asp-for="Tipo" class="form-control selectItems">
                 <option value="1">@Lb["Contado"]</option>
                 <option value="2">@Lb["Crédito"]</option>
@@ -138,10 +138,9 @@
                 <li>
                     <a class="dropdown-item" href="#">@Lb["AplicarDescuento"]</a>
                 </li>
-                <li>
+                @*<li>
                     <a class="dropdown-item" href="#">@Lb["AplicarApartado"]</a>
-                </li>
-
+                </li>*@
                 <li>
                     <a class="dropdown-item" href="#">@Lb["ImportarCotizacion"]</a>
                 </li>
@@ -796,11 +795,13 @@
 
     }
 
-    function setConfiguracionPV() {
+    function setConfiguracionPV(primeraVez = false) {
 
         var pv = getPuntoVentaLocal();
-
-        $('#IdCliente').val(pv.idContactoClienteDefecto);
+        if (!primeraVez) {
+            $('#IdCliente').val(pv.idContactoClienteDefecto);
+            //$('#IdCliente').trigger('change');
+        }
         $('#IdCliente').trigger('change');
 
         setMonedaFactura(pv.idMonedaFacturaDefecto);
@@ -879,11 +880,12 @@
                 cargarFormaPago();
             }
             else {
-                procesarPago();
+                procesarPagoDoc();
             }
         }
 
     }
+
     function cargarFormaPago() {
 
         var model = {
@@ -925,7 +927,7 @@
             data: { viewModel: crearModelo(), detalle: crearModeloDetalle(lineasCrOrUp), eliminadas: lineasEliminadas },
             success: function (data) {
 
-                procesarPago();
+                procesarPago(data.idDoc);
 
             },
             error: function (err, scnd) {
@@ -1243,7 +1245,7 @@
                     $('#selectPuntoVenta').append(o);
                 }
 
-                setConfiguracionPV();
+                setConfiguracionPV(true);
                 getInventario();
 
             },
@@ -1547,48 +1549,6 @@
 
     }
 
-    function GetWORD() {
-
-        var parametros = [];
-
-        parametros.push({ nombre: "idFactura", valor: '@Model.Id'});
-        parametros.push({ nombre: "idEmpresa", valor: '@Context.Session.GetInt32("idEmpresa")' });
-
-        var data = { NombreReporte: "Facturaticket", parametros: parametros };
-
-        $.ajax({
-            type: "POST",
-            url: '@Url.Action("ReporteHTML", "VistaReporte")',
-            cache: false,
-            xhr: function () {// Seems like the only way to get access to the xhr object
-                var xhr = new XMLHttpRequest();
-                xhr.responseType = 'blob'
-                return xhr;
-            },
-            data:data,
-            success: function (data) {
-
-                //console.log(data);
-
-                var reader = new FileReader();
-                reader.readAsText(data);
-
-                reader.onloadend = function (e) {
-                    //base64data = reader.result;
-
-                    $('#wordContent').html(reader.result);
-                    $('#wordContent').wordExport();
-
-                }
-
-            },
-            error: function () {
-                cargarAlert("@Lb["errorGeneral"]");
-            }
-        });
-
-
-    }
 
 </script>
 

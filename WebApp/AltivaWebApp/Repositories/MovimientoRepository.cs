@@ -19,11 +19,22 @@ namespace AltivaWebApp.Repositories
         public IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc)
         {
 
-            return context.TbFaMovimientoDetalle.Select(md => new TbFaMovimientoDetalle
+            return context.TbFaMovimientoDetalle.AsNoTracking().Select(md => new TbFaMovimientoDetalle
             {
+                AplicadoBase = md.AplicadoBase,
+                AplicadoEuro = md.AplicadoEuro,
+                AplicadoDolar = md.AplicadoEuro,
+                CompraDolarTc = md.CompraDolarTc,
+                CompraEuroTc = md.CompraEuroTc,
+                Fecha = md.Fecha,
+                IdMovimientoDesde = md.IdMovimientoDesde,
+                IdMovimientoDetalle = md.IdMovimientoDetalle,
+                IdMovimientoHasta = md.IdMovimientoHasta,
+                VentaDolarTc = md.VentaDolarTc,
+                VentaEuroTc = md.VentaEuroTc,
                 IdMovimientoDesdeNavigation = new TbFaMovimiento
                 {
-                    IdDocumento = md.IdMovimientoDesdeNavigation.IdDocumento
+                    IdDocumento = md.IdMovimientoDesdeNavigation.IdDocumento                                      
                 },
                 IdMovimientoHastaNavigation = new TbFaMovimiento
                 {
@@ -88,8 +99,15 @@ namespace AltivaWebApp.Repositories
                     IdMoneda = md.IdMovimientoHastaNavigation.IdMoneda,
                     AplicadoBase = md.IdMovimientoHastaNavigation.AplicadoBase,
                     AplicadoDolar = md.IdMovimientoHastaNavigation.AplicadoDolar,
-                    AplicadoEuro = md.IdMovimientoHastaNavigation.AplicadoEuro
-
+                    AplicadoEuro = md.IdMovimientoHastaNavigation.AplicadoEuro,
+                    IdTipoDocumento = md.IdMovimientoHastaNavigation.IdTipoDocumento,
+                    IdTipoDocumentoNavigation = new TbFaTipoDocumento
+                    {
+                        Cxc = md.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.Cxc,
+                        EsDebito = md.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.EsDebito,
+                        EsNota = md.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.EsNota,
+                        IdTipoDocumento = md.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.IdTipoDocumento
+                    }
                 }
 
 
@@ -120,7 +138,7 @@ namespace AltivaWebApp.Repositories
 
         public IList<TbFaMovimiento> GetSaldoContacto(long idContacto)
         {
-            return context.TbFaMovimiento.Where(m => m.IdContacto == idContacto && m.IdDocumento == 0 && m.Cxc).ToList();
+            return context.TbFaMovimiento.Where(m => m.IdContacto == idContacto && m.IdDocumento == 0 && (m.Cxc && m.IdTipoDocumento == 3 || m.IdTipoDocumento == 4)).ToList();
         }
 
         public IList<TbFaMovimientoDetalle> SaveMovDetalle(IList<TbFaMovimientoDetalle> domain)

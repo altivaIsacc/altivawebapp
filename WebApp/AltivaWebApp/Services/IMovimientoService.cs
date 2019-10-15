@@ -18,8 +18,6 @@ namespace AltivaWebApp.Services
         long GetUltimoMovimientoPagoId(long idDoc);
         IList<TbFaMovimiento> GetSaldoContacto(long idContacto);
         TbFaMovimiento GetMovimientoById(long idMov);
-        
-      
         bool SaveMovimientoJustificante(IList<TbFaMovimientoJustificante> domain);
         bool UpdateMovimientoJustificante(IList<TbFaMovimientoJustificante> domain);
          IList<TbFaMovimiento> GetAllMovimientos();
@@ -31,8 +29,6 @@ namespace AltivaWebApp.Services
         TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimiento(long idMovimiento);
         bool UpdateMD(IList<TbFaMovimientoDetalle> domain);
         bool DeleteMD(long id);
-
-
-
+        void DeleteMovimientoDetalle(IList<TbFaMovimientoDetalle> domain);
     }
 }

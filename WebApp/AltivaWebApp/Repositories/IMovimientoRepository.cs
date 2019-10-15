@@ -29,5 +29,6 @@ namespace AltivaWebApp.Repositories
         TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimiento(long idMovimiento);
         bool UpdateMD(IList<TbFaMovimientoDetalle> domain);
         bool DeleteMD(long id);
+        void DeleteMovimientoDetalle(IList<TbFaMovimientoDetalle> domain);
     }
 }
