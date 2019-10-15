@@ -402,14 +402,13 @@ namespace AltivaWebApp.Mappers
         }
 
 
-        ///////////////////////////requisiciones
-        ///
-        public bool CreateKardexRD(IList<TbPrRequisicionDetalle> rq, bool isDeteled)
+        ////////////////////requisiciones guarda////////////
+        public bool CreateKardexRequisicionDetalle(IList<TbPrRequisicionDetalle> rq, bool isDeteled)
         {
             if (rq.Count() == 0 || rq == null)
                 return false;
 
-            var domain = reqService.GetReqById((int)rq.First().IdRequisicion);
+            var domain = reqService.GetReqById((int)rq.First().IdRequisicion); //adquiere todos los hijos viejos asociados
             var kardex = new List<TbPrKardex>();
             var cd = new List<TbPrCompraDetalle>();
 
@@ -469,8 +468,110 @@ namespace AltivaWebApp.Mappers
         }
 
 
+
+   /////////// requisiciones edita ////////////////////
+        public bool EditKardexRequisicionDetalle (IList<TbPrRequisicionDetalle> rq, bool isDeteled)
+        {
+            if (rq.Count() == 0 || rq == null)
+                return false;
+
+            var domain = reqService.GetReqById((int)rq.First().IdRequisicion); //adquiere todos los hijos viejos asociados
+            var kardex = new List<TbPrKardex>();
+          
+            double cantidad = 0;
+            var tipoDoc = "REQ";
+
+            if (domain.Anulado)
+                tipoDoc = "REA";
+
+            foreach (var item in rq)
+            {
+                cantidad = 0;
+                if (isDeteled)
+                    cantidad = item.Cantidad;
+                else
+                    cantidad = item.Cantidad * -1;
+
+                var k = new TbPrKardex
+                {
+                    CantidadMov = cantidad,
+                    CostoPromedio = 0,
+                    CostoMov = item.Total,
+                    Fecha = DateTime.Now,
+                    ExistAct = 0,
+                    ExistAnt = 0,
+                    ExistActBod = 0,
+                    ExistAntBod = 0,
+                    IdBodegaDestino = domain.IdBodega,
+                    IdBodegaOrigen = domain.IdBodega,
+                    IdDocumento = domain.Id,
+                    IdUsuario = domain.IdUsuario,
+                    IdMoneda = 1,
+                    Observaciones = domain.Descripcion,
+                    PrecioPromedio = 0,
+                    PrecioUnit = item.PrecioUnitario,
+                    IdInventario = item.IdInventario,
+                    TipoDocumento = tipoDoc,
+                    SaldoFinal = 0
+                };
+
+                kardex.Add(k);
+            }
+
+            foreach (var item in domain.TbPrRequisicionDetalle)
+            {
+                cantidad = 0;
+                if (isDeteled)
+                    cantidad = item.Cantidad;
+                else
+                    cantidad = item.Cantidad * + 1;
+
+                var k = new TbPrKardex
+                {
+                    CantidadMov = cantidad,
+                    CostoPromedio = 0,
+                    CostoMov = item.Total,
+                    Fecha = DateTime.Now,
+                    ExistAct = 0,
+                    ExistAnt = 0,
+                    ExistActBod = 0,
+                    ExistAntBod = 0,
+                    IdBodegaDestino = domain.IdBodega,
+                    IdBodegaOrigen = domain.IdBodega,
+                    IdDocumento = domain.Id,
+                    IdUsuario = domain.IdUsuario,
+                    IdMoneda = 1,
+                    Observaciones = domain.Descripcion,
+                    PrecioPromedio = 0,
+                    PrecioUnit = item.PrecioUnitario,
+                    IdInventario = item.IdInventario,
+                    TipoDocumento = tipoDoc,
+                    SaldoFinal = 0
+                };
+
+                kardex.Add(k);
+            }
+
+
+            try
+            {
+                service.SaveAll(kardex);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+
+                throw;
+            }
+
+        }
+
+
+
+
         ///////////////////////////traslado
-       
+
         public bool CreateKardexTRI(TbPrTraslado cambios, TbPrTraslado original, IList<long> eliminados)
         {
             if (cambios.TbPrTrasladoInventario.Count() == 0 || cambios == null)

@@ -105,7 +105,7 @@ namespace AltivaWebApp.Controllers
         {
 
             TrasladoInventarioRepository rep = new TrasladoInventarioRepository(context);
-            TbPrTraslado original = trasladoService.GetTrasladoById(traslado.IdTraslado); //adquiere todos los hijos asociados
+            TbPrTraslado original = trasladoService.GetTrasladoById(traslado.IdTraslado); //adquiere todos los hijos viejos asociados
             TbPrTraslado tr;
             Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction trans = context.Database.BeginTransaction();
             using (trans)
