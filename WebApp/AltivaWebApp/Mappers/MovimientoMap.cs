@@ -120,8 +120,8 @@ namespace AltivaWebApp.Mappers
                 IdMovimientoJustificante = viewModel.IdMovimientoJustificante,
                 IdMovimiento = viewModel.IdMovimiento,
                 IdTipoJustificante = viewModel.IdTipoJustificante,
-                IdUsuario = viewModel.IdUsuario,
                 Estado = viewModel.Estado,
+                IdUsuario = viewModel.IdUsuario,
                 IdMoneda = viewModel.IdMoneda,
                 CompraDolarTc = viewModel.CompraDolarTc,
                 CompraEuroTc = viewModel.CompraEuroTc,
@@ -131,7 +131,7 @@ namespace AltivaWebApp.Mappers
 
 
             };
-
+            
             float dolar = (float)viewModel.VentaDolatTc;
             float euro = (float)viewModel.VentaEuroTc;
 
