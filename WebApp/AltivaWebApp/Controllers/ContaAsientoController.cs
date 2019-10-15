@@ -110,6 +110,23 @@ namespace AltivaWebApp.Controllers
             ViewBag.SimboloEuro = v.Simbolo;
             return View();
         }
+        [HttpGet("GetBalaceIdPeriodo")]
+        public IActionResult GetBalaceIdPeriodo(long _IdPeriodo)
+        {
+            try
+            {
+                var resultado = bd.ResultadosPeriodo.Where(t=>t.IdPeriodoTrabajo == _IdPeriodo).ToList();
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return BadRequest();
+                throw;
+            }
+        }
+
 
         [Route("item")]      
         public IActionResult Item(long Id)

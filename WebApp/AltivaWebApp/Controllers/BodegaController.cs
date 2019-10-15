@@ -125,10 +125,9 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                // TODO: Add delete logic here              
+                        
                 string comentarioES = "";
-                //string comentarioIN = "Creo una nueva bitacora";
-                var bodega = service.GetBodegaById(id);
+                          var bodega = service.GetBodegaById(id);
                 if ((bool)bodega.Estado)
                 {
                     bodega.Estado = false;

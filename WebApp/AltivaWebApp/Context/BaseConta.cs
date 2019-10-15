@@ -26,5 +26,6 @@ namespace AltivaWebApp.Context
         public DbSet<Moneda> Moneda { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
         public DbSet<TiposDocumentosConta> TiposDoc { get; set; }
+        public DbSet<ResultadoPeriodo> ResultadosPeriodo { get; set; }
     }
 }

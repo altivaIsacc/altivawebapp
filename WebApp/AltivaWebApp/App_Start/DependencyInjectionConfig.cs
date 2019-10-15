@@ -204,7 +204,7 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IDepartamentoMap, DepartamentoMap>();
 
 
-            /// todo lo que tiene que ver con comprobantes electronicos ///hacienda
+            ///Comprobantes electronicos de hacienda
             services.AddScoped<IColaAprobacionRepository, ColaAprobacionRepository>();
             services.AddScoped<IHaciendaService, HaciendaService>();
             services.AddScoped<IHaciendaMap, HaciendaMap>();
