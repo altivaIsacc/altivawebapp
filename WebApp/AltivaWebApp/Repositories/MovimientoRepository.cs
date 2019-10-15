@@ -34,7 +34,7 @@ namespace AltivaWebApp.Repositories
                 VentaEuroTc = md.VentaEuroTc,
                 IdMovimientoDesdeNavigation = new TbFaMovimiento
                 {
-                    IdDocumento = md.IdMovimientoDesdeNavigation.IdDocumento
+                    IdDocumento = md.IdMovimientoDesdeNavigation.IdDocumento                                      
                 },
                 IdMovimientoHastaNavigation = new TbFaMovimiento
                 {
@@ -100,7 +100,14 @@ namespace AltivaWebApp.Repositories
                     AplicadoBase = md.IdMovimientoHastaNavigation.AplicadoBase,
                     AplicadoDolar = md.IdMovimientoHastaNavigation.AplicadoDolar,
                     AplicadoEuro = md.IdMovimientoHastaNavigation.AplicadoEuro,
-                    IdTipoDocumento = md.IdMovimientoHastaNavigation.IdTipoDocumento
+                    IdTipoDocumento = md.IdMovimientoHastaNavigation.IdTipoDocumento,
+                    IdTipoDocumentoNavigation = new TbFaTipoDocumento
+                    {
+                        Cxc = md.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.Cxc,
+                        EsDebito = md.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.EsDebito,
+                        EsNota = md.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.EsNota,
+                        IdTipoDocumento = md.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.IdTipoDocumento
+                    }
                 }
 
 

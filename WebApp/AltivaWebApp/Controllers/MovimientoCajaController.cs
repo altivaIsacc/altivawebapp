@@ -46,7 +46,6 @@ namespace AltivaWebApp.Controllers
 
         [HttpPost("CrearEditarFormasPago")]
         public IActionResult CrearEditarFormasPago(long idDocumento, IList<CajaMovimientoViewModel> viewModel, IList<long> fpEliminadas, double montoPrepago)
-
         {
             try
             {

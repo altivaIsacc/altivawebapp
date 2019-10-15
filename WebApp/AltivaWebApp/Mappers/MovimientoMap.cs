@@ -100,7 +100,7 @@ namespace AltivaWebApp.Mappers
 
 
             //saldos aplicados
-            IList<TbFaMovimientoDetalle> docAplicado = service.GetMovimientoByIdDocConPagos(idDocumento).Where(m => m.IdMovimientoHastaNavigation.IdTipoDocumento == 4 || m.IdMovimientoHastaNavigation.IdTipoDocumento == 3).ToList();
+            IList<TbFaMovimientoDetalle> docAplicado = service.GetMovimientoByIdDocConPagos(idDocumento).Where(m => (bool)!m.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.EsDebito && m.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.Cxc && m.IdMovimientoHastaNavigation.IdTipoDocumento != 2).ToList();
 
             double saldoAplicado = docAplicado.Sum(m =>movDoc.IdMoneda == 1 ? m.AplicadoBase : movDoc.IdMoneda == 2 ? m.AplicadoDolar : m.AplicadoEuro);
 

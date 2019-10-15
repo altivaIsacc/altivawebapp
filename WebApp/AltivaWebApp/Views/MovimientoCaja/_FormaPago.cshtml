@@ -151,7 +151,7 @@
                                         <hr style="padding:0; margin:0; margin-bottom:1rem" />
 
                                         <div class="col-md-6 col-sm-6 col-xs-6">
-                                            <span><stron>@Lb["Autorización"]:</stron></span>
+                                            <span><stron>@Lb["Autorizacion"]:</stron></span>
                                         </div>
                                         <div class="form-group col-md-6 col-sm-6 col-xs-6">
                                             <input class="form-control input-sm soloInt" id="autorizacion" onkeypress="pasarSigCampoFP(event,'voucher')" />
@@ -1412,16 +1412,15 @@
     }
 
     function cargarMetodosPagoBD(data) {
-        console.log(data);
 
         var montoPrepagoAux = 0;
 
-        var _pagoPrepago = 3;
-        var _pagoSaldo = 4;
+        var _pagoContado = 2;
 
         for (var i = 0; i < data.length; i++) {
 
-            if (data[i].idMovimientoHastaNavigation.idTipoDocumento == _pagoPrepago || data[i].idMovimientoHastaNavigation.idTipoDocumento == _pagoSaldo) {
+            var tipoDoc = data[i].idMovimientoHastaNavigation.idTipoDocumentoNavigation;
+            if (!tipoDoc.esDebito && tipoDoc.cxc && tipoDoc.idTipoDocumento != _pagoContado) {
                 var modelMontos = {
                     montoBase: data[i].aplicadoBase,
                     montoDolar: data[i].aplicadoDolar,
@@ -1472,8 +1471,6 @@
             }
 
         }
-
-        console.log(montoPrepagoAux);
 
         $('#saldoFormat').val(parseFloat($('#saldoFormat').val()) + montoPrepagoAux);
 
