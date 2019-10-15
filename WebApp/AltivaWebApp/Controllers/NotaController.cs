@@ -220,6 +220,10 @@ namespace AltivaWebApp.Controllers
                     var Nota =  map.Create(modelNota);
                     modelMovimiento.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     modelMovimiento.IdDocumento = Nota.IdNotaCredito;
+                    foreach (var item in modelMovimiento.movimientoJustificante)
+                    {
+                        item.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
+                    }
                     movimientoMap.Create(modelMovimiento);
                     return Ok(Nota);
 

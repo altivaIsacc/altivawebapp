@@ -171,19 +171,24 @@ namespace AltivaWebApp.Mappers
 
         public TbFaMovimientoDetalle ViewModelToDomainSingleMDEdit(MovimientoDetalleViewModel viewModel)
         {
-            var domain = service.GetMovimientoDetalleByIdMovimiento(viewModel.IdMovimientoHasta);
+            var domain = new TbFaMovimientoJustificante
+            {
+                IdMovimientoJustificante = viewModel.IdMovimientoJustificante,
+                IdMovimiento = viewModel.IdMovimiento,
+                IdTipoJustificante = viewModel.IdTipoJustificante,
+                Estado = viewModel.Estado,
+                IdUsuario = viewModel.IdUsuario,
+                IdMoneda = viewModel.IdMoneda,
+                CompraDolarTc = viewModel.CompraDolarTc,
+                CompraEuroTc = viewModel.CompraEuroTc,
+                VentaDolatTc = viewModel.VentaDolatTc,
+                VentaEuroTc = viewModel.VentaEuroTc,
+                Descripcion = viewModel.Descripcion,
 
 
-            domain.CompraDolarTc = viewModel.CompraDolarTc;
-            domain.VentaDolarTc = viewModel.VentaDolarTc;
-            domain.CompraEuroTc = viewModel.CompraEuroTc;
-            domain.VentaEuroTc = viewModel.VentaEuroTc;
-            domain.Fecha = DateTime.Now;
-
-
-
-
-            float dolar = (float)viewModel.VentaDolarTc;
+            };
+            
+            float dolar = (float)viewModel.VentaDolatTc;
             float euro = (float)viewModel.VentaEuroTc;
 
             if (viewModel.IdMoneda == 1)
