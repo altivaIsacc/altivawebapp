@@ -21,7 +21,14 @@ namespace AltivaWebApp.Services
         {
             return repository.Save(domain);
         }
-
+        public IList<TbFaMovimientoDetalle> SaveMovDetalle(IList<TbFaMovimientoDetalle> domain)
+        {
+            return repository.SaveMovDetalle(domain);
+        }
+        public IList<TbFaMovimientoDetalle> UpdateMovDetalle(IList<TbFaMovimientoDetalle> domain)
+        {
+            return repository.UpdateMovDetalle(domain);
+        }
         public IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc)
         {
             return repository.GetMovimientoByIdDocConPagos(idDoc);

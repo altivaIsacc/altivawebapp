@@ -107,13 +107,6 @@ namespace AltivaWebApp.Controllers
                     factura = map.Create(viewModel);
                 }
 
-
-                //valida factura tipo contado
-                if (factura.Tipo == 1)
-                {
-                    cajaMovMap.CreateCajaMovimiento(formaPago, movService.GetUltimoMovimientoPagoId(factura.Id));
-                }
-
                 return Json(new { success = true, idDoc = factura.Id });
             }
             catch (Exception ex)

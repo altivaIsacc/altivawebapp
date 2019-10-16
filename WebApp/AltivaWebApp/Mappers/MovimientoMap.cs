@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace AltivaWebApp.Mappers
 {
-    public class MovimientoMap: IMovimientoMap
+    public class MovimientoMap : IMovimientoMap
     {
         private readonly IMovimientoService service;
         private readonly IMonedaService monedaService;
@@ -25,7 +25,7 @@ namespace AltivaWebApp.Mappers
 
             var movDoc = service.GetMovimientoByIdDocumento(idDoc);
 
-            double montoFPBase = formasPago.Sum(fp => fp.MontoBase); 
+            double montoFPBase = formasPago.Sum(fp => fp.MontoBase);
             double montoFPDolar = formasPago.Sum(fp => fp.MontoDolar);
             double montoFPEuro = formasPago.Sum(fp => fp.MontoEuro);
 
@@ -52,7 +52,7 @@ namespace AltivaWebApp.Mappers
                 SaldoDolar = 0,
                 SaldoEuro = 0,
                 FechaCreacion = DateTime.Now
-                
+
             };
 
             TbFaMovimiento newMov = null;
@@ -62,19 +62,19 @@ namespace AltivaWebApp.Mappers
                 newMov = service.Save(movPago);
                 CreateMovmientoDetalle(movDoc, newMov);
             }
-                
+
             if (montoPrepago > 0)
                 AplicarSaldo(movDoc.IdMovimiento, montoPrepago, idDoc);
 
             return newMov;
         }
-        
+
         public IList<TbFaMovimientoDetalle> CreateMovmientoDetalle(TbFaMovimiento movDesde, TbFaMovimiento movHasta)
         {
             var moneda = monedaService.GetAll();
             IList<TbFaMovimientoDetalle> movDetalle = new List<TbFaMovimientoDetalle>();
 
-            foreach (var item in domain.TbFaMovimientoJustificante)
+            movDetalle.Add(new TbFaMovimientoDetalle
             {
                 AplicadoBase = movHasta.MontoBase,
                 AplicadoDolar = movHasta.MontoDolar,
@@ -86,39 +86,12 @@ namespace AltivaWebApp.Mappers
                 VentaEuroTc = moneda[2].ValorVenta,
                 IdMovimientoDesde = movDesde.IdMovimiento,
                 IdMovimientoHasta = movHasta.IdMovimiento
-                
+
             });
 
-            }           
-                domain.MontoBase = montoBase;
-                domain.MontoDolar = montoDolar;
-                domain.MontoEuro = montoEuro;
-                domain.DisponibleBase = montoBase;
-                domain.DisponibleDolar = montoDolar;
-                domain.DisponibleEuro = montoEuro;
 
-
-            return domain;
+            return service.SaveMovDetalle(movDetalle);
         }
-        public double RecuperarTipos(MovimientoViewModel viewModel, int tipo)
-        {
-            var domain = new List<TbFaMovimientoJustificante>();
-            foreach (var item in viewModel.movimientoJustificante)
-            {
-                if (tipo == 1)
-                    return item.CompraDolarTc;
-                if (tipo == 2)
-                    return item.CompraEuroTc;
-            }
-            return 0;
-        }
-        public IList<TbFaMovimientoJustificante> ViewModelToDomainMJ(MovimientoViewModel viewModel)
-        {
-            var domain = new List<TbFaMovimientoJustificante>();
-            foreach (var item in viewModel.movimientoJustificante)
-            {
-                domain.Add(ViewModelToDomainSingleMj(item, viewModel));
-            }
 
         public void AplicarSaldo(long idMovDoc, double montoPrepago, long idDocumento)
         {
@@ -129,7 +102,7 @@ namespace AltivaWebApp.Mappers
             //saldos aplicados
             IList<TbFaMovimientoDetalle> docAplicado = service.GetMovimientoByIdDocConPagos(idDocumento).Where(m => (bool)!m.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.EsDebito && m.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.Cxc && m.IdMovimientoHastaNavigation.IdTipoDocumento != 2).ToList();
 
-            double saldoAplicado = docAplicado.Sum(m =>movDoc.IdMoneda == 1 ? m.AplicadoBase : movDoc.IdMoneda == 2 ? m.AplicadoDolar : m.AplicadoEuro);
+            double saldoAplicado = docAplicado.Sum(m => movDoc.IdMoneda == 1 ? m.AplicadoBase : movDoc.IdMoneda == 2 ? m.AplicadoDolar : m.AplicadoEuro);
 
             if (saldoAplicado == montoPrepago)
                 return;
@@ -143,10 +116,7 @@ namespace AltivaWebApp.Mappers
 
             IList<TbFaMovimiento> movList = service.GetSaldoContacto(movDoc.IdContacto).OrderBy(m => m.FechaCreacion).ToList();
 
-            };
-            
-            float dolar = (float)viewModel.VentaDolatTc;
-            float euro = (float)viewModel.VentaEuroTc;
+            IList<TbFaMovimientoDetalle> movDetlist = new List<TbFaMovimientoDetalle>();
 
             double aplicadoB = 0;
             double aplicadoD = 0;
@@ -255,29 +225,87 @@ namespace AltivaWebApp.Mappers
 
             return monto;
 
+        }
+        //francisco
+        public TbFaMovimiento Create(MovimientoViewModel viewModel)
+        {
+            return service.Save(ViewModelToDomain(viewModel));
+        }
+        public TbFaMovimiento ViewModelToDomain(MovimientoViewModel viewModel)
+        {
+
+            var domain = new TbFaMovimiento();
+
+            domain.IdMovimiento = viewModel.IdMovimiento;
+            domain.IdContacto = viewModel.IdContacto;
+            domain.IdDocumento = viewModel.IdDocumento;
+            domain.IdTipoDocumento = viewModel.IdTipoDocumento;
+            domain.IdUsuario = viewModel.IdUsuario;
+            domain.Cxp = viewModel.Cxp;
+            domain.Cxc = viewModel.Cxc;
+            domain.IdMoneda = viewModel.IdMoneda;
+            domain.AplicadoBase = viewModel.AplicadoBase;
+            domain.AplicadoDolar = viewModel.AplicadoDolar;
+            domain.AplicadoEuro = viewModel.AplicadoEuro;
+            domain.SaldoBase = viewModel.SaldoBase;
+            domain.SaldoDolar = viewModel.SaldoDolar;
+            domain.SaldoEuro = viewModel.SaldoEuro;
+            domain.FechaCreacion = viewModel.FechaCreacion;
+            domain.TbFaMovimientoJustificante = ViewModelToDomainMJ(viewModel);
+
+            double montoBase = 0;
+            double montoDolar = 0;
+            double montoEuro = 0;
+
+            foreach (var item in domain.TbFaMovimientoJustificante)
+            {
+                montoBase = item.MontoBase + montoBase;
+                montoDolar = item.MontoDolar + montoDolar;
+                montoEuro = item.MontoEuro + montoEuro;
+
+            }
+            domain.MontoBase = montoBase;
+            domain.MontoDolar = montoDolar;
+            domain.MontoEuro = montoEuro;
+            domain.DisponibleBase = montoBase;
+            domain.DisponibleDolar = montoDolar;
+            domain.DisponibleEuro = montoEuro;
+
+
             return domain;
         }
-
-       public MovimientoViewModel DomainToViewModel(TbFaMovimiento domain)
-       {
-         var viewModel = new MovimientoViewModel
-         {
-             IdMovimiento = domain.IdMovimiento,
-            IdContacto = domain.IdContacto,
-            IdDocumento = domain.IdDocumento,
-            IdTipoDocumento = domain.IdTipoDocumento,
-            IdUsuario = domain.IdUsuario,
-            Cxp = domain.Cxp,
-            Cxc = domain.Cxc,
-            IdMoneda = domain.IdMoneda,            
-            AplicadoBase = domain.AplicadoBase,
-            AplicadoDolar = domain.AplicadoDolar,
-            AplicadoEuro = domain.AplicadoEuro,
-            SaldoBase = domain.SaldoBase,
-            SaldoDolar = domain.SaldoDolar,
-            SaldoEuro = domain.SaldoEuro,
-            FechaCreacion = domain.FechaCreacion
-         };
+        public TbFaMovimiento Update(MovimientoViewModel viewModel)
+        {
+            return service.Update(ViewModelToDomainEdit(viewModel));
+        }
+        public bool CreateMJ(MovimientoViewModel viewModel)
+        {
+            return service.SaveMovimientoJustificante(ViewModelToDomainMJ(viewModel));
+        }
+        public bool UpdateMJ(MovimientoViewModel viewModel)
+        {
+            return service.UpdateMovimientoJustificante(ViewModelToDomainMJ(viewModel));
+        }
+        public MovimientoViewModel DomainToViewModel(TbFaMovimiento domain)
+        {
+            var viewModel = new MovimientoViewModel
+            {
+                IdMovimiento = domain.IdMovimiento,
+                IdContacto = domain.IdContacto,
+                IdDocumento = domain.IdDocumento,
+                IdTipoDocumento = domain.IdTipoDocumento,
+                IdUsuario = domain.IdUsuario,
+                Cxp = domain.Cxp,
+                Cxc = domain.Cxc,
+                IdMoneda = domain.IdMoneda,
+                AplicadoBase = domain.AplicadoBase,
+                AplicadoDolar = domain.AplicadoDolar,
+                AplicadoEuro = domain.AplicadoEuro,
+                SaldoBase = domain.SaldoBase,
+                SaldoDolar = domain.SaldoDolar,
+                SaldoEuro = domain.SaldoEuro,
+                FechaCreacion = domain.FechaCreacion
+            };
             if (viewModel.IdMoneda == 1)
             {
                 viewModel.Monto = domain.MontoBase;
@@ -294,14 +322,90 @@ namespace AltivaWebApp.Mappers
                 viewModel.DisponibleEuro = domain.DisponibleEuro;
             }
             return viewModel;
-       }
-        public IList<TbFaMovimientoDetalle> ViewModelToDomainMD(IList<MovimientoDetalleViewModel> viewModel)
+        }
+        public IList<TbFaMovimientoJustificante> ViewModelToDomainMJ(MovimientoViewModel viewModel)
         {
-            var domain = new List<TbFaMovimientoDetalle>();
-            foreach (var item in viewModel)
+            var domain = new List<TbFaMovimientoJustificante>();
+            foreach (var item in viewModel.movimientoJustificante)
             {
-                domain.Add(ViewModelToDomainSingleMD(item));
+                domain.Add(ViewModelToDomainSingleMj(item, viewModel));
             }
+
+            return domain;
+        }
+        public TbFaMovimientoJustificante ViewModelToDomainSingleMj(MovimientoJustificanteViewModel viewModel, MovimientoViewModel movimiento)
+        {
+            var domain = new TbFaMovimientoJustificante
+            {
+                IdMovimientoJustificante = viewModel.IdMovimientoJustificante,
+                IdMovimiento = viewModel.IdMovimiento,
+                IdTipoJustificante = viewModel.IdTipoJustificante,
+                Estado = viewModel.Estado,
+                IdUsuario = viewModel.IdUsuario,
+                IdMoneda = viewModel.IdMoneda,
+                CompraDolarTc = viewModel.CompraDolarTc,
+                CompraEuroTc = viewModel.CompraEuroTc,
+                VentaDolatTc = viewModel.VentaDolatTc,
+                VentaEuroTc = viewModel.VentaEuroTc,
+                Descripcion = viewModel.Descripcion,
+
+
+            };
+
+            float dolar = (float)viewModel.VentaDolatTc;
+            float euro = (float)viewModel.VentaEuroTc;
+
+            if (viewModel.IdMoneda == 1)
+            {
+                domain.MontoBase = viewModel.Monto;
+                domain.MontoDolar = domain.MontoBase / dolar;
+                domain.MontoEuro = domain.MontoBase / euro;
+            }
+            else if (viewModel.IdMoneda == 2)
+            {
+                domain.MontoBase = viewModel.Monto * dolar;
+                domain.MontoDolar = viewModel.Monto;
+                domain.MontoEuro = domain.MontoBase / euro;
+            }
+            else if (viewModel.IdMoneda == 3)
+            {
+                domain.MontoBase = viewModel.Monto * euro;
+                domain.MontoDolar = domain.MontoBase / dolar;
+                domain.MontoEuro = viewModel.Monto;
+            }
+
+            return domain;
+        }
+        public bool CreateMD(IList<MovimientoDetalleViewModel> viewModel)
+        {
+            return service.SaveMD(ViewModelToDomainMD(viewModel));
+        }
+        public bool UpdateMD(IList<MovimientoDetalleViewModel> viewModel)
+        {
+            return service.UpdateMD(ViewModelToDomainMDEdit(viewModel));
+        }
+        public TbFaMovimiento ViewModelToDomainEdit(MovimientoViewModel viewModel)
+        {
+            var domain = service.GetMovimientoById(viewModel.IdMovimiento);
+            domain.IdMoneda = viewModel.IdMoneda;
+            double montoBase = 0;
+            double montoDolar = 0;
+            double montoEuro = 0;
+
+            foreach (var item in service.GetJustificantesByMovimientoId(viewModel.IdMovimiento))
+            {
+                montoBase = item.MontoBase + montoBase;
+                montoDolar = item.MontoDolar + montoDolar;
+                montoEuro = item.MontoEuro + montoEuro;
+
+            }
+            domain.MontoBase = montoBase;
+            domain.MontoDolar = montoDolar;
+            domain.MontoEuro = montoEuro;
+            domain.DisponibleBase = montoBase - domain.AplicadoBase;
+            domain.DisponibleDolar = montoDolar - domain.DisponibleDolar;
+            domain.DisponibleEuro = montoEuro - domain.DisponibleEuro;
+
 
             return domain;
         }
@@ -327,7 +431,7 @@ namespace AltivaWebApp.Mappers
             domain.Fecha = DateTime.Now;
 
 
-            
+
 
             float dolar = (float)viewModel.VentaDolarTc;
             float euro = (float)viewModel.VentaEuroTc;
@@ -349,6 +453,16 @@ namespace AltivaWebApp.Mappers
                 domain.AplicadoBase = viewModel.Aplicado * euro;
                 domain.AplicadoDolar = domain.AplicadoBase / dolar;
                 domain.AplicadoEuro = viewModel.Aplicado;
+            }
+
+            return domain;
+        }
+        public IList<TbFaMovimientoDetalle> ViewModelToDomainMD(IList<MovimientoDetalleViewModel> viewModel)
+        {
+            var domain = new List<TbFaMovimientoDetalle>();
+            foreach (var item in viewModel)
+            {
+                domain.Add(ViewModelToDomainSingleMD(item));
             }
 
             return domain;
@@ -393,5 +507,7 @@ namespace AltivaWebApp.Mappers
 
             return domain;
         }
+        //francisco
+
     }
 }
