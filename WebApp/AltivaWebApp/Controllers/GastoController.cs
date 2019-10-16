@@ -99,7 +99,9 @@ namespace AltivaWebApp.Controllers
 
                             }
                         }
-                        if(estado == 2)
+                        var G = map.UpdateGasto(viewModel);
+
+                        if (estado == 2)
                         {
                             if (model2.Count() > 0)
                             {

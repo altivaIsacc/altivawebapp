@@ -31,6 +31,7 @@
 }
 
 
+
 <style>
     .color {
         color: #fff;
@@ -44,7 +45,7 @@
     <div class="row">
         <h4 class="col-md-11 col-sm-11 col-xs-11" id="titleTarea">@titulo</h4>
         <div class="col-md-1">
-            <button type="button" class="close" id="btnCancelarTarea">
+            <button type="button" class="close" onclick="btnCancelarTarea()">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -108,7 +109,7 @@
 
     <div id="divVerMas" class="collapse collapseCamposTareas">
         <div class="row ">
-
+  
             <div class="form-group col-md-9 col-sm-9 col-xs-10">
                 <label class=" col-form-label">@Lb["tipo"]:</label>
                 <select class=" form-control" id="tipos"></select>
@@ -194,10 +195,11 @@
     }
     else
     {
-        <div><label>@Lb["Subtareas"]:</label>
-               <button class="btn btn-link" id="AgregarLista"><i style="font-size:2rem;" class="fas fa-plus"></i></button>
-    
-       </div>
+        <div>
+            <label>@Lb["Subtareas"]:</label>
+            <button class="btn btn-link" id="AgregarLista"><i style="font-size:2rem;" class="fas fa-plus"></i></button>
+
+        </div>
 
 
         <div class="row">
@@ -207,9 +209,13 @@
             </div>
 
         </div>
+        <span hidden id="subTareaRequerida" class="text-danger">@Lb["SubTareasVacias"].</span>
+
         <br />
         <div class="row col-md-9">
+
             <div class="col-md-4">
+
                 <button disabled type="button" id="btnEditarTarea" class="btn btn-success"> @Lb["Guardar"] <i class="fas fa-save"></i></button>
 
             </div>
@@ -228,7 +234,7 @@
 </div>
 
 <!-- Full Height Modal Right -->
-<div class="modal fade modal-lg" id="sideModalTR" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+<div class="modal fade modal-lg" id="ModalTipoTareas" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
 
     <!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
@@ -236,16 +242,7 @@
 
 
         <div class="modal-content">
-            @*<div class="row modal-header" id="head">
-                    <div class="col-md-6" style="text-align:left">
-                        <h4 class="modal-title w-100" id="myModalLabel">@Lb["Tipo"]</h4>
-                    </div>
-                    <div class="col-md-6" style="text-align:right">
-                        <button type="button" class="close" id="btnCancelar">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                </div>*@
+         
             <div class="modal-body " id="tiposTareas">
 
             </div>
@@ -277,6 +274,13 @@
     var $anulado = $('#anulado');
     var tiposT = [];
     var estadosT = [];
+
+    function cerrarModal() {
+        $('#nuevaTarea').modal('hide');
+    }
+
+
+
     function btnCancelarTarea() {
         var titulo = $('#titulo').val();
         var idContacto = $('#contacto').val();
@@ -358,13 +362,23 @@
             cargarTabla();
         }
     });
+
+
     var i = 0;
     $('#AgregarLista').on('click', function () {
 
-        $('#uls').append('<div class="form-group" id="subEliminar'+i+'"><div class="col-md-10"><label>Título:</label><input id="st' + i +'" type="text" class="form-control"/></div><div class=" col-md-2" style="margin-top:20px;"><button class="btn btn-link" onclick="eliminarCampo('+i+')"><i class="fas fa-trash dark"></i></button></div></div>');
+        $('#uls').append('<div class="form-group" id="subEliminar' + i + '"><div class="col-md-10"><input placeholder="@Lb["Titulo"]" id="st' + i + '" type="text" class="form-control"/></div><div class=" col-md-2" style="margin-top:20px;"><button class="btn btn-link" onclick="eliminarCampo(' + i + ')"><i class="fas fa-trash dark"></i></button></div></div>');
 
         i++;
     });
+
+
+
+
+
+
+    
+
     function GetComentario(referencia, idRefernecia) {
 
 
@@ -375,7 +389,7 @@
             tipoReferencia: referencia,
             id: idRefernecia
         };
-        console.log(comentarioModel);
+       // console.log(comentarioModel);
 
         $.ajax({
             type: "POST",
@@ -406,33 +420,100 @@
          existeConfiguracion();
 
     });
-    //editar subtareas:
-    function EditarSubTareas(idTarea) {
-        var SubTareas = [];
 
-        for (var e = 0; e < l; e++) {
 
-            var subtarea = {
-                id: $("#is" + e + "").val(),
-                idTarea: idTarea,
-                descripcion: $("#s" + e + "").val()
 
+
+
+
+     //editando
+    $('#btnEditarTarea').on('click', function () {
+
+        if (ValidarDatos() == true) {
+            var fechaLimite = $('#fechaLimite').val();
+            var descripcion = $('#descripcion').val();
+            var idEstado = $('#estados').val();
+            var idTipo = $('#tipos').val();
+            var diasEstimados = $('#diasEstimados').val();
+            var diasReales = $('#diasReales').val();
+            var costoEstimado = $('#costoEstimado').val().replace(".", ",");
+            var costoReal = $('#costoReal').val().replace(".", ",");
+            var cobrado = $('#esCobrado').val();
+            var montoCobrad = $('#montoCobrado').val().replace(".", ",");
+
+            if ($('#esCobrado').prop('checked')) {
+                cobrado = true;
+            } else {
+                cobrado = false;
+            }
+
+            var TareaViewModel = {
+                id: $('#Id').val(),
+                titulo: $('#titulo').val(),
+                idContacto: $('#contacto').val(),
+                idUsuario: $('#asignado').val(),
+                idEstado: idEstado,
+                idTipo: idTipo,
+                eliminada: null,
+                fechaLimite: fechaLimite,
+                descripcion: descripcion,
+                diasEstimados: diasEstimados,
+                diasReales: diasReales,
+                costoEstimado: costoEstimado,
+                costoReal: costoReal,
+                cobrado: cobrado,
+                montoCobrad: montoCobrad,
+                posicion: (tareas.length + 1)
             };
-
-            SubTareas.push(subtarea);
-        }
-         $.ajax({
+           // console.log(TareaViewModel);
+            $.ajax({
                 headers: {
                     "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
                 },
                 type: "POST",
 
 
-             url: '@Url.Action("EditarSubTareas", "Tarea")',
-             data: { domain: SubTareas },
+                url: '@Url.Action("EditarTareaPost", "Tarea")',
+                data: { domain: TareaViewModel },
                 success: function (data) {
 
-                    cargarTabla();
+                    var respEditar = "";
+                    var respNueva = "";
+                    if (l != 0) {
+
+                        respEditar = EditarSubTareas(data);
+                       
+                    }
+
+                    if (i != 0) {
+
+                        respNueva = AgregarSubtarea(data);
+
+                    }
+
+
+
+                    if (respEditar == true && respNueva == true) { //existen subtareas con campos vacios
+
+                        // console.log("mostrando...");
+                        $('#nuevaTarea').modal('show');
+
+
+                    } else if (respEditar == false && respNueva == false) {
+
+                        // console.log("ocultando...");
+                        $('#nuevaTarea').modal('hide');
+                        cargarTabla();
+
+                    } else if (respEditar == true || respNueva == false) {
+                        $('#nuevaTarea').modal('show');
+
+                    } else if (respEditar == false || respNueva == true) {
+                        $('#nuevaTarea').modal('show');
+
+                    }
+                
+                 
                 },
 
              error: function (err, scnd) {
@@ -441,13 +522,145 @@
                 }
 
             });
+        }
+
+
+    });
+
+
+
+
+
+    //editar subtareas:
+    function EditarSubTareas(idTarea) {
+
+        var respuesta = false;
+
+        var SubTareas = [];      
+        for (var e = 0; e < l; e++) {
+            var subtarea = {
+                id: $("#is" + e + "").val(),
+                idTarea: idTarea,
+                descripcion: $("#s" + e).val() //  descripcion: $("#s" + e + "").val()
+
+            };
+            SubTareas.push(subtarea);        
+        }
+
+        var validarPropiedadDescripcionSubtarea = "";
+        validarPropiedadDescripcionSubtarea = validarSubTareas(SubTareas);
+
+        if (validarPropiedadDescripcionSubtarea == true) {
+          //  console.log("tareas editadas con campos vacios");
+            $('#subTareaRequerida').show();
+            respuesta = true;
+
+
+        } else {
+         //  console.log("tareas editas llenas"); 
+            $('#subTareaRequerida').hide();
+
+
+                     $.ajax({
+                        headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                        },
+                        type: "POST",
+                     url: '@Url.Action("EditarSubTareas", "Tarea")',
+                     data: { domain: SubTareas },
+                        success: function (data) {
+                            cargarTabla();
+                        },
+                     error: function (err, scnd) {
+                             cargarAlert('@Lb["errorGeneral"]');
+                            console.log(err.statusText);
+                        }
+                    });
+
+
+            respuesta = false;
+
+        }
+
+        return respuesta;
+
+
+    
+
     }
 
+
+    function validarSubTareas(arraySubtarea) {
+
+        var respuesta = false;
+        for (var i = 0; i < arraySubtarea.length; i++) {
+            if (arraySubtarea[i].descripcion == "") {
+                respuesta = true;
+                break;
+            } 
+        }
+        return respuesta;
+
+    }
+
+
+     //agregar subtarea
+    function AgregarSubtarea(idTarea) {
+
+        var respuesta = false;
+     
+        var SubTareas = [];
+        for (var e = 0; e < i; e++) {
+            var subtarea = {
+                idTarea: idTarea,
+                descripcion: $("#st" + e).val()   // descripcion: $("#st" + e + "").val()
+
+            };
+            SubTareas.push(subtarea);
+        }
+
+        var validarPropiedadDescripcionSubtarea = "";
+
+        validarPropiedadDescripcionSubtarea = validarSubTareas(SubTareas);
+        if (validarPropiedadDescripcionSubtarea == true) {
+         // console.log("Tareas nuevas con campos vacios");
+            $('#subTareaRequerida').show();
+            respuesta = true;
+        
+
+        } else {
+         // console.log("Tareas nuevas llenas");
+            $('#subTareaRequerida').hide();
+           
+
+                       $.ajax({
+                            headers: {
+                                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                            },
+                            type: "POST",
+                         url: '@Url.Action("AgregarSubTarea", "Tarea")',
+                         data: { domain: SubTareas },
+                            success: function (data) {
+                                $('#uls').empty();
+                                cargarTabla();
+                            },
+                         error: function (err, scnd) {
+                                 cargarAlert('@Lb["errorGeneral"]');
+                                console.log(err.statusText);
+                            }
+                       });
+
+            respuesta = false;
+
+        }
+        return respuesta;
+
+    }
 
 
     //eliminar subtareas nuevas
     function eliminarCampo(id) {
-        console.log(id);
+        //console.log(id);
         bootbox.confirm({
 
             message: "<h4 class='text-center'><span > @Lb["confirmElimSubtarea"]</span></h4>",
@@ -482,7 +695,7 @@
     //eliminar subtarea que ya estaban
     function EliminarSubTarea(idSubTarea) {
 
-        console.log(idSubTarea);
+      //  console.log(idSubTarea);
         bootbox.confirm({
 
             message: "<h4 class='text-center'><span > @Lb["confirmElimSubtarea"]</span></h4>",
@@ -527,39 +740,7 @@
         });
 
     }
-    //agregar subtarea
-    function AgregarSubtarea(idTarea ) {
-        var SubTareas = [];
-        for (var e = 0; e < i; e++) {
-            var subtarea = {
-                idTarea: idTarea,
-                descripcion: $("#st" + e + "").val()
-
-            };
-            SubTareas.push(subtarea);
-        }
-         $.ajax({
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                type: "POST",
-
-
-             url: '@Url.Action("AgregarSubTarea", "Tarea")',
-             data: { domain: SubTareas },
-                success: function (data) {
-                    $('#uls').empty();
-                    cargarTabla();
-                },
-
-             error: function (err, scnd) {
-                     cargarAlert('@Lb["errorGeneral"]');
-                    console.log(err.statusText);
-                }
-
-            });
-
-    }
+   
     var l = 0;
     //getSubTareas.
      function GetSubTareas() {
@@ -592,78 +773,8 @@
 
                 });
         }
-    //editando
-    $('#btnEditarTarea').on('click', function () {
+   
 
-        if (ValidarDatos() == true) {
-            var fechaLimite = $('#fechaLimite').val();
-            var descripcion = $('#descripcion').val();
-            var idEstado = $('#estados').val();
-            var idTipo = $('#tipos').val();
-            var diasEstimados = $('#diasEstimados').val();
-            var diasReales = $('#diasReales').val();
-            var costoEstimado = $('#costoEstimado').val().replace(".", ",");
-            var costoReal = $('#costoReal').val().replace(".", ",");
-            var cobrado = $('#esCobrado').val();
-            var montoCobrad = $('#montoCobrado').val().replace(".", ",");
-
-            if ($('#esCobrado').prop('checked')) {
-                cobrado = true;
-            } else {
-                cobrado = false;
-            }
-
-
-
-            var TareaViewModel = {
-                id: $('#Id').val(),
-                titulo: $('#titulo').val(),
-                idContacto: $('#contacto').val(),
-                idUsuario: $('#asignado').val(),
-                idEstado: idEstado,
-                idTipo: idTipo,
-                eliminada: null,
-                fechaLimite: fechaLimite,
-                descripcion: descripcion,
-                diasEstimados: diasEstimados,
-                diasReales: diasReales,
-                costoEstimado: costoEstimado,
-                costoReal: costoReal,
-                cobrado: cobrado,
-                montoCobrad: montoCobrad,
-                posicion: (tareas.length + 1)
-            };
-            console.log(TareaViewModel);
-            $.ajax({
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                type: "POST",
-
-
-                url: '@Url.Action("EditarTareaPost", "Tarea")',
-                data: { domain: TareaViewModel },
-                success: function (data) {
-                    if (l != 0) {
-                        EditarSubTareas(data);
-                    }
-                    if (i != 0) {
-                        AgregarSubtarea(data);
-                    }
-                    $('#nuevaTarea').modal('hide');
-                    cargarTabla();
-                },
-
-                error: function (err, scnd) {
-                     cargarAlert('@Lb["errorGeneral"]');
-                    console.log(err.statusText);
-                }
-
-            });
-        }
-
-
-    });
     //metodo que permiter guardar la tarea
     $('#btnGuardarTarea').on('click', function () {
 
@@ -705,7 +816,11 @@
                 montoCobrad: montoCobrad,
                 posicion: (tareas.length + 1)
             };
+
+            console.log("entro al ajax");
             console.log(TareaViewModel);
+
+
               $.ajax({
                     headers: {
                         "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
@@ -729,6 +844,9 @@
                 });
         }
     });
+
+
+
     function CrearEstado() {
            $.ajax({
                     headers: {
@@ -751,7 +869,7 @@
 
                 });
     }
-    $('#sideModalTR').on('hidden.bs.modal', function () {
+    $('#ModalTipoTareas').on('hidden.bs.modal', function () {
 
         getTipos();
 
@@ -787,11 +905,14 @@
                 });
     }
     tipoTareas = [];
+
+
+
     $("#tipos").on('click', function () {
 
         var posicion = document.getElementById('tipos').options.selectedIndex; //posicion
         var realPosicion = document.getElementById('tipos').options[posicion].text;
-        console.log(tipoTareas);
+      //  console.log(tipoTareas);
         if (tipoTareas[posicion] == true) {
 
                 $('#fechaLimite').attr('disabled', true);
@@ -800,6 +921,9 @@
             }
 
     });
+
+
+
     $(document).ready(function () {
 
 
@@ -959,7 +1083,7 @@
                     if ($('#tipos').has('option').length > 0) {
                         flag = true;
                         selected = $('#tipos').val();
-                        $('#btnEditarTarea').attr('disabled', false);
+                       // $('#btnEditarTarea').attr('disabled', false);
                         $('#btnGuardarTarea').attr('disabled', false);
                     } else
                         tiposT = data;
@@ -989,8 +1113,8 @@
                                 else if (flag) {
 
                                     if (tiposT.length === data.length) {
-                                        console.log(selected);
-                                        console.log(data[i].id);
+                                      //  console.log(selected);
+                                      //  console.log(data[i].id);
                                         if (parseInt(selected) === data[i].id) {
                                             $(o).attr("selected", true);
                                         }
@@ -1068,7 +1192,7 @@
                  success: function (data) {
 
                         $('#tiposTareas').html(data);
-                        $('#sideModalTR').modal('show');
+                        $('#ModalTipoTareas').modal('show');
                     },
 
                     error: function (err, scnd) {
@@ -1092,8 +1216,10 @@
                  data: { idTipoTarea: idTipoTarea},
                  success: function (data) {
 
-                        $('#tiposTareas').html(data);
-                        $('#sideModalTR').modal('show');
+                         $('#tiposTareas').html(data);
+                         $('#ModalTipoTareas').modal('show');
+                        // console.log("entro");
+                         $('#btnEditarTarea').prop("disabled", true); // perteneciente al modulo de tareas
                     },
 
                     error: function (err, scnd) {
@@ -1138,6 +1264,8 @@
     }
 
     function ValidarDatos() {
+
+        console.log("entro a validar");
 
         if ($('#titulo').val() == "") {
             $('#AlertTitulo').empty();

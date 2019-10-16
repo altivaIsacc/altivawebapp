@@ -69,7 +69,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbPrCompra.Include(c => c.IdContactoNavigation).AsNoTracking().Include(c => c.TbPrCompraDetalle).ThenInclude(cd => cd.IdInventarioNavigation).AsNoTracking().ToList();
+                return context.TbPrCompra.Include(c => c.IdContactoNavigation).AsNoTracking().Include(c => c.TbPrCompraDetalle).ThenInclude(cd => cd.IdInventarioNavigation).AsNoTracking().OrderByDescending(c => c.Id).ToList();
             }
             catch (Exception ex)
             {

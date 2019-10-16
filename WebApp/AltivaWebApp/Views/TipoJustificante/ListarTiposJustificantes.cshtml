@@ -1,0 +1,315 @@
+﻿@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    ViewData["Title"] = Lb["TiposJustficantes"];
+
+}
+<div class="row">
+    <div class="col-md-3"><h3>@Lb["TiposJustficantes"]</h3></div>
+    <div class="col-md-6" style="padding-top: 0.5rem">
+        <button class="btn btn-primary" onclick="getCrearEditarPartial(0)">@Lb["Agregar"]</i></button>
+    </div>
+</div>
+<div class="row">
+
+    <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
+        <label>@Lb["buscarPorNombre"]:</label>
+        <input type="text" id="filtroBuscarNombre" class="form-control" placeholder="@Lb["Nombre"]" />
+    </div>
+    <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
+        <label>@Lb["buscarPorTipo"]:</label>
+        <select  class="form-control" id="filtroX">
+            <option selected value="1">@Lb["seleccione"]</option>
+            <option value="2"> @Lb["CXP"]</option>
+            <option value="3">@Lb["CXC"]</option>        
+        </select>
+    </div>
+
+    <div class="col-md-3 col-sm-4 col-xs-12 checkbox" style="padding-top:1.5rem">
+        <label class="control-label">
+            <input type="checkbox" id="estado" onchange="filtroAnuladas()"> @Lb["VerInactivos"]
+        </label>
+    </div>
+
+</div>
+<br />
+
+<div class="row">
+
+    <div class=" col-md-8 table-responsive">
+        <table class="table table-bordered" id="tblTipoJustificante">
+            <thead>
+                <tr>
+                    <th hidden>
+
+                    </th>
+
+                    <th>
+                        @Lb["Nombre"]
+                    </th>
+                    <th>
+                        @Lb["Estado"]
+                    </th>
+                    <th>
+                        @Lb["CXP"]
+                    </th>
+                    <th >
+                        @Lb["CXC"]
+                    </th>
+                    <th>
+                        @Lb["Acción"]
+                    </th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <!-- Modal -->
+    <div class="modal fade" id="modalTipoJustificante" tabindex="-1" role="dialog" aria-labelledby="departamentoModallabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+
+                <div class="modal-body" id="crearEditarPartial">
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var tipoJustificante = [];
+    $(document).ready(function () {
+        getTipoJustificante();
+
+
+    }); // fin del document ready
+
+    $("#filtroX").on("change", function () {
+        filtroAnuladas();
+    });
+      function getTipoJustificante() {
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetTipoJustificante", "TipoJustificante")',
+            success: function (data) {
+                tipoJustificante = data;
+                filtroAnuladas();
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+      }
+       function anularJustificanteDirect(id) {
+        $.ajax({
+            type: "post",
+            dataType: "json",
+            url: '@Url.Action("AnularJustificante", "TipoJustificante")',
+            data: { id: id },
+            success: function (data) {
+                getTipoJustificante();
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+    function anularJustificante(id, key) {
+
+        var msj = "@Lb["confirmAnularTJustificante"]";
+        if (key ==2) {
+             msj = "@Lb["confirmHabilitarTJustificante"]";
+                    
+        } 
+            
+        
+
+        bootbox.confirm(msj, function (result) {
+
+            if (result) {
+
+                anularJustificanteDirect(id);
+            }
+
+        });
+    }
+     function getCrearEditarPartial(id)
+     {
+        var url = "@Url.Action("_CrearTipoJustificante", "TipoJustificante")";
+        if (id != 0) {
+            url = '@Url.Action("_EditarTipoJustificante", "TipoJustificante", new { id = "__id__"})';
+            url = url.replace("__id__", id);
+        }
+
+         $.ajax({
+            type: "GET",          
+            url: url,
+
+            success: function (data) {
+                $('#crearEditarPartial').html(data);               
+                $('#modalTipoJustificante').modal('show');
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+      }
+       function cargarDatos(data) {
+        $("#tblTipoJustificante> tbody").remove();
+        $('#tblTipoJustificante').append('<tbody></tbody>');
+
+        var contadorFila = 0;
+        var colorFila = "";
+           var disabled = "";
+          
+        var anularIcon = '<i class="fas fa-trash"></i>';
+         
+           for (var i = 0; i < data.length; i++) {
+             var xp = '<i class="fas fa-check"></i>';
+             var xc = "";
+             var Estado = '@Lb["activo"]';
+            if (data[i].estado == 2) {
+                colorFila = "color: #808080";
+                disabled = "disabled";
+                anularIcon = '<i class="fas fa-trash-restore"></i>';
+                Estado ='@Lb["inactivo"]';
+            }
+            if (data[i].cxc) {
+                xp = "";
+                xc = '<i class="fas fa-check"></i>';
+            }    
+            var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
+               + '<td hidden>' + contadorFila + '</td>'
+                 + '<td  style="width:60%;">' + data[i].nombre+ '</td>'
+                 + '<td>' + Estado + '</td>'
+                 + '<td >' + xp + '</td>'
+                 + '<td >' + xc +' </td>'
+                 + '<td >  <button ' + disabled + ' value="' + data[i].idTipoJustificante + '" onclick="getCrearEditarPartial(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].idTipoJustificante + '" onclick="anularJustificante(value, ' + data[i].Estado + ')" class="btn btn-link btnEditar">' + anularIcon + '</button></td></tr>';
+
+            $('#tblTipoJustificante > tbody').append(body);
+                contadorFila++;
+
+           }
+   
+        inicializarTabla();
+       }
+
+     function inicializarTabla() {
+
+        $('#tblTipoJustificante').DataTable().destroy();
+
+        tblTipoJustificante = $('#tblTipoJustificante').DataTable({
+            "info": false,
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+            buttons: [
+               
+            ]
+        });
+
+     }
+
+        $("#filtroBuscarNombre").on("keyup", function () {
+        tblTipoJustificante
+            .columns(1)
+            .search(this.value)
+            .draw();
+        });
+    
+    function comprobarRepetido(nombre, id) {
+        var flag = true;
+        for (var i = 0; i < tipoJustificante.length; i++) {
+            if (tipoJustificante[i].nombre === nombre && tipoJustificante[i].idTipoJustificante != parseInt(id))
+                flag = false;
+        }
+          return flag;
+    }
+    function filtroAnuladas() {
+
+        var tipo = $('#filtroX option:selected').val();
+        var array = tipoJustificante;
+
+        var arrayjustificantes = [];
+        var arrayxp = [];
+        var arrayxc = [];
+
+        if ($('#estado').prop('checked')) {
+
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].estado ==2)
+                    arrayjustificantes.push(array[i]);
+            }
+
+        }
+        else
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].estado ==1)
+                    arrayjustificantes.push(array[i]);
+            }
+
+        if (parseInt(tipo) != 1) {
+             for (var i = 0; i < arrayjustificantes.length; i++) {
+                 if (arrayjustificantes[i].cxp) 
+                     arrayxp.push(arrayjustificantes[i]);
+
+                 else
+                     arrayxc.push(arrayjustificantes[i]);
+
+             }
+            arrayjustificantes = [];
+            if (parseInt(tipo) == 2)
+                arrayjustificantes = arrayxp;
+            else
+                arrayjustificantes = arrayxc;
+
+        }
+
+        cargarDatos(arrayjustificantes);
+
+    }
+
+
+
+</script>
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

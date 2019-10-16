@@ -1,5 +1,6 @@
 ﻿using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
+using AltivaWebApp.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -114,7 +115,38 @@ namespace AltivaWebApp.Repositories
             }).Where(md => md.IdMovimientoDesdeNavigation.IdDocumento == idDoc).ToList();
 
 
+                var eliminados = new List<TbFaMovimientoJustificante>();
+
+                foreach (var item in od.TbFaMovimientoJustificante)
+                {
+                    foreach (var i in domain)
+                    {
+                        if (item.IdMovimientoJustificante == i)
+                            eliminados.Add(item);
+                    }
+                }
+
+                context.TbFaMovimientoJustificante.RemoveRange(eliminados);
+                context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+
+                throw;
+            }
         }
+        public IList<TbFaMovimientoJustificante> GetJustificantesByMovimientoId(long id)
+        {
+            try
+            {
+                return context.TbFaMovimientoJustificante.Where(o => o.IdMovimientoNavigation.IdMovimiento == id).ToList();
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
 
         public TbFaMovimiento GetMovimientoByIdDocumento(long idDoc)
         {

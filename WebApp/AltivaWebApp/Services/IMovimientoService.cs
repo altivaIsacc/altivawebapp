@@ -1,8 +1,9 @@
-﻿using AltivaWebApp.Domains;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AltivaWebApp.Domains;
+using AltivaWebApp.ViewModels;
 
 namespace AltivaWebApp.Services
 {
@@ -18,5 +19,24 @@ namespace AltivaWebApp.Services
         IList<TbFaMovimiento> GetSaldoContacto(long idContacto);
         TbFaMovimiento GetMovimientoById(long idMov);
         void DeleteMovimientoDetalle(IList<TbFaMovimientoDetalle> domain);
+        long GetUltimoMovimientoPagoId(long idDoc);
+        IList<TbFaMovimiento> GetSaldoContacto(long idContacto);
+        TbFaMovimiento Save(TbFaMovimiento domain);
+        TbFaMovimiento Update(TbFaMovimiento domain);
+        bool SaveMovimientoJustificante(IList<TbFaMovimientoJustificante> domain);
+        bool UpdateMovimientoJustificante(IList<TbFaMovimientoJustificante> domain);
+        TbFaMovimiento GetMovimientoById(long id);
+        IList<TbFaMovimiento> GetAllMovimientos();
+        TbFaMovimiento GetMovimientoByNota(long id);
+        IList<TbFaMovimientoJustificante> GetJustificantesByMovimientoId(long id);
+        bool DeleteMovimientoJustificante(IList<int> domain, int idMovimiento);
+         IList<DocumentosContactoViewModel> GetDocumentosContacto(long id, bool cxp, long idMovimiento);
+        bool SaveMD(IList<TbFaMovimientoDetalle> domain);
+        TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimiento(long idMovimiento);
+        bool UpdateMD(IList<TbFaMovimientoDetalle> domain);
+        bool DeleteMD(long id);
+
+
+
     }
 }

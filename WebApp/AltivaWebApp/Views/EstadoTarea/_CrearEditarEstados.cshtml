@@ -1,5 +1,5 @@
 ﻿@model AltivaWebApp.Domains.TbFdTareaEstado
-@inject IStringLocalizer<SharedResources> SharedLocalizer
+@inject IStringLocalizer<SharedResources> Lb
 @{
     ViewData["Title"] = "Costos por usuario";
 }
@@ -18,17 +18,15 @@
     @if (Model.Id != 0)
     {
 
-        titulo = @SharedLocalizer["editarEstadoTarea"];
+        titulo = @Lb["editarEstadoTarea"];
 
     }
     else
     {
-        titulo = @SharedLocalizer["nuevoEstadoTarea"];
+        titulo = @Lb["nuevoEstadoTarea"];
     }
 
 }
-<link href="~/lib/vendors/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css" rel="stylesheet">
-<script src="~/lib/vendors/mjolnic-bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js"></script>
 
 <!-- Agregado por lenin -->
 
@@ -38,7 +36,7 @@
         <h4 class="col-md-11 col-sm-11 col-xs-11" id="trasladoModallabel">@titulo</h4>
         <div class="col-md-1">
 
-            <button type="button"  class="close" data-dismiss="modal" aria-label="Close" onclick="btnCancelar()">
+            <button type="button" class="close" aria-label="Close" onclick="btnCancelar()">  <!--   btnCancelarEstados()  -->
                 <span aria-hidden="true">&times;</span>
             </button>
 
@@ -55,7 +53,7 @@
             <input type="text" class="form-control" asp-for="Id" id="Id1" />
         </div>
         <div class="form-group col-md-12">
-            <label> @SharedLocalizer["Titulo"]:</label>
+            <label> @Lb["Titulo"]:</label>
             <input type="text" class="form-control" asp-for="Titulo" id="Titulo3" />
             <div id="AlertTitulo3"></div>
         </div>
@@ -72,26 +70,28 @@
 
 
         <div class="form-group col-sm-4 col-md-12">
-            <label> @SharedLocalizer["esPorDefecto"]: <span><i class="fas fa-question"></i></span></label>
+            <label> @Lb["esPorDefecto"]: <span><i class="fas fa-question"></i></span></label>
             <div>
                 <input type="checkbox" id="defecto" checked="@Model.EsDefecto" />
                 <div id="AlertDefecto"></div>
             </div>
         </div>
         <div class="form-group col-sm-4 col-md-12">
-            <label> @SharedLocalizer["EsInicial"]: <span><i class="fas fa-question"></i></span></label>
+            <label> @Lb["EsInicial"]: <span><i class="fas fa-question"></i></span></label>
             <div>
                 <input type="checkbox" id="esInicial" checked="@Model.EsInicial" />
+                <div id="AlertEsInicial"></div>
             </div>
         </div>
         <div class="form-group col-sm-4 col-md-12">
-            <label> @SharedLocalizer["EsFinal"]: <span><i class="fas fa-question"></i></span></label>
+            <label> @Lb["EsFinal"]: <span><i class="fas fa-question"></i></span></label>
             <div>
                 <input type="checkbox" id="esFinal" checked="@Model.EsFinal" />
+                <div id="AlertEsFinal"></div>
             </div>
         </div>
         <div class="form-group col-sm-4 col-md-12">
-            <label>@SharedLocalizer["activo"]: <span><i class="fas fa-question"></i></span></label>
+            <label>@Lb["activo"]: <span><i class="fas fa-question"></i></span></label>
             <div>
                 <input type="checkbox" checked="@Model.Activo" id="activo" />
             </div>
@@ -99,19 +99,19 @@
         @if (Model.Titulo == null)
         {
             <div class="form-group col-sm-4 col-md-12">
-                <button type="button" id="GuardarEstado" class="btn btn-success"> @SharedLocalizer["Guardar"] <i class="fas fa-save"></i></button>
+                <button type="button" id="GuardarEstado" class="btn btn-success"> @Lb["Guardar"] <i class="fas fa-save"></i></button>
 
 
-                <button type="button" class="btn btn-default" onclick="btnCancelarEstados()">@SharedLocalizer["Cancelar"]</button>
+                <button type="button" class="btn btn-default" onclick="btnCancelarEstados()">@Lb["Cancelar"]</button>
             </div>
         }
         else
         {
             <div class="form-group col-sm-4 col-md-12">
-                <button type="button" id="EditarEstado" class="btn btn-success">  @SharedLocalizer["Guardar"]  <i class="fas fa-save"></i></button>
+                <button type="button" id="EditarEstado" class="btn btn-success">  @Lb["Guardar"]  <i class="fas fa-save"></i></button>
 
 
-                <button type="button" class="btn btn-default" onclick="btnCancelarEstados()"> @SharedLocalizer["Cancelar"] </button>
+                <button type="button" class="btn btn-default" onclick="btnCancelarEstados()"> @Lb["Cancelar"] </button>
             </div>
         }
 
@@ -127,33 +127,27 @@
 
      function btnCancelar() {
          $('#ModalEstados').modal('hide');
-         window.location.href = "@Url.Action("Lisar-Estados", "EstadoTarea")"; //EstadoTarea/Lisar-Estados
+        // window.location.href = "@Url.Action("Lisar-Estados", "EstadoTarea")"; //EstadoTarea/Lisar-Estados
     }
    
 
-    $('#btnCancelarEstados').on('click', function () {
-       $('#ModalEstados').modal('hide');
-         window.location.href = "@Url.Action("Lisar-Estados", "EstadoTarea")"; //EstadoTarea/Lisar-Estados
-
-    });
     function btnCancelarEstados() {
         $('#ModalEstados').modal('hide');
-         window.location.href = "@Url.Action("Lisar-Estados", "EstadoTarea")"; //EstadoTarea/Lisar-Estados
+       //  window.location.href = "@Url.Action("Lisar-Estados", "EstadoTarea")"; //EstadoTarea/Lisar-Estados
     }
 
 
-
-
-    $('.colorpicker').colorpicker(); //agregado por lenin
-
     $(document).ready(function () {
+
+
+        jscolor.installByClassName("jscolor");
 
         if ($('#Titulo3').val() == "") {
 
-            $("#Color1").val("#f6faf9");
+            $("#Color1").val("F6FAF9");
             $('#Color1').on('click', function () {
                 if ($(this).val() === "")
-                    $(this).val("#f6faf9");
+                    $(this).val("F6FAF9");
             });
 
         }
@@ -174,12 +168,11 @@
 
 
     });
-    //inicializacion del campo color
-    $('.colorpicker').colorpicker();
+
 
     //guardar estado de la tarea
     $('#GuardarEstado').on('click', function () {
-        if (ValidarDatos() == true) {
+        if (ValidarDatosRequeridos() == true) {
             var esFinal = "";
             var esInicio = "";
             var activo = "";
@@ -233,22 +226,22 @@
                 success: function (data) {
                     if (data.titulo == true) {
                         $('#AlertTitulo3').empty();
-                        $('#AlertTitulo3').append('<span class="text-danger">El título no se puede repetir.</span>');
+                        $('#AlertTitulo3').append('<span class="text-danger">  @Lb["TituloRepetido"].   </span>');
                         return false;
                     }
                     if (data.color == true) {
                         $('#AlertColor').empty();
-                        $('#AlertColor').append('<span class="text-danger">Este color no puede ser seleccionado.</span>');
+                        $('#AlertColor').append('<span class="text-danger">  @Lb["ColorRepetido"].</span>');
                         return false;
                     }
                     if (data.defecto == true) {
                         $('#AlertDefecto').empty();
-                        $('#AlertDefecto').append('<span class="text-danger">Solo puede existir un tipo por defecto.</span>');
+                        $('#AlertDefecto').append('<span class="text-danger">  @Lb["EstadoDefectoRepetido"].</span>');
                         return false;
                     }
 
                     $('#ModalEstados').modal('hide');
-                      window.location.href = "@Url.Action("Lisar-Estados", "EstadoTarea")"; //lenin
+                     // window.location.href = "@Url.Action("Lisar-Estados", "EstadoTarea")"; //lenin
 
 
                     if ($("#activos").css("display") == "block") {
@@ -277,37 +270,40 @@
     //editar los datos de los estados de la tarea..
 
     $('#EditarEstado').on('click', function () {
-        if (ValidarDatos() == true) {
+        if (ValidarDatosRequeridos() == true) {
 
 
             var esFinal = "";
             var esInicio = "";
             var activo = "";
             var defecto = "";
+
             if ($('#defecto').prop('checked')) {
                 defecto = true;
             } else {
                 defecto = false;
 
             }
+
             if ($('#esFinal').prop('checked')) {
                 esFinal = true;
             } else {
                 esFinal = false;
 
             }
+
             if ($('#esInicial').prop('checked')) {
                 esInicio = true;
             } else {
                 esInicio = false;
 
             }
+
             if ($('#activo').prop('checked')) {
                 activo = true;
             } else {
                 activo = false;
                 $('#Color').val('#858585');
-
             }
             var EstadoTarea = {
                 Id: $('#Id1').val(),
@@ -331,26 +327,40 @@
 
                 data: { domain: EstadoTarea },
                 success: function (data) {
+
+
                     if (data.titulo == true) {
                         $('#AlertTitulo3').empty();
-                        $('#AlertTitulo3').append('<span class="text-danger">El título no se puede repetir.</span>');
+                        $('#AlertTitulo3').append('<span class="text-danger">  @Lb["TituloRepetido"].   </span>');
                         return false;
                     }
                     if (data.color == true) {
                         $('#AlertColor').empty();
-                        $('#AlertColor').append('<span class="text-danger">Este color no puede ser repetir.</span>');
+                        $('#AlertColor').append('<span class="text-danger">  @Lb["ColorRepetido"].</span>');
                         return false;
                     }
                     if (data.defecto == true) {
                         $('#AlertDefecto').empty();
-                        $('#AlertDefecto').append('<span class="text-danger">Solo puede existir un tipo por defecto.</span>');
+                        $('#AlertDefecto').append('<span class="text-danger">  @Lb["EstadoDefectoRepetido"].</span>');
                         return false;
                     }
+                    if (data.inicial == true) {
+                        $('#AlertEsInicial').empty();
+                        $('#AlertEsInicial').append('<span class="text-danger">  @Lb["EstadoInicialRepetido"].</span>');
+                        return false;
+                    }
+
+                    if (data.final == true) {
+                        $('#AlertEsFinal').empty();
+                        $('#AlertEsFinal').append('<span class="text-danger">   @Lb["EstadoFinalRepetido"].</span>');
+                        return false;
+                        
+                    }
+
                     $('#tablaEstados').empty();
 
                     $('#ModalEstados').modal('hide');
-                        window.location.href = "@Url.Action("Lisar-Estados", "EstadoTarea")"; //lenin
-
+                       // window.location.href = "@Url.Action("Lisar-Estados", "EstadoTarea")"; //lenin
 
                     if ($("#activos").css("display") == "block") {
 
@@ -367,6 +377,7 @@
                     return false;
                 },
 
+
                 error: function (err, scnd) {
                     console.log(err.statusText);
                 }
@@ -374,18 +385,18 @@
             });
         }
     });
-    function ValidarDatos() {
+    function ValidarDatosRequeridos() {
 
         if ($('#Titulo3').val() == "") {
             $('#AlertTitulo3').empty();
-            $('#AlertTitulo3').append('<span class="text-danger">El título es requerido.</span>');
+            $('#AlertTitulo3').append('<span class="text-danger">  @Lb["TituloRepetido"].   </span>');
             return false;
         }
-
+        console.log($('#Color1').val());
         if ($('#activo').prop('checked')) {
-            if ($('#Color').val() == '#858585') {
+            if ($('#Color1').val() == 858585) {
                 $('#AlertColor').empty();
-                $('#AlertColor').append('<span class="text-danger">Este color no puede ser seleccionado.</span>');
+                $('#AlertColor').append('<span class="text-danger">   @Lb["ColorProhibido"].   </span>');
                 return false;
             }
         }
