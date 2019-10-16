@@ -109,6 +109,7 @@ namespace AltivaWebApp.App_Start
 
             services.AddScoped<IPaisMap, PaisMap>();
             services.AddScoped<EmpresasContext, EmpresasContext>();
+            services.AddScoped<BaseConta, BaseConta>();
 
             services.AddScoped<IUserMap, UserMap>();
 
@@ -203,7 +204,7 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IDepartamentoMap, DepartamentoMap>();
 
 
-            /// todo lo que tiene que ver con comprobantes electronicos ///hacienda
+            ///Comprobantes electronicos de hacienda
             services.AddScoped<IColaAprobacionRepository, ColaAprobacionRepository>();
             services.AddScoped<IHaciendaService, HaciendaService>();
             services.AddScoped<IHaciendaMap, HaciendaMap>();
@@ -213,6 +214,10 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IRequisicionRepository, RequisicionRepository>();
             services.AddScoped<IRequisicionService, RequisicionService>();
             services.AddScoped<IRequisicionMap, RequisicionMap>();
+
+            //RequisionDetalle agregado por lenin
+            services.AddScoped<IRequisicionDetalleMap, RequisicionDetalleMap>();
+
 
             /// Toma
             services.AddScoped<ITomaRepository, TomaRepository>();
@@ -282,17 +287,28 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IPrecioCatalogoRepository, PrecioCatalogoRepository>();
             services.AddScoped<IPrecioCatalogoService, PrecioCatalogoService>();
             services.AddScoped<IPrecioCatalogoMap, PrecioCatalogoMap>();
-
-
-
+            //CONTA> CatalogoContable / Isacc      
+            services.AddScoped<ICatalogoContableRepository>(provider => {
+                var dependency = provider.GetRequiredService<BaseConta>();
+                // You can select the constructor you want here.
+                return new CatalogoContableRepository(dependency);
+            });
+            services.AddScoped<ICatalogoContableService>(provider => {
+                var dependency = provider.GetRequiredService<ICatalogoContableRepository>();
+                // You can select the constructor you want here.
+                return new CatalogoContableService(dependency);
+            });
+            services.AddScoped<ICatalogoContableMap>(provider => {
+                var dependency = provider.GetRequiredService<ICatalogoContableService>();
+                // You can select the constructor you want here.
+                return new CatalogoContableMap(dependency);
+            });
             //Traslado
-
             services.AddScoped<ITrasladoRepository, TrasladoRepository>();
             services.AddScoped<ITrasladoService, TrasladoService>();
             services.AddScoped<ITrasladoMap, TrasladoMap>();
 
             //Traslado Inventario
-
             services.AddScoped<ITrasladoInventarioRepository, TrasladoInventarioRepository>();
             services.AddScoped<ITrasladoInventarioService, TrasladoInventarioService>();
             services.AddScoped<ITrasladoInventarioMap, TrasladoInventarioMap>();
@@ -302,15 +318,22 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IPuntoVentaService, PuntoVentaService>();
             services.AddScoped<IPuntoVentaMap, PuntoVentaMap>();
 
-            //Movmiento
+            //Tipo Justificante
+            services.AddScoped<ITipoJustificanteRepository, TipoJustificanteRepository>();
+            services.AddScoped<ITipoJustificanteService, TipoJustificanteService>();
+            services.AddScoped<ITipoJustificanteMap, TipoJustificanteMap>();
+            //Nota
+            services.AddScoped<INotaRepository, NotaRepository>();
+            services.AddScoped<INotaService, NotaService>();
+            services.AddScoped<INotaMap, NotaMap>();
+
+            //Movimiento
             services.AddScoped<IMovimientoRepository, MovimientoRepository>();
             services.AddScoped<IMovimientoService, MovimientoService>();
             services.AddScoped<IMovimientoMap, MovimientoMap>();
-
-            //CajaMovmiento
-            services.AddScoped<ICajaMovimientoRepository, CajaMovimientoRepository>();
-            services.AddScoped<ICajaMovimientoService, CajaMovimientoService>();
             services.AddScoped<ICajaMovimientoMap, CajaMovimientoMap>();
+            services.AddScoped<ICajaMovimientoService, CajaMovimientoService>();
+            services.AddScoped<ICajaMovimientoRepository, CajaMovimientoRepository>();
 
         }
     }

@@ -40,7 +40,6 @@ namespace AltivaWebApp.Repositories
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 throw ex;
-
             }
             
         }
@@ -63,10 +62,8 @@ namespace AltivaWebApp.Repositories
             
 
         }
-        public virtual bool Delete(TEntity entity)
-              
+        public virtual bool Delete(TEntity entity)              
         {
-
             try
             {
                 if (context.Entry(entity).State == EntityState.Detached)

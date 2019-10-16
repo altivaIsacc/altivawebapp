@@ -10,7 +10,7 @@ namespace AltivaWebApp.Services
     {
         TbPrRequisicion Save(TbPrRequisicion domain);
         TbPrRequisicion Update(TbPrRequisicion domain);
-        TbPrRequisicion GetReqById(int id);
+        TbPrRequisicion GetReqById(long id); // este
         TbPrRequisicion GetRequisicionWithDetails(int id);
         IList<TbPrRequisicionDetalle> GetAllRDByRequisicionId(int id);
         IList<TbPrRequisicionDetalle> SaveOrUpdateRD(IList<TbPrRequisicionDetalle> domain);

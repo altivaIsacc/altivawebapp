@@ -1,0 +1,224 @@
+﻿@model AltivaWebApp.ViewModels.CatalogoContableViewModel
+@inject IStringLocalizer<SharedResources> lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
+@{
+    ViewData["Title"] = @lb[ViewBag.Titulo];
+
+}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@lb[ViewBag.Titulo];</title>
+</head>
+<body>
+  
+
+    <div class="row">
+        <div class="col-md-4">
+            <form id="frmCuenta" asp-action="guardar" asp-controller="CatalogoConta" method="post">
+                <input type="hidden" asp-for="IdCuentaContable" />
+                <div class="form-group">                  
+                    <label asp-for="IdTipoCuentaContable" class="control-label">@lb["TipoCuentaContable"]:</label>
+                    <select asp-for="IdTipoCuentaContable" class="form-control">
+                        <option value="1">@lb["ACTIVO"]</option>
+                        <option value="2">@lb["PASIVO"]</option>
+                        <option value="3">@lb["CAPITAL"]</option>
+                        <option value="4">@lb["INGRESO"]</option>
+                        <option value="5">@lb["COSTO"]</option>
+                        <option value="6">@lb["GASTO"]</option>
+                    </select>
+                </div>
+
+                <input type="hidden" class="form-control" id="Ini" value="@ViewBag.InicioPadre" />
+                <input type="hidden" class="form-control" id="Fin" value="@ViewBag.FinPadre" />
+
+                <input type="hidden" class="form-control" placeholder="@lb["Numero"]" id="Nivel" asp-for="Nivel" />
+
+                <input type="hidden" class="form-control" placeholder="@lb["Numero"]" id="Espacios" value="@ViewBag.Numero" />
+                <div class="form-group">
+
+                    <label asp-for="CuentaContable" class="control-label"><span class="text-danger"></span>@lb["CuentaContable"]:</label>
+                    <input type="number" placeholder=@ViewBag.Espacios data-mask=@ViewBag.Espacios value="@ViewBag.Numero" min="@ViewBag.Min" max="@ViewBag.Max" class="form-control" id="Numero" />
+                    <input asp-for="CuentaContable" id="CuentaContableInput" class="form-control" required maxlength="255" placeholder=@ViewBag.Formato data-mask=@ViewBag.Formato />
+                    <span hidden id="duplicacionCuentaValid" class="text-danger">@lb["repetidoValid"]</span>
+                    <span hidden id="nombreCuentaValid" class="text-danger">@lb["CuentaValid"]</span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Descripcion" class="control-label">@lb["Descripcion"]:</label>
+                    <input asp-for="Descripcion" id="DescripcionInput" class="form-control" required maxlength="250" />
+                    <span asp-validation-for="Descripcion" class="text-danger"></span>
+                    <span hidden id="duplicacionDescripcionValid" class="text-danger">@lb["repetidoValid"]</span>
+                    <span hidden id="nombreDescripcionValid" class="text-danger">@lb["nombreValid"]</span>
+                </div>
+                <div id="cuentasPadre">
+                    <div class="form-group">
+                        <label>
+                            @lb["RecibeMovimientos"] <input asp-for="Movimiento" />
+
+                        </label>
+                        <span hidden id="MovimientoValid" class="text-danger">@lb["NoPermiteSerMovimiento"]</span>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            @lb["Evaluacion"] <input asp-for="Evaluacion" Id="EvaluacionCheck" onchange="activarEvaluacion()" />
+                        </label>
+                        <span hidden id="EvaluacionValid" class="text-danger">@lb["NoPermiteSerEvaluacion"]</span>
+                    </div>
+                    <div id="EvaluacionDiv">
+                        <div class="form-group">
+                            <label asp-for="IdMonedaEvaluacion" class="control-label">@lb["MonedaEvaluacion"]:</label>
+                            <select asp-for="IdMonedaEvaluacion" class="form-control">
+                                <option value="1">@lb["BASE"]</option>
+                                <option value="2">@lb["DOLAR"]</option>
+                                <option value="3">@lb["EURO"]</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="IdTipoConversion" class="control-label">@lb["Conversion"]:</label>
+                            <select asp-for="IdTipoConversion" class="form-control">
+                                <option value="1">@lb["HISTORICO"]</option>
+                                <option value="2">@lb["CONVERSION"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" asp-for="IdCuentaContablePadre" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CuentaContablePadre" class="control-label"><span class="text-danger"></span>@lb["CuentaContablePadre"]:</label>
+                        <input readonly asp-for="CuentaContablePadre" class="form-control" maxlength="50" placeholder=@ViewBag.Formato data-mask=@ViewBag.Formato />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="DescCuentaPadre" class="control-label">@lb["DescripcionPadre"]:</label>
+                        <input readonly asp-for="DescCuentaPadre" class="form-control" maxlength="250" />
+                        <span asp-validation-for="DescCuentaPadre" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Notas" class="control-label">@lb["Notas"]:</label>
+                    <textarea cols="40" rows="5" asp-for="Notas" class="form-control" maxlength="80000"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        @lb["Inactivo"] <input asp-for="Inactivo" />
+                    </label>
+
+                </div>
+                <div class="form-group">
+                    <button id="btnGuardar" asp-controller="CatalogoConta" asp-action="Guardar" value="Guardar" class="btn btn-success"><span>@lb["Guardar"]</span> <span><i class="fas fa-save"></i></span></button>
+                    <a class="btn btn-default btnAtras" asp-action="Index" asp-controller="CatalogoConta">@lb["Cancelar"]</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>
+
+@{
+    if (ViewBag.Error)
+    {
+        if (ViewBag.Dato == "Cuenta")
+        {
+            <script>
+                function CuentaRepetida() {
+                    $('#duplicacionCuentaValid').attr('hidden', false);
+                }
+                CuentaRepetida();
+            </script>
+        }
+        if (ViewBag.Dato == "Descripcion")
+        {
+            <script>
+                function DescripcionRepetida() {
+                    $('#duplicacionDescripcionValid').attr('hidden', false);
+                }
+                DescripcionRepetida();
+            </script>
+        }
+        if (ViewBag.Dato == "MovimientoInvalido")
+        {
+            <script>
+                function MovimientoNoValid() {
+                    $('#MovimientoValid').attr('hidden', false);
+                }
+                MovimientoNoValid();
+            </script>
+        }
+
+    }
+}
+<script type="text/javascript">
+
+    $(function () {
+        $("#Numero").on("change", function () {
+            definirCuentaContable();
+        });
+    });
+    function definirCuentaContable() {
+        var numero = document.getElementById('Numero').value;
+        var Espacios = document.getElementById('Espacios').value;
+        console.log("Espacios>" + Espacios)
+        var nivel = document.getElementById('Nivel').value;
+        var segmento = rellenarCeros(Espacios, numero.length) + numero;
+        var Ini = document.getElementById('Ini').value;
+        var Fin = document.getElementById('Fin').value;
+        if (nivel == "1") {
+            document.getElementById("CuentaContableInput").value = segmento + Fin;
+        } else {
+            document.getElementById("CuentaContableInput").value = Ini + segmento + Fin;
+        }
+
+    }
+    function rellenarCeros(n, cant) {
+        var ceros = "";
+        var cantv = n.length - cant;
+        console.log()
+        if (cantv <= 0) {
+            return "";
+        }
+
+        for (var i = 0; i < cantv; i++) {
+            ceros = ceros + "0";
+        }
+
+        return ceros;
+    }
+    definirCuentaContable();
+    function esPrimaria() {
+
+        var nivel = document.getElementById('Nivel').value;
+        if (nivel <= 1) {
+            muestra_oculta('cuentasPadre');
+        }
+
+    }
+    esPrimaria();
+    function muestra_oculta(id) {
+        if (document.getElementById) { //se obtiene el id
+            var el = document.getElementById(id); //se define la variable "el" igual a nuestro div
+            el.style.display = (el.style.display == 'none') ? 'block' : 'none'; //damos un atributo display:none que oculta el div
+        }
+    }
+    function activarEvaluacion() {
+        var Evaluacion = document.getElementById('EvaluacionCheck').value;
+        if (Evaluacion) {
+            muestra_oculta('EvaluacionDiv');
+        }
+    }
+    activarEvaluacion();
+
+</script>
+
