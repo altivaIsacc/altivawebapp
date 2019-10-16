@@ -5,17 +5,50 @@ using System;
 using System.Collections.Generic;
 using AltivaWebApp.ViewModels;
 using System.Linq;
+using System.Data.SqlClient;
 
 
 namespace AltivaWebApp.Repositories
 {
     public class MovimientoRepository : BaseRepository<TbFaMovimiento>, IMovimientoRepository
     {
+
         public MovimientoRepository(EmpresasContext context) : base(context)
         {
 
         }
+        public void DeleteMovimientoDetalle(IList<TbFaMovimientoDetalle> domain)
+        {
+            try
+            {
+                IList<TbFaMovimientoDetalle> mov = new List<TbFaMovimientoDetalle>();
+                foreach (var item in domain)
+                {
+                    mov.Add(new TbFaMovimientoDetalle
+                    {
+                        AplicadoBase = 0,
+                        AplicadoDolar = 0,
+                        AplicadoEuro = 0,
+                        CompraDolarTc = item.CompraDolarTc,
+                        CompraEuroTc = item.CompraEuroTc,
+                        Fecha = item.Fecha,
+                        IdMovimientoDesde = item.IdMovimientoDesde,
+                        IdMovimientoHasta = item.IdMovimientoHasta,
+                        VentaDolarTc = item.VentaDolarTc,
+                        IdMovimientoDetalle = item.IdMovimientoDetalle,
+                        VentaEuroTc = item.VentaEuroTc
+                    });
+                }
 
+                context.TbFaMovimientoDetalle.RemoveRange(UpdateMovDetalle(mov));
+                context.SaveChanges();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         public IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc)
         {
 
@@ -34,7 +67,7 @@ namespace AltivaWebApp.Repositories
                 VentaEuroTc = md.VentaEuroTc,
                 IdMovimientoDesdeNavigation = new TbFaMovimiento
                 {
-                    IdDocumento = md.IdMovimientoDesdeNavigation.IdDocumento                                      
+                    IdDocumento = md.IdMovimientoDesdeNavigation.IdDocumento
                 },
                 IdMovimientoHastaNavigation = new TbFaMovimiento
                 {
@@ -120,7 +153,7 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbFaMovimiento.FirstOrDefault(m => m.IdDocumento == idDoc);
         }
-      
+
 
         public long GetUltimoMovimientoPagoId(long idDoc)
         {
@@ -280,8 +313,8 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                context.TbFaMovimientoDetalle.UpdateRange(domain);
-                context.SaveChanges();
+                this.context.TbFaMovimientoDetalle.UpdateRange(domain);
+                this.context.SaveChanges();
                 return domain;
             }
             catch (Exception)
