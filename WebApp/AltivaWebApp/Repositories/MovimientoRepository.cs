@@ -23,7 +23,7 @@ namespace AltivaWebApp.Repositories
             {
                 AplicadoBase = md.AplicadoBase,
                 AplicadoEuro = md.AplicadoEuro,
-                AplicadoDolar = md.AplicadoEuro,
+                AplicadoDolar = md.AplicadoDolar,
                 CompraDolarTc = md.CompraDolarTc,
                 CompraEuroTc = md.CompraEuroTc,
                 Fecha = md.Fecha,
@@ -46,7 +46,7 @@ namespace AltivaWebApp.Repositories
                         CompraDolarTc = cm.CompraDolarTc,
                         CompraEuroTc = cm.CompraEuroTc,
                         VentaEuroTc = cm.VentaEuroTc,
-                        VentaDolarTc = cm.VentaEuroTc,
+                        VentaDolarTc = cm.VentaDolarTc,
                         Estado = cm.Estado,
                         FechaCreacion = cm.FechaCreacion,
                         IdCaja = cm.IdCaja,

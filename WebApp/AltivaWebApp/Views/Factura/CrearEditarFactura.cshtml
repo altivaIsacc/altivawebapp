@@ -139,24 +139,28 @@
                     <a class="dropdown-item" href="#">@Lb["AplicarDescuento"]</a>
                 </li>
                 @*<li>
-                    <a class="dropdown-item" href="#">@Lb["AplicarApartado"]</a>
-                </li>*@
+                        <a class="dropdown-item" href="#">@Lb["AplicarApartado"]</a>
+                    </li>*@
                 <li>
                     <a class="dropdown-item" href="#">@Lb["ImportarCotizacion"]</a>
                 </li>
                 <li class="divider">@Lb["Reportes"]</li>
-                <li>
-                    <a class="dropdown-item" href="#" onclick="GetReporte(1)">@Lb["Carta"]</a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="#" onclick="GetReporte(2)">@Lb["MediaCarta"]</a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="#" onclick="GetReporte(3)">@Lb["Tiquete"]</a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="#" onclick="GetReporte(4)">@Lb["Personalizado"]</a>
-                </li>
+                @if (Model.Id != 0)
+                {
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="GetReporte(1)">@Lb["Carta"]</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="GetReporte(2)">@Lb["MediaCarta"]</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="GetReporte(3)">@Lb["Tiquete"]</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="GetReporte(4)">@Lb["Personalizado"]</a>
+                    </li>
+                }
+
             </ul>
 
         </div>
@@ -411,7 +415,7 @@
         });
 
         $('#selectPuntoVenta').on('change', function () {
-            setConfiguracionPV();
+            setConfiguracionPV(false);
             limpiarLinea();
         });
 
@@ -568,7 +572,7 @@
             total: calcularTotalLinea(),
             fechaVencimiento: "@DateTime.Now.AddDays(30)",
             montoExoneracion: calcularExoneracion(),
-            idMonedaFD: @Model.IdMoneda
+            idMonedaFD: $('#IdMoneda').val()
         };
 
 
@@ -951,7 +955,7 @@
             $('#impresionModal').modal('show');
         }
         else if (pv.opcionImpresion == 0) {
-            window.location.href = "@Url.Action("ListarFacturas")";
+            window.location.href = "@Url.Action("CrearFactura")";
         }
         else {
             GetPDF(pv.opcionImpresion, true);
@@ -988,8 +992,8 @@
             fechaCreacion: "@Model.FechaCreacion",
             fechaVencimiento: "@Model.FechaCreacion.AddDays(30)",
             idVendedor: $('#IdVendedor').val(),
-            idUsuarioCreador: 1,
-            idMoneda: 1,
+            idUsuarioCreador: @User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value,
+            idMoneda: $('#IdMoneda').val(),
             subTotal: facturaModel.SubTotal.toString().replace(".", ","),
             subTotalGravado: facturaModel.SubTotalGravado.toString().replace(".", ","),
             subTotalExcento: facturaModel.SubTotalExcento.toString().replace(".", ","),
@@ -1539,7 +1543,7 @@
                 w.print();
 
                 if (volver)
-                     window.location.href = "@Url.Action("ListarFacturas")";
+                     window.location.href = "@Url.Action("CrearFactura")";
 
             },
             error: function () {
