@@ -52,7 +52,7 @@ namespace AltivaWebApp.Repositories
 
         public IList<TbPrInventario> GetInventarioFacturable()
         {
-            return context.TbPrInventario.Where(i => i.HabilitarVentaDirecta == true).ToList();
+            return context.TbPrInventario.Include(i => i.TbPrPrecioCatalogo).Where(i => i.HabilitarVentaDirecta == true).ToList();
         }
 
         public IList<TbPrImagenInventario> GetInventarioImagenByCodigo(int id)

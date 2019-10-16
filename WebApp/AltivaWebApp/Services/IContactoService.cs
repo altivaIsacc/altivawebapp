@@ -36,7 +36,8 @@ namespace AltivaWebApp.Services
         IList<TbCrContacto> GetAllProveedores();
         bool EliminarRelacion(int idRelacion);
         TbCrContactoRelacion GetRelacionById(int id);
-        TbCrContactoRelacion GetByIdPadreAndIdHijo(int idPadre, int idHijo);      
+        TbCrContactoRelacion GetByIdPadreAndIdHijo(int idPadre, int idHijo);
+        bool EsPorDefectoPV(int id);
 
     }
 }

@@ -92,5 +92,16 @@ namespace AltivaWebApp.Repositories
             }
         }
 
+        public long GetIdTipoPrecioCliente(long idCliente)
+        {
+            var tipoCliente = context.TbCrContacto.FirstOrDefault(c => c.IdContacto == idCliente).IdTipoCliente;
+            if(tipoCliente != 0)
+            {
+                var tipoPrecio = context.TbFdTipoCliente.FirstOrDefault(t => t.Id == tipoCliente);
+                return tipoPrecio.IdTipoPrecio;
+            }
+            return 0;
+        }
+
     }
 }

@@ -15,6 +15,6 @@ namespace AltivaWebApp.Mappers
         bool CreateKardexCDSingle(int idCD);
         bool CreateKardexEliminarCDSingle(int idCD);
         bool CreateKardexRD(IList<TbPrRequisicionDetalle> rq, bool isDeteled);
-        bool CreateKardexTRI(IList<TbPrTrasladoInventario> tr, bool isDeteled);//traslado
+        bool CreateKardexTRI(TbPrTraslado cambios, TbPrTraslado original, IList<long> eliminados);//traslado
     }
 }

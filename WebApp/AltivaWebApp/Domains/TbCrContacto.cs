@@ -54,7 +54,6 @@ namespace AltivaWebApp.Domains
         public virtual ICollection<TbCrContactosCamposPersonalizados> TbCrContactosCamposPersonalizados { get; set; }
         public virtual ICollection<TbFaCotizacion> TbFaCotizacion { get; set; }
         public virtual ICollection<TbFaMovimiento> TbFaMovimiento { get; set; }
-
         public virtual ICollection<TbFdCondicionesDePago> TbFdCondicionesDePago { get; set; }
         public virtual ICollection<TbFdCuentasBancarias> TbFdCuentasBancarias { get; set; }
         public virtual ICollection<TbFdFactura> TbFdFactura { get; set; }

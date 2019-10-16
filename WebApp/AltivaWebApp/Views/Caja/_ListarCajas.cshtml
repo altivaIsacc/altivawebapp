@@ -1,0 +1,114 @@
+﻿@model IList<TbFaCaja>
+@inject IStringLocalizer<SharedResources> Lb
+
+@{
+    var usuarios = ViewData["usuarios"] as IList<TbSeUsuario>;
+}
+
+<div class="row">
+    <div class="col-md-12  table-responsive">
+        <table class="table table-bordered" style="width:100%" id="tblCajas">
+            <thead>
+                <tr>
+                    <th><span>@Lb["Usuario"]</span> </th>
+                    <th><span>@Lb["Caja"]</span> </th>
+                    <th><span>@Lb["Estado"]</span> </th>
+                    <th hidden></th>
+                    <th><span>@Lb["Creacion"]</span></th>
+                    <th><span>@Lb["PuntoVenta"]</span> </th>
+                    <th><span>@Lb["Editar"]</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var estado = "";
+                    var color = "";
+
+                    switch (item.Estado)
+                    {
+                        case 1:
+                            color = "#59fe63";
+                            estado = Lb["Abierta"];
+                            break;
+                        case 2:
+                            color = "#eff176";
+                            estado = Lb["Arqueo"];
+                            break;
+                        case 3:
+                            color = "#59fe63";
+                            estado = Lb["ArqueoReabierto"];
+                            break;
+                        case 4:
+                            color = "#fc8383";
+                            estado = Lb["Cerrada"];
+                            break;
+                        case 5:
+                            color = "#eff176";
+                            estado = Lb["CierreReabierto"];
+                            break;
+                        case 6:
+                            color = "#858281";
+                            estado = Lb["Anulada"];
+                            break;
+
+
+                    }
+                    <tr style="background-color:@color">
+                        <td>@usuarios.FirstOrDefault(u => u.Id == item.IdUsuario).Nombre</td>
+                        <td>@item.IdCaja</td>
+                        <td>@estado</td>
+                        <td hidden>@item.Estado</td>
+                        <td>@item.FechaCreacion</td>
+                        <td>@item.IdPuntoVentaNavigation.Nombre</td>
+                        <td><a href="@Url.Action("EditarCaja", new { id=item.IdCaja })" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a></td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+    var tblCajas;
+
+    $(document).ready(function () {
+
+        inicializarTabla();
+
+    });
+
+    function inicializarTabla() {
+        tblCajas = $('#tblCajas').DataTable({
+            "info": false,
+            "ordering": false,
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            }
+        });
+
+        $(".dataTables_searching").hide();
+    }
+
+</script>

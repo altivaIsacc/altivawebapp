@@ -43,14 +43,18 @@
         <label id="lbCreador" class="form-control" disabled></label>
     </div>
 
-    <div class="col-md-2 col-sm-2 col-xs-12"></div>
+    <div class="form-group col-md-3 col-sm-3 col-xs-6">
+        <label asp-for="IdPuntoVenta" class="control-label">@Lb["PuntoVenta"]:</label>
+        <select asp-for="IdPuntoVenta" class="form-control selectItems"></select>
+    </div>
+
     <div class="col-md-2 col-sm-3 col-xs-12">
         <label>@Lb["Estado"]:</label>
         <select id="lbEstado" class="form-control search-key"></select>
     </div>
-    <div class="col-md-3 col-sm-1 col-xs-12"></div>
 
-    <div class="col-md-2 col-sm-3 col-xs-12">
+
+    <div class="col-md-offset-2 col-sm-offset-1 col-md-2 col-sm-3 col-xs-12">
         <fieldset>
             <div class="form-group">
                 <label for="fecha">@Lb["Fecha"]:</label>
@@ -441,12 +445,16 @@
     var _GetDenominaciones = [];
     var date = new Date();
 
+    var arrayPV = [];
+
 ////////////////////////////////////////////////////////////DOCUMENT READY///////////////////////////////////////////////////////////////////
     $(document).ready(function () {
-      
+
+        getPuntoVenta();
         getUsuarios();
         getDenominaciones();
         cargarlbEstado();
+
 
         if (@Model.IdCaja!= 0) {
           //  $FechaCreacion.val(formatearFechaCreacion());
@@ -489,7 +497,7 @@
     });
 ///////////////////////////////////////////////////////GETS/////////////////////////////////////////////////////////////////////////////////////
 
-        function getAllPerfilModulo() {//con opcion 1
+    function getAllPerfilModulo() {//con opcion 1
         if(@Model.IdCaja != 0)
         $.ajax({
               type: "get",
@@ -508,7 +516,7 @@
         });
     }
 
-         function getAllPerfilUsuario() {//perfil de usuarios
+    function getAllPerfilUsuario() {//perfil de usuarios
         if(@Model.IdCaja != 0)
         $.ajax({
               type: "get",
@@ -581,7 +589,7 @@
 
     }
 
-       function getCajaArqueo() {
+    function getCajaArqueo() {
         if(@Model.IdCaja != 0)
         $.ajax({
               type: "get",
@@ -604,7 +612,7 @@
         });
     }
 
-           function getCajaCierre() {
+    function getCajaCierre() {
         if(@Model.IdCaja != 0)
         $.ajax({
               type: "get",
@@ -755,7 +763,7 @@
           });
     }
 
-         function getIdUsuarioLogueado() {
+    function getIdUsuarioLogueado() {
          $.ajax({
               type: "get",
               headers: {
@@ -1353,7 +1361,7 @@
 
     }
 
-        function cargarTablaArqueoBase(data) {
+    function cargarTablaArqueoBase(data) {
 
         $('.filasCargadasArqueoBase').remove();
             var contadorFila = 0;
@@ -1429,7 +1437,7 @@
 
     }
 
-            function cargarTablaArqueoDolar(data) {
+    function cargarTablaArqueoDolar(data) {
 
         $('.filasCargadasArqueoDolar').remove();
             var contadorFila = 0;
@@ -1507,7 +1515,7 @@
 
     }
 
-            function cargarTablaArqueoEuro(data) {
+    function cargarTablaArqueoEuro(data) {
 
         $('.filasCargadasArqueoEuro').remove();
             var contadorFila = 0;
@@ -1584,7 +1592,7 @@
 
     }
 
-       function cargarTablaCierreBase(data) {
+    function cargarTablaCierreBase(data) {
 
         $('.filasCargadasCierreBase').remove();
             var contadorFila = 0;
@@ -1650,7 +1658,7 @@
 
     }
 
-       function cargarTablaCierreDolar(data) {
+    function cargarTablaCierreDolar(data) {
 
         $('.filasCargadasCierreDolar').remove();
             var contadorFila = 0;
@@ -1724,7 +1732,7 @@
 
     }
 
-     function cargarTablaCierreEuro(data) {
+    function cargarTablaCierreEuro(data) {
 
         $('.filasCargadasCierreEuro').remove();
             var contadorFila = 0;
@@ -1795,7 +1803,7 @@
 
     }
 
-        function cargarTablaCierreBaseSistema(data) {
+    function cargarTablaCierreBaseSistema(data) {
 
         $('.filasCargadasCierreBaseSistema').remove();
             var contadorFila = 0;
@@ -1868,7 +1876,7 @@
 
     }
 
-           function cargarTablaCierreDolarSistema(data) {
+    function cargarTablaCierreDolarSistema(data) {
 
         $('.filasCargadasCierreDolarSistema').remove();
             var contadorFila = 0;
@@ -1945,7 +1953,7 @@
 
     }
 
-     function cargarTablaCierreEuroSistema(data) {
+    function cargarTablaCierreEuroSistema(data) {
 
         $('.filasCargadasCierreEuroSistema').remove();
             var contadorFila = 0;
@@ -2216,6 +2224,53 @@
         }
 
     });
+
+
+    function getPuntoVenta() {
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetPuntosVentas", "PuntoVenta")',
+            success: function (data) {
+
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].inactivo && @Model.IdCaja != 0 && @Model.IdPuntoVenta == data[i].idPuntoVenta)
+                        arrayPV.push(data[i]);
+                    else if (!data[i].inactivo)
+                        arrayPV.push(data[i]);
+                }
+
+                
+                var flag = false;
+                for (var i = 0; i < arrayPV.length; i++) {
+                    
+                    var o = new Option(arrayPV[i].nombre, arrayPV[i].idPuntoVenta);
+
+                    if (@Model.IdCaja != 0 && arrayPV[i].idPuntoVenta == @Model.IdPuntoVenta) {
+                        
+                        $(o).attr('selected', true);
+                        if (arrayPV[i].inactivo) {
+                            $("#puntoVentaValid").attr("hidden", false);
+                        }
+                        flag = true;
+                    }
+                    else {
+                        if (arrayPV[i].esPorDefecto && !flag)
+                            $(o).attr('selected', true);
+                    }
+                    
+
+                    $('#IdPuntoVenta').append(o);
+                }
+
+            },
+            error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+            }
+        });
+    }
+
 ///////////////////////////////////////////////////////////////////FUNCIONES PARA GUARDAR///////////////////////////////////////////////////////
     function guardarSalir() {
 
@@ -2239,7 +2294,7 @@
         guardarCajaAperturaEstado();
     }
 
-        function guardarCajaAperturaEstado() {
+    function guardarCajaAperturaEstado() {
 
         $.ajax({
               type: "POST",
@@ -2305,19 +2360,20 @@
             usuario = IdUsuarioLogueado;
         }
 
-        var ordenModel = {
+        var cajaModel = {
 
-             idCaja: @Model.IdCaja,
-             fechaCreacion: $('#lbFechaCreacion').val(),
-             idUsuario: usuario,
-             estado:$('#lbEstado option:selected').val(),
-             tbFaCajaAperturaDenominacion: crearModeloApertura(Apertura),
-             tbFaCajaArqueoDenominacion: crearModeloArqueoDenominaciones(Arqueo),
-             tbFaCajaArqueo: crearModeloArqueo(ArrayCajaAperturaUnido),
-             tbFaCajaCierre:crearModeloCierre(ArrayCajaCierreUnido),
+            idCaja: @Model.IdCaja,
+            fechaCreacion: $('#lbFechaCreacion').val(),
+            idUsuario: usuario,
+            estado: $('#lbEstado option:selected').val(),
+            idPuntoVenta: $('#IdPuntoVenta').val(),
+            tbFaCajaAperturaDenominacion: crearModeloApertura(Apertura),
+            tbFaCajaArqueoDenominacion: crearModeloArqueoDenominaciones(Arqueo),
+            tbFaCajaArqueo: crearModeloArqueo(ArrayCajaAperturaUnido),
+            tbFaCajaCierre:crearModeloCierre(ArrayCajaCierreUnido),
         };
 
-        return ordenModel;
+        return cajaModel;
     }
 
     function crearModeloApertura(model) {

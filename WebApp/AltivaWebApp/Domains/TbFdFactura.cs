@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 
 namespace AltivaWebApp.Domains
@@ -11,6 +12,7 @@ namespace AltivaWebApp.Domains
         }
 
         public long Id { get; set; }
+        public long Concecutivo { get; set; }
         public byte Tipo { get; set; }
         public DateTime FechaFactura { get; set; }
         public long IdCliente { get; set; }
@@ -50,8 +52,8 @@ namespace AltivaWebApp.Domains
         public DateTime FechaVencimiento { get; set; }
         public double TipoCambioDolar { get; set; }
         public double TipoCambioEuro { get; set; }
-        public bool EnCola { get; set; }
         public long IdPuntoVenta { get; set; }
+        public bool EnCola { get; set; }
 
         public virtual TbCrContacto IdClienteNavigation { get; set; }
         public virtual TbSePuntoVenta IdPuntoVentaNavigation { get; set; }

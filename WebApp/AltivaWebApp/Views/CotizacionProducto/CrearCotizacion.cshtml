@@ -195,9 +195,7 @@ else
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="lineaForm">
-                      
-                    </tr>
+                    <tr class="lineaForm"></tr>
                 </tbody>
 
             </table>
@@ -240,7 +238,19 @@ else
 
 
 <input readonly hidden id="monedaFormater" />
+
+
 <div hidden><input hidden id="formater" class="currency" type="text" /></div>
+
+
+
+<div hidden>
+    
+    <input id="palabraIdioma"  type="text"  value="@Lb["espanol"]"  /> 
+    
+</div>
+
+
 
 <script src="~/js/base64ImageCreator.js"></script>
 
@@ -730,7 +740,7 @@ else
         var cantidad = parseFloat($("#lbCantidad").inputmask('unmaskedvalue'));
         var porcdescuento = parseFloat($("#lbDescuento").inputmask('unmaskedvalue'));
         var descuento = parseFloat(((precio * cantidad) * porcdescuento) / 100);
-        $("#lbTotal").val((cantidad * precio) - descuento);        
+        $("#lbTotal").val((cantidad * precio) - descuento);
 
     }
 
@@ -919,7 +929,7 @@ else
             }
         }
 
-        function cargarddClientes(clientes) {      
+        function cargarddClientes(clientes) {
 
             for (var i = 0; i < clientes.length; i++) {
 
@@ -1442,17 +1452,35 @@ else
 
     function cancelar() {
 
-          if ($('#ddClientes option:selected').val() != 0 && $('#ddMoneda option:selected').val() != 0 && $('#ddVendedor option:selected').val() != 0) {
-              lineasAgregadas = 0;
-              _cancelar = 1;
-              guardarCotizacion();
+
+        var resp1 = validarFechaDiferentes($FechaVencimiento.val());
+        console.log(resp1);
+        if (resp1 == true) {
+
+            var msj = "@Lb["FechaVencimientoMenorFechaActual"].";
+            bootbox.alert(msj);
 
         } else {
 
-            var msj = "@Lb["dataVacia"]";
-            bootbox.alert(msj);
-        }
+            if ($('#ddClientes option:selected').val() != 0 && $('#ddMoneda option:selected').val() != 0 && $('#ddVendedor option:selected').val() != 0) {
+                lineasAgregadas = 0;
+                _cancelar = 1;
+                guardarCotizacion();
 
+            } else {
+
+                // var msj = "@Lb["dataVacia"]";
+                // bootbox.alert(msj);
+
+                bootbox.confirm("@Lb["confirmCancelar"]", function (result) {
+                    if (result) {
+                        window.location.href = "@Url.Action("ListarCotizacionProducto","CotizacionProducto")";
+                    }
+                });
+
+            }
+
+        }
 
     }
 
@@ -1772,7 +1800,7 @@ else
                         totalDolar:parseFloat(( fnTotalBase($("#ddInventario").val()))/CambioDolar),
                         totalEuro:parseFloat(( fnTotalBase($("#ddInventario").val()))/CambioEuro),
                         idCotizacion:@Model.IdCotizacion,
-                        cantidad: parseFloat($('#lbCantidad').inputmask('unmaskedvalue'))                    
+                        cantidad: parseFloat($('#lbCantidad').inputmask('unmaskedvalue'))
         };
                 break;
             case 2:
@@ -1821,7 +1849,7 @@ else
                     totalDolar:parseFloat(( fnTotalBase($("#ddInventario").val()))),
                     totalEuro:parseFloat(totalBase/CambioEuro),
                     idCotizacion:@Model.IdCotizacion,
-                    cantidad: parseFloat($('#lbCantidad').inputmask('unmaskedvalue')) 
+                    cantidad: parseFloat($('#lbCantidad').inputmask('unmaskedvalue'))
         };
                 break
             case 3:
@@ -1871,7 +1899,7 @@ else
                         totalDolar:parseFloat(totalBase/CambioDolar),
                         totalEuro: parseFloat(fnTotalBase($("#ddInventario").val())),
                         idCotizacion:@Model.IdCotizacion,
-                        cantidad: parseFloat($('#lbCantidad').inputmask('unmaskedvalue')) 
+                        cantidad: parseFloat($('#lbCantidad').inputmask('unmaskedvalue'))
         };
                 break;
         }
@@ -1888,19 +1916,87 @@ else
         CalcularTotalesCotizacion(lineas,$('#ddMoneda').val());
     }
 
-    function guardarSalir() {
+     
+        function guardarSalir() {
 
-        if ($('#ddClientes option:selected').val() != 0 && $('#ddMoneda option:selected').val() != 0 && $('#ddVendedor option:selected').val() != 0) {
-                    lineasAgregadas = 0;
-                    guardarCotizacion();
 
-        } else {
+                var resp1 = validarFechaDiferentes($FechaVencimiento.val());
+                console.log(resp1);
+                if (resp1 == true) {
 
-            var msj = "@Lb["dataVacia"]";
-            bootbox.alert(msj);
+                    var msj = "@Lb["FechaVencimientoMenorFechaActual"].";
+                    bootbox.alert(msj);
+
+                } else {
+
+                     if ($('#ddClientes option:selected').val() != 0 && $('#ddMoneda option:selected').val() != 0 && $('#ddVendedor option:selected').val() != 0) {
+                                        lineasAgregadas = 0;
+                                        guardarCotizacion();
+
+                            } else {
+
+                                var msj = "@Lb["dataVacia"]";
+                                bootbox.alert(msj);
+                            }
+                }
+            }
+
+
+
+        //aca lenin
+        function validarFechaDiferentes(_FechaVencimiento) {
+
+            var palabraIdioma = $('#palabraIdioma').val();
+            console.log(palabraIdioma);
+            var resp = false;
+            _FechaVencimiento = _FechaVencimiento.split("/");
+
+            var dia = _FechaVencimiento[0]
+            var mes = (_FechaVencimiento[1] - 1)
+            var ano = (_FechaVencimiento[2])
+
+            var _fechaActual = new Date();
+           
+
+            var hora = _fechaActual.getHours();
+            var minuto = _fechaActual.getMinutes();
+            var segundo = _fechaActual.getSeconds();
+
+
+            if (palabraIdioma == "espanol") {
+                console.log("esta en espanol");
+                _FechaVencimiento = new Date(ano, mes, dia, hora, minuto, segundo);
+
+            } else if (palabraIdioma == "spanish") {
+                console.log("esta en ingles");
+                _FechaVencimiento = new Date(ano, dia - 1, mes + 1, hora, minuto, segundo);
+            }
+          
+            console.log(_fechaActual);
+            console.log(_FechaVencimiento);
+
+            if (_fechaActual.getMonth() == _FechaVencimiento.getMonth() && _fechaActual.getDate() == _FechaVencimiento.getDate()) {
+                console.log("entro 1");
+                resp = false;
+                return resp;
+
+            } else if (_fechaActual > _FechaVencimiento) {
+                console.log("entro 2");
+
+                resp = true;
+                return resp;
+
+            } else {
+                console.log("entro 3");
+                resp = false;
+                return resp;
+
+            }
+
+
         }
 
-    }
+
 
 
          function guardarCompraBorrador() {

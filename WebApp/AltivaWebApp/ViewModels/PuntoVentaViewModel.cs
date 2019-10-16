@@ -7,6 +7,7 @@ namespace AltivaWebApp.ViewModels
 {
     public class PuntoVentaViewModel
     {
+       
         public long IdPuntoVenta { get; set; }
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
@@ -15,6 +16,7 @@ namespace AltivaWebApp.ViewModels
         public bool EsPorDefecto { get; set; }
         public int OpcionImpresion { get; set; }
         public long IdContactoClienteDefecto { get; set; }
+        public int IdTipoPrecioDefecto { get; set; }
         public long IdBodega { get; set; }
         public int IdMonedaPrecio { get; set; }
         public int IdMonedaFacturaDefecto { get; set; }
@@ -31,6 +33,8 @@ namespace AltivaWebApp.ViewModels
         public string Imagen { get; set; }
         public DateTime FechaCreacion { get; set; }
         public long IdUsuarioCreacion { get; set; }
+
+
 
     }
 }

@@ -138,17 +138,17 @@
         <thead>
             <tr>
 
-                <th style="width:10%">
+                @*<th style="width:10%">
                     <span>@Lb["Prioridad"]</span>
-                </th>
+                </th>*@
                 <th style="width:15%">
                     <span>@Lb["Título"]</span>
                 </th>
                 <th style="width:10%">
-                    <span>@Lb["tipoTarea"]</span>
+                    <span>@Lb["tipo"]</span>
                 </th>
                 <th style="width:10%">
-                    <span>@Lb["estadoTarea"]</span>
+                    <span>@Lb["Estado"]</span>
                 </th>
                 <th style="width:15%">
                     <span>@Lb["Contacto"]</span>
@@ -180,7 +180,7 @@
                 <th style="width:8%">
                     <span>@Lb["Final"]</span>
                 </th>
-                <th style="width:8%">
+                <th style="width:6%">
                     <span>@Lb["Acción"]</span>
                 </th>
             </tr>
@@ -357,12 +357,12 @@
 
         var contadorFila = 0;
         var fecha1 = ""
-        var fecha = "";
+        var fechaActual = "";
         var dt = null;
         $("#TablaTareas > tbody").remove();
         $('table').append('<tbody></tbody>');
          dt = new Date();
-         fecha = +dt.getDate() + "/" + (dt.getMonth()+1) + "/" + dt.getFullYear()+" "+ 0 +0+":"+0+0+":"+0+0;
+        fechaActual = +dt.getDate() + "/" + (dt.getMonth()+1) + "/" + dt.getFullYear()+" "+ 0 +0+":"+0+0+":"+0+0;
          fecha1 = +dt.getDate()+"/"+(dt.getMonth()+1)+"/"+dt.getFullYear();
         var color = "";
         var icono = "";
@@ -376,30 +376,37 @@
                 } else {
                     nombre = data[i].idContactoNavigation.nombreComercial;
                 }
+            } else { 
+               nombre = "";
             }
-            else
-                nombre = "";
 
             if (data[i].posicion == 1) {
-
                 icono = "";
             } else {
                 icono = "<i class='fas fa-chevron-up'></i>";
             }
-            if (recuperarFecha(data[i].fechaLimite) > fecha) {
 
+            //console.log(fechaActual);
+            //console.log(fecha1);
+            var tieneUnDiaDiferencia = fechasUnDiaDiferencia(data[i].fechaLimite);
+            // console.log(tieneUnDiaDiferencia);
+
+            if (fechaActual > recuperarFecha(data[i].fechaLimite)) {
+                color = "#dc4a46";
+            }
+
+            if (fechaActual < recuperarFecha(data[i].fechaLimite)) {
                 color = "";
-            } else
-                if (recuperarFecha(data[i].fechaLimite) < fecha) {
+            }
 
-                    color = "#dc4a46";
-                }
-                else
+            if (tieneUnDiaDiferencia == true) {
+                color = "#f3da0b";
+            }
 
-                    if (recuperarFechaSinHora(data[i].fechaLimite) == fecha1) {
+           
 
-                        color = "#f3da0b";
-                    }
+           // console.log(color);
+
             if (data[i].posicion == data.length) {
                 icono2 = "";
             } else {
@@ -407,10 +414,10 @@
             }
 
                 var body = '<tr class="fila' + contadorFila + ' filas">'
-                    + '<td><button class="btn btn-link dark" onclick="darPrioridad(' + data[i].id + ')">' + icono + '</button><button class="btn btn-link dark" onclick="quitarPrioridad(' + data[i].id + ')">' + icono2 + '</i></button></td>'
+                    //+ '<td><button class="btn btn-link dark" onclick="darPrioridad(' + data[i].id + ')">' + icono + '</button><button class="btn btn-link dark" onclick="quitarPrioridad(' + data[i].id + ')">' + icono2 + '</i></button></td>'
                     + '<td>' + data[i].titulo + '</td>'
                     + '<td ><img style="width:2rem; height: 2rem; border-radius: 1rem; background: ' + data[i].idTipoNavigation.color + ';"><span>  ' + data[i].idTipoNavigation.titulo + '</span></td>'
-                    + '<td ><img style="width:2rem; height: 2rem; border-radius: 1rem; background: ' + data[i].idEstadoNavigation.color + ';"><span>' + data[i].idEstadoNavigation.titulo + '</span></td>'
+                    + '<td ><img style="width:2rem; height: 2rem; border-radius: 1rem; background: ' + data[i].idEstadoNavigation.color + ';"><span>  ' + data[i].idEstadoNavigation.titulo + '</span></td>'
                     + '<td>' + nombre + '</td>'
                     + '<td bgColor=' + color + '>' + recuperarFecha(data[i].fechaLimite) + '</td>'
                     + '<td hidden>' + data[i].idUsuario + ' </td>'
@@ -422,7 +429,7 @@
                     + '<td >' + recuperarFecha(data[i].fechaInicio) + '</td>'
                     + '<td >' + recuperarFecha(data[i].fechaFinal) + '</td>'
 
-                    + '<td>  <button value="' + data[i].id + '" onclick="editarTarea(' + data[i].id + ')" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="Eliminar(' + data[i].id + ')" class="btn btn-link"> <i class="fas fa-trash"></i></button></td></tr>';
+                    + '<td>  <button value="' + data[i].id + '" onclick="editarTarea(' + data[i].id + ')" class="btn-sm btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].id + '" onclick="Eliminar(' + data[i].id + ')" class="btn-sm btn-link"> <i class="fas fa-trash"></i></button></td></tr>';
                 $('#TablaTareas > tbody').append(body);
                 contadorFila++;
             }
@@ -466,7 +473,54 @@
     }
 
 
+    function fechasUnDiaDiferencia(fechaLimite) {
 
+        var resp = false;
+        var fechaLimite = new Date(fechaLimite);
+        var fechaActual = new Date();
+      
+
+        var diaFechaLimite = fechaLimite.getDate();
+        var mesFechaLimite = fechaLimite.getMonth() + 1;
+        var anoFechaLimite = fechaLimite.getFullYear();
+      //  console.log(mesFechaLimite);
+
+
+        var diaFechaActual = fechaActual.getDate();
+        var mesFechaActual = fechaActual.getMonth() + 1;
+        var anoFechaActual = fechaActual.getFullYear();
+
+      //  console.log(anoFechaActual);
+
+        if (mesFechaActual == mesFechaLimite) {
+
+            if (diaFechaActual + 1 == diaFechaLimite) { // tiene ya el dia de diferencia
+             //   console.log("amarillo true");
+                var resp = true;
+                return resp;
+            } else {
+             //   console.log("false");
+                var resp = false;
+                return resp;
+            }
+
+        } else if (mesFechaActual + 1 == mesFechaLimite) { // para cuando finaliza el mes y se tienen tareas con fechas limites de 1 dia 
+
+            if (diaFechaActual - diaFechaActual + 1 == diaFechaLimite) { // tiene ya el dia de diferencia
+              //  console.log("amarillo true");
+                var resp = true;
+                return resp;
+            } else {
+              //  console.log("false");
+                var resp = false;
+                return resp;
+            }
+
+        }
+
+
+
+    }
 
 
 
@@ -594,7 +648,7 @@
 
     function buscarPorTitulo(titulo) {
         TablaTareas
-            .columns(1)
+            .columns(0)
             .search(titulo)
             .draw();
     }
@@ -691,29 +745,36 @@
         var arrayTareas = JSON.parse(JSON.stringify(TareasMostrar));
         if (_desde == _hasta || _desde === null) {
 
-            return TareasMostrar;
+            return arrayTareas;
         } else {
 
-            var desdeLocal = new Date(_desde).getTime();
-            var hastaLocal = new Date(_hasta).getTime();
-
-            for (var i = 0; i < tareas.length; i++) {
-
-                var documento = new Date(tareas[i].fechaLimite).getTime();
-                var flag = false;
-
-                if (documento >= desdeLocal && documento <= hastaLocal)
-                    flag = true;
-
-                // else flag = true;
-
-                if (!flag)
+     
+            var desdeLocal = soloFecha(_desde);
+            var hastaLocal = soloFecha(_hasta);
+     
+            for (var i = 0; i < arrayTareas.length; i++) {
+                var fechaTarea = soloFecha(arrayTareas[i].fechaLimite);
+         
+                if (fechaTarea >= desdeLocal && fechaTarea <= hastaLocal) {
+                }
+                else {
                     arrayTareas.splice(i, 1);
+                    i = -1;
+                }
             }
+
             return arrayTareas;
         }
     }
+    function soloFecha(_fecha) {
+        var soloMyFecha = _fecha.substring(0, 10);
+        var soloMyFecha = soloMyFecha.replace('-', '');
+        soloMyFecha = soloMyFecha.replace('-', '');
+        var fechaLong = parseInt(soloMyFecha);
+        return fechaLong;
 
+    }
+   
 
 
     $('.selectFiltro').change(function () {

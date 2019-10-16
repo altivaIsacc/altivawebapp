@@ -21,8 +21,18 @@ namespace AltivaLog
         /// <param name="tipo">Tipos: Error, Info, Advertencia, Test</param>
         public static void Insertar(string Mensaje,string tipo)
         {
-            string archivo = Path.Combine(rutaArchivo, "LOG-"+ tipo.ToUpper() + "-" + DateTime.Now.ToString("yyyy-MM-dd++HH-mm-ss") + ".log");           
-            System.IO.File.WriteAllText(archivo,Mensaje);
+            try
+            {
+                string archivo = Path.Combine(rutaArchivo, "LOG-" + tipo.ToUpper() + "-" + DateTime.Now.ToString("yyyy-MM-dd++HH-mm-ss") + ".log");
+                System.IO.File.WriteAllText(archivo, Mensaje);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            
         }
         
     }

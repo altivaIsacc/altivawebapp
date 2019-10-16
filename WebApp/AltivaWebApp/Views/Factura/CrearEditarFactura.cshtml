@@ -13,35 +13,53 @@
 
 }
 
-@if (Model.Id != 0)
-{
-    <h3>@Lb["Editar"] @Lb["Factura"]</h3>
-}
-else
-{
-    <h3>@Lb["Nueva"] @Lb["Factura"]</h3>
-}
+<div class="row">
+    <div class="col-md-2 col-sm-3 col-xs-12">
+        @if (Model.Id != 0)
+        {
+            <h3>@Lb["Editar"] @Lb["Factura"]</h3>
+        }
+        else
+        {
+            <h3>@Lb["Nueva"] @Lb["Factura"]</h3>
+        }
+    </div>
+    <div class="col-md-offset-7 col-sm-offset-6 col-md-3 col-sm-9 col-xs-12 ">
+        <label for="selectPuntoVenta" class="control-label">@Lb["PuntoVenta"]:</label>
+        <select id="selectPuntoVenta" class="form-control selectItems"></select>
+    </div>
+</div>
+
 <hr />
 
 @if (Model.Id != 0)
 {
-    <div class="btn-group">
-        <button type="button" onclick="GetPDF()" class="btn btn-primary">@Lb["Imprimir"]</button>
-        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-            <span class="caret"></span>
-            <span class="sr-only">Toggle Dropdown</span>
-        </button>
-        <ul class="dropdown-menu" role="menu">
-            <li>
-                <a href="#carta">@Lb["Carta"]</a>
-            </li>
-            <li>
-                <a href="#ticket" onclick="GetPDF(1)">@Lb["Ticket"]</a>
-            </li>
-        </ul>
+    <div class="row">
+        <div class="btn-group  col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <button type="button" onclick="GetPDF(1, false)" class="btn btn-primary">@Lb["Imprimir"]</button>
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li>
+                    <a href="#carta" onclick="GetPDF(1, false)">@Lb["Carta"]</a>
+                </li>
+                <li>
+                    <a href="#mediacarta" onclick="GetPDF(2, false)">@Lb["MediaCarta"]</a>
+                </li>
+                <li>
+                    <a href="#ticket" onclick="GetPDF(3, false)">@Lb["Ticket"]</a>
+                </li>
+                <li>
+                    <a href="#personalizado" onclick="GetPDF(4, false)">@Lb["Personalizado"]</a>
+                </li>
+            </ul>
+        </div>
     </div>
 }
 
+<br />
 
 <div class="row">
     <form id="frmFactura">
@@ -50,6 +68,23 @@ else
         @Html.HiddenFor(x => x.FechaCreacion)
         @Html.HiddenFor(x => x.IdUsuarioCreador)
         @Html.HiddenFor(x => x.Estado)
+        @Html.HiddenFor(x => x.IdPuntoVenta)
+        @Html.HiddenFor(x => x.IdMoneda)
+        @Html.HiddenFor(x => x.FechaFactura)
+        @Html.HiddenFor(x => x.TipoCambioDolar)
+        @Html.HiddenFor(x => x.TipoCambioEuro)
+        @Html.HiddenFor(x => x.FechaVencimiento)
+        @Html.HiddenFor(x => x.SubTotal)
+        @Html.HiddenFor(x => x.SubTotalGravado)
+        @Html.HiddenFor(x => x.SubTotalGravadoNeto)
+        @Html.HiddenFor(x => x.SubTotalExcento)
+        @Html.HiddenFor(x => x.SubTotalExcentoNeto)
+        @Html.HiddenFor(x => x.PorcDescuento)
+        @Html.HiddenFor(x => x.MontoExoneracion)
+        @Html.HiddenFor(x => x.MontoIva)
+        @Html.HiddenFor(x => x.TotalDescuento)
+        @Html.HiddenFor(x => x.Total)
+        @Html.HiddenFor(x => x.Consecutivo)
 
         <div class="form-group col-md-3 col-sm-3 col-xs-6">
             <label asp-for="IdVendedor" class="control-label">@Lb["Vendedor"]:</label>
@@ -60,14 +95,16 @@ else
                     {
                         <option selected value="@item.Id">@item.Nombre</option>
                     }
-                    <option value="@item.Id">@item.Nombre</option>
+                    else
+                    {
+                        <option value="@item.Id">@item.Nombre</option>
+                    }
                 }
             </select>
         </div>
-        <div class="form-group col-md-3 col-sm-3 col-xs-6">
+        <div class="form-group col-md-4 col-sm-4 col-xs-6">
             <label asp-for="IdCliente" class="control-label">@Lb["Cliente"]:</label>
             <select onkeyup="pasarSigCampo(event,'Tipo')" asp-for="IdCliente" class="form-control selectItems">
-                <option value="0">@Lb["ClienteContado"]</option>
                 @foreach (var item in ViewData["clientes"] as IList<TbCrContacto>)
                 {
                     if (item.Persona)
@@ -90,11 +127,6 @@ else
             </select>
         </div>
 
-        <div class="form-group col-md-2 col-sm-2 col-xs-6">
-            <label asp-for="IdPuntoVenta" class="control-label">@Lb["PuntoVenta"]:</label>
-            <select asp-for="IdPuntoVenta" class="form-control selectItems"></select>
-        </div>
-
         <div class="col-md-2 col-sm-2 col-xs-6 btn-group" style="padding: 0; margin: 0; padding-top:2.4rem">
             <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle" type="button" aria-expanded="false">
                 @Lb["MasOpciones"] <span class="caret"></span>
@@ -109,91 +141,28 @@ else
                 <li>
                     <a class="dropdown-item" href="#">@Lb["AplicarApartado"]</a>
                 </li>
-                <li class="divider"></li>
+
                 <li>
                     <a class="dropdown-item" href="#">@Lb["ImportarCotizacion"]</a>
                 </li>
+                <li class="divider">@Lb["Reportes"]</li>
                 <li>
-                    <a class="dropdown-item" href="#" onclick="GetReporte()">@Lb["Reporte"]</a>
+                    <a class="dropdown-item" href="#" onclick="GetReporte(1)">@Lb["Carta"]</a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="GetReporte(2)">@Lb["MediaCarta"]</a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="GetReporte(3)">@Lb["Tiquete"]</a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="GetReporte(4)">@Lb["Personalizado"]</a>
                 </li>
             </ul>
 
         </div>
 
-        <div hidden class="form-group">
-            <label asp-for="FechaFactura" class="control-label"></label>
-            <input asp-for="FechaFactura" class="form-control" />
-        </div>
-        <div hidden class="form-group">
-            <label asp-for="IdMoneda" class="control-label"></label>
-            <input asp-for="IdMoneda" class="form-control" />
-            <span asp-validation-for="IdMoneda" class="text-danger"></span>
-        </div>
 
-        <div hidden class="form-group">
-            <label asp-for="SubTotal" class="control-label"></label>
-            <input asp-for="SubTotal" class="form-control" />
-            <span asp-validation-for="SubTotal" class="text-danger"></span>
-        </div>
-        <div hidden class="form-group">
-            <label asp-for="SubTotalGravado" class="control-label"></label>
-            <input asp-for="SubTotalGravado" class="form-control" />
-            <span asp-validation-for="SubTotalGravado" class="text-danger"></span>
-        </div>
-        <div hidden class="form-group">
-            <label asp-for="SubTotalExcento" class="control-label"></label>
-            <input asp-for="SubTotalExcento" class="form-control" />
-            <span asp-validation-for="SubTotalExcento" class="text-danger"></span>
-        </div>
-        <div hidden class="form-group">
-            <label asp-for="PorcDescuento" class="control-label"></label>
-            <input asp-for="PorcDescuento" class="form-control" />
-            <span asp-validation-for="PorcDescuento" class="text-danger"></span>
-        </div>
-        <div hidden class="form-group">
-            <label asp-for="TotalDescuento" class="control-label"></label>
-            <input asp-for="TotalDescuento" class="form-control" />
-            <span asp-validation-for="TotalDescuento" class="text-danger"></span>
-        </div>
-        <div hidden class="form-group">
-            <label asp-for="SubTotalGravadoNeto" class="control-label"></label>
-            <input asp-for="SubTotalGravadoNeto" class="form-control" />
-            <span asp-validation-for="SubTotalGravadoNeto" class="text-danger"></span>
-        </div>
-        <div hidden class="form-group">
-            <label asp-for="SubTotalExcentoNeto" class="control-label"></label>
-            <input asp-for="SubTotalExcentoNeto" class="form-control" />
-            <span asp-validation-for="SubTotalExcentoNeto" class="text-danger"></span>
-        </div>
-        <div hidden class="form-group">
-            <label asp-for="MontoIva" class="control-label"></label>
-            <input asp-for="MontoIva" class="form-control" />
-            <span asp-validation-for="MontoIva" class="text-danger"></span>
-        </div>
-        <div hidden class="form-group">
-            <label asp-for="MontoExoneracion" class="control-label"></label>
-            <input asp-for="MontoExoneracion" class="form-control" />
-        </div>
-        <div hidden class="form-group">
-            <label asp-for="Total" class="control-label"></label>
-            <input asp-for="Total" class="form-control" />
-            <span asp-validation-for="Total" class="text-danger"></span>
-        </div>
-        <div hidden class="form-group">
-            <label asp-for="FechaVencimiento" class="control-label"></label>
-            <input asp-for="FechaVencimiento" class="form-control" />
-            <span asp-validation-for="FechaVencimiento" class="text-danger"></span>
-        </div>
-        <div hidden class="form-group">
-            <label asp-for="TipoCambioDolar" class="control-label"></label>
-            <input asp-for="TipoCambioDolar" class="form-control" />
-            <span asp-validation-for="TipoCambioDolar" class="text-danger"></span>
-        </div>
-        <div hidden class="form-group">
-            <label asp-for="TipoCambioEuro" class="control-label"></label>
-            <input asp-for="TipoCambioEuro" class="form-control" />
-            <span asp-validation-for="TipoCambioEuro" class="text-danger"></span>
-        </div>
 
     </form>
 
@@ -204,43 +173,46 @@ else
 <div class="row">
 
     <form id="frmFD">
-        <div class="form-group col-md-3 col-sm-3 col-xs-12">
-            <label class="control-label">@Lb["Producto"]: <span style="font-size:1.1rem" class="text-info"><a id="descProducto"></a></span></label>
-            <input id="producto" onkeyup="pasarSigCampo(event,'cantidad')" class="form-control autocompleteTH" autocomplete="off" autofocus type="text" />
-        </div>
+        <fieldset id="frmFDfieldset">
+            <div class="form-group col-md-3 col-sm-3 col-xs-12">
+                <label class="control-label">@Lb["Producto"]: <span style="font-size:1.1rem" class="text-info"><a id="descProducto"></a></span></label>
+                <input id="producto" onkeyup="pasarSigCampo(event,'cantidad')" class="form-control autocompleteTH" autocomplete="off" autofocus type="text" />
+            </div>
 
-        <div class="form-group col-md-2 col-sm-2 col-xs-4">
-            <label class="control-label">@Lb["Cantidad"]:</label>
-            <input id="cantidad" onkeyup="pasarSigCampo(event,'precio')" class="form-control numerico" value="1" type="text" />
-        </div>
+            <div class="form-group col-md-2 col-sm-2 col-xs-4">
+                <label class="control-label">@Lb["Cantidad"]:</label>
+                <input id="cantidad" onkeyup="pasarSigCampo(event,'precio')" class="form-control numerico" value="1" type="text" />
+            </div>
 
-        <div class="form-group col-md-2 col-sm-2 col-xs-6">
-            <label class="control-label">@Lb["Precio"]:</label>
-            <input id="precio" onkeyup="pasarSigCampo(event,'submitFrmFD')" class="form-control moneda" type="text" />
-        </div>
+            <div class="form-group col-md-2 col-sm-2 col-xs-6">
+                <label class="control-label">@Lb["Precio"]:</label>
+                <input id="precio" onkeyup="pasarSigCampo(event,'submitFrmFD')" class="form-control moneda" type="text" />
+            </div>
 
-        <div hidden class="form-group col-md-3 col-sm-3 col-xs-6">
-            <label class="control-label">@Lb["Descuento"]:</label>
-            <input id="descuento" class="form-control porcentaje" value="0" type="text" />
-        </div>
+            <div hidden class="form-group col-md-3 col-sm-3 col-xs-6">
+                <label class="control-label">@Lb["Descuento"]:</label>
+                <input id="descuento" class="form-control porcentaje" value="0" type="text" />
+            </div>
 
-        <div hidden class="form-group col-md-3 col-sm-3 col-xs-6">
-            <label class="control-label">@Lb["IVA"]:</label>
-            <input id="iva" class="form-control" type="text" />
-        </div>
+            <div hidden class="form-group col-md-3 col-sm-3 col-xs-6">
+                <label class="control-label">@Lb["IVA"]:</label>
+                <input id="iva" class="form-control" type="text" />
+            </div>
 
-        <div class="form-group col-md-1 col-sm-1 col-xs-1" style="padding-top: 2.3rem;">
-            <a onkeyup="pasarSigCampo(event,'producto')" onclick="" id="submitFrmFD" class="btn btn-success"><span><i class="fas fa-save"></i></span></a>
-        </div>
-        <div class="form-group col-md-3 col-sm-3 col-xs-12" style="padding-top: 2.3rem;">
-            <label style="font-size:2rem" class="control-label pull-right">@Lb["Total"]: <span id="totalFactura"></span></label>
-        </div>
+            <div class="form-group col-md-1 col-sm-1 col-xs-1" style="padding-top: 2.3rem;">
+                <a onkeyup="pasarSigCampo(event,'producto')" onclick="" id="submitFrmFD" class="btn btn-success"><span><i class="fas fa-save"></i></span></a>
+            </div>
+            <div class="form-group col-md-3 col-sm-3 col-xs-12" style="padding-top: 2.3rem;">
+                <label style="font-size:2rem" class="control-label pull-right">@Lb["Total"]: <span id="totalFactura"></span></label>
+            </div>
+        </fieldset>
     </form>
 
 </div>
 <div class="row">
     <div class="form-group col-md-12 col-sm-12 col-xs-12" style="padding-top: 1rem;">
-        <a class="btn btn-success pull-right" onclick="guardarCambios()">@Lb["Guardar"]</a>
+        @*<a class="btn btn-success pull-right" onclick="guardarCambios()">@Lb["Facturar"]</a>*@
+        <a class="btn btn-success pull-right" onclick="facturar()">@Lb["Facturar"]</a>
         <a class="btn btn-default pull-right" onclick="cancelar()">@Lb["Cancelar"]</a>
     </div>
 </div>
@@ -334,17 +306,43 @@ else
     </div>
 </div>
 
-<div class="modal fade bd-example-modal-xl" id="reporteModal" tabindex="-2" role="dialog" aria-labelledby="reporteModalCenter" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div id="repContainer">
 
+<div id="formaPagoPartial">
+
+</div>
+
+
+<div class="modal fade" id="impresionModal" tabindex="-1" role="dialog" aria-labelledby="impresionModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header row">
+                <div class="col-md-10 col-sm-10 col-xs-10">
+                    <h4 class="modal-title" id="impresionModalCenterTitle">@Lb["Impresión"]</h4>
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-2">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="btn-group col-md-12 col-sm-12 col-xs-12">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="GetPDF(1, true)">@Lb["Carta"]</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="GetPDF(2, true)">@Lb["MediaCarta"]</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="GetPDF(3, true)">@Lb["Tiquete"]</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="GetPDF(4, true)">@Lb["Personalizado"]</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+
 <input hidden id="monedaFormatter" class="moneda" type="text" />
+<input hidden id="auxFormat" class="moneda" type="text" />
 <input hidden id="moneyFormatter" class="money" type="text" />
 
 
@@ -356,6 +354,9 @@ else
 
     ///////factura
     var $totalFactura = $('#totalFactura');
+    var idTipoPrecio = 0;
+
+    var idCajaPuntoVenta = 0;
 
     ///////linea
     var $item = $('#producto');
@@ -379,7 +380,6 @@ else
 
 
         $('.selectItems').select2();
-
 
         $(".numerico").inputmask({
             'alias': 'decimal',
@@ -405,13 +405,31 @@ else
 
 
         getMonedas();
-        getPuntoVenta();
-        getInventario();
-
         comprobarBorrador();
+
+        $('.selectItems').on('change', function () {
+            setFacturaModel();
+        });
+
+        $('#selectPuntoVenta').on('change', function () {
+            setConfiguracionPV();
+            limpiarLinea();
+        });
+
+        $('#IdVendedor').on('change', function () {
+            validarCajasAbiertas();
+        });
+
+        $('#IdCliente').on('change.select2', function () {
+
+            getIdTipoPrecioCliente();
+            limpiarLinea();
+        });
 
 
     });
+
+
 
     function getFormData() {
         var unindexed_array = $('#frmFactura ').serializeArray();
@@ -430,17 +448,28 @@ else
     }
 
     ///////////////////////////////////////////////////manejo detalle f///////////////////////////////////
+
+    function limpiarLinea() {
+        $('#producto').val("");
+        $('#cantidad').val(1);
+        $('#precio').val(0);
+        $('#descProducto').text("");
+
+    }
+
     $('#submitFrmFD').on('click', function () {
         $('#cantidad').focus();
         prepararLinea();
     });
 
-    $('#cantidad').on('focus', function () {
+    $('#producto').on('focusout', function () {
 
-        if ($('#producto').val().replace(/ /g, "") !== "")
-            cargarInfoItem($('#producto').val());
-        else
-            $precio.val("");
+        setTimeout(function () {
+            if ($('#producto').val().replace(/ /g, "") !== "")
+                cargarInfoItem($('#producto').val());
+            else
+                limpiarLinea();
+        }, 250);
 
     });
 
@@ -470,6 +499,7 @@ else
         $item.focus();
         $item.select();
         $cantidad.val(1);
+        limpiarLinea();
     }
 
     function cargarLineas(data) {
@@ -514,12 +544,16 @@ else
 
         var producto = getItemPorCodigo($item.val());
 
+        var precioItem = getPrecioItem(producto);
+        $('#auxFormat').val(precioItem);
+
+
         var model = {
             id: 0,
             idFactura: @Model.Id,
             idInventario: producto.idInventario,
             cantidad: parseFloat($('#cantidad').val()),
-            precio: parseFloat($('#precio').inputmask('unmaskedvalue')),
+            precio: $('#auxFormat').inputmask('unmaskedvalue') == $('#precio').inputmask('unmaskedvalue') ? precioItem : parseFloat($('#precio').inputmask('unmaskedvalue')),
             porcIva: parseFloat($('#iva').val()),
             porcDescuento: parseFloat($('#descuento').inputmask('unmaskedvalue')),
             porcExoneracion: 0,
@@ -538,8 +572,30 @@ else
             idMonedaFD: @Model.IdMoneda
         };
 
-        lineas.push(model);
-        lineasCrOrUp.push(model);
+
+        var existe = existeLinea(model.idInventario);
+        if (existe != null) {
+
+            lineasCrOrUp.splice($.inArray(lineas[existe], lineasCrOrUp), 1);
+
+            lineas[existe].cantidad += model.cantidad;
+            lineas[existe].subTotal += model.subTotal;
+            lineas[existe].montoDescuento = model.montoDescuento;
+            lineas[existe].montoIva += model.montoIva;
+            lineas[existe].subTotalGravado += model.subTotalGravado;
+            lineas[existe].subTotalGravadoNeto += model.subTotalGravadoNeto;
+            lineas[existe].subTotalExcento += model.subTotalExcento;
+            lineas[existe].subTotalExcentoNeto += model.subTotalExcentoNeto;
+            lineas[existe].montoExoneracion += model.montoExoneracion;
+            lineas[existe].total += model.total;
+
+            lineasCrOrUp.push(lineas[existe]);
+
+        } else {
+            lineas.push(model);
+            lineasCrOrUp.push(model);
+        }
+
         calcularTotales();
         setFacturaModel();
 
@@ -581,8 +637,13 @@ else
     function editarLinea() {
         var key = parseInt($('#idLinea').val());
 
+        var producto = getItemPorId(lineas[key].idInventario);
+
+        var precioItem = getPrecioItem(producto);
+        $('#auxFormat').val(precioItem);
+
         lineas[key].cantidad = parseFloat($('#cantidadEditar').val());
-        lineas[key].precio = parseFloat($('#precioEditar').inputmask('unmaskedvalue'));
+        lineas[key].precio = $('#auxFormat').inputmask('unmaskedvalue') == $('#precioEditar').inputmask('unmaskedvalue') ? precioItem : parseFloat($('#precioEditar').inputmask('unmaskedvalue'));//parseFloat($('#precioEditar').inputmask('unmaskedvalue'));
         lineas[key].porcDescuento = parseFloat($('#descuentoEditar').inputmask('unmaskedvalue'));
 
         var subTotal = lineas[key].cantidad * lineas[key].precio;
@@ -624,7 +685,13 @@ else
     ////////////////////////////////calcular totales linea///////////////////////////////////
 
     function calcularSubtotalLinea() {
-        return parseFloat($('#cantidad').val()) * parseFloat($('#precio').inputmask('unmaskedvalue'));
+
+        var precioItem = getPrecioItem(getItemPorCodigo($item.val()));
+        $('#auxFormat').val(precioItem);
+
+        var nuevoPrecio = $('#auxFormat').inputmask('unmaskedvalue') == $('#precio').inputmask('unmaskedvalue') ? precioItem : parseFloat($('#precio').inputmask('unmaskedvalue'));
+
+        return parseFloat($('#cantidad').val()) * nuevoPrecio;//parseFloat($('#precio').inputmask('unmaskedvalue'));
     }
 
     function calcularSubTotalGravadoLinea() {
@@ -719,8 +786,61 @@ else
 
     //////////////////////////////////////////////manejo factura//////////////////////////////////////////
 
+    function getPuntoVentaLocal() {
+
+        for (var i = 0; i < arrayPV.length; i++) {
+            if (arrayPV[i].idPuntoVenta == $('#selectPuntoVenta').val()) {
+                return arrayPV[i];
+            }
+        }
+
+    }
+
+    function setConfiguracionPV() {
+
+        var pv = getPuntoVentaLocal();
+
+        $('#IdCliente').val(pv.idContactoClienteDefecto);
+        $('#IdCliente').trigger('change');
+
+        setMonedaFactura(pv.idMonedaFacturaDefecto);
+
+        //se llama en el trigger change de select cliente
+        //getIdTipoPrecioCliente();
+
+        validarCajasAbiertas();
+    }
+
+    function setMonedaFactura(codigo) {
+
+        $('.moneda').inputmask('remove');
+        $('#IdMoneda').val(codigo);
+        var simbolo = "";
+        switch (codigo) {
+            case 1:
+                simbolo = monedas[0].simbolo;
+                break;
+            case 2:
+                simbolo = monedas[1].simbolo;
+                break;
+            case 3:
+                simbolo = monedas[2].simbolo;
+                break;
+            default:
+        }
+
+        $(".moneda").inputmask('currency', {
+            prefix: simbolo + ' ',
+            rightAlign: true,
+            min: 0
+        });
+
+
+    }
 
     ///////////////////////////////////////////////calculos de factura/////////////////////////////////////
+
+
     function calcularTotales() {
 
         facturaModel.Total = 0;
@@ -752,18 +872,79 @@ else
 
     /////////////////////////////////////////////////fin calc factura//////////////////////////////////////////
 
-    function guardarCambios() {
+    function facturar() {
 
+        if (lineas.length > 0) {
+            if ($('#Tipo').val() == "1") {
+                cargarFormaPago();
+            }
+            else {
+                procesarPago();
+            }
+        }
+
+    }
+    function cargarFormaPago() {
+
+        var model = {
+            idCaja: idCajaPuntoVenta,
+            idDocumento: @Model.Id,
+            monto: facturaModel.Total.toString().replace(".", ","),
+            tcDolar: $('#TipoCambioDolar').val(),
+            tcEuro: $('#TipoCambioEuro').val(),
+            moneda: $('#IdMoneda').val(),
+            idContacto: $('#IdCliente').val()
+        };
+
+        if (model.idCaja == 0)
+            return;
+
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("_FormaPago", "MovimientoCaja")',
+            data: { viewModel: model },
+            success: function (data) {
+                $('#formaPagoPartial').html(data);
+                $('#formaPagoModal').modal('show');
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+
+    }
+
+    function procesarPago() {
 
         $.ajax({
             type: "POST",
             dataType: "json",
             url: '@Url.Action("CrearEditarFactura")',
-            data: { viewModel: crearModelo(), detalle: crearModeloDetalle(lineasCrOrUp), eliminadas: lineasEliminadas },
+            data: { viewModel: crearModelo(), detalle: crearModeloDetalle(lineasCrOrUp), eliminadas: lineasEliminadas, formaPago: retornaFormasPago(), prepago: montoPrepago.toString().replace(".", ",") },
             success: function (data) {
-                localStorage.removeItem("FacturaBorrador");
 
-                window.location.href = "@Url.Action("ListarFacturas")";
+                $('#Id').val(data.idDoc);
+
+                localStorage.removeItem("FacturaBorrador");
+                $('#formaPagoModal').modal('hide');
+
+                var pv = getPuntoVentaLocal();
+
+                if (pv.opcionImpresion == 5) {
+                    $('#impresionModal').modal('show');
+                }
+                else if (pv.opcionImpresion == 0) {
+                    window.location.href = "@Url.Action("ListarFacturas")";
+                }
+                else {
+
+                    GetPDF(pv.opcionImpresion, true);
+                   
+                }
+
+
             },
             error: function (err, scnd) {
                 cargarAlert('@Lb["errorGeneral"]');
@@ -785,7 +966,7 @@ else
         facturaModel.Tipo = $('#Tipo').val();
         facturaModel.Estado = '@Model.Estado';
         facturaModel.FechaFactura = $('#FechaFactura').val();
-        facturaModel.IdPuntoVenta = $('#IdPuntoVenta').val();
+        facturaModel.IdPuntoVenta = $('#selectPuntoVenta').val();
 
         guardarLocalStorage();
 
@@ -818,8 +999,9 @@ else
             tipoCambioEuro: facturaModel.TipoCambioEuro,
             estado: '@Model.Estado',
             tipo: facturaModel.Tipo,
-            idPuntoVenta: $('#IdPuntoVenta').val(),
-            enCola: false
+            idPuntoVenta: $('#selectPuntoVenta').val(),
+            enCola: false,
+            consecutivo: $('#Consecutivo').val()
         };
 
         return model;
@@ -865,12 +1047,10 @@ else
 
                     facturaModel = borrador;
 
-                    console.log(facturaModel);
-
                     $('#Tipo').val(facturaModel.Tipo);
                     $('#IdCliente').val(facturaModel.IdCliente);
                     $('#IdVendedor').val(facturaModel.IdVendedor);
-                    $('#IdPuntoVenta').val(facturaModel.IdPuntoVenta);
+                    $('#selectPuntoVenta').val(facturaModel.IdPuntoVenta);
 
                     $('.selectItems').trigger('change.select2');
 
@@ -941,7 +1121,7 @@ else
         for (var i = 0; i < items.length; i++) {
             if (codigo === items[i].codigo) {
                 flag = true;
-                $('#precio').val(items[i].precioVenta);
+                $('#precio').val(getPrecioItem(items[i]));
                 $('#descuento').val(0);
                 $('#iva').val(items[i].impuestoVenta);
                 $('#descProducto').text(items[i].descripcionVenta.substr(0, 32) + (items[i].descripcionVenta.length > 25 ? '...' : '')).prop('href', '@Url.Action("EditarInventario", "Inventario", new { id = "__id__" })'.replace("__id__", items[i].idInventario));
@@ -958,6 +1138,51 @@ else
 
     }
 
+    function getPrecioItem(item) {
+
+        switch (parseInt($('#IdMoneda').val())) {
+            case 1:
+                return getPrecioFromLista(item.tbPrPrecioCatalogo);
+                break;
+            case 2:
+                return getPrecioFromLista(item.tbPrPrecioCatalogo) / parseFloat($('#TipoCambioDolar').val());
+                break;
+            case 3:
+                return getPrecioFromLista(item.tbPrPrecioCatalogo) / parseFloat($('#TipoCambioEuro').val());
+                break;
+        }
+
+    }
+
+    function getPrecioFromLista(lista) {
+
+        for (var i = 0; i < lista.length; i++) {
+            if (idTipoPrecio == lista[i].idTipoPrecio)
+                return lista[i].precioSinImpuesto;
+        }
+    }
+
+    function getIdTipoPrecioCliente() {
+         $.ajax({
+             type: "get",
+             dataType: "json",
+             url: '@Url.Action("GetIdTipoPrecioCliente", "Factura", new { idCliente = "__id__" })'.replace("__id__", $('#IdCliente').val()),
+             success: function (data) {
+
+                 var pv = getPuntoVentaLocal();
+                 if (data != 0 && pv.idContactoClienteDefecto != $('#IdCliente').val())
+                     idTipoPrecio = data;
+                 else
+                     idTipoPrecio = pv.idTipoPrecioDefecto;
+
+             },
+             error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+             }
+         });
+    }
+
 
     function getMonedas() {
          $.ajax({
@@ -967,15 +1192,10 @@ else
              success: function (data) {
 
                  monedas = data;
-                 $(".moneda").inputmask('currency', {
-                     prefix: @Model.IdMoneda === 1 ? data[0].simbolo + ' ' : @Model.IdMoneda === 2 ? data[1].simbolo + ' ' : data[2].simbolo + ' ',
-                     rightAlign: true,
-                     min: 0
-                 });
+                 $('#TipoCambioDolar').val(data[1].valorCompra);
+                 $('#TipoCambioEuro').val(data[2].valorCompra);
 
-                 $('#TipoCambioDolar').val(data[1].valorVenta);
-                 $('#TipoCambioEuro').val(data[2].valorVenta);
-
+                 getPuntoVenta();
 
               },
               error: function (err, scnd) {
@@ -999,8 +1219,9 @@ else
                         arrayPV.push(data[i]);
                 }
 
+                var flag = false;
                 for (var i = 0; i < arrayPV.length; i++) {
-                    
+
                     var o = new Option(arrayPV[i].nombre, arrayPV[i].idPuntoVenta);
 
                     if (@Model.Id != 0 && arrayPV[i].idPuntoVenta == @Model.IdPuntoVenta) {
@@ -1008,13 +1229,20 @@ else
                         if (arrayPV[i].inactivo) {
                             $("#puntoVentaValid").attr("hidden", false);
                         }
-                    }
-                    else if (arrayPV[i].esPorDefecto)
-                        $(o).attr('selected', true);
-                    
+                        flag = true;
 
-                    $('#IdPuntoVenta').append(o);
+                    }
+                    else if (arrayPV[i].esPorDefecto && !flag && @Model.Id == 0) {
+                        $('#IdCliente').val(arrayPV[i].idContactoClienteDefecto);
+                        $(o).attr('selected', true);
+
+                    }
+
+                    $('#selectPuntoVenta').append(o);
                 }
+
+                setConfiguracionPV();
+                getInventario();
 
             },
             error: function (err, scnd) {
@@ -1024,76 +1252,43 @@ else
         });
     }
 
-    function getClientes() {
-         $.ajax({
-              type: "get",
-              dataType: "json",
-              url: '@Url.Action("GetAllClientes", "Contacto")',
-              success: function (data) {
+    function validarCajasAbiertas() {
 
-                  clientes = data;
-                  var auto = [];
+        $.ajax({
+              type: "POST",
+            dataType: "json",
+            url: '@Url.Action("GetEstadoCajasPuntoVenta", "PuntoVenta")',
+            data: { idPV: $('#selectPuntoVenta').val(), idUsuario: $('#IdVendedor').val() },
+            success: function (data) {
+                if (data <= 0) {
+                    $('#frmFDfieldset').prop('disabled', true);
+                    cargarAlert('@Lb["PuntoVentaSinCajasAbiertas"]');
+                    idCajaPuntoVenta = data;
+                }
+                else {
+                    $('#frmFDfieldset').prop('disabled', false);
+                    idCajaPuntoVenta = data;
+                }
 
-                  for (var i = 0; i < data.length; i++) {
-                      if (data[i].persona) {
-                          auto.push({ id: data[i].id, name: data[i].nombre + ' ' + data[i].nombre});
-                      }
-                      else {
-                          auto.push({ id: data[i].id, name: data[i].nombre });
-                      }
 
-                  }
-
-                  $(".autocompleteV").typeahead({
-                      source: auto,
-                      minLength: 2,
-                      afterSelect: alert(),
-
-                  });
-
-              },
-              error: function (err, scnd) {
+             },
+             error: function (err, scnd) {
                   cargarAlert('@Lb["errorGeneral"]');
                   console.log(err.statusText);
-              }
-          });
-    }
-
-    function getUsuarios() {
-         $.ajax({
-              type: "get",
-              dataType: "json",
-              url: '@Url.Action("GetUsuariosPorEmpresa", "Contacto")',
-              success: function (data) {
-
-                    usuarios = data;
-                    var usuariosAuto = [];
-
-                    for (var i = 0; i < data.length; i++) {
-                        //itemsAuto.push({ id: data[i].id, name: data[i].descripcion + ' - ' + data[i].codigo });
-                        usuariosAuto.push({ id: data[i].id, name: data[i].nombre });
-                    }
-
-                    $(".autocompleteV").typeahead({
-                        source: usuariosAuto,
-                        minLength: 2
-                    });
-
-              },
-              error: function (err, scnd) {
-                  cargarAlert('@Lb["errorGeneral"]');
-                  console.log(err.statusText);
-              }
+             }
          });
+
     }
+
 
     function getInventario() {
 
          $.ajax({
               type: "get",
-              dataType: "json",
-              url: '@Url.Action("GetInventarioFacturable", "Inventario")',
-              success: function (data) {
+             dataType: "json",
+             url: '@Url.Action("GetInventarioFacturable", "Inventario", new { id = "__id__" })',
+             success: function (data) {
+
                  items = data;
                   cargarItems(data);
                   if (@Model.Id != 0)
@@ -1206,6 +1401,9 @@ else
 
     }
 
+
+    /////////////////////////////////////////////////////////////////////////crear pdf/impresion///////////////////////////////////
+
     function crearPdf() {
 
         var model = crearModeloPDF();
@@ -1248,7 +1446,37 @@ else
         });
     }
 
-    function GetReporte() {
+    function getTipoReporte(tipo) {
+        //1 carta
+        //2 media carta
+        //3 tiquete
+        //4 personalizado
+
+        var reporte = "";
+
+        switch (parseInt(tipo)) {
+            case 1:
+                reporte = "FacturaCarta";
+                break;
+            case 2:
+                reporte = "FacturaMediaCarta";
+                break;
+            case 3:
+                reporte = "Facturaticket";
+                break;
+            case 4:
+                reporte = JSON.parse(localStorage.getItem("empresaInfo")).ced;
+                break;
+            default:
+                reporte = "FacturaCarta";
+        }
+
+        return reporte;
+    }
+
+    function GetReporte(tipo) {
+
+        var reporte = getTipoReporte(tipo);
 
         var parametros = [];
 
@@ -1258,7 +1486,7 @@ else
         $.ajax({
             type: "POST",
             url: '@Url.Action("ReporteGeneral", "VistaReporte")',
-            data: { NombreReporte: "Facturaticket", parametros: parametros },
+            data: { NombreReporte: reporte, parametros: parametros },
              success: function (data) {
 
                  var myWindow = window.open('', '', '');
@@ -1276,14 +1504,16 @@ else
 
     }
 
-    function GetPDF(imprimir) {
+    function GetPDF(tipo, volver) {
+
+        var reporte = getTipoReporte(tipo);
 
         var parametros = [];
 
-        parametros.push({ nombre: "idFactura", valor: '@Model.Id'});
+        parametros.push({ nombre: "idFactura", valor: $('#Id').val()});
         parametros.push({ nombre: "idEmpresa", valor: '@Context.Session.GetInt32("idEmpresa")' });
 
-        var data = { NombreReporte: "Facturaticket", parametros: parametros };
+        var data = { NombreReporte: reporte, parametros: parametros };
 
         $.ajax({
             type: "POST",
@@ -1296,40 +1526,16 @@ else
             },
             data:data,
             success: function (data) {
-                var reader = new FileReader();
-                reader.readAsDataURL(data);
+                //var reader = new FileReader();
+                //reader.readAsDataURL(data);
 
-                reader.onloadend = function () {
-                    base64data = reader.result;
+                var file = new Blob([data], { type: 'application/pdf' });
+                var fileURL = URL.createObjectURL(file);
+                var w = window.open(fileURL);
+                w.print();
 
-                    var w = 0;
-                    var h = 0;
-
-                    var img = new Image;
-
-                    img.onload = function () {
-                        w = (img.width / 595) * 100;
-                        h = (img.height / 842) * 100;
-
-                        console.log(w); // image is loaded; sizes are available
-                        console.log(h);
-
-                        var doc = new jsPDF('p', 'pt', 'a4');
-
-                        doc.addImage(base64data, 'JPEG', 0, 0, w, h);
-                        if (imprimir == 1) {
-                            doc.autoPrint();
-                        }
-                        window.open(doc.output('bloburl'), '_blank');
-
-                    };
-
-                    img.src = base64data;
-
-
-
-
-                }
+                if (volver)
+                     window.location.href = "@Url.Action("ListarFacturas")";
 
             },
             error: function () {
@@ -1337,10 +1543,7 @@ else
             }
         });
 
-
     }
-
-
 
     function GetWORD() {
 
@@ -1373,13 +1576,6 @@ else
 
                     $('#wordContent').html(reader.result);
                     $('#wordContent').wordExport();
-
-                    //var myWindow = window.open('', '', '');
-                    //var doc = myWindow.document;
-                    //doc.open();
-                    //doc.write(reader.result);
-                    //$(doc).wordExport();
-                    //doc.close();
 
                 }
 

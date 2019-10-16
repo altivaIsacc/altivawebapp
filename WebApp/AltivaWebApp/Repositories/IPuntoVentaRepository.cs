@@ -12,7 +12,10 @@ namespace AltivaWebApp.Repositories
         TbSePuntoVenta Save(TbSePuntoVenta domain);
         TbSePuntoVenta Update(TbSePuntoVenta domain);
         IList<TbSePuntoVenta> GetAll();
-        
+        bool ExistePuntoVentaValido();
+        int GetEstadoCajasPV(long idPV, long idUsuario);
+
+
 
     }
 }

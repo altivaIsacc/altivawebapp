@@ -4,12 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using AltivaWebApp.Domains;
 using AltivaWebApp.GEDomain;
+using AltivaWebApp.ViewModels;
 
 namespace AltivaWebApp.Services
 {
    public interface ICajaService
     {
-        IList<TbFaCaja> GetInfoCaja();
+        IList<TbFaCaja> GetInfoCaja(FiltroFechaViewModel _filtroFecha, long _filtroNum, long _filtroPV);
         TbFaCaja Save(TbFaCaja domain);
         TbFaCaja Update(TbFaCaja domain);
         IList<TbFaCaja> GetAllCajas();
