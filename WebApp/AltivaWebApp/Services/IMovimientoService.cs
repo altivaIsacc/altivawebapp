@@ -9,6 +9,8 @@ namespace AltivaWebApp.Services
 {
    public interface IMovimientoService
    {
+        long GetUltimoMovimientoPagoId(long idDoc);
+        IList<TbFaMovimiento> GetSaldoContacto(long idContacto);
         TbFaMovimiento Save(TbFaMovimiento domain);
         TbFaMovimiento Update(TbFaMovimiento domain);
         bool SaveMovimientoJustificante(IList<TbFaMovimientoJustificante> domain);

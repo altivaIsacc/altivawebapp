@@ -28,7 +28,6 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbBaFlujoCategoria> TbBaFlujoCategoria { get; set; }
 
         public virtual DbSet<TbBaFlujo> TbBaFlujo { get; set; }
-        public virtual DbSet<TbBaFlujoCategoria> TbBaFlujoCategoria { get; set; }
         public virtual DbSet<TbCeCanton> TbCeCanton { get; set; }
         public virtual DbSet<TbCeCodigosReferencia> TbCeCodigosReferencia { get; set; }
         public virtual DbSet<TbCeCofiguracion> TbCeCofiguracion { get; set; }
@@ -129,24 +128,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbPrUnidadMedida> TbPrUnidadMedida { get; set; }
         public virtual DbSet<TbSeConfiguracion> TbSeConfiguracion { get; set; }
         public virtual DbSet<TbSePuntoVenta> TbSePuntoVenta { get; set; }
-        public virtual DbSet<TbFaCotizacionConfig> TbFaCotizacionConfig { get; set; }
-        public virtual DbSet<TbFaCotizacionDetalle> TbFaCotizacionDetalle { get; set; }
-        public virtual DbSet<TbFaDenominacion> TbFaDenominacion { get; set; }
-        public virtual DbSet<TbFaCaja> TbFaCaja { get; set; }
-        public virtual DbSet<TbFaCajaAperturaDenominacion> TbFaCajaAperturaDenominacion { get; set; }
-        public virtual DbSet<TbFaCajaArqueo> TbFaCajaArqueo { get; set; }
-        public virtual DbSet<TbFaCajaArqueoDenominacion> TbFaCajaArqueoDenominacion { get; set; }
-        public virtual DbSet<TbFaCajaCierre> TbFaCajaCierre { get; set; }
-        public virtual DbSet<TbFaTipoJustificante> TbFaTipoJustificante { get; set; }
-        public virtual DbSet<TbFaMovimientoJustificante> TbFaMovimientoJustificante { get; set; }
-        public virtual DbSet<TbFaMovimiento> TbFaMovimiento { get; set; }
-        public virtual DbSet<TbFaMovimientoDetalle> TbFaMovimientoDetalle { get; set; }
-        public virtual DbSet<TbFaCajaMovimiento> TbFaCajaMovimiento { get; set; }
-        public virtual DbSet<TbFaTipoDocumento> TbFaTipoDocumento { get; set; }
         public virtual DbSet<TbFaNota> TbFaNota { get; set; }
-        public virtual DbSet<TbFaCajaMovimientoCheque> TbFaCajaMovimientoCheque { get; set; }
-        public virtual DbSet<TbFaCajaMovimientoTarjeta> TbFaCajaMovimientoTarjeta { get; set; }
-
 
 
 

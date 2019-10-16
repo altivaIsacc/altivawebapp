@@ -11,7 +11,7 @@ namespace AltivaWebApp.ViewModels
         public long IdContacto { get; set; }
         public long IdDocumento { get; set; }
         public int IdTipoDocumento { get; set; }
-        public long? IdUsuario { get; set; }
+        public long IdUsuario { get; set; }
         public bool Cxp { get; set; }
         public bool Cxc { get; set; }
         public int IdMoneda { get; set; }
@@ -22,8 +22,8 @@ namespace AltivaWebApp.ViewModels
         public double AplicadoBase { get; set; }
         public double AplicadoDolar { get; set; }
         public double AplicadoEuro { get; set; }
-        public double? SaldoBase { get; set; }
-        public double? SaldoDolar { get; set; }
+        public double SaldoBase { get; set; }
+        public double SaldoDolar { get; set; }
         public double SaldoEuro { get; set; }
         public DateTime FechaCreacion { get; set; }
         public IList<MovimientoJustificanteViewModel> movimientoJustificante { get; set; }
