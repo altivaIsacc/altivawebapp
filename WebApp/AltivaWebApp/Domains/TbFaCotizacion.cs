@@ -15,7 +15,7 @@ namespace AltivaWebApp.Domains
         public long? IdCliente { get; set; }
         public string Estado { get; set; }
         public int? IdMoneda { get; set; }
-        public long? IdVendedor { get; set; }
+        public long IdVendedor { get; set; }
         public DateTime FechaCreacion { get; set; }
         public long? IdUsuarioCreador { get; set; }
         public double? SubTotalBase { get; set; }
@@ -40,9 +40,9 @@ namespace AltivaWebApp.Domains
         public double? MontoIvabase { get; set; }
         public double? MontoIvadolar { get; set; }
         public double? MontoIvaeuro { get; set; }
-        public double? TotalBase { get; set; }
-        public double? TotalDolar { get; set; }
-        public double? TotalEuro { get; set; }
+        public double TotalBase { get; set; }
+        public double TotalDolar { get; set; }
+        public double TotalEuro { get; set; }
         public DateTime FechaVencimiento { get; set; }
         public double? TipoCambioDolar { get; set; }
         public double? TipoCambioEuro { get; set; }
