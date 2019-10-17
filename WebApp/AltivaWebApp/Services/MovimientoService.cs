@@ -98,5 +98,9 @@ namespace AltivaWebApp.Services
         {
             return repository.GetMovimientoDetalleByIdMovimiento(idMovimiento);
         }
+        public TbFaMovimiento Save(TbFaMovimiento domain)
+        {
+            return repository.Save(domain);
+        }
     }
 }
