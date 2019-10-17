@@ -130,7 +130,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbPrUnidadMedida> TbPrUnidadMedida { get; set; }
         public virtual DbSet<TbSeConfiguracion> TbSeConfiguracion { get; set; }
         public virtual DbSet<TbSePuntoVenta> TbSePuntoVenta { get; set; }
-
+        public virtual DbSet<TbFaNota> TbFaNota { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

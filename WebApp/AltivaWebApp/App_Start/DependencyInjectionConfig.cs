@@ -330,10 +330,12 @@ namespace AltivaWebApp.App_Start
             //Movimiento
             services.AddScoped<IMovimientoRepository, MovimientoRepository>();
             services.AddScoped<IMovimientoService, MovimientoService>();
-            services.AddScoped<IMovimientoMap, MovimientoMap>();
-            services.AddScoped<ICajaMovimientoMap, CajaMovimientoMap>();
-            services.AddScoped<ICajaMovimientoService, CajaMovimientoService>();
+            services.AddScoped<IMovimientoMap, MovimientoMap>();          
+
+            //CajaMovmiento
             services.AddScoped<ICajaMovimientoRepository, CajaMovimientoRepository>();
+            services.AddScoped<ICajaMovimientoService, CajaMovimientoService>();
+            services.AddScoped<ICajaMovimientoMap, CajaMovimientoMap>();
 
         }
     }

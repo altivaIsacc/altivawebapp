@@ -1,4 +1,4 @@
-﻿using AltivaWebApp.Domains;
+using AltivaWebApp.Domains;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +7,10 @@ using AltivaWebApp.ViewModels;
 
 namespace AltivaWebApp.Services
 {
-    public interface IMovimientoService
-    {
+   public interface IMovimientoService
+   {
+        long GetUltimoMovimientoPagoId(long idDoc);
+        IList<TbFaMovimiento> GetSaldoContacto(long idContacto);
         TbFaMovimiento Save(TbFaMovimiento domain);
         TbFaMovimiento Update(TbFaMovimiento domain);
         IList<TbFaMovimientoDetalle> SaveMovDetalle(IList<TbFaMovimientoDetalle> domain);

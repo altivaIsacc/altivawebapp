@@ -1,17 +1,16 @@
-﻿using System;
+using AltivaWebApp.Domains;
+using AltivaWebApp.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AltivaWebApp.Domains;
-using AltivaWebApp.Repositories;
 using AltivaWebApp.ViewModels;
 
 namespace AltivaWebApp.Services
 {
     public class MovimientoService : IMovimientoService
     {
-               private readonly IMovimientoRepository repository;
-       
+        private readonly IMovimientoRepository repository;
         public MovimientoService(IMovimientoRepository repository)
         {
             this.repository = repository;
@@ -56,6 +55,14 @@ namespace AltivaWebApp.Services
         public TbFaMovimiento Save(TbFaMovimiento domain)
         {
             return repository.Save(domain);
+        }
+        public long GetUltimoMovimientoPagoId(long idDoc)
+        {
+            return repository.GetUltimoMovimientoPagoId(idDoc);
+        }
+        public IList<TbFaMovimiento> GetSaldoContacto(long idContacto)
+        {
+            return repository.GetSaldoContacto(idContacto);
         }
         public bool SaveMD(IList<TbFaMovimientoDetalle> domain)
         {
@@ -102,8 +109,6 @@ namespace AltivaWebApp.Services
         {
             return repository.GetMovimientoDetalleByIdMovimiento(idMovimiento);
         }
-
-
         public void DeleteMovimientoDetalle(IList<TbFaMovimientoDetalle> domain)
         {
             repository.DeleteMovimientoDetalle(domain);
