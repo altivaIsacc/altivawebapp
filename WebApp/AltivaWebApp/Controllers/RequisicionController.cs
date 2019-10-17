@@ -28,7 +28,27 @@ namespace AltivaWebApp.Controllers
             this.kardexMap = kardexMap;
             this.tomaService = tomaService;
         }
+        [HttpPost("_ListarRequisiciones")]
+        public IActionResult _ListarRequisiciones(FiltroFechaViewModel filtro)
+        {
+            try
+            {
+                ViewData["departamentos"] = depaService.GetAll();
 
+
+                if (filtro.Filtrando)
+                    return PartialView(service.GetAllWithDetails().Where(c => c.Fecha.Date >= filtro.Desde.Date && c.Fecha.Date <= filtro.Hasta.Date).ToList());
+                else
+                    return PartialView(service.GetAllWithDetails().ToList());
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+
+        }
         [Route("Listar-Requisiciones")]
         public IActionResult ListarRequisiciones()
         {

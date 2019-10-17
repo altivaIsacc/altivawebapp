@@ -1,0 +1,121 @@
+﻿@model IList<TbPrRequisicion>
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    var monedas = ViewData["monedas"] as IList<TbSeMoneda>;
+    var departamentos =  ViewData["departamentos"] as IList<TbPrDepartamento>;
+}
+<div class="row">
+    <div class="col-md-8 col-sm-8 col-xs-12 table-responsive">
+        <table class="table table-bordered" id="tblReq">
+            <thead>
+                <tr>
+                    <th hidden>@Lb["id"]</th>
+                    <th>@Lb["Fecha"]</th>
+                    <th>@Lb["Departamento"]</th>
+                    <th>@Lb["Descripción"]</th>
+                    <th hidden>@Lb["Anulado"]</th>
+                    <th> @Lb["Acción"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <td hidden>@item.Id</td>
+                    <td>@item.Fecha</td>
+                    <td>@departamentos.FirstOrDefault(d => d.Id == item.IdDepartamento).Descripcion</td>
+                    <td>@item.Descripcion</td>
+                    <td hidden>@item.Anulado</td>
+                    <td><a href="@Url.Action("EditarRequisicion", new { id=item.Id })" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a></td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        hasta = new Date().toLocaleString();
+        desde = new Date().toLocaleString();
+        inicializarTabla();
+        tblCompras.columns(4).search('false').draw(); 
+    });
+     function inicializarTabla() {
+
+        $('#tblReq').DataTable().destroy();
+
+        tblCompras = $('#tblReq').DataTable({
+            "info": false,         
+            "order": [[0, "desc"]],
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   "></i>',
+                    titleAttr: 'Copy',
+                    title: '@Lb["Requisiciones"]',
+                    exportOptions: {
+                        columns: [0, 1,2]
+                    }
+
+                }           
+            ]
+        });
+
+        //$(".dataTables_searching").hide();
+    }
+         ///////////////////////////////////////////////////////filtros//////////////////////////////
+
+
+    $("#filtroBuscarDescripcion").on("keyup", function () {
+        tblCompras
+            .columns(3)
+            .search(this.value)
+            .draw();
+    });
+    $("#filtroBuscarDepartamento").on("keyup", function () {
+        tblCompras
+            .columns(2)
+            .search(this.value)
+            .draw();
+    });
+     $('#estado').change(function () {
+
+        if (!$(this).prop('checked')) {
+            tblCompras.columns(4).search('false').draw(); 
+        }
+        else {
+            tblCompras.columns(4).search('true').draw(); 
+        }
+
+     });
+
+</script>

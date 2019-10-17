@@ -32,7 +32,28 @@ namespace AltivaWebApp.Controllers
             this.inventarioService = inventarioService;
             this.monedaService = monedaService;
         }
+        [HttpPost("_ListarOrdenes")]
+        public IActionResult _ListarOrdenes(FiltroFechaViewModel filtro)
+        {
+            try
+            {
+                ViewData["monedas"] = monedaService.GetAll();
+                ViewData["usuarios"] = contactoService.GetAllProveedores();
+           
 
+                if (filtro.Filtrando)
+                    return PartialView(service.GetAllOrdenes().Where(c => c.Fecha.Date >= filtro.Desde.Date && c.Fecha.Date <= filtro.Hasta.Date).ToList());
+                else
+                    return PartialView(service.GetAllOrdenes());
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+
+        }
         [Route("Listar-Ordenes")]
         public ActionResult ListarOrdenes()
         {

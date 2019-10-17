@@ -1,5 +1,4 @@
-﻿@model IEnumerable<AltivaWebApp.ViewModels.RequisicionViewModel>
-@inject IStringLocalizer<SharedResources> SharedLocalizer
+﻿@inject IStringLocalizer<SharedResources> Lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -8,39 +7,35 @@
     }
 }
 @{
-    ViewData["Title"] = SharedLocalizer["Requisiciones"];
+    ViewData["Title"] = Lb["Requisiciones"];
 
     var date = DateTime.Now;
 }
-
 <div class="row">
     <div class="col-md-2">
-        <h3>@SharedLocalizer["Requisiciones"]</h3>
+        <h3>@Lb["Requisiciones"]</h3>
     </div>
     <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
         <p>
-            <a asp-action="CrearRequisicion" class="btn btn-primary"><span>@SharedLocalizer["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+            <a asp-action="CrearRequisicion" class="btn btn-primary"><span>@Lb["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
         </p>
     </div>
 </div>
-
-
 <div class="row">
 
     <div class="col-md-3" style="margin-top: 0.2rem">
-        <label>@SharedLocalizer["buscarPorDescripcion"]:</label>
-        <input type="text" id="filtroBuscarDescripcion" class="form-control" placeholder="@SharedLocalizer["Descripción"]" />
+        <label>@Lb["buscarPorDescripcion"]:</label>
+        <input type="text" id="filtroBuscarDescripcion" class="form-control" placeholder="@Lb["Descripción"]" />
     </div>
 
     <div class="col-md-3">
-        <label style="padding-top: 0.2rem">@SharedLocalizer["buscarPorDepartamento"]:</label>
-        <input type="text" id="filtroBuscarDepartamento" class="form-control" placeholder="@SharedLocalizer["Departamento"]" />
+        <label style="padding-top: 0.2rem">@Lb["buscarPorDepartamento"]:</label>
+        <input type="text" id="filtroBuscarDepartamento" class="form-control" placeholder="@Lb["Departamento"]" />
     </div>
-
-    <div class="col-md-3">
+    <div class="col-md-3 col-sm-6 col-xs-12">
 
         <label class="control-label">
-            <input type="checkbox" id="habilitaFiltroFecha"> @SharedLocalizer["FiltroFecha"]
+            <input type="checkbox" id="habilitaFiltroFecha"> @Lb["FiltroFecha"]
         </label>
         <form id="frmFecha" class="form-horizontal">
             <fieldset>
@@ -48,7 +43,7 @@
                     <div class="controls">
                         <div class="input-prepend input-group">
                             <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
-                            <input disabled type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="@date.Date - @date.Date" />
+                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="@date.Date - @date.Date" />
                         </div>
                     </div>
                 </div>
@@ -59,90 +54,54 @@
     </div>
     <div class="col-md-2 checkbox">
         <label class="control-label">
-            <input type="checkbox" id="estado"> @SharedLocalizer["VerAnuladas"]
+            <input type="checkbox" id="estado"> @Lb["VerAnuladas"]
         </label>
     </div>
 
 </div>
 
-
-<div class="table-responsive">
-
-    <table class="table table-bordered" id="tblReq">
-        <thead>
-            <tr>
-                <th hidden>
-                    @SharedLocalizer["id"]
-                </th>
-
-                <th class="col-md-2">
-                    @SharedLocalizer["Fecha"]
-                </th>
-                <th class="col-md-2">
-                    @SharedLocalizer["Departamento"]
-                </th>
-                <th class="col-md-4">
-                    @SharedLocalizer["Descripción"]
-                </th>
-
-                <th class="col-md-1">@SharedLocalizer["Acción"]</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+<div id="partialRequisicion">
 
 </div>
 
-
-
 <script>
-
-    var reqs = [];
-
-    var reqsFiltrado = [];
-    var tblReqs;
     var hasta;
     var desde;
-
     $(document).ready(function () {
-
-        getRequisiciones();
-
-
-        $('#filtroFecha').attr('disabled', true);
-
-        $('#filtroFecha').daterangepicker({
+       $('#filtroFecha').attr('disabled', true);
+        getlistarPartial();
+       $('#filtroFecha').daterangepicker({
             opens: 'left',
             "locale": {
-                format: "@SharedLocalizer["formatoFecha"]",
+                format: "@Lb["formatoFecha"]",
                 "separator": " - ",
-                "applyLabel": "@SharedLocalizer["Aplicar"]",
-                "cancelLabel": "@SharedLocalizer["Cancelar"]",
-                "fromLabel": "@SharedLocalizer["DE"]",
-                "toLabel": "@SharedLocalizer["Hasta"]",
+                "applyLabel": "@Lb["Aplicar"]",
+                "cancelLabel": "@Lb["Cancelar"]",
+                "fromLabel": "@Lb["DE"]",
+                "toLabel": "@Lb["Hasta"]",
                 "customRangeLabel": "Custom",
                 "daysOfWeek": [
-                    "@SharedLocalizer["Dom"]",
-                    "@SharedLocalizer["Lun"]",
-                    "@SharedLocalizer["Mar"]",
-                    "@SharedLocalizer["Mie"]",
-                    "@SharedLocalizer["Jue"]",
-                    "@SharedLocalizer["Vie"]",
-                    "@SharedLocalizer["Sáb"]"
+                    "@Lb["Dom"]",
+                    "@Lb["Lun"]",
+                    "@Lb["Mar"]",
+                    "@Lb["Mie"]",
+                    "@Lb["Jue"]",
+                    "@Lb["Vie"]",
+                    "@Lb["Sáb"]"
                 ],
                 "monthNames": [
-                    "@SharedLocalizer["Enero"]",
-                    "@SharedLocalizer["Febrero"]",
-                    "@SharedLocalizer["Marzo"]",
-                    "@SharedLocalizer["Abril"]",
-                    "@SharedLocalizer["Mayo"]",
-                    "@SharedLocalizer["Junio"]",
-                    "@SharedLocalizer["Julio"]",
-                    "@SharedLocalizer["Agosto"]",
-                    "@SharedLocalizer["Septiembre"]",
-                    "@SharedLocalizer["Octubre"]",
-                    "@SharedLocalizer["Noviembre"]",
-                    "@SharedLocalizer["Diciembre"]"
+                    "@Lb["Enero"]",
+                    "@Lb["Febrero"]",
+                    "@Lb["Marzo"]",
+                    "@Lb["Abril"]",
+                    "@Lb["Mayo"]",
+                    "@Lb["Junio"]",
+                    "@Lb["Julio"]",
+                    "@Lb["Agosto"]",
+                    "@Lb["Septiembre"]",
+                    "@Lb["Octubre"]",
+                    "@Lb["Noviembre"]",
+                    "@Lb["Diciembre"]"
                 ],
                 "firstDay": 1
             }
@@ -151,230 +110,49 @@
 
             desde = start.format('YYYY-MM-DD');
             hasta = end.format('YYYY-MM-DD');
-            cargarFiltros();
+            getlistarPartial();
 
-            });       
+            });
 
 
     });
 
-    function getRequisiciones() {
-            
+     $('#habilitaFiltroFecha').change(function () {
+
+        if (!$(this).prop('checked')) {
+            $('#filtroFecha').attr('disabled', true);
+        }
+        else {
+            $('#filtroFecha').attr('disabled', false);
+        }
+                getlistarPartial();
+
+     });
+    
+     function getlistarPartial(){
+        var url = "@Url.Action("_ListarRequisiciones")";           
         $.ajax({
-            type: "get",
-            headers: {
-                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-            },
-            dataType: "json",
-            url: '@Url.Action("GetRequisiciones")',
+            type: "Post",
+            url: url,
+            data: { filtro: crearModeloFiltro() },
             success: function (data) {
-                data = data.reverse();
-                console.log(data);              
-                reqs = JSON.parse(JSON.stringify(data));
-                //cargarDatos(data);
-                cargarFiltros();
+                $('#partialRequisicion').html(data);
             },
             error: function (err, scnd) {
-                cargarAlert('@SharedLocalizer["errorGeneral"]');
                 console.log(err.statusText);
             }
         });
-    }
-
-
-    function cargarDatos(data) {
-
-     
-        $("#tblReq > tbody").remove();
-        $('#tblReq').append('<tbody></tbody>');
-
-        var contadorFila = 0;
-        var colorFila = "";
-        for (var i = 0; i < data.length; i++) {
-
-            if (data[i].anulado)
-                colorFila = "color: #808080";
-            else
-                colorFila = "#2A3F54"
-
-            var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
-
-                + '<td hidden ><p style="padding-top:1rem;">' + data[i].id + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + recuperarFecha(data[i].fecha) + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].idDepartamentoNavigation.descripcion + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].descripcion + '</p></td>'
-                + '<td>  <button value="' + data[i].id + '" onclick="editarRequisicion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
-            $('#tblReq > tbody').append(body);
-            contadorFila++;
-
-        }
-
-
-
-        inicializarTabla();
-
-    }
-
-    function inicializarTabla() {
-
-        $('#tblReq').DataTable().destroy();
-
-        tblCompras = $('#tblReq').DataTable({
-            "info": false,         
-            "order": [[0, "desc"]],
-            dom: 'Bfrtip',
-            language: {
-                "decimal": "",
-                "emptyTable": "@SharedLocalizer["NoDatos"]",
-                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
-                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
-                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
-                "infoPostFix": "",
-                "thousands": ",",
-                "lengthMenu": "@SharedLocalizer["Mostrar"] _MENU_ @SharedLocalizer["Entradas"]",
-                "loadingRecords": "Cargando...",
-                "processing": "Procesando...",
-                "search": "<i class='fas fa-search'></i>",
-                "zeroRecords": "@SharedLocalizer["sinResultados"]",
-                "paginate": {
-                    "first": "@SharedLocalizer["Primero"]",
-                    "last": "@SharedLocalizer["Último"]",
-                    "next": "@SharedLocalizer["Sguiente"]",
-                    "previous": "@SharedLocalizer["Anterior"]"
-                }
-            },
-            buttons: [
-                {
-                    extend: 'copyHtml5',
-                    text: '<i class="fas fa-copy   "></i>',
-                    titleAttr: 'Copy',
-                    title: '@SharedLocalizer["Requisiciones"]',
-                    exportOptions: {
-                        columns: [0, 1,2]
-                    }
-
-                }           
-            ]
-        });
-
-        //$(".dataTables_searching").hide();
-    }
-
-
-     ///////////////////////////////////////////////////////filtros
-
-
-    $("#filtroBuscarDescripcion").on("keyup", function () {
-        tblCompras
-            .columns(2)
-            .search(this.value)
-            .draw();
-    });
-    $("#filtroBuscarDepartamento").on("keyup", function () {
-        tblCompras
-            .columns(1)
-            .search(this.value)
-            .draw();
-    });
-
-    $('#habilitaFiltroFecha').change(function () {
-
-        if (!$(this).prop('checked')) {
-            cargarFiltros();
-            $('#filtroFecha').attr('disabled', true);
-        }
-
-        else {
-            $('#filtroFecha').attr('disabled', false);
-            cargarFiltros();
-        }
-
-    });
-
-    $('#estado').change(function () {
-
-        cargarFiltros();
-
-    });
-   
-
-    function cargarFiltros() {
-
-        reqsFiltrado = reqs;//JSON.parse(JSON.stringify(ordenes));
-
-        reqsFiltrado = filtroFecha(reqsFiltrado, desde, hasta);
-
-        reqsFiltrado = filtroAnuladas(reqsFiltrado);
-   
-        cargarDatos(reqsFiltrado);
-
-    }
-
-
-    function filtroFecha(array, _desde, _hasta) {
-
-
-        var arrayReqs = [];
-
+     }
+     function crearModeloFiltro() {
         if ($('#habilitaFiltroFecha').prop('checked')) {
-
-            console.log(_desde, _hasta);
-
-            var desdeLocal = new Date(_desde).getTime();
-            var hastaLocal = new Date(_hasta).getTime();
-
-            for (var i = 0; i < array.length; i++) {
-
-                var documento = new Date(array[i].fecha.substring(0, 10)).getTime();
-
-                if (documento >= desdeLocal && documento <= hastaLocal)
-                    arrayReqs.push(reqs[i]);
-
-            }
-            return arrayReqs;
+            return { desde: desde, hasta: hasta, filtrando: true }
         }
-        else
-            return array;
-
-
-    }
-
-
-
-    function filtroAnuladas(array) {
-
-        var arrayReqs = [];
-
-        if ($('#estado').prop('checked')) {
-            for (var i = 0; i < array.length; i++) {
-                if (array[i].anulado)
-                    arrayReqs.push(array[i]);
-            }
-
+        else {
+            return { desde: desde, hasta: hasta, filtrando: false }
         }
-        else
-            for (var i = 0; i < array.length; i++) {
-                if (!array[i].anulado)
-                    arrayReqs.push(array[i]);
-            }
-
-        return arrayReqs;
-
     }
 
-    function recuperarFecha(_fecha) {
 
-
-        var f = new Date(_fecha);
-
-        return f.toLocaleString();
-
-    }
-
-    function editarRequisicion(value) {
-        var url = '@Url.Action("EditarRequisicion", new { id = "__id__"})';
-        window.location.href = url.replace("__id__", value);
-    }
 
 </script>
 <style>
