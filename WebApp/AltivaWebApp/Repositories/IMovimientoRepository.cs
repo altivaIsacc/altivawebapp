@@ -20,11 +20,7 @@ namespace AltivaWebApp.Repositories
         TbFaMovimiento GetMovimientoByIdDocumento(long idDoc);
         IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc);
         IList<TbFaMovimientoDetalle> UpdateMovDetalle(IList<TbFaMovimientoDetalle> domain);
-        long GetUltimoMovimientoPagoId(long idDoc);
-        IList<TbFaMovimiento> GetSaldoContacto(long idContacto);
-        TbFaMovimiento GetMovimientoById(long idMov);
-        bool SaveMovimientoJustificante(IList<TbFaMovimientoJustificante> domain);
-        bool UpdateMovimientoJustificante(IList<TbFaMovimientoJustificante> domain);
+        void DeleteMovimientoDetalle(IList<TbFaMovimientoDetalle> domain);
         IList<TbFaMovimiento> GetAllMovimientos();
         TbFaMovimiento GetMovimientoByNota(long id);
         IList<TbFaMovimientoJustificante> GetJustificantesByMovimientoId(long id);
@@ -34,6 +30,5 @@ namespace AltivaWebApp.Repositories
         TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimiento(long idMovimiento);
         bool UpdateMD(IList<TbFaMovimientoDetalle> domain);
         bool DeleteMD(long id);
-        void DeleteMovimientoDetalle(IList<TbFaMovimientoDetalle> domain);
     }
 }

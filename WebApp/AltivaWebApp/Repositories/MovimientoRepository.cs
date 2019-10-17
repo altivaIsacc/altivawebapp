@@ -57,7 +57,7 @@ namespace AltivaWebApp.Repositories
             {
                 AplicadoBase = md.AplicadoBase,
                 AplicadoEuro = md.AplicadoEuro,
-                AplicadoDolar = md.AplicadoEuro,
+                AplicadoDolar = md.AplicadoDolar,
                 CompraDolarTc = md.CompraDolarTc,
                 CompraEuroTc = md.CompraEuroTc,
                 Fecha = md.Fecha,
@@ -80,7 +80,7 @@ namespace AltivaWebApp.Repositories
                         CompraDolarTc = cm.CompraDolarTc,
                         CompraEuroTc = cm.CompraEuroTc,
                         VentaEuroTc = cm.VentaEuroTc,
-                        VentaDolarTc = cm.VentaEuroTc,
+                        VentaDolarTc = cm.VentaDolarTc,
                         Estado = cm.Estado,
                         FechaCreacion = cm.FechaCreacion,
                         IdCaja = cm.IdCaja,
@@ -155,6 +155,10 @@ namespace AltivaWebApp.Repositories
             return context.TbFaMovimiento.FirstOrDefault(m => m.IdDocumento == idDoc);
         }
 
+        public TbFaMovimiento GetMovimientoById(long idMov)
+        {
+            return context.TbFaMovimiento.FirstOrDefault(m => m.IdMovimiento == idMov);
+        }
 
         public long GetUltimoMovimientoPagoId(long idDoc)
         {
@@ -183,31 +187,8 @@ namespace AltivaWebApp.Repositories
                 context.SaveChanges();
                 return domain;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                AltivaLog.Log.Insertar(ex.ToString(), "ERROR");
-                throw null;
-            }
-        }
-       
-        public IList<TbFaMovimiento> GetMovimientosByIdDocumento(long idDoc)
-        {
-            return context.TbFaMovimiento.Where(m => m.IdDocumento == idDoc).ToList();
-        }
-
-        public TbFaMovimiento GetMovimientoById(long idMov)
-        {
-            return context.TbFaMovimiento.FirstOrDefault(m => m.IdMovimiento == idMov);
-        }
-
-        public long GetUltimoMovimientoPagoId(long idDoc)
-        {
-            var qry = "SELECT top 1 m2.*"
-                + "FROM tb_FA_Movimiento as m INNER JOIN "
-                + "tb_FA_MovimientoDetalle as md ON m.IdMovimiento = md.IdMovimientoDesde INNER JOIN "
-                + "tb_FA_Movimiento as m2 ON md.IdMovimientoHasta = m2.IdMovimiento "
-            + "WHERE m.IdDocumento = " + idDoc + " order by m2.IdMovimiento desc";
-
 
                 throw;
             }
@@ -217,8 +198,8 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                this.context.TbFaMovimientoDetalle.UpdateRange(domain);
-                this.context.SaveChanges();
+                context.TbFaMovimientoDetalle.UpdateRange(domain);
+                context.SaveChanges();
                 return domain;
             }
             catch (Exception)
@@ -226,76 +207,9 @@ namespace AltivaWebApp.Repositories
 
                 throw;
             }
-        }
-        public IList<TbFaMovimientoJustificante> GetJustificantesByMovimientoId(long id)
-        {
-            try
-            {
-                return context.TbFaMovimientoJustificante.Where(o => o.IdMovimientoNavigation.IdMovimiento == id).ToList();
-            }
-            catch (Exception ex)
-            {
-                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+        }       
 
-                throw;
-            }
-        }
-        public bool DeleteMovimientoJustificante(IList<int> domain, int idMovimiento)
-        {
-            try
-            {
-                var od = context.TbFaMovimiento.Include(o => o.TbFaMovimientoJustificante).FirstOrDefault(o => o.IdMovimiento == idMovimiento);
-
-                var eliminados = new List<TbFaMovimientoJustificante>();
-
-                foreach (var item in od.TbFaMovimientoJustificante)
-                {
-                    foreach (var i in domain)
-                    {
-                        if (item.IdMovimientoJustificante == i)
-                            eliminados.Add(item);
-                    }
-                }
-
-                context.TbFaMovimientoJustificante.RemoveRange(eliminados);
-                context.SaveChanges();
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                AltivaLog.Log.Insertar(ex.ToString(), "Error");
-
-                throw;
-            }
-        }
-        public IList<DocumentosContactoViewModel> GetDocumentosContacto(long id, bool cxp, long idDocumento)
-        {
-            int cx = 0;
-            if (cxp)
-                cx = 1;
-
-
-            try
-            {
-
-                var model = context.DocumentosContacto.FromSql($"Select * from vs_FA_DocumentosContacto where IdContacto = {id} and CXP = {cx} and IdDocumento != {idDocumento}").ToList();
-                return model;
-
-            }
-            catch (Exception ex)
-            {
-                AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                throw;
-
-            }
-
-        }
-        public TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimiento(long idMovimiento)
-        {
-            return context.TbFaMovimientoDetalle.FirstOrDefault(d => d.IdMovimientoHasta == idMovimiento);
-        }
-         //Francisco
+        //Francisco
         public bool UpdateMD(IList<TbFaMovimientoDetalle> domain)
         {
             try

@@ -20,7 +20,14 @@ namespace AltivaWebApp.Services
         {
             return repository.GetMovimientoById(idMov);
         }
-
+        public IList<TbFaMovimientoDetalle> SaveMovDetalle(IList<TbFaMovimientoDetalle> domain)
+        {
+            return repository.SaveMovDetalle(domain);
+        }
+        public IList<TbFaMovimientoDetalle> UpdateMovDetalle(IList<TbFaMovimientoDetalle> domain)
+        {
+            return repository.UpdateMovDetalle(domain);
+        }
         public IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc)
         {
             return repository.GetMovimientoByIdDocConPagos(idDoc);
@@ -29,32 +36,6 @@ namespace AltivaWebApp.Services
         public TbFaMovimiento GetMovimientoByIdDocumento(long idDoc)
         {
             return repository.GetMovimientoByIdDocumento(idDoc);
-        }
-        public IList<DocumentosContactoViewModel> GetDocumentosContacto(long id, bool cxp, long idMovimiento)
-        {
-            return repository.GetDocumentosContacto(id, cxp, idMovimiento);
-        }
-        public IList<TbFaMovimiento> GetSaldoContacto(long idContacto)
-        {
-            return repository.GetSaldoContacto(idContacto);
-        }
-
-        public long GetUltimoMovimientoPagoId(long idDoc)
-        {
-            return repository.GetUltimoMovimientoPagoId(idDoc);
-        }
-
-            public IList<TbFaMovimientoDetalle> SaveMovDetalle(IList<TbFaMovimientoDetalle> domain)
-        {
-            return repository.SaveMovDetalle(domain);
-        }
-        public IList<TbFaMovimientoDetalle> UpdateMovDetalle(IList<TbFaMovimientoDetalle> domain)
-        {
-            return repository.UpdateMovDetalle(domain);
-        }
-        public TbFaMovimiento Save(TbFaMovimiento domain)
-        {
-            return repository.Save(domain);
         }
         public long GetUltimoMovimientoPagoId(long idDoc)
         {
@@ -104,14 +85,18 @@ namespace AltivaWebApp.Services
         {
             return repository.DeleteMovimientoJustificante(domain, idMovimiento);
         }
-      
-        public TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimiento(long idMovimiento)
-        {
-            return repository.GetMovimientoDetalleByIdMovimiento(idMovimiento);
-        }
+
         public void DeleteMovimientoDetalle(IList<TbFaMovimientoDetalle> domain)
         {
             repository.DeleteMovimientoDetalle(domain);
+        }
+        public IList<DocumentosContactoViewModel> GetDocumentosContacto(long id, bool cxp, long idMovimiento)
+        {
+            return repository.GetDocumentosContacto(id, cxp, idMovimiento);
+        }
+        public TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimiento(long idMovimiento)
+        {
+            return repository.GetMovimientoDetalleByIdMovimiento(idMovimiento);
         }
     }
 }

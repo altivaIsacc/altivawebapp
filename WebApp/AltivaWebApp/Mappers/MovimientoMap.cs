@@ -217,36 +217,14 @@ namespace AltivaWebApp.Mappers
                     }
                     break;
             }
+
             return monto;
 
         }
-        public bool CreateMD(IList<MovimientoDetalleViewModel> viewModel)
-        {
-            return service.SaveMD(ViewModelToDomainMD(viewModel));
-        }
-        public bool UpdateMD(IList<MovimientoDetalleViewModel> viewModel)
-        {
-            return service.UpdateMD(ViewModelToDomainMDEdit(viewModel));
-        }
-
+        //francisco
         public TbFaMovimiento Create(MovimientoViewModel viewModel)
         {
             return service.Save(ViewModelToDomain(viewModel));
-        }
-
-        public TbFaMovimiento Update(MovimientoViewModel viewModel)
-        {
-            return service.Update(ViewModelToDomainEdit(viewModel));
-        }
-
-        public bool CreateMJ(MovimientoViewModel viewModel)
-        {
-            return service.SaveMovimientoJustificante(ViewModelToDomainMJ(viewModel));
-        }
-
-        public bool UpdateMJ(MovimientoViewModel viewModel)
-        {
-            return service.UpdateMovimientoJustificante(ViewModelToDomainMJ(viewModel));
         }
         public TbFaMovimiento ViewModelToDomain(MovimientoViewModel viewModel)
         {
@@ -291,17 +269,54 @@ namespace AltivaWebApp.Mappers
 
             return domain;
         }
-        public double RecuperarTipos(MovimientoViewModel viewModel, int tipo)
+        public TbFaMovimiento Update(MovimientoViewModel viewModel)
         {
-            var domain = new List<TbFaMovimientoJustificante>();
-            foreach (var item in viewModel.movimientoJustificante)
+            return service.Update(ViewModelToDomainEdit(viewModel));
+        }
+        public bool CreateMJ(MovimientoViewModel viewModel)
+        {
+            return service.SaveMovimientoJustificante(ViewModelToDomainMJ(viewModel));
+        }
+        public bool UpdateMJ(MovimientoViewModel viewModel)
+        {
+            return service.UpdateMovimientoJustificante(ViewModelToDomainMJ(viewModel));
+        }
+        public MovimientoViewModel DomainToViewModel(TbFaMovimiento domain)
+        {
+            var viewModel = new MovimientoViewModel
             {
-                if (tipo == 1)
-                    return item.CompraDolarTc;
-                if (tipo == 2)
-                    return item.CompraEuroTc;
+                IdMovimiento = domain.IdMovimiento,
+                IdContacto = domain.IdContacto,
+                IdDocumento = domain.IdDocumento,
+                IdTipoDocumento = domain.IdTipoDocumento,
+                IdUsuario = domain.IdUsuario,
+                Cxp = domain.Cxp,
+                Cxc = domain.Cxc,
+                IdMoneda = domain.IdMoneda,
+                AplicadoBase = domain.AplicadoBase,
+                AplicadoDolar = domain.AplicadoDolar,
+                AplicadoEuro = domain.AplicadoEuro,
+                SaldoBase = domain.SaldoBase,
+                SaldoDolar = domain.SaldoDolar,
+                SaldoEuro = domain.SaldoEuro,
+                FechaCreacion = domain.FechaCreacion
+            };
+            if (viewModel.IdMoneda == 1)
+            {
+                viewModel.Monto = domain.MontoBase;
+                viewModel.DisponibleBase = domain.DisponibleBase;
             }
-            return 0;
+            else if (viewModel.IdMoneda == 2)
+            {
+                viewModel.Monto = domain.MontoDolar;
+                viewModel.DisponibleDolar = domain.DisponibleDolar;
+            }
+            else if (viewModel.IdMoneda == 3)
+            {
+                viewModel.Monto = domain.MontoEuro;
+                viewModel.DisponibleEuro = domain.DisponibleEuro;
+            }
+            return viewModel;
         }
         public IList<TbFaMovimientoJustificante> ViewModelToDomainMJ(MovimientoViewModel viewModel)
         {
@@ -356,6 +371,14 @@ namespace AltivaWebApp.Mappers
 
             return domain;
         }
+        public bool CreateMD(IList<MovimientoDetalleViewModel> viewModel)
+        {
+            return service.SaveMD(ViewModelToDomainMD(viewModel));
+        }
+        public bool UpdateMD(IList<MovimientoDetalleViewModel> viewModel)
+        {
+            return service.UpdateMD(ViewModelToDomainMDEdit(viewModel));
+        }
         public TbFaMovimiento ViewModelToDomainEdit(MovimientoViewModel viewModel)
         {
             var domain = service.GetMovimientoById(viewModel.IdMovimiento);
@@ -378,54 +401,6 @@ namespace AltivaWebApp.Mappers
             domain.DisponibleDolar = montoDolar - domain.DisponibleDolar;
             domain.DisponibleEuro = montoEuro - domain.DisponibleEuro;
 
-
-            return domain;
-        }
-
-        public MovimientoViewModel DomainToViewModel(TbFaMovimiento domain)
-        {
-            var viewModel = new MovimientoViewModel
-            {
-                IdMovimiento = domain.IdMovimiento,
-                IdContacto = domain.IdContacto,
-                IdDocumento = domain.IdDocumento,
-                IdTipoDocumento = domain.IdTipoDocumento,
-                IdUsuario = domain.IdUsuario,
-                Cxp = domain.Cxp,
-                Cxc = domain.Cxc,
-                IdMoneda = domain.IdMoneda,
-                AplicadoBase = domain.AplicadoBase,
-                AplicadoDolar = domain.AplicadoDolar,
-                AplicadoEuro = domain.AplicadoEuro,
-                SaldoBase = domain.SaldoBase,
-                SaldoDolar = domain.SaldoDolar,
-                SaldoEuro = domain.SaldoEuro,
-                FechaCreacion = domain.FechaCreacion
-            };
-            if (viewModel.IdMoneda == 1)
-            {
-                viewModel.Monto = domain.MontoBase;
-                viewModel.DisponibleBase = domain.DisponibleBase;
-            }
-            else if (viewModel.IdMoneda == 2)
-            {
-                viewModel.Monto = domain.MontoDolar;
-                viewModel.DisponibleDolar = domain.DisponibleDolar;
-            }
-            else if (viewModel.IdMoneda == 3)
-            {
-                viewModel.Monto = domain.MontoEuro;
-                viewModel.DisponibleEuro = domain.DisponibleEuro;
-            }
-            return viewModel;
-        }
-        public IList<TbFaMovimientoDetalle> ViewModelToDomainMD(IList<MovimientoDetalleViewModel> viewModel)
-        {
-            var domain = new List<TbFaMovimientoDetalle>();
-            foreach (var item in viewModel)
-            {
-                domain.Add(ViewModelToDomainSingleMD(item));
-            }
 
             return domain;
         }
@@ -477,6 +452,16 @@ namespace AltivaWebApp.Mappers
 
             return domain;
         }
+        public IList<TbFaMovimientoDetalle> ViewModelToDomainMD(IList<MovimientoDetalleViewModel> viewModel)
+        {
+            var domain = new List<TbFaMovimientoDetalle>();
+            foreach (var item in viewModel)
+            {
+                domain.Add(ViewModelToDomainSingleMD(item));
+            }
+
+            return domain;
+        }
         public TbFaMovimientoDetalle ViewModelToDomainSingleMD(MovimientoDetalleViewModel viewModel)
         {
             var domain = new TbFaMovimientoDetalle
@@ -517,5 +502,7 @@ namespace AltivaWebApp.Mappers
 
             return domain;
         }
+        //francisco
+
     }
 }
