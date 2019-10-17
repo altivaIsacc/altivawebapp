@@ -30,7 +30,7 @@ namespace AltivaWebApp.Services
             return repository.GetAllRDByRequisicionId(id);
         }
 
-        public TbPrRequisicion GetReqById(int id)
+        public TbPrRequisicion GetReqById(long id)
         {
             return repository.GetReqById(id);
         }

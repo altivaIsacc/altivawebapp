@@ -90,7 +90,7 @@
                 <div id="AlertEsFinal"></div>
             </div>
         </div>
-        <div class="form-group col-sm-4 col-md-12">
+        <div id="divCampoActivo" class="form-group col-sm-4 col-md-12" hidden>
             <label>@Lb["activo"]: <span><i class="fas fa-question"></i></span></label>
             <div>
                 <input type="checkbox" checked="@Model.Activo" id="activo" />
@@ -139,8 +139,9 @@
 
     $(document).ready(function () {
 
-
         jscolor.installByClassName("jscolor");
+
+
 
         if ($('#Titulo3').val() == "") {
 
@@ -154,16 +155,14 @@
 
         $('#esFinal').change(function () {
             if ($(this).prop('checked')) {
-
                 $('#esInicial').prop('checked', false);
             }
-
         });
+
         $('#esInicial').change(function () {
             if ($(this).prop('checked')) {
                 $('#esFinal').prop('checked', false);
             }
-
         });
 
 
@@ -173,35 +172,38 @@
     //guardar estado de la tarea
     $('#GuardarEstado').on('click', function () {
         if (ValidarDatosRequeridos() == true) {
-            var esFinal = "";
-            var esInicio = "";
-            var activo = "";
+
             var defecto = "";
+            var esInicio = "";
+            var esFinal = "";           
+            var activo = "";
+           
+
             if ($('#defecto').prop('checked')) {
                 defecto = true;
             } else {
                 defecto = false;
-
             }
-            if ($('#esFinal').prop('checked')) {
-                esFinal = true;
-            } else {
-                esFinal = false;
 
-            }
             if ($('#esInicial').prop('checked')) {
                 esInicio = true;
             } else {
                 esInicio = false;
-
             }
+
+            if ($('#esFinal').prop('checked')) {
+                esFinal = true;
+            } else {
+                esFinal = false;
+            }
+         
             if ($('#activo').prop('checked')) {
                 activo = true;
             } else {
                 activo = false;
                 $('#Color').val('#858585');
-
             }
+
             var EstadoTarea = {
                 Id: null,
                 Titulo: $('#Titulo3').val(),
@@ -210,7 +212,6 @@
                 EsInicial: esInicio,
                 EsFinal: esFinal,
                 Activo: activo
-
             };
 
             $.ajax({
@@ -223,41 +224,54 @@
                 url: '@Url.Action("CrearEstado", "EstadoTarea")',
 
                 data: { domain: EstadoTarea },
-                success: function (data) {
-                    if (data.titulo == true) {
-                        $('#AlertTitulo3').empty();
-                        $('#AlertTitulo3').append('<span class="text-danger">  @Lb["TituloRepetido"].   </span>');
+                    success: function (data) {
+                        if (data.titulo == true) {
+                            $('#AlertTitulo3').empty();
+                            $('#AlertTitulo3').append('<span class="text-danger">  @Lb["TituloRepetido"].   </span>');
+                            return false;
+                        }
+                        if (data.color == true) {
+                            $('#AlertColor').empty();
+                            $('#AlertColor').append('<span class="text-danger">  @Lb["ColorRepetido"].</span>');
+                            return false;
+                        }
+                        if (data.defecto == true) {
+                            $('#AlertDefecto').empty();
+                            $('#AlertDefecto').append('<span class="text-danger">  @Lb["EstadoDefectoRepetido"].</span>');
+                            return false;
+                        }
+
+                        if (data.inicial == true) {
+                            $('#AlertEsInicial').empty();
+                            $('#AlertEsInicial').append('<span class="text-danger">  @Lb["EstadoInicialRepetido"].</span>');
+                            return false;
+                        }
+
+                        if (data.final == true) {
+                            $('#AlertEsFinal').empty();
+                            $('#AlertEsFinal').append('<span class="text-danger">   @Lb["EstadoFinalRepetido"].</span>');
+                            return false;                       
+                        }
+
+
+                        $('#ModalEstados').modal('hide');
+                         // window.location.href = "@Url.Action("Lisar-Estados", "EstadoTarea")"; //lenin
+
+
+                        if ($("#activos").css("display") == "block") {
+
+                            $("#inactivos").css("display", "none");
+                            $("#activos").css("display", "block");
+                            VerInactivos("inactivos");
+                        } else {
+                            $("#inactivos").css("display", "block");
+                            $("#activos").css("display", "none");
+                            //verActivos(null);
+
+                        }
+
                         return false;
-                    }
-                    if (data.color == true) {
-                        $('#AlertColor').empty();
-                        $('#AlertColor').append('<span class="text-danger">  @Lb["ColorRepetido"].</span>');
-                        return false;
-                    }
-                    if (data.defecto == true) {
-                        $('#AlertDefecto').empty();
-                        $('#AlertDefecto').append('<span class="text-danger">  @Lb["EstadoDefectoRepetido"].</span>');
-                        return false;
-                    }
-
-                    $('#ModalEstados').modal('hide');
-                     // window.location.href = "@Url.Action("Lisar-Estados", "EstadoTarea")"; //lenin
-
-
-                    if ($("#activos").css("display") == "block") {
-
-                        $("#inactivos").css("display", "none");
-                        $("#activos").css("display", "block");
-                        VerInactivos("inactivos");
-                    } else {
-                        $("#inactivos").css("display", "block");
-                        $("#activos").css("display", "none");
-                        //verActivos(null);
-
-                    }
-
-                    return false;
-                },
+                    },
 
                 error: function (err, scnd) {
                     console.log(err.statusText);
@@ -267,139 +281,196 @@
 
         }
     });
-    //editar los datos de los estados de la tarea..
 
+
+    //editar los datos de los estados de la tarea..
     $('#EditarEstado').on('click', function () {
         if (ValidarDatosRequeridos() == true) {
-
-
-            var esFinal = "";
-            var esInicio = "";
-            var activo = "";
+    
             var defecto = "";
+            var esInicio = "";
+            var esFinal = "";
+            var activo = "";
 
             if ($('#defecto').prop('checked')) {
                 defecto = true;
             } else {
                 defecto = false;
-
-            }
-
-            if ($('#esFinal').prop('checked')) {
-                esFinal = true;
-            } else {
-                esFinal = false;
-
             }
 
             if ($('#esInicial').prop('checked')) {
                 esInicio = true;
             } else {
                 esInicio = false;
-
             }
 
+            if ($('#esFinal').prop('checked')) {
+                esFinal = true;
+            } else {
+                esFinal = false;
+            }
+          
             if ($('#activo').prop('checked')) {
                 activo = true;
             } else {
                 activo = false;
                 $('#Color').val('#858585');
             }
-            var EstadoTarea = {
-                Id: $('#Id1').val(),
-                Titulo: $('#Titulo3').val(),
-                Color: '#' + $('#Color1').val(),
-                EsDefecto: defecto,
-                EsInicial: esInicio,
-                EsFinal: esFinal,
-                Activo: activo
+                       
+            console.log(activo);
+            if (activo == true) {
 
-            };
+                 var EstadoTarea = {
 
-            $.ajax({
-                headers: {
-                    "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-                },
-                type: "POST",
+                    Id: $('#Id1').val(),
+                    Titulo: $('#Titulo3').val(),
+                    Color: '#' + $('#Color1').val(),
+                    EsDefecto: defecto,
+                    EsInicial: esInicio,
+                    EsFinal: esFinal,
+                    Activo: activo
 
+                 };
 
-                url: '@Url.Action("EditarEstado", "EstadoTarea")',
+                $.ajax({
+                    headers: {
+                        "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                    },
+                    type: "POST",
 
-                data: { domain: EstadoTarea },
-                success: function (data) {
+                    url: '@Url.Action("EditarEstado", "EstadoTarea")',
 
+                    data: { domain: EstadoTarea },
+                    success: function (data) {
 
-                    if (data.titulo == true) {
-                        $('#AlertTitulo3').empty();
-                        $('#AlertTitulo3').append('<span class="text-danger">  @Lb["TituloRepetido"].   </span>');
+                        if (data.titulo == true) {
+                            $('#AlertTitulo3').empty();
+                            $('#AlertTitulo3').append('<span class="text-danger">  @Lb["TituloRepetido"].   </span>');
+                            return false;
+                        }
+                        if (data.color == true) {
+                            $('#AlertColor').empty();
+                            $('#AlertColor').append('<span class="text-danger">  @Lb["ColorRepetido"].</span>');
+                            return false;
+                        }
+                        if (data.defecto == true) {
+                            $('#AlertDefecto').empty();
+                            $('#AlertDefecto').append('<span class="text-danger">  @Lb["EstadoDefectoRepetido"].</span>');
+                            return false;
+                        }
+                        if (data.inicial == true) {
+                            $('#AlertEsInicial').empty();
+                            $('#AlertEsInicial').append('<span class="text-danger">  @Lb["EstadoInicialRepetido"].</span>');
+                            return false;
+                        }
+                        if (data.final == true) {
+                            $('#AlertEsFinal').empty();
+                            $('#AlertEsFinal').append('<span class="text-danger">   @Lb["EstadoFinalRepetido"].</span>');
+                            return false;                       
+                        }
+
+                        $('#tablaEstados').empty();
+
+                        $('#ModalEstados').modal('hide');
+                           // window.location.href = "@Url.Action("Lisar-Estados", "EstadoTarea")"; //lenin
+
+                        if ($("#activos").css("display") == "block") {
+
+                            $("#inactivos").css("display", "none");
+                            $("#activos").css("display", "block");
+                            VerInactivos("inactivos");
+                        } else {
+                            $("#inactivos").css("display", "block");
+                            $("#activos").css("display", "none");
+                            //verActivos(null);
+
+                        }
+
                         return false;
-                    }
-                    if (data.color == true) {
-                        $('#AlertColor').empty();
-                        $('#AlertColor').append('<span class="text-danger">  @Lb["ColorRepetido"].</span>');
-                        return false;
-                    }
-                    if (data.defecto == true) {
-                        $('#AlertDefecto').empty();
-                        $('#AlertDefecto').append('<span class="text-danger">  @Lb["EstadoDefectoRepetido"].</span>');
-                        return false;
-                    }
-                    if (data.inicial == true) {
-                        $('#AlertEsInicial').empty();
-                        $('#AlertEsInicial').append('<span class="text-danger">  @Lb["EstadoInicialRepetido"].</span>');
-                        return false;
+                    },
+
+
+                    error: function (err, scnd) {
+                        console.log(err.statusText);
                     }
 
-                    if (data.final == true) {
-                        $('#AlertEsFinal').empty();
-                        $('#AlertEsFinal').append('<span class="text-danger">   @Lb["EstadoFinalRepetido"].</span>');
-                        return false;
-                        
-                    }
-
-                    $('#tablaEstados').empty();
-
-                    $('#ModalEstados').modal('hide');
-                       // window.location.href = "@Url.Action("Lisar-Estados", "EstadoTarea")"; //lenin
-
-                    if ($("#activos").css("display") == "block") {
-
-                        $("#inactivos").css("display", "none");
-                        $("#activos").css("display", "block");
-                        VerInactivos("inactivos");
-                    } else {
-                        $("#inactivos").css("display", "block");
-                        $("#activos").css("display", "none");
-                        //verActivos(null);
-
-                    }
-
-                    return false;
-                },
+                });
 
 
-                error: function (err, scnd) {
-                    console.log(err.statusText);
-                }
 
-            });
+            } else if (activo == false) {
+
+                var EstadoTarea = {
+
+                    Id: $('#Id1').val(),
+                    Titulo: $('#Titulo3').val(),
+                    Color: '#' + $('#Color1').val(),
+                    EsDefecto: false,
+                    EsInicial: false,
+                    EsFinal: false,
+                    Activo: activo
+
+                };
+
+                 $.ajax({
+                      type: "POST",
+                      headers: {
+                          "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+                      },
+                      dataType: "json",
+                      url: '@Url.Action("Inactivar", "EstadoTarea")',// (nombre del metodo, nombre del controlador)
+                      data: { domain: EstadoTarea },
+
+                      success: function (data) {
+
+                          if (data.success) {
+
+                               $('#tablaEstados').empty();
+                               $('#ModalEstados').modal('hide');
+                                                 
+                              return false;
+
+                           } else {
+                              var msj = '@Lb["errorGeneral"]';
+                              cargarAlert(msj);
+                              console.log(err.statusText);
+                          }
+
+                      },
+                      error: function (err, scnd) {
+                         console.log(err.statusText);
+                      }
+                      
+                  });
+
+
+                console.log("editar deschequeando todo");
+                return false;
+            }
+
+
+
+
+
         }
     });
+
+
+
     function ValidarDatosRequeridos() {
 
         if ($('#Titulo3').val() == "") {
             $('#AlertTitulo3').empty();
-            $('#AlertTitulo3').append('<span class="text-danger">  @Lb["TituloRepetido"].   </span>');
+            $('#AlertTitulo3').append('<span class="text-danger">  @Lb["tituloRequired"].   </span>');
             return false;
         }
-        console.log($('#Color1').val());
-        if ($('#activo').prop('checked')) {
-            if ($('#Color1').val() == 858585) {
+       
+        if ($('#Color1').val() == 858585) {
                 $('#AlertColor').empty();
                 $('#AlertColor').append('<span class="text-danger">   @Lb["ColorProhibido"].   </span>');
                 return false;
-            }
         }
+        
         return true;
     }
 

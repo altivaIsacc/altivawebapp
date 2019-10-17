@@ -11,7 +11,7 @@ namespace AltivaWebApp.Domains
         }
 
         public long IdTipoJustificante { get; set; }
-        public long Nombre { get; set; }
+        public string Nombre { get; set; }
         public int Estado { get; set; }
         public bool? Cxp { get; set; }
         public bool? Cxc { get; set; }

@@ -8,6 +8,7 @@ namespace AltivaWebApp.Domains
         public TbFaCajaMovimiento()
         {
             TbFaCajaMovimientoCheque = new HashSet<TbFaCajaMovimientoCheque>();
+            TbFaCajaMovimientoFlujo = new HashSet<TbFaCajaMovimientoFlujo>();
             TbFaCajaMovimientoTarjeta = new HashSet<TbFaCajaMovimientoTarjeta>();
         }
 
@@ -23,7 +24,7 @@ namespace AltivaWebApp.Domains
         public double VentaDolarTc { get; set; }
         public double CompraEuroTc { get; set; }
         public double VentaEuroTc { get; set; }
-        public int? IdTipoCajaMovimiento { get; set; }
+        public int IdTipoCajaMovimiento { get; set; }
         public long IdCaja { get; set; }
         public long IdMovimiento { get; set; }
 
@@ -31,6 +32,7 @@ namespace AltivaWebApp.Domains
         public virtual TbBaFlujoCategoria IdCategoriaFlujoNavigation { get; set; }
         public virtual TbFaMovimiento IdMovimientoNavigation { get; set; }
         public virtual ICollection<TbFaCajaMovimientoCheque> TbFaCajaMovimientoCheque { get; set; }
+        public virtual ICollection<TbFaCajaMovimientoFlujo> TbFaCajaMovimientoFlujo { get; set; }
         public virtual ICollection<TbFaCajaMovimientoTarjeta> TbFaCajaMovimientoTarjeta { get; set; }
     }
 }

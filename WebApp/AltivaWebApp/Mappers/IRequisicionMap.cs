@@ -14,5 +14,9 @@ namespace AltivaWebApp.Mappers
         RequisicionViewModel DomainToViewModel(TbPrRequisicion domain);
         IList<TbPrRequisicionDetalle> ViewModelToDomaineRD(IList<RequisicionDetalleViewModel> viewModel);
         IList<TbPrRequisicionDetalle> SaveOrUpdateRD(IList<RequisicionDetalleViewModel> viewModel);
+
+
+        TbPrRequisicion ViewModelToDomainTransaccion(RequisicionViewModel viewModel);
+
     }
 }

@@ -1,0 +1,134 @@
+﻿@inject IStringLocalizer<SharedResources> lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    ViewData["Title"] = @lb[ViewBag.Titulo];
+}
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@lb[ViewBag.Titulo]</title>
+
+</head>
+<body>
+
+
+    <div class="row">
+        <div class="col-lg-3 col-sm-3">
+            <h3>@lb[ViewBag.Titulo]</h3>
+        </div>
+        <div class="col-md-4" style="margin-left:15rem; padding-top:0.7rem">
+            <p>
+                <a class="btn btn-primary" asp-action="nItem"><span>@lb["Agregar"]</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+            </p>
+        </div>
+    </div>
+    <div class="row" style="width:100%">
+
+        <div class="col-lg-3 col-sm-3">
+            @lb["CuentaContable"]
+        </div>
+        <div class="col-lg-3 col-sm-3">
+            @lb["Descripcion"]
+        </div>
+        <div class="col-lg-3 col-sm-3">
+            @lb["Editar"]/@lb["Agregar"]
+        </div>
+
+    </div>
+    @foreach (AltivaWebApp.DomainsConta.CatalogoContable c in ViewBag.CatalogoContable)
+    {
+        <div class="@c.IdCuentaContablePadre" id="@c.IdCuentaContable" style="width:100%">
+            <div class="row" style="width:100%">
+
+                <div class="col-lg-3 col-sm-3">
+                    @{
+
+                        int limite = c.Nivel;
+                        for (int i = 1; i < limite; i++)
+                        {<text>&nbsp;&nbsp;&nbsp;&nbsp;</text>}
+                        if (c.Movimiento == false)
+                        {
+                            var idCheck = "chk" + c.IdCuentaContable;
+                            <input type="checkbox" Id="@idCheck" onchange="activarVer(@c.IdCuentaContable)" />
+                        }
+                        else
+                        {
+                            <text>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</text>
+                        }
+                        <text>|__</text>
+                        var colorCuenta = "";
+                        if (c.Inactivo)
+                        {
+                            colorCuenta = "#CCD7C5";
+                        }
+                        else
+                        {
+                            if (c.Movimiento)
+                            {
+                                colorCuenta = "#C2C2F9";
+                            }
+                        }
+                    <a asp-action="eItem" asp-route-id="@c.IdCuentaContable" style="border: 0; padding: 2px 4px;background:@colorCuenta;border-radius: 24px; transition: 0.25s;">@c.CuentaContable</a>
+                    }
+                </div>
+                <div class="col-lg-3 col-sm-3">
+                    <a asp-action="eItem" asp-route-id="@c.IdCuentaContable"> @c.Descripcion</a>
+                </div>
+                <div class="col-lg-3 col-sm-3">
+                    <a asp-action="eItem" asp-route-id="@c.IdCuentaContable"><span></span>&nbsp;<i class="fas fa-edit"></i></a>
+                    @{
+                        if (!c.Movimiento)
+                        {
+
+                            <a asp-action="nItem" asp-route-idP="@c.IdCuentaContable"><span></span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+                        }
+                    }
+                </div>
+            </div>
+
+
+
+
+        </div>
+
+    }
+
+    <script>
+        function activarVer(IdCuenta) {
+            var check = document.getElementById('chk' + IdCuenta);
+            muestra_oculta(IdCuenta, check.checked);
+        }
+        function muestra_oculta(id, ocultar) {
+
+
+            var hijos = document.getElementsByClassName(id);
+
+            var i = 0;
+            for (i = 0; i < hijos.length; i++) {
+                var el = hijos[i];
+                if (ocultar == true) {
+
+                    el.style.display = 'none';
+                }
+                else {
+                    el.style.display = 'block';
+                }
+                var check = document.getElementById('chk' + el.id);
+                muestra_oculta(el.id, ocultar);
+                if (check != null) {
+                    check.checked = false;
+                }
+                
+            }
+        }
+    </script>
+
+</body>
+</html>

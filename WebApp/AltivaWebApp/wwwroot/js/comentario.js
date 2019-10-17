@@ -1,8 +1,4 @@
-﻿
-function GetComentarios(referencia, idRefernecia) {
-
-    
-
+﻿function GetComentarios(referencia, idRefernecia, urlComentarios = '../../Mensajes/Nuevo-Comentario') {
     var comentarioModel = {
         mensaje: '',
         tipoMensaje: 'CO',
@@ -12,18 +8,15 @@ function GetComentarios(referencia, idRefernecia) {
 
     $.ajax({
         type: "POST",
-        url: '../../Mensajes/Nuevo-Comentario',
+        url: urlComentarios,
         data: comentarioModel,
         success: function (data) {
             $('#comentarios').html(data);
         },
         error: function (err, scnd) {
             console.log(err.statusText);
-
         }
-
     });
 }
-
 
 

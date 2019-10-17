@@ -46,6 +46,7 @@ namespace AltivaWebApp
 
             AltivaLog.Log llog =new AltivaLog.Log(ruta);
             services.AddDbContext<EmpresasContext>();
+            services.AddDbContext<BaseConta>();
             services.AddDbContext<GrupoEmpresarialContext>();
         
             services.Configure<CookiePolicyOptions>(options =>

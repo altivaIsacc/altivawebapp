@@ -1089,26 +1089,32 @@ else
           });
     }
 
+    //editado por lenin
     function guardarRequisicion() {
 
         //console.log(crearModelo());
         $.ajax({
+
               type: "POST",
               headers: {
                   "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
               },
               dataType: "json",
-            url: '@Url.Action("CrearEditarRequisicion")',
-            data: crearModelo(),
-            success: function (data) {
-                if (lineasEliminadas.length > 0)
-                    eliminarRequisicionDetalle();
-                window.location.href = "@Url.Action("ListarRequisiciones")";
-               },
-              error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
-                  console.log(err.statusText);
-              }
+              url: '@Url.Action("CrearEditarRequisicion")',
+              data: crearModelo(),
+
+              success: function (data) {
+                  if (lineasEliminadas.length > 0)
+                        eliminarRequisicionDetalle();
+                        window.location.href = "@Url.Action("ListarRequisiciones")";
+                   },
+                   error: function (err, scnd) {
+
+                        console.log(err);
+                        if (err.responseJSON.rollback == true)
+                        cargarAlert('@SharedLocalizer["existenciasNegativas"].');
+                                    
+                   }
         });
 
     }

@@ -146,14 +146,9 @@ else
         </div>
 
         <div class="form-group col-md-2 col-sm-2 col-xs-12">
-            <label class="control-label">@Lb["cuentaContable"]:</label>
+            <label class="control-label">@Lb["Tipo"]:</label>
             <select @estado2 class="form-control selectItem" id="cuentaContable"></select>
-        </div>
-
-        <div class="form-group col-md-2 col-sm-2 col-xs-12">
-            <label class="control-label">@Lb["CuentaCosto"]:</label>
-            <select @estado2 class="form-control selectItem" id="cuentaCosto"></select>
-        </div>
+        </div>    
 
         <div class="form-group col-md-2 col-sm-2 col-xs-10">
             <label class="control-label">@Lb["Total"]:</label>
@@ -273,12 +268,6 @@ else
                         <label class="control-label">@Lb["cuentaContable"]:</label>
                         <select @estado class="form-control selectItem" id="cuentaContableEditar"></select>
                     </div>
-
-                    <div class="form-group col-md-6 col-sm-6 col-xs-12">
-                        <label class="control-label">@Lb["CuentaCosto"]:</label>
-                        <select @estado class="form-control selectItem" id="cuentaCostoEditar"></select>
-                    </div>
-
                 </form>
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <button @estado type="button" onclick="editarLinea()" class="btn btn-success">@Lb["Guardar"]</button>
@@ -374,7 +363,7 @@ else
         var date = new Date();
 
         if (@Model.Id != 0) {
-            GetComentarios("Ajuste", @Model.Id);
+            GetComentarios("Ajuste", @Model.Id, '@Url.Action("Nuevo-Comentario", "Mensajes")');
             $('#bodegas').attr('disabled', true);
             date = new Date(formatearFecha());
         }
@@ -500,9 +489,9 @@ else
             costoPromedio: parseFloat($costoPromedio.val().replace(/,/g, "")),
             totalMovimiento: parseFloat($total.val().replace(/,/g, "")),
             idCuentaContable: $cuentaContable.val(),
-            idCentroGastos: $cuentaCosto.val(),
+            idCentroGastos: 1,
             cuentaContable: $('#cuentaContable option:selected').text(),
-            cuentaCosto: $('#cuentaCosto option:selected').text(),
+            cuentaCosto: '',
             nombreItem: item.descripcion,
             codItem: item.codigo
         };
@@ -1073,7 +1062,8 @@ else
                 lineasCrOrUp[i].costoPromedio = lineasCrOrUp[i].costoPromedio.toString().replace(/,/g, "").replace(".", ",");
             }
         }
-
+        var ajuste = crearModelo();
+        console.log(ajuste);
 
         $.ajax({
             type: "POST",
@@ -1117,6 +1107,7 @@ else
           });
     }
     function eliminarAjusteInventario() {
+
         $.ajax({
             type: "POST",
             headers: {
@@ -1126,11 +1117,10 @@ else
             url: '@Url.Action("EliminarAjusteInventario", "AjusteInventario", new { idAjuste = Model.Id })',
             data: { id: lineasEliminadas },
             success: function (data) {
-               // console.log(data);
-
+            
                },
               error: function (err, scnd) {
-                  cargarAlert('@Lb["errorGeneral"]');
+                  cargarAlert('');
                   console.log(err.statusText);
               }
           });
@@ -1511,12 +1501,12 @@ else
                   "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
               },
               dataType: "json",
-            url: '@Url.Action("GetCuentaContable", "AjusteInventario")',
+            url: '@Url.Action("GetTiposAjustesInventario", "AjusteInventario")',
             success: function (data) {
                 cuentaContableArray = data;
                 for (var i = 0; i < data.length; i++) {
-                    var o = new Option(data[i].cuentaContable + ' - ' + data[i].descripcion, data[i].id);
-                    var o2 = new Option(data[i].cuentaContable + ' - ' + data[i].descripcion, data[i].id);
+                    var o = new Option(  data[i].nombre, data[i].idTipoAjusteInventario);
+                    var o2 = new Option(data[i].nombre, data[i].idTipoAjusteInventario);
 
                     $("#cuentaContable").append(o);
                     $("#cuentaContableEditar").append(o2);
@@ -1533,7 +1523,7 @@ else
 
     function getCContInfo(id) {
         for (var i = 0; i < cuentaContableArray.length; i++) {
-            if (cuentaContableArray[i].id === id) {
+            if (cuentaContableArray[i].idTipoAjusteInventario === id) {
                 return cuentaContableArray[i];
             }
         }

@@ -187,6 +187,33 @@ namespace AltivaWebApp.Controllers
 
 
 
+        [HttpPost("Inactivar")]
+        [HttpPost]
+        public ActionResult Inactivar(EstadoTareaViewModel domain)
+        {
+            try
+            {
+
+                var tareaEstado = new TbFdTareaEstado();
+                    tareaEstado = this.IEstadoMapper.Update(domain);
+
+                return Json(new { success = true });
+
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+                //return BadRequest();
+            }
+
+        }
+
+
+
+
+
+
 
         [HttpPost("CrearEstado")]
         public JsonResult CrearEstado(EstadoTareaViewModel domain)
@@ -206,6 +233,24 @@ namespace AltivaWebApp.Controllers
                 }
 
 
+
+                if (domain.EsInicial != false)
+                {
+                    if (this.IEstadoService.GetByEsInicial(domain.EsInicial) == true)
+                    {
+                        return Json(new { inicial = true });
+                    }                
+                }
+
+                if (domain.EsFinal != false)
+                {
+                    if (this.IEstadoService.GetByEsFinal(domain.EsFinal) == true)
+                    {
+                        return Json(new { final = true });
+                    }
+                }
+
+
                 if (domain.EsDefecto != false)
                 {
 
@@ -219,12 +264,12 @@ namespace AltivaWebApp.Controllers
                     }
                 }
                 else
-                {
+                    {
                     var estadoTarea = this.IEstadoMapper.Save(domain);
-                }
+                    }
 
 
-
+               
             }
             catch (Exception ex)
             {
@@ -232,14 +277,14 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
 
-            return Json(new { titulo = false, color = false, defecto = false });
+            return Json(new { titulo = false, color = false, defecto = false, inicial = false });
         }
 
 
 
 
         [HttpGet("Eliminar-Estado")]
-        public JsonResult Delete(int idEstado)
+        public IActionResult Delete(int idEstado)
         {
 
             try
@@ -247,10 +292,7 @@ namespace AltivaWebApp.Controllers
                 TbFdTareaEstado te = new TbFdTareaEstado();
                 te = this.IEstadoService.GetById(idEstado);
                 bool flag = this.IEstadoService.Delete(te);
-                if (flag)
-                {
-                    return new JsonResult(true);
-                }
+                return Json(new { success = flag });
 
 
             }
@@ -260,7 +302,7 @@ namespace AltivaWebApp.Controllers
                 return new JsonResult(false);
             }
 
-            return new JsonResult(true);
+           
         }
 
 
