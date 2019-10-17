@@ -64,11 +64,15 @@
                             <a onclick="setFormaPagoSeleccionada(tarjeta = 2)" class="list-group-item list-group-item-action" id="tarjetaTab" data-toggle="list" href="#list-tarjeta" role="tab" aria-controls="tarjeta">@Lb["Tarjeta"]</a>
                             <a onclick="setFormaPagoSeleccionada(transferencia = 3)" class="list-group-item list-group-item-action" id="transferenciaTab" data-toggle="list" href="#list-transferencia" role="tab" aria-controls="transferencia">@Lb["Transferencia"]</a>
                             <a onclick="setFormaPagoSeleccionada(cheque = 4)" class="list-group-item list-group-item-action" id="chequeTab" data-toggle="list" href="#list-cheque" role="tab" aria-controls="cheque">@Lb["Cheque"]</a>
-                            <div class="col-md-12 col-sm-12 col-xs-12" style="margin:0; padding:0; margin-top:1rem">
-                                <label>@Lb["SaldoDisponible"]:</label>
-                                <input readonly class="form-control input-sm formaPagoMoneda" id="lblSaldoDisponible" value="@saldoDisponible" />
-                                <button style="margin-top:0.5rem"  onclick="setMontoPrepago()" class="btn btn-info btn-sm" id="btnSaldoDisponible">@Lb["Aplicar"]</button>
-                            </div>
+                            @if (Model.EsPagoContado)
+                            {
+                                <div class="col-md-12 col-sm-12 col-xs-12" style="margin:0; padding:0; margin-top:1rem">
+                                    <label>@Lb["SaldoDisponible"]:</label>
+                                    <input readonly class="form-control input-sm formaPagoMoneda" id="lblSaldoDisponible" value="@saldoDisponible" />
+                                    <button style="margin-top:0.5rem" onclick="setMontoPrepago()" class="btn btn-info btn-sm" id="btnSaldoDisponible">@Lb["Aplicar"]</button>
+                                </div>
+                            }
+
                         </div>
                     </div>
                     <div class="col-md-5 col-sm-8 col-xs-12">
@@ -89,6 +93,7 @@
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-6">
                                             <input class="form-control input-sm montoFormaPago" onkeypress="enterMonto(event, efectivo = 2)" id="montoFP1" />
+                                            <span hidden class="text-danger" id="montoMayorValidE">@Lb["montoMayorValid"].</span>
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-xs-12" style="text-align: right">
                                             <button onclick="borrarMontoFormaPago()" class="btn btn-link">@Lb["Borrar"]</button>
@@ -385,6 +390,8 @@
 
 
 <script>
+
+    var esPagoContado = @Model.EsPagoContado.ToString().ToLower();
     var formaPagoSeleccionada;
     var monedaFormaPagoSeleccionada;
     var primeraVez = true;
@@ -403,6 +410,7 @@
     var _EURO = 3;
     var _MONEDADEFAULT = @Model.Moneda;
 
+    var monedasFP = [];
 
     var montosGeneral = {
         monto: {
@@ -433,46 +441,14 @@
 
     $(document).ready(function () {
 
+        inicializarFP();
+
         $("input:radio[name=rdOperadorTarjeta]:first").prop('checked', true);
         $("input:radio[name=rdBanco]:first").prop('checked', true);
         $("input:radio[name=rdBancoCheque]:first").prop('checked', true);
 
 
-        setMonto();
-        calcularMovimientos();
 
-        $("#formater1").inputmask('currency', {
-            prefix: monedas[0].simbolo,
-            rightAlign: true,
-            min: 0
-        });
-        $("#formater2").inputmask('currency', {
-            prefix: monedas[1].simbolo,
-            rightAlign: true,
-            min: 0
-
-        });
-
-        $("#formater3").inputmask('currency', {
-            prefix: monedas[2].simbolo,
-            rightAlign: true,
-            min: 0
-        });
-        $('.soloInt').inputmask({
-            alias: 'numeric',
-            allowMinus: false,
-            digits: 0,
-            rightAlign: false,
-        });
-        showTab('efectivoTab');
-
-        setTimeout(function () { $('#montoFP1').focus(); }, 500);
-
-        setSaldoDisponible();
-
-        if (@Model.IdDocumento != 0) {
-            getFormasPago();
-        }
 
     });
 
@@ -519,7 +495,7 @@
             setMontoPrepagoFromBD(totalOld);
             //alert();
         }
-        else if (balance > 0) {           
+        else if (balance > 0) {
             setMontoPrepagoFromBD(totalNew);
         }
         else {
@@ -781,17 +757,17 @@
         switch (idMoneda) {
             case 1:
                 model.base = monto;
-                model.dolar = monto / monedas[1].valorCompra;
-                model.euro = monto / monedas[2].valorCompra;
+                model.dolar = monto / monedasFP[1].valorCompra;
+                model.euro = monto / monedasFP[2].valorCompra;
                 break;
             case 2:
-                model.base = monto * monedas[1].valorCompra;
+                model.base = monto * monedasFP[1].valorCompra;
                 model.dolar = monto;
-                model.euro = (monto * monedas[1].valorCompra) / monedas[2].valorCompra;
+                model.euro = (monto * monedasFP[1].valorCompra) / monedasFP[2].valorCompra;
                 break;
             case 3:
-                model.base = monto * monedas[2].valorCompra;
-                model.dolar = (monto * monedas[2].valorCompra) / monedas[1].valorCompra;
+                model.base = monto * monedasFP[2].valorCompra;
+                model.dolar = (monto * monedasFP[2].valorCompra) / monedasFP[1].valorCompra;
                 model.euro = monto;
                 break;
             default:
@@ -812,33 +788,33 @@
                         montoFPRest = montoFPRest;
                         break;
                     case 2:
-                        montoFPRest = montoFPRest / monedas[1].valorCompra;
+                        montoFPRest = montoFPRest / monedasFP[1].valorCompra;
                         break;
                     case 3:
-                        montoFPRest = montoFPRest / monedas[2].valorCompra;
+                        montoFPRest = montoFPRest / monedasFP[2].valorCompra;
                         break;
                 }
                 break;
             case 2:
                 switch (monedaNueva) {
                     case 1:
-                        montoFPRest = montoFPRest * monedas[1].valorCompra ;
+                        montoFPRest = montoFPRest * monedasFP[1].valorCompra ;
                         break;
                     case 2:
                         montoFPRest = montoFPRest;
                         break;
                     case 3:
-                        montoFPRest = (montoFPRest * monedas[1].valorCompra) / monedas[2].valorCompra;
+                        montoFPRest = (montoFPRest * monedasFP[1].valorCompra) / monedasFP[2].valorCompra;
                         break;
                 }
                 break;
             case 3:
                 switch (monedaNueva) {
                     case 1:
-                        montoFPRest = montoFPRest * monedas[2].valorCompra ;
+                        montoFPRest = montoFPRest * monedasFP[2].valorCompra ;
                         break;
                     case 2:
-                        montoFPRest = (montoFPRest * monedas[2].valorCompra) / monedas[1].valorCompra;
+                        montoFPRest = (montoFPRest * monedasFP[2].valorCompra) / monedasFP[1].valorCompra;
                         break;
                     case 3:
                         montoFPRest = montoFPRest;
@@ -893,10 +869,10 @@
             montoBase: montos.base,
             montoDolar: montos.dolar,
             montoEuro: montos.euro,
-            compraDolarTc: monedas[1].valorCompra,
-            ventaDolarTc: monedas[1].valorVenta,
-            compraEuroTc: monedas[2].valorCompra,
-            ventaEuroTc: monedas[2].valorVenta,
+            compraDolarTc: monedasFP[1].valorCompra,
+            ventaDolarTc: monedasFP[1].valorVenta,
+            compraEuroTc: monedasFP[2].valorCompra,
+            ventaEuroTc: monedasFP[2].valorVenta,
             idTipoCajaMovimiento: formaPagoSeleccionada,
             idCaja: @Model.IdCaja,
             idMovimiento: _idMovimientoPago,                   //tarjeta = 2//
@@ -996,12 +972,16 @@
 
         switch (fpSelected.idTipoCajaMovimiento) {
             case _efectivo:
-                    flag = true;
+                if (getMontoAlCambio(fpSelected) > getBalance(_MONEDADEFAULT) && esPagoContado) {
+                    $('#montoMayorValidE').prop('hidden', false);
+                    flag = false;
+                }
+                else
+                    $('#montoMayorValidE').prop('hidden', true);
                 break;
             case _tarjeta:
 
-
-                if (getMontoAlCambio(fpSelected) > getBalance(_MONEDADEFAULT)) {
+                if (getMontoAlCambio(fpSelected) > getBalance(_MONEDADEFAULT) && esPagoContado) {
                     $('#montoMayorValid').prop('hidden', false);
                     flag = false;
                 }
@@ -1025,7 +1005,7 @@
             case _transferencia:
 
 
-                if (getMontoAlCambio(fpSelected) > getBalance(_MONEDADEFAULT)) {
+                if (getMontoAlCambio(fpSelected) > getBalance(_MONEDADEFAULT) && esPagoContado) {
                     $('#montoMayorValidT').prop('hidden', false);
                     flag = false;
                 }
@@ -1046,7 +1026,7 @@
                 break;
             case _cheque:
 
-                if (getMontoAlCambio(fpSelected) > getBalance(_MONEDADEFAULT)) {
+                if (getMontoAlCambio(fpSelected) > getBalance(_MONEDADEFAULT) && esPagoContado) {
                     $('#montoMayorValidC').prop('hidden', false);
                     flag = false;
                 }
@@ -1125,9 +1105,9 @@
 
         if (k == 13) {
             var monto = parseFloat($('#balance').inputmask('unmaskedvalue'));
-            if (monto < 0)
+            if (monto < 0 || !esPagoContado)
                 guardarFormaPago(tipoCat);
-            else
+            else if (esPagoContado)
                 guardarMovimientosCaja();
         }
     }
@@ -1149,7 +1129,7 @@
 
             if (submitMonto) {
                 var monto = parseFloat($('#balance').inputmask('unmaskedvalue'));
-                if (monto >= 0) {
+                if (monto >= 0 && esPagoContado) {
                     guardarMovimientosCaja();
                     return;
                 }
@@ -1237,19 +1217,19 @@
         var simbolo = "";
         switch (codigo) {
             case 1:
-                simbolo = monedas[0].simbolo;
+                simbolo = monedasFP[0].simbolo;
                 $('.digito1').prop('hidden', false);
                 $('.digito2').prop('hidden', true);
                 $('.digito3').prop('hidden', true);
                 break;
             case 2:
-                simbolo = monedas[1].simbolo;
+                simbolo = monedasFP[1].simbolo;
                 $('.digito2').prop('hidden', false);
                 $('.digito1').prop('hidden', true);
                 $('.digito3').prop('hidden', true);
                 break;
             case 3:
-                simbolo = monedas[2].simbolo;
+                simbolo = monedasFP[2].simbolo;
                 $('.digito3').prop('hidden', false);
                 $('.digito2').prop('hidden', true);
                 $('.digito1').prop('hidden', true);
@@ -1291,23 +1271,23 @@
         var simbolo = "";
         switch (codigo) {
             case 1:
-                simbolo = monedas[0].simbolo;
+                simbolo = monedasFP[0].simbolo;
                 $('.rdMonedaBase').prop('checked', true);
                 break;
             case 2:
-                simbolo = monedas[1].simbolo;
+                simbolo = monedasFP[1].simbolo;
                 $('.rdMonedaDolar').prop('checked', true);
                 break;
             case 3:
-                simbolo = monedas[2].simbolo;
+                simbolo = monedasFP[2].simbolo;
                 $('.rdMonedaEuro').prop('checked', true);
                 break;
             default:
         }
 
-        $('.lbMonedaBase').text(monedas[0].nombre);
-        $('.lbMonedaDolar').text(monedas[1].nombre);
-        $('.lbMonedaEuro').text(monedas[2].nombre);
+        $('.lbMonedaBase').text(monedasFP[0].nombre);
+        $('.lbMonedaDolar').text(monedasFP[1].nombre);
+        $('.lbMonedaEuro').text(monedasFP[2].nombre);
 
         $(".formaPagoMoneda").inputmask('currency', {
             prefix: simbolo,
@@ -1375,7 +1355,7 @@
         var vuelto = getVuelto();
         var balance = parseFloat($('#balance').inputmask('unmaskedvalue'));
 
-        if (vuelto > 0) {
+        if (vuelto > 0 && esPagoContado) {
             $('#vueltoFormat').val(vuelto);
             $('#lbVuelto').text($('#vueltoFormat').val());
             $('#vueltoModal').modal('show');
@@ -1429,6 +1409,50 @@
                  console.log(err.statusText);
              }
          });
+    }
+
+    function inicializarFP() {
+
+
+        monedasFP = monedas;
+        setMonto();
+        calcularMovimientos();
+
+        $("#formater1").inputmask('currency', {
+            prefix: monedasFP[0].simbolo,
+            rightAlign: true,
+            min: 0
+        });
+        $("#formater2").inputmask('currency', {
+            prefix: monedasFP[1].simbolo,
+            rightAlign: true,
+            min: 0
+
+        });
+
+        $("#formater3").inputmask('currency', {
+            prefix: monedasFP[2].simbolo,
+            rightAlign: true,
+            min: 0
+        });
+        $('.soloInt').inputmask({
+            alias: 'numeric',
+            allowMinus: false,
+            digits: 0,
+            rightAlign: false,
+        });
+        showTab('efectivoTab');
+
+        setTimeout(function() {
+            $('#montoFP1').focus();
+        }, 500);
+
+        setSaldoDisponible();
+
+        if (@Model.IdDocumento != 0) {
+            getFormasPago();
+        }
+
     }
 
     function cargarMetodosPagoBD(data) {
@@ -1524,6 +1548,15 @@
         }
 
         return monto;
+    }
+
+    function cargarFPLocal(fpLocal) {
+
+        formasPago = fpLocal;
+        fpCrOrUp = fpLocal;
+
+        calcularMovimientos();
+        cargarFormasPago(fpLocal);
     }
 
 </script>

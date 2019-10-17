@@ -19,7 +19,7 @@ namespace AltivaWebApp.Repositories
         }
         public IList<TbFaTipoDocumento> GetAllTipoDocumento()
         {
-            return context.TbFaTipoDocumento.Where(t => t.EsNota == true).ToList();
+            return context.TbFaTipoDocumento.ToList();
         }
         public TbFaMovimiento SaveMovimiento(TbFaMovimiento domain)
         {

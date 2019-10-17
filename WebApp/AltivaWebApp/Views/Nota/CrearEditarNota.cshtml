@@ -16,7 +16,7 @@
     var guardar = "guardarCambios()";
     var estado = "";
     var estado2 = "disabled";
-    var titulo = @Lb["Crear"];
+    var titulo = @Lb["Nueva"];
     if (Model.IdNotaCredito != 0)
     {
         if (Model.Estado == 2)
@@ -33,53 +33,46 @@
 
 }
 
-<div class="well col-md-12 col-sm-12 col-xs-12">
+<div class="row">
+    <div class="col-md-3"><h3>@titulo @Lb["Nota"]</h3></div>
+    <div class="col-md-9 pull-right">
+        <a class="btn btn-default pull-right" href="#" onclick="GetReporte()">@Lb["generarReporte"] <i class="fa fa-print"></i></a>
+    </div>
+</div>
+<div class="row well">
     <input type="hidden" id="IdMovimiento" value="0" />
     <input type="hidden" id="IdUsuario" value="0" />
 
     <div class="row">
-        <div class="col-md-3"><h3>@titulo @Lb["Nota"]</h3></div>
-    </div>
-    <div class="row">
-        <div class="col-md-2 col-sm-2 col-xs-12">
+
+        <div class="form-group col-md-3 col-sm-4 col-xs-6" style="margin: 0; padding:0; margin-left:1rem">
+            <label for="fecha">@Lb["Fecha"]:</label>
+            <div class='input-group date' id='fechaPicker'>
+                <input type='text' asp-for="Fecha" class="form-control" id="fecha" />
+                <span class="input-group-addon">
+                    <span class="fas fa-calendar"></span>
+                </span>
+            </div>
+        </div>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-4">
             <label>@Lb["tipo"]:</label>
             <select class="form-control" id="tipo" @estado>
                 <option value="1"> @Lb["CXP"]</option>
                 <option value="2">@Lb["CXC"]</option>
             </select>
         </div>
-        <div class="col-md-2 col-sm-2 col-xs-12">
+
+        <div class="form-group col-md-3 col-sm-4 col-xs-12">
             <label>@Lb["TipoDocumento"]:</label>
             <select class="form-control" @estado id="tipoDocumento"></select>
         </div>
-        <div class="form-group col-md-2 col-sm-3 col-xs-12">
-            <div class="form-group">
-                <label for="fecha">@Lb["Fecha"]:</label>
-                <div class='input-group date' id='fechaPicker'>
-                    <input type='text' asp-for="Fecha" class="form-control" id="fecha" readonly />
-                    <span class="input-group-addon">
-                        <span class="fas fa-calendar"></span>
-                    </span>
-                </div>
-            </div>
-
-        </div>
-        <div class="form-group col-md-3 col-sm-3 col-xs-12">
+        <div class="form-group col-md-3 col-sm-4 col-xs-12">
             <label class="control-label">@Lb["Contacto"]:</label>
             <select class="selectItems form-control" data-live-search="true" id="contactos" @estado></select>
         </div>
-        <div class="form-group col-md-3 col-sm-3 col-xs-12" style="padding-top:25px;">
-            <div class="checkbox-inline">
-                <input id="activo1" type="checkbox" value="1" name="estado1" @select /> @Lb["activo"]
-            </div>
 
-            <div class="checkbox-inline">
-                <input id="inactivo1" type="checkbox" value="2" name="estado1" @select1 /> @Lb["inactivo"]
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="form-group col-md-2 col-sm-2 col-xs-12">
+        <div class="form-group col-md-2 col-sm-2 col-xs-6">
             <label class="control-label">@Lb["Moneda"]:</label>
             <select class="selectItems form-control" data-live-search="true" id="tipoMoneda">
                 <option value="1">@Lb["CRC"]</option>
@@ -87,34 +80,44 @@
                 <option value="3">@Lb["EUR"]</option>
             </select>
         </div>
-        <div class="form-group  col-md-2 col-sm-2 col-xs-12">
+        <div class="form-group col-md-2 col-sm-2 col-xs-6">
             <label class="control-label">@Lb["Dolar"]:</label>
             <input class="form-control moneda" value="@ViewBag.Dolar" id="dolar" @estado />
             <input class="form-control moneda" type="hidden" value="@ViewBag.DolarVenta" id="dolarVenta" />
-
         </div>
-        <div class="form-group  col-md-2 col-sm-2 col-xs-12">
+        <div class="form-group  col-md-2 col-sm-2 col-xs-6">
             <label class="control-label">@Lb["Euro"]:</label>
             <input class="form-control moneda" value="@ViewBag.Euro" id="euro" @estado />
             <input class="form-control moneda" type="hidden" value="@ViewBag.EuroVenta" id="euroVenta" />
 
         </div>
-        <div class="form-group col-md-3 col-sm-3 col-xs-12">
+        <div class="form-group col-md-4 col-sm-6 col-xs-12">
             <label class="control-label">@Lb["Nota"]:</label>
-            <textarea class="form-control" asp-for="Nota" id="nota"></textarea>
+            <textarea class="form-control" asp-for="Nota" maxlength="250" rows="4" id="nota"></textarea>
             <span hidden id="notaValid" class="text-danger">@Lb["notaValid"]</span>
         </div>
-        <div class="form-group col-md-3 col-sm-3 col-xs-12" style="padding-top: 0.5rem">
-            <br />
-            <a class="btn btn-default" href="#" onclick="GetReporte()" >@Lb["generarReporte"] <i class="fa fa-print"></i></a>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-4" style="padding-top:25px;">
+            <label for="activo1"><input id="activo1" type="checkbox" value="1" name="estado1" @select /> @Lb["activo"]</label>
+            <label for="inactivo1"><input id="inactivo1" type="checkbox" value="2" name="estado1" @select1 />@Lb["inactivo"]</label>
         </div>
+
     </div>
 
+
+
+
+    <div class="row">
+        <div class="col-md-3">
+            <span>@Lb["Total"] @Lb["Detalle"]</span> <span id="totalDetallePrepago" class="currency total tdetalle"></span><a class="btn btn-link" onclick="validarCajasAbiertas()">@Lb["Editar"]</a>
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-3">
             <input type="checkbox" class="form-check-input" id="notaDetalle" /> @Lb["Total"]  <span class="tdetalle">@Lb["Detalle"]</span> <span readonly id="totalDetalle" class="currency total tdetalle"></span>
         </div>
     </div>
+
     <div class="collapse notaDetalleForm">
 
         <div class="row">
@@ -213,7 +216,6 @@
 <span hidden id="lineasValid" class="text-danger">@Lb["lineasValid"]</span>
 <div class="row">
     <div class="form-group col-md-8">
-
         <button class="btn btn-success btnAccion" onclick="guardarCambios()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
         <a onclick="" class="btn btn-default">@Lb["Cancelar"]</a>
     </div>
@@ -242,8 +244,6 @@
                             <label class="control-label">@Lb["Monto"]:</label>
                             <input class="form-control moneda" type="text" min="1" id="editMonto" />
                             <span hidden id="editMontoValid" class="text-danger">@Lb["montoValid"]</span>
-
-
                         </div>
 
                         <div class="form-group col-sm-7">
@@ -311,6 +311,11 @@
         </div>
     </div>
 </div>
+
+<div id="formaPagoPartial">
+
+</div>
+
 <div class="row">
     <div class="col-md-12">
         <div id="comentarios">
@@ -335,20 +340,29 @@
     var movimientosDetalle = [];
     var aplicadosOriginal = [];
     var lineasActualizadasAplicadas = [];
+    var idCajaPuntoVenta = 0;
+    var formasPagoDoc = [];
+    var monedas = [];
 
 
     $(document).ready(function () {
+
+        getMonedas();
+
         $("#monto").val(0.00);
         $("#totalDisponible").val($(".total").inputmask('unmaskedvalue'));
         getContactos(2);
         getTipoDocumento(1);
         getTipoJustificante();
-        if (@Model.IdNotaCredito == 0) {
+
+        if (@Model.IdNotaCredito == 0){
             $("#activo1").attr('checked', true);
         }
+
         var date = new Date();
 
         if (@Model.IdNotaCredito != 0) {
+
             GetComentarios("Nota", @Model.IdNotaCredito, '@Url.Action("Nuevo-Comentario", "Mensajes")');
             var valor = 3;
             $("#contactos option[value="+ valor +"]").attr("selected",true);
@@ -357,6 +371,7 @@
             date = new Date(formatearFecha());
 
         }
+
         $('#fechaPicker').datetimepicker({
             defaultDate: date,
             locale: localStorage.getItem("idioma")
@@ -375,46 +390,47 @@
             $('#aplicado').val("True");
         } else {
             $('#aplicado').val("False");
-
         }
     });
 
-       $('#notaDetalle').change(function () {
+    $('#notaDetalle').change(function () {
         $('.notaDetalleForm').collapse('toggle');
-           if ($('#notaDetalle').val() === "False") {
-           $('.tdetalle').attr('hidden', false);
+        if ($('#notaDetalle').val() === "False") {
+            $('.tdetalle').attr('hidden', false);
             $('#notaDetalle').val("True");
         } else {
             $('#notaDetalle').val("False");
             $('.tdetalle').attr('hidden', true);
-           }
+        }
     });
 
     $("#btnTipo").on("click", function () {
         cargarTabla(lineas);
     });
-     $('#tipo').change(function () {
-         if ($(this).val() == 1) {
-             getContactos(2);
-             getTipoDocumento(1);
-         }
-         if ($(this).val() == 2) {
-             getContactos(1);
-             getTipoDocumento(2);
-         }
+
+    $('#tipo').change(function () {
+        if ($(this).val() == 1) {
+            getContactos(2);
+            getTipoDocumento(1);
+        }
+        if ($(this).val() == 2) {
+            getContactos(1);
+            getTipoDocumento(2);
+        }
 
     });
+
     $("#tipoMoneda").on("change", function () {
         if (@Model.IdNotaCredito==0) {
-           for (var i = 0; i < lineas.length; i++) {
-             lineas[i].monto = recalcularMonto(lineas[i]);
-             lineas[i].idMoneda = parseInt($('#tipoMoneda').val());
-           }
+            for (var i = 0; i < lineas.length; i++) {
+                lineas[i].monto = recalcularMonto(lineas[i]);
+                lineas[i].idMoneda = parseInt($('#tipoMoneda').val());
+            }
             if (lineasAgregadas > 0) {
-              for (var i = 0; i < lineasAgregadas.length; i++) {
-                  lineasAgregadas[i].monto = recalcularMonto(lineasAgregadas[i]);
-                  lineasAgregadas[i].idMoneda = parseInt($('#tipoMoneda').val());
-              }
+                for (var i = 0; i < lineasAgregadas.length; i++) {
+                    lineasAgregadas[i].monto = recalcularMonto(lineasAgregadas[i]);
+                    lineasAgregadas[i].idMoneda = parseInt($('#tipoMoneda').val());
+                }
             }
         }
 
@@ -429,10 +445,12 @@
                 }
             }
         }
+
         setTotal();
         cargarTabla(lineas);
     });
-      $('#activo1').change(function () {
+
+    $('#activo1').change(function () {
         if ($(this).prop('checked') == true)
             $('#inactivo1').prop('checked', false);
     });
@@ -448,11 +466,30 @@
      $("#crearJustificante").on("click", function () {
         getCrearEditarPartial(0);
     });
+
     //AJAX
-     function getEnlace()
-     {
-        var url = "@Url.Action("_EnlaceAutomatico", "Nota")";
+
+    function getMonedas() {
          $.ajax({
+              type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+
+                 monedas = data;
+
+             },
+             error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+             }
+         });
+    }
+
+    function getEnlace()
+    {
+        var url = "@Url.Action("_EnlaceAutomatico", "Nota")";
+        $.ajax({
             type: "GET",
             url: url,
             success: function (data) {
@@ -465,7 +502,8 @@
             }
 
         });
-     }
+    }
+
     function getDocumentos(tipo) {
         var contacto = "@Model.IdContacto";
         var id = parseInt(contacto);
@@ -474,7 +512,7 @@
         var documento = parseInt('@Model.IdNotaCredito');
         if (parseInt($("#tipo").val()) == 1)
             cxp = true;
-      var url = '@Url.Action("GetDocumentosByContacto", "Nota", new { id = Model.IdContacto, cxp = "__cxp__", idDocumento = "__idDocumento__" })'.replace("__cxp__", cxp, "__idDocumento__", documento);
+        var url = '@Url.Action("GetDocumentosByContacto", "Nota", new { id = Model.IdContacto, cxp = "__cxp__", idDocumento = "__idDocumento__" })'.replace("__cxp__", cxp, "__idDocumento__", documento);
         $.ajax({
            type: "get",
            dataType: "json",
@@ -491,7 +529,7 @@
                     }
 
                 }
-                   cargarTotal();
+                cargarTotal();
                 recalcularDatos();
 
             },
@@ -501,14 +539,87 @@
 
         });
     }
-     function getCrearEditarPartial(id)
-     {
+    function cargarFormaPago() {
+
+        var model = {
+            idCaja: idCajaPuntoVenta,
+            idDocumento: @Model.IdNotaCredito,
+            monto: 0,
+            tcDolar: $('#dolar').inputmask('unmaskedvalue'),
+            tcEuro: $('#euro').inputmask('unmaskedvalue'),
+            moneda: $('#tipoMoneda').val(),
+            idContacto: $('#contactos').val(),
+            esPagoContado: false
+        };
+
+        if (model.idCaja == 0)
+            return;
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("_FormaPago", "MovimientoCaja")',
+            data: { viewModel: model },
+            success: function (data) {
+                $('#formaPagoPartial').html(data);
+
+                if (formasPagoDoc.length > 0)
+                    cargarFPLocal(formasPagoDoc);
+
+                $('#formaPagoModal').modal('show');
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+
+    }
+
+    function validarCajasAbiertas() {
+
+        $.ajax({
+              type: "POST",
+            dataType: "json",
+            url: '@Url.Action("GetEstadoCajasPuntoVenta", "PuntoVenta")',
+            data: { idPV: 0, idUsuario: $('#contactos').val() },
+            success: function (data) {
+                if (data <= 0) {
+                    cargarAlert('@Lb["PuntoVentaSinCajasAbiertas"]');
+                    idCajaPuntoVenta = data;
+                }
+                else {
+                    idCajaPuntoVenta = data;
+                    cargarFormaPago();
+                }
+
+             },
+             error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+             }
+        });
+
+    }
+
+    function procesarPagoDoc() {
+
+        formasPagoDoc = formasPago;
+        $('#formatter').val(totalFomasPago());
+        $('#totalDisponible').val(totalFomasPago());
+        $('#totalDetallePrepago').text($('#formatter').val());
+        $('#formaPagoModal').modal('hide');
+
+    }
+
+    function getCrearEditarPartial(id)
+    {
         var url = "@Url.Action("_CrearTipoJustificante", "TipoJustificante",  new {tipo = 2}))";
         if (id != 0) {
             url = '@Url.Action("_EditarTipoJustificante", "TipoJustificante", new { id = "__id__", tipo = 2})';
             url = url.replace("__id__", id);
         }
-         $.ajax({
+
+        $.ajax({
             type: "GET",
             url: url,
             success: function (data) {
@@ -520,17 +631,18 @@
             }
 
         });
-     }
+    }
+
     function getContactos(tipo) {
-        $('#contactos').html('');
+            $('#contactos').html('');
             $.ajax({
-              type: "get",
-              dataType: "json",
-              url: '@Url.Action("GetAllContactos", "Contacto")',
+                type: "get",
+                dataType: "json",
+                url: '@Url.Action("GetAllContactos", "Contacto")',
                 success: function (data) {
                     if (@Model.IdNotaCredito == 0) {
 
-                             for (var i = 0; i < data.length; i++) {
+                            for (var i = 0; i < data.length; i++) {
                                  if (tipo == 1) {
                                      var nombre = "";
                                      if (data[i].cliente) {
@@ -543,21 +655,21 @@
                                          $("#contactos").append(o);
                                      }
                                  }
-                                  if (tipo == 2) {
+                                if (tipo == 2) {
 
-                                     if (!data[i].cliente) {
+                                      if (data[i].proveedor) {
                                           if (data[i].persona)
                                              nombre = data[i].nombre + ' ' + data[i].apellidos;
                                          else
-                                             nombre = data[i].nombreComercial;
-                                           var o = new Option(nombre, data[i].idContacto);
-                                           $("#contactos").append(o);
-                                     }
-                                  }
+                                            nombre = data[i].nombreComercial;
+                                        var o = new Option(nombre, data[i].idContacto);
+                                        $("#contactos").append(o);
+                                      }
+                                }
 
-                             }
+                            }
                     }
-                     if (@Model.IdNotaCredito != 0) {
+                    if (@Model.IdNotaCredito != 0) {
                         for (var i = 0; i < data.length; i++) {
                              var nombre = "";
                             if (data[i].idContacto == @Model.IdContacto) {
@@ -573,44 +685,47 @@
                     }
 
                 },
-              error: function (err, scnd) {
-                  cargarAlert('@Lb["errorGeneral"]');
-                  console.log(err.statusText);
-              }
+                error: function (err, scnd) {
+                    cargarAlert('@Lb["errorGeneral"]');
+                    console.log(err.statusText);
+                }
             });
     }
+
     function getTipoJustificante() {
-         $("#tipoJustificante").html('');
-         $("#editTipoJustificante").html('');
-         $.ajax({
-              type: "get",
-              dataType: "json",
-              url: '@Url.Action("GetTipoJustificante", "TipoJustificante")',
-             success: function (data) {
-                 lineasTJustificante = data;
-                 cargarTabla(lineas);
-                 for (var i = 0; i < data.length; i++) {
-                     if (data[i].estado == 1) {
-                         var o = new Option(data[i].nombre, data[i].idTipoJustificante);
-                         var e = new Option(data[i].nombre, data[i].idTipoJustificante);
-                         $("#tipoJustificante").append(o);
-                         $("#editTipoJustificante").append(e);
-                     }
-                 }
-             },
-              error: function (err, scnd) {
-                  cargarAlert('@Lb["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-         });
+        $("#tipoJustificante").html('');
+        $("#editTipoJustificante").html('');
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetTipoJustificante", "TipoJustificante")',
+            success: function (data) {
+                lineasTJustificante = data;
+                cargarTabla(lineas);
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].estado == 1) {
+                        var o = new Option(data[i].nombre, data[i].idTipoJustificante);
+                        var e = new Option(data[i].nombre, data[i].idTipoJustificante);
+                        $("#tipoJustificante").append(o);
+                        $("#editTipoJustificante").append(e);
+                    }
+                }
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
     }
+
     function getTipoDocumento(tipo) {
-          $("#tipoDocumento").html('');
-         $.ajax({
-              type: "get",
-              dataType: "json",
-              url: '@Url.Action("GetAllTipoDocumento", "Nota")',
-             success: function (data) {
+        $("#tipoDocumento").html('');
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetAllTipoDocumento", "Nota")',
+            success: function (data) {
+
                  tipoDocumento = data;
                  if (@Model.IdNotaCredito != 0) {
                      for (var i = 0; i < data.length; i++) {
@@ -619,17 +734,17 @@
                          $("#tipoDocumento").append(o);
                          }
                      }
-                 } if (@Model.IdNotaCredito == 0) {
+                 } else{
                      for (var i = 0; i < data.length; i++) {
 
                          if (tipo == 1) {
-                             if (data[i].cxc == false && data[i].esNota == true) {
+                             if (data[i].cxc == false ) {
                                  var j = new Option(data[i].nombre, data[i].idTipoDocumento);
                                  $("#tipoDocumento").append(j);
                              }
                          }
                          if (tipo == 2) {
-                             if (data[i].cxc && data[i].esNota) {
+                             if (data[i].cxc) {
                                  var o = new Option(data[i].nombre, data[i].idTipoDocumento);
                                  $("#tipoDocumento").append(o);
                              }
@@ -637,12 +752,12 @@
                          }
                      }
                  }
-             },
-              error: function (err, scnd) {
-                  cargarAlert('@Lb["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-         });
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
     }
     function guardarCambios() {
         if (validarCampoNota()) {
@@ -701,7 +816,7 @@
               dataType: "json",
               url: '@Url.Action("GetMovimiento", new { id = Model.IdNotaCredito })',
 
-            success: function (data) {
+              success: function (data) {
                     $("#tipoMoneda").val(data.idMoneda);
                     if (data.cxp)
                         $("#tipo").val("1");
@@ -713,7 +828,7 @@
                 $("#IdUsuario").val(data.idUsuario);
                 getMovimientoJustificante(data.idMovimiento);
 
-               },
+              },
               error: function (err, scnd) {
                   cargarAlert('@Lb["errorGeneral"]');
                   console.log(err.statusText);
@@ -810,14 +925,14 @@
 
 
 
-     function comprobarRepetido(nombre, id) {
-         var flag = true;
-         for (var i = 0; i < lineasTJustificante.length; i++) {
+    function comprobarRepetido(nombre, id) {
+        var flag = true;
+        for (var i = 0; i < lineasTJustificante.length; i++) {
             if (lineasTJustificante[i].nombre === nombre && lineasTJustificante[i].idTipoJustificante != parseInt(id))
                 flag = false;
-         }
-          return flag;
-     }
+        }
+        return flag;
+    }
     function validarCampoNota() {
         var flag = true;
         $('#notaValid').attr('hidden', true);
@@ -833,8 +948,8 @@
         }
         return flag;
     }
+
     function validarCampos() {
-        console.log($("#monto").inputmask('unmaskedvalue'));
         var flag = true;
          $('#montoValid').attr('hidden', true);
         $('#descripcionValid').attr('hidden', true);
@@ -849,6 +964,7 @@
         }
         return flag;
     }
+
     function validarCamposEditar() {
 
        var flag = true;
@@ -1021,11 +1137,11 @@
             $('.lineaForm').before(body);
 
         }
-        var simbolo = "₡";
+        var simbolo = monedas[0].simbolo;
         if (parseInt($('#tipoMoneda').val()) === 2)
-            simbolo = "$";
+            simbolo = monedas[1].simbolo;
         else if (parseInt($('#tipoMoneda').val()) === 3)
-            simbolo = "€";
+            simbolo = monedas[2].simbolo;
          $(".currency").inputmask('currency', {
             prefix: simbolo,
             rightAlign: true
@@ -1086,11 +1202,11 @@
 
 
         }
-        var simbolo = "₡";
+        var simbolo = monedas[0].simbolo;
         if (parseInt($('#tipoMoneda').val()) === 2)
-            simbolo = "$";
+            simbolo = monedas[1].simbolo;
         else if (parseInt($('#tipoMoneda').val()) === 3)
-            simbolo = "€";
+            simbolo = monedas[2].simbolo;
          $(".currency").inputmask('currency', {
             prefix: simbolo,
             rightAlign: true
@@ -1107,7 +1223,7 @@
     function recuperarSaldoTabla(idDoc, idLbl) {
 
         $("#pendiente" + idLbl).text(formatInput(recuperarSaldo(lineasEnlace[idDoc].idDocumento)));
-                    
+
 
     }
     function recuperarAplicadoTabla(pos) {
@@ -1307,11 +1423,11 @@
 
         }
 
-        var simbolo = "₡";
+        var simbolo = monedas[0].simbolo;
            if (parseInt($('#tipoMoneda').val()) === 2)
-            simbolo = "$";
+               simbolo = monedas[1].simbolo;
            else if (parseInt($('#tipoMoneda').val()) === 3)
-            simbolo = "€";
+               simbolo = monedas[2].simbolo;
            $(".currency").inputmask('currency', {
             prefix: simbolo,
             rightAlign: true
@@ -1552,7 +1668,7 @@
         var parametros = [];
 
         parametros.push({ nombre: "IdNC", valor: '@Model.IdNotaCredito' });
-      
+
 
         $.ajax({
             type: "POST",

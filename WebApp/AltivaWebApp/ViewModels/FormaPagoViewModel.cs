@@ -14,5 +14,6 @@ namespace AltivaWebApp.ViewModels
         public double TcEuro { get; set; }
         public int Moneda { get; set; }
         public long IdContacto { get; set; }
+        public bool EsPagoContado { get; set; }
     }
 }

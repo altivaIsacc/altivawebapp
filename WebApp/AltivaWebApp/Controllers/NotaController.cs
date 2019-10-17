@@ -152,8 +152,8 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-               var documento= service.GetAllTipoDocumento();
-                return Json(documento);
+               var documento= service.GetAllTipoDocumento().Where(td => (bool)td.EsNota || (bool)!td.EsDebito).ToList();
+                return Ok(documento);
 
             }
             catch

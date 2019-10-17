@@ -31,7 +31,7 @@ namespace AltivaWebApp.Repositories
         public int GetEstadoCajasPV(long idPV, long idUsuario)
         {
             var pv = context.TbSePuntoVenta.Include(p => p.TbFaCaja).FirstOrDefault(p => p.IdPuntoVenta == idPV);
-            if (pv.TieneCajaIndependiente)
+            if (pv != null && pv.TieneCajaIndependiente)
             {
                 var caja = pv.TbFaCaja.FirstOrDefault(c => c.Estado == 1 && c.IdUsuario == idUsuario);
                 return caja != null ? (int)caja.IdCaja : 0; 
