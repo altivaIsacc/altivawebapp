@@ -15,7 +15,10 @@ namespace AltivaWebApp.Services
         {
             this.repository = repository;
         }
-
+        public TbFaMovimiento Save(TbFaMovimiento domain)
+        {
+            return repository.Save(domain);
+        }
         public TbFaMovimiento GetMovimientoById(long idMov)
         {
             return repository.GetMovimientoById(idMov);

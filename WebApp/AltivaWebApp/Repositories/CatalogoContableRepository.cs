@@ -32,8 +32,5 @@ namespace AltivaWebApp.Repositories
         {
             return context.CatalogoContable.Where(b => b.Inactivo == false).ToList();
         }
-
-
-
     }
 }
