@@ -45,31 +45,39 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("CrearEditarFormasPago")]
-        public IActionResult CrearEditarFormasPago(long idDocumento, IList<CajaMovimientoViewModel> viewModel, IList<long> fpEliminadas, double montoPrepago)
+        public IActionResult CrearEditarFormasPago(long idDocumento, IList<CajaMovimientoViewModel> viewModel, IList<long> fpEliminadas, double montoPrepago, bool esPagoContado)
         {
             try
             {
-                if (viewModel.Count() > 0)
+                if (esPagoContado)
                 {
-                    TbFaMovimiento movPago = null;
-                    long idMov = viewModel.First().IdMovimiento;
-                    if (idMov == 0)
+                    if (viewModel.Count() > 0)
                     {
-                        movPago = movimientoMap.CreateMovimientoPago(idDocumento, viewModel, montoPrepago);
-                        idMov = movPago.IdMovimiento;
+                        TbFaMovimiento movPago = null;
+                        long idMov = viewModel.First().IdMovimiento;
+                        if (idMov == 0)
+                        {
+                            movPago = movimientoMap.CreateMovimientoPago(idDocumento, viewModel, montoPrepago);
+                            idMov = movPago.IdMovimiento;
+                        }
+                        else if (montoPrepago > 0)
+                        {
+                            movimientoMap.AplicarSaldo(0, montoPrepago, idDocumento);
+                        }
+                        var cm = cajaMovMap.CreateCajaMovimiento(viewModel, idMov);
+
                     }
                     else if (montoPrepago > 0)
-                    {
                         movimientoMap.AplicarSaldo(0, montoPrepago, idDocumento);
-                    }
-                    var cm = cajaMovMap.CreateCajaMovimiento(viewModel, idMov);
-                    
+
                 }
-                else if (montoPrepago > 0)
-                    movimientoMap.AplicarSaldo(0, montoPrepago, idDocumento);
+                else
+                {
+                    var idMov = movimientoService.GetMovimientoByIdDocumento(idDocumento).IdMovimiento;
+                    var cm = cajaMovMap.CreateCajaMovimiento(viewModel, idMov);
+                }
 
-
-                if(idDocumento != 0 && fpEliminadas.Count() > 0)
+                if (idDocumento != 0 && fpEliminadas.Count() > 0)
                     cajaMovService.DeleteRangeCM(fpEliminadas);
 
                 return Json(new { success = true });

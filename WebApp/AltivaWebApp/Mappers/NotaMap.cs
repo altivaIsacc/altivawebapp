@@ -16,18 +16,18 @@ namespace AltivaWebApp.Mappers
         {
             this.service = service;
         }
-        public TbFaNota Create(NotaViewModel viewModel)
+        public TbFaNota Create(DocumentoViewModel viewModel)
         {
             return service.Save(ViewModelToDomain(viewModel));
         }
 
-        public TbFaNota Update(NotaViewModel viewModel)
+        public TbFaNota Update(DocumentoViewModel viewModel)
         {
             return service.Update(ViewModelToDomainEditar(viewModel));
         }
 
 
-        public TbFaNota ViewModelToDomain(NotaViewModel viewModel)
+        public TbFaNota ViewModelToDomain(DocumentoViewModel viewModel)
         {
             return new TbFaNota
             {
@@ -39,9 +39,9 @@ namespace AltivaWebApp.Mappers
             };
         }
 
-        public TbFaNota ViewModelToDomainEditar(NotaViewModel viewModel)
+        public TbFaNota ViewModelToDomainEditar(DocumentoViewModel viewModel)
         {
-            var domain = service.GetNotaById(viewModel.IdNotaCredito);
+            var domain = service.GetNotaById(viewModel.IdDocumento);
 
             domain.IdContacto = viewModel.IdContacto;
             domain.IdTipoDocumento = viewModel.IdTipoDocumento;
@@ -53,11 +53,11 @@ namespace AltivaWebApp.Mappers
             return domain;
         }
 
-        public NotaViewModel DomainToVIewModel(TbFaNota domain)
+        public DocumentoViewModel DomainToVIewModel(TbFaNota domain)
         {
-            return new NotaViewModel
+            return new DocumentoViewModel
             {
-                IdNotaCredito = domain.IdNotaCredito,
+                IdDocumento = domain.IdNotaCredito,
                 IdContacto = domain.IdContacto,
                 IdTipoDocumento = domain.IdTipoDocumento,
                 Estado = domain.Estado,

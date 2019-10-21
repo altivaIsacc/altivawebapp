@@ -77,6 +77,7 @@ namespace AltivaWebApp.Context
         public virtual DbSet<TbFaDescuentoUsuarioClave> TbFaDescuentoUsuarioClave { get; set; }
         public virtual DbSet<TbFaDescuentoUsuarioRango> TbFaDescuentoUsuarioRango { get; set; }
         public virtual DbSet<TbFaMovimiento> TbFaMovimiento { get; set; }
+        public virtual DbSet<TbFaPago> TbFaPago { get; set; }
         public virtual DbSet<TbFaMovimientoDetalle> TbFaMovimientoDetalle { get; set; }
         public virtual DbSet<TbFaMovimientoJustificante> TbFaMovimientoJustificante { get; set; }
         public virtual DbSet<TbFaPromocionProducto> TbFaPromocionProducto { get; set; }
@@ -1826,6 +1827,29 @@ namespace AltivaWebApp.Context
                     .HasForeignKey(d => d.IdTipoJustificante)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_FA_MovimientoJustificante_tb_FA_TipoJustificante");
+            });
+
+            modelBuilder.Entity<TbFaPago>(entity =>
+            {
+                entity.HasKey(e => e.IdPago);
+
+                entity.ToTable("tb_FA_Pago");
+
+                entity.Property(e => e.Fecha)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Nota)
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')");
+
+                entity.HasOne(d => d.IdTipoDocumentoNavigation)
+                    .WithMany(p => p.TbFaPago)
+                    .HasForeignKey(d => d.IdTipoDocumento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tb_FA_Pago_tb_FA_TipoDocumento");
             });
 
             modelBuilder.Entity<TbFaPromocionProducto>(entity =>

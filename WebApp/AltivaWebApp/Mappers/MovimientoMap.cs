@@ -251,19 +251,29 @@ namespace AltivaWebApp.Mappers
             domain.SaldoDolar = viewModel.SaldoDolar;
             domain.SaldoEuro = viewModel.SaldoEuro;
             domain.FechaCreacion = viewModel.FechaCreacion;
-            domain.TbFaMovimientoJustificante = ViewModelToDomainMJ(viewModel);
+            domain.TbFaMovimientoJustificante = viewModel.movimientoJustificante.Count > 0 ? ViewModelToDomainMJ(viewModel) : null;
 
             double montoBase = 0;
             double montoDolar = 0;
             double montoEuro = 0;
 
-            foreach (var item in domain.TbFaMovimientoJustificante)
+            if(domain.TbFaMovimientoJustificante != null)
             {
-                montoBase = item.MontoBase + montoBase;
-                montoDolar = item.MontoDolar + montoDolar;
-                montoEuro = item.MontoEuro + montoEuro;
+                foreach (var item in domain.TbFaMovimientoJustificante)
+                {
+                    montoBase = item.MontoBase + montoBase;
+                    montoDolar = item.MontoDolar + montoDolar;
+                    montoEuro = item.MontoEuro + montoEuro;
 
+                }
             }
+            else
+            {
+                montoBase = viewModel.DisponibleBase;
+                montoDolar = viewModel.DisponibleDolar;
+                montoEuro = viewModel.DisponibleEuro;
+            }
+            
             domain.MontoBase = montoBase;
             domain.MontoDolar = montoDolar;
             domain.MontoEuro = montoEuro;
@@ -274,6 +284,7 @@ namespace AltivaWebApp.Mappers
 
             return domain;
         }
+
         public TbFaMovimiento Update(MovimientoViewModel viewModel)
         {
             return service.Update(ViewModelToDomainEdit(viewModel));

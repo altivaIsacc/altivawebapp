@@ -24,18 +24,23 @@ namespace AltivaWebApp.Controllers
         private readonly IMovimientoService movimientoService;
         private readonly ITipoJustificanteMap justificanteMap;
         private readonly ITipoJustificanteService justificanteService;
-        public NotaController(INotaService service, INotaMap map, IMonedaService monedaService, IMonedaMap monedaMap, IMovimientoMap movimientoMap, IMovimientoService movimientoService, ITipoJustificanteMap justificanteMap, ITipoJustificanteService justificanteService)
+        private readonly IPagoMap pagoMap;
+        private readonly IPagoService pagoService;
+        public NotaController(IPagoService pagoService, IPagoMap pagoMap, INotaService service, INotaMap map, IMonedaService monedaService, IMonedaMap monedaMap, IMovimientoMap movimientoMap, IMovimientoService movimientoService, ITipoJustificanteMap justificanteMap, ITipoJustificanteService justificanteService)
         {
-         this.service = service;
-         this.map = map;
-         this.monedaService = monedaService;
-         this.monedaMap = monedaMap;
-         this.movimientoMap = movimientoMap;
-         this.movimientoService = movimientoService;
-         this.justificanteService = justificanteService;
-         this.justificanteMap = justificanteMap;
+            this.service = service;
+            this.map = map;
+            this.monedaService = monedaService;
+            this.monedaMap = monedaMap;
+            this.movimientoMap = movimientoMap;
+            this.movimientoService = movimientoService;
+            this.justificanteService = justificanteService;
+            this.justificanteMap = justificanteMap;
+            this.pagoMap = pagoMap;
+            this.pagoService = pagoService;
 
         }
+
         [HttpGet("ListarNotas")]
         public IActionResult ListarNotas()
         {
@@ -50,22 +55,30 @@ namespace AltivaWebApp.Controllers
         public IActionResult CrearNota()
         {
             ViewBag.Justificantes = justificanteService.GetAll();
-            var model = new NotaViewModel();
+            var model = new DocumentoViewModel();
             model.Fecha = DateTime.Now;
             var tipoCambio = monedaService.GetAll();
             ViewBag.Dolar = tipoCambio.FirstOrDefault(m => m.Codigo == 2).ValorCompra;
             ViewBag.Euro = tipoCambio.FirstOrDefault(m => m.Codigo == 3).ValorCompra;
             ViewBag.DolarVenta = tipoCambio.FirstOrDefault(m => m.Codigo == 2).ValorVenta;
-            ViewBag.EuroVenta= tipoCambio.FirstOrDefault(m => m.Codigo == 3).ValorVenta; 
+            ViewBag.EuroVenta = tipoCambio.FirstOrDefault(m => m.Codigo == 3).ValorVenta;
             return View("CrearEditarNota", model);
         }
         [HttpGet("EditarNota")]
-        public IActionResult EditarNota( long id)
+        public IActionResult EditarNota(long id)
         {
             ViewBag.Justificantes = justificanteService.GetAll();
             var nota = map.DomainToVIewModel(service.GetNotaById(id));
             return View("CrearEditarNota", nota);
         }
+
+        [HttpGet("EditarPago")]
+        public IActionResult EditarPago(long id)
+        {
+            var pago = pagoMap.DomainToViewModel(pagoService.GetPagoById(id));
+            return View("CrearEditarNota", pago);
+        }
+
         [HttpGet("GetMovimiento/{id}")]
         public IActionResult GetMovimiento(long id)
         {
@@ -87,11 +100,7 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var docs = movimientoService.GetDocumentosContacto(id, cxp, idDocumento);
-
-              
-
                 return Ok(docs);
-
             }
             catch
             {
@@ -137,7 +146,7 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                    movimientoService.DeleteMD(id);
+                movimientoService.DeleteMD(id);
 
                 return Json(new { success = true });
             }
@@ -152,7 +161,7 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-               var documento= service.GetAllTipoDocumento().Where(td => (bool)td.EsNota || (bool)!td.EsDebito).ToList();
+                var documento = service.GetAllTipoDocumento().Where(td => (bool)td.EsNota || (bool)!td.EsDebito).ToList();
                 return Ok(documento);
 
             }
@@ -160,7 +169,7 @@ namespace AltivaWebApp.Controllers
             {
                 throw;
             }
-           
+
         }
         [HttpGet("GetAllMovimientos")]
         public IActionResult GetAllMovimientos()
@@ -193,17 +202,17 @@ namespace AltivaWebApp.Controllers
 
         }
         [HttpPost("CrearEditarNota")]
-        public IActionResult CrearEditarNota(NotaViewModel modelNota, MovimientoViewModel modelMovimiento, IList<MovimientoJustificanteViewModel> modelMovimientoJustificante)
+        public IActionResult CrearEditarNota(DocumentoViewModel modelNota, MovimientoViewModel modelMovimiento, IList<MovimientoJustificanteViewModel> modelMovimientoJustificante)
         {
             try
             {
-                if(modelNota.IdNotaCredito != 0)
+                if (modelNota.IdDocumento != 0)
                 {
                     var Nota = map.Update(modelNota);
-                
+
                     if (modelMovimiento.movimientoJustificante != null)
                     {
-                        movimientoMap.CreateMJ(modelMovimiento);                        
+                        movimientoMap.CreateMJ(modelMovimiento);
                     }
                     if (modelMovimientoJustificante.Count() > 0)
                     {
@@ -215,7 +224,7 @@ namespace AltivaWebApp.Controllers
                 }
                 else
                 {
-                    var Nota =  map.Create(modelNota);
+                    var Nota = map.Create(modelNota);
                     modelMovimiento.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     modelMovimiento.IdDocumento = Nota.IdNotaCredito;
                     foreach (var item in modelMovimiento.movimientoJustificante)
@@ -224,9 +233,8 @@ namespace AltivaWebApp.Controllers
                     }
                     movimientoMap.Create(modelMovimiento);
                     return Ok(Nota);
-
                 }
-               
+
 
             }
             catch
@@ -234,8 +242,38 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
 
-            
+
         }
+
+        [HttpPost("CrearEditarPago")]
+        public IActionResult CrearEditarPago(DocumentoViewModel modelPago, MovimientoViewModel modelMovimiento)
+        {
+            try
+            {
+                TbFaPago pago = null;
+                if (modelPago.IdDocumento != 0)
+                {
+                    pago = pagoMap.Update(modelPago);
+                    movimientoMap.Update(modelMovimiento);
+                }
+                else
+                {
+                    pago = pagoMap.Create(modelPago);
+                    modelMovimiento.IdDocumento = pago.IdPago;
+                    movimientoMap.Create(modelMovimiento);
+                }
+
+                return Json( new { pago.IdPago });
+
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
+
+
         [HttpPost("AnularNota")]
         public IActionResult AnularNota(long id)
         {
