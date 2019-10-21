@@ -273,17 +273,25 @@
 
 
 <script>
+
     var arrayBodegas = [];
     var arrayInventarioBodegas = [];
     var arrayInventario = [];
+
     var arrayArticuloPorBodegaOrigenSeleccionada = [];
+    var copiaArrayArticuloPorBodegaOrigenSeleccionada = [];
+
     var arrayTablaTraslado = [];
-    var arrayTablaTrasladoInventario = [];
+    var copiaArrayTablaTraslado = []; 
+
     var arrayTraslado = [];
     var arrayTrasladoInventario = [];
-    var fecha = $('#fecha');
+  
     var arrayArticulosEliminados = [];
     var arrayTablaTrasladoItemEditadosOnuevos = [];
+
+    var fecha = $('#fecha');
+
     $(document).ready(function () {
         validarGuardarEditar();
         getBodegasInventario();
@@ -310,18 +318,25 @@
                 $('#BuscarInventarioBodega').click();
         });
     });
+
     function formatearFecha() {
         return '@Model.Fecha.Month' + "/" + '@Model.Fecha.Day' + "/" + '@Model.Fecha.Year' + " " + '@Model.Fecha.TimeOfDay';
     }
+
+
     function controlarEnter() {
         if (e.keyCode === 13) {
             e.preventDefault();
             enter();
         }
     }
+
+
     fecha.on('keyup', function () {
         $('#fechaPicker').datetimepicker('defaultDate', new Date());
     });
+
+
     function validarGuardarEditar(){
         if (validarModal() == true) {
             //alert('entro a guardar');
@@ -333,6 +348,8 @@
             getTraslado();
         }
     }
+
+
     function validarModal() {
         var idTraslado = $("#IdTraslado").val();
         if (idTraslado == 0) {
@@ -341,6 +358,8 @@
             return false;
         }
     }
+
+
     function ocultarCampos() {
         $('#divTraslado').hide();
         $('#BuscarInventarioBodega').prop("disabled", true);
@@ -350,6 +369,8 @@
         $('#Anular').hide();
         $('#btnPDF').hide();
     }
+
+
     function mostrarOcultarCampos() {
         $('#divTraslado').show();
         $('#errorExistenciaArticulo').hide();
@@ -372,6 +393,8 @@
 
         }
     }
+
+
      function getBodegasInventario() {
           $.ajax({
               type: "get",
@@ -393,6 +416,8 @@
               }
           });
     }
+
+
     function obtenerTablaInventarioBodega() {
         for (var i = 0; i < arrayBodegas.length; i++) {
             if (arrayBodegas[i].tbPrInventarioBodega.length != 0) {
@@ -400,6 +425,8 @@
             }
         }
     }
+
+
     function obtenerTablaInventario() {
         var auxArrayInventarioBodegas  = [];
         for (var i = 0; i < arrayBodegas.length; i++) {
@@ -409,6 +436,8 @@
             }
         }
     }
+
+
     function cargarBodegasOrigen() {
         for (var i = 0; i < arrayBodegas.length; i++) {
             if (arrayBodegas[i].tbPrInventarioBodega.length != 0) {
@@ -421,6 +450,8 @@
             }
         }
     }
+
+
     var array = [];
     function cargarBodegasDestino(idBodegaOrigenSeleccionada) {
         if (idBodegaOrigenSeleccionada != "") {
@@ -452,12 +483,17 @@
                 }
         }
     }
+
+
+
     function limpiarSelect() {
         var select = document.getElementById('IdBodegaDestino');
         while (select.length > 0) {
             select.remove(1);
         }
     }
+
+
     function validarBodegaOrigenSeleccionada(value) {
         $('#IdbodegaOrigenRequeridaValid').hide();
         $('#IdbodegaDestinoRequeridaValid').hide();
@@ -469,9 +505,12 @@
             $('#BuscarInventarioBodega').prop("disabled", false);
             cargarBodegasDestino(value);
             obtenerBodega(value);
-            cargarDatosInventarioBodega();
+            cargarDatosInventarioBodega(arrayArticuloPorBodegaOrigenSeleccionada);
+         
         }
     }
+
+
     function mostrarModalInventarioBodega() {
         $('#error').hide();
         var value = $('#BuscarCodigoInventarioBodega').val().trim();
@@ -482,11 +521,13 @@
             $('#filtroBuscarInventarioBodega').val("");
         }
     }
+
+
     function buscarArticuloInventarioBodega(value) {
         var existeInventarioBodega = "";
         var existeTraslado = "";
         existeInventarioBodega = validarExistenciaInventarioBodega(arrayArticuloPorBodegaOrigenSeleccionada, value);
-        console.log(existeInventarioBodega);
+        //console.log(existeInventarioBodega);
         existeTraslado = validarExistenciaTablaTraslado(arrayTablaTraslado, value);
         if (existeInventarioBodega == true) {
             if (existeTraslado == true) {
@@ -504,6 +545,9 @@
             });
         }
     }
+
+
+
     function validarExistenciaInventarioBodega(array, value) {
         var respuesta = false;
         for (var i = 0; i < array.length; i++) {
@@ -514,6 +558,8 @@
         }
         return respuesta;
     }
+
+
     function validarExistenciaTablaTraslado(array, value) {
         var respuesta = false;
         for (var i = 0; i < array.length; i++) {
@@ -524,6 +570,8 @@
         }
         return respuesta;
     }
+
+
     function agregarArticuloTablaTraslado(value) {
         for (var i = 0; i < arrayArticuloPorBodegaOrigenSeleccionada.length; i++) {
             if (arrayArticuloPorBodegaOrigenSeleccionada[i].codigo == value || arrayArticuloPorBodegaOrigenSeleccionada[i].descripcion.trim() == value ) {
@@ -543,6 +591,8 @@
         arrayTablaTraslado.push(objEncontrado);
         cargarDatosTraslado(arrayTablaTraslado);
     }
+
+
     function ocultarModalInventarioBodega() {
         $('#modalInventarioBodega').modal('hide');
         if (arrayTablaTraslado.length == 0) {
@@ -553,6 +603,8 @@
                 $('#IdBodegaDestino').prop("disabled", true);
             }
     }
+
+
     function obtenerBodega(value) {
         for (var i = 0; i < arrayBodegas.length; i++) {
             if (value == arrayBodegas[i].id) {
@@ -561,11 +613,16 @@
             }
         }
     }
+
+
     function obtenerArticulosPorBodega(array) {
         var ib = array;
         arrayArticuloPorBodegaOrigenSeleccionada = [];
+        copiaArrayArticuloPorBodegaOrigenSeleccionada = [];
+
         for (var i = 0; i < ib.length; i++) {
             if (ib[i].existenciaBodega > 0) {
+
                 var model = {
                     idInventario: ib[i].idInventarioNavigation.idInventario,
                     codigo: ib[i].idInventarioNavigation.codigo,
@@ -574,11 +631,26 @@
                     costoPromedioBodega: ib[i].costoPromedioBodega,
                     idInventarioBodega: ib[i].id
                 };
+
+                var modelCopia = {
+                    idInventario: ib[i].idInventarioNavigation.idInventario,
+                    codigo: ib[i].idInventarioNavigation.codigo,
+                    descripcion: ib[i].idInventarioNavigation.descripcion,
+                    existenciaBodega: ib[i].existenciaBodega,
+                    costoPromedioBodega: ib[i].costoPromedioBodega,
+                    idInventarioBodega: ib[i].id
+                };
+
                 arrayArticuloPorBodegaOrigenSeleccionada.push(model);
+                copiaArrayArticuloPorBodegaOrigenSeleccionada.push(modelCopia);
+                
+              
             }
         }
     }
-    function cargarDatosInventarioBodega() {
+
+
+    function cargarDatosInventarioBodega(arrayArticuloPorBodegaOrigenSeleccionada) {
         var contadorFila = 0;
         $("#tblInventarioBodega > tbody").remove();
         $('#tblInventarioBodega').append('<tbody></tbody>');
@@ -599,6 +671,8 @@
         });
         inicializarTablaInventarioBodega();
     }
+
+
     function inicializarTablaInventarioBodega() {
         $('#tblInventarioBodega').DataTable().destroy();
         tblInventarioBodega = $('#tblInventarioBodega').DataTable({
@@ -629,15 +703,22 @@
         });
         $(".dataTables_searching").hide();
     }
+
+
+
     $("#filtroBuscarInventarioBodega").on("keyup", function () {
         buscarPorNombre(this.value)
     });
+
+
     function buscarPorNombre(nombre) {
         tblInventarioBodega
             .columns(2)
             .search(nombre)
             .draw();
     }
+
+
     function capturar(pos) {
         var obj = "";
         obj = arrayArticuloPorBodegaOrigenSeleccionada[pos];
@@ -662,6 +743,8 @@
         } else
             $('#error').show();
     }
+
+
     function existeItem(array, idInventario) {
         var flag = false;
         for (var i = 0; i < array.length; i++) {
@@ -672,6 +755,8 @@
         }
         return flag;
     }
+
+
     function pasarSigCampo(e, id) {
         id = "txtCostoTotal" + id;
         (e.keyCode) ? k = e.keyCode : k = e.which;
@@ -680,10 +765,14 @@
             document.getElementById(id).select();
         }
     }
+
+
     function soloNumeros(e) {
         var key = window.Event ? e.which : e.keyCode
         return (key >= 48 && key <= 57)
     }
+
+
     var estaAnulado = "";
     function cargarDatosTraslado(arrayTablaTraslado) {
         calcularCostoTraslado();
@@ -694,10 +783,10 @@
             var body = '<tr class="fila' + contadorFila + ' filas">'
                 + '<td style="width:17%"><p style="padding-top:1rem">' + arrayTablaTraslado[i].codigoArticulo + '</p></td>'
                 + '<td><p style="padding-top:1rem">' + arrayTablaTraslado[i].descripcion + '</p></td>'
-                + '<td> <input type="number" style = "width:100%" id="' + contadorFila + '" class="form-control numerico" maxlength="10" value="' + arrayTablaTraslado[i].cantidad + '" onChange="calcular(value,' + contadorFila + ', ' + arrayTablaTraslado[i].idInventario + ' )"  min="1" pattern="^[0-9]+"  onkeyup="pasarSigCampo(event,' + contadorFila + ')"  readonly />                    <input type="" id="txtCantidadEntrante" class="form-control numerico" maxlength="10" value="' + arrayTablaTraslado[i].cantidad + '" />  </td>'
+                + '<td> <input type="number" style = "width:100%" id="' + contadorFila + '" class="form-control numerico" maxlength="10" value="' + arrayTablaTraslado[i].cantidad + '" onChange="calcular(value,' + contadorFila + ', ' + arrayTablaTraslado[i].idInventario + ' )"  min="1" pattern="^[0-9]+"  onkeyup="pasarSigCampo(event,' + contadorFila + ')"  readonly />             <input type="hidden" id="txtCantidadEntrante" class="form-control numerico" maxlength="10" value="' + arrayTablaTraslado[i].cantidad + '" />        </td>'
                 + '<td style="width:17%"><p style="padding-top:1rem" class="colon">' + arrayTablaTraslado[i].precioUnitario + '</p></td>'
-                + '<td style="width:20%"> <input type="text" style="width:100%" id="txtCostoTotal' + contadorFila + '" class="form-control colon" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '" readonly />                           <input style="width:100%" type="" id="txtCosto' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '"/>    </td>'
-                + '<td style="width:15%"> <button id="btGuardarLinea' + contadorFila + '" value="' + contadorFila + '" onclick="editar(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + contadorFila + '" onclick="eliminar(value)" class="btn btn-link btnEditar"><i class="fas fa-trash"></i></button>';
+                + '<td style="width:20%"> <input type="text" style="width:100%" id="txtCostoTotal' + contadorFila + '" class="form-control colon" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '" readonly />                           <input style="width:100%" type="hidden" id="txtCosto' + contadorFila + '" class="form-control" maxlength="50" size="10" value="' + arrayTablaTraslado[i].costoTotal + '"/>    </td>'
+                + '<td style="width:15%"> <button id="btGuardarLinea' + contadorFila + '" value="' + contadorFila + '" onclick="editar(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>      <button onclick="eliminar(' + contadorFila + ', ' + arrayTablaTraslado[i].idInventario + ' )" class="btn btn-link btnEditar"><i class="fas fa-trash"></i></button>';
             $('#tablaTrasladoInventario > tbody').append(body);
             contadorFila++;
         }
@@ -713,6 +802,8 @@
         });
         inicializarTablaTraslado();
     }
+
+
     function inicializarTablaTraslado() {
         $('#tablaTrasladoInventario').DataTable().destroy();
         tablaTrasladoInventario = $('#tablaTrasladoInventario').DataTable({
@@ -744,186 +835,401 @@
         });
         $(".dataTables_searching").hide();
     }
+
+
     function editar(pos) {
         desbloquearCantidad(pos);
     }
+
+
     function desbloquearCantidad(pos) {
         $('#' + pos).prop("readonly", false);
     }
 
 
 
+    function obtenerCantidadEntranteDeArticuloPorBodegaOrigenSeleccionada(idInventario) {
+           
+        var cantidadEntrante = 0;
+        try {
+            for (var j = 0; j < copiaArrayTablaTraslado.length; j++) {
+                if (copiaArrayTablaTraslado[j].idInventario == idInventario) {
+                    cantidadEntrante = copiaArrayTablaTraslado[j].cantidad;
 
-    function calcular(cantidad,pos,id) {
-        var precioUnitario = 0;
-         if (@Model.IdTraslado == 0) {
-                        if (cantidad > arrayTablaTraslado[pos].existenciaBodega) { // si la cantidad dijitada es mayor que la que se encuentra en esa bodega
-                            var existenciaBodega = arrayTablaTraslado[pos].existenciaBodega;
-
-                            cargarAlert("@Lb["ExistenciaSuperada"]");
-                            $('#' + pos).val(1);
-                            $('#' + pos).prop("readonly", true);
-                            precioUnitario = arrayTablaTraslado[pos].precioUnitario;
-                            costo = precioUnitario * 1;
-                            $('#txtCostoTotal' + pos).val(costo);
-                            $('#txtCosto' + pos).val(costo);
-                            calcularCostoTotal(1, pos);
-                        } else if (cantidad == 0) {
-                            $('#' + pos).val(1);
-                            $('#' + pos).prop("readonly", true);
-                            precioUnitario = arrayTablaTraslado[pos].precioUnitario;
-                            costo = precioUnitario * 1;
-                            $('#txtCostoTotal' + pos).val(costo);
-                            $('#txtCosto' + pos).val(costo);
-                            calcularCostoTotal(1, pos);
-                        } else {
-                            precioUnitario = arrayTablaTraslado[pos].precioUnitario;
-                            costo = precioUnitario * cantidad;
-                            $('#txtCostoTotal' + pos).val(costo);
-                            $('#txtCosto' + pos).val(costo);
-                            $('#' + pos).prop("readonly", true);
-                            calcularCostoTotal(cantidad, pos);
-                        }
-        } else {
-             $('#existenciasCero').hide();
-
-             console.log("cantidad modificada: " + cantidad);
-             var txtCantidadEntrante = $('#txtCantidadEntrante').val();
-             console.log("cantidad entrante: " + txtCantidadEntrante);
-             var cantidadResultante = (cantidad - txtCantidadEntrante);
-             console.log("cantidad resultante a agregar: " + cantidadResultante);
-
-             var existenciaBodega = 0;
-             var existenciaBodega = obtenerExistenciasDeArticuloPorBodegaOrigenSeleccionada(id);
-
-
-             if (existenciaBodega > 0) {
-                 console.log("existencia en bodega: " + existenciaBodega);
-                 console.log("tiene ");
-
-                if (cantidadResultante > existenciaBodega) {
-
-                     cargarAlert("@Lb["ExistenciaSuperada"]");
-
-                     console.log("entro 1");
-                     $('#' + pos).val(1);
-                     $('#' + pos).prop("readonly", true);
-                     precioUnitario = arrayTablaTraslado[pos].precioUnitario;
-                     costo = precioUnitario * 1;
-                     $('#txtCostoTotal' + pos).val(costo);
-                     $('#txtCosto' + pos).val(costo);
-                     calcularCostoTotal(1, pos);
-                     capturarArticulosPorCantidadesEditadas(pos);
-
-
-                 } else if (cantidad == 0) {
-
-                     console.log("entro 2");
-
-                     $('#' + pos).val(1);
-                     $('#' + pos).prop("readonly", true);
-                     precioUnitario = arrayTablaTraslado[pos].precioUnitario;
-                     costo = precioUnitario * 1;
-                     $('#txtCostoTotal' + pos).val(costo);
-                     $('#txtCosto' + pos).val(costo);
-                     calcularCostoTotal(1, pos);
-                     capturarArticulosPorCantidadesEditadas(pos);
-
-                 } else if (cantidad < 0) {
-
-                     console.log("entro 3");
-                     cantidad = 1;
-                     $('#' + pos).val(1);
-                     precioUnitario = arrayTablaTraslado[pos].precioUnitario;
-                     costo = precioUnitario * cantidad;
-                     $('#txtCostoTotal' + pos).val(costo);
-                     $('#txtCosto' + pos).val(costo);
-                     $('#' + pos).prop("readonly", true);
-                     calcularCostoTotal(cantidad, pos);
-                     capturarArticulosPorCantidadesEditadas(pos);
-
-
-                 } else if (cantidad <= existenciaBodega) {
-
-                     console.log("entro 4");
-                     precioUnitario = arrayTablaTraslado[pos].precioUnitario;
-                     costo = precioUnitario * cantidad;
-                     $('#txtCostoTotal' + pos).val(costo);
-                     $('#txtCosto' + pos).val(costo);
-                     $('#' + pos).prop("readonly", true);
-                     calcularCostoTotal(cantidad, pos);
-                     capturarArticulosPorCantidadesEditadas(pos);
-
-
-                 }
-
-
-
-
-             } else if (existenciaBodega = 'undefined') {
-
-
-                 //console.log("existencia en bodega: " + existenciaBodega);
-                 console.log("no tene ");
-
-                 cantidadAntigua = arrayTablaTraslado[pos].cantidad;
-
-                 if (cantidad > cantidadAntigua) {
-
-                     console.log("entro 1 ");
-                     costoTotal = arrayTablaTraslado[pos].precioUnitario;
-                     cantidadAntigua = arrayTablaTraslado[pos].cantidad;
-                     $('#existenciasCero').show();
-                     $('#' + pos).val(cantidadAntigua);
-                     $('#' + pos).prop("readonly", true);
-                    // calcularCostoTotal(cantidadAntigua, pos);
-                   //  capturarArticulosPorCantidadesEditadas(pos);
-
-
-
-                 } else if (cantidad < cantidadAntigua && cantidad > 0 || cantidad == cantidadAntigua) {
-
-                     console.log("entro 2 negativo-devolver linea");
-                     $('#existenciasCero').hide();
-                     precioUnitario = arrayTablaTraslado[pos].precioUnitario;
-                     costo = precioUnitario * cantidad;
-                     $('#txtCostoTotal' + pos).val(costo);
-                     $('#txtCosto' + pos).val(costo);
-                     calcularCostoTotal(cantidad, pos);
-                     capturarArticulosPorCantidadesEditadas(pos);
-
-
-
-
-                 } else if (cantidad < 0) { // para los negativos
-
-                     console.log("entro 3 ");
-                     costoTotal = arrayTablaTraslado[pos].precioUnitario;
-                     cantidadAntigua = arrayTablaTraslado[pos].cantidad;
-                     $('#existenciasCero').show();
-                     $('#' + pos).val(cantidadAntigua);
-                     $('#' + pos).prop("readonly", true);
-                  //   calcularCostoTotal(cantidad, pos);
-                  //   capturarArticulosPorCantidadesEditadas(pos);
-
-
-
-                 } else if (cantidad == 0) {
-
-                     console.log("entro 4 ");
-                     costoTotal = arrayTablaTraslado[pos].precioUnitario;
-                     cantidadAntigua = arrayTablaTraslado[pos].cantidad;
-                     $('#existenciasCero').show();
-                     $('#' + pos).val(cantidadAntigua);
-                     $('#' + pos).prop("readonly", true);
-                   //  calcularCostoTotal(cantidadAntigua, pos);
-                   //  capturarArticulosPorCantidadesEditadas(pos);
-
-                 }
-               
-             }
+                    if (cantidadEntrante > 0) {
+                        return cantidadEntrante;
+                        break;
+                    }
+                }
+            }
+        } catch (e) {
+            return cantidadEntrante;
         }
     }
+
+
+    function validarArticuloEditado(idInventario) {
+        var flag = false;
+        for (var i = 0; i < arrayTablaTraslado.length; i++) {
+            if (arrayTablaTraslado[i].idInventario == idInventario && arrayTablaTraslado[i].id == 0) {
+                flag = true;
+                break;
+            }
+        }
+        return flag;
+
+    }
+
+    function obtenerCantidadCopiaArrayTablaTraslado(idInventario) {
+      
+        var cantidadEntranteReal = 0;
+        try {
+
+            for (var j = 0; j < copiaArrayTablaTraslado.length; j++) {
+                if (copiaArrayTablaTraslado[j].idInventario == idInventario) {
+                  var cantidadEntranteReal = copiaArrayTablaTraslado[j].cantidad;               
+                        return cantidadEntranteReal;
+                        break;                  
+                }
+            }
+
+        } catch (e) {
+
+            return cantidadEntranteReal;
+        }
+
+    }
+
+
+
+
+    function calcular(cantidadModificada, pos, idInventario) {
+
+  
+
+        var precioUnitario = 0;
+        if (@Model.IdTraslado == 0) {
+
+            if (cantidadModificada > arrayTablaTraslado[pos].existenciaBodega) { // si la cantidad dijitada es mayor que la que se encuentra en esa bodega
+
+                var existenciaBodega = arrayTablaTraslado[pos].existenciaBodega;
+                //console.log("entro 1");
+                cargarAlert("@Lb["ExistenciaSuperada"]");
+                $('#' + pos).val(1);
+                $('#' + pos).prop("readonly", true);
+                precioUnitario = arrayTablaTraslado[pos].precioUnitario;
+                costo = precioUnitario * 1;
+                $('#txtCostoTotal' + pos).val(costo);
+                $('#txtCosto' + pos).val(costo);
+                calcularCostoTotal(1, pos);
+                actualizarArticuloPorBodegaOrigenSeleccionadaGuarda(1, cantidadModificada, idInventario);
+
+            } else if (cantidadModificada <= 0) {
+
+                //console.log("entro 2");               
+                $('#' + pos).val(1);
+                $('#' + pos).prop("readonly", true);
+                precioUnitario = arrayTablaTraslado[pos].precioUnitario;
+                costo = precioUnitario * 1;
+                $('#txtCostoTotal' + pos).val(costo);
+                $('#txtCosto' + pos).val(costo);
+                calcularCostoTotal(1, pos);
+                actualizarArticuloPorBodegaOrigenSeleccionadaGuarda(0, cantidadModificada, idInventario);
+
+
+            } else {
+
+                //console.log("entro 3");
+                precioUnitario = arrayTablaTraslado[pos].precioUnitario;
+                costo = precioUnitario * cantidadModificada;
+                $('#txtCostoTotal' + pos).val(costo);
+                $('#txtCosto' + pos).val(costo);
+                $('#' + pos).prop("readonly", true);
+                calcularCostoTotal(cantidadModificada, pos);
+                actualizarArticuloPorBodegaOrigenSeleccionadaGuarda(0, cantidadModificada, idInventario);
+
+            }
+
+
+        } else {
+            $('#existenciasCero').hide();
+            var existenciaOriginal = 0;
+            var existenciaBodega = 0;
+            var nuevoOeditado = "";
+
+            //console.log("arrayTablaTraslado: ");
+            //console.log(arrayTablaTraslado);
+            //console.log("copia: ");
+            //console.log(copiaArrayTablaTraslado);
+            //console.log("arrayArticuloPorBodegaOrigenSele: ");
+            //console.log(arrayArticuloPorBodegaOrigenSeleccionada);
+            //console.log("copia: ");
+            //console.log(copiaArrayArticuloPorBodegaOrigenSeleccionada);
+
+
+            var existenciaBodega = obtenerExistenciasDeArticuloPorBodegaOrigenSeleccionada(idInventario); // copia
+            var cantidadEntrante = obtenerCantidadEntranteDeArticuloPorBodegaOrigenSeleccionada(idInventario);// copia
+            var nuevoOeditado = validarArticuloEditado(idInventario);
+
+            //console.log("cantidad modificada: " + cantidadModificada);   
+            //console.log("idInventario: " + idInventario);                                
+            //console.log("cantidad entrante: " + cantidadEntrante);                                                  
+            existenciaOriginal = parseInt(existenciaBodega) + parseInt(cantidadEntrante);
+            //console.log("existencia original: " + existenciaOriginal);
+            //console.log("existencia bodega: " + existenciaBodega);
+
+
+            if (existenciaBodega > 0) {
+
+                                if (nuevoOeditado == true) {
+                                    //console.log("nuevo");
+
+                                    if (cantidadModificada > existenciaBodega) {
+
+                                        //console.log("entro 4");
+                                        cargarAlert("@Lb["ExistenciaSuperada"]");
+                                        $('#' + pos).val(1);
+                                        $('#' + pos).prop("readonly", true);
+                                        precioUnitario = arrayTablaTraslado[pos].precioUnitario;
+                                        costo = precioUnitario * 1;
+                                        $('#txtCostoTotal' + pos).val(costo);
+                                        $('#txtCosto' + pos).val(costo);
+                                        calcularCostoTotal(1, pos);
+                                        actualizarArticuloPorBodegaOrigenSeleccionadaGuarda(1, cantidadModificada, idInventario);
+
+
+                                    } else if (cantidadModificada <= 0) {
+
+                                        //console.log("entro 5");
+                                        $('#' + pos).val(1);
+                                        $('#' + pos).prop("readonly", true);
+                                        precioUnitario = arrayTablaTraslado[pos].precioUnitario;
+                                        costo = precioUnitario * 1;
+                                        $('#txtCostoTotal' + pos).val(costo);
+                                        $('#txtCosto' + pos).val(costo);
+                                        calcularCostoTotal(1, pos);
+                                        actualizarArticuloPorBodegaOrigenSeleccionadaGuarda(0, cantidadModificada, idInventario);
+
+
+                                    } else {
+
+                                        //console.log("entro 6");
+
+                                        precioUnitario = arrayTablaTraslado[pos].precioUnitario;
+                                        costo = precioUnitario * cantidadModificada;
+                                        $('#txtCostoTotal' + pos).val(costo);
+                                        $('#txtCosto' + pos).val(costo);
+                                        $('#' + pos).prop("readonly", true);
+                                        calcularCostoTotal(cantidadModificada, pos);
+                                        capturarArticulosPorCantidadesEditadas(pos);
+                                        actualizarArticuloPorBodegaOrigenSeleccionadaGuarda(0, cantidadModificada, idInventario);
+
+                                    }
+
+
+                                } else {
+                                    //console.log("edito");
+
+                                    if (cantidadModificada > existenciaOriginal) {
+
+                                        console.log("entro 7");
+                                        cargarAlert("@Lb["ExistenciaSuperada"]");
+                                        $('#' + pos).val(1);
+                                        $('#' + pos).prop("readonly", true);
+                                        precioUnitario = arrayTablaTraslado[pos].precioUnitario;
+                                        costo = precioUnitario * 1;
+                                        $('#txtCostoTotal' + pos).val(costo);
+                                        $('#txtCosto' + pos).val(costo);
+                                        calcularCostoTotal(1, pos);
+                                        capturarArticulosPorCantidadesEditadas(pos);
+                                        actualizarArticuloPorBodegaOrigenSeleccionadaEdita(cantidadModificada, idInventario, cantidadEntrante, existenciaOriginal, existenciaBodega);
+
+
+                                    } else if (cantidadModificada <= 0) {
+                                       // console.log("entro 8");
+
+                                        $('#' + pos).val(1);
+                                        $('#' + pos).prop("readonly", true);
+                                        precioUnitario = arrayTablaTraslado[pos].precioUnitario;
+                                        costo = precioUnitario * 1;
+                                        $('#txtCostoTotal' + pos).val(costo);
+                                        $('#txtCosto' + pos).val(costo);
+                                        calcularCostoTotal(1, pos);
+                                        capturarArticulosPorCantidadesEditadas(pos);
+                                        actualizarArticuloPorBodegaOrigenSeleccionadaEdita(cantidadModificada, idInventario, cantidadEntrante, existenciaOriginal, existenciaBodega);
+
+
+                                    } else {
+                                        //console.log("entro 9");
+
+                                        precioUnitario = arrayTablaTraslado[pos].precioUnitario;
+                                        costo = precioUnitario * cantidadModificada;
+                                        $('#txtCostoTotal' + pos).val(costo);
+                                        $('#txtCosto' + pos).val(costo);
+                                        $('#' + pos).prop("readonly", true);
+                                        calcularCostoTotal(cantidadModificada, pos);
+                                        capturarArticulosPorCantidadesEditadas(pos);
+                                        actualizarArticuloPorBodegaOrigenSeleccionadaEdita(cantidadModificada, idInventario, cantidadEntrante, existenciaOriginal, existenciaBodega);
+
+                                    }
+                                }
+
+            } else if (existenciaBodega = 'undefined') {
+
+                $('#existenciasCero').show();
+                $('#' + pos).val(cantidadEntrante);
+                $('#' + pos).prop("readonly", true);
+              
+            }
+        }
+    }
+    
+
+
+    function actualizarArticuloPorBodegaOrigenSeleccionadaEdita(cantidadModificada, idInventario, cantidadEntrante, existenciaOriginal, existenciaBodega) {
+
+        //console.log("arrayTablaTraslado: ");
+        //console.log(arrayTablaTraslado);
+        //console.log("copia: ");
+        //console.log(copiaArrayTablaTraslado);
+        //console.log("arrayArticuloPorBodegaOrigenSele: ");
+        //console.log(arrayArticuloPorBodegaOrigenSeleccionada);
+        //console.log("copia: ");
+        //console.log(copiaArrayArticuloPorBodegaOrigenSeleccionada);
+        //console.log("cantidad modificada: " + cantidadModificada);   
+        //console.log("idInventario: " + idInventario);                                
+        //console.log("cantidad entrante: " + cantidadEntrante);                                                  
+        //console.log("existencia original: " + existenciaOriginal);
+        //console.log("existencia bodega: " + existenciaBodega);
+
+        if (cantidadModificada > existenciaOriginal) {
+            console.log("entro 7.1");
+
+            for (var i = 0; i < copiaArrayArticuloPorBodegaOrigenSeleccionada.length; i++) {
+                for (var j = 0; j < arrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
+                    if (copiaArrayArticuloPorBodegaOrigenSeleccionada[i].idInventario == idInventario && arrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == idInventario) { // si coincide en el original y en el especifico
+
+                        existenciaOriginal = existenciaOriginal - 1
+                        arrayArticuloPorBodegaOrigenSeleccionada[i].existenciaBodega = existenciaOriginal;
+                        cargarDatosInventarioBodega(arrayArticuloPorBodegaOrigenSeleccionada);
+
+                    }
+                }
+            }
+
+
+
+        } else if (cantidadModificada <= 0) {
+            console.log("entro 8.1");
+
+            for (var i = 0; i < copiaArrayArticuloPorBodegaOrigenSeleccionada.length; i++) {
+                for (var j = 0; j < arrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
+                    if (copiaArrayArticuloPorBodegaOrigenSeleccionada[i].idInventario == idInventario && arrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == idInventario) { // si coincide en el original y en el especifico
+
+                        existenciaOriginal = existenciaOriginal - 1
+                        arrayArticuloPorBodegaOrigenSeleccionada[i].existenciaBodega = existenciaOriginal;
+                        cargarDatosInventarioBodega(arrayArticuloPorBodegaOrigenSeleccionada);
+
+                    }
+                }
+            }
+
+
+        } else {
+
+            console.log("entro 9.1");
+
+            for (var i = 0; i < copiaArrayArticuloPorBodegaOrigenSeleccionada.length; i++) {
+                for (var j = 0; j < arrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
+                    if (copiaArrayArticuloPorBodegaOrigenSeleccionada[i].idInventario == idInventario && arrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == idInventario) { // si coincide en el original y en el especifico
+
+                        existenciaOriginal = existenciaOriginal - cantidadModificada;
+                        arrayArticuloPorBodegaOrigenSeleccionada[i].existenciaBodega = existenciaOriginal;
+                        cargarDatosInventarioBodega(arrayArticuloPorBodegaOrigenSeleccionada);
+
+                    }
+                }
+            }
+
+        }
+
+    }
+
+
+
+
+
+
+   
+    function actualizarArticuloPorBodegaOrigenSeleccionadaGuarda(superada, cantidadModificada, idInventario) {
+
+          //console.log(arrayArticuloPorBodegaOrigenSeleccionada);
+          //console.log(copiaArrayArticuloPorBodegaOrigenSeleccionada);
+          //console.log("superada: " + superada);
+          //console.log("cant modificada: " + cantidadModificada);
+          //console.log("idInventario: " + idInventario); 
+         
+        
+        var copiaExistenciaBodega = 0;
+        var existenciaBodega = 0;
+        var diferencia = 0
+        var resultado = 0;
+
+
+        if (superada == 1) { // lo escrito por el usuario supero a lo existente en bodega.
+
+                    for (var i = 0; i < copiaArrayArticuloPorBodegaOrigenSeleccionada.length; i++) {
+                        for (var j = 0; j < arrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
+                            if (copiaArrayArticuloPorBodegaOrigenSeleccionada[i].idInventario == idInventario && arrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == idInventario) { 
+                             
+                                copiaExistenciaBodega = copiaArrayArticuloPorBodegaOrigenSeleccionada[i].existenciaBodega;                              
+                                resultado = copiaExistenciaBodega - 1;
+                                console.log(resultado);
+                                arrayArticuloPorBodegaOrigenSeleccionada[i].existenciaBodega = resultado;
+                                cargarDatosInventarioBodega(arrayArticuloPorBodegaOrigenSeleccionada);
+
+                            }
+                        }
+                    }
+
+        } else if (cantidadModificada <= 0) { // lo escrito por el usuario fue en negativo o en cero
+          
+
+                    for (var i = 0; i < copiaArrayArticuloPorBodegaOrigenSeleccionada.length; i++) {
+                        for (var j = 0; j < arrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
+                            if (copiaArrayArticuloPorBodegaOrigenSeleccionada[i].idInventario == idInventario && arrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == idInventario) { 
+
+                                copiaExistenciaBodega = copiaArrayArticuloPorBodegaOrigenSeleccionada[i].existenciaBodega;
+                                resultado = copiaExistenciaBodega - 1;
+                                console.log(resultado);
+                                arrayArticuloPorBodegaOrigenSeleccionada[i].existenciaBodega = resultado;
+                                cargarDatosInventarioBodega(arrayArticuloPorBodegaOrigenSeleccionada);
+
+                            }
+                        }
+                    }
+
+        } else { // lo escrito por el usuario fue correpto
+        
+                    for (var i = 0; i < copiaArrayArticuloPorBodegaOrigenSeleccionada.length; i++) {
+                        for (var j = 0; j < arrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
+                            if (copiaArrayArticuloPorBodegaOrigenSeleccionada[i].idInventario == idInventario && arrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == idInventario) { 
+
+                                copiaExistenciaBodega = copiaArrayArticuloPorBodegaOrigenSeleccionada[i].existenciaBodega;
+                                resultado = copiaExistenciaBodega - cantidadModificada;
+                                console.log(resultado);
+                                arrayArticuloPorBodegaOrigenSeleccionada[i].existenciaBodega = resultado;
+                                cargarDatosInventarioBodega(arrayArticuloPorBodegaOrigenSeleccionada);
+
+                            }
+                        }
+                    }
+        
+               } 
+    }
+
+
+
 
 
     //----------------------------------------------------------------------------------------------------------
@@ -940,6 +1246,7 @@
         }
 
     }
+
 
     function validarExistenciaDeArticulo(id) {
 
@@ -961,14 +1268,15 @@
 
     }
 
+
     function obtenerExistenciasDeArticuloPorBodegaOrigenSeleccionada(id) {
 
         var existenciaBodega = 0;
         try {
 
-            for (var j = 0; j < arrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
-                  if (arrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == id) {
-                    existenciaBodega = arrayArticuloPorBodegaOrigenSeleccionada[j].existenciaBodega;
+            for (var j = 0; j < copiaArrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
+                if (copiaArrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == id) {
+                    existenciaBodega = copiaArrayArticuloPorBodegaOrigenSeleccionada[j].existenciaBodega;
 
                       if (existenciaBodega > 0) {
                           return existenciaBodega;
@@ -1016,21 +1324,42 @@
 
 
 
-    function eliminar(pos) {
+    function eliminar(pos, idInventario) {
+
+
+        devolverArticuloPorBodegaOrigenSeleccionada(idInventario);
+
+        //eliminar en ambos
         var elementoEliminado = arrayTablaTraslado.splice(pos, 1);
+        //copiaArrayTablaTraslado.splice(pos, 1);
+       
 
         for (var i = 0; i < arrayTablaTrasladoItemEditadosOnuevos.length; i++) {
             if (arrayTablaTrasladoItemEditadosOnuevos[i].idInventario == elementoEliminado[0].idInventario) {
                 arrayTablaTrasladoItemEditadosOnuevos.splice(i, 1);
             }
         }
+
         cargarDatosTraslado(arrayTablaTraslado);
-        calcularCostoTraslado();
+        calcularCostoTraslado();   
+      
         bloquearCampos();
+
         if (elementoEliminado[0].id != 0) {
             insertarArticuloEliminado(elementoEliminado);
         }
+
+
+
+        // console.log("arrayTablaTraslado: ");
+        // console.log(arrayTablaTraslado);
+        // console.log("copia: ");
+        // console.log(copiaArrayTablaTraslado);
+
+
+
     }
+
 
 
     function insertarArticuloEliminado(elementoEliminado) {
@@ -1050,6 +1379,84 @@
         }
     }
 
+
+    function devolverArticuloPorBodegaOrigenSeleccionada(idInventario) {
+
+    
+        if (@Model.IdTraslado == 0) {
+            console.log("entro a eliminar guarda ");
+            for (var i = 0; i < copiaArrayArticuloPorBodegaOrigenSeleccionada.length; i++) {
+                for (var j = 0; j < arrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
+                    if (copiaArrayArticuloPorBodegaOrigenSeleccionada[i].idInventario == idInventario && arrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == idInventario) { 
+
+                        existenciaBodega = copiaArrayArticuloPorBodegaOrigenSeleccionada[i].existenciaBodega;
+                        arrayArticuloPorBodegaOrigenSeleccionada[j].existenciaBodega = existenciaBodega;
+                        cargarDatosInventarioBodega(arrayArticuloPorBodegaOrigenSeleccionada);
+
+                    }
+                }
+            }
+
+        } else {
+
+            console.log("entro a eliminar edita");    
+
+            var cantidadEntrante = obtenerCantidadEntranteDeArticuloPorBodegaOrigenSeleccionada(idInventario);// copia
+            var existenciaBodega = obtenerExistenciasDeArticuloPorBodegaOrigenSeleccionada(idInventario); // copia
+            var existenciaOriginal = parseFloat(cantidadEntrante) + parseInt(existenciaBodega);
+
+            if (cantidadEntrante == undefined) { // cuando el item fue agregado como nuevo se edito y luego se quito 
+                console.log("entro aca");
+
+                for (var i = 0; i < copiaArrayArticuloPorBodegaOrigenSeleccionada.length; i++) {
+                    for (var j = 0; j < arrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
+                        if (copiaArrayArticuloPorBodegaOrigenSeleccionada[i].idInventario == idInventario && arrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == idInventario) { 
+
+                            existenciaBodega = copiaArrayArticuloPorBodegaOrigenSeleccionada[i].existenciaBodega;
+                            arrayArticuloPorBodegaOrigenSeleccionada[j].existenciaBodega = existenciaBodega;
+                            cargarDatosInventarioBodega(arrayArticuloPorBodegaOrigenSeleccionada);
+
+                        }
+                    }
+                }
+
+
+            } else {
+
+                        for (var i = 0; i < copiaArrayArticuloPorBodegaOrigenSeleccionada.length; i++) {
+                            for (var j = 0; j < arrayArticuloPorBodegaOrigenSeleccionada.length; j++) {
+                                if (copiaArrayArticuloPorBodegaOrigenSeleccionada[i].idInventario == idInventario && arrayArticuloPorBodegaOrigenSeleccionada[j].idInventario == idInventario) { 
+
+                                    arrayArticuloPorBodegaOrigenSeleccionada[j].existenciaBodega = existenciaOriginal;
+                                    copiaArrayArticuloPorBodegaOrigenSeleccionada[i].existenciaBodega = existenciaOriginal; 
+                                    cargarDatosInventarioBodega(arrayArticuloPorBodegaOrigenSeleccionada);
+
+
+                                }
+                            }
+                        }
+
+            }
+
+           
+        }
+
+
+        console.log("arrayTablaTraslado: ");
+        console.log(arrayTablaTraslado);
+        console.log("copia: ");
+        console.log(copiaArrayTablaTraslado);
+        console.log("arrayArticuloPorBodegaOrigenSele: ");
+        console.log(arrayArticuloPorBodegaOrigenSeleccionada);
+        console.log("copia: ");
+        console.log(copiaArrayArticuloPorBodegaOrigenSeleccionada);
+        console.log("cantidadEntrante: " + cantidadEntrante);
+        console.log("existenciaBodega: " + existenciaBodega);
+
+    }
+
+
+    //------------------------------------------------------------------------------------------------------------------------
 
 
     function guardarTraslado() {
@@ -1177,7 +1584,7 @@
 
         //console.log(arrayTablaTraslado);
         //console.log(arrayTablaTrasladoItemEditadosOnuevos);
-       //console.log(arrayTrasladoInventario);
+        //console.log(arrayTrasladoInventario);
 
         for (var i = 0; i < arrayTablaTrasladoItemEditadosOnuevos.length; i++) {
 
@@ -1250,6 +1657,8 @@
             return resp;
         }
     }
+
+
      function validarSelectBodegaDestino() {
         var resp = false;
         if ($('#IdBodegaDestino').val() == "" ) {
@@ -1260,6 +1669,8 @@
             return resp;
         }
     }
+
+
     function validarTablaTrasladoNoEsteVacia() {
         // valida si la tabla esta totalmente vacia
         if (arrayTablaTraslado.length == 0) {
@@ -1270,6 +1681,8 @@
             return resp;
         }
     }
+
+
     function validarCantidadesItemAgregados() {
         var resp = false;
         try {
@@ -1287,6 +1700,8 @@
 
 
     }
+
+
     function validarGuardaEditar() {
         var resp = false;
         if ($('#IdTraslado').val() == 0) {
@@ -1297,6 +1712,8 @@
             return resp;
         }
     }
+
+
     function capturarArticulosPorCantidadesEditadas(pos){
 
         obj = arrayTablaTraslado[pos];
@@ -1306,6 +1723,9 @@
             agregarArticuloExistenteEditado(obj);
         }
     }
+
+
+
    function agregarArticuloExistenteEditado(obj){
        // console.log("linea existente editada");
        // console.log(obj);
@@ -1337,6 +1757,9 @@
 
        }
     }
+
+
+
     function editarNuevoArticulo(obj) {
        // console.log(obj);
        // console.log("linea nueva, agrego, edito");
@@ -1349,6 +1772,8 @@
         }
        // console.log(arrayTablaTrasladoItemEditadosOnuevos);
     }
+
+
     //en caso de que solo agrege el articulo
     function agregarNuevoArticulo2(obj) {
        // console.log(obj);
@@ -1369,6 +1794,8 @@
         }
       //  console.log(arrayTablaTrasladoItemEditadosOnuevos);
     }
+
+
     function validarPreciosArticulos() {
         var resp = false;
         for (var i = 0; i < arrayTablaTraslado.length; i++) {
@@ -1379,6 +1806,9 @@
             }
         }
     }
+
+
+
     function validarArticuloExistente(obj) {
         var resp = false;
         for (var i = 0; i < arrayTablaTrasladoItemEditadosOnuevos.length; i++) {
@@ -1389,6 +1819,8 @@
         }
         return resp;
     }
+
+
 //-----------------------------------------editar---------------------------------------------//
            function getTraslado() {
             var IdTraslado = $('#IdTraslado').val();
@@ -1416,6 +1848,9 @@
                   }
             });
     }
+
+
+
         function getTrasladoInventario() {
             var IdTraslado = $('#IdTraslado').val();
             if (IdTraslado != 0)
@@ -1428,7 +1863,8 @@
                 url: '@Url.Action("GetTrasladoInventario", "Traslado")',
                 data: { id: IdTraslado},
                 success: function (data) {
-                    arrayTablaTraslado = data;
+                    arrayTablaTraslado = data; 
+                    crearCopiaArrayTablaTraslado(data);
                     cargarDatosTraslado(arrayTablaTraslado);
                 },
                   error: function (err, scnd) {
@@ -1437,6 +1873,33 @@
                   }
             });
     }
+
+    function crearCopiaArrayTablaTraslado(data) {
+
+        for (var i = 0; i < data.length; i++) {
+
+            var copia = {
+
+                id: data[i].id,
+                idTraslado: data[i].idTraslado,
+                idInventario: data[i].idInventario,
+                codigoArticulo: data[i].codigoArticulo,
+                descripcion: data[i].descripcion,
+                cantidad: data[i].cantidad,
+                precioUnitario: data[i].precioUnitario,
+                costoTotal: data[i].costoTotal
+
+            };
+
+            copiaArrayTablaTraslado.push(copia);
+        }
+
+    }
+
+  
+
+
+
     var anuleTraslado = "";
     function anularTraslado() {
             bootbox.confirm({
@@ -1483,10 +1946,16 @@
                 }
             });
     }
+
+
+
     function crearPdfTrasladoEspecifico() {
             console.log(" A crear el pdf ");
             open("Crear-PDF-Traslado/@Model.IdTraslado");
     }
+
+
+
     function recuperarUsuario() {
         var idUsu = $('#IdUsuario').val();
         var nombre = "";
@@ -1497,6 +1966,9 @@
         }
         $("#IdUsuario2").val(nombre);
     }
+
+
+
     function focus() {
 
         id = "filtroBuscar";
@@ -1504,4 +1976,7 @@
             document.getElementById(id).focus();
             document.getElementById(id).select();
     }
+
+
+
 </script>
