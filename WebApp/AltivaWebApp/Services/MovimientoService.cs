@@ -34,9 +34,9 @@ namespace AltivaWebApp.Services
             return repository.GetMovimientoByIdDocConPagos(idDoc);
         }
 
-        public TbFaMovimiento GetMovimientoByIdDocumento(long idDoc)
+        public TbFaMovimiento GetMovimientoByIdDocumento(long idDoc, long tipoDoc)
         {
-            return repository.GetMovimientoByIdDocumento(idDoc);
+            return repository.GetMovimientoByIdDocumento(idDoc, tipoDoc);
         }
         public long GetUltimoMovimientoPagoId(long idDoc)
         {
@@ -95,9 +95,9 @@ namespace AltivaWebApp.Services
         {
             repository.DeleteMovimientoDetalle(domain);
         }
-        public IList<DocumentosContactoViewModel> GetDocumentosContacto(long id, bool cxp, long idMovimiento)
+        public IList<DocumentosContactoViewModel> GetDocumentosContacto(long id, bool cxp, long idDocumento)
         {
-            return repository.GetDocumentosContacto(id, cxp, idMovimiento);
+            return repository.GetDocumentosContacto(id, cxp, idDocumento);
         }
         public TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimiento(long idMovimiento)
         {

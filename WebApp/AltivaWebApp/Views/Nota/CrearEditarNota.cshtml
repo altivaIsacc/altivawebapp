@@ -107,7 +107,7 @@
 
     <div class="row" >
         <div class="col-md-12" id="notaDetalleContainer">
-            <input type="checkbox" class="form-check-input" id="notaDetalle" /> @Lb["Total"]  <span class="tdetalle">@Lb["Detalle"]</span> <span readonly id="totalDetalle" class="currency total tdetalle"></span>
+            <input type="checkbox" class="form-check-input" id="notaDetalle" /> @Lb["Total"]  <span class="total">@Lb["Detalle"]</span> <span readonly id="totalDetalle" class="currency total tdetalle"></span>
         </div>
         <div class="col-md-12" id="preDetalleContainer">
             <span>@Lb["Total"] @Lb["Detalle"]</span> <span id="totalDetallePrepago" class="currency total tdetalle"></span><a class="btn btn-link" style="margin:0; padding:0; padding-bottom:0.5rem" onclick="validarCajasAbiertas()">@Lb["Editar"]</a>
@@ -364,7 +364,7 @@
             var valor = 3;
             $("#contactos option[value="+ valor +"]").attr("selected",true);
             $("#tipoDocumento").val(@Model.IdTipoDocumento).prop('selected', true);
-            getMovimiento();
+            
             date = new Date(formatearFecha());
 
         }
@@ -468,7 +468,6 @@
         if ($(this).prop('checked') == true)
             $('#inactivo1').prop('checked', false);
     });
-
     $('#inactivo1').change(function () {
         if ($(this).prop('checked') == true)
             $('#activo1').prop('checked', false);
@@ -477,7 +476,7 @@
         var id = parseInt($("#tipoJustificante").val());
         getCrearEditarPartial(id);
     });
-     $("#crearJustificante").on("click", function () {
+    $("#crearJustificante").on("click", function () {
         getCrearEditarPartial(0);
     });
 
@@ -491,6 +490,10 @@
              success: function (data) {
 
                  monedas = data;
+
+                 if (@Model.IdDocumento != 0) {
+                     getMovimiento();
+                 }
 
              },
              error: function (err, scnd) {
@@ -531,7 +534,7 @@
            type: "get",
            dataType: "json",
            url: url,
-            success: function (data) {
+           success: function (data) {
                 aplicadosOriginal = data;
                 lineasAplicado = data;
                 lineasEnlace = data;
@@ -546,10 +549,10 @@
                 cargarTotal();
                 recalcularDatos();
 
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
-            }
+           },
+           error: function (err, scnd) {
+               console.log(err.statusText);
+           }
 
         });
     }
@@ -618,6 +621,7 @@
     function procesarPagoDoc() {
 
         formasPagoDoc = formasPago;
+        $(".total").val(totalFomasPago());
         $('#formatter').val(totalFomasPago());
         $('#totalDisponible').val(totalFomasPago());
         $('#totalDetallePrepago').text($('#formatter').val());
@@ -813,9 +817,6 @@
                     console.log(err.statusText);
                 }
         });
-         if (validarCampoNota()) {
-            
-        }
 
     }
 
@@ -853,7 +854,7 @@
                   $("#euro").val(data[0].compraEuroTc);
                   $("#dolarVenta").val(data[0].ventaDolatTc);
                   $("#euroVenta").val(data[0].ventaEuroTc);
-                   getDocumentos(2);
+                  getDocumentos(2);
                   cargarLineas(data);
 
 
@@ -866,13 +867,10 @@
     }
     function getMovimiento() {
         var idNota = @Model.IdDocumento;
-          $.ajax({
+        $.ajax({
               type: "get",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
               dataType: "json",
-              url: '@Url.Action("GetMovimiento", new { id = Model.IdDocumento })',
+              url: '@Url.Action("GetMovimiento", new { id = Model.IdDocumento, tipoDoc = Model.IdTipoDocumento })',
 
               success: function (data) {
                     $("#tipoMoneda").val(data.idMoneda);
@@ -883,15 +881,19 @@
 
                 recuperarTotal(data);
                 $("#IdMovimiento").val(data.idMovimiento);
-                $("#IdUsuario").val(data.idUsuario);
-                getMovimientoJustificante(data.idMovimiento);
+                  $("#IdUsuario").val(data.idUsuario);
+
+                  if (esNota())
+                      getMovimientoJustificante(data.idMovimiento);
+                  else
+                      getDocumentos(2);
 
               },
               error: function (err, scnd) {
                   cargarAlert('@Lb["errorGeneral"]');
                   console.log(err.statusText);
               }
-          });
+        });
     }
      function eliminarMovimientoJustificante() {
 
@@ -1169,9 +1171,9 @@
             cargarTabla(lineas);
             $("#descripcion").val("");
             $("#monto").val(0.00);
-
         }
     }
+
     function setTotal() {
         var monto = 0;
         for (var i = 0; i < lineas.length; i++) {
@@ -1180,6 +1182,7 @@
         $(".total").val(monto);
         $("#totalDisponible").val(monto - $("#totalAplicado").inputmask('unmaskedvalue'));
     }
+
     function cargarTabla(data) {
         $('.filasCargadas').remove();
         contadorFila = 0;
@@ -1200,16 +1203,16 @@
             simbolo = monedas[1].simbolo;
         else if (parseInt($('#tipoMoneda').val()) === 3)
             simbolo = monedas[2].simbolo;
-         $(".currency").inputmask('currency', {
+        $(".currency").inputmask('currency', {
             prefix: simbolo,
             rightAlign: true
-          });
+        });
 
-          $(".moneda").inputmask('currency', {
+        $(".moneda").inputmask('currency', {
            prefix: '',
            rightAlign: true,
            min: 0
-       });
+        });
 
     }
     function cargarTablaAplicado() {
@@ -1282,7 +1285,6 @@
 
         $("#pendiente" + idLbl).text(formatInput(recuperarSaldo(lineasEnlace[idDoc].idDocumento)));
 
-
     }
     function recuperarAplicadoTabla(pos) {
 
@@ -1331,8 +1333,11 @@
 
         };
 
-        if (!esNota())
+        if (!esNota()) {
             MovimientoModel = montoAlCambioDoc(MovimientoModel);
+           
+        }
+            
 
         return MovimientoModel;
     }
@@ -1343,7 +1348,9 @@
         var tcDolar = parseFloat($("#dolar").inputmask('unmaskedvalue'));
         var tcEuro = parseFloat($("#euro").inputmask('unmaskedvalue'));
 
-        switch (parseInt(model.idMoneda)) {
+       
+
+        switch (parseInt(model.IdMoneda)) {
             case 1:
                 model.DisponibleBase = monto;
                 model.DisponibleDolar = monto / tcDolar;
@@ -1361,6 +1368,12 @@
                 break;
 
         }
+
+        model.DisponibleBase = model.DisponibleBase.toString().replace(".", ",");
+        model.DisponibleDolar = model.DisponibleDolar.toString().replace(".", ",");
+        model.DisponibleEuro = model.DisponibleEuro.toString().replace(".", ",");       
+
+        return model;
     }
 
     function crearModeloMJustificante(model) {
@@ -1590,7 +1603,7 @@
     }
     function recuperarAplicadoAnterior(id) {
                var pos = 0;
-         var moneda = parseInt($("#tipoMoneda").val());
+        var moneda = parseInt($("#tipoMoneda").val());
         for (var i = 0; i < lineasAplicado.length; i++) {
             if (lineasAplicado[i].idDocumento == id)
                 pos = i;

@@ -23,7 +23,7 @@ namespace AltivaWebApp.Mappers
         public TbFaMovimiento CreateMovimientoPago(long idDoc, IList<CajaMovimientoViewModel> formasPago, double montoPrepago)
         {
 
-            var movDoc = service.GetMovimientoByIdDocumento(idDoc);
+            var movDoc = service.GetMovimientoByNota(idDoc);
 
             double montoFPBase = formasPago.Sum(fp => fp.MontoBase);
             double montoFPDolar = formasPago.Sum(fp => fp.MontoDolar);
@@ -96,8 +96,7 @@ namespace AltivaWebApp.Mappers
         public void AplicarSaldo(long idMovDoc, double montoPrepago, long idDocumento)
         {
             IList<TbSeMoneda> monedas = monedaService.GetAll();
-            TbFaMovimiento movDoc = idMovDoc != 0 ? service.GetMovimientoById(idMovDoc) : service.GetMovimientoByIdDocumento(idDocumento);
-
+            TbFaMovimiento movDoc = idMovDoc != 0 ? service.GetMovimientoById(idMovDoc) : service.GetMovimientoByNota(idDocumento);
 
             //saldos aplicados
             IList<TbFaMovimientoDetalle> docAplicado = service.GetMovimientoByIdDocConPagos(idDocumento).Where(m => (bool)!m.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.EsDebito && m.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.Cxc && m.IdMovimientoHastaNavigation.IdTipoDocumento != 2).ToList();

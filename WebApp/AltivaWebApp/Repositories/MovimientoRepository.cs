@@ -117,9 +117,9 @@ namespace AltivaWebApp.Repositories
 
         }
 
-        public TbFaMovimiento GetMovimientoByIdDocumento(long idDoc)
+        public TbFaMovimiento GetMovimientoByIdDocumento(long idDoc, long tipoDoc)
         {
-            return context.TbFaMovimiento.FirstOrDefault(m => m.IdDocumento == idDoc);
+            return context.TbFaMovimiento.Include(m => m.IdTipoDocumentoNavigation).FirstOrDefault(m => m.IdDocumento == idDoc && m.IdTipoDocumento == tipoDoc);
         }
 
         public TbFaMovimiento GetMovimientoById(long idMov)

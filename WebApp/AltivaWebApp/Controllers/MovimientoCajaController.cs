@@ -73,7 +73,7 @@ namespace AltivaWebApp.Controllers
                 }
                 else
                 {
-                    var idMov = movimientoService.GetMovimientoByIdDocumento(idDocumento).IdMovimiento;
+                    var idMov = movimientoService.GetMovimientoByNota(idDocumento).IdMovimiento;
                     var cm = cajaMovMap.CreateCajaMovimiento(viewModel, idMov);
                 }
 

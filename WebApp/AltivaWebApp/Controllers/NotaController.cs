@@ -79,12 +79,12 @@ namespace AltivaWebApp.Controllers
             return View("CrearEditarNota", pago);
         }
 
-        [HttpGet("GetMovimiento/{id}")]
-        public IActionResult GetMovimiento(long id)
+        [HttpGet("GetMovimiento/{id}/{tipoDoc}")]
+        public IActionResult GetMovimiento(long id, long tipoDoc)
         {
             try
             {
-                var movimiento = movimientoMap.DomainToViewModel(movimientoService.GetMovimientoByNota(id));
+                var movimiento = movimientoMap.DomainToViewModel(movimientoService.GetMovimientoByIdDocumento(id, tipoDoc));
                 return Json(movimiento);
 
             }
@@ -192,7 +192,18 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var notas = service.GetAll();
-                return Json(notas);
+                //var pagos = pagoService.GetAll();
+                IList<DocumentoViewModel> docs = new List<DocumentoViewModel>();
+                //foreach (var item in pagos)
+                //{
+                //    docs.Add(pagoMap.DomainToViewModel(item));
+                //}
+                foreach (var item in notas)
+                {
+                    docs.Add(map.DomainToVIewModel(item));
+                }
+
+                return Json(docs);
 
             }
             catch
