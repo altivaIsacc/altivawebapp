@@ -46,9 +46,10 @@ namespace AltivaWebApp.Controllers
         {
             return View();
         }
-        [HttpGet("EnlaceAutomatico")]
-        public IActionResult _EnlaceAutomatico()
+        [HttpGet("EnlaceAutomatico/{idContacto}")]
+        public IActionResult _EnlaceAutomatico(long idContacto)
         {
+            ViewBag.idContacto = idContacto;
             return PartialView("_EnlaceAutomatico");
         }
         [HttpGet("CrearNota")]
@@ -108,6 +109,37 @@ namespace AltivaWebApp.Controllers
             }
 
         }
+        [HttpGet("GetDocumentosEnlazados/{idMovimiento}")]
+        public IActionResult GetDocumentosEnlazados(long idMovimiento)
+        {
+            try
+            {
+                var docs = movimientoService.GetMovimientosDetalleByIdMovimiento(idMovimiento);
+                return Ok(docs);
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
+
+        [HttpGet("GetDocumentosPendientesContacto/{idContacto}")]
+        public IActionResult GetDocumentosPendientesContacto(long idContacto)
+        {
+            try
+            {
+                var docs = movimientoService.GetDocumentosPendientesContacto(idContacto);
+                return Ok(docs);
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
+
+
         [HttpGet("GetMovimientoJustificante/{id}")]
         public IActionResult GetMovimientoJustificante(long id)
         {
@@ -161,7 +193,7 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var documento = service.GetAllTipoDocumento().Where(td => (bool)td.EsNota || (bool)!td.EsDebito).ToList();
+                var documento = service.GetAllTipoDocumento();
                 return Ok(documento);
 
             }

@@ -342,6 +342,10 @@
     var monedas = [];
 
 
+    var saldoAplicable = 0;
+    var docSinAplicar = [];
+    var docAplicados = [];
+
     $(document).ready(function () {
 
         getMonedas();
@@ -450,7 +454,7 @@
 
         if (@Model.IdDocumento != 0) {
             recalcularDatos();
-            cargarTotal();
+            cargarTablaDocAplicados();
             for (var i = 0; i < lineas.length; i++) {
                 for (var j = 0; j < lineasCargadas.length; j++) {
                     if (lineas[i].id == lineasCargadas[j].idMovimientoJustificante)
@@ -503,16 +507,46 @@
          });
     }
 
+    function getMovimiento() {
+        var idNota = @Model.IdDocumento;
+        $.ajax({
+              type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetMovimiento", new { id = Model.IdDocumento, tipoDoc = Model.IdTipoDocumento })',
+
+              success: function (data) {
+                    $("#tipoMoneda").val(data.idMoneda);
+                    if (data.cxp)
+                        $("#tipo").val("1");
+                    else
+                    $("#tipo").val("2");
+
+                recuperarTotal(data);
+                $("#IdMovimiento").val(data.idMovimiento);
+                  $("#IdUsuario").val(data.idUsuario);
+
+                  if (esNota())
+                      getMovimientoJustificante(data.idMovimiento);
+                  else
+                      getFomasPagoDoc();
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+    }
+
     function getEnlace()
     {
-        var url = "@Url.Action("_EnlaceAutomatico", "Nota")";
+        var url = "@Url.Action("_EnlaceAutomatico", "Nota", new { idContacto = Model.IdContacto })";
         $.ajax({
             type: "GET",
             url: url,
             success: function (data) {
                 $('#EditarPartial').html(data);
                 $('#modalTipoJustificante').modal('show');
-                cargarTablaAplicado();
             },
             error: function (err, scnd) {
                 console.log(err.statusText);
@@ -521,33 +555,24 @@
         });
     }
 
-    function getDocumentos(tipo) {
-        var contacto = "@Model.IdContacto";
-        var id = parseInt(contacto);
+    function getFomasPagoDoc() {
+
+        getDocumentosEnlazados();
+
+    }
+
+    function getDocumentosEnlazados() {
         var idMovimiento = parseInt($("#IdMovimiento").val());
-        var cxp = false;
-        var documento = parseInt('@Model.IdDocumento');
-        if (parseInt($("#tipo").val()) == 1)
-            cxp = true;
-        var url = '@Url.Action("GetDocumentosByContacto", "Nota", new { id = Model.IdContacto, cxp = "__cxp__", idDocumento = "__idDocumento__" })'.replace("__cxp__", cxp, "__idDocumento__", documento);
+        var url = '@Url.Action("GetDocumentosEnlazados", "Nota", new { idMovimiento = "__id__" })'.replace("__id__", idMovimiento);
         $.ajax({
            type: "get",
            dataType: "json",
            url: url,
-           success: function (data) {
-                aplicadosOriginal = data;
-                lineasAplicado = data;
-                lineasEnlace = data;
-                for (var i = 0; i < data.length; i++) {
-                    if (recuperarAplicadoAnterior(data[i].idDocumento)) {
-                        data[i].tipo = 2;
-                        movimientosDetalle.push(data[i]);
+            success: function (data) {
 
-                    }
-
-                }
-                cargarTotal();
-                recalcularDatos();
+                docAplicados = data;
+                if (data.length > 0)
+                    cargarTablaDocAplicados(data);
 
            },
            error: function (err, scnd) {
@@ -556,6 +581,7 @@
 
         });
     }
+
     function cargarFormaPago() {
 
         var model = {
@@ -566,7 +592,8 @@
             tcEuro: $('#euro').inputmask('unmaskedvalue'),
             moneda: $('#tipoMoneda').val(),
             idContacto: $('#contactos').val(),
-            esPagoContado: false
+            esPagoContado: false,
+            idTipoDocumento: $('#tipoDocumento').val()
         };
 
         if (model.idCaja == 0)
@@ -749,25 +776,29 @@
                      for (var i = 0; i < data.length; i++) {
                          if (@Model.IdTipoDocumento == data[i].idTipoDocumento) {
                              var o = new Option(data[i].nombre, data[i].idTipoDocumento);
-                         $("#tipoDocumento").append(o);
+                            $("#tipoDocumento").append(o);
                          }
                      }
                  } else{
                      for (var i = 0; i < data.length; i++) {
 
-                         if (tipo == 1) {
-                             if (data[i].cxc == false ) {
-                                 var j = new Option(data[i].nombre, data[i].idTipoDocumento);
-                                 $("#tipoDocumento").append(j);
-                             }
-                         }
-                         if (tipo == 2) {
-                             if (data[i].cxc) {
-                                 var o = new Option(data[i].nombre, data[i].idTipoDocumento);
-                                 $("#tipoDocumento").append(o);
-                             }
+                         if (data[i].esNota || !data[i].esDebito) {
 
+                             if (tipo == 1) {
+                                 if (data[i].cxc == false) {
+                                     var j = new Option(data[i].nombre, data[i].idTipoDocumento);
+                                     $("#tipoDocumento").append(j);
+                                 }
+                             }
+                             if (tipo == 2) {
+                                 if (data[i].cxc) {
+                                     var o = new Option(data[i].nombre, data[i].idTipoDocumento);
+                                     $("#tipoDocumento").append(o);
+                                 }
+
+                             }
                          }
+                         
                      }
                  }
             },
@@ -854,7 +885,7 @@
                   $("#euro").val(data[0].compraEuroTc);
                   $("#dolarVenta").val(data[0].ventaDolatTc);
                   $("#euroVenta").val(data[0].ventaEuroTc);
-                  getDocumentos(2);
+                  getDocumentosEnlazados(2);
                   cargarLineas(data);
 
 
@@ -865,36 +896,7 @@
               }
          });
     }
-    function getMovimiento() {
-        var idNota = @Model.IdDocumento;
-        $.ajax({
-              type: "get",
-              dataType: "json",
-              url: '@Url.Action("GetMovimiento", new { id = Model.IdDocumento, tipoDoc = Model.IdTipoDocumento })',
-
-              success: function (data) {
-                    $("#tipoMoneda").val(data.idMoneda);
-                    if (data.cxp)
-                        $("#tipo").val("1");
-                    else
-                    $("#tipo").val("2");
-
-                recuperarTotal(data);
-                $("#IdMovimiento").val(data.idMovimiento);
-                  $("#IdUsuario").val(data.idUsuario);
-
-                  if (esNota())
-                      getMovimientoJustificante(data.idMovimiento);
-                  else
-                      getDocumentos(2);
-
-              },
-              error: function (err, scnd) {
-                  cargarAlert('@Lb["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-        });
-    }
+    
      function eliminarMovimientoJustificante() {
 
 
@@ -936,7 +938,7 @@
                          data: { id: idMov },
                          url: '@Url.Action("EliminarMovimientoDetalle", "Nota")',
                         success: function (data) {
-                           getDocumentos(2);
+                           getDocumentosEnlazados(2);
                           $("#modalEditAplicado").modal("hide");
                         },
                        error: function (err, scnd) {
@@ -982,8 +984,6 @@
             });
         }
     }
-
-
 
     function comprobarRepetido(nombre, id) {
         var flag = true;
@@ -1093,7 +1093,7 @@
 
             }
             lineasAplicado = JSON.parse(JSON.stringify(lineasEnlace));
-            cargarTotal();
+            cargarTablaDocAplicados();
             Guardar();
             $("#modalEditAplicado").modal("hide");
 
@@ -1215,70 +1215,22 @@
         });
 
     }
-    function cargarTablaAplicado() {
+    
 
-        lineasEnlace = JSON.parse(JSON.stringify(lineasAplicado));
-        $('.filasAplicadoCargadas').remove();
-        contadorFila = 0;
-        for (var i = 0; i < lineasEnlace.length; i++) {
-            contadorFila++;
-            if (lineasEnlace[i].idMovimiento != $("#IdMovimiento").val() && parseFloat(recuperarSaldo(lineasEnlace[i].idDocumento)) != 0 ) {
-                var aplicado = 0;
-                  aplicado = calcularLinea(i);
-                var moneda = parseInt($("#tipoMoneda").val());
-
-                 if (moneda == 1) {
-                       lineasEnlace[i].aplicadoBase = parseFloat(aplicado) + parseFloat(lineasEnlace[i].aplicadoBase);
-                       lineasEnlace[i].saldoBase = lineasEnlace[i].saldoBase - aplicado;
-                 }
-                 if (moneda == 2) {
-                         lineasEnlace[i].aplicadoDolar = aplicado + lineasEnlace[i].aplicadoDolar;
-                         lineasEnlace[i].saldoDolar = lineasEnlace[i].saldoDolar - aplicado;
-                 }
-                 if (moneda == 3) {
-                        lineasEnlace[i].aplicadoEuro = aplicado +  lineasEnlace[i].aplicadoEuro;
-                        lineasEnlace[i].saldoEuro = lineasEnlace[i].saldoEuro - aplicado;
-                 }
-
-                var body = '<tr class="filasAplicadoCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + recuperarTipoDocumento(lineasEnlace[i].idTipoDocumento) + '</td>'
-                    + '<td style="padding-top:2rem;"><span>' + lineasEnlace[i].idDocumento + '</span></td>'
-                    + '<td ><span >' + recuperarFecha(lineasEnlace[i].fechaCreacion) + '</span></td>'
-                    + '<td ><span id="pendiente' + i + '" class="currency">' + recuperarSaldo(lineasEnlace[i].idDocumento) + '</span></td>'
-                    + '<td ><input id="aplicado' + i + '" onkeyup="cambiarAplicado(' + i + ')"  class="form-control currency" value="' + aplicado + '"/></td></tr>';
-                $('.lineaAplicadoForm').before(body);
-                if (aplicadosOriginal[i].aplicadoBase == 0)
-                    lineasEnlace[i].tipo = 1;
-                if (aplicadosOriginal[i].aplicadoBase != 0) {
-                  for (var j = 0; j < lineasActualizadasAplicadas.length; j++) {
-                    if (lineasActualizadasAplicadas[j].idMovimiento == lineasEnlace[i].idMovimiento)
-                        lineasActualizadasAplicadas.splice(j, 1);
-                  }
-                    lineasActualizadasAplicadas.push(lineasEnlace[i]);
-                     lineasEnlace[i].tipo = 2;
-                }
-
-            }
-
-
-
-
+    function retornaMontoAlCambioDoc(data){
+        var moneda = parseInt($('#tipoMoneda').val());
+        var monto = 0;
+        switch (moneda) {
+            case 1:
+                monto = data.aplicadoBase;
+                break;
+            case 2:
+                monto = data.aplicadoDolar;
+                break;
+            case 3:
+                monto = data.aplicadoEuro;
         }
-        var simbolo = monedas[0].simbolo;
-        if (parseInt($('#tipoMoneda').val()) === 2)
-            simbolo = monedas[1].simbolo;
-        else if (parseInt($('#tipoMoneda').val()) === 3)
-            simbolo = monedas[2].simbolo;
-         $(".currency").inputmask('currency', {
-            prefix: simbolo,
-            rightAlign: true
-         });
-
-         $(".moneda").inputmask('currency', {
-           prefix: '',
-           rightAlign: true,
-           min: 0
-         });
-
+        return monto;
     }
 
     function recuperarSaldoTabla(idDoc, idLbl) {
@@ -1478,7 +1430,8 @@
 
         return '@Model.Fecha.Month' + "-" + '@Model.Fecha.Day' + "-" + '@Model.Fecha.Year' + " " + '@Model.Fecha.TimeOfDay';
 
-        }
+    }
+
     function recuperarTotal(item) {
         if (item.idMoneda == 1)
             total = item.montoBase;
@@ -1494,48 +1447,30 @@
     function recuperarFecha(_fecha) {
         var f = new Date(_fecha);
         return f.toLocaleString();
-    }
+    } 
 
     function recuperarTipoDocumento(id) {
+
         for (var i = 0; i < tipoDocumento.length; i++) {
-            if (tipoDocumento[i].IdTipoDocumento = id)
+            if (tipoDocumento[i].idTipoDocumento == id)
                 return tipoDocumento[i].nombre;
         }
     }
 
-    function cargarTotal() {
+    function cargarTablaDocAplicados(data) {
 
-        movimientosDetalle = [];
         $('.filasAplicadoTotal').remove();
         contadorFila = 0;
-        for (var i = 0; i < lineasAplicado.length; i++) {
-            contadorFila++;
-            if (recuperarAplicado(lineasEnlace[i].idDocumento) > 0 && lineasAplicado[i].idMovimiento != $("#IdMovimiento").val()) {
-                var body = '<tr class="filasAplicadoTotal" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + lineasAplicado[i].nombre + '</td>'
-                    + '<td style="padding-top:2rem;"><span>' + lineasAplicado[i].idDocumento + '</span></td>'
-                    + '<td style="padding-top:2rem;"><span id="aplicadoFinal'+i+'" class=" currency">' + recuperarAplicadoAnterior(lineasAplicado[i].idDocumento) + '</span></td>'
-                    + '<td><button  class="btn btn-link" value="' + contadorFila + '" onclick="cargarModalEditAplicado(' + i + ')" ><i class="fas fa-edit"></i></button><button  class="btn btn-link" value="' + i + '" onclick="ver(' + lineasEnlace[i].idDocumento + ')" ><i class="fas fa-eye"></i></button></td></tr>';
-                $('.lineasTotalesForm').before(body);
-                movimientosDetalle.push(lineasAplicado[i]);
-            }
+        for (var i = 0; i < data[i].length; i++) {
+
+            var body = '<tr class="filasAplicadoTotal" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + recuperarTipoDocumento(data[i].idTipoDocumento) + '</td>'
+                + '<td style="padding-top:2rem;"><span>' + data[i].IdMovimientoHastaNavigation.idDocumento + '</span></td>'
+                + '<td ><span >' + recuperarFecha(data[i].fecha) + '</span></td>'
+                + '<td ><span id="pendiente' + i + '" class="currency">' + retornaMontoAlCambioDoc(data[i]) + '</span></td>'
+                + '<td><button  class="btn btn-link" value="' + contadorFila + '" onclick="cargarModalEditAplicado(' + i + ')" ><i class="fas fa-edit"></i></button><button  class="btn btn-link" value="' + i + '" onclick="ver(' + data[i].idMovimientoDetalle + ')" ><i class="fas fa-eye"></i></button></td></tr>';
+            $('.lineasTotalesForm').before(body);
 
         }
-
-        var simbolo = monedas[0].simbolo;
-           if (parseInt($('#tipoMoneda').val()) === 2)
-               simbolo = monedas[1].simbolo;
-           else if (parseInt($('#tipoMoneda').val()) === 3)
-               simbolo = monedas[2].simbolo;
-           $(".currency").inputmask('currency', {
-            prefix: simbolo,
-            rightAlign: true
-          });
-
-          $(".moneda").inputmask('currency', {
-           prefix: '',
-           rightAlign: true,
-             min: 0
-         });
 
     }
 
@@ -1543,170 +1478,26 @@
         window.open("@Url.Action("EditarFactura","Factura", new { id = "__id__" })".replace("__id__", id));
     }
 
-    function recuperarDisponible(id) {
-        var pos = 0;
+    function getSaldoAplicable() {
+        return saldoAplicable;
+    }
+
+    function setSaldoAplicable(monto) {
+        saldoAplicable = monto;
+    }
+
+    function recuperarSaldo(data) {
+        
          var moneda = parseInt($("#tipoMoneda").val());
-        for (var i = 0; i < lineasEnlace.length; i++) {
-            if (lineasEnlace[i].idDocumento == id)
-                pos = i;
-        }
+        
         if (moneda == 1)
-            return lineasEnlace[pos].disponibleBase;
+            return data.saldoBase;
                 if (moneda == 2)
-            return lineasEnlace[pos].disponibleDolar;
+            return data.saldoDolar;
                 if (moneda == 3)
-            return lineasEnlace[pos].disponibleEuro;
+            return data.saldoEuro;
     }
-
-    function recuperarSaldo(id) {
-        var pos = 0;
-         var moneda = parseInt($("#tipoMoneda").val());
-        for (var i = 0; i < lineasEnlace.length; i++) {
-            if (lineasEnlace[i].idDocumento == id)
-                pos = i;
-        }
-        if (moneda == 1)
-            return lineasEnlace[pos].saldoBase;
-                if (moneda == 2)
-            return lineasEnlace[pos].saldoDolar;
-                if (moneda == 3)
-            return lineasEnlace[pos].saldoEuro;
-    }
-        function recuperarSaldoAnterior(id) {
-        var pos = 0;
-         var moneda = parseInt($("#tipoMoneda").val());
-        for (var i = 0; i < lineasAplicado.length; i++) {
-            if (lineasAplicado[i].idDocumento == id)
-                pos = i;
-            }
-        if (moneda == 1)
-            return lineasAplicado[pos].saldoBase;
-                if (moneda == 2)
-            return lineasAplicado[pos].saldoDolar;
-                if (moneda == 3)
-            return lineasAplicado[pos].saldoEuro;
-    }
-
-    function recuperarAplicado(id) {
-               var pos = 0;
-         var moneda = parseInt($("#tipoMoneda").val());
-        for (var i = 0; i < lineasEnlace.length; i++) {
-            if (lineasEnlace[i].idDocumento == id)
-                pos = i;
-        }
-        if (moneda == 1)
-            return lineasEnlace[pos].aplicadoBase;
-                if (moneda == 2)
-            return lineasEnlace[pos].aplicadoDolar;
-                if (moneda == 3)
-            return lineasEnlace[pos].aplicadoEuro;
-    }
-    function recuperarAplicadoAnterior(id) {
-               var pos = 0;
-        var moneda = parseInt($("#tipoMoneda").val());
-        for (var i = 0; i < lineasAplicado.length; i++) {
-            if (lineasAplicado[i].idDocumento == id)
-                pos = i;
-        }
-        if (moneda == 1)
-            return lineasAplicado[pos].aplicadoBase;
-                if (moneda == 2)
-            return lineasAplicado[pos].aplicadoDolar;
-                if (moneda == 3)
-            return lineasAplicado[pos].aplicadoEuro;
-    }
-
-    function cambiarAplicado(pos) {
-        var aplicado = parseFloat($("#aplicado" + pos).inputmask('unmaskedvalue'));
-        var saldoAnterior = recuperarSaldoAnterior(lineasEnlace[pos].idDocumento);
-        var monto = recuperarMonto(lineasEnlace[pos]);
-        var tAplicadoAnterior = recuperarAplicadoAnterior(lineasEnlace[pos].idDocumento);
-
-        if (aplicado > saldoAnterior) {
-            cargarAlert('@Lb["saldoMenorValid"]');
-            $("#aplicado" + pos).val(0.00);
-        }
-
-      else {
-        if (saldoAnterior == 0) {
-            if (aplicado <= monto) {
-                var result = monto - aplicado;
-                guardarSaldo(aplicado, result, pos, 1);
-            }
-        }
-        else if (saldoAnterior != 0 && tAplicadoAnterior != 0) {
-            if (aplicado <= saldoAnterior) {
-                var result = saldoAnterior - aplicado;
-                guardarSaldo(aplicado, result, pos, 2);
-            }
-        }
-
-        else if (tAplicadoAnterior == 0 && saldoAnterior == monto) {
-            if (aplicado <= saldoAnterior) {
-                var result = saldoAnterior - aplicado;
-                guardarSaldo(aplicado, result, pos, 1);
-            }
-        }
-      }
-    }
-    function guardarSaldo(aplicado, result, pos, tipo) {
-        var moneda = parseInt($("#tipoMoneda").val());
-        if (moneda == 1) {
-            lineasEnlace[pos].saldoBase = result;
-            if(tipo ==1)
-                lineasEnlace[pos].aplicadoBase = aplicado;
-            else
-               lineasEnlace[pos].aplicadoBase = aplicado + lineasAplicado[pos].aplicadoBase;
-
-        }
-        if (moneda == 2) {
-            lineasEnlace[pos].saldoDolar = result;
-            if(tipo ==1)
-                lineasEnlace[pos].aplicadoDolar = aplicado;
-            else
-                lineasEnlace[pos].aplicadoDolar = aplicado +  lineasAplicado[pos].aplicadoDolar;
-
-        }
-        if (moneda == 3) {
-            lineasEnlace[pos].saldoDolar = result;
-            if(tipo==1)
-                lineasEnlace[pos].aplicadoEuro = aplicado;
-            else
-                 lineasEnlace[pos].aplicadoEuro = aplicado + lineasAplicado[pos].aplicadoEuro;
-        }
-        var aplicados = 0;
-        for (var j = 0; j < lineasEnlace.length; j++) {
-            if (lineasEnlace[j].idMovimiento != $("#IdMovimiento").val() && parseFloat(recuperarSaldoAnterior(lineasEnlace[j].idDocumento)) != 0) {
-              aplicados += parseFloat($("#aplicado" + j).inputmask('unmaskedvalue'));
-
-
-
-            }
-        }
-        var total = $("#totalDisponible").inputmask('unmaskedvalue');
-        $("#disponible").val(total - aplicados);
-        $("#sumaAplicado").val(aplicados);
-        recuperarSaldoTabla(pos, pos);
-             if (aplicadosOriginal[pos].aplicadoBase != 0) {
-                  for (var i = 0; i < lineasActualizadasAplicadas.length; i++) {
-                    if (lineasActualizadasAplicadas[i].idMovimiento == lineasEnlace[pos].idMovimiento)
-                        lineasActualizadasAplicadas.splice(i, 1);
-                  }
-                    lineasActualizadasAplicadas.push(lineasEnlace[pos]);
-                     lineasEnlace[pos].tipo = 2;
-             }
-    }
-
-    function recalcularDatos() {
-        var aplicados = 0;
-        for (var i = 0; i < lineasAplicado.length; i++) {
-            if (lineasAplicado[i].idMovimiento != $("#IdMovimiento").val() && recuperarAplicado(lineasAplicado[i].idDocumento) > 0)
-            aplicados += parseFloat(recuperarAplicado(lineasAplicado[i].idDocumento));
-        }
-        var total = $(".total").inputmask('unmaskedvalue');
-        $("#totalDisponible").val(parseFloat(total) - parseFloat(aplicados));
-        $("#totalAplicado").val(aplicados);
-    }
+    
     function Guardar() {
          $.ajax({
                 type: "post",
@@ -1714,7 +1505,7 @@
              data: { viewModel: crearModeloEnlace(), lineasActualizadas: crearLineasEditadas()},
                 url: '@Url.Action("CrearEnlace", "Nota")',
              success: function (data) {
-                 getDocumentos(2);
+                 getDocumentosEnlazados(2);
                   recalcularDatos();
                 },
                 error: function (err, scnd) {
@@ -1723,26 +1514,7 @@
                 }
          });
     }
-    function crearModeloEnlace() {
-        var array = [];
-        for (var i = 0; i < movimientosDetalle.length; i++) {
-                if (movimientosDetalle[i].tipo ==1) {
-                             var model = {
-                                    num : movimientosDetalle[i].idDocumento,
-                                    IdMovimientoDesde: parseInt($("#IdMovimiento").val()),
-                                    IdMovimientoHasta: movimientosDetalle[i].idMovimiento,
-                                    Aplicado: parseFloat($("#aplicadoFinal" + i).inputmask('unmaskedvalue')).toString().replace(".", ","),
-                                    CompraDolarTC: parseFloat($("#dolar").inputmask('unmaskedvalue')),
-                                    VentaDolarTC: parseFloat($("#dolarVenta").inputmask('unmaskedvalue')),
-                                    CompraEuroTC: parseFloat($("#euro").inputmask('unmaskedvalue')),
-                                    VentaEuroTC: parseFloat($("#euroVenta").inputmask('unmaskedvalue')),
-                                    IdMoneda: parseInt($("#tipoMoneda").val()),
-                             };
-                                array.push(model);
-                }
-        }
-        return array;
-    }
+    
     function crearLineasEditadas() {
         var array = [];
         for (var i = 0; i < movimientosDetalle.length; i++) {

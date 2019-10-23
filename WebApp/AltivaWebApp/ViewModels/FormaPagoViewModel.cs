@@ -15,5 +15,6 @@ namespace AltivaWebApp.ViewModels
         public int Moneda { get; set; }
         public long IdContacto { get; set; }
         public bool EsPagoContado { get; set; }
+        public int IdTipoDocumento { get; set; }
     }
 }

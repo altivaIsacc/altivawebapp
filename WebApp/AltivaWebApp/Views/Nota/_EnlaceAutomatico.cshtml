@@ -19,7 +19,7 @@
     <br />
 </div>
 
-    <table class="table table-bordered table-striped col-md-2 col-sm-2 col-xs-12 well" id="tblOrdenCompra">
+    <table class="table table-bordered table-striped col-md-2 col-sm-2 col-xs-12 well" id="tblSinAplicar">
         <thead>
             <tr>
 
@@ -31,7 +31,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr class="lineaAplicadoForm"></tr>
+            <tr class="lineaSinAplicar"></tr>
         </tbody>
     </table>
  
@@ -51,32 +51,44 @@
         </div>
 
     </div>
-    <script>
+<script>
+
+    var saldoAplicable = 0;
+
     $(document).ready(function () {
         $("#disponible").val($("#totalDisponible").inputmask('unmaskedvalue'));
         $("#sumaAplicado").val(0.00);
 
+        saldoAplicable = getSaldoAplicable();
+        getDocumentosPendientes();
+
     });
+
     $("#cancelarEnlace").on("click", function () {
-       $('#modalTipoJustificante').modal('hide');
-
+        $('#modalTipoJustificante').modal('hide');
     });
-         var simbolo = "₡";
-        if (parseInt($('#tipoMoneda').val()) === 2)
-            simbolo = "$";
-        else if (parseInt($('#tipoMoneda').val()) === 3)
-            simbolo = "€";
-       $(".currency").inputmask('currency', {
-            prefix: simbolo,
-            rightAlign: true
-       });
+         
+    function cargarTablaDocSinAplicar(data) {
 
-       $(".moneda").inputmask('currency', {
-           prefix: '',
-           rightAlign: true,
-           min: 0
-       });
+        $('.filasSinAplicar').remove();
+        contadorFila = 0;
+
+        var aplicado = 0;
+
+        for (var i = 0; i < data.length; i++) {
+            contadorFila++;
+            var body = '<tr class="filasSinAplicar" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + recuperarTipoDocumento(data[i].idTipoDocumento) + '</td>'
+                + '<td style="padding-top:2rem;"><span>' + data[i].idDocumento + '</span></td>'
+                + '<td ><span >' + recuperarFecha(data[i].fechaDocumento) + '</span></td>'
+                + '<td ><span id="pendiente' + i + '" class="currency">' + recuperarSaldo(data[i]) + '</span></td>'
+                + '<td ><input id="aplicado' + i + '" onkeyup="cambiarAplicado(' + i + ')"  class="form-control currency" value="' + aplicado + '"/></td></tr>';
+            $('.lineaSinAplicar').before(body);
+
+        }
+    }
+    
     function calcularLinea(saldo) {
+
         if (saldo > 0 && saldo != NaN) {
             var disponible = $("#disponible").inputmask('unmaskedvalue');
             var totalApli = $("#sumaAplicado").inputmask('unmaskedvalue');
@@ -96,45 +108,44 @@
             return 0;
         }
     }
+
     ///AJAX///
     function GuardarEnlace() {
-         $('#saldoValid').prop('hidden', true);
+    $('#saldoValid').prop('hidden', true);
         var total = $("#disponible").inputmask('unmaskedvalue');
         if (total < 0) {
           $('#saldoValid').prop('hidden', false);
         } else {           
             lineasAplicado = JSON.parse(JSON.stringify(lineasEnlace));
-            cargarTotal();
-            console.log(crearModeloEnlace());
-            console.log(crearLineasEditadas());
+
             Guardar();                      
             $('#modalTipoJustificante').modal('hide');
         }
     }
 
-    function recuperarSaldoOriginal(pos) {
-         var moneda = parseInt($("#tipoMoneda").val());
-        if (moneda == 1)
-            return aplicadosOriginal[pos].saldoBase;
-                if (moneda == 2)
-            return aplicadosOriginal[pos].saldoDolar;
-                if (moneda == 3)
-            return aplicadosOriginal[pos].saldoEuro;
-    }
-    function recuperarAplicadoOriginal(pos) {
-         var moneda = parseInt($("#tipoMoneda").val());
-        if (moneda == 1)
-            return aplicadosOriginal[pos].aplicadoBase;
-                if (moneda == 2)
-            return aplicadosOriginal[pos].aplicadoDolar;
-                if (moneda == 3)
-            return aplicadosOriginal[pos].aplicadoEuro;
-    }
     function cargarDatos() {
-        getDocumentos(2);
         $("#totalDisponible").val($("#disponible").inputmask('unmaskedvalue'));
         $("#totalAplicado").val($("#sumaAplicado").inputmask('unmaskedvalue'));
-     }
+    }
+
+    function getDocumentosPendientes() {
+
+        var url = '@Url.Action("GetDocumentosPendientesContacto", "Nota", new { idContacto = ViewBag.idContacto })';
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: url,
+            success: function (data) {
+
+                docSinAplicar = data;
+                cargarTablaDocSinAplicar(data);
+            },
+            error: function (err, scnd) {
+               console.log(err.statusText);
+            }
+        });
+    }
+
     function calcularLinea(pos) {
         var moneda = parseInt($("#tipoMoneda").val());
         var saldo = lineasEnlace[pos].saldoBase;
@@ -161,6 +172,27 @@
         } else {
             return 0;
         }
-          }
+    }
 
-    </script>
+    function crearModeloEnlace() {
+        var array = [];
+        for (var i = 0; i < movimientosDetalle.length; i++) {
+            if (movimientosDetalle[i].tipo == 1) {
+                var model = {
+                    num: movimientosDetalle[i].idDocumento,
+                    IdMovimientoDesde: parseInt($("#IdMovimiento").val()),
+                    IdMovimientoHasta: movimientosDetalle[i].idMovimiento,
+                    Aplicado: parseFloat($("#aplicadoFinal" + i).inputmask('unmaskedvalue')).toString().replace(".", ","),
+                    CompraDolarTC: parseFloat($("#dolar").inputmask('unmaskedvalue')),
+                    VentaDolarTC: parseFloat($("#dolarVenta").inputmask('unmaskedvalue')),
+                    CompraEuroTC: parseFloat($("#euro").inputmask('unmaskedvalue')),
+                    VentaEuroTC: parseFloat($("#euroVenta").inputmask('unmaskedvalue')),
+                    IdMoneda: parseInt($("#tipoMoneda").val()),
+                };
+                array.push(model);
+            }
+        }
+        return array;
+    }
+
+</script>

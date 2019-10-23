@@ -89,12 +89,12 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        [HttpGet("GetFormasPago/{idDoc}")]
-        public IActionResult GetFormasPago(long idDoc)
+        [HttpPost("GetFormasPago")]
+        public IActionResult GetFormasPago(long idDoc, int idTipo)
         {
             try
             {
-                var movs = movimientoService.GetMovimientoByIdDocConPagos(idDoc);
+                var movs = movimientoService.GetMovimientoByIdDocConPagos(idDoc, idTipo);
 
                 return Ok(movs);
             }
@@ -104,7 +104,6 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
         }
-
 
         private TbFaMovimiento RetornaSaldo(long idContacto)
         {
