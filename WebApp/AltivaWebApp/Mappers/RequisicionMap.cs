@@ -88,6 +88,27 @@ namespace AltivaWebApp.Mappers
             };
         }
 
+        public TbPrRequisicion ViewModelToDomainTransaccion(RequisicionViewModel viewModel)
+        {
+
+            var domain = new TbPrRequisicion
+            {
+                Id = viewModel.Id,
+                Fecha = viewModel.Fecha,
+                FechaCreacion = DateTime.Now,
+                IdDepartamento = viewModel.IdDepartamento,
+                Anulado = viewModel.Anulado,
+                IdUsuario = viewModel.IdUsuario,
+                Descripcion = viewModel.Descripcion,
+                Total = viewModel.Total,
+                IdBodega = viewModel.IdBodega
+              
+            };
+            return domain;
+
+        }
+
+
 
 
     }

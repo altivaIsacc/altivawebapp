@@ -15,15 +15,25 @@ namespace AltivaWebApp.Services
         TbFdTareaEstado Update(TbFdTareaEstado domain);
         bool Delete(TbFdTareaEstado domain);
         TbFdTareaEstado GetById(int idEstado);
-        bool GetByTitulo(string titulo);
-        bool GetByColor(string color);
-        bool GetByDefecto(bool? defecto);
-        bool GetByEsInicial(bool? inicial);
-        bool GetByEsFinal(bool? final);
-        TbFdTareaEstado GetDefecto(bool flag);
-        TbFdTareaEstado GetInicial(bool flag);
-        TbFdTareaEstado GetFinal(bool flag);
-        TbFdTareaEstado GetTitulo(string idTipo);
-        TbFdTareaEstado GetColor(string idTipo);
+
+
+        TbFdTareaEstado GetTitulo(string idTipo); //edita 1
+        TbFdTareaEstado GetColor(string idTipo); //edita 2
+        TbFdTareaEstado GetDefecto(bool flag); //edita 3
+        TbFdTareaEstado GetInicial(bool flag); //editar 4
+        TbFdTareaEstado GetFinal(bool flag); //edita 5
+
+
+        bool GetByTitulo(string titulo); //edita
+        bool GetByColor(string color); //edita
+        bool GetByDefecto(bool? defecto); // edita
+        bool GetByEsInicial(bool? inicial); // edita
+        bool GetByEsFinal(bool? final); // edita
+      
+       
+        
+        
+
+
     }
 }

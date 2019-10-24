@@ -528,6 +528,7 @@ else
 
     });
 
+    //cuando escriba apenas el item
     $('#item').on('focusout', function (evt, item) {
 
         setTimeout(function () {
@@ -539,18 +540,20 @@ else
 
     });
 
+    //cargar toda la info del intem 
     function cargarInfoItem(cod) {
 
-        var itemInfo = getItemPorCodigo(cod);
+        var itemInfo = getItemPorCodigo(cod); // comprueba si el item existe en el arrayItems, si no existe lo devuelve , si se encuentra
 
-        if (itemInfo !== undefined) {
+        if (itemInfo !== undefined) { // no existe
 
             $descripcion.text(itemInfo.descripcion.substr(0, 32) + (itemInfo.descripcion.length > 25 ? '...' : '')).prop('href', '@Url.Action("EditarInventario", "Inventario", new { id = "__id__" })'.replace("__id__", itemInfo.idInventario));
             $precio.val(getPrecioAlCambio(itemInfo));
             $cantidad.val(1);
             $unidad.text(itemInfo.idUnidadMedidaNavigation.abreviatura);
             $iva.val(itemInfo.impuestoVenta);
-            setSubTotalLinea();
+
+            setSubTotalLinea(); // calcula el subtotal del item agregado
         }
         else
             cargarAlert('@Lb["itemInvalido"]');
@@ -569,6 +572,8 @@ else
 
 
     ////helpers////////////////////////////////////////////////////////////////////////////////////
+
+
 
 
     function guardarSalir() {
@@ -625,6 +630,7 @@ else
         return flag;
     }
 
+    //deja los input en cero
     function validarLinea(item) {
 
         if ($('#item').val().replace(/ /g, "") === "")
@@ -779,15 +785,17 @@ else
 
     }
 
+    // Se invoca cuando le da al metodo save
     function prepararLinea() {
 
-        var item = getItemPorCodigo($item.val());
+        var item = getItemPorCodigo($item.val());  // comprueba si el item existe en el arrayItems, si no existe lo devuelve , si se encuentra
+        console.log(item);
 
         if (validarForm() && validarLinea(item)) {
-            guardarLinea(item);
+            guardarLinea(item); //creay el modelo y comprueba de que los itms nos se repitan
             //calcularTotales();
             limpiarLinea();
-            guardarCompra(false);
+            guardarCompra(false);//GUADRDA
         }
 
     }
@@ -822,7 +830,7 @@ else
 
         lineasCrOrUp = [];
 
-        existeLinea(model);
+        existeLinea(model); 
         
     }
 
@@ -854,7 +862,7 @@ else
             lineas.push(linea);
         }
 
-        console.log(lineas);
+        console.log(lineas); //cuando ya estan agregado los items
         
        
     }
@@ -1160,8 +1168,8 @@ else
 
         var desc = parseFloat($('#descuento').inputmask('unmaskedvalue'));
         var subTotal = parseFloat($('#subtotalLinea').inputmask('unmaskedvalue'));
-        console.log(desc);
-        console.log(subTotal);
+      //  console.log(desc);
+      //  console.log(subTotal);
         return (desc / 100) * subTotal;
 
     }
@@ -1219,7 +1227,7 @@ else
         var dolar = parseFloat($('#dolar').inputmask('unmaskedvalue'));
         console.log(dolar);
         var euro = parseFloat($('#euro').inputmask('unmaskedvalue'));
-
+        console.log(item);
 
         if (moneda === 1 && item.codigoMoneda === 1)
             return item.ultimoPrecioCompra;
@@ -1241,6 +1249,9 @@ else
             return item.ultimoPrecioCompra;
 
     }
+
+
+
 
     function recalcularPrecio() {
 
@@ -1279,6 +1290,7 @@ else
 
 
 
+
     function getPrecioAlCambioLocal(item) {
 
         var moneda = parseInt($('.tipoMoneda').val());
@@ -1287,24 +1299,48 @@ else
 
         var euro = parseFloat($('#euro').inputmask('unmaskedvalue'));
 
-        if (moneda === 1 && item.idMonedaCD === 1)
+
+
+        if (moneda === 1 && item.idMonedaCD === 1) {
+            console.log("colon 1");
             return item.precioUnitario;
-        else if (moneda === 1 && item.idMonedaCD === 2)
+        }
+        else if (moneda === 1 && item.idMonedaCD === 2) {
+            console.log("colon 2");
             return item.precioUnitario * dolar;
-        else if (moneda === 1 && item.idMonedaCD === 3)
+        }
+        else if (moneda === 1 && item.idMonedaCD === 3) { // bien
+            console.log("colon 3");
             return item.precioUnitario * euro;
-        else if (moneda === 2 && item.idMonedaCD === 1)
+        }
+
+
+        else if (moneda === 2 && item.idMonedaCD === 1) { // bien
+            console.log("dolar 1");
             return item.precioUnitario / dolar;
-        else if (moneda === 2 && item.idMonedaCD === 2)
+        }
+        else if (moneda === 2 && item.idMonedaCD === 2) {
+            console.log("dolar 2");
             return item.precioUnitario;
-        else if (moneda === 2 && item.idMonedaCD === 3)
+        }
+        else if (moneda === 2 && item.idMonedaCD === 3) {
+            console.log("dolar 3");
             return (item.precioUnitario * euro) / dolar;
-        else if (moneda === 3 && item.idMonedaCD === 1)
+        }
+
+
+        else if (moneda === 3 && item.idMonedaCD === 1) {
+            console.log("euro 1");
             return item.precioUnitario / euro;
-        else if (moneda === 3 && item.idMonedaCD === 2)
+        }
+        else if (moneda === 3 && item.idMonedaCD === 2) { // bien
+            console.log("euro 2");
             return (item.precioUnitario * dolar) / euro;
-        else if (moneda === 3 && item.idMonedaCD === 3)
+        }
+        else if (moneda === 3 && item.idMonedaCD === 3) {
+            console.log("euro 3");
             return item.precioUnitario;
+        }
 
     }
 
@@ -1575,6 +1611,8 @@ else
     function guardarCompra(salir) {
 
         var model = crearModelo();
+        console.log(model);
+      
 
         if (lineasCrOrUp.length === 0)
             model.enCola = $('#enCola').prop('checked');
@@ -1599,6 +1637,7 @@ else
                             var url = "@Url.Action("EditarCompra", new { id = "__id__" })";
                             window.location.href = url.replace("__id__", data.idCompra);
                         } else {
+
                             if (lineasCrOrUp[0].id == 0)
                                 lineas[lineas.length - 1].id = data.idCD;
 
@@ -1623,6 +1662,8 @@ else
                   console.log(err.statusText);
               }
         });
+
+          console.log(lineas);
 
     }
 
@@ -2136,7 +2177,7 @@ else
             if (id == "submitFrmCD") {
 
 
-                prepararLinea();
+                prepararLinea(); // invocado para preparar el item y comprobar su existencia
 
 
             }

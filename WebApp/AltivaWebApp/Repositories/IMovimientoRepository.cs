@@ -16,6 +16,11 @@ namespace AltivaWebApp.Repositories
         bool UpdateMovimientoJustificante(IList<TbFaMovimientoJustificante> domain);
         TbFaMovimiento Save(TbFaMovimiento domain);
         TbFaMovimiento Update(TbFaMovimiento domain);
+        IList<TbFaMovimientoDetalle> SaveMovDetalle(IList<TbFaMovimientoDetalle> domain);
+        TbFaMovimiento GetMovimientoByIdDocumento(long idDoc);
+        IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc);
+        IList<TbFaMovimientoDetalle> UpdateMovDetalle(IList<TbFaMovimientoDetalle> domain);
+        void DeleteMovimientoDetalle(IList<TbFaMovimientoDetalle> domain);
         IList<TbFaMovimiento> GetAllMovimientos();
         TbFaMovimiento GetMovimientoByNota(long id);
         IList<TbFaMovimientoJustificante> GetJustificantesByMovimientoId(long id);

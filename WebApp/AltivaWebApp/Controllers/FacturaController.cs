@@ -22,9 +22,10 @@ namespace AltivaWebApp.Controllers
         private readonly IContactoService contactoService;
         private readonly IPuntoVentaService pvService;
         private readonly IMovimientoService movService;
+        private readonly IMovimientoMap movMap;
         private readonly ICajaMovimientoMap cajaMovMap;
         private readonly IFlujoCategoriaService flujoService;
-        public FacturaController(IFlujoCategoriaService flujoService, ICajaMovimientoMap cajaMovMap, IMovimientoService movService, IPuntoVentaService pvService, IFacturaMap map, IFacturaService service, IUserService userService, IContactoService contactoService)
+        public FacturaController(IMovimientoMap movMap, IFlujoCategoriaService flujoService, ICajaMovimientoMap cajaMovMap, IMovimientoService movService, IPuntoVentaService pvService, IFacturaMap map, IFacturaService service, IUserService userService, IContactoService contactoService)
         {
             this.map = map;
             this.service = service;
@@ -34,6 +35,7 @@ namespace AltivaWebApp.Controllers
             this.movService = movService;
             this.cajaMovMap = cajaMovMap;
             this.flujoService = flujoService;
+            this.movMap = movMap;
         }
 
         [Route("Todo")]
@@ -82,7 +84,7 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("CrearEditarFactura")]
-        public IActionResult CrearEditarFactura(FacturaViewModel viewModel, IList<FacturaDetalleViewModel> detalle, IList<long> eliminadas, IList<CajaMovimientoViewModel> formaPago)
+        public IActionResult CrearEditarFactura(FacturaViewModel viewModel, IList<FacturaDetalleViewModel> detalle, IList<long> eliminadas)
         {
             try
             {
@@ -105,14 +107,7 @@ namespace AltivaWebApp.Controllers
                     viewModel.IdUsuarioCreador = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     viewModel.FechaCreacion = DateTime.Now;
                     factura = map.Create(viewModel);
-                }
-
-
-                //valida factura tipo contado
-                if (factura.Tipo == 1)
-                {
-                    cajaMovMap.CreateCajaMovimiento(formaPago, movService.GetUltimoMovimientoPagoId(factura.Id));
-                }
+                }      
 
                 return Json(new { success = true, idDoc = factura.Id });
             }

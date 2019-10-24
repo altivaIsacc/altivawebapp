@@ -1,0 +1,72 @@
+﻿@inject IStringLocalizer<SharedResources> lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+    <table id="PeriodoTrabajo" class="table" style="width:100%">
+        <tr>
+                        <td>@lb["Periodo"]</td>
+            <td>@lb["FechaInicio"]</td>
+            <td>@lb["FechaFinal"]</td>
+            <td>@lb["Estado"]</td>
+            <td>@lb["Editar"]</td>
+
+        </tr>
+
+        @foreach (AltivaWebApp.DomainsConta.PeriodoTrabajo p in ViewBag.PeriodosTrabajo)
+        {
+            <tr>
+                @{                    
+                    <td>@p.Nombre</td>
+                    <td>@p.FechaInicio.ToShortDateString()</td>
+                    <td>@p.FechaFinal.ToShortDateString()</td>
+                    if (p.Estado == "ABIERTO")
+                    {
+                        <td>
+                            <a style="border: 0; padding: 2px 4px;background: #4800ff;color: white;border-radius: 24px; transition: 0.25s;">@p.Estado</a>
+
+                        </td>
+                    }
+                    else
+                    {
+
+                        if (p.Estado == "CERRADO")
+                        {
+                            <td>
+                                <a style="border: 0; padding: 2px 4px;background: #20212D;color: white;border-radius: 24px; transition: 0.25s;">
+                                    @p.Estado
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            if (p.Estado == "BLOQUEADO")
+                            {
+                                <td>
+                                    <a style="border: 0; padding: 2px 4px;background: #80818E;color: black;border-radius: 24px; transition: 0.25s;">
+                                        @p.Estado
+                                    </a>
+                                </td>
+                            }
+                            else
+                            {
+                                <td> @p.Estado </td>
+
+                            }
+
+                        }
+                    }
+                    <td>
+                        <a asp-action="u" asp-controller="PeriodoTrabajo" asp-route-id="@p.IdPeriodoTrabajo">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </td>
+                }
+
+            </tr>
+        }
+    </table>
+

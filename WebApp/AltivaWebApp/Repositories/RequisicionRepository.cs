@@ -20,9 +20,25 @@ namespace AltivaWebApp.Repositories
             return context.TbPrRequisicion.Include(r => r.IdDepartamentoNavigation).ToList();
         }
 
-        public TbPrRequisicion GetReqById(int id)
+        public TbPrRequisicion GetReqById(long id)
         {
-            return context.TbPrRequisicion.AsNoTracking().FirstOrDefault(r => r.Id == id);
+            TbPrRequisicion resul;
+
+            if (id == 0)
+            {
+
+                resul = context.TbPrRequisicion.AsNoTracking().FirstOrDefault(r => r.Id == id);
+            }
+            else {
+
+                resul = context.TbPrRequisicion.AsNoTracking().FirstOrDefault(r => r.Id == id);
+                resul.TbPrRequisicionDetalle = context.TbPrRequisicionDetalle.AsNoTracking().Where(r => r.IdRequisicion == id).ToList();
+
+            }
+
+            return resul;
+
+          
         }
 
         public TbPrRequisicion GetRequisicionWithDetails(int id)

@@ -171,8 +171,9 @@ namespace AltivaWebApp.Controllers
                 return Json(movimiento);
 
             }
-            catch
+            catch (Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "ERROR");
                 throw;
             }
 
@@ -186,8 +187,9 @@ namespace AltivaWebApp.Controllers
                 return Json(notas);
 
             }
-            catch
+            catch(Exception ex)
             {
+                AltivaLog.Log.Insertar(ex.ToString(), "ERROR");
                 throw;
             }
 

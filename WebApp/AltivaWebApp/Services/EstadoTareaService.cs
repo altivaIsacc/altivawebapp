@@ -18,71 +18,87 @@ namespace AltivaWebApp.Services
 
         }
 
-        public bool Delete(TbFdTareaEstado domain)
-        {
-            return this.IEstadoRepository.Delete(domain);
-        }
-
         public IList<TbFdTareaEstado> GetAll()
         {
             return this.IEstadoRepository.GetAll();
         }
 
-        public bool GetByColor(string color)
+
+        // metodos utilizados cuando edita
+        public TbFdTareaEstado GetTitulo(string idTipo) //edita 1
+        {
+            return this.IEstadoRepository.GetTitulo(idTipo);
+        }
+
+        public TbFdTareaEstado GetColor(string idTipo) //edita 2
+        {
+            return this.IEstadoRepository.GetColor(idTipo);
+        }
+
+        public TbFdTareaEstado GetDefecto(bool flag) //edita 3
+        {
+            return this.IEstadoRepository.GetDefecto(flag);
+        }
+
+        public TbFdTareaEstado GetInicial(bool flag) //edita 4
+        {
+            return this.IEstadoRepository.GetInicial(flag);
+        }
+
+        public TbFdTareaEstado GetFinal(bool flag) //edita 5
+        {
+            return this.IEstadoRepository.GetFinal(flag);
+        }
+
+
+
+
+        // metodos utilizados cuando edita
+        public bool GetByTitulo(string titulo) //edita
+        {
+            return this.IEstadoRepository.GetByTitulo(titulo);
+        }
+
+        public bool GetByColor(string color) //edita
         {
             return this.IEstadoRepository.GetByColor(color);
         }
 
-        public bool GetByDefecto(bool? defecto)
+        public bool GetByDefecto(bool? defecto) // edita
         {
             return this.IEstadoRepository.GetByDefecto(defecto);
         }
 
-        public bool GetByEsInicial(bool? inicial)
+        public bool GetByEsInicial(bool? inicial) // edita
         {
             return this.IEstadoRepository.GetByEsInicial(inicial);
         }
 
-        public bool GetByEsFinal(bool? final)
+        public bool GetByEsFinal(bool? final) // edita
         {
             return this.IEstadoRepository.GetByEsFinal(final);
         }
+
+
+
+        public bool Delete(TbFdTareaEstado domain)
+        {
+            return this.IEstadoRepository.Delete(domain);
+        }
+
+       
+
+
+
 
         public TbFdTareaEstado GetById(int idEstado)
         {
             return this.IEstadoRepository.GetById(idEstado);
         }
 
-        public bool GetByTitulo(string titulo)
-        {
-            return this.IEstadoRepository.GetByTitulo(titulo);
-        }
 
-        public TbFdTareaEstado GetColor(string idTipo)
-        {
-            return this.IEstadoRepository.GetColor(idTipo);
-        }
 
-        public TbFdTareaEstado GetDefecto(bool flag)
-        {
-            return this.IEstadoRepository.GetDefecto(flag);
-        }
-
-        public TbFdTareaEstado GetInicial(bool flag)
-        {
-            return this.IEstadoRepository.GetInicial(flag);
-        }
-
-        public TbFdTareaEstado GetFinal(bool flag)
-        {
-            return this.IEstadoRepository.GetFinal(flag);
-        }
-
-        public TbFdTareaEstado GetTitulo(string idTipo)
-        {
-            return this.IEstadoRepository.GetTitulo(idTipo);
-        }
-
+      
         public TbFdTareaEstado Save(TbFdTareaEstado domain)
         {
             return this.IEstadoRepository.Save(domain);
