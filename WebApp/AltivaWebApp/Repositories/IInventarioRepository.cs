@@ -1,4 +1,5 @@
 ﻿using AltivaWebApp.Domains;
+using AltivaWebApp.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace AltivaWebApp.Repositories
 {
     public interface IInventarioRepository
     {
+        IList<ListarInventarioViewModel> GetListarInventario(int valor, int tipo, bool estado, int bodega, bool clave);
         TbPrInventarioBodega UpdateIBodega(TbPrInventarioBodega domain);//
         IList<TbPrInventario> GetAllByCoincidence(string word);
         IList<TbPrInventario> GetInventarioFacturable();

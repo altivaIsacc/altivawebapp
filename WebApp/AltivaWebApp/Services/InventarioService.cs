@@ -1,5 +1,6 @@
 ﻿using AltivaWebApp.Domains;
 using AltivaWebApp.Repositories;
+using AltivaWebApp.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,10 @@ namespace AltivaWebApp.Services
         {
             this.repository = repository;
         }
-
+        public IList<ListarInventarioViewModel> GetListarInventario(int valor, int tipo, bool estado, int bodega, bool clave)
+        {
+            return repository.GetListarInventario(valor,  tipo,  estado,  bodega,clave);
+        }
         public IList<TbPrInventario> GetAllByCoincidence(string word)
         {
             return this.repository.GetAllByCoincidence(word);

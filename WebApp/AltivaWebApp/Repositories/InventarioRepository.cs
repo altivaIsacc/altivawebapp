@@ -1,5 +1,6 @@
 ﻿using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
+using AltivaWebApp.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,142 @@ namespace AltivaWebApp.Repositories
         {
 
         }
+        public IList<ListarInventarioViewModel> GetListarInventario(int valor, int tipo, bool estado, int bodega, bool clave)
+        {        
+            if (estado && clave)
+            {
+                
+                    if (tipo == 1)
+                    {
+                        if (valor == 1)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral < ExistenciaMinima").ToList();
+                        if (valor == 2)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral = ExistenciaMinima").ToList();
 
+                        if (valor == 3)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral > ExistenciaMinima").ToList();
+
+                        if (valor == 4)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral <= ExistenciaMinima").ToList();
+
+                        if (valor == 5)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral >= ExistenciaMinima").ToList();
+                        if(valor ==6)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral <> ExistenciaMinima").ToList();
+                    }
+                    if (tipo == 2)
+                    {
+                        if (valor == 1)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral < ExistenciaMedia").ToList();
+                        if (valor == 2)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral = ExistenciaMedia").ToList();
+
+                        if (valor == 3)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral > ExistenciaMedia").ToList();
+
+                        if (valor == 4)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral <= ExistenciaMedia").ToList();
+
+                        if (valor == 5)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral >= ExistenciaMedia").ToList();
+                        if(valor ==6)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral <> ExistenciaMedia").ToList();
+                    }
+                    if (tipo == 3)
+                    {
+                        if (valor == 1)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral < ExistenciaMaxima").ToList();
+                        if (valor == 2)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral = ExistenciaMaxima").ToList();
+
+                        if (valor == 3)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral > ExistenciaMaxima").ToList();
+
+                        if (valor == 4)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral <= ExistenciaMaxima").ToList();
+
+                        if (valor == 5)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral >= ExistenciaMaxima").ToList();
+                        if(valor ==6)
+                          return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventario where ExistenciaGeneral <> ExistenciaMaxima").ToList();
+
+
+                }
+            }
+            else if (estado && !clave)
+            {
+                
+                    if (tipo == 1)
+                    {
+                        if (valor == 1)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral < ExistenciaMinima and IdBodega = {bodega}").ToList();
+                        if (valor == 2)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral = ExistenciaMinima and IdBodega = {bodega}").ToList();
+
+                        if (valor == 3)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral > ExistenciaMinima and IdBodega = {bodega}").ToList();
+
+                        if (valor == 4)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral <= ExistenciaMinima and IdBodega = {bodega}").ToList();
+
+                        if (valor == 5)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral >= ExistenciaMinima and IdBodega = {bodega}").ToList();
+                        if(valor ==6)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral <> ExistenciaMinima and IdBodega = {bodega}").ToList();
+                    }
+                    if (tipo == 2)
+                    {
+                        if (valor == 1)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral < ExistenciaMedia and IdBodega = {bodega}").ToList();
+                        if (valor == 2)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral = ExistenciaMedia and IdBodega = {bodega}").ToList();
+
+                        if (valor == 3)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral > ExistenciaMedia and IdBodega = {bodega}").ToList();
+
+                        if (valor == 4)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral <= ExistenciaMedia and IdBodega = {bodega}").ToList();
+
+                        if (valor == 5)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral >= ExistenciaMedia and IdBodega = {bodega}").ToList();
+                        if (valor == 6)
+                        return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral <> ExistenciaMedia and IdBodega = {bodega}").ToList();
+                    }
+                    if (tipo == 3)
+                    {
+                        if (valor == 1)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral < ExistenciaMaxima and IdBodega = {bodega}").ToList();
+                        if (valor == 2)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral = ExistenciaMaxima and IdBodega = {bodega}").ToList();
+
+                        if (valor == 3)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral > ExistenciaMaxima and IdBodega = {bodega}").ToList();
+
+                        if (valor == 4)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral <= ExistenciaMaxima and IdBodega = {bodega}").ToList();
+
+                        if (valor == 5)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral >= ExistenciaMaxima and IdBodega = {bodega}").ToList();
+                         if (valor == 6)
+                            return context.ListarInventario.FromSql($"Select *from vs_Pr_ListarIventarioPorBodega where ExistenciaGeneral <> ExistenciaMaxima and IdBodega = {bodega}").ToList();
+ 
+                    }
+               
+
+
+
+            }
+
+            if(!estado)
+            {          
+               return context.ListarInventario.FromSql($"Select * from vs_Pr_ListarIventario").ToList();
+            }
+            else
+            {
+                return context.ListarInventario.FromSql($"Select * from vs_Pr_ListarIventario").ToList();
+            }
+
+        }
         public IList<TbPrInventario> GetAllByCoincidence(string word)
         {
             return (from i in context.TbPrInventario where 
@@ -28,7 +164,7 @@ namespace AltivaWebApp.Repositories
 
         public TbPrInventario GetInventarioById(int id)
         {
-            return context.TbPrInventario.FirstOrDefault(i => i.IdInventario == id);
+            return context.TbPrInventario.Include(i => i.IdUnidadMedidaNavigation).FirstOrDefault(i => i.IdInventario == id);
         }
       
         public TbPrInventarioBodega UpdateIBodega(TbPrInventarioBodega domain)

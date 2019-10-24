@@ -16,7 +16,34 @@ namespace AltivaWebApp.Repositories
         {
 
         }
+        public IList<TbPrAjuste> GetAllAjustesByIdInventario(string cod)
+        {
+            try
+            {
+                var result = (from a in context.TbPrAjuste
+                              join aj in context.TbPrAjusteInventario
+                             on a.Id equals aj.IdAjuste
+                              join i in context.TbPrInventario on aj.IdInventario equals i.IdInventario
+                              where i.Codigo.Contains(cod)
+                              select new TbPrAjuste()
+                              {
+                                  Id = a.Id,
+                                  FechaDocumento = a.FechaDocumento,
+                                  Descripcion = a.Descripcion,
+                                  SaldoAjuste = a.SaldoAjuste,
+                                  Anulada = a.Anulada
+                                 
 
+                              }).ToList();
+                return (result);
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+
+                throw;
+            }
+        }
         public IList<TbPrAjuste> GetAllAjustes()
         {
             return context.TbPrAjuste.Include(a => a.TbPrAjusteInventario).ThenInclude(a => a.IdInventarioNavigation).ToList();

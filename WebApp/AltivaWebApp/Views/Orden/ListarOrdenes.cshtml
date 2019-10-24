@@ -36,8 +36,9 @@
 
     <div class="col-md-2">
         <label style="padding-top: 0.2rem">@Lb["buscarItem"]:</label>
-        <input type="text" id="filtroItem" class="form-control" placeholder="@Lb["Código"]" />
+        <input type="text" id="filtroItem" class="form-control" onkeyup="getlistarPartial()" placeholder="@Lb["Código"]" />
     </div>
+    
 
     <div class="col-md-3 col-sm-6 col-xs-12">
 
@@ -141,12 +142,13 @@
 
     });
 
-     function getlistarPartial(){
+    function getlistarPartial() {
+    var codigo = $("#filtroItem").val();
         var url = "@Url.Action("_ListarOrdenes")";           
         $.ajax({
             type: "Post",
             url: url,
-            data: { filtro: crearModeloFiltro() },
+            data: { filtro: crearModeloFiltro(), cod: codigo},
             success: function (data) {
                 $('#partialOrdenes').html(data);
             },
@@ -163,6 +165,15 @@
             return { desde: desde, hasta: hasta, filtrando: false }
         }
     }
+    function filtrarItem(){
+            if ($('#habilitaFiltroFecha').prop('checked')) {
+            return { desde: desde, hasta: hasta, filtrando: true }
+        }
+        else {
+            return { desde: desde, hasta: hasta, filtrando: false }
+        }
+    }
+
 
 
 </script>

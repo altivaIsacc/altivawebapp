@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AltivaWebApp.Domains;
+using AltivaWebApp.GEDomain;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Repositories;
 using AltivaWebApp.Services;
@@ -44,13 +45,31 @@ namespace AltivaWebApp.Controllers
             this.precioCatalogoService = precioCatalogoService;
         }
 
+        [HttpPost("_ListarInventario")]
+        public IActionResult _ListarInventario(int valor, int tipo, bool estado, int bodega, bool clave)
+        {
+            try
+            {
 
+                return PartialView(service.GetListarInventario(valor, tipo, estado, bodega, clave).ToList());
+               
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+
+        }
+ 
         // GET: Inventario
         [Route("Lista-Inventario/{cod?}")]
         public ActionResult ListarInventario(string cod)
         {
             ViewBag.cod = cod;
             ViewData["bodegas"] = bodegaService.GetAllActivas();
+
             return View();
         }
 
@@ -336,7 +355,7 @@ namespace AltivaWebApp.Controllers
                     item.Inactiva = true;
 
                 var res = service.Update(item);
-                return Ok(res);
+                return Json(new { success = true });
             }
             catch (Exception ex)
             {

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<AltivaWebApp.Domains.TbFaCotizacion>
+﻿@model IEnumerable<AltivaWebApp.Domains.TbPrAjuste>
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -37,12 +37,14 @@
 
     <div class="col-md-2">
         <label style="padding-top: 0.2rem">@Lb["buscarItem"]:</label>
-        <input type="text" id="filtroItem" class="form-control" />
+        <input type="text" id="filtroItem" class="form-control" onkeyup="getlistarPartial()" />
     </div>
 
-    <div class="col-md-3">
-        <input type="checkbox" id="habilitaFiltroFecha" />
-        <label for="habilitaFiltroFecha">@Lb["FiltroFecha"]</label>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+
+        <label class="control-label">
+            <input type="checkbox" id="habilitaFiltroFecha"> @Lb["FiltroFecha"]
+        </label>
         <form id="frmFecha" class="form-horizontal">
             <fieldset>
                 <div class="control-group">
@@ -62,40 +64,10 @@
 
 
 </div>
-
 <br />
-
-<div class="row">
-
-    <div class="col-md-10  table-responsive">
-        <table class=" table table-bordered" style="width:100%" id="tblAjustes">
-            <thead>
-                <tr>
-                    <th hidden >
-                        <span >Id</span>
-                    </th>
-                    <th>
-                        <span>@Lb["Fecha"]</span>
-                    </th>
-                    <th>
-                        <span>@Lb["Descripción"]</span>
-                    </th>
-                    <th>
-                        <span>@Lb["Saldo"]</span>
-                    </th>
-                    <th>
-                        <span>@Lb["Anulada"]</span>
-                    </th>
-                    <th><span>@Lb["accion"]</span></th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
-    </div>
+<div id="partialAjustes">
 
 </div>
-
 <input readonly hidden id="monedaFormatter" />
 
 <style>
@@ -108,25 +80,16 @@
 
 
 <script>
-    var ajustes = [];
-    var ajusteFiltrado = [];
-    var tblAjustes;
-    var hasta;
+     var hasta;
     var desde;
-
-
     $(document).ready(function () {
-
-        getMonedaBase();
-        getAjustes();
-
         $('#filtroFecha').attr('disabled', true);
-
-        $('#filtroFecha').daterangepicker({
+        getlistarPartial();
+       $('#filtroFecha').daterangepicker({
             opens: 'left',
 
             "locale": {
-                format: "@Lb["DD/MM/YYYY"]",
+                format: "@Lb["formatoFecha"]",
                 "separator": " - ",
                 "applyLabel": "@Lb["Aplicar"]",
                 "cancelLabel": "@Lb["Cancelar"]",
@@ -159,276 +122,50 @@
                 "firstDay": 1
             }
         },
+        function (start, end, label) {
 
-            function (start, end, label) {
-
-                desde = start.format('YYYY-MM-DD');
-                hasta = end.format('YYYY-MM-DD');
-                cargarFiltros();
-                //filtroFecha(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+            desde = start.format('YYYY-MM-DD');
+            hasta = end.format('YYYY-MM-DD');
+            getlistarPartial();
 
             });
 
-        
-
-
     });
-
-    function getMonedaBase() {
-        $.ajax({
-            type: "get",
-            headers: {
-                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-            },
-            dataType: "json",
-            url: '@Url.Action("GetTipoCambio", "Monedas", new { id = 1 })',
-            success: function (data) {
-                $("#monedaFormatter").inputmask('currency', {
-                    prefix: data.simbolo + " ",
-                    rightAlign: true
-                });
-            },
-            error: function (err, scnd) {
-                cargarAlert('@Lb["errorGeneral"]');
-                console.log(err.statusText);
-            }
-        });
-    }
-
-    function getAjustes() {
-            ///get ajustes
-        $.ajax({
-            type: "get",
-            headers: {
-                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-            },
-            dataType: "json",
-            url: 'Get-Ajustes',
-            success: function (data) {
-                //console.log(data);
-                ajustes = JSON.parse(JSON.stringify(data));
-                cargarDatos(data);
-            },
-            error: function (err, scnd) {
-                cargarAlert('@Lb["errorGeneral"]');
-                console.log(err.statusText);
-            }
-        });
-    }
-
-    function cargarDatos(data) {
-
-        var estado = "";
-        var contadorFila = 0;
-        $("#tblAjustes > tbody").remove();
-        $('#tblAjustes').append('<tbody></tbody>');
-
-        for (var i = 0; i < data.length; i++) {
-
-            if (!data[i].anulada)
-                estado = '@Lb["No"]';
-            else
-                estado = '@Lb["Si"]';
-
-            var body = '<tr class="fila' + contadorFila + ' filas">'
-                + '<td hidden><p style="padding-top:1rem">' + data[i].id + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaDocumento) + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + data[i].descripcion + '</p></td>'
-                + '<td style="text-align:right"><p style="padding-top:1rem">' + getSaldoAjuste(data[i].saldoAjuste) + '</p></td>'
-                + '<td><p style="padding-top:1rem">' + estado + '</p></td>'
-                + '<td>  <button value="' + data[i].id + '" onclick="editarAjuste(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
-            $('#tblAjustes > tbody').append(body);
-            contadorFila++;
-        }
-
-        //inicializar formato
-       
-
-        inicializarTabla();
-
-    }
-
-    function getSaldoAjuste(val) {
-        $('#monedaFormatter').val(val);
-
-        return $('#monedaFormatter').val();
-    }
-
-    function inicializarTabla() {
-        $('#tblAjustes').DataTable().destroy();
-
-        tblAjustes = $('#tblAjustes').DataTable({
-            "info": false,
-            dom: 'Bfrtip',
-            "order": [[0, "desc"]],
-            language: {
-                "decimal": "",
-                "emptyTable": "@Lb["NoDatos"]",
-                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
-                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
-                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
-                "infoPostFix": "",
-                "thousands": ",",
-                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
-                "loadingRecords": "Cargando...",
-                "processing": "Procesando...",
-                "search": "<i class='fas fa-search'></i>",
-                "zeroRecords": "@Lb["sinResultados"]",
-                "paginate": {
-                    "first": "@Lb["Primero"]",
-                    "last": "@Lb["Último"]",
-                    "next": "@Lb["Sguiente"]",
-                    "previous": "@Lb["Anterior"]"
-                }
-            },
-            buttons: [
-                {
-                    extend: 'copyHtml5',
-                    text: '<i class="fas fa-copy   " ></i>',
-                    titleAttr: 'Copy',
-                    title: '@Lb["AjusteManual"]',
-                    exportOptions: {
-                        columns: [1, 3, 4]
-                    }
-                   
-                },
-                {
-                    extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel  "></i>',
-                    titleAttr: 'Excel',
-                    title: '@Lb["AjusteManual"]',
-                    exportOptions: {
-                        columns: [1, 3, 4]
-                    }
-                    
-                },
-
-                {
-                    extend: 'pdfHtml5',
-                    text: '<i class="fas fa-file-pdf   "></i>',
-                    titleAttr: 'PDF',
-                    title: '@Lb["AjusteManual"]',
-                    exportOptions: {
-                        columns: [1, 3, 4]
-                    }
-                }
-            ]
-        });
-
-        $(".dataTables_searching").hide();
-    }
-
-    function editarAjuste(id) {
-
-        var url = '@Url.Action("EditarAjuste", "AjusteInventario", new { id = "__id__" })';
-
-        window.location.href = url.replace("__id__", id);
-    }
-
-   
-    function recuperarFecha(_fecha) {
-
-
-        var f = new Date(_fecha);
-        return f.toLocaleString();
-
-    }
-
-    /////////////////////filtros//////////////////
-
-
-    $("#filtroBuscar").on("keyup", function () {
-        tblAjustes
-            .columns(2)
-            .search(this.value)
-            .draw();
-    });
-
-    $("#filtroItem").on("keyup", function () {
-        cargarFiltros();
-    });
-
     $('#habilitaFiltroFecha').change(function () {
 
         if (!$(this).prop('checked')) {
-            cargarFiltros();
             $('#filtroFecha').attr('disabled', true);
         }
-
         else {
-            $('#filtroFecha').attr('disabled',false);
-            cargarFiltros();
+            $('#filtroFecha').attr('disabled', false);
         }
+                getlistarPartial();
 
     });
 
-    function cargarFiltros() {
-
-        ajusteFiltrado = JSON.parse(JSON.stringify(ajustes));
-
-        ajusteFiltrado = filtroItem(ajusteFiltrado);
-
-        ajusteFiltrado = filtroFecha(ajusteFiltrado, desde, hasta);
-
-        cargarDatos(ajusteFiltrado);
-
-    }
-
-    function filtroFecha(array ,_desde, _hasta) {
-
-
-        var arrayAjustes = [];
-
+    function getlistarPartial() {
+          var codigo = $("#filtroItem").val();
+        var url = "@Url.Action("_ListarAjustes")";           
+        $.ajax({
+            type: "Post",
+            url: url,
+            data: { filtro: crearModeloFiltro(), cod:codigo },
+            success: function (data) {
+                $('#partialAjustes').html(data);
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+        });
+     }
+     function crearModeloFiltro() {
         if ($('#habilitaFiltroFecha').prop('checked')) {
-            var desdeLocal = new Date(_desde).getTime();
-            var hastaLocal = new Date(_hasta).getTime();
-
-            for (var i = 0; i < array.length; i++) {
-
-                var documento = new Date(array[i].fechaDocumento.substring(0, 10)).getTime();
-                var flag = false;
-
-                if (documento >= desdeLocal && documento <= hastaLocal)
-                    arrayAjustes.push(array[i]);
-            }
-            return arrayAjustes;
+            return { desde: desde, hasta: hasta, filtrando: true }
         }
-        else
-            return array;
-            
-
-
-        
-
+        else {
+            return { desde: desde, hasta: hasta, filtrando: false }
+        }
     }
 
-
-
-    function filtroItem(array) {
-
-        var arrayAjustes = [];//JSON.parse(JSON.stringify(ajustes));
-
-        var keyword = $("#filtroItem").val();
-
-        if (keyword.replace(/ /g, "") != "") {
-            for (var i = 0; i < array.length; i++) {
-
-                for (var j = 0; j < array[i].tbPrAjusteInventario.length; j++) {
-                    if (array[i].tbPrAjusteInventario[j].idInventarioNavigation.codigo.indexOf(keyword) > -1) {
-                        arrayAjustes.push(array[i]);
-                        break;
-                    }
-                }
-            }
-
-            return arrayAjustes
-            
-        }
-        else
-            return array;
-            
-
-        
-    }
 </script>
 

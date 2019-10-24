@@ -35,7 +35,8 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                return context.TbPrOrden.Include(o => o.IdProveedorNavigation).Include(o => o.TbPrOrdenDetalle).ThenInclude(od => od.IdInventarioNavigation).ToList();
+                var result= context.TbPrOrden.Include(o => o.IdProveedorNavigation).Include(o => o.TbPrOrdenDetalle).ThenInclude(od => od.IdInventarioNavigation).ToList();
+                return (result);
             }
             catch (Exception ex)
             {
@@ -45,6 +46,39 @@ namespace AltivaWebApp.Repositories
             }
             
         }
+        public IList<TbPrOrden> GetAllOrdenesByIdInventario(string cod)
+        {
+            try
+            {
+                var result = (from  i in context.TbPrInventario join od in context.TbPrOrdenDetalle
+                             on i.IdInventario equals od.IdInventario
+                             join o in context.TbPrOrden on od.IdOrden equals o.Id
+                              where i.Codigo.Contains(cod)
+                             select new TbPrOrden()
+                             {
+                                 Id = o.Id,
+                                 IdMoneda = o.IdMoneda,
+                                 IdProveedor = o.IdProveedor,
+                                 Anulado = o.Anulado,
+                                 FechaCreacion = o.FechaCreacion,
+                                 Fecha = o.Fecha,
+                                 TotalBase = o.TotalBase,
+                                 TotalDolar = o.TotalDolar,
+                                 TotalEuro = o.TotalEuro,
+                                 IdProveedorNavigation = o.IdProveedorNavigation
+                               
+                             }).ToList();
+                return (result);
+            }
+            catch(Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+
+                throw;
+            }
+        }
+                    
+                           
 
         public TbPrOrden GetOrdenById(int id)
         {

@@ -1,5 +1,5 @@
-﻿
-@inject IStringLocalizer<SharedResources> SharedLocalizer
+﻿@model IList<TbPrToma>
+@inject IStringLocalizer<SharedResources> Lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -7,62 +7,105 @@
         return Xsrf.GetAndStoreTokens(Context).RequestToken;
     }
 }
+@{
+    var usuarios = ViewData["usuarios"] as IList<TbSeUsuario>;
+    var bodegas = ViewData["bodegas"] as IList<TbPrBodega>;
 
+
+}
+<div class="row">
+    <div class="col-md-8 col-sm-8 col-xs-12 table-responsive">
+        <table class="table table-bordered" id="tblToma">
+            <thead>
+                <tr>
+                    <th>@Lb["Nº"]</th>
+                    <th>@Lb["Fecha"]</th>
+                    <th>@Lb["Usuario"]</th>
+                    <th>@Lb["Bodega"]</th>
+                    <th hidden>@Lb["Anulado"]</th>
+                    <th> @Lb["Acción"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.FechaToma</td>
+                        <td>@usuarios.FirstOrDefault(u => u.Id == item.IdUsuarioCreacion).Nombre</td>
+                        <td>@bodegas.FirstOrDefault(b => b.Id == item.IdBodega).Nombre</td>
+                        <td hidden>@item.Anulado</td>
+                        <td><a href="@Url.Action("EditarToma", new { id=item.Id })" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
 
 
 <script>
-    
-    $(document).ready(function () {
-
-
-
-
+ $(document).ready(function(){
+        hasta = new Date().toLocaleString();
+        desde = new Date().toLocaleString();
+        inicializarTabla();
+        tblToma.columns(4).search('false').draw(); 
     });
+     function inicializarTabla() {
 
-    function cargarDatos(data) {
+        $('#tblToma').DataTable().destroy();
 
-        $("#tblTomaD > tbody").remove();
-        $("#tblTomaD").append('<tbody></tbody>');
+        tblToma = $('#tblToma').DataTable({
+            "info": false,         
+            "order": [[0, "desc"]],
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   "></i>',
+                    titleAttr: 'Copy',
+                    title: '@Lb["Requisiciones"]',
+                    exportOptions: {
+                        columns: [0, 1,2]
+                    }
 
-        var contadorFila = 0;
- 
-        for (var i = 0; i < data.length; i++) {
+                }           
+            ]
+        });
 
+        //$(".dataTables_searching").hide();
+    }
+         ///////////////////////////////////////////////////////filtros//////////////////////////////
 
-            var body = '<tr class="fila' + contadorFila + ' filas">'
-                + '<td><p style="padding-top:1rem;">' + data[i].idInventarioNavigation.codigo + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].idInventarioNavigation.descripcion + '</p></td>'
-                + '<td><p style="padding-top:1rem;">' + data[i].descripcion + '</p></td>'
-                + '<td>  <button value="' + data[i].id + '" onclick="editarRequisicion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
-            $('#tblReq > tbody').append(body);
-            contadorFila++;
+     $('#estado').change(function () {
 
+        if (!$(this).prop('checked')) {
+            tblToma.columns(4).search('false').draw(); 
+        }
+        else {
+            tblToma.columns(4).search('true').draw(); 
         }
 
-
-
-        inicializarTabla();
-
-    }
-
-
-    function getFamilias() {
-        $.ajax({
-              type: "get",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
-            url: '@Url.Action("GetFamilias", "Familia")',
-
-            success: function (data) {
-                familias = data;
-               },
-              error: function (err, scnd) {
-                  cargarAlert('@SharedLocalizer["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-          });
-    }
+     });
 
 </script>
