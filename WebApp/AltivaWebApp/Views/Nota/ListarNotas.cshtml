@@ -1,0 +1,476 @@
+﻿@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    ViewData["Title"] = Lb["Notas"];
+
+}
+<div class="row">
+    <div class="col-md-3">
+        <h3>@Lb["Notas"]</h3>
+    </div>
+    <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
+        <p>
+            <a asp-action="CrearNota" asp-controller="Nota" class="btn btn-primary"><span>@Lb["Agregar"] </span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+        </p>
+    </div>
+</div>
+<div class="row">
+
+    <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
+        <label>@Lb["buscarPorConsecutivo"]:</label>
+        <input type="text" id="filtroBuscarConsecutivo" class="form-control" placeholder="@Lb["Consecutivo"]" />
+    </div>
+    <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
+        <label>@Lb["buscarPorContacto"]:</label>
+        <input type="text" id="filtroBuscarContacto" class="form-control" placeholder="@Lb["Contacto"]" />
+    </div>
+    <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
+        <label>@Lb["buscarPorTipo"]:</label>
+        <select class="form-control" id="filtroBuscarCX">
+            <option selected value="1">@Lb["seleccione"]</option>
+            <option value="2"> @Lb["CXP"]</option>
+            <option value="3">@Lb["CXC"]</option>
+        </select>
+    </div>
+    <div class="col-md-3 col-sm-4 col-xs-12">
+        <input type="checkbox" id="habilitaFiltroFecha" />
+        <label for="habilitaFiltroFecha">@Lb["FiltroFecha"]</label>
+        <form id="frmFecha" class="form-horizontal">
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="input-prepend input-group">
+                            <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" disabled />
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+
+    </div>
+
+    <div class="col-md-2 col-sm-2 col-xs-12 checkbox" >
+        <label class="control-label">
+            <input type="checkbox" id="estado" onchange="filtroAnuladas()"> @Lb["VerInactivos"]
+        </label>
+    </div>
+
+</div>
+
+<div class="row">
+
+    <div class=" col-md-12 table-responsive">
+        <table class="table table-bordered" id="tblNotas">
+            <thead>
+                <tr>
+                   
+                    <th>
+                        @Lb["Consecutivo"]
+                    </th>
+                    <th>
+                        @Lb["ID"]
+                    </th>
+                    <th>
+                        @Lb["Contacto"]
+                    </th>
+                    <th>
+                        @Lb["tipo"]
+                    </th>
+                    <th>
+                        @Lb["Fecha"]
+                    </th>
+                    <th>
+                        @Lb["Estado"]
+                    </th>
+                    <th>
+                        @Lb["Monto"]
+                    </th>
+                    <th>
+                        @Lb["Disponible"]
+                    </th>
+                    <th>
+                        @Lb["Acción"]
+                    </th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<script>
+    var Movimientos = [];
+    var Notas = [];
+    var Contactos = [];
+    var hasta;
+    var desde;
+    $(document).ready(function () {
+        getNotas();
+        filtroFechas();
+       
+    });
+    //Eventos directos
+    $("#filtroBuscarCX").on("change", function () {
+        filtroAnuladas();
+    });
+    $("#filtroBuscarConsecutivo").on("keyup", function () {
+        tblTipoJustificante
+            .columns(0)
+            .search(this.value)
+            .draw();
+    });
+    $("#filtroBuscarContacto").on("keyup", function () {
+        tblTipoJustificante
+            .columns(2)
+            .search(this.value)
+            .draw();
+    });
+    $('#habilitaFiltroFecha').change(function () {
+        if (!$(this).prop('checked')) {
+            filtroAnuladas();
+            $('#filtroFecha').attr('disabled', true);
+        }
+        else {
+            $('#filtroFecha').attr('disabled', false);
+            filtroAnuladas();
+        }
+    });
+    //AJAX
+    function anularNotaDirect(id) {
+        $.ajax({
+            type: "post",
+            dataType: "json",
+            url: '@Url.Action("AnularNota", "Nota")',
+            data: { id: id },
+            success: function (data) {
+                getNotas();
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+
+    }
+   
+    function anularNota(id, key) {
+
+        var msj = "@Lb["confirmAnularNota"]";
+        if (key ==2) {
+             msj = "@Lb["confirmHabilitarNota"]";
+                    
+        } 
+            
+        
+
+        bootbox.confirm(msj, function (result) {
+
+            if (result) {
+
+                anularNotaDirect(id);
+            }
+
+        });
+    }
+    function getMovimientos() {
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetAllMovimientos", "Nota")',
+              success: function (data) {                
+                  Movimientos = data;
+                filtroAnuladas();
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+       function getNotas() {
+          $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetAllNotas", "Nota")',
+            success: function (data) {
+                Notas = data;
+                 getContactos();     
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+      }
+     function getContactos() {
+            $.ajax({
+              type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetAllContactos", "Contacto")',
+                success: function (data) {
+                    Contactos = data;
+                     getMovimientos();
+                },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+            });
+     }
+    //Helpers
+    function cargarDatos(data) {
+        console.log(data);
+        $("#tblNotas> tbody").remove();
+        $('#tblNotas').append('<tbody></tbody>');
+
+        var contadorFila = 0;
+        var colorFila = "";
+           var disabled = "";
+          
+        var anularIcon = '<i class="fas fa-trash"></i>';
+         
+           for (var i = 0; i < data.length; i++) {
+             var xp = '<i class="fas fa-check"></i>';
+             var xc = "";
+               var Estado = '@Lb["activo"]';
+               var Estado2 = getEstado(data[i].idDocumento);
+            if ( Estado2 == 2) {
+                colorFila = "color: #808080";
+                disabled = "disabled";
+                anularIcon = '<i class="fas fa-trash-restore"></i>';
+                Estado ='@Lb["inactivo"]';
+            }
+            if (data[i].cxc) {
+                xp = "";
+                xc = '<i class="fas fa-check"></i>';
+            }    
+               var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
+                 + '<td>' + data[i].idDocumento + '</td>'
+                 + '<td>'+ data[i].idMovimiento+ '</td>'
+                 + '<td>' + getContacto(data[i].idContacto) + '</td>'
+                 + '<td >' + getTipo(data[i]) + '</td>'
+                   + '<td >' + recuperarFecha(data[i].fechaCreacion) + ' </td>'
+                   + '<td >' + Estado + ' </td>'
+                + '<td ><input style="padding-top:1rem; border:0; background-color : #F7F7F7" class="' + darFormato(data[i].idMoneda) + '" value="' + getMonto(data[i]) + '"/></td>'
+                 + '<td >No se </td>'
+                 + '<td >  <button ' + disabled + ' value="' + data[i].idDocumento + '" onclick="getCrearEditar(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].idDocumento + '" onclick="anularNota(value, ' + Estado2 + ')" class="btn btn-link btnEditar">' + anularIcon + '</button></td></tr>';
+
+            $('#tblNotas > tbody').append(body);
+                contadorFila++;
+
+           }
+        ///inicializa formato
+        $(".colon").inputmask('currency', {
+            prefix: "₡",
+            rightAlign: true
+        });
+        $(".dolar").inputmask('currency', {
+            prefix: "$",
+            rightAlign: true
+        });
+        $(".euro").inputmask('currency', {
+            prefix: "€",
+            rightAlign: true
+        });
+        inicializarTabla();
+       }
+      function inicializarTabla() {
+
+        $('#tblNotas').DataTable().destroy();
+
+        tblTipoJustificante = $('#tblNotas').DataTable({
+            "info": false,
+            dom: 'Bfrtip',
+            "order": [[ 0, "desc" ]],
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+            buttons: [
+               
+            ]
+        });
+
+    }
+    function filtroFechas() {
+          $('#filtroFecha').daterangepicker({
+            opens: 'left',
+            "locale": {
+                format: "@Lb["DD/MM/YYYY"]",
+                "separator": " - ",
+                "applyLabel": "@Lb["Aplicar"]",
+                "cancelLabel": "@Lb["Cancelar"]",
+                "fromLabel": "@Lb["DE"]",
+                "toLabel": "@Lb["Hasta"]",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "@Lb["Dom"]",
+                    "@Lb["Lun"]",
+                    "@Lb["Mar"]",
+                    "@Lb["Mie"]",
+                    "@Lb["Jue"]",
+                    "@Lb["Vie"]",
+                    "@Lb["Sáb"]"
+                ],
+                "monthNames": [
+                    "@Lb["Enero"]",
+                    "@Lb["Febrero"]",
+                    "@Lb["Marzo"]",
+                    "@Lb["Abril"]",
+                    "@Lb["Mayo"]",
+                    "@Lb["Junio"]",
+                    "@Lb["Julio"]",
+                    "@Lb["Agosto"]",
+                    "@Lb["Septiembre"]",
+                    "@Lb["Octubre"]",
+                    "@Lb["Noviembre"]",
+                    "@Lb["Diciembre"]"
+                ],
+                "firstDay": 1
+            }
+          },
+           function (start, end, label) {
+            desde = start.format('YYYY-MM-DD');
+            hasta = end.format('YYYY-MM-DD');
+            filtroAnuladas();
+            });
+    }
+   
+    function getCrearEditar(id) {
+
+          var url = '@Url.Action("EditarNota", new { id = "__id__"})';
+        window.location.href = url.replace("__id__", id);
+        }
+    function getContacto(id) {
+        for (var i = 0; i < Contactos.length; i++) {
+            if (Contactos[i].idContacto == id)
+                return Contactos[i].nombre;
+        }
+    }
+     function getTipo(model) {
+         if (model.cxp)
+             return "CXP";
+         if (model.cxc)
+          return "CXC";
+    }
+ 
+    function getEstado(id) {
+        var estado = 0;
+        for (var i = 0; i < Notas.length; i++) {
+            if (Notas[i].idNotaCredito == id)               
+                estado = Notas[i].estado;            
+        }
+        return estado;
+    }
+    function getMonto(model) {
+         if (model.idMoneda == 1)
+             return model.montoBase;
+          if (model.idMoneda == 2)
+             return model.montoDolar;
+          if (model.idMoneda == 3)
+             return model.montoEuro;
+
+    }
+     function darFormato(idMoneda) {
+        if (idMoneda === 1)
+            return "colon";
+        else if (idMoneda === 2)
+            return "dolar"
+        else if (idMoneda === 3)
+            return "euro"
+    }
+        function filtroAnuladas() {
+
+        var tipo = $('#filtroBuscarCX option:selected').val();
+        var array = Movimientos;
+
+        var arrayMovimientos = [];
+        var arrayxp = [];
+        var arrayxc = [];
+
+        if ($('#estado').prop('checked')) {
+
+            for (var i = 0; i < array.length; i++) {
+                for (var j = 0; j < Notas.length; j++) {
+                    if (array[i].idDocumento == Notas[j].idNotaCredito)
+                        if (Notas[j].estado == 2)
+                             arrayMovimientos.push(array[i]);
+                }                 
+            }
+        }
+        else
+            for (var i = 0; i < array.length; i++) {
+                for (var j = 0; j < Notas.length; j++) {
+                    if (array[i].idDocumento == Notas[j].idNotaCredito)
+                        if (Notas[j].estado == 1)
+                             arrayMovimientos.push(array[i]);
+                }                 
+            }
+
+        if (parseInt(tipo) != 1) {
+             for (var i = 0; i < arrayMovimientos.length; i++) {
+                 if (arrayMovimientos[i].cxp) 
+                     arrayxp.push(arrayMovimientos[i]);
+
+                 else
+                     arrayxc.push(arrayMovimientos[i]);
+
+             }
+              arrayMovimientos = [];
+            if (parseInt(tipo) == 2)
+                arrayMovimientos = arrayxp;
+            else
+                arrayMovimientos = arrayxc;
+
+            }
+            if ($('#habilitaFiltroFecha').prop('checked')) {
+                var arrayfiltroFecha = [];
+                var desdeLocal = new Date(desde).getTime();
+                var hastaLocal = new Date(hasta).getTime();
+               for (var i = 0; i < arrayMovimientos.length; i++) {
+                  var documento = new Date(arrayMovimientos[i].fechaCreacion.substring(0, 10)).getTime();
+                  if (documento >= desdeLocal && documento <= hastaLocal)
+                      arrayfiltroFecha.push(Movimientos[i]);
+               }
+                arrayMovimientos = [];
+                arrayMovimientos = arrayfiltroFecha;
+            }
+
+        cargarDatos(arrayMovimientos);
+
+        }
+    function recuperarFecha(_fecha) {
+        var f = new Date(_fecha);
+        return f.toLocaleString();
+    }
+</script>
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

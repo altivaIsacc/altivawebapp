@@ -36,7 +36,7 @@ namespace AltivaWebApp.Controllers
 
             foreach (var item in parametros)
             {
-                rep.Report.SetParameterValue(item.Nombre, item.Valor);// envia por parametro el idempresa a fast report
+                rep.Report.SetParameterValue(item.Nombre,long.Parse( item.Valor));// envia por parametro el idempresa a fast report
             }
 
            // rep.ShowToolbar = false;
@@ -53,46 +53,49 @@ namespace AltivaWebApp.Controllers
         [HttpPost("ReportePDF")]
         public IActionResult ReportePDF(string NombreReporte, IList<RepParametro> parametros)
         {
-
-            FastReport.Utils.Config.WebMode = true;
-            var rep = new WebReport();
-            var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "Reportes");
-            var path = $"{savePath}\\{NombreReporte}.frx";//guarda el frm del reporte creado de fast repor
-
-            rep.Report.Load(path);
-
-            var str = Resources.JsonStringProvider.GetJson(CultureInfo.CurrentCulture.Name); //idioma
-            rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringGE;
-            rep.Report.Dictionary.Connections[1].ConnectionString = StringProvider.StringEmpresas;// primera conexion
-            rep.Report.Dictionary.Connections[2].ConnectionString = str;
-
-
-            foreach (var item in parametros)
+            try
             {
-                rep.Report.SetParameterValue(item.Nombre, item.Valor);// envia por parametro el idempresa a fast report
+                FastReport.Utils.Config.WebMode = true;
+                var rep = new WebReport();
+                var savePath = System.IO.Path.Combine(Startup.entorno.WebRootPath, "Reportes");
+                var path = $"{savePath}\\{NombreReporte}.frx";//guarda el frm del reporte creado de fast repor
+
+                rep.Report.Load(path);
+
+                var str = Resources.JsonStringProvider.GetJson(CultureInfo.CurrentCulture.Name); //idioma
+                rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringGE;
+                rep.Report.Dictionary.Connections[1].ConnectionString = StringProvider.StringEmpresas;// primera conexion
+                rep.Report.Dictionary.Connections[2].ConnectionString = str;
+
+
+                foreach (var item in parametros)
+                {
+                    rep.Report.SetParameterValue(item.Nombre, item.Valor);// envia por parametro el idempresa a fast report
+                }
+
+
+                if (rep.Report.Prepare())
+                {
+                    FastReport.Export.Pdf.PDFExport imgExport = new FastReport.Export.Pdf.PDFExport();
+
+
+                    MemoryStream strm = new MemoryStream();
+                    rep.Report.Export(imgExport, strm);
+                    rep.Report.Dispose();
+                    imgExport.Dispose();
+                    strm.Position = 0;
+
+                    return File(strm, "application/pdf", $"{NombreReporte}.pdf");
+                }
+                else
+                {
+                    return null;
+                }
+
             }
-
-
-            if (rep.Report.Prepare())
-            {
-                FastReport.Export.Pdf.PDFExport imgExport = new FastReport.Export.Pdf.PDFExport();
-
-
-                MemoryStream strm = new MemoryStream();
-                rep.Report.Export(imgExport, strm);
-                rep.Report.Dispose();
-                imgExport.Dispose();
-                strm.Position = 0;
-
-                return File(strm, "application/pdf", $"{NombreReporte}.pdf");
-            }
-            else
-            {
-                return null;
-            }
-
-
+            catch (Exception ex) { AltivaLog.Log.Insertar(ex.ToString(), "Error"); return null; }
         }
+
         [HttpPost("ReporteImg")]
         public IActionResult ReporteImg(string NombreReporte, IList<RepParametro> parametros)
         {

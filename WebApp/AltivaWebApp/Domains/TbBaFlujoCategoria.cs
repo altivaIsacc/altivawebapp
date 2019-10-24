@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace AltivaWebApp.Domains
 {
+    //creada por lenin  
     public partial class TbBaFlujoCategoria
     {
         public TbBaFlujoCategoria()

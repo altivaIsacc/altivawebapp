@@ -9,23 +9,10 @@ namespace AltivaWebApp.Context
     {     
 
         public static void CrearContext(string grupo)
-        {
-                       
-
+        {                      
             var conf = new ConfigurationBuilder()
             .SetBasePath(Startup.entorno.ContentRootPath)
-            .AddJsonFile("appsettings.json").Build();
-
-           
-
-            //if(StringFactory.StringGE == null)
-            //{               
-            //    StringFactory.SetStringGE(HttpContex.Session, grupo);
-            //}
-
-
-            
-
+            .AddJsonFile("appsettings.json").Build();      
         }
     }
 }

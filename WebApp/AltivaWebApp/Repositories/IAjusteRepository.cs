@@ -16,7 +16,6 @@ namespace AltivaWebApp.Repositories
         TbPrAjuste GetAjusteForKardex(int id, IList<long> idDetalles);
         IList<TbPrAjusteInventario> SaveOrUpdateAjusteInventario(IList<TbPrAjusteInventario> domain);
         void DeleteAjusteInventario(IList<long> domain);
-        IList<TbCoCuentaContable> GetAllCC();
         IList<TbCoCentrosDeGastos> GetAllCG();
 
     }
