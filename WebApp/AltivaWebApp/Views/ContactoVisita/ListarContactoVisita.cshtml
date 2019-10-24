@@ -1,0 +1,208 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@inject IStringLocalizer<SharedResources> Lb
+
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@inject IStringLocalizer<SharedResources> Lb
+
+@{
+    var idUsuario = @User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+    
+
+    ViewData["Title"] = @Lb["contactoVisitas"];
+}
+
+
+<div class="row">
+    <div class="col-md-4">
+        <h3>@Lb["ContactoVisitas"]</h3>
+    </div>
+    <div class="col-md-4" style="padding-top: 0.5rem">
+        <button class="btn btn-primary" onclick="">@Lb["Agregar"]&nbsp;<i class="fas fa-plus-circle"></i></button>
+    </div>
+</div>
+
+<hr />
+
+<!-- Botones -->
+<div class="row">
+
+    <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
+        <label>@Lb["buscarPorNombre"]:</label>
+        <input type="text" maxlength="50" id="filtroBuscar" class="form-control" placeholder="@Lb["buscarPorNombre"]" autofocus="autofocus" />
+    </div>
+
+    <div class="col-md-3 col-sm-4 col-xs-2 checkbox">
+        <label class="control-label">
+            <input type="checkbox" id="chkMisClientes"> @Lb["misClientes"]
+        </label>
+    </div>
+
+</div>
+
+<br>
+
+<div class="row">
+
+    <div class="col-md-12 table-responsive">
+        <table class=" table table-bordered" style="width:100%" id="tblContactoVisita">
+            <thead>
+
+
+                <tr>
+                    <th>
+                        <span>@Lb["Id"]</span>
+                    </th>
+                    <th>
+                        <span>@Lb["Cliente"]</span>
+                    </th>
+
+                    <th>
+                        <span>@Lb["Vendedor"]</span>
+                    </th>
+                    <th>
+                        <span>@Lb["UltimaVisita"]</span>
+                    </th>
+
+                    <th><span>@Lb["accion"]</span></th>
+                </tr>
+
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    var arrayContactoVisita = [];//contiene los datos de la tabla contactoVisita
+    var arrayUsuarios = [];
+    var arrayContactos = [];
+
+
+    $(document).ready(function () {
+
+
+        getContactoVisita();
+      
+       // console.log(@idUsuario);
+     
+
+    });
+
+
+    function getContactoVisita() {
+
+        $.ajax({
+            type: "get",
+            headers: {
+                            "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetContactoVisita", "ContactoVisita")',
+            success: function (data) {
+
+                arrayContactoVisita = JSON.parse(JSON.stringify(data));
+                //console.log(arrayContactoVisita);
+                getUsuarios();
+
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+
+    }
+
+    function getUsuarios() {
+
+          $.ajax({
+             type: "get",
+             headers: {
+                 "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+             },
+             dataType: "json",
+             url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
+             success: function (data) {
+
+                 arrayUsuarios = data;
+                 //console.log(arrayUsuarios);
+                 getContactos();
+
+             },
+             error: function (err, scnd) {
+                 var msj = '@Lb["errorGeneral"]';
+                  cargarAlert(msj);
+                  console.log(err.statusText);
+             }
+         });
+
+    }
+
+    function getContactos() {
+
+           $.ajax({
+             type: "get",
+             headers: {
+                 "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+             },
+             dataType: "json",
+             url: '@Url.Action("GetAllContactos", "Contacto")',
+             success: function (data) {
+
+                 arrayContactos = data;
+                 //console.log(arrayContactos);
+
+             },
+             error: function (err, scnd) {
+                 var msj = '@Lb["errorGeneral"]';
+                  cargarAlert(msj);
+                  console.log(err.statusText);
+             }
+         });
+
+
+
+
+    }
+
+
+
+    function cargarDatos(arrayContactoVisita) {
+
+
+
+
+
+
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
