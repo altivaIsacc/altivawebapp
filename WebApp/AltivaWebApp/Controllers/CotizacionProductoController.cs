@@ -23,7 +23,7 @@ namespace AltivaWebApp.Controllers
         private readonly ICotizacionMap _Map;
         private readonly IUserService _UserService;
         private readonly IMonedaService _MonedaService;
-       
+
         public CotizacionProductoController  (ICotizacionService Service,ICotizacionMap map, IUserService userService, IMonedaService monedaService)
         {
             _Service = Service;
@@ -31,27 +31,7 @@ namespace AltivaWebApp.Controllers
             _UserService = userService;
             _MonedaService = monedaService;
         }
-        [HttpPost("_ListarCotizacion")]
-        public IActionResult _ListarCotizacion(FiltroFechaViewModel filtro)
-        {
-            try
-            {
-                ViewData["monedas"] = _MonedaService.GetAll();
-                ViewData["usuarios"] = _UserService.GetAll();
 
-                if (filtro.Filtrando)
-                    return PartialView(_Service.GetAllCotizacion().Where(c => c.FechaCreacion.Date >= filtro.Desde.Date && c.FechaCreacion.Date <= filtro.Hasta.Date).ToList());
-                else
-                    return PartialView(_Service.GetAllCotizacion());
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-
-
-        }
         [HttpGet("Cotizaciones")]
         public IActionResult ListarCotizacionProducto()
         {

@@ -119,9 +119,7 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                if (id == 0) {
-                    return Json(new {valorCompra = 0, valorVenta = 0, simbolo =""});
-                }
+
                 var model = service.GetMonedaById(id);
                 if (model != null)
                 {

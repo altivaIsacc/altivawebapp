@@ -282,7 +282,7 @@ namespace AltivaWebApp.Mappers
                     IdCliente = viewModel.IdCliente,
                     Estado = viewModel.Estado,
                     IdMoneda = viewModel.IdMoneda,
-                    IdVendedor = (long)viewModel.IdVendedor,
+                    IdVendedor = viewModel.IdVendedor,
                     IdUsuarioCreador = viewModel.IdUsuarioCreador,
                     FechaVencimiento = viewModel.FechaVencimiento,
                     TipoCambioDolar = viewModel.TipoCambioDolar,
@@ -326,9 +326,9 @@ namespace AltivaWebApp.Mappers
                     domain.MontoIvadolar = domain.MontoIvabase / domain.TipoCambioDolar;
                     domain.MontoIvaeuro = domain.MontoIvabase / domain.TipoCambioEuro;
 
-                    domain.TotalBase = (double)viewModel.TotalBase;
-                    domain.TotalDolar = (double)(domain.TotalBase / domain.TipoCambioDolar);
-                    domain.TotalEuro = (double)(domain.TotalBase / domain.TipoCambioEuro);
+                    domain.TotalBase = viewModel.TotalBase;
+                    domain.TotalDolar = domain.TotalBase / domain.TipoCambioDolar;
+                    domain.TotalEuro = domain.TotalBase / domain.TipoCambioEuro;
 
 
                 }
@@ -365,9 +365,9 @@ namespace AltivaWebApp.Mappers
                     domain.MontoIvadolar = viewModel.MontoIvadolar;
                     domain.MontoIvaeuro = domain.MontoIvabase / domain.TipoCambioEuro;
 
-                    domain.TotalBase = (double)(viewModel.TotalBase * domain.TipoCambioDolar);
-                    domain.TotalDolar =(double) viewModel.TotalDolar;
-                    domain.TotalEuro = (double)(domain.TotalBase / domain.TipoCambioEuro);
+                    domain.TotalBase = viewModel.TotalBase * domain.TipoCambioDolar;
+                    domain.TotalDolar = viewModel.TotalDolar;
+                    domain.TotalEuro = domain.TotalBase / domain.TipoCambioEuro;
                 }
                 else if (viewModel.IdMoneda == 3)
                 {
@@ -402,9 +402,9 @@ namespace AltivaWebApp.Mappers
                     domain.MontoIvadolar = domain.MontoIvabase / domain.TipoCambioDolar;
                     domain.MontoIvaeuro = viewModel.MontoIvaeuro;
 
-                    domain.TotalBase = (double)(viewModel.TotalBase * domain.TipoCambioEuro);
-                    domain.TotalDolar = (double)(domain.TotalBase / domain.TipoCambioDolar);
-                    domain.TotalEuro = (double)viewModel.TotalEuro;
+                    domain.TotalBase = viewModel.TotalBase * domain.TipoCambioEuro;
+                    domain.TotalDolar = domain.TotalBase / domain.TipoCambioDolar;
+                    domain.TotalEuro = viewModel.TotalEuro;
 
                    
                 }
@@ -431,7 +431,7 @@ namespace AltivaWebApp.Mappers
             domain.IdCliente = viewModel.IdCliente;
             domain.Estado = viewModel.Estado;
             domain.IdMoneda = viewModel.IdMoneda;
-            domain.IdVendedor = (long)viewModel.IdVendedor;
+            domain.IdVendedor = viewModel.IdVendedor;
             domain.IdUsuarioCreador = viewModel.IdUsuarioCreador;
             domain.FechaVencimiento = viewModel.FechaVencimiento;
             domain.TipoCambioDolar = viewModel.TipoCambioDolar;
@@ -479,9 +479,9 @@ namespace AltivaWebApp.Mappers
                 domain.MontoIvadolar = domain.MontoIvabase / domain.TipoCambioDolar;
                 domain.MontoIvaeuro = domain.MontoIvabase / domain.TipoCambioEuro;
 
-                domain.TotalBase = (double)viewModel.TotalBase;
-                domain.TotalDolar = (double)(domain.TotalBase / domain.TipoCambioDolar);
-                domain.TotalEuro = (double)(domain.TotalBase/domain.TipoCambioEuro);
+                domain.TotalBase = viewModel.TotalBase;
+                domain.TotalDolar = domain.TotalBase / domain.TipoCambioDolar;
+                domain.TotalEuro = domain.TotalBase/domain.TipoCambioEuro;
 
             }
             else if (viewModel.IdMoneda == 2)
@@ -516,9 +516,9 @@ namespace AltivaWebApp.Mappers
                 domain.MontoIvadolar = viewModel.MontoIvabase ;
                 domain.MontoIvaeuro = domain.MontoIvabase / domain.TipoCambioEuro;
 
-                domain.TotalBase = (double)(viewModel.TotalBase*domain.TipoCambioDolar);
-                domain.TotalDolar = (double)viewModel.TotalBase;
-                domain.TotalEuro = (double)(domain.TotalBase / domain.TipoCambioEuro);
+                domain.TotalBase = viewModel.TotalBase*domain.TipoCambioDolar;
+                domain.TotalDolar = viewModel.TotalBase;
+                domain.TotalEuro = domain.TotalBase / domain.TipoCambioEuro;
             }
             else if (viewModel.IdMoneda == 3)
             {
@@ -553,9 +553,9 @@ namespace AltivaWebApp.Mappers
                 domain.MontoIvadolar = domain.MontoIvabase / domain.TipoCambioDolar;
                 domain.MontoIvaeuro = viewModel.MontoIvabase;
 
-                domain.TotalBase = (double)(viewModel.TotalBase*domain.TipoCambioEuro);
-                domain.TotalDolar = (double)(domain.TotalBase / domain.TipoCambioDolar);
-                domain.TotalEuro = (double)viewModel.TotalBase;
+                domain.TotalBase = viewModel.TotalBase*domain.TipoCambioEuro;
+                domain.TotalDolar = domain.TotalBase / domain.TipoCambioDolar;
+                domain.TotalEuro = viewModel.TotalBase;
             }
             return domain;
 

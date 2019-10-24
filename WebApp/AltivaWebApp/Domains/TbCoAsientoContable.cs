@@ -27,7 +27,7 @@ namespace AltivaWebApp.Domains
         public DateTime FechaCreacion { get; set; }
         public DateTime FechaMod { get; set; }
         public bool Frecuente { get; set; }
-                public long IdPeriodoTrabajo { get; set; }
+
         public virtual TbCoTiposDocumentos IdTipoDocumentoNavigation { get; set; }
         public virtual ICollection<TbCoAsientoContableDetalle> TbCoAsientoContableDetalle { get; set; }
     }

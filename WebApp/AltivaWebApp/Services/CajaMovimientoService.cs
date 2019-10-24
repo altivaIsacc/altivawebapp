@@ -19,17 +19,5 @@ namespace AltivaWebApp.Services
         {
             return repository.SaveRange(domain);
         }
-
-        public IList<TbFaCajaMovimientoFlujo> SaveRangeCMF(IList<TbFaCajaMovimientoFlujo> domain)
-        {
-            return repository.SaveRangeCMF(domain);
-        }
-        public void DeleteRangeCM(IList<long> fpElimindas)
-        {
-            repository.DeleteRangeCM(fpElimindas);
-        }
-
-
-
     }
 }

@@ -9,48 +9,48 @@ namespace AltivaWebApp.Services
 {
     public class PrecioCatalogoService: IPrecioCatalogoService
     {
-        private readonly IPrecioCatalogoRepository repository;
+        private readonly IPrecioCatalogoRepository reposistory;
 
-        public PrecioCatalogoService(IPrecioCatalogoRepository repository)
+        public PrecioCatalogoService(IPrecioCatalogoRepository reposistory)
         {
-            this.repository = repository;
+            this.reposistory = reposistory;
         }
       
         public IList<TbPrPrecioCatalogo> GetAll()
         {
-            return repository.GetAll() ;
+            return reposistory.GetAll() ;
         }
         public IList<TbPrPrecioCatalogo> GetAllPrecioCatalogo()
         {
-            return repository.GetAllPrecioCatalogo();
+            return reposistory.GetAllPrecioCatalogo();
         }
 
 
 
         public TbPrPrecioCatalogo GetPrecioCatalogoById(int id)
         {
-            return repository.GetPrecioCatalogoById(id);
+            return reposistory.GetPrecioCatalogoById(id);
         }
 
        
 
         public IList<TbPrPrecioCatalogo> GetPreciosWithReqs()
         {
-            return repository.GetPreciosWithReqs();
+            return reposistory.GetPreciosWithReqs();
         }
 
         
         public bool Update(IList<TbPrPrecioCatalogo> domain)
         {
-            return repository.UpdatePrecio(domain);
+            return reposistory.UpdatePrecio(domain);
         }
         public bool SaveFromInventario(long idIventario)
         {
-            return repository.SaveFromInventario(idIventario);
+            return reposistory.SaveFromInventario(idIventario);
         }
         public  bool SaveFromPrecios(int idTipoPrecio)
         {
-            return  repository.SaveFromPrecios(idTipoPrecio);
+            return  reposistory.SaveFromPrecios(idTipoPrecio);
         }
         
     }

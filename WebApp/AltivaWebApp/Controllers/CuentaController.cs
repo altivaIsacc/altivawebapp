@@ -99,9 +99,11 @@ namespace AltivaWebApp.Controllers
                     var principal = new ClaimsPrincipal(identity);
 
                     var props = new AuthenticationProperties();
-                    props.IsPersistent = model.recuerdame;                  
+                    props.IsPersistent = model.recuerdame;
+                  
                     Sesion.Sesion.SetNombreUsuario(HttpContext.Session, user.Nombre);
-                    Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);                    
+                    Sesion.Sesion.SetAvatar(HttpContext.Session, user.Avatar);
+                    
                     HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, props).Wait();
 
                     var uc = user.TbSeUsuarioConfiguraion.FirstOrDefault();

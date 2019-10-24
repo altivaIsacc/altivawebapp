@@ -8,7 +8,6 @@ namespace AltivaWebApp.Domains
         public TbFaTipoDocumento()
         {
             TbFaMovimiento = new HashSet<TbFaMovimiento>();
-            TbFaNota = new HashSet<TbFaNota>();
         }
 
         public int IdTipoDocumento { get; set; }
@@ -19,6 +18,5 @@ namespace AltivaWebApp.Domains
         public bool? EsDebito { get; set; }
 
         public virtual ICollection<TbFaMovimiento> TbFaMovimiento { get; set; }
-        public virtual ICollection<TbFaNota> TbFaNota { get; set; }
     }
 }

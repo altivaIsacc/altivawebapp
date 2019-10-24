@@ -117,7 +117,8 @@ namespace AltivaWebApp.Controllers
         public ActionResult EliminarUnidad(int id)
         {
             try
-            {              
+            {
+                // TODO: Add delete logic here
                 var unidad = unidadService.GetUnidadById(id);
 
                 unidadService.Delete(unidad);
@@ -177,7 +178,9 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                               var conversion = conversioService.GetConversionById(id);
+                // TODO: Add delete logic here
+
+                var conversion = conversioService.GetConversionById(id);
                 if(conversion != null)
                 {
                     conversioService.Delete(conversion);

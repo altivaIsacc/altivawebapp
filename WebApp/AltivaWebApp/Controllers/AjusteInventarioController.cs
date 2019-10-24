@@ -8,7 +8,6 @@ using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using AltivaWebApp.Context;
 
 namespace AltivaWebApp.Controllers
 {
@@ -21,11 +20,9 @@ namespace AltivaWebApp.Controllers
         private readonly IBodegaService bodegaService;
         private readonly IKardexMap kardexMap;
         private readonly ITomaService tomaService;
-        EmpresasContext bd;
 
-        public AjusteInventarioController(EmpresasContext _bd, ITomaService tomaService, IKardexMap kardexMap, IBodegaService bodegaService, IAjusteService service, IAjusteMap map, IUserService userService)
+        public AjusteInventarioController(ITomaService tomaService, IKardexMap kardexMap, IBodegaService bodegaService, IAjusteService service, IAjusteMap map, IUserService userService)
         {
-            bd = _bd;
             this.service = service;
             this.map = map;
             this.userService = userService;
@@ -43,7 +40,8 @@ namespace AltivaWebApp.Controllers
         [Route("Nuevo -Ajuste")]
         public ActionResult CrearAjuste()
         {
-            ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));         
+            ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
+            ViewData["cuentaContable"] = service.GetAllCC();
             ViewData["cuentaCosto"] = service.GetAllCG();
             ViewBag.tieneToma = false;
             return View("CrearEditarAjuste", new AjusteViewModel { FechaDocumento = DateTime.Now });
@@ -53,7 +51,8 @@ namespace AltivaWebApp.Controllers
         public ActionResult EditarAjuste(int id)
         {
             var ajuste = map.DomainToViewModel(service.GetAjusteById(id));
-            ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));    
+            ViewData["usuario"] = userService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
+            ViewData["cuentaContable"] = service.GetAllCC();
             ViewData["cuentaCosto"] = service.GetAllCG();
             ViewBag.tieneToma = tomaService.TieneToma(ajuste.FechaCreacion);
 
@@ -363,12 +362,12 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        [HttpGet("Get-TiposAjustesInventario")]
-        public ActionResult GetTiposAjustesInventario()
+        [HttpGet("Get-CuentaContable")]
+        public ActionResult GetCuentaContable()
         {
             try
             {
-                return Ok(bd.TiposAjusteInventario.ToList());
+                return Ok(service.GetAllCC());
             }
             catch (Exception ex)
             {

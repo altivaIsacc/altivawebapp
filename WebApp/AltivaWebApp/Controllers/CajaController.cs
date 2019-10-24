@@ -61,7 +61,8 @@ namespace AltivaWebApp.Controllers
             {
                 if (viewModel.IdCaja != 0)
                 {
-                    var orden = _Map.Update(viewModel);
+
+                                       var orden = _Map.Update(viewModel);
                     if (viewModel.IdCaja!= 0 && viewModel.TbFaCajaAperturaDenominacion.Count() > 0)
                     {
                 

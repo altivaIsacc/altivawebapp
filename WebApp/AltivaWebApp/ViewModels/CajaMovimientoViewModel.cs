@@ -20,7 +20,7 @@ namespace AltivaWebApp.ViewModels
         public double VentaDolarTc { get; set; }
         public double CompraEuroTc { get; set; }
         public double VentaEuroTc { get; set; }
-        public int IdTipoCajaMovimiento { get; set; }
+        public int? IdTipoCajaMovimiento { get; set; }
         public long IdCaja { get; set; }
         public long IdMovimiento { get; set; }
         public CajaMovimientoTarjetaViewModel CajaMovTarjeta { get; set; }

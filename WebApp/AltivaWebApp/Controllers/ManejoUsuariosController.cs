@@ -435,7 +435,8 @@ namespace AltivaWebApp.Controllers
         public ActionResult EditarEstadoUsuario(int id)
         {
             try
-            {         
+            {
+                // TODO: Add delete logic here
                 var model = userService.GetSingleUser(id);
 
                 var estado = model.Estado;

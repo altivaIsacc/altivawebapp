@@ -4,13 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AltivaWebApp.Repositories
 {
-    public class BodegaRepository : BaseRepository<TbPrBodega>, IBodegaRepository
+    public class BodegaRepository: BaseRepository<TbPrBodega>, IBodegaRepository
     {
-        public BodegaRepository(EmpresasContext context)
-            : base(context)
+        public BodegaRepository(EmpresasContext context) 
+            :base(context)
         {
 
         }
@@ -22,7 +23,7 @@ namespace AltivaWebApp.Repositories
         }
         public TbPrBodega GetBodegaByNombre(string nombre)
         {
-            return context.TbPrBodega.FirstOrDefault(b => b.Nombre == nombre);
+            return context.TbPrBodega.FirstOrDefault(b =>b.Nombre == nombre);
         }
         public IList<TbPrBodega> GetAllActivas()
         {

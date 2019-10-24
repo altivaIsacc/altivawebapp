@@ -9,7 +9,6 @@
 
 @{
     ViewData["Title"] = "ListarCotizacionProducto";
-      var date = DateTime.Now;
 }
 
 
@@ -61,30 +60,50 @@
 
 
     <div class="col-md-3 col-sm-6 col-xs-12">
-
-        <label class="control-label">
-            <input type="checkbox" id="habilitaFiltroFecha"> @Lb["FiltroFecha"]
-        </label>
+        <input type="checkbox" id="habilitaFiltroFecha" />
+        <label for="habilitaFiltroFecha">@Lb["FiltroFecha"]</label>
         <form id="frmFecha" class="form-horizontal">
             <fieldset>
                 <div class="control-group">
                     <div class="controls">
                         <div class="input-prepend input-group">
                             <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
-                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="@date.Date - @date.Date" />
+                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" />
                         </div>
                     </div>
                 </div>
-
             </fieldset>
         </form>
-
     </div>
 </div>
+
 <br />
-<div id="partialCotizaciones">
+
+
+<div class="table-responsive">
+    <table class=" table table-bordered" style="width:100%" id="tblCotizacion">
+        <thead>
+            <tr>
+                <th><span>@Lb["IdCoTizacion"]</span></th>
+                <th><span>@Lb["FechaDeCotizacion"]</span> </th>
+                <th><span>@Lb["Cliente"]</span> </th>
+                <th><span>@Lb["Estado"]</span> </th>
+                <th><span>@Lb["Moneda"]</span></th>
+                <th><span>@Lb["Vendedor"]</span></th>
+                <th><span>@Lb["fechaCreacion"]</span></th>
+                <th style="display:none;"><span>@Lb["IdUsuarioCreador"]</span></th>
+                <th><span>@Lb["FechaDeVencimiento"]</span></th>
+                <th><span>@Lb["Total"]</span></th>
+                <th style="display:none;"><span>@Lb["FechaModificacion"]</span></th>
+                <th><span>@Lb["Editar"]</span></th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+
+    </table>
 
 </div>
+
 
 <input readonly hidden id="monedaFormater" />
 
@@ -102,13 +121,13 @@
     var _Cotizaciones = [];
     var _CotizacionesFiltro = [];
     $(document).ready(function () {
-      $('#filtroFecha').attr('disabled', true);
-        getlistarPartial();
-         $('#filtroFecha').daterangepicker({
+        getMonedas();
+        getUsuarios();
+        $('#filtroFecha').attr('disabled', true);
+        $('#filtroFecha').daterangepicker({
             opens: 'left',
-
             "locale": {
-                format: "@Lb["formatoFecha"]",
+                format: "@Lb["DD/MM/YYYY"]",
                 "separator": " - ",
                 "applyLabel": "@Lb["Aplicar"]",
                 "cancelLabel": "@Lb["Cancelar"]",
@@ -140,55 +159,418 @@
                 ],
                 "firstDay": 1
             }
-        },
-        function (start, end, label) {
-
-            desde = start.format('YYYY-MM-DD');
-            hasta = end.format('YYYY-MM-DD');
-            getlistarPartial();
-
-            });
-
-    });
-        $('#habilitaFiltroFecha').change(function () {
-
-        if (!$(this).prop('checked')) {
-            $('#filtroFecha').attr('disabled', true);
-        }
-        else {
-            $('#filtroFecha').attr('disabled', false);
-        }
-
-        getlistarPartial();
-    });
-     function getlistarPartial(){
-        var url = "@Url.Action("_ListarCotizacion")";           
-        $.ajax({
-            type: "Post",
-            url: url,
-            data: { filtro: crearModeloFiltro() },
-            success: function (data) {
-                $('#partialCotizaciones').html(data);
+                },
+            function (start, end, label) {
+                desde = start.format('YYYY-MM-DD');
+                hasta = end.format('YYYY-MM-DD');
                 cargarFiltros();
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
+                //filtroFecha(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+            });
+    });
+    function anuladas(data) {
+        _CotizacionesFiltro = data;
+        for (var i = 0; i < _CotizacionesFiltro.length; i++) {
+            if (_CotizacionesFiltro[i].estado === "Anulada") {
+                _Anuladas.push(_CotizacionesFiltro[i]);
+                _CotizacionesFiltro.splice($.inArray(_Cotizaciones[i],_CotizacionesFiltro ),1);
+
             }
 
-        });
-     }
-    function crearModeloFiltro() {
-        if ($('#habilitaFiltroFecha').prop('checked')) {
-            return { desde: desde, hasta: hasta, filtrando: true }
-        }
-        else {
-            return { desde: desde, hasta: hasta, filtrando: false }
         }
     }
+    function getCotizacion() {
+            ///get ajustes
+        $.ajax({
+            type: "get",
+            headers: {
+                      "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetCotizacion", "CotizacionProducto")',
+            success: function (data) {
+                Cotizaciones = JSON.parse(JSON.stringify(data));
+                _Cotizaciones = data;
+                _CotizacionesFiltro = data;
+                anuladas(data);
+                cargarDatos(_Cotizaciones);
 
+
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+    function getMonedas() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+                 monedas = data;
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+        function getUsuarios() {
+         $.ajax({
+              type: "get",
+              headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+              url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
+             success: function (data) {
+                 Usuarios = data;
+                 getCotizacion();
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+          });
+    }
+    function GetUsuarioxId(IdVendedor) {
+        for (var i = 0; i < Usuarios.length; i++) {
+            if (Usuarios[i].id === IdVendedor) {
+                return Usuarios[i].nombre;
+            }
+        }
+    }
+    function cargarDatos(data) {
+        var contadorFila = 0;
+        $("#tblCotizacion > tbody").remove();
+        $('#tblCotizacion').append('<tbody></tbody>');
+
+        for (var i = 0; i < data.length; i++) {
+            var body;
+            var nombreCliente = data[i].idClienteNavigation.persona == true ? data[i].idClienteNavigation.nombre + " " + data[i].idClienteNavigation.apellidos : data[i].idClienteNavigation.nombreComercial;
+            switch (parseInt(data[i].idMoneda)) {
+                case 1:
+                    body = '<tr class="fila' + contadorFila + ' filas">'
+                        + '<td ><p style="padding-top:1rem;">' + data[i].idCotizacion + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCotizacion) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + nombreCliente + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' +GetEstado( data[i].estado) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + darFormato1(data[i].idMoneda) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + GetUsuarioxId(data[i].idVendedor) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
+                        + '<td style="display:none;"><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaVencimiento) + '</p></td>'
+                        + '<td><p style="padding-top:1rem;text-align: right;" class="colon" >' + formatoMoneda(1, data[i].totalBase) + '</p></td>'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].fechaModificacion + '</p></td>'
+                        + '<td >  <button value="' + data[i].idCotizacion + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+                    $(".currency").inputmask('currency', {
+                        prefix: monedas[0].simbolo + ' ',
+                        rightAlign: true
+                    });
+                    break;
+                case 2:
+                    body = '<tr class="fila' + contadorFila + ' filas" >'
+                        + '<td><p style="padding-top:1rem;">' + data[i].idCotizacion + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCotizacion) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + nombreCliente + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' +GetEstado( data[i].estado) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + darFormato1(data[i].idMoneda) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + GetUsuarioxId(data[i].idVendedor) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
+                        + '<td style="display:none;"><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaVencimiento) + '</p></td>'
+                        + '<td><p style="padding-top:1rem;text-align: right;" class="dolar" >' + formatoMoneda(2, data[i].totalDolar) + '</p></td>'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].fechaModificacion + '</p></td>'
+                        + '<td >  <button value="' + data[i].idCotizacion + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+9
+                    break;
+                case 3:
+                    body = '<tr class="fila' + contadorFila + ' filas">'
+                        + '<td><p style="padding-top:1rem;">' + data[i].idCotizacion + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCotizacion) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + nombreCliente + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' +GetEstado( data[i].estado) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + darFormato1(data[i].idMoneda) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + GetUsuarioxId(data[i].idVendedor) + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaCreacion) + '</p></td>'
+                        + '<td style="display:none;"><p style="padding-top:1rem">' + data[i].idUsuarioCreador + '</p></td>'
+                        + '<td><p style="padding-top:1rem">' + recuperarFecha(data[i].fechaVencimiento) + '</p></td>'
+                        + '<td><p style="padding-top:1rem;text-align: right;" class="euro"  >' + formatoMoneda(3, data[i].totalEuro) + '</p></td>'
+                        + '<td style="display:none;"><p style="padding-top:1rem;">' + data[i].fechaModificacion + '</p></td>'
+                        + '<td>  <button value="' + data[i].idCotizacion + '" onclick="editarCotizacion(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>';
+                    break;
+            }
+            $('#tblCotizacion > tbody').append(body);
+            contadorFila++;
+    }
+        inicializarTabla();
+    }
+    function GetEstado(Estado) {
+        switch (Estado) {
+            case "Borrador":
+                return "@Lb["Borrador"]";
+                break;
+            case "Enviada":
+                   return "@Lb["Enviada"]";
+                break;
+            case "Anulada":
+                   return "@Lb["Anulada"]";
+                break;
+            case "Aceptada":
+                   return "@Lb["Aceptada"]";
+                break;
+            case "Rechazada":
+                   return "@Lb["Rechazada"]";
+                break;
+            case "Facturada":
+                   return "@Lb["Facturada"]";
+                break;
+        }
+    }
+    function formatoMoneda(moneda, value) {
+        $('#monedaFormater').addClass(darFormato(moneda));
+        //inicializa formato
+        if (moneda == 1) { //editado por lenin
+            $(".colon").inputmask('currency', {
+                prefix: monedas[0].simbolo + " ",
+                rightAlign: true
+            });
+        } else if (moneda == 2) {
+            $(".dolar").inputmask('currency', {
+                prefix: monedas[1].simbolo + " ",
+                rightAlign: true
+            });
+        } else if (moneda == 3) {
+            $(".euro").inputmask('currency', {
+                prefix: monedas[2].simbolo + " ",
+                rightAlign: true
+            });
+        }
+
+        $('#monedaFormater').val(value);
+        return $('#monedaFormater').val();
+    }
+    function darFormato(idMoneda) {
+        if (idMoneda === 1)
+            return "colon";
+        else if (idMoneda === 2)
+            return "dolar"
+        else if (idMoneda === 3)
+            return "euro"
+    }
+    function darFormato1(idMoneda) {
+        if (idMoneda === 1)
+            return monedas[0].simbolo;
+        else if (idMoneda === 2)
+            return monedas[1].simbolo;
+        else if (idMoneda === 3)
+            return monedas[2].simbolo;
+    }
+    function inicializarTabla() {
+        $('#tblCotizacion').DataTable().destroy();
+        tblCotizacion = $('#tblCotizacion').DataTable({
+            "info": false,
+            "order": [[10, "desc"]],
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy   " ></i>',
+                    titleAttr: 'Copy',
+                    title: '@Lb["AjusteManual"]',
+                    exportOptions: {
+                        columns: [0, 1, 3]
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel  "></i>',
+                    titleAttr: 'Excel',
+                    title: '@Lb["AjusteManual"]',
+                    exportOptions: {
+                        columns: [0, 1, 3]
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf   "></i>',
+                    titleAttr: 'PDF',
+                    title: '@Lb["AjusteManual"]',
+                    exportOptions: {
+                        columns: [0, 1, 3]
+                    }
+                }
+            ]
+        });
+        $(".dataTables_searching").hide();
+    }
     function editarCotizacion(id) {
         var url = '@Url.Action("EditarCotizacion", "CotizacionProducto", new { id = "__id__" })';
         window.location.href = url.replace("__id__", id);
+    }
+    function recuperarFecha(_fecha) {
+        var fecha = _fecha.substr(0, 10);
+        var y = fecha.substr(0, 4);
+        var m = fecha.substr(5, 2);
+        var d = fecha.substr(8, 3);
+        //var date = new Date();
+        return d + "-" + m + "-" + y ;///new Date(fecha).toLocaleDateString(); //fecha.replace(/-/g, "/");
+    }
+    /////////////////////filtros//////////////////
+    $('#Estados').on('change', function () {
+        switch (this.value) {
+            case "1":
+                cargarDatos(_Cotizaciones);
+                tblCotizacion
+                    .columns(3)
+                    .search("@Lb["Borrador"]")
+                    .draw();
+                $('#filtroId').val("");
+                $('#filtroCliente').val("");
+                $('#filtroVendedor').val("");
+                break;
+            case "2":
+                cargarDatos(_Cotizaciones);
+                tblCotizacion
+                    .columns(3)
+                    .search("@Lb["Enviada"]")
+                    .draw();
+                $('#filtroId').val("");
+                $('#filtroCliente').val("");
+                $('#filtroVendedor').val("");
+                break;
+            case "3":
+                cargarDatos(_Anuladas);
+                $('#filtroId').val("");
+                $('#filtroCliente').val("");
+                $('#filtroVendedor').val("");
+                break;
+            case "4":
+                cargarDatos(_Cotizaciones);
+                tblCotizacion
+                    .columns(3)
+                    .search("@Lb["Aceptada"]")
+                    .draw();
+                $('#filtroId').val("");
+                $('#filtroCliente').val("");
+                $('#filtroVendedor').val("");
+                break;
+            case "5":
+                cargarDatos(_Cotizaciones);
+                tblCotizacion
+                    .columns(3)
+                    .search("@Lb["Rechazada"]")
+                    .draw();
+                $('#filtroId').val("");
+                $('#filtroCliente').val("");
+                $('#filtroVendedor').val("");
+                break;
+            case "6":
+                cargarDatos(_Cotizaciones);
+                tblCotizacion
+                    .columns(3)
+                    .search("@Lb["Facturada"]")
+                    .draw();
+                $('#filtroId').val("");
+                $('#filtroCliente').val("");
+                $('#filtroVendedor').val("");
+                break;
+            case "0":
+                cargarDatos(_Cotizaciones);
+                $('#filtroId').val("");
+                $('#filtroCliente').val("");
+                $('#filtroVendedor').val("");
+                inicializarTabla();
+        }
+            });
+    $("#filtroCliente").on("keyup", function () {
+        tblCotizacion
+            .columns(2)
+            .search(this.value)
+            .draw();
+    });
+    $("#filtroVendedor").on("keyup", function () {
+        tblCotizacion
+            .columns(5)
+            .search(this.value)
+            .draw();
+    });
+    $("#filtroId").on("keyup", function () {
+        tblCotizacion
+            .columns(0)
+            .search(this.value)
+            .draw();
+    });
+    $('#habilitaFiltroFecha').change(function () {
+        if (!$(this).prop('checked')) {
+            cargarFiltros();
+            $('#filtroFecha').attr('disabled', true);
+        }
+        else {
+            $('#filtroFecha').attr('disabled',false);
+            cargarFiltros();
+        }
+    });
+    function cargarFiltros() {
+        ajusteFiltrado = JSON.parse(JSON.stringify(Cotizaciones));
+        ajusteFiltrado = filtroFecha(ajusteFiltrado, desde, hasta);
+        cargarDatos(ajusteFiltrado);
+    }
+    function filtroFecha(array ,_desde, _hasta) {
+        var arrayAjustes = [];
+        if ($('#habilitaFiltroFecha').prop('checked')) {
+            var desdeLocal = new Date(_desde).getTime();
+            var hastaLocal = new Date(_hasta).getTime();
+            for (var i = 0; i < array.length; i++) {
+                var documento = new Date(array[i].fechaCotizacion).getTime();
+                var flag = false;
+                if (documento >= desdeLocal && documento <= hastaLocal)
+                    arrayAjustes.push(array[i]);
+            }
+            return arrayAjustes;
+        }
+        else
+            return array;
+    }
+    function filtroItem(array) {
+        var arrayAjustes = [];//JSON.parse(JSON.stringify(ajustes));
+        var keyword = $("#filtroItem").val();
+        if (keyword.replace(/ /g, "") != "") {
+            for (var i = 0; i < array.length; i++) {
+                for (var j = 0; j < array[i].tbPrAjusteInventario.length; j++) {
+                    if (array[i].tbPrAjusteInventario[j].idInventarioNavigation.codigo.indexOf(keyword) > -1) {
+                        arrayAjustes.push(array[i]);
+                        break;
+                    }
+                }
+            }
+            return arrayAjustes
+        }
+        else
+            return array;
     }
 </script>
 

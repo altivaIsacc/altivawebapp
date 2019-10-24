@@ -21,6 +21,12 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbPrAjuste.Include(a => a.TbPrAjusteInventario).ThenInclude(a => a.IdInventarioNavigation).ToList();
         }
+
+        public IList<TbCoCuentaContable> GetAllCC()
+        {
+            return context.TbCoCuentaContable.ToList();
+        }
+
         public IList<TbCoCentrosDeGastos> GetAllCG()
         {
             return context.TbCoCentrosDeGastos.ToList();
@@ -37,7 +43,8 @@ namespace AltivaWebApp.Repositories
                                 .Include(a => a.TbPrAjusteInventario)
                                 .ThenInclude(a => a.IdInventarioNavigation)
                                 .ThenInclude(b => b.TbPrInventarioBodega)
-                                .Include(a => a.TbPrAjusteInventario)                                
+                                .Include(a => a.TbPrAjusteInventario)
+                                .ThenInclude(a => a.IdCuentaContableNavigation).AsNoTracking()
                                 .FirstOrDefault(a => a.Id == id);
             }
             catch (Exception ex)

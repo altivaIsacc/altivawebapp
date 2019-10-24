@@ -41,7 +41,17 @@ namespace AltivaWebApp.Services
         public void DeleteAjusteInventario(IList<long> id)
         {
             repository.DeleteAjusteInventario(id);
-        }              public IList<TbCoCentrosDeGastos> GetAllCG()
+        }
+
+
+        ///provisional
+        ///
+
+        public IList<TbCoCuentaContable> GetAllCC()
+        {
+            return repository.GetAllCC();
+        }
+        public IList<TbCoCentrosDeGastos> GetAllCG()
         {
             return repository.GetAllCG();
         }

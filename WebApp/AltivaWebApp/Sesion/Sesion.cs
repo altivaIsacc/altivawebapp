@@ -13,14 +13,14 @@ namespace AltivaWebApp.Sesion
         public static string _KEYBDGE = "stringGE";
         public static string _KEYBDBE = "stringBE";
         public static string _KEYnombreUsuario = "nombreUsuario";
-        public static string _KEYidUsuario = "IdUsuario";
         public static string _KEYIdEmpresa = "idEmpresa";
         public static string _KEYIdiomaUsuario = "idioma";
         public static string _KEYAvatar = "avatar";
         public static string _KEYFotoEmpresa = "fotoEmpresa";
         public static string _KEYNombreEmpresa = "nombreEmpresa";
+        
 
-           public static void SetStringGE(this ISession session, string value)
+        public static void SetStringGE(this ISession session, string value)
         {
             session.SetString(_KEYBDGE, value);
         }

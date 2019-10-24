@@ -1,13 +1,14 @@
-﻿using AltivaWebApp.Domains;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using AltivaWebApp.Domains;
 using AltivaWebApp.Mappers;
 using AltivaWebApp.Services;
 using AltivaWebApp.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
 
 namespace AltivaWebApp.Controllers
 {
@@ -29,6 +30,7 @@ namespace AltivaWebApp.Controllers
         [Route("Lista-Bodegas/{estado?}/{err?}")]
         public ActionResult ListarBodegas(string estado, string err)
         {
+            AltivaLog.Log.Insertar("ListaBodegas", "Test");
             var bodegas = new List<TbPrBodega>();
             if (estado == null)
             {
@@ -125,9 +127,10 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                        
+                // TODO: Add delete logic here              
                 string comentarioES = "";
-                          var bodega = service.GetBodegaById(id);
+                //string comentarioIN = "Creo una nueva bitacora";
+                var bodega = service.GetBodegaById(id);
                 if ((bool)bodega.Estado)
                 {
                     bodega.Estado = false;

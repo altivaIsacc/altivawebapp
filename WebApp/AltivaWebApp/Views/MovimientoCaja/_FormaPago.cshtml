@@ -151,7 +151,7 @@
                                         <hr style="padding:0; margin:0; margin-bottom:1rem" />
 
                                         <div class="col-md-6 col-sm-6 col-xs-6">
-                                            <span><stron>@Lb["Autorizacion"]:</stron></span>
+                                            <span><stron>@Lb["Autorización"]:</stron></span>
                                         </div>
                                         <div class="form-group col-md-6 col-sm-6 col-xs-6">
                                             <input class="form-control input-sm soloInt" id="autorizacion" onkeypress="pasarSigCampoFP(event,'voucher')" />
@@ -313,15 +313,9 @@
                                     <tbody>
                                         <tr>
                                             <td style="width:20%"><strong>@Lb["Prepagos"]</strong></td>
-                                            <td style="width:35%"><span hidden class="text-danger" id="montoPrepagoMayorValid">@Lb["montoMayorValid"].</span></td>
-                                            <td style="width:35%;text-align:right">
-                                                <input readonly id="totalPrepago" onkeyup="enterMontoPrepago(event)" class="form-control input-sm formaPagoMoneda" />
-                                                
-                                            </td>
-                                            <td style="width:10%">
-                                                <a href="#" id="btnEditarPrepago" onclick="habilitarPrepago()"><i class="fas fa-edit"></i></a>
-                                                <a href="#" id="btnGuardarPrepago" hidden onclick="editarMontoPrepago()"><i class="fas fa-save"></i></a>
-                                            </td>
+                                            <td style="width:35%"><span ></span></td>
+                                            <td style="width:35%;text-align:right"><label id="totalPrepago">0</label></td>
+                                            <td style="width:10%"><a href="#" ><i class="fas fa-edit"></i></a></td>
                                         </tr>
                                         <tr>
                                             <td style="width:20%"><strong>@Lb["Total"]</strong></td>
@@ -383,15 +377,11 @@
 <div hidden><input hidden id="formater4" class="formaPagoMoneda" type="text" /></div>
 <div hidden><input hidden id="vueltoFormat" class="formaPagoMoneda" type="text" /></div>
 
-
 <script>
     var formaPagoSeleccionada;
     var monedaFormaPagoSeleccionada;
     var primeraVez = true;
     var formasPago = [];
-    var fpCrOrUp = [];
-    var fpEliminadas = [];
-    var _idMovimientoPago = 0;
 
     ////////varibales general
     var _MONTO = 1;
@@ -428,7 +418,6 @@
     };
 
     var montoPrepago = 0;
-    var montoPrepagoAplicado = 0;
     var saldoDisponible = 0;
 
     $(document).ready(function () {
@@ -469,73 +458,12 @@
         setTimeout(function () { $('#montoFP1').focus(); }, 500);
 
         setSaldoDisponible();
-
         if (@Model.IdDocumento != 0) {
             getFormasPago();
         }
+        
 
     });
-
-    function habilitarPrepago(){
-        $('#totalPrepago').prop('readonly', false);
-        $('#totalPrepago').select();
-        $('#btnEditarPrepago').prop('hidden', true);
-        $('#btnGuardarPrepago').prop('hidden', false);
-
-
-    }
-
-    function editarMontoPrepago() {
-        $('#totalPrepago').prop('readonly', true);
-        $('#btnEditarPrepago').prop('hidden', false);
-        $('#btnGuardarPrepago').prop('hidden', true);
-
-
-        var saldoPrepago = getSaldoDisponible();
-
-        var aplicado = getMontoPrepago();
-        $('#auxMontoFormat').val(aplicado);
-        var totalOld = parseFloat($('#auxMontoFormat').inputmask('unmaskedvalue'));
-
-        var totalNew = $('#totalPrepago').inputmask('unmaskedvalue') != null ? parseFloat($('#totalPrepago').inputmask('unmaskedvalue')) : 0;
-
-        //si son iguales retorna el monto real con decimales
-        if (saldoPrepago < totalNew) {
-            cargarAlert('@Lb["MontoMayorAlDisponible"]');
-            setMontoPrepagoFromBD(totalOld);
-            return;
-        }
-
-        if (totalOld == totalNew)
-            totalNew = getMontoPrepago();
-
-        var balance = (getBalance(_MONEDADEFAULT) + aplicado) - totalNew;
-
-        //es mas
-        if (balance < 0) {
-
-            //$('#montoPrepagoMayorValid').prop('hidden', false);
-            cargarAlert('@Lb["montoPrepagoMayorValid"]');
-            setMontoPrepagoFromBD(totalOld);
-            //alert();
-        }
-        else if (balance > 0) {           
-            setMontoPrepagoFromBD(totalNew);
-        }
-        else {
-            setMontoPrepagoFromBD(totalNew);
-        }
-
-        calcularMovimientos();
-
-        setMontoFP(_MONEDADEFAULT);
-
-        cargarFormasPago(formasPago);
-
-
-
-    }
-
 
     $('#metodosPago a').on('click', function (e) {
         e.preventDefault();
@@ -559,8 +487,9 @@
         formaPagoSeleccionada = value;
         setMonedaGeneral(_MONEDADEFAULT);
 
-    }
 
+    }
+    
 
     /////////////////////////calculos efectivo/////////////////////
 
@@ -723,10 +652,10 @@
 
         var disponible = getSaldoDisponible();
 
-        if (disponible <= 0 || getBalance(_MONEDADEFAULT) == 0)
-            $('#btnSaldoDisponible').prop('disabled', true);
-        else
+        if (disponible > 0)
             $('#btnSaldoDisponible').prop('disabled', false);
+        else
+            $('#btnSaldoDisponible').prop('disabled', true);
 
 
         $('#auxMontoFormat').val(disponible);
@@ -745,25 +674,19 @@
         var disponible = getSaldoDisponible();
 
         if (disponible <= montoBalance) {
-            montoPrepago += disponible;
+            montoPrepago = disponible;
         }
         else {
-            montoPrepago += montoBalance;
+            montoPrepago = montoBalance;
         }
 
         $('#auxMontoFormat').val(montoPrepago);
-        $('#totalPrepago').val(montoPrepago);
+        $('#totalPrepago').text($('#auxMontoFormat').val());
 
         calcularMovimientos();
 
         setMontoFP(parseInt($("input[name='rdMoneda']:checked").val()));
     }
-
-    function setMontoPrepagoFromBD(monto) {
-        montoPrepago = monto;
-        $('#totalPrepago').val(monto);
-    }
-
     function getMontoPrepago() {
         return montoPrepago;
     }
@@ -899,7 +822,7 @@
             ventaEuroTc: monedas[2].valorVenta,
             idTipoCajaMovimiento: formaPagoSeleccionada,
             idCaja: @Model.IdCaja,
-            idMovimiento: _idMovimientoPago,                   //tarjeta = 2//
+            idMovimiento: 0,                   //tarjeta = 2//
             cajaMovTarjeta: formaPagoSeleccionada == 2 ? crearModelMovimientoTarjeta() : null,
                                                //cheque = 4//
             cajaMovCheque: formaPagoSeleccionada == 4 ? crearModelMovimientoCheque() : null,
@@ -974,7 +897,6 @@
         }
 
         formasPago.push(fp);
-        fpCrOrUp.push(fp);
 
         setPago(totalFomasPago());
 
@@ -1132,15 +1054,6 @@
         }
     }
 
-    function enterMontoPrepago(e) {
-
-        (e.keyCode) ? k = e.keyCode : k = e.which;
-
-        if (k == 13) {
-            editarMontoPrepago();
-        }
-    }
-
     function pasarSigCampoFP(e, id, submitMonto) {
 
         (e.keyCode) ? k = e.keyCode : k = e.which;
@@ -1163,9 +1076,11 @@
 
     function cargarFormasPago(data) {
 
+        console.log(data);
+
         $("#tblFormaPago > tbody").remove();
         $('#tblFormaPago').append('<tbody></tbody>');
-
+        
         for (var i = 0; i < data.length; i++) {
 
             var body =
@@ -1178,7 +1093,7 @@
 
             $('#tblFormaPago > tbody').append(body);
 
-
+            
 
         }
 
@@ -1188,12 +1103,7 @@
 
     function eliminarFP(id, pos) {
 
-        if (id != 0) {
-            fpEliminadas.push(id);
-        }
-        fpCrOrUp.splice($.inArray(formasPago[pos], fpCrOrUp), 1);
         formasPago.splice(pos, 1);
-
         setPago(totalFomasPago());
         calcularMovimientos();
         $('.montoFormaPago').val(getBalance(_MONEDADEFAULT));
@@ -1355,18 +1265,18 @@
     }
 
     function retornaFormasPago() {
-        for (var i = 0; i < fpCrOrUp.length; i++) {
+        for (var i = 0; i < formasPago.length; i++) {
 
-            fpCrOrUp[i].montoBase = fpCrOrUp[i].montoBase.toString().replace(".", ",");
-            fpCrOrUp[i].montoDolar = fpCrOrUp[i].montoDolar.toString().replace(".", ",");
-            fpCrOrUp[i].montoEuro = fpCrOrUp[i].montoEuro.toString().replace(".", ",");
-            fpCrOrUp[i].compraDolarTc = fpCrOrUp[i].compraDolarTc.toString().replace(".", ",");
-            fpCrOrUp[i].ventaDolarTc = fpCrOrUp[i].ventaDolarTc.toString().replace(".", ",");
-            fpCrOrUp[i].compraEuroTc = fpCrOrUp[i].compraEuroTc.toString().replace(".", ",");
-            fpCrOrUp[i].ventaEuroTc = fpCrOrUp[i].ventaEuroTc.toString().replace(".", ",");
+            formasPago[i].montoBase = formasPago[i].montoBase.toString().replace(".", ",");
+            formasPago[i].montoDolar = formasPago[i].montoDolar.toString().replace(".", ",");
+            formasPago[i].montoEuro = formasPago[i].montoEuro.toString().replace(".", ",");
+            formasPago[i].compraDolarTc = formasPago[i].compraDolarTc.toString().replace(".", ",");
+            formasPago[i].ventaDolarTc = formasPago[i].ventaDolarTc.toString().replace(".", ",");
+            formasPago[i].compraEuroTc = formasPago[i].compraEuroTc.toString().replace(".", ",");
+            formasPago[i].ventaEuroTc = formasPago[i].ventaEuroTc.toString().replace(".", ",");
         }
 
-        return fpCrOrUp;
+        return formasPago;
     }
 
     function guardarMovimientosCaja() {
@@ -1381,7 +1291,7 @@
             $('#vueltoModal').modal('show');
         }
         else if (balance >= 0)
-            procesarPagoDoc();
+            procesarPago();
         else
              cargarAlert('@Lb["pagadoMenorAlMonto"]');
     }
@@ -1390,30 +1300,13 @@
         $('#closeVueltoModal').focus();
     });
     $('#vueltoModal').on('hidden.bs.modal', function (e) {
-        procesarPagoDoc();
+        procesarPago();
     });
 
     $('a[data-toggle="list"]').on('shown.bs.tab', function (e) {
         $('.montoFormaPago').focus();
     });
 
-    function procesarPago(idDocumento) {
-
-        $.ajax({
-            type: "post",
-            dataType: "json",
-            url: '@Url.Action("CrearEditarFormasPago", "MovimientoCaja")',
-            data: { idDocumento: idDocumento, viewModel: retornaFormasPago(), fpEliminadas: fpEliminadas, montoPrepago: getMontoPrepago().toString().replace(".", ",") },
-            success: function (data) {
-                    postProcesarPago(idDocumento);
-            },
-            error: function (err, scnd) {
-                cargarAlert('@Lb["errorGeneral"]');
-                console.log(err.statusText);
-            }
-        });
-
-    }
 
     function getFormasPago() {
          $.ajax({
@@ -1421,8 +1314,7 @@
               dataType: "json",
               url: '@Url.Action("GetFormasPago", "MovimientoCaja", new { idDoc = Model.IdDocumento })',
              success: function (data) {
-                 if (data.length > 0)
-                    cargarMetodosPagoBD(data);
+                 cargarMetodosPago(data);
              },
              error: function (err, scnd) {
                  cargarAlert('@Lb["errorGeneral"]');
@@ -1431,99 +1323,74 @@
          });
     }
 
-    function cargarMetodosPagoBD(data) {
+    function cargarMetodosPago(data) {
 
-        var montoPrepagoAux = 0;
+        var fps = retornaFormasPago(data); 
 
-        var _pagoContado = 2;
+        console.log(data);
+
+
+        //setPago(totalFomasPago());
+
+        //calcularMovimientos();
+
+        //setMontoFP(fp.idMoneda);
+        //cargarFormasPago(formasPago);
+        
+    }
+
+    function retornaFormasPago(data) {
+
+        //var fp = {
+        //    prepago: {
+        //        base: 0,
+        //        dolar: 0,
+        //        euro: 0
+        //    },
+        //    cajaMovimiento: []
+        //};
 
         for (var i = 0; i < data.length; i++) {
+            var cm = data[i].idMovimientoHastaNavigation.tbFaCajaMovimiento;
+            if (cm != null) {
+                var fp = {
+                    idCajaMovimiento: cm.idCajaMovimiento,
+                    tipoCategoriaFlujo: 0,
+                    idCategoriaFlujo: cm.idCategoriaFlujo,
+                    fechaCreacion: cm.fechaCreacion,
+                    estado: cm.estado,
+                    idMoneda: cm.idMoneda,
+                    montoOriginal: cm.idMoneda == 1 ? cm.montoBase : cm.idMoneda == 2 ? cm.montoDolar : cm.montoEuro,
+                    montoBase: cm.montoBase,
+                    montoDolar: cm.montoDolar,
+                    montoEuro: cm.montoEuro,
+                    compraDolarTc: cm.compraDolarTc,
+                    ventaDolarTc: cm.ventaDolarTc,
+                    compraEuroTc: cm.compraEuroTc,
+                    ventaEuroTc: cm.ventaEuroTc,
+                    idTipoCajaMovimiento: cm.idTipoCajaMovimiento,
+                    idCaja: cm.idCaja,
+                    idMovimiento: cm.idMovimiento,                   //tarjeta = 2//
+                    cajaMovTarjeta: null,//tbFaCajaMovimientoTarjeta != null ? cm.tbFaCajaMovimientoTarjeta : null,
+                    //cheque = 4//
+                    cajaMovCheque: null//tbFaCajaMovimientoCheque != null ? cm.tbFaCajaMovimientoCheque : null,
+                    //fechaTransferencia: $('#fechaTransferencia').val(),
+                    //documentoTransferencia: $('#documento').val()
 
-            var tipoDoc = data[i].idMovimientoHastaNavigation.idTipoDocumentoNavigation;
-            if (!tipoDoc.esDebito && tipoDoc.cxc && tipoDoc.idTipoDocumento != _pagoContado) {
-                var modelMontos = {
-                    montoBase: data[i].aplicadoBase,
-                    montoDolar: data[i].aplicadoDolar,
-                    montoEuro: data[i].aplicadoEuro
-                }
 
-                montoPrepagoAux += getMontoAlCambio(modelMontos);
+                };
 
+                formasPago.push(fp);
             }
             else {
-                var cajamov = data[i].idMovimientoHastaNavigation.tbFaCajaMovimiento;
-
-                if (cajamov != null) {
-                    for (var k = 0; k < cajamov.length; k++) {
-                        var cm = cajamov[k];
-
-                        var fp = {
-                            idCajaMovimiento: cm.idCajaMovimiento,
-                            tipoCategoriaFlujo: 0,
-                            idCategoriaFlujo: cm.idCategoriaFlujo,
-                            fechaCreacion: cm.fechaCreacion,
-                            estado: cm.estado,
-                            idMoneda: cm.idMoneda,
-                            montoOriginal: retornaMontoOrigilaFP(cm.idMoneda, cm),
-                            montoBase: cm.montoBase,
-                            montoDolar: cm.montoDolar,
-                            montoEuro: cm.montoEuro,
-                            compraDolarTc: cm.compraDolarTc,
-                            ventaDolarTc: cm.ventaDolarTc,
-                            compraEuroTc: cm.compraEuroTc,
-                            ventaEuroTc: cm.ventaEuroTc,
-                            idTipoCajaMovimiento: cm.idTipoCajaMovimiento,
-                            idCaja: cm.idCaja,
-                            idMovimiento: cm.idMovimiento,                   //tarjeta = 2//
-                            cajaMovTarjeta: null,//tbFaCajaMovimientoTarjeta != null ? cm.tbFaCajaMovimientoTarjeta : null,
-                            //cheque = 4//
-                            cajaMovCheque: null//tbFaCajaMovimientoCheque != null ? cm.tbFaCajaMovimientoCheque : null,
-                            //fechaTransferencia: $('#fechaTransferencia').val(),
-                            //documentoTransferencia: $('#documento').val()
-
-                        };
-
-                        _idMovimientoPago = cm.idMovimiento;
-
-                        formasPago.push(fp);
-                    }
-                }
+                //fp.prepago.base += cm.montoBase;
+                //fp.prepago.dolar += cm.montoDolar;
+                //fp.prepago.euro += cm.montoEuro;
             }
-
+            
         }
-
-        $('#saldoFormat').val(parseFloat($('#saldoFormat').val()) + montoPrepagoAux);
-
-        setSaldoDisponible();
-
-        setMontoPrepagoFromBD(montoPrepagoAux);
-
-        calcularMovimientos();
-
-        setMontoFP(_MONEDADEFAULT);
-
-        cargarFormasPago(formasPago);
-
 
     }
 
-    function retornaMontoOrigilaFP(idMoneda, montos) {
-
-        var monto = 0;
-
-        switch (idMoneda) {
-            case 1:
-                monto = montos.montoBase;
-                break;
-            case 2:
-                monto = montos.montoDolar;
-                break;
-            case 3:
-                monto = montos.montoEuro;
-                break;
-        }
-
-        return monto;
-    }
 
 </script>
