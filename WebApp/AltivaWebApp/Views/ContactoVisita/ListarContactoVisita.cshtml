@@ -38,7 +38,7 @@
 
     <div class="col-md-3 col-sm-4 col-xs-2 checkbox">
         <label class="control-label">
-            <input type="checkbox" id="chkMisClientes"> @Lb["misClientes"]
+            <input type="checkbox" id="chkMisClientes" onchange="cargarFiltros()" checked> @Lb["misClientes"]
         </label>
     </div>
 
@@ -54,21 +54,25 @@
 
 
                 <tr>
-                    <th>
+                    <th hidden>
                         <span>@Lb["Id"]</span>
                     </th>
-                    <th>
+                    <th style="width:15%">
                         <span>@Lb["Cliente"]</span>
                     </th>
 
-                    <th>
+                    <th style="width:15%">
                         <span>@Lb["Vendedor"]</span>
                     </th>
-                    <th>
+                    <th style="width:15%">
                         <span>@Lb["UltimaVisita"]</span>
                     </th>
 
-                    <th><span>@Lb["accion"]</span></th>
+                    <th style="width:20%">
+                       <span>@Lb["accion"]</span>
+                    </th>
+
+
                 </tr>
 
             </thead>
@@ -82,17 +86,17 @@
 
 <script>
 
-    var arrayContactoVisita = [];//contiene los datos de la tabla contactoVisita
-    var arrayUsuarios = [];
-    var arrayContactos = [];
-
+    var arrayContactoVisita = [];// contiene los datos de la tabla contactoVisita
+    var arrayUsuarios = []; // contiene los usuarios de bd , vendedores
+    var arrayContactos = []; // contiene todos los contactos de la bd, clientes
+    var arrayClientes = [];
+    var arrayClientesFiltrados = [];
 
     $(document).ready(function () {
 
 
-        getContactoVisita();
-      
-       // console.log(@idUsuario);
+        getContactoVisita();      
+       //console.log(@idUsuario);
      
 
     });
@@ -109,8 +113,7 @@
             url: '@Url.Action("GetContactoVisita", "ContactoVisita")',
             success: function (data) {
 
-                arrayContactoVisita = JSON.parse(JSON.stringify(data));
-                //console.log(arrayContactoVisita);
+                arrayContactoVisita = JSON.parse(JSON.stringify(data));            
                 getUsuarios();
 
             },
@@ -133,8 +136,7 @@
              url: '@Url.Action("GetUsuariosPorEmpresa", "ManejoUsuarios")',
              success: function (data) {
 
-                 arrayUsuarios = data;
-                 //console.log(arrayUsuarios);
+                 arrayUsuarios = data;              
                  getContactos();
 
              },
@@ -159,7 +161,8 @@
              success: function (data) {
 
                  arrayContactos = data;
-                 //console.log(arrayContactos);
+                 getAllClientes();
+              
 
              },
              error: function (err, scnd) {
@@ -170,22 +173,199 @@
          });
 
 
+    }
 
+    function getAllClientes() {
+
+           //console.log(arrayUsuarios);
+           //console.log(arrayContactos);
+           //console.log(arrayContactoVisita);
+         
+        arrayClientes = [];   
+        for (var i = 0; i < arrayUsuarios.length; i++) {
+            for (var j = 0; j < arrayContactos.length; j++) {
+                for (var k = 0; k < arrayContactoVisita.length; k++) {
+                    
+                    // cliente && proveedor
+                    if (arrayContactoVisita[k].idContacto == arrayContactos[j].idContacto && arrayContactoVisita[k].idUsuarioCreacion == arrayUsuarios[i].id   ) {
+                    
+                        var objEncontrado = {
+
+                            idContactoVisita: arrayContactoVisita[k].idContactoVisita,
+                            idContacto: arrayContactoVisita[k].idContacto,
+                            nombreCliente: arrayContactos[j].nombre,
+                            idUsuarioCreacion: arrayContactoVisita[k].idUsuarioCreacion,
+                            nombreProveedor: arrayUsuarios[i].nombre,
+                            idUsuarioModificacion: arrayContactoVisita[k].idUsuarioModificacion,
+                            idVisitaTipo: arrayContactoVisita[k].idVisitaTipoNavigation,
+                            fechaCreacion: arrayContactoVisita[k].fechaCreacion,
+                            fechaModificacion: arrayContactoVisita[k].fechaModificacion,
+                            observacion: arrayContactoVisita[k].observacion,
+                            foto: arrayContactoVisita[k].foto,
+                            estado: arrayContactoVisita[k].estado
+
+                        };
+                        arrayClientes.push(objEncontrado);
+                    }              
+                }           
+            }       
+        }
+           
+       //console.log(arrayClientes);
+       //cargarDatos(arrayClientes);
+        cargarFiltros();
+    
+    }
+
+
+    function cargarDatos(arrayClientes) {
+
+        var contadorFila = 0;
+
+        $("#tblContactoVisita > tbody").remove();
+        $('#tblContactoVisita').append('<tbody></tbody>');
+
+        for (var i = 0; i < arrayClientes.length; i++) {
+    
+                var body = '<tr class="fila' + contadorFila + ' filas">'
+                    + '<td hidden><p style="padding-top:1rem">' + arrayClientes[i].idContactoVisita + '</p></td>'
+                    + '<td><p style="padding-top:1rem">' + arrayClientes[i].nombreCliente + '</p></td>'                           
+                    + '<td><p style="padding-top:1rem">' + arrayClientes[i].nombreProveedor + '</p></td>' 
+                    + '<td><p style="padding-top:1rem">' + recuperarFecha(arrayClientes[i].fechaModificacion) + '</p></td>'  
+                + '<td style="width:15%"> <button id="btnHistorial' + contadorFila + '" value="' + contadorFila + '" onclick="" class="btn btn-link btnEditar"> Historial </button>   <button value="' + contadorFila + '" onclick="" class="btn btn-link btnEditar"> Agregar </button>';
+            
+                $('#tblContactoVisita> tbody').append(body);
+                contadorFila++;
+
+        }
+        inicializarTabla();
+    }
+
+
+     function inicializarTabla() {
+
+         $('#tblContactoVisita').DataTable().destroy();
+
+
+         tblFlujoCategoria = $('#tblContactoVisita').DataTable({
+             "info": false,
+             "order": [[0, "desc"]],
+             "searching": false,
+           // dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+        });
+    }
+
+
+
+    function recuperarFecha(_fecha) {
+
+        var f = new Date(_fecha);
+
+        return f.toLocaleString();
+
+    }
+
+
+    $("#filtroBuscar").on("keyup", function () {
+
+        cargarFiltros();
+
+    });
+
+
+
+    function cargarFiltros() {
+
+        arrayClientesFiltrados = arrayClientes;
+        arrayClientesFiltrados = filtroPalabra(arrayClientesFiltrados);
+        arrayClientesFiltrados = obtenerClientesVendedorEnSession(arrayClientesFiltrados);
+
+        cargarDatos(arrayClientesFiltrados);
 
     }
 
 
 
-    function cargarDatos(arrayContactoVisita) {
+    // SEGUIR POR ACA
+    function filtroPalabra(array) {
+
+        // console.log(array);
+        var palabra = $('#filtroBuscar').val();
+        console.log(palabra);
+   
+        if (palabra.replace(/ /g, "") === "") {
+            return array;
+        }
+        else {
+
+        }
+    }
 
 
 
+    function obtenerClientesVendedorEnSession(arrayClientesFiltrados) {
 
+       // console.log("idUsuarioSession:" + @idUsuario);
+       // console.log(arrayClientesFiltrados);
 
+        var arrayAux = [];
+        arrayAux = arrayClientesFiltrados;
+       
+        if ($('#chkMisClientes').prop('checked')) {
+            console.log("esta chequeado");
+                arrayAux = [];
+                for (var i = 0; i < arrayClientesFiltrados.length; i++) {
+                    if (arrayClientesFiltrados[i].idUsuarioCreacion == @idUsuario ) {
 
+                        var objClienteEncontrado = {
 
+                            idContactoVisita: arrayClientesFiltrados[i].idContactoVisita,
+                            idContacto: arrayClientesFiltrados[i].idContacto,
+                            nombreCliente: arrayClientesFiltrados[i].nombreCliente,
+                            idUsuarioCreacion: arrayClientesFiltrados[i].idUsuarioCreacion,
+                            nombreProveedor: arrayClientesFiltrados[i].nombreProveedor,
+                            idUsuarioModificacion: arrayClientesFiltrados[i].idUsuarioModificacion,
+                            idVisitaTipo: arrayClientesFiltrados[i].idVisitaTipo,
+                            fechaCreacion: arrayClientesFiltrados[i].fechaCreacion,
+                            fechaModificacion: arrayClientesFiltrados[i].fechaModificacion,
+                            observacion: arrayClientesFiltrados[i].observacion,
+                            foto: arrayClientesFiltrados[i].foto,
+                            estado: arrayClientesFiltrados[i].estado
 
+                        }
+                        arrayAux.push(objClienteEncontrado);
+                      
+                    }
+                   
+                }
 
+            }else{
+                 console.log("no chequeado");
+
+            }
+
+      //console.log(arrayAux);
+        return arrayAux;
 
     }
 
