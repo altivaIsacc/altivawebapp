@@ -21,9 +21,10 @@ namespace AltivaWebApp.Controllers
         private readonly IBodegaService bodegaService;
         private readonly IKardexMap kardexMap;
         private readonly ITomaService tomaService;
+        private readonly IMonedaService monedaService;
         EmpresasContext bd;
 
-        public AjusteInventarioController(EmpresasContext _bd, ITomaService tomaService, IKardexMap kardexMap, IBodegaService bodegaService, IAjusteService service, IAjusteMap map, IUserService userService)
+        public AjusteInventarioController(EmpresasContext _bd, ITomaService tomaService, IKardexMap kardexMap, IBodegaService bodegaService, IAjusteService service, IAjusteMap map, IUserService userService, IMonedaService monedaService)
         {
             bd = _bd;
             this.service = service;

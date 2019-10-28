@@ -1,0 +1,832 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="08/05/2019 07:22:54" ReportInfo.Modified="10/28/2019 11:53:44" ReportInfo.CreatorVersion="2019.3.23.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+
+  public class ReportScript
+  {
+    
+    private void Lineas_BeforeLayout(object sender, EventArgs e)
+    {
+      if(double.Parse(lblCantidad.Value.ToString()) == 1) {
+        Lineas.Visible = false;
+      }
+      else{
+        Lineas.Visible = true;
+      }
+    }    
+
+    private void exonerado_BeforeLayout(object sender, EventArgs e)
+    {
+      if(double.Parse(lblExonerado.Value.ToString()) == 0)  {
+           exonerado.Visible = false;
+      }
+      else{
+           exonerado.Visible = true;
+      }
+    }
+
+    private void excento_BeforeLayout(object sender, EventArgs e)
+    {
+      if(double.Parse(lblExcento.Value.ToString()) == 0)  {
+        excento.Visible = false;
+      }
+      else{
+        excento.Visible = true;
+      }
+    }
+
+    private void gravado_BeforeLayout(object sender, EventArgs e)
+    {
+      if(double.Parse(lblGravado.Value.ToString()) == 0)  {
+        gravado.Visible = false;
+      }
+      else{
+        gravado.Visible = true;
+      }
+    }
+
+    private void descuento_BeforeLayout(object sender, EventArgs e)
+    {
+      if(double.Parse(lblDescuento.Value.ToString()) == 0)  {
+        descuento.Visible = false;
+      }
+      else{
+        descuento.Visible = true;
+      }
+    }
+
+    
+
+    private void firma_BeforeLayout(object sender, EventArgs e)
+    {
+      if(lblTipo.Value.ToString() == &quot;2&quot;){
+        firma.Visible = true;      
+      }
+      else
+        firma.Visible = false;  
+    }
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection2" ConnectionString="rijcmlqHE+UVBHO0O0957hJkIVu0n6YzkpyjiSQevEmk9SDaeHYg8EUUJ3/7xEtcGRLL9NfJSrvpBSp1AIsJrTnrH6eF6Zwc64/VUWOfEZuO8t/k6QVZDwEiOl09E4eBRI7noMNWFv0dqL4Y+lhTMlOvUTCSuWdBLb3JnBUW5/JC0bUAB6zSupUlSYTj9o/LSKsVjO5KKdSzllULEs5CPybiuYZLw==">
+      <TableDataSource Name="Table1" Alias="Empresa" DataType="System.Int32" Enabled="true" SelectCommand="SELECT T.Id, T.Nombre, T.CedJuridica, T.Telefono1, T.Direccion&#13;&#10;FROM &quot;tb_GE_Empresa&quot; T&#13;&#10;WHERE T.Id=@idEmpresa&#13;&#10; ">
+        <Column Name="Id" DataType="System.Int64"/>
+        <Column Name="Nombre" DataType="System.String"/>
+        <Column Name="CedJuridica" DataType="System.String"/>
+        <Column Name="Telefono1" DataType="System.String"/>
+        <Column Name="Direccion" DataType="System.String"/>
+        <CommandParameter Name="idEmpresa" DataType="8" DefaultValue="39"/>
+      </TableDataSource>
+      <TableDataSource Name="Table2" Alias="Vendedor" DataType="System.Int32" Enabled="true" SelectCommand="SELECT T.Id, T.Nombre&#13;&#10;FROM &quot;tb_SE_Usuario&quot; T&#13;&#10;WHERE T.Id=@idUsuario&#13;&#10;">
+        <Column Name="Id" DataType="System.Int64"/>
+        <Column Name="Nombre" DataType="System.String"/>
+        <CommandParameter Name="idUsuario" DataType="8" Expression="[Facturaticket.IdVendedor]" DefaultValue="0"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqHE+UVBHO0O0957hJkIVu0n6YzkpyjiSQevEmk9SDaeHYg8EUUJ3/7xEtcGRLL9NfJSrvpBSp1AIsJrTnrH6eF22+DIVmxOA2XWIrvTW0TffqyXJuNhjbAqUuwoiwdqG3dJh4U2Tm3L/ZK6OQZaQp+O1Pc0o2YC1FSsYIpowkg1axbqUo5L2Wf3PrUarwm9xn1JATBQd+6ecNN0Ii4+1UJw==">
+      <TableDataSource Name="Table" Alias="Facturaticket" DataType="System.Int32" Enabled="true" SelectCommand="SELECT     dbo.tb_CR_Contacto.Nombre, dbo.tb_CR_Contacto.Apellidos, dbo.tb_CR_Contacto.NombreComercial, dbo.tb_CR_Contacto.NombreJuridico, dbo.tb_CR_Contacto.Persona, dbo.tb_FD_Factura.Id, &#13;&#10;                      dbo.tb_FD_Factura.Tipo, dbo.tb_FD_Factura.FechaFactura, dbo.tb_FD_Factura.IdCliente, dbo.tb_FD_Factura.Estado, dbo.tb_FD_Factura.IdVendedor, dbo.tb_FD_Factura.SubTotalBase, &#13;&#10;                      dbo.tb_FD_Factura.SubTotalExcentoBase, dbo.tb_FD_Factura.SubTotalGravadoBase, dbo.tb_FD_Factura.PorcDescuento, dbo.tb_FD_Factura.TotalDescuentoBase, &#13;&#10;                      dbo.tb_FD_Factura.SubTotalGravadoNetoBase, dbo.tb_FD_Factura.SubTotalExcentoNetoBase, dbo.tb_FD_Factura.MontoIVABase, dbo.tb_FD_Factura.MontoExoneracionBase, &#13;&#10;                      dbo.tb_FD_Factura.TotalBase, dbo.tb_FD_FacturaDetalle.IdFactura, dbo.tb_FD_FacturaDetalle.Id AS IdFD, dbo.tb_FD_FacturaDetalle.IdInventario, dbo.tb_FD_FacturaDetalle.Cantidad, &#13;&#10;                      dbo.tb_FD_FacturaDetalle.PrecioBase, dbo.tb_FD_FacturaDetalle.PorcIVA, dbo.tb_FD_FacturaDetalle.PorcDescuento AS DescuentoFD, dbo.tb_FD_FacturaDetalle.PorcExoneracion, &#13;&#10;                      dbo.tb_FD_FacturaDetalle.SubTotalBase AS SubtotalFD, dbo.tb_FD_FacturaDetalle.SubTotalGravadoBase AS SubtotalGravadoFD, &#13;&#10;                      dbo.tb_FD_FacturaDetalle.SubTotalExcentoBase AS SubtotalExcentoFD, dbo.tb_FD_FacturaDetalle.SubTotalGravadoNetoBase AS SubtotalGravadoNetoFD, &#13;&#10;                      dbo.tb_FD_FacturaDetalle.SubTotalExcentoNetoBase AS SubtotaExcentoNetoFD, dbo.tb_FD_FacturaDetalle.MontoDescuentoBase, dbo.tb_FD_FacturaDetalle.MontoIVABase AS MontoIVAFD, &#13;&#10;                      dbo.tb_FD_FacturaDetalle.MontoExoneracionDolar, dbo.tb_FD_FacturaDetalle.TotalBase AS TotalFD, dbo.tb_PR_Inventario.Codigo, dbo.tb_PR_Inventario.Descripcion, &#13;&#10;                      dbo.tb_PR_Inventario.CantidadUnidad, dbo.tb_PR_Inventario.DescripcionVenta&#13;&#10;FROM         dbo.tb_CR_Contacto INNER JOIN&#13;&#10;                      dbo.tb_FD_Factura ON dbo.tb_CR_Contacto.IdContacto = dbo.tb_FD_Factura.IdCliente INNER JOIN&#13;&#10;                      dbo.tb_FD_FacturaDetalle ON dbo.tb_FD_Factura.Id = dbo.tb_FD_FacturaDetalle.IdFactura INNER JOIN&#13;&#10;                      dbo.tb_PR_Inventario ON dbo.tb_FD_FacturaDetalle.IdInventario = dbo.tb_PR_Inventario.IdInventario&#13;&#10;WHERE     (dbo.tb_FD_Factura.Id = @idFactura)">
+        <Column Name="Nombre" DataType="System.String"/>
+        <Column Name="Apellidos" DataType="System.String"/>
+        <Column Name="NombreComercial" DataType="System.String"/>
+        <Column Name="NombreJuridico" DataType="System.String"/>
+        <Column Name="Persona" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <Column Name="Id" DataType="System.Int64"/>
+        <Column Name="Tipo" DataType="System.Byte"/>
+        <Column Name="FechaFactura" DataType="System.DateTime"/>
+        <Column Name="IdCliente" DataType="System.Int64"/>
+        <Column Name="Estado" DataType="System.String"/>
+        <Column Name="IdVendedor" DataType="System.Int64"/>
+        <Column Name="SubTotalBase" DataType="System.Double"/>
+        <Column Name="SubTotalExcentoBase" DataType="System.Double"/>
+        <Column Name="SubTotalGravadoBase" DataType="System.Double"/>
+        <Column Name="PorcDescuento" DataType="System.Double"/>
+        <Column Name="TotalDescuentoBase" DataType="System.Double"/>
+        <Column Name="SubTotalGravadoNetoBase" DataType="System.Double"/>
+        <Column Name="SubTotalExcentoNetoBase" DataType="System.Double"/>
+        <Column Name="MontoIVABase" DataType="System.Double"/>
+        <Column Name="MontoExoneracionBase" DataType="System.Double"/>
+        <Column Name="TotalBase" DataType="System.Double"/>
+        <Column Name="IdFactura" DataType="System.Int64"/>
+        <Column Name="IdFD" DataType="System.Int64"/>
+        <Column Name="IdInventario" DataType="System.Int64"/>
+        <Column Name="Cantidad" DataType="System.Double"/>
+        <Column Name="PrecioBase" DataType="System.Double"/>
+        <Column Name="PorcIVA" DataType="System.Double"/>
+        <Column Name="DescuentoFD" DataType="System.Double"/>
+        <Column Name="PorcExoneracion" DataType="System.Double"/>
+        <Column Name="SubtotalFD" DataType="System.Double"/>
+        <Column Name="SubtotalGravadoFD" DataType="System.Double"/>
+        <Column Name="SubtotalExcentoFD" DataType="System.Double"/>
+        <Column Name="SubtotalGravadoNetoFD" DataType="System.Double"/>
+        <Column Name="SubtotaExcentoNetoFD" DataType="System.Double"/>
+        <Column Name="MontoDescuentoBase" DataType="System.Double"/>
+        <Column Name="MontoIVAFD" DataType="System.Double"/>
+        <Column Name="MontoExoneracionDolar" DataType="System.Double"/>
+        <Column Name="TotalFD" DataType="System.Double"/>
+        <Column Name="Codigo" DataType="System.String"/>
+        <Column Name="Descripcion" DataType="System.String"/>
+        <Column Name="CantidadUnidad" DataType="System.Double"/>
+        <Column Name="DescripcionVenta" DataType="System.String"/>
+        <CommandParameter Name="idFactura" Expression="ToInt32([idFactura])" DefaultValue="0"/>
+      </TableDataSource>
+      <TableDataSource Name="Table3" Alias="Direccion" DataType="System.Int32" Enabled="true" SelectCommand="SELECT     dbo.TB_CE_Canton.Desc_Canton as Canton, dbo.TB_CE_Provincias.Desc_Provincia as Provincia, dbo.TB_CE_Distrito.Desc_Distrito as Distrito&#13;&#10;FROM         dbo.TB_CE_Distrito INNER JOIN&#13;&#10;                      dbo.TB_CE_Provincias ON dbo.TB_CE_Distrito.id_Provincia = dbo.TB_CE_Provincias.id_Provincia INNER JOIN&#13;&#10;                      dbo.TB_CE_Canton ON dbo.TB_CE_Distrito.id_Provincia = dbo.TB_CE_Canton.id_Provincia CROSS JOIN&#13;&#10;                      dbo.tb_CR_Contacto&#13;&#10;WHERE     (dbo.TB_CE_Distrito.id_Provincia =  dbo.tb_CR_Contacto.provincia) AND (dbo.TB_CE_Distrito.id_Canton =  dbo.tb_CR_Contacto.Canton) AND (dbo.TB_CE_Distrito.id_Distrito =  dbo.tb_CR_Contacto.Distrito) AND (dbo.TB_CE_Canton.id_Canton =  dbo.tb_CR_Contacto.Canton)&#13;&#10;and  dbo.tb_CR_Contacto.IdContacto = @idContacto&#13;&#10;GROUP BY dbo.TB_CE_Canton.Desc_Canton, dbo.TB_CE_Provincias.Desc_Provincia, dbo.TB_CE_Distrito.Desc_Distrito">
+        <Column Name="Canton" DataType="System.String"/>
+        <Column Name="Provincia" DataType="System.String"/>
+        <Column Name="Distrito" DataType="System.String"/>
+        <CommandParameter Name="idCOntacto" Expression="ToInt32([idContacto])" DefaultValue="0"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <JsonDataSourceConnection Name="idioma" ConnectionString="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">
+      <JsonTableDataSource Name="JSON" DataType="FastReport.Data.JsonConnection.JsonParser.JsonArray" Enabled="true" TableName="JSON">
+        <Column Name="index" DataType="System.Int32"/>
+        <Column Name="item" DataType="FastReport.JsonBase">
+          <Column Name="abreviaturaRequerida" DataType="System.String"/>
+          <Column Name="accion" DataType="System.String"/>
+          <Column Name="actualizar" DataType="System.String"/>
+          <Column Name="asignados" DataType="System.String"/>
+          <Column Name="Cancelar" DataType="System.String"/>
+          <Column Name="conversiones" DataType="System.String"/>
+          <Column Name="descripcion" DataType="System.String"/>
+          <Column Name="descripcionRequerida" DataType="System.String"/>
+          <Column Name="ejecutar" DataType="System.String"/>
+          <Column Name="eliminar" DataType="System.String"/>
+          <Column Name="equivalencia" DataType="System.String"/>
+          <Column Name="esSubFamilia" DataType="System.String"/>
+          <Column Name="familia" DataType="System.String"/>
+          <Column Name="fechaCreacion" DataType="System.String"/>
+          <Column Name="grupo" DataType="System.String"/>
+          <Column Name="grupos" DataType="System.String"/>
+          <Column Name="Guardar" DataType="System.String"/>
+          <Column Name="imprimir" DataType="System.String"/>
+          <Column Name="Nombre" DataType="System.String"/>
+          <Column Name="nombreRequerido" DataType="System.String"/>
+          <Column Name="Nota" DataType="System.String"/>
+          <Column Name="nuevaFamilia" DataType="System.String"/>
+          <Column Name="seleccione" DataType="System.String"/>
+          <Column Name="sinAsignar" DataType="System.String"/>
+          <Column Name="subFamilias" DataType="System.String"/>
+          <Column Name="todos" DataType="System.String"/>
+          <Column Name="unidadDestino" DataType="System.String"/>
+          <Column Name="unidades" DataType="System.String"/>
+          <Column Name="unidadOrigen" DataType="System.String"/>
+          <Column Name="Usuario" DataType="System.String"/>
+          <Column Name="repetidoValid" DataType="System.String"/>
+          <Column Name="cargarFoto" DataType="System.String"/>
+          <Column Name="cedulaJuridica" DataType="System.String"/>
+          <Column Name="cedulaRequerido" DataType="System.String"/>
+          <Column Name="correoRequerido" DataType="System.String"/>
+          <Column Name="direccionRequerido" DataType="System.String"/>
+          <Column Name="editarEmpresa" DataType="System.String"/>
+          <Column Name="errorGeneral" DataType="System.String"/>
+          <Column Name="noSeleccionadoArchivo" DataType="System.String"/>
+          <Column Name="nuevaEmpresa" DataType="System.String"/>
+          <Column Name="tamanoArchivo" DataType="System.String"/>
+          <Column Name="telefonoRequerido" DataType="System.String"/>
+          <Column Name="tipoArchivo" DataType="System.String"/>
+          <Column Name="yaExisteEmpresaC" DataType="System.String"/>
+          <Column Name="yaExisteEmpresaN" DataType="System.String"/>
+          <Column Name="bodegaSinItemValid" DataType="System.String"/>
+          <Column Name="confirmCancelar" DataType="System.String"/>
+          <Column Name="confirmEliminar" DataType="System.String"/>
+          <Column Name="eliminarInventario" DataType="System.String"/>
+          <Column Name="errorDuplicacion" DataType="System.String"/>
+          <Column Name="mediaValid" DataType="System.String"/>
+          <Column Name="minimaValid" DataType="System.String"/>
+          <Column Name="AjusteManual" DataType="System.String"/>
+          <Column Name="buscarItem" DataType="System.String"/>
+          <Column Name="buscarPorDescripcion" DataType="System.String"/>
+          <Column Name="cantidaMayorQueExistencias" DataType="System.String"/>
+          <Column Name="CostoPromedio" DataType="System.String"/>
+          <Column Name="cuentaContable" DataType="System.String"/>
+          <Column Name="CuentaCosto" DataType="System.String"/>
+          <Column Name="descripcionValid" DataType="System.String"/>
+          <Column Name="FiltroFecha" DataType="System.String"/>
+          <Column Name="LineasAjuste" DataType="System.String"/>
+          <Column Name="NoDatos" DataType="System.String"/>
+          <Column Name="sinResultados" DataType="System.String"/>
+          <Column Name="editarAjuste" DataType="System.String"/>
+          <Column Name="nuevoAjuste" DataType="System.String"/>
+          <Column Name="AjusteAnulado" DataType="System.String"/>
+          <Column Name="confirmAnularAjuste" DataType="System.String"/>
+          <Column Name="JustificacionInvalida" DataType="System.String"/>
+          <Column Name="observacionValid" DataType="System.String"/>
+          <Column Name="ordenSinDetalle" DataType="System.String"/>
+          <Column Name="PrecioUnitario" DataType="System.String"/>
+          <Column Name="buscarPorProveedor" DataType="System.String"/>
+          <Column Name="confirmAnularOrden" DataType="System.String"/>
+          <Column Name="OrdenesCompra" DataType="System.String"/>
+          <Column Name="TipoCambio" DataType="System.String"/>
+          <Column Name="anulacionInvalida" DataType="System.String"/>
+          <Column Name="confirmEliminarLinea" DataType="System.String"/>
+          <Column Name="codigoValid" DataType="System.String"/>
+          <Column Name="coincidenciaValid" DataType="System.String"/>
+          <Column Name="confirmacionValid" DataType="System.String"/>
+          <Column Name="contrasenaValid" DataType="System.String"/>
+          <Column Name="correoValid" DataType="System.String"/>
+          <Column Name="datosActualizados" DataType="System.String"/>
+          <Column Name="inicialesValid" DataType="System.String"/>
+          <Column Name="nombreValid" DataType="System.String"/>
+          <Column Name="usuarioExistente" DataType="System.String"/>
+          <Column Name="editarOrden" DataType="System.String"/>
+          <Column Name="nuevaOrden" DataType="System.String"/>
+          <Column Name="buscarPorNumero" DataType="System.String"/>
+          <Column Name="CompraAnulada" DataType="System.String"/>
+          <Column Name="editarCompra" DataType="System.String"/>
+          <Column Name="formatoFecha" DataType="System.String"/>
+          <Column Name="nuevaCompra" DataType="System.String"/>
+          <Column Name="numCompraRepitida" DataType="System.String"/>
+          <Column Name="numDocumentoValid" DataType="System.String"/>
+          <Column Name="NumeroDocumento" DataType="System.String"/>
+          <Column Name="TipoDocumento" DataType="System.String"/>
+          <Column Name="VerAnuladas" DataType="System.String"/>
+          <Column Name="ColaAprobacion" DataType="System.String"/>
+          <Column Name="colaHacienda" DataType="System.String"/>
+          <Column Name="confirmAnularRequisicion" DataType="System.String"/>
+          <Column Name="editarReq" DataType="System.String"/>
+          <Column Name="nuevaReq" DataType="System.String"/>
+          <Column Name="RequisicionAnulada" DataType="System.String"/>
+          <Column Name="EditarDepartamento" DataType="System.String"/>
+          <Column Name="buscarPorNombre" DataType="System.String"/>
+          <Column Name="confirmAnularDepartamentoConReq" DataType="System.String"/>
+          <Column Name="confirmAnularDepartamentoSinReq" DataType="System.String"/>
+          <Column Name="VerAnulados" DataType="System.String"/>
+          <Column Name="listPeriodoFiscal" DataType="System.String"/>
+          <Column Name="setPeriodoFiscal" DataType="System.String"/>
+          <Column Name="listPeriodoTrabajo" DataType="System.String"/>
+          <Column Name="setConfigContable" DataType="System.String"/>
+          <Column Name="confirmEnivarCola" DataType="System.String"/>
+          <Column Name="EnviarACola" DataType="System.String"/>
+          <Column Name="actualizadoCorrectamente" DataType="System.String"/>
+          <Column Name="compraValid" DataType="System.String"/>
+          <Column Name="ventaValid" DataType="System.String"/>
+          <Column Name="NoEstados" DataType="System.String"/>
+          <Column Name="NoEstadosNiTipos" DataType="System.String"/>
+          <Column Name="NoTipos" DataType="System.String"/>
+          <Column Name="yaExisteEmpresa" DataType="System.String"/>
+          <Column Name="claveInvalida" DataType="System.String"/>
+          <Column Name="claveRequisitos" DataType="System.String"/>
+          <Column Name="correoInvalido" DataType="System.String"/>
+          <Column Name="docSinDetalle" DataType="System.String"/>
+          <Column Name="confirmDesactivar" DataType="System.String"/>
+          <Column Name="confirmReactivar" DataType="System.String"/>
+          <Column Name="presentacionValid" DataType="System.String"/>
+          <Column Name="UnidadMedida" DataType="System.String"/>
+          <Column Name="usuarioCodigoExiste" DataType="System.String"/>
+          <Column Name="usuarioCorreoExiste" DataType="System.String"/>
+          <Column Name="BodegaSinMovimientosRecientes" DataType="System.String"/>
+          <Column Name="confirmAjustar" DataType="System.String"/>
+          <Column Name="confirmAnularToma" DataType="System.String"/>
+          <Column Name="confirmCombinar" DataType="System.String"/>
+          <Column Name="DocumentoConToma" DataType="System.String"/>
+          <Column Name="generadoPorTF" DataType="System.String"/>
+          <Column Name="tf" DataType="System.String"/>
+          <Column Name="TomaFisica" DataType="System.String"/>
+          <Column Name="AbreviacionFactura" DataType="System.String"/>
+          <Column Name="CargarImagen" DataType="System.String"/>
+          <Column Name="DescripcionVenta" DataType="System.String"/>
+          <Column Name="FactorAprovechamiento" DataType="System.String"/>
+          <Column Name="HabilitarVentaOnline" DataType="System.String"/>
+          <Column Name="NombreCarritoCompras" DataType="System.String"/>
+          <Column Name="PrecioCredito" DataType="System.String"/>
+          <Column Name="PrecioTemporal" DataType="System.String"/>
+          <Column Name="PrecioVentaFinal" DataType="System.String"/>
+          <Column Name="PrecioVentaOnline" DataType="System.String"/>
+          <Column Name="SinImpuesto" DataType="System.String"/>
+          <Column Name="UtilidadDeseada" DataType="System.String"/>
+          <Column Name="VentaDirecta" DataType="System.String"/>
+          <Column Name="buscarPorDepartamento" DataType="System.String"/>
+          <Column Name="tipoAlmacenamiento" DataType="System.String"/>
+          <Column Name="tipoBodegaValid" DataType="System.String"/>
+          <Column Name="tipoConsignacion" DataType="System.String"/>
+          <Column Name="tipoProduccion" DataType="System.String"/>
+          <Column Name="tipoSuministros" DataType="System.String"/>
+          <Column Name="VerActivos" DataType="System.String"/>
+          <Column Name="VerInactivos" DataType="System.String"/>
+          <Column Name="CategoriaGastos" DataType="System.String"/>
+          <Column Name="CuentasPorPagar" DataType="System.String"/>
+          <Column Name="NoDeducible" DataType="System.String"/>
+          <Column Name="FiltroExistencia" DataType="System.String"/>
+          <Column Name="PrecioUnit" DataType="System.String"/>
+          <Column Name="buscarPorCodigo" DataType="System.String"/>
+          <Column Name="confirmHabilitarDepartamento" DataType="System.String"/>
+          <Column Name="apellidosValid" DataType="System.String"/>
+          <Column Name="CamposPersonalizados" DataType="System.String"/>
+          <Column Name="cedulaValid" DataType="System.String"/>
+          <Column Name="LinkUbicacion" DataType="System.String"/>
+          <Column Name="OtrasSenas" DataType="System.String"/>
+          <Column Name="PaginaWeb" DataType="System.String"/>
+          <Column Name="RelacionadoCon" DataType="System.String"/>
+          <Column Name="TareasAsignadas" DataType="System.String"/>
+          <Column Name="telefonoValid" DataType="System.String"/>
+          <Column Name="TipoCedula" DataType="System.String"/>
+          <Column Name="TipoCliente" DataType="System.String"/>
+          <Column Name="UsuarioEncargado" DataType="System.String"/>
+          <Column Name="bancoValid" DataType="System.String"/>
+          <Column Name="CuentasBancarias" DataType="System.String"/>
+          <Column Name="cuentaValid" DataType="System.String"/>
+          <Column Name="MontoMaximo" DataType="System.String"/>
+          <Column Name="NCuenta" DataType="System.String"/>
+          <Column Name="NombreComercial" DataType="System.String"/>
+          <Column Name="NombreJuridico" DataType="System.String"/>
+          <Column Name="PlazoCredito" DataType="System.String"/>
+          <Column Name="TipoCuenta" DataType="System.String"/>
+          <Column Name="confirmAnularCompra" DataType="System.String"/>
+          <Column Name="costoPromedioValidacion" DataType="System.String"/>
+          <Column Name="SuministrosInternos" DataType="System.String"/>
+          <Column Name="gentilicioValid" DataType="System.String"/>
+          <Column Name="AutorizacionUsuarios" DataType="System.String"/>
+          <Column Name="CondicionesPago" DataType="System.String"/>
+          <Column Name="familiaConSubFamilias" DataType="System.String"/>
+          <Column Name="FechaMod" DataType="System.String"/>
+          <Column Name="ExMaximaRequerido" DataType="System.String"/>
+          <Column Name="ExMediaRequerido" DataType="System.String"/>
+          <Column Name="ExMinimaRequerido" DataType="System.String"/>
+          <Column Name="EditIBodega" DataType="System.String"/>
+          <Column Name="confirmCompraAutomatica" DataType="System.String"/>
+          <Column Name="ordenAutomatica" DataType="System.String"/>
+          <Column Name="AlertCompraCantidad" DataType="System.String"/>
+          <Column Name="Gastos" DataType="System.String"/>
+          <Column Name="Artículo" DataType="System.String"/>
+          <Column Name="Categoria" DataType="System.String"/>
+          <Column Name="editarGasto" DataType="System.String"/>
+          <Column Name="gastoAnulado" DataType="System.String"/>
+          <Column Name="nuevoGasto" DataType="System.String"/>
+          <Column Name="FechaDeCotizacion" DataType="System.String"/>
+          <Column Name="FechaDeVencimiento" DataType="System.String"/>
+          <Column Name="BuscarPorCliente" DataType="System.String"/>
+          <Column Name="BuscarPorEstado" DataType="System.String"/>
+          <Column Name="BuscarPorId" DataType="System.String"/>
+          <Column Name="BuscarPorVendedor" DataType="System.String"/>
+          <Column Name="Idioma" DataType="System.String"/>
+          <Column Name="DescuentoGeneral" DataType="System.String"/>
+          <Column Name="Descuento1" DataType="System.String"/>
+          <Column Name="ValidaHasta" DataType="System.String"/>
+          <Column Name="ConfirmaCambioEstado" DataType="System.String"/>
+          <Column Name="Activar1" DataType="System.String"/>
+          <Column Name="ConfirmaCambioEstado1" DataType="System.String"/>
+          <Column Name="Abierta" DataType="System.String"/>
+          <Column Name="Arqueo" DataType="System.String"/>
+          <Column Name="ArqueoReabierto" DataType="System.String"/>
+          <Column Name="CierreReabierto" DataType="System.String"/>
+          <Column Name="Denominacion" DataType="System.String"/>
+          <Column Name="confirmEstado" DataType="System.String"/>
+          <Column Name="dataVacia" DataType="System.String"/>
+          <Column Name="ArqueoSistema" DataType="System.String"/>
+          <Column Name="ArqueoUsuario" DataType="System.String"/>
+          <Column Name="NoTienePermiso" DataType="System.String"/>
+          <Column Name="ArqueoCaja" DataType="System.String"/>
+          <Column Name="dataVaciaDetalleDenominacion" DataType="System.String"/>
+          <Column Name="YaExisteDenominacion" DataType="System.String"/>
+          <Column Name="DebeGuardarLinea" DataType="System.String"/>
+          <Column Name="dataVaciaCotizacion" DataType="System.String"/>
+          <Column Name="AplicarDescuento" DataType="System.String"/>
+          <Column Name="BuscarPorUsuario" DataType="System.String"/>
+          <Column Name="Caja" DataType="System.String"/>
+          <Column Name="Cajas" DataType="System.String"/>
+          <Column Name="Creacion" DataType="System.String"/>
+          <Column Name="AgregarCaja" DataType="System.String"/>
+          <Column Name="AgregarCotizacion" DataType="System.String"/>
+          <Column Name="Cotizacion" DataType="System.String"/>
+          <Column Name="AlertCompraPrecio" DataType="System.String"/>
+          <Column Name="editarCategoriaFlujo" DataType="System.String"/>
+          <Column Name="CategoriaDeFlujo" DataType="System.String"/>
+          <Column Name="nuevaCategoriaDeFlujo" DataType="System.String"/>
+          <Column Name="tipo" DataType="System.String"/>
+          <Column Name="tipoValid" DataType="System.String"/>
+          <Column Name="nombreUsuario" DataType="System.String"/>
+          <Column Name="Codigo" DataType="System.String"/>
+          <Column Name="datosExiste" DataType="System.String"/>
+          <Column Name="activo" DataType="System.String"/>
+          <Column Name="escribaCodigoAqui" DataType="System.String"/>
+          <Column Name="inactivo" DataType="System.String"/>
+          <Column Name="inactivos" DataType="System.String"/>
+          <Column Name="Bancos" DataType="System.String"/>
+          <Column Name="Categorias" DataType="System.String"/>
+          <Column Name="Anulado" DataType="System.String"/>
+          <Column Name="BodegaDestino" DataType="System.String"/>
+          <Column Name="BodegaOrigen" DataType="System.String"/>
+          <Column Name="buscar" DataType="System.String"/>
+          <Column Name="CostoTraslado" DataType="System.String"/>
+          <Column Name="Traslado" DataType="System.String"/>
+          <Column Name="trasladosDeExistencias" DataType="System.String"/>
+          <Column Name="CodigoArticulo" DataType="System.String"/>
+          <Column Name="Comentario" DataType="System.String"/>
+          <Column Name="CostoTotal" DataType="System.String"/>
+          <Column Name="editarTraslado" DataType="System.String"/>
+          <Column Name="nuevoTraslado" DataType="System.String"/>
+          <Column Name="RequiredArticulo" DataType="System.String"/>
+          <Column Name="TiposPrecio" DataType="System.String"/>
+          <Column Name="EditTipoPrecio" DataType="System.String"/>
+          <Column Name="nuevoTipoPrecio" DataType="System.String"/>
+          <Column Name="Fecha" DataType="System.String"/>
+          <Column Name="confirmAnularTPrecio" DataType="System.String"/>
+          <Column Name="confirmHabilitarTPrecio" DataType="System.String"/>
+          <Column Name="PrecioCatalogo" DataType="System.String"/>
+          <Column Name="CatalogoCuenta" DataType="System.String"/>
+          <Column Name="cambiarUtilidad" DataType="System.String"/>
+          <Column Name="PrecioConImpuesto" DataType="System.String"/>
+          <Column Name="PrecioSinImpuesto" DataType="System.String"/>
+          <Column Name="SelectTodos" DataType="System.String"/>
+          <Column Name="listCatalogoConta" DataType="System.String"/>
+          <Column Name="AnularTraslado" DataType="System.String"/>
+          <Column Name="ArticuloEnlistado" DataType="System.String"/>
+          <Column Name="buscarInventarioBodega" DataType="System.String"/>
+          <Column Name="existencia" DataType="System.String"/>
+          <Column Name="ExistenciaSuperada" DataType="System.String"/>
+          <Column Name="InventarioBodega" DataType="System.String"/>
+          <Column Name="Si" DataType="System.String"/>
+          <Column Name="TablaVacia" DataType="System.String"/>
+          <Column Name="TrasladoAnulado" DataType="System.String"/>
+          <Column Name="TrasladoConEstadoAnulado" DataType="System.String"/>
+          <Column Name="AlertPreciosCero" DataType="System.String"/>
+          <Column Name="cantidadValid" DataType="System.String"/>
+          <Column Name="reportRendimiento" DataType="System.String"/>
+          <Column Name="ImportarXML" DataType="System.String"/>
+          <Column Name="itemInvalido" DataType="System.String"/>
+          <Column Name="LineasDeCompra" DataType="System.String"/>
+          <Column Name="precioValid" DataType="System.String"/>
+          <Column Name="Bienvenido" DataType="System.String"/>
+          <Column Name="grupoInvalid" DataType="System.String"/>
+          <Column Name="ingreseCredenciales" DataType="System.String"/>
+          <Column Name="nombreGrupo" DataType="System.String"/>
+          <Column Name="olvideContraseña" DataType="System.String"/>
+          <Column Name="userInactive" DataType="System.String"/>
+          <Column Name="userInValid" DataType="System.String"/>
+          <Column Name="colorRepetido" DataType="System.String"/>
+          <Column Name="confirmEliminarItem" DataType="System.String"/>
+          <Column Name="noPuedeEliminarTipoTarea" DataType="System.String"/>
+          <Column Name="tiposTareas" DataType="System.String"/>
+          <Column Name="tituloRequired" DataType="System.String"/>
+          <Column Name="buscarPorTitulo" DataType="System.String"/>
+          <Column Name="confirmElimSubtarea" DataType="System.String"/>
+          <Column Name="contactoRequired" DataType="System.String"/>
+          <Column Name="costoEstimado" DataType="System.String"/>
+          <Column Name="costoReal" DataType="System.String"/>
+          <Column Name="diasEstimados" DataType="System.String"/>
+          <Column Name="diasReales" DataType="System.String"/>
+          <Column Name="esCobrado" DataType="System.String"/>
+          <Column Name="esPorDefecto" DataType="System.String"/>
+          <Column Name="estadoTarea" DataType="System.String"/>
+          <Column Name="fechaFinal" DataType="System.String"/>
+          <Column Name="fechaInicio" DataType="System.String"/>
+          <Column Name="fechaLimite" DataType="System.String"/>
+          <Column Name="modificarTarea" DataType="System.String"/>
+          <Column Name="montoCobrado" DataType="System.String"/>
+          <Column Name="Not" DataType="System.String"/>
+          <Column Name="nuevaTarea" DataType="System.String"/>
+          <Column Name="porcTarea" DataType="System.String"/>
+          <Column Name="porDefecto" DataType="System.String"/>
+          <Column Name="rangoFechas" DataType="System.String"/>
+          <Column Name="reporteCostos" DataType="System.String"/>
+          <Column Name="tipoPorDefecto" DataType="System.String"/>
+          <Column Name="tipoTarea" DataType="System.String"/>
+          <Column Name="verMas" DataType="System.String"/>
+          <Column Name="setPeriodoTrabajo" DataType="System.String"/>
+          <Column Name="Direccion" DataType="System.String"/>
+          <Column Name="Email" DataType="System.String"/>
+          <Column Name="Cantidad" DataType="System.String"/>
+          <Column Name="noExisteArticulo" DataType="System.String"/>
+          <Column Name="bodegaRequerida" DataType="System.String"/>
+          <Column Name="confirmAnularTraslado" DataType="System.String"/>
+          <Column Name="editarUnidadMedida" DataType="System.String"/>
+          <Column Name="nuevaUnidadMedida" DataType="System.String"/>
+          <Column Name="generarReporte" DataType="System.String"/>
+          <Column Name="existenciasValid" DataType="System.String"/>
+          <Column Name="selectAlert" DataType="System.String"/>
+          <Column Name="adjuntarArchivos" DataType="System.String"/>
+          <Column Name="cantidadArchivosValid" DataType="System.String"/>
+          <Column Name="comentarioValid" DataType="System.String"/>
+          <Column Name="imagenRequerida" DataType="System.String"/>
+          <Column Name="EditarItem" DataType="System.String"/>
+          <Column Name="MayorIgual" DataType="System.String"/>
+          <Column Name="MayorQue" DataType="System.String"/>
+          <Column Name="MenorIgual" DataType="System.String"/>
+          <Column Name="MenorQue" DataType="System.String"/>
+          <Column Name="NuevoItem" DataType="System.String"/>
+          <Column Name="FamiliaInventario" DataType="System.String"/>
+          <Column Name="FamiliaOnline" DataType="System.String"/>
+          <Column Name="PaisesNacionalidades" DataType="System.String"/>
+          <Column Name="EnviarSolicitud" DataType="System.String"/>
+          <Column Name="RecuperarContrasena" DataType="System.String"/>
+          <Column Name="userValid" DataType="System.String"/>
+          <Column Name="Configuración" DataType="System.String"/>
+          <Column Name="Contactos" DataType="System.String"/>
+          <Column Name="Cotización" DataType="System.String"/>
+          <Column Name="Descuentos" DataType="System.String"/>
+          <Column Name="Promociones" DataType="System.String"/>
+          <Column Name="TiposdeClientes" DataType="System.String"/>
+          <Column Name="TiposdeProveedores" DataType="System.String"/>
+          <Column Name="Usuarios" DataType="System.String"/>
+          <Column Name="BienvenidoGrupoEmpresarial" DataType="System.String"/>
+          <Column Name="cajaIndependiente" DataType="System.String"/>
+          <Column Name="cedulaJuridicaValid" DataType="System.String"/>
+          <Column Name="clienteDefecto" DataType="System.String"/>
+          <Column Name="comercioGeneral" DataType="System.String"/>
+          <Column Name="consecutivoIndependiente" DataType="System.String"/>
+          <Column Name="encabezadoIndependiente" DataType="System.String"/>
+          <Column Name="monedaFactura" DataType="System.String"/>
+          <Column Name="monedaPrecio" DataType="System.String"/>
+          <Column Name="prefijoValid" DataType="System.String"/>
+          <Column Name="preguntarCadaVez" DataType="System.String"/>
+          <Column Name="PuntoVenta" DataType="System.String"/>
+          <Column Name="razonSocial" DataType="System.String"/>
+          <Column Name="razonValid" DataType="System.String"/>
+          <Column Name="sitioWeb" DataType="System.String"/>
+          <Column Name="webValid" DataType="System.String"/>
+          <Column Name="Agenda" DataType="System.String"/>
+          <Column Name="Empresa" DataType="System.String"/>
+          <Column Name="Persona" DataType="System.String"/>
+          <Column Name="Correo" DataType="System.String"/>
+          <Column Name="Estado" DataType="System.String"/>
+          <Column Name="fechaModificacion" DataType="System.String"/>
+          <Column Name="Factura" DataType="System.String"/>
+          <Column Name="LineasRequisicion" DataType="System.String"/>
+          <Column Name="precioValidacion" DataType="System.String"/>
+          <Column Name="CasillaVerificacion" DataType="System.String"/>
+          <Column Name="ListaDesplegable" DataType="System.String"/>
+          <Column Name="opcionesValid" DataType="System.String"/>
+          <Column Name="EditarCampo" DataType="System.String"/>
+          <Column Name="NuevoCampo" DataType="System.String"/>
+          <Column Name="duplicacionValidEntrada" DataType="System.String"/>
+          <Column Name="duplicacionValidSalida" DataType="System.String"/>
+          <Column Name="tipoProveedor" DataType="System.String"/>
+          <Column Name="editarEstadoTarea" DataType="System.String"/>
+          <Column Name="nuevoEstadoTarea" DataType="System.String"/>
+          <Column Name="sumarDetalleOrdenValid" DataType="System.String"/>
+          <Column Name="DeseaReanudar" DataType="System.String"/>
+          <Column Name="EsInventarioInicial" DataType="System.String"/>
+          <Column Name="ErrorEliminarSubFamiliaItemAsociados" DataType="System.String"/>
+          <Column Name="EstadosTareas" DataType="System.String"/>
+          <Column Name="Agregar" DataType="System.String"/>
+          <Column Name="EsFinal" DataType="System.String"/>
+          <Column Name="EsInicial" DataType="System.String"/>
+          <Column Name="Titulo" DataType="System.String"/>
+          <Column Name="filtroPV" DataType="System.String"/>
+          <Column Name="MasOpciones" DataType="System.String"/>
+          <Column Name="Actual" DataType="System.String"/>
+          <Column Name="Caracteristicas" DataType="System.String"/>
+          <Column Name="Equivalencias" DataType="System.String"/>
+          <Column Name="Fotos" DataType="System.String"/>
+          <Column Name="habilitaEdicion" DataType="System.String"/>
+          <Column Name="Habilitar" DataType="System.String"/>
+          <Column Name="Maxima" DataType="System.String"/>
+          <Column Name="Media" DataType="System.String"/>
+          <Column Name="Minima" DataType="System.String"/>
+          <Column Name="Presentacion" DataType="System.String"/>
+          <Column Name="Final" DataType="System.String"/>
+          <Column Name="Limite" DataType="System.String"/>
+          <Column Name="asignadoRequired" DataType="System.String"/>
+          <Column Name="buscarPorDescripcionCodigo" DataType="System.String"/>
+          <Column Name="CuentasPorCobrar" DataType="System.String"/>
+          <Column Name="TiposJustficantes" DataType="System.String"/>
+          <Column Name="buscarPorTipo" DataType="System.String"/>
+          <Column Name="cxpcValid" DataType="System.String"/>
+          <Column Name="confirmAnularTJustificante" DataType="System.String"/>
+          <Column Name="confirmHabilitarTJustificante" DataType="System.String"/>
+          <Column Name="tipoJustificante" DataType="System.String"/>
+          <Column Name="buscarPorConsecutivo" DataType="System.String"/>
+          <Column Name="BuscarPorNum" DataType="System.String"/>
+          <Column Name="Asiento" DataType="System.String"/>
+          <Column Name="Asientos" DataType="System.String"/>
+          <Column Name="Periodo" DataType="System.String"/>
+          <Column Name="Cuenta" DataType="System.String"/>
+          <Column Name="cuentaCorregir" DataType="System.String"/>
+          <Column Name="estadoCorregir" DataType="System.String"/>
+          <Column Name="fechaCorregir" DataType="System.String"/>
+          <Column Name="lineasCorregir" DataType="System.String"/>
+          <Column Name="monedaCorregir" DataType="System.String"/>
+          <Column Name="montoBaseCorregir" DataType="System.String"/>
+          <Column Name="montoDolarCorregir" DataType="System.String"/>
+          <Column Name="montoEuroCorregir" DataType="System.String"/>
+          <Column Name="nuevoAsiento" DataType="System.String"/>
+          <Column Name="periodoCorregir" DataType="System.String"/>
+          <Column Name="tipoCambioDolarCorregir" DataType="System.String"/>
+          <Column Name="tipoCambioEuroCorregir" DataType="System.String"/>
+          <Column Name="tipoDocCorregir" DataType="System.String"/>
+          <Column Name="totalCorregir" DataType="System.String"/>
+          <Column Name="Dolar" DataType="System.String"/>
+          <Column Name="Número" DataType="System.String"/>
+          <Column Name="Catalogo" DataType="System.String"/>
+          <Column Name="PeriodoFiscal" DataType="System.String"/>
+          <Column Name="PeriodoTrabajo" DataType="System.String"/>
+          <Column Name="TipoPrecioDefecto" DataType="System.String"/>
+          <Column Name="tipoPrecioValid" DataType="System.String"/>
+          <Column Name="contactoPordefectoPV" DataType="System.String"/>
+          <Column Name="puntoVentaInvalido" DataType="System.String"/>
+          <Column Name="PuntoVentaSinCajasAbiertas" DataType="System.String"/>
+          <Column Name="Cliente" DataType="System.String"/>
+          <Column Name="Código" DataType="System.String"/>
+          <Column Name="Descuento" DataType="System.String"/>
+          <Column Name="Impuesto" DataType="System.String"/>
+          <Column Name="Producto" DataType="System.String"/>
+          <Column Name="Subtotal" DataType="System.String"/>
+          <Column Name="Total" DataType="System.String"/>
+          <Column Name="Vendedor" DataType="System.String"/>
+          <Column Name="FechaVencimientoMenorFechaActual" DataType="System.String"/>
+          <Column Name="ItemsConCatidadesEnCero" DataType="System.String"/>
+          <Column Name="existenciasNegativas" DataType="System.String"/>
+          <Column Name="SubTareasVacias" DataType="System.String"/>
+          <Column Name="ExistenciaInv" DataType="System.String"/>
+          <Column Name="Departamento" DataType="System.String"/>
+          <Column Name="Requisiciones" DataType="System.String"/>
+          <Column Name="sinDetalleValid" DataType="System.String"/>
+          <Column Name="cantidadRequerido" DataType="System.String"/>
+          <Column Name="precioRequerido" DataType="System.String"/>
+          <Column Name="Tarea" DataType="System.String"/>
+          <Column Name="EstadoDefectoRepetido" DataType="System.String"/>
+          <Column Name="EstadoFinalRepetido" DataType="System.String"/>
+          <Column Name="EstadoInicialRepetido" DataType="System.String"/>
+          <Column Name="TituloRepetido" DataType="System.String"/>
+          <Column Name="ColorProhibido" DataType="System.String"/>
+          <Column Name="espanol" DataType="System.String"/>
+          <Column Name="buscarPorContacto" DataType="System.String"/>
+          <Column Name="confirmAnularNota" DataType="System.String"/>
+          <Column Name="confirmHabilitarNota" DataType="System.String"/>
+          <Column Name="lineasValid" DataType="System.String"/>
+          <Column Name="montoValid" DataType="System.String"/>
+          <Column Name="notaValid" DataType="System.String"/>
+          <Column Name="aplicadoValid" DataType="System.String"/>
+          <Column Name="saldoValid" DataType="System.String"/>
+          <Column Name="EnlaceAutomatico" DataType="System.String"/>
+          <Column Name="aplicadoMayorValid" DataType="System.String"/>
+          <Column Name="saldoMenorValid" DataType="System.String"/>
+          <Column Name="AplicarApartado" DataType="System.String"/>
+          <Column Name="AplicarExoneracion" DataType="System.String"/>
+          <Column Name="Autorizacion" DataType="System.String"/>
+          <Column Name="autorizacionValid" DataType="System.String"/>
+          <Column Name="Cant" DataType="System.String"/>
+          <Column Name="Carta" DataType="System.String"/>
+          <Column Name="Cedula" DataType="System.String"/>
+          <Column Name="Cheque" DataType="System.String"/>
+          <Column Name="configurarCategoriaFlujo" DataType="System.String"/>
+          <Column Name="Consecutivo" DataType="System.String"/>
+          <Column Name="Contado" DataType="System.String"/>
+          <Column Name="Credito" DataType="System.String"/>
+          <Column Name="Desc" DataType="System.String"/>
+          <Column Name="Excento" DataType="System.String"/>
+          <Column Name="FacturaElectronica" DataType="System.String"/>
+          <Column Name="Flete" DataType="System.String"/>
+          <Column Name="Imp" DataType="System.String"/>
+          <Column Name="ImportarCotizacion" DataType="System.String"/>
+          <Column Name="MediaCarta" DataType="System.String"/>
+          <Column Name="MetodosAgregados" DataType="System.String"/>
+          <Column Name="montoMayorValid" DataType="System.String"/>
+          <Column Name="Operador" DataType="System.String"/>
+          <Column Name="pagadoMenorAlMonto" DataType="System.String"/>
+          <Column Name="Pago" DataType="System.String"/>
+          <Column Name="Pagos" DataType="System.String"/>
+          <Column Name="Personalizado" DataType="System.String"/>
+          <Column Name="Plazo" DataType="System.String"/>
+          <Column Name="Portador" DataType="System.String"/>
+          <Column Name="SaldoDisponible" DataType="System.String"/>
+          <Column Name="Subtotalexcento" DataType="System.String"/>
+          <Column Name="Subtotalgravado" DataType="System.String"/>
+          <Column Name="Tarjeta" DataType="System.String"/>
+          <Column Name="Tiquete" DataType="System.String"/>
+          <Column Name="TiqueteElectronico" DataType="System.String"/>
+          <Column Name="Transferencia" DataType="System.String"/>
+          <Column Name="Vence" DataType="System.String"/>
+          <Column Name="voucherValid" DataType="System.String"/>
+          <Column Name="MontoMayorAlDisponible" DataType="System.String"/>
+          <Column Name="montoPrepagoMayorValid" DataType="System.String"/>
+          <Column Name="Aplicado" DataType="System.String"/>
+          <Column Name="Contacto" DataType="System.String"/>
+          <Column Name="Detalle" DataType="System.String"/>
+          <Column Name="Disponible" DataType="System.String"/>
+          <Column Name="Documento" DataType="System.String"/>
+          <Column Name="Moneda" DataType="System.String"/>
+          <Column Name="Monto" DataType="System.String"/>
+          <Column Name="formaPago" DataType="System.String"/>
+        </Column>
+        <Column Name="array" DataType="FastReport.JsonBase"/>
+      </JsonTableDataSource>
+    </JsonDataSourceConnection>
+    <Parameter Name="idFactura" DataType="System.Int32" Expression="6"/>
+    <Parameter Name="idEmpresa" DataType="System.Int16" Expression="39"/>
+    <Parameter Name="idContacto" DataType="System.Int32" Expression="4"/>
+  </Dictionary>
+  <ReportPage PaperWidth="80" PaperHeight="290" LeftMargin="5" TopMargin="5" RightMargin="5" BottomMargin="5" FirstPageSource="15" OtherPagesSource="15" Guides="9.45,255.15,255.15" Watermark.Font="Arial, 60pt" UnlimitedHeight="true">
+    <ReportTitleBand Name="ReportTitle1" Width="264.6" Height="56.7">
+      <TextObject Name="Text7" Left="9.45" Width="245.7" Height="18.9" Text="[Empresa.Nombre]" HorzAlign="Center" Font="Courier New, 9pt"/>
+      <TextObject Name="Text12" Left="9.45" Top="18.9" Width="245.7" Height="18.9" Text="[Empresa.Nombre]" HorzAlign="Center" Font="Courier New, 8pt"/>
+      <TextObject Name="Text22" Left="9.45" Top="37.8" Width="113.4" Height="18.9" Text="Ced:[Empresa.CedJuridica]" Font="Courier New, 7pt"/>
+      <TextObject Name="Text24" Left="122.85" Top="37.8" Width="132.3" Height="18.9" Text="Tel:[Empresa.Telefono1]" HorzAlign="Right" Font="Courier New, 7pt"/>
+      <ChildBand Name="Child1" Top="58.13" Width="264.6" Height="37.8">
+        <TextObject Name="Text6" Left="9.45" Width="245.7" Height="18.9" Text="Factura Electrónica" HorzAlign="Center" Font="Courier New, 8pt"/>
+        <TextObject Name="Text20" Left="9.45" Top="18.9" Width="245.7" Height="18.9" Fill="Glass" Fill.Color="White" Fill.Blend="0.2" Fill.Hatch="true" Text="001000010400000246938" HorzAlign="Center" Font="Courier New, 8pt"/>
+        <ChildBand Name="Child2" Top="97.36" Width="264.6" Height="37.8">
+          <TextObject Name="Text8" Left="9.45" Width="245.7" Height="37.8" Text="Consecutivo interno Nº: A[Facturaticket.Id] [Facturaticket.Tipo]" HorzAlign="Center" Font="Courier New, 8pt"/>
+          <ChildBand Name="Child3" Top="136.59" Width="264.6" Height="132.3" CanGrow="true">
+            <TextObject Name="Text10" Left="151.2" Width="103.95" Height="18.9" Text="[Facturaticket.FechaFactura]" Format="Time" Format.Format="T" HorzAlign="Right" Font="Courier New, 8pt"/>
+            <TextObject Name="Text15" Left="9.45" Width="141.75" Height="18.9" Text="[Facturaticket.FechaFactura]" Format="Date" Format.Format="dd/MM/yyyy" Font="Courier New, 8pt"/>
+            <TextObject Name="Text11" Left="9.45" Top="66.15" Width="66.15" Height="18.9" Text="Cliente:" Font="Courier New, 8pt"/>
+            <TextObject Name="Text16" Left="75.6" Top="66.15" Width="179.55" Height="18.9" CanGrow="true" Text="[IIf([Facturaticket.Persona],[Facturaticket.Nombre] + &quot; &quot; + [Facturaticket.Apellidos] , [Facturaticket.NombreJuridico])]" Font="Courier New, 8pt"/>
+            <TextObject Name="Text9" Left="9.45" Top="9.45" Width="245.7" Height="18.9" Fill.Color="White" Text="Anulado" HorzAlign="Center" Font="Courier New, 14pt">
+              <Highlight>
+                <Condition Expression="ToString([Facturaticket.Estado]) != &quot;anulada&quot;" Visible="false" Font="Arial, 10pt"/>
+              </Highlight>
+            </TextObject>
+            <TextObject Name="Text31" Left="9.45" Top="28.35" Width="94.5" Height="18.9" Text="Forma Pago:" Font="Courier New, 8pt"/>
+            <TextObject Name="Text32" Left="9.45" Top="47.25" Width="245.7" Height="18.9" Text="Atendido por:[Vendedor.Nombre]" Font="Courier New, 8pt"/>
+            <TextObject Name="Text35" Left="56.7" Top="28.35" Width="113.4" Height="18.9" Text="[IIf([Facturaticket.Tipo] ==2,&quot;Crédito&quot;, &quot;Contado&quot;)]" HorzAlign="Center" Font="Courier New, 8pt"/>
+            <TextObject Name="Text36" Left="9.45" Top="85.05" Width="245.7" Height="47.25" Text="Dirección: [Direccion.Provincia], [Direccion.Canton], [Direccion.Distrito]" Font="Courier New, 8pt"/>
+            <ChildBand Name="Child4" Top="270.31" Width="264.6" Height="9.45" Fill="Glass" Fill.Color="White" Fill.Blend="0.2" Fill.Hatch="true">
+              <LineObject Name="Line1" Left="9.45" Width="245.7" Border.Style="Dot" Border.Width="0.25"/>
+            </ChildBand>
+          </ChildBand>
+        </ChildBand>
+      </ChildBand>
+    </ReportTitleBand>
+    <PageHeaderBand Name="PageHeader1" Top="281.19" Width="264.6" Height="47.25">
+      <TextObject Name="Text1" Left="9.45" Width="245.7" Height="18.9" Text="Descripción" HorzAlign="Center" Font="Courier New, 8pt"/>
+      <TextObject Name="Text2" Left="28.35" Top="18.9" Width="56.7" Height="18.9" Text="Cant. x" Font="Courier New, 8pt"/>
+      <TextObject Name="Text3" Left="85.05" Top="18.9" Width="75.6" Height="18.9" Text="Precio" HorzAlign="Center" Font="Courier New, 8pt"/>
+      <TextObject Name="Text4" Left="160.65" Top="18.9" Width="94.5" Height="18.9" Text="Subtotal" HorzAlign="Right" Font="Courier New, 8pt"/>
+      <LineObject Name="Line2" Left="9.45" Top="37.8" Width="245.7" Border.Style="Dot" Border.Width="0.25"/>
+    </PageHeaderBand>
+    <DataBand Name="Data1" Top="329.87" Width="264.6" Height="18.9" DataSource="Table">
+      <TextObject Name="Text5" Left="9.45" Width="151.2" Height="18.9" Text="[Facturaticket.DescripcionVenta]" Font="Courier New, 8pt"/>
+      <TextObject Name="lblSubtotal" Left="160.65" Width="94.5" Height="18.9" Text="[ToDouble(([Facturaticket.PrecioBase] + [Facturaticket.MontoIVAFD]) * [Facturaticket.Cantidad])]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Courier New, 8pt">
+        <Highlight>
+          <Condition Expression="ToDouble([Facturaticket.Cantidad]) &gt; 1" Visible="false" Font="Arial, 10pt"/>
+        </Highlight>
+      </TextObject>
+      <ChildBand Name="Lineas" Top="350.2" Width="264.6" Height="18.9" BeforeLayoutEvent="Lineas_BeforeLayout">
+        <TextObject Name="lblCantidad" Left="28.35" Width="56.7" Height="18.9" Text="[Facturaticket.Cantidad] x" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" Font="Courier New, 8pt"/>
+        <TextObject Name="Text13" Left="85.05" Width="75.6" Height="18.9" Text="[ToDouble([Facturaticket.PrecioBase] + [Facturaticket.MontoIVAFD])]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Courier New, 8pt"/>
+        <TextObject Name="Text14" Left="160.65" Width="94.5" Height="18.9" Text="[ToDouble(([Facturaticket.PrecioBase] + [Facturaticket.MontoIVAFD]) * [Facturaticket.Cantidad])]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Courier New, 8pt"/>
+      </ChildBand>
+    </DataBand>
+    <ReportSummaryBand Name="pieinforme" Top="512.83" Width="264.6" Height="9.45">
+      <LineObject Name="Line6" Left="9.45" Width="245.7" Border.Style="Dot" Border.Width="0.25"/>
+      <ChildBand Name="firma" Top="523.71" Width="264.6" Height="9.45" BeforeLayoutEvent="firma_BeforeLayout">
+        <TextObject Name="lblTipo" Left="37.8" Width="9.45" Height="9.45" Visible="false" Text="[IIf([Facturaticket.Tipo] ==2,[Facturaticket.FechaFactura],[Facturaticket.IdCliente])]" HorzAlign="Center" VertAlign="Center" Font="Courier New, 8pt"/>
+      </ChildBand>
+    </ReportSummaryBand>
+    <ColumnFooterBand Name="pieColumna" Top="370.53" Width="264.6" Height="9.45" BeforeLayoutEvent="ColumnFooter1_BeforeLayout">
+      <LineObject Name="Line3" Left="9.45" Width="245.7" Border.Style="Dot" Border.Width="0.25"/>
+      <ChildBand Name="excento" Top="381.41" Width="264.6" Height="18.9" BeforeLayoutEvent="excento_BeforeLayout">
+        <TextObject Name="Text19" Left="9.45" Width="151.2" Height="18.9" Fill="Glass" Fill.Color="White" Fill.Blend="0.2" Fill.Hatch="true" Text="Subtotal excento" Font="Courier New, 8pt"/>
+        <TextObject Name="lblExcento" Left="160.65" Width="94.5" Height="18.9" Fill="Glass" Fill.Color="White" Fill.Blend="0.2" Fill.Hatch="true" Text="[Facturaticket.SubTotalExcentoBase]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Courier New, 8pt"/>
+        <ChildBand Name="gravado" Top="401.74" Width="264.6" Height="18.9" BeforeLayoutEvent="gravado_BeforeLayout">
+          <TextObject Name="Text21" Left="9.45" Width="151.2" Height="18.9" Fill="Glass" Fill.Color="White" Fill.Blend="0.2" Fill.Hatch="true" Text="Subtotal gravado" Font="Courier New, 8pt"/>
+          <TextObject Name="lblGravado" Left="160.65" Width="94.5" Height="18.9" Fill="Glass" Fill.Color="White" Fill.Blend="0.2" Fill.Hatch="true" Text="[Facturaticket.SubTotalGravadoBase]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Courier New, 8pt"/>
+          <ChildBand Name="descuento" Top="422.06" Width="264.6" Height="18.9" BeforeLayoutEvent="descuento_BeforeLayout">
+            <TextObject Name="Text27" Left="9.45" Width="151.2" Height="18.9" Fill="Glass" Fill.Color="White" Fill.Blend="0.2" Fill.Hatch="true" Text="Descuento" Font="Courier New, 8pt"/>
+            <TextObject Name="lblDescuento" Left="160.65" Width="94.5" Height="18.9" Fill="Glass" Fill.Color="White" Fill.Blend="0.2" Fill.Hatch="true" Text="[Facturaticket.TotalDescuentoBase]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Courier New, 8pt"/>
+            <ChildBand Name="Child8" Top="442.39" Width="264.6" Height="18.9">
+              <TextObject Name="Text17" Left="9.45" Width="151.2" Height="18.9" Fill="Glass" Fill.Color="White" Fill.Blend="0.2" Fill.Hatch="true" Text="I.V.A." Font="Courier New, 8pt"/>
+              <TextObject Name="Text18" Left="160.65" Width="94.5" Height="18.9" Fill="Glass" Fill.Color="White" Fill.Blend="0.2" Fill.Hatch="true" Text="[Facturaticket.MontoIVABase]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Courier New, 8pt"/>
+              <ChildBand Name="exonerado" Top="462.72" Width="264.6" Height="18.9" BeforeLayoutEvent="exonerado_BeforeLayout">
+                <TextObject Name="Text23" Left="9.45" Width="151.2" Height="18.9" Fill="Glass" Fill.Color="White" Fill.Blend="0.2" Fill.Hatch="true" Text="Exonerado" Font="Courier New, 8pt"/>
+                <TextObject Name="lblExonerado" Left="160.65" Width="94.5" Height="18.9" Fill="Glass" Fill.Color="White" Fill.Blend="0.2" Fill.Hatch="true" Text="[Facturaticket.MontoExoneracionBase]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Courier New, 8pt"/>
+                <ChildBand Name="Child6" Top="483.05" Width="264.6" Height="28.35">
+                  <TextObject Name="Text25" Left="9.45" Top="9.45" Width="132.3" Height="18.9" Fill="Glass" Fill.Color="White" Fill.Blend="0.2" Fill.Hatch="true" Text="Total" Font="Courier New, 8pt"/>
+                  <LineObject Name="Line4" Left="9.45" Width="245.7" Border.Style="Dot" Border.Width="0.25"/>
+                  <TextObject Name="Text26" Left="141.75" Top="9.45" Width="113.4" Height="18.9" Fill="Glass" Fill.Color="White" Fill.Blend="0.2" Fill.Hatch="true" Text="[Facturaticket.TotalBase]" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="." Format.GroupSeparator="," Format.NegativePattern="1" HorzAlign="Right" Font="Courier New, 8pt"/>
+                </ChildBand>
+              </ChildBand>
+            </ChildBand>
+          </ChildBand>
+        </ChildBand>
+      </ChildBand>
+    </ColumnFooterBand>
+    <PageFooterBand Name="PageFooter1" Top="534.59" Width="264.6" Height="207.9">
+      <TextObject Name="Text30" Left="28.35" Top="160.65" Width="226.8" Height="28.35" Text="PRODUCTO 1 AÑO DE GARANTIA&#13;&#10;PRECIO JUSTO CALIDAD GARANTIZADA" HorzAlign="Center" VertAlign="Center" Font="Courier New, 8pt"/>
+      <TextObject Name="Text28" Left="9.45" Top="18.9" Width="47.25" Height="18.9" Text="Firma " HorzAlign="Center" VertAlign="Bottom" Font="Courier New, 8pt"/>
+      <LineObject Name="Line5" Left="9.45" Top="18.9" Width="245.7" Border.Style="Dot" Border.Width="0.25"/>
+      <TextObject Name="Text34" Left="9.45" Top="37.8" Width="37.8" Height="9.45" Text="C.C:" HorzAlign="Center" Font="Courier New, 5pt"/>
+      <TextObject Name="Text39" Left="66.15" Top="47.25" Width="151.2" Height="18.9" Text="BAC SAN JOSE COLONES" HorzAlign="Center" Font="Courier New, 5pt"/>
+      <TextObject Name="Text40" Left="66.15" Top="66.15" Width="132.3" Height="18.9" Text=" cuenta:924832181 " HorzAlign="Center" Font="Courier New, 5pt"/>
+      <TextObject Name="Text41" Left="75.6" Top="56.7" Width="245.7" Height="18.9" Text="cuenta cliente:10200009248321817" HorzAlign="Center" Font="Courier New, 5pt"/>
+      <TextObject Name="Text42" Left="-66.15" Top="56.7" Width="245.7" Height="18.9" Text=" cuenta IBAN:CR3501020000924832187" HorzAlign="Center" Font="Courier New, 5pt"/>
+      <TextObject Name="Text43" Left="56.7" Top="75.6" Width="151.2" Height="18.9" Text="SCOTIABANK COLONES" HorzAlign="Center" Font="Courier New, 5pt"/>
+      <TextObject Name="Text44" Left="75.6" Top="94.5" Width="132.3" Height="18.9" Text=" cuenta:13000999000" HorzAlign="Center" Font="Courier New, 5pt"/>
+      <TextObject Name="Text45" Left="75.6" Top="85.05" Width="245.7" Height="18.9" Text="cuenta cliente:12300130009990001" HorzAlign="Center" Font="Courier New, 5pt"/>
+      <TextObject Name="Text46" Left="-66.15" Top="85.05" Width="245.7" Height="18.9" Text=" cuenta IBAN:CR25012300130009990001" HorzAlign="Center" Font="Courier New, 5pt"/>
+      <TextObject Name="Text47" Left="56.7" Top="103.95" Width="151.2" Height="18.9" Text="SCOTIABANK DOLARES" HorzAlign="Center" Font="Courier New, 5pt"/>
+      <TextObject Name="Text50" Left="9.45" Top="113.4" Width="245.7" Height="18.9" Text=" cuenta IBAN:CR51012300130009990018" HorzAlign="Center" Font="Courier New, 5pt"/>
+      <TextObject Name="Text51" Left="56.7" Top="122.85" Width="198.45" Height="18.9" Text="BANCO NACIONAL DE COSTA RICA" HorzAlign="Center" Font="Courier New, 5pt"/>
+      <TextObject Name="Text52" Left="66.15" Top="141.75" Width="132.3" Height="18.9" Text=" cuenta:1000-01-015-007079-4" HorzAlign="Center" Font="Courier New, 5pt"/>
+      <TextObject Name="Text53" Left="75.6" Top="132.3" Width="245.7" Height="18.9" Text="cuenta cliente:15101510010070793" HorzAlign="Center" Font="Courier New, 5pt"/>
+      <TextObject Name="Text54" Left="-66.15" Top="132.3" Width="245.7" Height="18.9" Text=" cuenta IBAN:CR47015101510010070793" HorzAlign="Center" Font="Courier New, 5pt"/>
+      <TextObject Name="Text29" Left="-9.45" Top="189" Width="151.2" Height="18.9" Text="AUTORIZADO MEDIANTE OFICION 11-47" HorzAlign="Center" Font="Courier New, 5pt"/>
+    </PageFooterBand>
+  </ReportPage>
+</Report>
