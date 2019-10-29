@@ -4,6 +4,8 @@ using AltivaWebApp.DomainsConta;
 using AltivaWebApp.Context;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace AltivaWebApp.Controllers
 {
@@ -16,7 +18,8 @@ namespace AltivaWebApp.Controllers
             bd = _bd;
         }
 
-        private Asiento getAsiento(long Id) {
+        private Asiento getAsiento(long Id)
+        {
             Asiento item;
             if (Id == 0)
             {
@@ -41,25 +44,26 @@ namespace AltivaWebApp.Controllers
                 item.Frecuente = true;
                 item.detalle = bd.AsientoDetalle.Where(p => p.IdAsientoContable == Id).ToList();
             }
-            else {
+            else
+            {
                 item = bd.Asiento.Find(Id);
                 item.detalle = bd.AsientoDetalle.Where(p => p.IdAsientoContable == Id).ToList();
             }
-      
+
             return item;
         }
 
         private AsientoDetalle getAsientoDetalle(long Id)
         {
-            AsientoDetalle  item;
+            AsientoDetalle item;
             if (Id == 0)
             {
                 item = new AsientoDetalle();
-            
+
             }
             else
             {
-                item = bd.AsientoDetalle.Find(Id);           
+                item = bd.AsientoDetalle.Find(Id);
             }
 
             return item;
@@ -93,11 +97,11 @@ namespace AltivaWebApp.Controllers
             ViewBag.Titulo = "Balance";
             ViewBag.FechaDesde = DateTime.Now.Date;
             ViewBag.FechaHasta = DateTime.Now.Date;
-            ViewBag.Periodos = bd.PeriodoTrabajo;
+            ViewBag.Periodos = bd.PeriodoTrabajo.Where(p => !p.Estado.Equals("CREADO"));
             ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == true);
             ViewBag.Catalogo = bd.CatalogoContable.Where(p => p.Movimiento == true);
-            ViewBag.PeriodosFiscales = bd.PeriodoFiscal;
-
+            ViewBag.PeriodosFiscales = bd.PeriodoFiscal.Where(p => !p.Estado.Equals("CREADO"));
+            ViewBag.SinMayorizar = bd.Asiento.Where(p => p.Estado == 1).Count();
             Moneda v = bd.Moneda.Find(1);
             ViewBag.SimboloBase = v.Simbolo;
 
@@ -115,7 +119,7 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var resultado = bd.ResultadosPeriodo.Where(t=>t.IdPeriodoTrabajo == _IdPeriodo).ToList();
+                var resultado = bd.ResultadosPeriodo.Where(t => t.IdPeriodoTrabajo == _IdPeriodo).ToList();
 
                 return Ok(resultado);
             }
@@ -126,14 +130,40 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
         }
+        [HttpPost("_BalancePeriodo")]
+        public IActionResult _BalancePeriodo(long id, int idMoneda)
+        {
+            try
+            {
+                SqlParameter idInput = new SqlParameter("@id", id);
+                SqlCommand cmd = new SqlCommand();
+                cmd.CommandText = "Select * From vs_CO_ResultadoPeriodo as r where r.IdPeriodoTrabajo = @id Order by CuentaContable";
+                DataTable dtresult = new DataTable();
+                SqlConnection con = new SqlConnection(StringFactory.StringEmpresas);
+                cmd.Connection = con;
+                cmd.Parameters.Add(idInput);
+                SqlDataAdapter adp = new SqlDataAdapter(cmd);
+                adp.Fill(dtresult);
+              
+                ViewBag.resultado = dtresult.AsEnumerable().ToList();
+                ViewBag.Moneda = bd.Moneda.Find(idMoneda);
 
+                return PartialView("_BalancePeriodo");
+            }            
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+            }
 
-        [Route("item")]      
+        }
+        
+        [Route("item")]
         public IActionResult Item(long Id)
         {
-            Asiento item;        
+            Asiento item;
             item = getAsiento(Id);
-              
+
             //Datos Iniciales
             ViewBag.Moneda = bd.Moneda.Find(item.CodigoMoneda);
             TiposDocumentosConta tp = bd.TiposDoc.Find(item.IdTipoDocumento);
@@ -151,7 +181,8 @@ namespace AltivaWebApp.Controllers
                 ViewBag.Periodos = bd.PeriodoTrabajo.Where(p => p.Estado == "ABIERTO");
                 ViewBag.Tipos = bd.TiposDoc.Where(p => p.Automatico == false);
             }
-            else {
+            else
+            {
                 ViewBag.FechaDesdePeriodo = bd.PeriodoFiscal.Min(p => p.FechaDesde).Date;
                 ViewBag.FechaHastaPeriodo = bd.PeriodoFiscal.Max(p => p.FechaHasta).Date;
                 ViewBag.Periodos = bd.PeriodoTrabajo.Where(p => p.IdPeriodoTrabajo == item.IdPeriodoTrabajo || p.Estado == "ABIERTO");
@@ -160,16 +191,17 @@ namespace AltivaWebApp.Controllers
                 {
                     ViewBag.Tipos = bd.TiposDoc.Where(p => p.Automatico == false);
                 }
-                else {
-                    ViewBag.Tipos = bd.TiposDoc.Where(p=>p.IdTipoDocumento==tp.IdTipoDocumento);
-                }            
+                else
+                {
+                    ViewBag.Tipos = bd.TiposDoc.Where(p => p.IdTipoDocumento == tp.IdTipoDocumento);
+                }
 
-              
+
             }
-          
+
             ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == true);
-            ViewBag.Catalogo = bd.CatalogoContable.Where(p => p.Movimiento == true).OrderBy(p=>p.CuentaContable);
-            
+            ViewBag.Catalogo = bd.CatalogoContable.Where(p => p.Movimiento == true).OrderBy(p => p.CuentaContable);
+
 
             Moneda v = bd.Moneda.Find(1);
             ViewBag.SimboloBase = v.Simbolo;
@@ -185,7 +217,27 @@ namespace AltivaWebApp.Controllers
             return View("../ContaAsiento/u", item);
         }
 
-      
+        [HttpPost("Mayorizar")]
+        public ActionResult Mayorizar()
+        {
+     
+            try
+            {
+                SqlCommand cmd = new SqlCommand("EXEC pr_CO_Mayorizar");
+
+                cmd.Connection = new SqlConnection(StringFactory.StringEmpresas);
+                cmd.ExecuteNonQuery();
+
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return Json(new { success = false });
+                throw;
+            }
+        }
         [HttpGet("GetAsientosWithReqs")]
         public IActionResult GetAsientosWithReqs()
         {
@@ -198,11 +250,10 @@ namespace AltivaWebApp.Controllers
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                return BadRequest();
-                throw;
+                return Json(new { success = false });
+    
             }
         }
-
         [HttpPost("upAsiento")]
         public ActionResult updateAsiento(Asiento datos)
         {
@@ -237,26 +288,27 @@ namespace AltivaWebApp.Controllers
                 item.MontoDolar = datos.MontoDolar;
                 item.MontoEuro = datos.MontoEuro;
 
-                foreach (AsientoDetalle lineaDatos in datos.detalle) {
-                   
+                foreach (AsientoDetalle lineaDatos in datos.detalle)
+                {
+
                     if (lineaDatos.IdDetalleAsientoContable > 0)
                     {
                         foreach (AsientoDetalle lineaItem in item.detalle)
                         {
                             if (lineaDatos.IdDetalleAsientoContable == lineaItem.IdDetalleAsientoContable)
-                            {                               
-                                    lineaItem.IdCuentaContable = lineaDatos.IdCuentaContable;
-                                    lineaItem.MontoColones = lineaDatos.MontoColones;
-                                    lineaItem.MontoDolares = lineaDatos.MontoDolares;
-                                    lineaItem.MontoEuro = lineaDatos.MontoEuro;
-                                    lineaItem.Debe = lineaDatos.Debe;
-                                    lineaItem.Haber = lineaDatos.Haber;
-                                    lineaItem.TipoCambioDolar = lineaDatos.TipoCambioDolar;
-                                    lineaItem.TipoCambioEuro = lineaDatos.TipoCambioEuro;
-                                    lineaItem.IdCentrosDeGastos = lineaDatos.IdCentrosDeGastos;                              
-                               
+                            {
+                                lineaItem.IdCuentaContable = lineaDatos.IdCuentaContable;
+                                lineaItem.MontoColones = lineaDatos.MontoColones;
+                                lineaItem.MontoDolares = lineaDatos.MontoDolares;
+                                lineaItem.MontoEuro = lineaDatos.MontoEuro;
+                                lineaItem.Debe = lineaDatos.Debe;
+                                lineaItem.Haber = lineaDatos.Haber;
+                                lineaItem.TipoCambioDolar = lineaDatos.TipoCambioDolar;
+                                lineaItem.TipoCambioEuro = lineaDatos.TipoCambioEuro;
+                                lineaItem.IdCentrosDeGastos = lineaDatos.IdCentrosDeGastos;
+
                             }
-                            
+
                         }
                     }
                     else
@@ -272,20 +324,21 @@ namespace AltivaWebApp.Controllers
                         itemCambios.TipoCambioEuro = lineaDatos.TipoCambioEuro;
                         itemCambios.IdCentrosDeGastos = lineaDatos.IdCentrosDeGastos;
                         item.detalle.Add(itemCambios);
-                      
+
                     }
-                   
+
                 }
-             
+
                 if (datos.IdAsientoContable == 0)
                 {
                     bd.Add(item);
                 }
-                else {
+                else
+                {
                     bd.Update(item);
 
-                }                
-              
+                }
+
                 bd.SaveChanges();
                 bd.AsientoDetalle.RemoveRange(
                     bd.AsientoDetalle.Where(p => (p.IdAsientoContable == item.IdAsientoContable) && (p.MontoColones < 0))
@@ -301,6 +354,7 @@ namespace AltivaWebApp.Controllers
 
         }
 
-
     }
+    
+
 }

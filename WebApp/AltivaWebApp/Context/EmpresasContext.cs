@@ -2217,9 +2217,7 @@ namespace AltivaWebApp.Context
             {
                 entity.ToTable("tb_PR_Bodega");
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.Property(e => e.Almacenamiento)
+               entity.Property(e => e.Almacenamiento)
                     .IsRequired()
                     .HasDefaultValueSql("((1))");
 

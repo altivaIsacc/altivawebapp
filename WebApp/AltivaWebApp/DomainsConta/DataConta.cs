@@ -43,23 +43,26 @@ namespace AltivaWebApp.DomainsConta
     public class ResultadoPeriodo
     {
         [Key]
-        public long IdTrabajoResultado { get; set; }
-                public long IdPeriodoTrabajo { get; set; }
-        public long IdCuentaContable { get; set; }
+        public string CuentaContable { get; set; }
+        public string Descripcion { get; set; }
+        public short Nivel { get; set; }
+        public string Notas { get; set; }
+        public short IdTipoCuentaContable { get; set; }
+        public long IdCuentaContablePadre { get; set; }
+        public bool Movimiento { get; set; }
+        public bool Inactivo { get; set; }
         public float DebitoBase { get; set; }
         public float CreditoBase { get; set; }
         public float SaldoBase { get; set; }
         public float DebitoDolar { get; set; }
         public float CreditoDolar { get; set; }
         public float SaldoDolar { get; set; }
-        public float DebitoEuro {get; set;}
-        public float CreditoEuro {get; set;}
-        public float SaldoEuro {get; set;}
-        public string CuentaContable{get; set;}
-        public string Descripcion{get;set;}
-        public string Nivel {get;set;}
-        public string Notas {get;set;}
-        public Boolean Movimiento {get;set;}
-        public Boolean Inactivo {get;set;}
+        public float DebitoEuro { get; set; }
+        public float CreditoEuro { get; set; }
+        public float SaldoEuro { get; set; }
+        public long IdPeriodoTrabajo { get; set; }
+        public long IdPeriodoTrabajoResultado { get; set; }
+        public long IdCuentaContable { get; set; }
     }
+
 }
