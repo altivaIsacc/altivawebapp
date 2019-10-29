@@ -4,9 +4,9 @@ using System;
 
 namespace AltivaData.Provider
 {
-    public class SQLProvider
+    public class SQL
     {
-        public void llenar(SqlCommand cmd, DataTable dt, string conexion) {
+        public static void fill(SqlCommand cmd, DataTable dt, string conexion) {
             try
             {
                 SqlConnection con = new SqlConnection(conexion);
@@ -24,7 +24,7 @@ namespace AltivaData.Provider
             }         
 
         }
-        public void ejecutar(SqlCommand cmd, DataTable dt, string conexion)
+        public static bool exe(SqlCommand cmd, string conexion)
         {
             try
             {
@@ -33,10 +33,12 @@ namespace AltivaData.Provider
                 cmd.Connection = con;
                 cmd.ExecuteNonQuery();
                 con.Close();
+                return true;
             }
             catch (Exception ex)
             {
-                AltivaLog.Log.Insertar(ex.ToString(), "ErrorEjecutar");               
+                AltivaLog.Log.Insertar(ex.ToString(), "ErrorEjecutar");
+                return false;
             }
 
         }

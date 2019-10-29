@@ -71,9 +71,9 @@
             </div>
             <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
                 <div class="col-md-12 col-sm-4 col-xs-12" style="margin-top: 2.5rem">
-                    <a class="btn btn-primary" onclick="getBalancePeriodo()"><span>@lb["Ver"]</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+                    <a id="btVer" class="btn btn-primary" onclick="getBalancePeriodo()"><span>@lb["Ver"]</span>&nbsp;<i class="fas fa-search"></i></a>
 
-                    <a @disable class="btn btn-primary" onclick="Mayorizar()" data-toggle="tooltip" data-placement="top" title="@lb[etiquetaMayorizar]">@lb["Mayorizar"] (@ViewBag.SinMayorizar) <i class="fas fa-plus-circle"></i></a>
+                    <a @disable id="btMayorizar" class="btn btn-primary" onclick="Mayorizar()" data-toggle="tooltip" data-placement="top" title="@lb[etiquetaMayorizar]">@lb["Mayorizar"] (@ViewBag.SinMayorizar)</i></a>
 
                 </div>
 
@@ -125,7 +125,7 @@
     var monedas = [];
     var monedaItem;
       @foreach (var item in ViewBag.Monedas)
-        {
+      {
         @:      monedaItem = {Codigo:'@item.Codigo',Nombre:'@item.Nombre',Simbolo:'@item.Simbolo'};
         @:      monedas.push(monedaItem);
         }
@@ -133,14 +133,14 @@
     var periodos = [];
     var periodo;
       @foreach (var item in ViewBag.Periodos)
-        {
+      {
         @:      periodo = {FechaInicio:'@item.FechaInicio.ToString("yyyy/MM/dd")',FechaFinal:'@item.FechaFinal.ToString("yyyy/MM/dd")',Nombre: '@item.Nombre',IdPeriodoTrabajo: '@item.IdPeriodoTrabajo',IdPeriodoFiscal: '@item.IdPeriodoFiscal'};
         @:      periodos.push(periodo);
         }
     var periodosFiscales = [];
     var periodoFiscal;
       @foreach (var item in ViewBag.PeriodosFiscales)
-        {
+      {
         @:      periodoFiscal = {FechaInicio:'@item.FechaDesde.ToString("yyyy/MM/dd")',FechaFinal:'@item.FechaHasta.ToString("yyyy/MM/dd")',Nombre: '@item.Nombre',IdPeriodoFiscal: '@item.IdPeriodoFiscal'};
         @:      periodosFiscales.push(periodoFiscal);
         }
@@ -197,6 +197,8 @@
         });
     }
     function getBalancePeriodo() {
+        document.getElementById('btVer').classList.add("disabled");
+
         obtenerPeriodo();
         obtenerMoneda();
         var url = "@Url.Action("_BalancePeriodo")";
@@ -214,19 +216,30 @@
         });
 
         }
+        document.getElementById('btVer').classList.remove("disabled");
+      
     }
-     function Mayorizar() {
+    function Mayorizar() {
+        document.getElementById('btVer').classList.add("disabled");
+        document.getElementById('btMayorizar').classList.add("disabled");
         obtenerPeriodo();
-        obtenerMoneda();
+        obtenerMoneda();       
+        
         var url = "@Url.Action("Mayorizar")";
         if (validarModelo()) {
             $.ajax({type: "Post",
                 url: url,
                 success: function () {
+                   document.getElementById('btVer').classList.add("disabled");
+                    document.getElementById('btMayorizar').classList.add("disabled");
+                    document.getElementById('btMayorizar').innerText = '@lb["Mayorizar"] (0)';
+                    
                     getBalancePeriodo();
                  },
             error: function (err, scnd) {
                 console.log(err.statusText);
+                document.getElementById('btVer').classList.remove("disabled");
+                document.getElementById('btMayorizar').classList.remove("disabled");
             }
 
         });

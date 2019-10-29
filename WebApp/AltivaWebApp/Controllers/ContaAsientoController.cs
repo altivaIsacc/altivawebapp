@@ -138,14 +138,10 @@ namespace AltivaWebApp.Controllers
                 SqlParameter idInput = new SqlParameter("@id", id);
                 SqlCommand cmd = new SqlCommand();
                 cmd.CommandText = "Select * From vs_CO_ResultadoPeriodo as r where r.IdPeriodoTrabajo = @id Order by CuentaContable";
-                DataTable dtresult = new DataTable();
-                SqlConnection con = new SqlConnection(StringFactory.StringEmpresas);
-                cmd.Connection = con;
                 cmd.Parameters.Add(idInput);
-                SqlDataAdapter adp = new SqlDataAdapter(cmd);
-                adp.Fill(dtresult);
-              
-                ViewBag.resultado = dtresult.AsEnumerable().ToList();
+                DataTable dt = new DataTable();         
+                AltivaData.Provider.SQL.fill(cmd, dt, StringFactory.StringEmpresas);
+                ViewBag.resultado = dt.AsEnumerable().ToList();
                 ViewBag.Moneda = bd.Moneda.Find(idMoneda);
 
                 return PartialView("_BalancePeriodo");
@@ -224,26 +220,60 @@ namespace AltivaWebApp.Controllers
             try
             {
                 SqlCommand cmd = new SqlCommand("EXEC pr_CO_Mayorizar");
+                if (AltivaData.Provider.SQL.exe(cmd, StringFactory.StringEmpresas))
+                {
 
-                cmd.Connection = new SqlConnection(StringFactory.StringEmpresas);
-                cmd.ExecuteNonQuery();
+                    return Json(new { success = true });
+                }
+                else {
+                    return Json(new { success = false });
 
+                }              
 
-                return Json(new { success = true });
+               
             }
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
                 return Json(new { success = false });
-                throw;
+           
             }
         }
+        [HttpPost("Mayorizar")]
+        public ActionResult GuardarParametrosBusqueda()
+        {
+
+            try
+            {
+                SqlCommand cmd = new SqlCommand("EXEC pr_CO_Mayorizar");
+                if (AltivaData.Provider.SQL.exe(cmd, StringFactory.StringEmpresas))
+                {
+
+                    return Json(new { success = true });
+                }
+                else
+                {
+                    return Json(new { success = false });
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return Json(new { success = false });
+
+            }
+        }
+
+
         [HttpGet("GetAsientosWithReqs")]
         public IActionResult GetAsientosWithReqs()
         {
             try
             {
-                var asiento = bd.Asiento.ToList();
+                var asiento = bd.Asiento.ToList().OrderByDescending(p=>p.IdAsientoContable);
 
                 return Ok(asiento);
             }
@@ -353,6 +383,16 @@ namespace AltivaWebApp.Controllers
             }
 
         }
+
+    }
+    public class parametrosAsientos
+    {
+        string codigo;
+        DateTime fechaDesde;
+        DateTime fechaHasta;
+        int IdPeriodoTrabajo;
+        int IdEstado;
+        
 
     }
     
