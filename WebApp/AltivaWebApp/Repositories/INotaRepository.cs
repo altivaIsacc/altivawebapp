@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AltivaWebApp.Repositories
 {
    public interface INotaRepository
-    {
+   {
         TbFaNota Save(TbFaNota domain);
         TbFaNota Update(TbFaNota domain);
         IList<TbFaNota> GetAll();
@@ -15,5 +15,5 @@ namespace AltivaWebApp.Repositories
         IList<TbFaTipoDocumento> GetAllTipoDocumento();
         TbFaMovimiento SaveMovimiento(TbFaMovimiento domain);
       
-    }
+   }
 }

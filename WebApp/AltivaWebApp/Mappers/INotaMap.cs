@@ -9,10 +9,10 @@ namespace AltivaWebApp.Mappers
 {
     public interface INotaMap
     {
-        TbFaNota Create(NotaViewModel viewModel);
-        TbFaNota Update(NotaViewModel viewModel);
-        TbFaNota ViewModelToDomain(NotaViewModel viewModel);
-        TbFaNota ViewModelToDomainEditar(NotaViewModel viewModel);
-        NotaViewModel DomainToVIewModel(TbFaNota domain);
+        TbFaNota Create(DocumentoViewModel viewModel);
+        TbFaNota Update(DocumentoViewModel viewModel);
+        TbFaNota ViewModelToDomain(DocumentoViewModel viewModel);
+        TbFaNota ViewModelToDomainEditar(DocumentoViewModel viewModel);
+        DocumentoViewModel DomainToVIewModel(TbFaNota domain);
     }
 }

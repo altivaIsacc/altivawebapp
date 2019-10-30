@@ -112,7 +112,7 @@
     var hasta;
     var desde;
     $(document).ready(function () {
-        getNotas();
+        getContactos();   
         filtroFechas();
        
     });
@@ -186,6 +186,41 @@
             url: '@Url.Action("GetAllMovimientos", "Nota")',
               success: function (data) {                
                   Movimientos = data;
+                  
+                  getTipoDocumentos();
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+    function getTipoDocumentos() {
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetAllTipoDocumento", "Nota")',
+            success: function (data) {                
+                tipoDocumentos = data;
+                getNotas();
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+    function getNotas() {
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetAllNotas", "Nota")',
+            success: function (data) {
+                Notas = data;
+                console.log(data);
+                //cargarDatos(data);
                 filtroAnuladas();
             },
             error: function (err, scnd) {
@@ -194,21 +229,6 @@
             }
         });
     }
-       function getNotas() {
-          $.ajax({
-            type: "get",
-            dataType: "json",
-            url: '@Url.Action("GetAllNotas", "Nota")',
-            success: function (data) {
-                Notas = data;
-                 getContactos();     
-            },
-            error: function (err, scnd) {
-                cargarAlert('@Lb["errorGeneral"]');
-                console.log(err.statusText);
-            }
-        });
-      }
      function getContactos() {
             $.ajax({
               type: "get",
@@ -216,7 +236,8 @@
               url: '@Url.Action("GetAllContactos", "Contacto")',
                 success: function (data) {
                     Contactos = data;
-                     getMovimientos();
+                    getMovimientos();
+                    
                 },
               error: function (err, scnd) {
                   cargarAlert('@Lb["errorGeneral"]');
@@ -226,7 +247,6 @@
      }
     //Helpers
     function cargarDatos(data) {
-        console.log(data);
         $("#tblNotas> tbody").remove();
         $('#tblNotas').append('<tbody></tbody>');
 
@@ -256,11 +276,11 @@
                  + '<td>'+ data[i].idMovimiento+ '</td>'
                  + '<td>' + getContacto(data[i].idContacto) + '</td>'
                  + '<td >' + getTipo(data[i]) + '</td>'
-                   + '<td >' + recuperarFecha(data[i].fechaCreacion) + ' </td>'
-                   + '<td >' + Estado + ' </td>'
-                + '<td ><input style="padding-top:1rem; border:0; background-color : #F7F7F7" class="' + darFormato(data[i].idMoneda) + '" value="' + getMonto(data[i]) + '"/></td>'
-                 + '<td >No se </td>'
-                 + '<td >  <button ' + disabled + ' value="' + data[i].idDocumento + '" onclick="getCrearEditar(value)" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].idDocumento + '" onclick="anularNota(value, ' + Estado2 + ')" class="btn btn-link btnEditar">' + anularIcon + '</button></td></tr>';
+                 + '<td >' + recuperarFecha(data[i].fechaCreacion) + ' </td>'
+                 + '<td >' + Estado + ' </td>'
+                 + '<td ><input style="padding-top:1rem; border:0; background-color : #F7F7F7" class="' + darFormato(data[i].idMoneda) + '" value="' + getMonto(data[i]) + '"/></td>'
+                   + '<td >No se </td>'
+                   + '<td >  <button ' + disabled + ' value="' + data[i].idDocumento + '" onclick="getCrearEditar(value, ' + data[i].idTipoDocumento + ')" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].idDocumento + '" onclick="anularNota(value, ' + Estado2 + ')" class="btn btn-link btnEditar">' + anularIcon + '</button></td></tr>';
 
             $('#tblNotas > tbody').append(body);
                 contadorFila++;
@@ -280,8 +300,9 @@
             rightAlign: true
         });
         inicializarTabla();
-       }
-      function inicializarTabla() {
+    }
+
+    function inicializarTabla() {
 
         $('#tblNotas').DataTable().destroy();
 
@@ -359,18 +380,31 @@
             });
     }
    
-    function getCrearEditar(id) {
+    function getCrearEditar(id, idTipoDoc) {
+        var url = '';
+        if (esNota(idTipoDoc))
+            url = '@Url.Action("EditarNota", new { id = "__id__"})';
+        else
+            url = '@Url.Action("EditarPago", new { id = "__id__"})';
 
-          var url = '@Url.Action("EditarNota", new { id = "__id__"})';
         window.location.href = url.replace("__id__", id);
+    }
+
+    function esNota(idTipoDoc) {
+        for (var i = 0; i < tipoDocumentos.length; i++) {
+            if (tipoDocumentos[i].idTipoDocumento == parseInt(idTipoDoc)) {
+                return tipoDocumentos[i].esNota;
+            }
         }
+    }
+
     function getContacto(id) {
         for (var i = 0; i < Contactos.length; i++) {
             if (Contactos[i].idContacto == id)
                 return Contactos[i].nombre;
         }
     }
-     function getTipo(model) {
+    function getTipo(model) {
          if (model.cxp)
              return "CXP";
          if (model.cxc)
@@ -380,7 +414,7 @@
     function getEstado(id) {
         var estado = 0;
         for (var i = 0; i < Notas.length; i++) {
-            if (Notas[i].idNotaCredito == id)               
+            if (Notas[i].idDocumento == id)               
                 estado = Notas[i].estado;            
         }
         return estado;
@@ -415,7 +449,7 @@
 
             for (var i = 0; i < array.length; i++) {
                 for (var j = 0; j < Notas.length; j++) {
-                    if (array[i].idDocumento == Notas[j].idNotaCredito)
+                    if (array[i].idDocumento == Notas[j].idDocumento)
                         if (Notas[j].estado == 2)
                              arrayMovimientos.push(array[i]);
                 }                 
@@ -424,7 +458,7 @@
         else
             for (var i = 0; i < array.length; i++) {
                 for (var j = 0; j < Notas.length; j++) {
-                    if (array[i].idDocumento == Notas[j].idNotaCredito)
+                    if (array[i].idDocumento == Notas[j].idDocumento)
                         if (Notas[j].estado == 1)
                              arrayMovimientos.push(array[i]);
                 }                 

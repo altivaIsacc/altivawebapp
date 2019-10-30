@@ -50,7 +50,8 @@ namespace AltivaWebApp.Repositories
                 throw;
             }
         }
-        public IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc)
+        //public IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc)
+        public IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc, int tipoDoc)
         {
 
             return context.TbFaMovimientoDetalle.AsNoTracking().Select(md => new TbFaMovimientoDetalle
@@ -145,14 +146,14 @@ namespace AltivaWebApp.Repositories
                 }
 
 
-            }).Where(md => md.IdMovimientoDesdeNavigation.IdDocumento == idDoc).ToList();
+            }).Where(md => md.IdMovimientoDesdeNavigation.IdDocumento == idDoc && md.IdMovimientoDesdeNavigation.IdTipoDocumento == tipoDoc).ToList();
 
 
         }
 
-        public TbFaMovimiento GetMovimientoByIdDocumento(long idDoc)
+        public TbFaMovimiento GetMovimientoByIdDocumento(long idDoc, long tipoDoc)
         {
-            return context.TbFaMovimiento.FirstOrDefault(m => m.IdDocumento == idDoc);
+            return context.TbFaMovimiento.Include(m => m.IdTipoDocumentoNavigation).FirstOrDefault(m => m.IdDocumento == idDoc && m.IdTipoDocumento == tipoDoc);
         }
 
         public TbFaMovimiento GetMovimientoById(long idMov)
@@ -247,6 +248,12 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbFaMovimientoDetalle.FirstOrDefault(d => d.IdMovimientoHasta == idMovimiento);
         }
+
+        public IList<TbFaMovimientoDetalle> GetMovimientosDetalleByIdMovimiento(long idMovimiento)
+        {
+            return context.TbFaMovimientoDetalle.Where(m => m.IdMovimientoDesde == idMovimiento).ToList();
+        }
+
         public bool SaveMD(IList<TbFaMovimientoDetalle> domain)
         {
             try
@@ -269,7 +276,6 @@ namespace AltivaWebApp.Repositories
             if (cxp)
                 cx = 1;
 
-
             try
             {
 
@@ -285,6 +291,25 @@ namespace AltivaWebApp.Repositories
             }
 
         }
+
+        public IList<DocumentosContactoViewModel> GetDocumentosPendientesContacto(long idContacto)
+        {
+            try
+            {
+
+                var model = context.DocumentosContacto.FromSql($"Select * from vs_FA_DocumentosContacto").Where(d => d.IdContacto == idContacto && d.SaldoBase > 0 && d.EsDebito).ToList();
+                return model;
+
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+
+            }
+
+        }
+
         public bool DeleteMovimientoJustificante(IList<int> domain, int idMovimiento)
         {
             try

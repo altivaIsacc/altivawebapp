@@ -337,6 +337,11 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<ICajaMovimientoService, CajaMovimientoService>();
             services.AddScoped<ICajaMovimientoMap, CajaMovimientoMap>();
 
+            //Pago
+            services.AddScoped<IPagoRepository, PagoRepository>();
+            services.AddScoped<IPagoService, PagoService>();
+            services.AddScoped<IPagoMap, PagoMap>();
+
         }
     }
 }

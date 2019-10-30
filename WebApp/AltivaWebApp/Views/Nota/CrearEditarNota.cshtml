@@ -1,4 +1,4 @@
-﻿@model AltivaWebApp.ViewModels.NotaViewModel
+﻿@model AltivaWebApp.ViewModels.DocumentoViewModel
 @inject IStringLocalizer<SharedResources> Lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
@@ -9,15 +9,15 @@
 }
 
 @{
-    ViewData["Title"] = @Lb["Notas"];
+    ViewData["Title"] = @Lb["Documento"];
 
     var select = "checked";
     var select1 = "";
     var guardar = "guardarCambios()";
     var estado = "";
     var estado2 = "disabled";
-    var titulo = @Lb["Crear"];
-    if (Model.IdNotaCredito != 0)
+    var titulo = @Lb["Nueva"];
+    if (Model.IdDocumento != 0)
     {
         if (Model.Estado == 2)
         {
@@ -33,53 +33,46 @@
 
 }
 
-<div class="well col-md-12 col-sm-12 col-xs-12">
+<div class="row">
+    <div class="col-md-3"><h3>@titulo @Lb["Nota"]</h3></div>
+    <div class="col-md-9 pull-right">
+        <a class="btn btn-default pull-right" href="#" onclick="GetReporte()">@Lb["generarReporte"] <i class="fa fa-print"></i></a>
+    </div>
+</div>
+<div class="row well">
     <input type="hidden" id="IdMovimiento" value="0" />
     <input type="hidden" id="IdUsuario" value="0" />
 
     <div class="row">
-        <div class="col-md-3"><h3>@titulo @Lb["Nota"]</h3></div>
-    </div>
-    <div class="row">
-        <div class="col-md-2 col-sm-2 col-xs-12">
+
+        <div class="form-group col-md-3 col-sm-4 col-xs-6" style="margin: 0; padding:0; margin-left:1rem">
+            <label for="fecha">@Lb["Fecha"]:</label>
+            <div class='input-group date' id='fechaPicker'>
+                <input type='text' asp-for="Fecha" class="form-control" id="fecha" />
+                <span class="input-group-addon">
+                    <span class="fas fa-calendar"></span>
+                </span>
+            </div>
+        </div>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-4">
             <label>@Lb["tipo"]:</label>
             <select class="form-control" id="tipo" @estado>
                 <option value="1"> @Lb["CXP"]</option>
                 <option value="2">@Lb["CXC"]</option>
             </select>
         </div>
-        <div class="col-md-2 col-sm-2 col-xs-12">
+
+        <div class="form-group col-md-3 col-sm-4 col-xs-12">
             <label>@Lb["TipoDocumento"]:</label>
             <select class="form-control" @estado id="tipoDocumento"></select>
         </div>
-        <div class="form-group col-md-2 col-sm-3 col-xs-12">
-            <div class="form-group">
-                <label for="fecha">@Lb["Fecha"]:</label>
-                <div class='input-group date' id='fechaPicker'>
-                    <input type='text' asp-for="Fecha" class="form-control" id="fecha" readonly />
-                    <span class="input-group-addon">
-                        <span class="fas fa-calendar"></span>
-                    </span>
-                </div>
-            </div>
-
-        </div>
-        <div class="form-group col-md-3 col-sm-3 col-xs-12">
+        <div class="form-group col-md-3 col-sm-4 col-xs-12">
             <label class="control-label">@Lb["Contacto"]:</label>
             <select class="selectItems form-control" data-live-search="true" id="contactos" @estado></select>
         </div>
-        <div class="form-group col-md-3 col-sm-3 col-xs-12" style="padding-top:25px;">
-            <div class="checkbox-inline">
-                <input id="activo1" type="checkbox" value="1" name="estado1" @select /> @Lb["activo"]
-            </div>
 
-            <div class="checkbox-inline">
-                <input id="inactivo1" type="checkbox" value="2" name="estado1" @select1 /> @Lb["inactivo"]
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="form-group col-md-2 col-sm-2 col-xs-12">
+        <div class="form-group col-md-2 col-sm-2 col-xs-6">
             <label class="control-label">@Lb["Moneda"]:</label>
             <select class="selectItems form-control" data-live-search="true" id="tipoMoneda">
                 <option value="1">@Lb["CRC"]</option>
@@ -87,34 +80,40 @@
                 <option value="3">@Lb["EUR"]</option>
             </select>
         </div>
-        <div class="form-group  col-md-2 col-sm-2 col-xs-12">
+        <div class="form-group col-md-2 col-sm-2 col-xs-6">
             <label class="control-label">@Lb["Dolar"]:</label>
             <input class="form-control moneda" value="@ViewBag.Dolar" id="dolar" @estado />
             <input class="form-control moneda" type="hidden" value="@ViewBag.DolarVenta" id="dolarVenta" />
-
         </div>
-        <div class="form-group  col-md-2 col-sm-2 col-xs-12">
+        <div class="form-group  col-md-2 col-sm-2 col-xs-6">
             <label class="control-label">@Lb["Euro"]:</label>
             <input class="form-control moneda" value="@ViewBag.Euro" id="euro" @estado />
             <input class="form-control moneda" type="hidden" value="@ViewBag.EuroVenta" id="euroVenta" />
 
         </div>
-        <div class="form-group col-md-3 col-sm-3 col-xs-12">
+        <div class="form-group col-md-4 col-sm-6 col-xs-12">
             <label class="control-label">@Lb["Nota"]:</label>
-            <textarea class="form-control" asp-for="Nota" id="nota"></textarea>
+            <textarea class="form-control" asp-for="Nota" maxlength="250" rows="4" id="nota"></textarea>
             <span hidden id="notaValid" class="text-danger">@Lb["notaValid"]</span>
         </div>
-        <div class="form-group col-md-3 col-sm-3 col-xs-12" style="padding-top: 0.5rem">
-            <br />
-            <a class="btn btn-default" href="#" onclick="GetReporte()" >@Lb["generarReporte"] <i class="fa fa-print"></i></a>
+
+        <div class="form-group col-md-2 col-sm-2 col-xs-4" style="padding-top:25px;">
+            <label for="activo1"><input id="activo1" type="checkbox" value="1" name="estado1" @select /> @Lb["activo"]</label>
+            <label for="inactivo1"><input id="inactivo1" type="checkbox" value="2" name="estado1" @select1 />@Lb["inactivo"]</label>
+        </div>
+
+    </div>
+
+
+    <div class="row" >
+        <div class="col-md-12" id="notaDetalleContainer">
+            <input type="checkbox" class="form-check-input" id="notaDetalle" /> @Lb["Total"]  <span class="total">@Lb["Detalle"]</span> <span readonly id="totalDetalle" class="currency total tdetalle"></span>
+        </div>
+        <div class="col-md-12" id="preDetalleContainer">
+            <span>@Lb["Total"] @Lb["Detalle"]</span> <span id="totalDetallePrepago" class="currency total tdetalle"></span><a class="btn btn-link" style="margin:0; padding:0; padding-bottom:0.5rem" onclick="validarCajasAbiertas()">@Lb["Editar"]</a>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-3">
-            <input type="checkbox" class="form-check-input" id="notaDetalle" /> @Lb["Total"]  <span class="tdetalle">@Lb["Detalle"]</span> <span readonly id="totalDetalle" class="currency total tdetalle"></span>
-        </div>
-    </div>
     <div class="collapse notaDetalleForm">
 
         <div class="row">
@@ -142,7 +141,6 @@
                 <label class="control-label">@Lb["Monto"]:</label>
                 <input class="form-control moneda" type="text" min="1" id="monto" />
                 <span hidden id="montoValid" class="text-danger">@Lb["montoValid"]</span>
-
             </div>
 
             <div class="form-group col-md-1 col-sm-1 col-xs-12" style="padding-top: 2.3rem;">
@@ -213,7 +211,6 @@
 <span hidden id="lineasValid" class="text-danger">@Lb["lineasValid"]</span>
 <div class="row">
     <div class="form-group col-md-8">
-
         <button class="btn btn-success btnAccion" onclick="guardarCambios()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
         <a onclick="" class="btn btn-default">@Lb["Cancelar"]</a>
     </div>
@@ -242,8 +239,6 @@
                             <label class="control-label">@Lb["Monto"]:</label>
                             <input class="form-control moneda" type="text" min="1" id="editMonto" />
                             <span hidden id="editMontoValid" class="text-danger">@Lb["montoValid"]</span>
-
-
                         </div>
 
                         <div class="form-group col-sm-7">
@@ -311,6 +306,13 @@
         </div>
     </div>
 </div>
+
+<div id="formaPagoPartial">
+
+</div>
+
+<input hidden readonly id="estadoDocumento" value="false" />
+
 <div class="row">
     <div class="col-md-12">
         <div id="comentarios">
@@ -320,7 +322,7 @@
 </div>
 <script src="~/js/comentario.js"></script>
 <script>
-    var $idNotaCredito = '@Model.IdNotaCredito';
+    var $idNotaCredito = '@Model.IdDocumento';
     var editDescripcion = "";
     var editMonto = 0;
     var lineas = [];
@@ -335,28 +337,42 @@
     var movimientosDetalle = [];
     var aplicadosOriginal = [];
     var lineasActualizadasAplicadas = [];
+    var idCajaPuntoVenta = 0;
+    var formasPagoDoc = [];
+    var monedas = [];
 
+
+    var saldoAplicable = 0;
+    var docSinAplicar = [];
+    var docAplicados = [];
 
     $(document).ready(function () {
+
+        getMonedas();
+
         $("#monto").val(0.00);
         $("#totalDisponible").val($(".total").inputmask('unmaskedvalue'));
         getContactos(2);
         getTipoDocumento(1);
         getTipoJustificante();
-        if (@Model.IdNotaCredito == 0) {
+
+        if (@Model.IdDocumento == 0){
             $("#activo1").attr('checked', true);
         }
+
         var date = new Date();
 
-        if (@Model.IdNotaCredito != 0) {
-            GetComentarios("Nota", @Model.IdNotaCredito, '@Url.Action("Nuevo-Comentario", "Mensajes")');
+        if (@Model.IdDocumento != 0) {
+
+            GetComentarios("DOCS", @Model.IdDocumento, '@Url.Action("Nuevo-Comentario", "Mensajes")');
             var valor = 3;
             $("#contactos option[value="+ valor +"]").attr("selected",true);
             $("#tipoDocumento").val(@Model.IdTipoDocumento).prop('selected', true);
-            getMovimiento();
+            
             date = new Date(formatearFecha());
 
         }
+
         $('#fechaPicker').datetimepicker({
             defaultDate: date,
             locale: localStorage.getItem("idioma")
@@ -369,58 +385,76 @@
         });
     });
     //eventos directos
+
+    $("#tipoDocumento").on("change", function () {
+        toggleTipoDocumento();
+    });
+
+    function toggleTipoDocumento() {
+        if (esNota($("#tipoDocumento").val())) {
+            $('#preDetalleContainer').prop('hidden', true);
+            $('#notaDetalleContainer').prop('hidden', false);
+        } else {
+            $('#preDetalleContainer').prop('hidden', false);
+            $('#notaDetalleContainer').prop('hidden', true);
+        }
+    }
+
     $('#aplicado').change(function () {
         $('.aplicadoForm').collapse('toggle');
         if ($('#aplicado').val() === "False") {
             $('#aplicado').val("True");
         } else {
             $('#aplicado').val("False");
-
         }
     });
 
-       $('#notaDetalle').change(function () {
+    $('#notaDetalle').change(function () {
         $('.notaDetalleForm').collapse('toggle');
-           if ($('#notaDetalle').val() === "False") {
-           $('.tdetalle').attr('hidden', false);
+        if ($('#notaDetalle').val() === "False") {
+            $('.tdetalle').attr('hidden', false);
             $('#notaDetalle').val("True");
         } else {
             $('#notaDetalle').val("False");
             $('.tdetalle').attr('hidden', true);
-           }
+        }
     });
+
+    
 
     $("#btnTipo").on("click", function () {
         cargarTabla(lineas);
     });
-     $('#tipo').change(function () {
-         if ($(this).val() == 1) {
-             getContactos(2);
-             getTipoDocumento(1);
-         }
-         if ($(this).val() == 2) {
-             getContactos(1);
-             getTipoDocumento(2);
-         }
+
+    $('#tipo').change(function () {
+        if ($(this).val() == 1) {
+            getContactos(2);
+            getTipoDocumento(1);
+        }
+        if ($(this).val() == 2) {
+            getContactos(1);
+            getTipoDocumento(2);
+        }
 
     });
+
     $("#tipoMoneda").on("change", function () {
-        if (@Model.IdNotaCredito==0) {
-           for (var i = 0; i < lineas.length; i++) {
-             lineas[i].monto = recalcularMonto(lineas[i]);
-             lineas[i].idMoneda = parseInt($('#tipoMoneda').val());
-           }
+        if (@Model.IdDocumento==0) {
+            for (var i = 0; i < lineas.length; i++) {
+                lineas[i].monto = recalcularMonto(lineas[i]);
+                lineas[i].idMoneda = parseInt($('#tipoMoneda').val());
+            }
             if (lineasAgregadas > 0) {
-              for (var i = 0; i < lineasAgregadas.length; i++) {
-                  lineasAgregadas[i].monto = recalcularMonto(lineasAgregadas[i]);
-                  lineasAgregadas[i].idMoneda = parseInt($('#tipoMoneda').val());
-              }
+                for (var i = 0; i < lineasAgregadas.length; i++) {
+                    lineasAgregadas[i].monto = recalcularMonto(lineasAgregadas[i]);
+                    lineasAgregadas[i].idMoneda = parseInt($('#tipoMoneda').val());
+                }
             }
         }
 
-        if (@Model.IdNotaCredito != 0) {
+        if (@Model.IdDocumento != 0) {
             recalcularDatos();
-            cargarTotal();
+            cargarTablaDocAplicados();
             for (var i = 0; i < lineas.length; i++) {
                 for (var j = 0; j < lineasCargadas.length; j++) {
                     if (lineas[i].id == lineasCargadas[j].idMovimientoJustificante)
@@ -429,14 +463,15 @@
                 }
             }
         }
+
         setTotal();
         cargarTabla(lineas);
     });
-      $('#activo1').change(function () {
+
+    $('#activo1').change(function () {
         if ($(this).prop('checked') == true)
             $('#inactivo1').prop('checked', false);
     });
-
     $('#inactivo1').change(function () {
         if ($(this).prop('checked') == true)
             $('#activo1').prop('checked', false);
@@ -445,55 +480,73 @@
         var id = parseInt($("#tipoJustificante").val());
         getCrearEditarPartial(id);
     });
-     $("#crearJustificante").on("click", function () {
+    $("#crearJustificante").on("click", function () {
         getCrearEditarPartial(0);
     });
+
     //AJAX
-     function getEnlace()
-     {
-        var url = "@Url.Action("_EnlaceAutomatico", "Nota")";
+
+    function getMonedas() {
          $.ajax({
+              type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetMonedas", "Monedas")',
+             success: function (data) {
+
+                 monedas = data;
+
+                 if (@Model.IdDocumento != 0) {
+                     getMovimiento();
+                 }
+
+             },
+             error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+             }
+         });
+    }
+
+    function getMovimiento() {
+        var idNota = @Model.IdDocumento;
+        $.ajax({
+              type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetMovimiento", new { id = Model.IdDocumento, tipoDoc = Model.IdTipoDocumento })',
+
+              success: function (data) {
+                    $("#tipoMoneda").val(data.idMoneda);
+                    if (data.cxp)
+                        $("#tipo").val("1");
+                    else
+                    $("#tipo").val("2");
+
+                recuperarTotal(data);
+                $("#IdMovimiento").val(data.idMovimiento);
+                  $("#IdUsuario").val(data.idUsuario);
+
+                  if (esNota())
+                      getMovimientoJustificante(data.idMovimiento);
+                  else
+                      getFomasPagoDoc();
+
+              },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+    }
+
+    function getEnlace()
+    {
+        var url = "@Url.Action("_EnlaceAutomatico", "Nota", new { idContacto = Model.IdContacto })";
+        $.ajax({
             type: "GET",
             url: url,
             success: function (data) {
                 $('#EditarPartial').html(data);
                 $('#modalTipoJustificante').modal('show');
-                cargarTablaAplicado();
-            },
-            error: function (err, scnd) {
-                console.log(err.statusText);
-            }
-
-        });
-     }
-    function getDocumentos(tipo) {
-        var contacto = "@Model.IdContacto";
-        var id = parseInt(contacto);
-        var idMovimiento = parseInt($("#IdMovimiento").val());
-        var cxp = false;
-        var documento = parseInt('@Model.IdNotaCredito');
-        if (parseInt($("#tipo").val()) == 1)
-            cxp = true;
-      var url = '@Url.Action("GetDocumentosByContacto", "Nota", new { id = Model.IdContacto, cxp = "__cxp__", idDocumento = "__idDocumento__" })'.replace("__cxp__", cxp, "__idDocumento__", documento);
-        $.ajax({
-           type: "get",
-           dataType: "json",
-           url: url,
-            success: function (data) {
-                aplicadosOriginal = data;
-                lineasAplicado = data;
-                lineasEnlace = data;
-                for (var i = 0; i < data.length; i++) {
-                    if (recuperarAplicadoAnterior(data[i].idDocumento)) {
-                        data[i].tipo = 2;
-                        movimientosDetalle.push(data[i]);
-
-                    }
-
-                }
-                   cargarTotal();
-                recalcularDatos();
-
             },
             error: function (err, scnd) {
                 console.log(err.statusText);
@@ -501,14 +554,117 @@
 
         });
     }
-     function getCrearEditarPartial(id)
-     {
+
+    function getFomasPagoDoc() {
+
+        getDocumentosEnlazados();
+
+    }
+
+    function getDocumentosEnlazados() {
+        var idMovimiento = parseInt($("#IdMovimiento").val());
+        var url = '@Url.Action("GetDocumentosEnlazados", "Nota", new { idMovimiento = "__id__" })'.replace("__id__", idMovimiento);
+        $.ajax({
+           type: "get",
+           dataType: "json",
+           url: url,
+            success: function (data) {
+
+                docAplicados = data;
+                if (data.length > 0)
+                    cargarTablaDocAplicados(data);
+
+           },
+           error: function (err, scnd) {
+               console.log(err.statusText);
+           }
+
+        });
+    }
+
+    function cargarFormaPago() {
+
+        var model = {
+            idCaja: idCajaPuntoVenta,
+            idDocumento: @Model.IdDocumento,
+            monto: 0,
+            tcDolar: $('#dolar').inputmask('unmaskedvalue'),
+            tcEuro: $('#euro').inputmask('unmaskedvalue'),
+            moneda: $('#tipoMoneda').val(),
+            idContacto: $('#contactos').val(),
+            esPagoContado: false,
+            idTipoDocumento: $('#tipoDocumento').val()
+        };
+
+        if (model.idCaja == 0)
+            return;
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("_FormaPago", "MovimientoCaja")',
+            data: { viewModel: model },
+            success: function (data) {
+                $('#formaPagoPartial').html(data);
+
+                if (formasPagoDoc.length > 0)
+                    cargarFPLocal(formasPagoDoc);
+
+                $('#formaPagoModal').modal('show');
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+
+    }
+
+    function validarCajasAbiertas() {
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: '@Url.Action("GetEstadoCajasPuntoVenta", "PuntoVenta")',
+            data: { idPV: 0, idUsuario: @User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value },
+            success: function (data) {
+                if (data <= 0) {
+                    cargarAlert('@Lb["PuntoVentaSinCajasAbiertas"]');
+                    idCajaPuntoVenta = data;
+                }
+                else {
+                    idCajaPuntoVenta = data;
+                    cargarFormaPago();
+                }
+
+             },
+             error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+             }
+        });
+
+    }
+
+    function procesarPagoDoc() {
+
+        formasPagoDoc = formasPago;
+        $(".total").val(totalFomasPago());
+        $('#formatter').val(totalFomasPago());
+        $('#totalDisponible').val(totalFomasPago());
+        $('#totalDetallePrepago').text($('#formatter').val());
+        $('#formaPagoModal').modal('hide');
+
+    }
+
+    function getCrearEditarPartial(id)
+    {
         var url = "@Url.Action("_CrearTipoJustificante", "TipoJustificante",  new {tipo = 2}))";
         if (id != 0) {
             url = '@Url.Action("_EditarTipoJustificante", "TipoJustificante", new { id = "__id__", tipo = 2})';
             url = url.replace("__id__", id);
         }
-         $.ajax({
+
+        $.ajax({
             type: "GET",
             url: url,
             success: function (data) {
@@ -520,17 +676,18 @@
             }
 
         });
-     }
-    function getContactos(tipo) {
-        $('#contactos').html('');
-            $.ajax({
-              type: "get",
-              dataType: "json",
-              url: '@Url.Action("GetAllContactos", "Contacto")',
-                success: function (data) {
-                    if (@Model.IdNotaCredito == 0) {
+    }
 
-                             for (var i = 0; i < data.length; i++) {
+    function getContactos(tipo) {
+            $('#contactos').html('');
+            $.ajax({
+                type: "get",
+                dataType: "json",
+                url: '@Url.Action("GetAllContactos", "Contacto")',
+                success: function (data) {
+                    if (@Model.IdDocumento == 0) {
+
+                            for (var i = 0; i < data.length; i++) {
                                  if (tipo == 1) {
                                      var nombre = "";
                                      if (data[i].cliente) {
@@ -543,21 +700,21 @@
                                          $("#contactos").append(o);
                                      }
                                  }
-                                  if (tipo == 2) {
+                                if (tipo == 2) {
 
-                                     if (!data[i].cliente) {
+                                      if (data[i].proveedor) {
                                           if (data[i].persona)
                                              nombre = data[i].nombre + ' ' + data[i].apellidos;
                                          else
-                                             nombre = data[i].nombreComercial;
-                                           var o = new Option(nombre, data[i].idContacto);
-                                           $("#contactos").append(o);
-                                     }
-                                  }
+                                            nombre = data[i].nombreComercial;
+                                        var o = new Option(nombre, data[i].idContacto);
+                                        $("#contactos").append(o);
+                                      }
+                                }
 
-                             }
+                            }
                     }
-                     if (@Model.IdNotaCredito != 0) {
+                    if (@Model.IdDocumento != 0) {
                         for (var i = 0; i < data.length; i++) {
                              var nombre = "";
                             if (data[i].idContacto == @Model.IdContacto) {
@@ -573,80 +730,130 @@
                     }
 
                 },
-              error: function (err, scnd) {
-                  cargarAlert('@Lb["errorGeneral"]');
-                  console.log(err.statusText);
-              }
+                error: function (err, scnd) {
+                    cargarAlert('@Lb["errorGeneral"]');
+                    console.log(err.statusText);
+                }
             });
     }
+
     function getTipoJustificante() {
-         $("#tipoJustificante").html('');
-         $("#editTipoJustificante").html('');
-         $.ajax({
-              type: "get",
-              dataType: "json",
-              url: '@Url.Action("GetTipoJustificante", "TipoJustificante")',
-             success: function (data) {
-                 lineasTJustificante = data;
-                 cargarTabla(lineas);
-                 for (var i = 0; i < data.length; i++) {
-                     if (data[i].estado == 1) {
-                         var o = new Option(data[i].nombre, data[i].idTipoJustificante);
-                         var e = new Option(data[i].nombre, data[i].idTipoJustificante);
-                         $("#tipoJustificante").append(o);
-                         $("#editTipoJustificante").append(e);
-                     }
-                 }
-             },
-              error: function (err, scnd) {
-                  cargarAlert('@Lb["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-         });
+        $("#tipoJustificante").html('');
+        $("#editTipoJustificante").html('');
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetTipoJustificante", "TipoJustificante")',
+            success: function (data) {
+                lineasTJustificante = data;
+                cargarTabla(lineas);
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].estado == 1) {
+                        var o = new Option(data[i].nombre, data[i].idTipoJustificante);
+                        var e = new Option(data[i].nombre, data[i].idTipoJustificante);
+                        $("#tipoJustificante").append(o);
+                        $("#editTipoJustificante").append(e);
+                    }
+                }
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
     }
+
     function getTipoDocumento(tipo) {
-          $("#tipoDocumento").html('');
-         $.ajax({
-              type: "get",
-              dataType: "json",
-              url: '@Url.Action("GetAllTipoDocumento", "Nota")',
-             success: function (data) {
+        $("#tipoDocumento").html('');
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetAllTipoDocumento", "Nota")',
+            success: function (data) {
+
                  tipoDocumento = data;
-                 if (@Model.IdNotaCredito != 0) {
+                 if (@Model.IdDocumento != 0) {
                      for (var i = 0; i < data.length; i++) {
                          if (@Model.IdTipoDocumento == data[i].idTipoDocumento) {
                              var o = new Option(data[i].nombre, data[i].idTipoDocumento);
-                         $("#tipoDocumento").append(o);
+                            $("#tipoDocumento").append(o);
                          }
                      }
-                 } if (@Model.IdNotaCredito == 0) {
+                 } else{
                      for (var i = 0; i < data.length; i++) {
 
-                         if (tipo == 1) {
-                             if (data[i].cxc == false && data[i].esNota == true) {
-                                 var j = new Option(data[i].nombre, data[i].idTipoDocumento);
-                                 $("#tipoDocumento").append(j);
-                             }
-                         }
-                         if (tipo == 2) {
-                             if (data[i].cxc && data[i].esNota) {
-                                 var o = new Option(data[i].nombre, data[i].idTipoDocumento);
-                                 $("#tipoDocumento").append(o);
-                             }
+                         if (data[i].esNota || !data[i].esDebito) {
 
+                             if (tipo == 1) {
+                                 if (data[i].cxc == false) {
+                                     var j = new Option(data[i].nombre, data[i].idTipoDocumento);
+                                     $("#tipoDocumento").append(j);
+                                 }
+                             }
+                             if (tipo == 2) {
+                                 if (data[i].cxc) {
+                                     var o = new Option(data[i].nombre, data[i].idTipoDocumento);
+                                     $("#tipoDocumento").append(o);
+                                 }
+
+                             }
                          }
+                         
                      }
                  }
-             },
-              error: function (err, scnd) {
-                  cargarAlert('@Lb["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-         });
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
     }
     function guardarCambios() {
+
+        if (esNota())
+            crearEditarNota();
+        else
+            crearEditarPago();
+
+    }
+
+    function esNota() {
+        for (var i = 0; i < tipoDocumento.length; i++) {
+            if (tipoDocumento[i].idTipoDocumento == parseInt($('#tipoDocumento').val())) {
+                return tipoDocumento[i].esNota;
+            }
+        }
+    }
+
+    function postProcesarPago(idDocumento) {
+        if (@Model.IdDocumento == 0)
+            window.location.href = "@Url.Action("EditarPago","Nota", new { id = "__id__" })".replace("__id__", data.IdPago);
+        else
+            window.location.href = '@Url.Action("ListarNotas")';
+    }
+
+    function crearEditarPago() {
+
+        $.ajax({
+                type: "post",
+                dataType: "json",
+                data: { modelPago: crearModeloNota(), modelMovimiento: crearModeloMovimiento()},
+                url: '@Url.Action("CrearEditarPago", "Nota")',
+                success: function (data) {
+
+                    procesarPago(data.idPago);                   
+                },
+                error: function (err, scnd) {
+                    cargarAlert('@Lb["errorGeneral"]');
+                    console.log(err.statusText);
+                }
+        });
+
+    }
+
+    function crearEditarNota() {
         if (validarCampoNota()) {
-              if (lineasEliminadas.length > 0)
+            if (lineasEliminadas.length > 0)
                 eliminarMovimientoJustificante();
             $.ajax({
                 type: "post",
@@ -654,12 +861,10 @@
                 data: { modelNota: crearModeloNota(), modelMovimiento: crearModeloMovimiento(), modelMovimientoJustificante: crearLineasActualizadas(lineasActualizadas) },
                 url: '@Url.Action("CrearEditarNota", "Nota")',
                 success: function (data) {
-                    if ('@Model.IdNotaCredito' == 0)
+                    if ('@Model.IdDocumento' == 0)
                         window.location.href = "@Url.Action("EditarNota","Nota", new { id = "__id__" })".replace("__id__", data.idNotaCredito);
-                    if('@Model.IdNotaCredito' != 0)
+                    if('@Model.IdDocumento' != 0)
                     window.location.href = '@Url.Action("ListarNotas")';
-
-
                 },
                 error: function (err, scnd) {
                     cargarAlert('@Lb["errorGeneral"]');
@@ -680,7 +885,7 @@
                   $("#euro").val(data[0].compraEuroTc);
                   $("#dolarVenta").val(data[0].ventaDolatTc);
                   $("#euroVenta").val(data[0].ventaEuroTc);
-                   getDocumentos(2);
+                  getDocumentosEnlazados(2);
                   cargarLineas(data);
 
 
@@ -691,35 +896,7 @@
               }
          });
     }
-    function getMovimiento() {
-        var idNota = @Model.IdNotaCredito;
-          $.ajax({
-              type: "get",
-              headers: {
-                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
-              },
-              dataType: "json",
-              url: '@Url.Action("GetMovimiento", new { id = Model.IdNotaCredito })',
-
-            success: function (data) {
-                    $("#tipoMoneda").val(data.idMoneda);
-                    if (data.cxp)
-                        $("#tipo").val("1");
-                    else
-                    $("#tipo").val("2");
-
-                recuperarTotal(data);
-                $("#IdMovimiento").val(data.idMovimiento);
-                $("#IdUsuario").val(data.idUsuario);
-                getMovimientoJustificante(data.idMovimiento);
-
-               },
-              error: function (err, scnd) {
-                  cargarAlert('@Lb["errorGeneral"]');
-                  console.log(err.statusText);
-              }
-          });
-    }
+    
      function eliminarMovimientoJustificante() {
 
 
@@ -761,7 +938,7 @@
                          data: { id: idMov },
                          url: '@Url.Action("EliminarMovimientoDetalle", "Nota")',
                         success: function (data) {
-                           getDocumentos(2);
+                           getDocumentosEnlazados(2);
                           $("#modalEditAplicado").modal("hide");
                         },
                        error: function (err, scnd) {
@@ -808,16 +985,14 @@
         }
     }
 
-
-
-     function comprobarRepetido(nombre, id) {
-         var flag = true;
-         for (var i = 0; i < lineasTJustificante.length; i++) {
+    function comprobarRepetido(nombre, id) {
+        var flag = true;
+        for (var i = 0; i < lineasTJustificante.length; i++) {
             if (lineasTJustificante[i].nombre === nombre && lineasTJustificante[i].idTipoJustificante != parseInt(id))
                 flag = false;
-         }
-          return flag;
-     }
+        }
+        return flag;
+    }
     function validarCampoNota() {
         var flag = true;
         $('#notaValid').attr('hidden', true);
@@ -827,14 +1002,14 @@
             $('#notaValid').attr('hidden', false);
             flag = false;
         }
-        if (lineas.length <= 0) {
+        if (lineas.length <= 0 || formasPagoDoc.length <= 0) {
            $('#lineasValid').attr('hidden', false);
             flag = false;
         }
         return flag;
     }
+
     function validarCampos() {
-        console.log($("#monto").inputmask('unmaskedvalue'));
         var flag = true;
          $('#montoValid').attr('hidden', true);
         $('#descripcionValid').attr('hidden', true);
@@ -849,6 +1024,7 @@
         }
         return flag;
     }
+
     function validarCamposEditar() {
 
        var flag = true;
@@ -917,7 +1093,7 @@
 
             }
             lineasAplicado = JSON.parse(JSON.stringify(lineasEnlace));
-            cargarTotal();
+            cargarTablaDocAplicados();
             Guardar();
             $("#modalEditAplicado").modal("hide");
 
@@ -929,7 +1105,7 @@
         if (validarCamposEditar()) {
             for (var i = 0; i < lineas.length; i++) {
                 if (id == lineas[i].id && editDescripcion == lineas[i].descripcion) {
-                    if (id == 0 && @Model.IdNotaCredito == 0) {
+                    if (id == 0 && @Model.IdDocumento == 0) {
                         lineas[i].descripcion = $("#editDescripcion").val();
                         lineas[i].monto = parseFloat($("#editMonto").inputmask('unmaskedvalue'));
                         lineas[i].tipo = $("#editTipoJustificante").val();
@@ -939,7 +1115,7 @@
 
                         }
                     }
-                    else if (id == 0 && @Model.IdNotaCredito != 0) {
+                    else if (id == 0 && @Model.IdDocumento != 0) {
                         for (var j = 0; j < lineasAgregadas.length; j++) {
                             if (editDescripcion == lineasAgregadas[j].descripcion) {
                                 lineasAgregadas[j].descripcion = $("#editDescripcion").val();
@@ -967,7 +1143,7 @@
             var model = {
                 id: data[i].idMovimientoJustificante,
                 idMoneda: data[i].idMoneda,
-                idNotaCredito: @Model.IdNotaCredito,
+                idNotaCredito: @Model.IdDocumento,
                 descripcion: data[i].descripcion,
                 monto: recuperarMonto(data[i]),
                 tipo: data[i].idTipoJustificante
@@ -985,7 +1161,7 @@
             var model = {
                 id: 0,
                 idMoneda: parseInt($("#tipoMoneda").val()),
-                idNotaCredito: @Model.IdNotaCredito,
+                idNotaCredito: @Model.IdDocumento,
                 descripcion: $("#descripcion").val(),
                 monto: parseFloat($("#monto").inputmask('unmaskedvalue')),
                 tipo: $("#tipoJustificante").val()
@@ -997,9 +1173,9 @@
             cargarTabla(lineas);
             $("#descripcion").val("");
             $("#monto").val(0.00);
-
         }
     }
+
     function setTotal() {
         var monto = 0;
         for (var i = 0; i < lineas.length; i++) {
@@ -1008,6 +1184,7 @@
         $(".total").val(monto);
         $("#totalDisponible").val(monto - $("#totalAplicado").inputmask('unmaskedvalue'));
     }
+
     function cargarTabla(data) {
         $('.filasCargadas').remove();
         contadorFila = 0;
@@ -1023,93 +1200,44 @@
             $('.lineaForm').before(body);
 
         }
-        var simbolo = "₡";
+        var simbolo = monedas[0].simbolo;
         if (parseInt($('#tipoMoneda').val()) === 2)
-            simbolo = "$";
+            simbolo = monedas[1].simbolo;
         else if (parseInt($('#tipoMoneda').val()) === 3)
-            simbolo = "€";
-         $(".currency").inputmask('currency', {
+            simbolo = monedas[2].simbolo;
+        $(".currency").inputmask('currency', {
             prefix: simbolo,
             rightAlign: true
-          });
+        });
 
-          $(".moneda").inputmask('currency', {
+        $(".moneda").inputmask('currency', {
            prefix: '',
            rightAlign: true,
            min: 0
-       });
+        });
 
     }
-    function cargarTablaAplicado() {
+    
 
-        lineasEnlace = JSON.parse(JSON.stringify(lineasAplicado));
-        $('.filasAplicadoCargadas').remove();
-        contadorFila = 0;
-        for (var i = 0; i < lineasEnlace.length; i++) {
-            contadorFila++;
-            if (lineasEnlace[i].idMovimiento != $("#IdMovimiento").val() && parseFloat(recuperarSaldo(lineasEnlace[i].idDocumento)) != 0 ) {
-                var aplicado = 0;
-                  aplicado = calcularLinea(i);
-                var moneda = parseInt($("#tipoMoneda").val());
-
-                 if (moneda == 1) {
-                       lineasEnlace[i].aplicadoBase = parseFloat(aplicado) + parseFloat(lineasEnlace[i].aplicadoBase);
-                       lineasEnlace[i].saldoBase = lineasEnlace[i].saldoBase - aplicado;
-                 }
-                 if (moneda == 2) {
-                         lineasEnlace[i].aplicadoDolar = aplicado + lineasEnlace[i].aplicadoDolar;
-                         lineasEnlace[i].saldoDolar = lineasEnlace[i].saldoDolar - aplicado;
-                 }
-                 if (moneda == 3) {
-                        lineasEnlace[i].aplicadoEuro = aplicado +  lineasEnlace[i].aplicadoEuro;
-                        lineasEnlace[i].saldoEuro = lineasEnlace[i].saldoEuro - aplicado;
-                 }
-
-                var body = '<tr class="filasAplicadoCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + recuperarTipoDocumento(lineasEnlace[i].idTipoDocumento) + '</td>'
-                    + '<td style="padding-top:2rem;"><span>' + lineasEnlace[i].idDocumento + '</span></td>'
-                    + '<td ><span >' + recuperarFecha(lineasEnlace[i].fechaCreacion) + '</span></td>'
-                    + '<td ><span id="pendiente' + i + '" class="currency">' + recuperarSaldo(lineasEnlace[i].idDocumento) + '</span></td>'
-                    + '<td ><input id="aplicado' + i + '" onkeyup="cambiarAplicado(' + i + ')"  class="form-control currency" value="' + aplicado + '"/></td></tr>';
-                $('.lineaAplicadoForm').before(body);
-                if (aplicadosOriginal[i].aplicadoBase == 0)
-                    lineasEnlace[i].tipo = 1;
-                if (aplicadosOriginal[i].aplicadoBase != 0) {
-                  for (var j = 0; j < lineasActualizadasAplicadas.length; j++) {
-                    if (lineasActualizadasAplicadas[j].idMovimiento == lineasEnlace[i].idMovimiento)
-                        lineasActualizadasAplicadas.splice(j, 1);
-                  }
-                    lineasActualizadasAplicadas.push(lineasEnlace[i]);
-                     lineasEnlace[i].tipo = 2;
-                }
-
-            }
-
-
-
-
+    function retornaMontoAlCambioDoc(data){
+        var moneda = parseInt($('#tipoMoneda').val());
+        var monto = 0;
+        switch (moneda) {
+            case 1:
+                monto = data.aplicadoBase;
+                break;
+            case 2:
+                monto = data.aplicadoDolar;
+                break;
+            case 3:
+                monto = data.aplicadoEuro;
         }
-        var simbolo = "₡";
-        if (parseInt($('#tipoMoneda').val()) === 2)
-            simbolo = "$";
-        else if (parseInt($('#tipoMoneda').val()) === 3)
-            simbolo = "€";
-         $(".currency").inputmask('currency', {
-            prefix: simbolo,
-            rightAlign: true
-         });
-
-         $(".moneda").inputmask('currency', {
-           prefix: '',
-           rightAlign: true,
-           min: 0
-         });
-
+        return monto;
     }
 
     function recuperarSaldoTabla(idDoc, idLbl) {
 
         $("#pendiente" + idLbl).text(formatInput(recuperarSaldo(lineasEnlace[idDoc].idDocumento)));
-                    
 
     }
     function recuperarAplicadoTabla(pos) {
@@ -1125,7 +1253,7 @@
 
     function crearModeloNota() {
          var NotaModel = {
-            idNotaCredito: @Model.IdNotaCredito,
+            idNotaCredito: @Model.IdDocumento,
             idContacto: parseInt($("#contactos").val()),
             fecha: $('#fecha').val(),
             idTipoDocumento:parseInt($("#tipoDocumento").val()),
@@ -1134,11 +1262,11 @@
         };
         return NotaModel;
     }
-     function crearModeloMovimiento() {
+    function crearModeloMovimiento() {
          var MovimientoModel = {
              IdMovimiento: parseInt($("#IdMovimiento").val()),
              IdContacto: parseInt($("#contactos").val()),
-             IdDocumento: parseInt(@Model.IdNotaCredito),
+             IdDocumento: parseInt(@Model.IdDocumento),
              IdTipoDocumento:parseInt($("#tipoDocumento").val()),
              IdUsuario: parseInt($("#IdUsuario").val()),
              IdMoneda: parseInt($("#tipoMoneda").val()),
@@ -1155,11 +1283,51 @@
              SaldoDolar: 0,
              SaldoEuro: 0,
              FechaCreacion: $("#fecha").val(),
-             MovimientoJustificante: crearModeloMJustificante(lineasAgregadas)
+             MovimientoJustificante: esNota() ? crearModeloMJustificante(lineasAgregadas) : null
 
+        };
 
-         };
-         return MovimientoModel;
+        if (!esNota()) {
+            MovimientoModel = montoAlCambioDoc(MovimientoModel);
+           
+        }
+            
+
+        return MovimientoModel;
+    }
+
+    function montoAlCambioDoc(model) {
+
+        var monto = parseFloat(model.Monto);
+        var tcDolar = parseFloat($("#dolar").inputmask('unmaskedvalue'));
+        var tcEuro = parseFloat($("#euro").inputmask('unmaskedvalue'));
+
+       
+
+        switch (parseInt(model.IdMoneda)) {
+            case 1:
+                model.DisponibleBase = monto;
+                model.DisponibleDolar = monto / tcDolar;
+                model.DisponibleEuro = monto / tcEuro;
+                break;
+            case 2:
+                model.DisponibleBase = monto * tcDolar;
+                model.DisponibleDolar = monto;
+                model.DisponibleEuro = (monto * tcDolar) / tcEuro;
+                break;
+            case 3:
+                model.DisponibleBase = monto * tcEuro;
+                model.DisponibleDolar = (monto * tcEuro) / tcDolar;
+                model.DisponibleEuro = monto;
+                break;
+
+        }
+
+        model.DisponibleBase = model.DisponibleBase.toString().replace(".", ",");
+        model.DisponibleDolar = model.DisponibleDolar.toString().replace(".", ",");
+        model.DisponibleEuro = model.DisponibleEuro.toString().replace(".", ",");       
+
+        return model;
     }
 
     function crearModeloMJustificante(model) {
@@ -1264,7 +1432,8 @@
 
         return '@Model.Fecha.Month' + "-" + '@Model.Fecha.Day' + "-" + '@Model.Fecha.Year' + " " + '@Model.Fecha.TimeOfDay';
 
-        }
+    }
+
     function recuperarTotal(item) {
         if (item.idMoneda == 1)
             total = item.montoBase;
@@ -1280,219 +1449,57 @@
     function recuperarFecha(_fecha) {
         var f = new Date(_fecha);
         return f.toLocaleString();
-    }
-
-
+    } 
 
     function recuperarTipoDocumento(id) {
+
         for (var i = 0; i < tipoDocumento.length; i++) {
-            if (tipoDocumento[i].IdTipoDocumento = id)
+            if (tipoDocumento[i].idTipoDocumento == id)
                 return tipoDocumento[i].nombre;
         }
     }
 
-    function cargarTotal() {
+    function cargarTablaDocAplicados(data) {
 
-        movimientosDetalle = [];
         $('.filasAplicadoTotal').remove();
         contadorFila = 0;
-        for (var i = 0; i < lineasAplicado.length; i++) {
-            contadorFila++;
-            if (recuperarAplicado(lineasEnlace[i].idDocumento) > 0 && lineasAplicado[i].idMovimiento != $("#IdMovimiento").val()) {
-                var body = '<tr class="filasAplicadoTotal" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + lineasAplicado[i].nombre + '</td>'
-                    + '<td style="padding-top:2rem;"><span>' + lineasAplicado[i].idDocumento + '</span></td>'
-                    + '<td style="padding-top:2rem;"><span id="aplicadoFinal'+i+'" class=" currency">' + recuperarAplicadoAnterior(lineasAplicado[i].idDocumento) + '</span></td>'
-                    + '<td><button  class="btn btn-link" value="' + contadorFila + '" onclick="cargarModalEditAplicado(' + i + ')" ><i class="fas fa-edit"></i></button><button  class="btn btn-link" value="' + i + '" onclick="ver(' + lineasEnlace[i].idDocumento + ')" ><i class="fas fa-eye"></i></button></td></tr>';
-                $('.lineasTotalesForm').before(body);
-                movimientosDetalle.push(lineasAplicado[i]);
-            }
+        for (var i = 0; i < data[i].length; i++) {
+
+            var body = '<tr class="filasAplicadoTotal" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + recuperarTipoDocumento(data[i].idTipoDocumento) + '</td>'
+                + '<td style="padding-top:2rem;"><span>' + data[i].IdMovimientoHastaNavigation.idDocumento + '</span></td>'
+                + '<td ><span >' + recuperarFecha(data[i].fecha) + '</span></td>'
+                + '<td ><span id="pendiente' + i + '" class="currency">' + retornaMontoAlCambioDoc(data[i]) + '</span></td>'
+                + '<td><button  class="btn btn-link" value="' + contadorFila + '" onclick="cargarModalEditAplicado(' + i + ')" ><i class="fas fa-edit"></i></button><button  class="btn btn-link" value="' + i + '" onclick="ver(' + data[i].idMovimientoDetalle + ')" ><i class="fas fa-eye"></i></button></td></tr>';
+            $('.lineasTotalesForm').before(body);
 
         }
-
-        var simbolo = "₡";
-           if (parseInt($('#tipoMoneda').val()) === 2)
-            simbolo = "$";
-           else if (parseInt($('#tipoMoneda').val()) === 3)
-            simbolo = "€";
-           $(".currency").inputmask('currency', {
-            prefix: simbolo,
-            rightAlign: true
-          });
-
-          $(".moneda").inputmask('currency', {
-           prefix: '',
-           rightAlign: true,
-             min: 0
-         });
 
     }
 
     function ver(id) {
         window.open("@Url.Action("EditarFactura","Factura", new { id = "__id__" })".replace("__id__", id));
-        }
-    function recuperarDisponible(id) {
-        var pos = 0;
+    }
+
+    function getSaldoAplicable() {
+        return saldoAplicable;
+    }
+
+    function setSaldoAplicable(monto) {
+        saldoAplicable = monto;
+    }
+
+    function recuperarSaldo(data) {
+        
          var moneda = parseInt($("#tipoMoneda").val());
-        for (var i = 0; i < lineasEnlace.length; i++) {
-            if (lineasEnlace[i].idDocumento == id)
-                pos = i;
-        }
+        
         if (moneda == 1)
-            return lineasEnlace[pos].disponibleBase;
+            return data.saldoBase;
                 if (moneda == 2)
-            return lineasEnlace[pos].disponibleDolar;
+            return data.saldoDolar;
                 if (moneda == 3)
-            return lineasEnlace[pos].disponibleEuro;
+            return data.saldoEuro;
     }
-    function recuperarSaldo(id) {
-        var pos = 0;
-         var moneda = parseInt($("#tipoMoneda").val());
-        for (var i = 0; i < lineasEnlace.length; i++) {
-            if (lineasEnlace[i].idDocumento == id)
-                pos = i;
-        }
-        if (moneda == 1)
-            return lineasEnlace[pos].saldoBase;
-                if (moneda == 2)
-            return lineasEnlace[pos].saldoDolar;
-                if (moneda == 3)
-            return lineasEnlace[pos].saldoEuro;
-    }
-        function recuperarSaldoAnterior(id) {
-        var pos = 0;
-         var moneda = parseInt($("#tipoMoneda").val());
-        for (var i = 0; i < lineasAplicado.length; i++) {
-            if (lineasAplicado[i].idDocumento == id)
-                pos = i;
-            }
-        if (moneda == 1)
-            return lineasAplicado[pos].saldoBase;
-                if (moneda == 2)
-            return lineasAplicado[pos].saldoDolar;
-                if (moneda == 3)
-            return lineasAplicado[pos].saldoEuro;
-    }
-
-    function recuperarAplicado(id) {
-               var pos = 0;
-         var moneda = parseInt($("#tipoMoneda").val());
-        for (var i = 0; i < lineasEnlace.length; i++) {
-            if (lineasEnlace[i].idDocumento == id)
-                pos = i;
-        }
-        if (moneda == 1)
-            return lineasEnlace[pos].aplicadoBase;
-                if (moneda == 2)
-            return lineasEnlace[pos].aplicadoDolar;
-                if (moneda == 3)
-            return lineasEnlace[pos].aplicadoEuro;
-    }
-    function recuperarAplicadoAnterior(id) {
-               var pos = 0;
-         var moneda = parseInt($("#tipoMoneda").val());
-        for (var i = 0; i < lineasAplicado.length; i++) {
-            if (lineasAplicado[i].idDocumento == id)
-                pos = i;
-        }
-        if (moneda == 1)
-            return lineasAplicado[pos].aplicadoBase;
-                if (moneda == 2)
-            return lineasAplicado[pos].aplicadoDolar;
-                if (moneda == 3)
-            return lineasAplicado[pos].aplicadoEuro;
-    }
-
-    function cambiarAplicado(pos) {
-        var aplicado = parseFloat($("#aplicado" + pos).inputmask('unmaskedvalue'));
-        var saldoAnterior = recuperarSaldoAnterior(lineasEnlace[pos].idDocumento);
-        var monto = recuperarMonto(lineasEnlace[pos]);
-        var tAplicadoAnterior = recuperarAplicadoAnterior(lineasEnlace[pos].idDocumento);
-
-        if (aplicado > saldoAnterior) {
-            cargarAlert('@Lb["saldoMenorValid"]');
-            $("#aplicado" + pos).val(0.00);
-        }
-
-      else {
-        if (saldoAnterior == 0) {
-            if (aplicado <= monto) {
-                var result = monto - aplicado;
-                guardarSaldo(aplicado, result, pos, 1);
-            }
-        }
-        else if (saldoAnterior != 0 && tAplicadoAnterior != 0) {
-            if (aplicado <= saldoAnterior) {
-                var result = saldoAnterior - aplicado;
-                guardarSaldo(aplicado, result, pos, 2);
-            }
-        }
-
-        else if (tAplicadoAnterior == 0 && saldoAnterior == monto) {
-            if (aplicado <= saldoAnterior) {
-                var result = saldoAnterior - aplicado;
-                guardarSaldo(aplicado, result, pos, 1);
-            }
-        }
-      }
-    }
-    function guardarSaldo(aplicado, result, pos, tipo) {
-        var moneda = parseInt($("#tipoMoneda").val());
-        if (moneda == 1) {
-            lineasEnlace[pos].saldoBase = result;
-            if(tipo ==1)
-                lineasEnlace[pos].aplicadoBase = aplicado;
-            else
-               lineasEnlace[pos].aplicadoBase = aplicado + lineasAplicado[pos].aplicadoBase;
-
-        }
-        if (moneda == 2) {
-            lineasEnlace[pos].saldoDolar = result;
-            if(tipo ==1)
-                lineasEnlace[pos].aplicadoDolar = aplicado;
-            else
-                lineasEnlace[pos].aplicadoDolar = aplicado +  lineasAplicado[pos].aplicadoDolar;
-
-        }
-        if (moneda == 3) {
-            lineasEnlace[pos].saldoDolar = result;
-            if(tipo==1)
-                lineasEnlace[pos].aplicadoEuro = aplicado;
-            else
-                 lineasEnlace[pos].aplicadoEuro = aplicado + lineasAplicado[pos].aplicadoEuro;
-        }
-        var aplicados = 0;
-        for (var j = 0; j < lineasEnlace.length; j++) {
-            if (lineasEnlace[j].idMovimiento != $("#IdMovimiento").val() && parseFloat(recuperarSaldoAnterior(lineasEnlace[j].idDocumento)) != 0) {
-              aplicados += parseFloat($("#aplicado" + j).inputmask('unmaskedvalue'));
-
-
-
-            }
-        }
-        var total = $("#totalDisponible").inputmask('unmaskedvalue');
-        $("#disponible").val(total - aplicados);
-        $("#sumaAplicado").val(aplicados);
-        recuperarSaldoTabla(pos, pos);
-             if (aplicadosOriginal[pos].aplicadoBase != 0) {
-                  for (var i = 0; i < lineasActualizadasAplicadas.length; i++) {
-                    if (lineasActualizadasAplicadas[i].idMovimiento == lineasEnlace[pos].idMovimiento)
-                        lineasActualizadasAplicadas.splice(i, 1);
-                  }
-                    lineasActualizadasAplicadas.push(lineasEnlace[pos]);
-                     lineasEnlace[pos].tipo = 2;
-             }
-    }
-
-    function recalcularDatos() {
-        var aplicados = 0;
-        for (var i = 0; i < lineasAplicado.length; i++) {
-            if (lineasAplicado[i].idMovimiento != $("#IdMovimiento").val() && recuperarAplicado(lineasAplicado[i].idDocumento) > 0)
-            aplicados += parseFloat(recuperarAplicado(lineasAplicado[i].idDocumento));
-        }
-        var total = $(".total").inputmask('unmaskedvalue');
-        $("#totalDisponible").val(parseFloat(total) - parseFloat(aplicados));
-        $("#totalAplicado").val(aplicados);
-    }
+    
     function Guardar() {
          $.ajax({
                 type: "post",
@@ -1500,7 +1507,7 @@
              data: { viewModel: crearModeloEnlace(), lineasActualizadas: crearLineasEditadas()},
                 url: '@Url.Action("CrearEnlace", "Nota")',
              success: function (data) {
-                 getDocumentos(2);
+                 getDocumentosEnlazados(2);
                   recalcularDatos();
                 },
                 error: function (err, scnd) {
@@ -1509,26 +1516,7 @@
                 }
          });
     }
-    function crearModeloEnlace() {
-        var array = [];
-        for (var i = 0; i < movimientosDetalle.length; i++) {
-                if (movimientosDetalle[i].tipo ==1) {
-                             var model = {
-                                    num : movimientosDetalle[i].idDocumento,
-                                    IdMovimientoDesde: parseInt($("#IdMovimiento").val()),
-                                    IdMovimientoHasta: movimientosDetalle[i].idMovimiento,
-                                    Aplicado: parseFloat($("#aplicadoFinal" + i).inputmask('unmaskedvalue')).toString().replace(".", ","),
-                                    CompraDolarTC: parseFloat($("#dolar").inputmask('unmaskedvalue')),
-                                    VentaDolarTC: parseFloat($("#dolarVenta").inputmask('unmaskedvalue')),
-                                    CompraEuroTC: parseFloat($("#euro").inputmask('unmaskedvalue')),
-                                    VentaEuroTC: parseFloat($("#euroVenta").inputmask('unmaskedvalue')),
-                                    IdMoneda: parseInt($("#tipoMoneda").val()),
-                             };
-                                array.push(model);
-                }
-        }
-        return array;
-    }
+    
     function crearLineasEditadas() {
         var array = [];
         for (var i = 0; i < movimientosDetalle.length; i++) {
@@ -1553,8 +1541,8 @@
 
         var parametros = [];
 
-        parametros.push({ nombre: "IdNC", valor: '@Model.IdNotaCredito' });
-      
+        parametros.push({ nombre: "IdNC", valor: '@Model.IdDocumento' });
+
 
         $.ajax({
             type: "POST",

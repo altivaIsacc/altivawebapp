@@ -22,7 +22,7 @@ namespace AltivaWebApp.Mappers
         public TbFaMovimiento CreateMovimientoPago(long idDoc, IList<CajaMovimientoViewModel> formasPago, double montoPrepago)
         {
 
-            var movDoc = service.GetMovimientoByIdDocumento(idDoc);
+            var movDoc = service.GetMovimientoByNota(idDoc);
 
             double montoFPBase = formasPago.Sum(fp => fp.MontoBase);
             double montoFPDolar = formasPago.Sum(fp => fp.MontoDolar);
@@ -93,11 +93,10 @@ namespace AltivaWebApp.Mappers
         public void AplicarSaldo(long idMovDoc, double montoPrepago, long idDocumento)
         {
             IList<TbSeMoneda> monedas = monedaService.GetAll();
-            TbFaMovimiento movDoc = idMovDoc != 0 ? service.GetMovimientoById(idMovDoc) : service.GetMovimientoByIdDocumento(idDocumento);
-
+            TbFaMovimiento movDoc = idMovDoc != 0 ? service.GetMovimientoById(idMovDoc) : service.GetMovimientoByNota(idDocumento);
 
             //saldos aplicados
-            IList<TbFaMovimientoDetalle> docAplicado = service.GetMovimientoByIdDocConPagos(idDocumento).Where(m => m.IdMovimientoHastaNavigation.IdTipoDocumento == 4 || m.IdMovimientoHastaNavigation.IdTipoDocumento == 3).ToList();
+            IList<TbFaMovimientoDetalle> docAplicado = service.GetMovimientoByIdDocConPagos(idDocumento, movDoc.IdTipoDocumento).Where(m => (bool)!m.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.EsDebito && m.IdMovimientoHastaNavigation.IdTipoDocumentoNavigation.Cxc && m.IdMovimientoHastaNavigation.IdTipoDocumento != 2).ToList();
 
             double saldoAplicado = docAplicado.Sum(m => movDoc.IdMoneda == 1 ? m.AplicadoBase : movDoc.IdMoneda == 2 ? m.AplicadoDolar : m.AplicadoEuro);
 
@@ -246,19 +245,29 @@ namespace AltivaWebApp.Mappers
             domain.SaldoDolar = viewModel.SaldoDolar;
             domain.SaldoEuro = viewModel.SaldoEuro;
             domain.FechaCreacion = viewModel.FechaCreacion;
-            domain.TbFaMovimientoJustificante = ViewModelToDomainMJ(viewModel);
+            domain.TbFaMovimientoJustificante = viewModel.movimientoJustificante.Count > 0 ? ViewModelToDomainMJ(viewModel) : null;
 
             double montoBase = 0;
             double montoDolar = 0;
             double montoEuro = 0;
 
-            foreach (var item in domain.TbFaMovimientoJustificante)
+            if(domain.TbFaMovimientoJustificante != null)
             {
-                montoBase = item.MontoBase + montoBase;
-                montoDolar = item.MontoDolar + montoDolar;
-                montoEuro = item.MontoEuro + montoEuro;
+                foreach (var item in domain.TbFaMovimientoJustificante)
+                {
+                    montoBase = item.MontoBase + montoBase;
+                    montoDolar = item.MontoDolar + montoDolar;
+                    montoEuro = item.MontoEuro + montoEuro;
 
+                }
             }
+            else
+            {
+                montoBase = viewModel.DisponibleBase;
+                montoDolar = viewModel.DisponibleDolar;
+                montoEuro = viewModel.DisponibleEuro;
+            }
+            
             domain.MontoBase = montoBase;
             domain.MontoDolar = montoDolar;
             domain.MontoEuro = montoEuro;
@@ -269,6 +278,7 @@ namespace AltivaWebApp.Mappers
 
             return domain;
         }
+
         public TbFaMovimiento Update(MovimientoViewModel viewModel)
         {
             return service.Update(ViewModelToDomainEdit(viewModel));
