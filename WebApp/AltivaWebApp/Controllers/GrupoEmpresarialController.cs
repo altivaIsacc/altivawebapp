@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Localization;
+using RestSharp;
 
 namespace AltivaWebApp.Controllers
 {
@@ -43,13 +44,8 @@ namespace AltivaWebApp.Controllers
         public ActionResult ListarEmpresas()
         {
             var userCode = User.Identity.Name;
-
             var user = userService.GetUsuarioConEmpresas(userCode);
-
-
            ViewData["grupoEmpresas"] = service.GetGE();
-
-
             return View(user);
         }
 

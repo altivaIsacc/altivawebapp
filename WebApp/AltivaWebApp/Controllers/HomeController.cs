@@ -5,6 +5,7 @@ using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
 using Microsoft.AspNetCore.Hosting;
 using System;
+using Microsoft.AspNetCore.Http;
 
 namespace AltivaWebApp.Controllers
 {
@@ -20,8 +21,16 @@ namespace AltivaWebApp.Controllers
         {
             if (estado == "error")
                 ViewBag.error = 1;//"Nombre de Grupo Empresas Inválido.";
-
-            return View();
+            if (Request.Cookies["session"] == "abierta" && Request.Cookies["recuerdame"] == "si")
+            {
+                return ValidarGrupo(Request.Cookies["GE"]);
+            }
+            else
+            {
+                return View();
+            }
+            
+            
         }
 
         [Route("ValidarGrupo")]
@@ -35,6 +44,9 @@ namespace AltivaWebApp.Controllers
                 {
                     conn.Open();
                     conn.Close();
+                    CookieOptions op = new CookieOptions();
+                    op.Expires = DateTime.Now.AddDays(30);
+                    Response.Cookies.Append("GE", grupo, op);
                     return RedirectToAction("Login", "Cuenta");
                 }
 

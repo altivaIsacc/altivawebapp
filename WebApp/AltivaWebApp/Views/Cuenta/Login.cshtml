@@ -15,7 +15,7 @@
 }
 <style>
 </style>
-<div class="card" style="border-color:#0C68B1; border:solid">
+<div class="card" style="border-color:#0C68B1; border:solid" onload="mostrarTodo()">
     <div class="card-body">
         <h5 class="card-title">@Lb["ingreseCredenciales"]</h5>
         <div class="row ">
@@ -26,12 +26,12 @@
 
                     <div class="form-group">
                         <label asp-for="usuario" class="control-label">@Lb["Usuario"]:</label>
-                        <input asp-for="usuario" class="form-control" onkeyup="pasarSigCampo(event,'contrasena')" />
+                        <input asp-for="usuario" class="form-control campos" onkeyup="pasarSigCampo(event,'contrasena')" value="@ViewBag.Usuario" />
                         <span hidden class="text-danger" id="userValid">@Lb["userValid"].</span>
                     </div>
                     <div class="form-group">
                         <label asp-for="contrasena" class="control-label">@Lb["Contraseña"]:</label>
-                        <input asp-for="contrasena" class="form-control" onkeyup="pasarSigCampo(event,'Ingresar')" type="password" />
+                        <input asp-for="contrasena" class="form-control campos" onkeyup="pasarSigCampo(event,'Ingresar')" type="password" value="@ViewBag.Contrasena" />
                         <span hidden class="text-danger" id="passwordValid">@Lb["contrasenaValid"].</span>
 
 
@@ -70,9 +70,18 @@
 <script>
     $(document).ready(function () {
         $('input[type="text"]')[0].focus();
+        if ('@ViewBag.Recuerdame' == "si") {
+            $("#recuerdame").prop("checked", true);
+            $(".campos").css("background-color", "	Gainsboro"); 
+            if ('@ViewBag.Session' == "abierta")
+                validarForm();
+        }
 
     });
-     function pasarSigCampo(e,id)
+    $(".campos").on("click, change", function () {
+         $(".campos").css("background-color", "	white");
+    });
+  function pasarSigCampo(e,id)
   {
 
 	  (e.keyCode)?k=e.keyCode:k=e.which;
@@ -130,7 +139,6 @@
                 if (config.tema != '') {
                     localStorage.setItem("tema", config.tema);
                 }
-
                 window.location.href = setIdiomaUrl("@Url.Action("ListarEmpresas", "GrupoEmpresarial")");
             }
         if (!data.success) {

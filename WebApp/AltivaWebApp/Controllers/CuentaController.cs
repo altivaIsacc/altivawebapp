@@ -14,6 +14,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using AltivaWebApp.GEDomain;
 using System.Linq;
+using Nancy.Authentication.Forms;
+using Amazon.OpsWorks.Model;
+using Microsoft.AspNetCore.Routing;
 
 namespace AltivaWebApp.Controllers
 {
@@ -37,7 +40,35 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Login")]
         public ActionResult Login()
         {
-            return View();
+            if (Request.Cookies["usuario"] != null && Request.Cookies["contrasena"] != null && Request.Cookies["recuerdame"] == "si")
+            {
+                //if (Request.Cookies["session"] == "abierta")
+                //{
+                //    var modelo = new LoginViewModel()
+                //    {
+                //        usuario = Request.Cookies["usuario"],
+                //        contrasena = Request.Cookies["contrasena"],
+                //        recuerdame = true
+                //    };
+                //    return LoginPost(modelo);
+                //}
+                //else
+                //{
+                    ViewBag.Usuario = Request.Cookies["usuario"];
+                    ViewBag.Contrasena = Request.Cookies["contrasena"];
+                    ViewBag.Recuerdame = Request.Cookies["recuerdame"];
+                    ViewBag.Session = Request.Cookies["session"];
+
+                
+            }
+            else
+            {
+                ViewBag.Usuario = "";
+                ViewBag.Contrasena = "";
+                ViewBag.Recuerdame = "";
+                ViewBag.Session = "";
+            }
+                return View();
         }
 
 
@@ -112,7 +143,38 @@ namespace AltivaWebApp.Controllers
                     }
                     uc.IdUsuarioNavigation = null;
 
-                    return Json(new { success = true, userConfig = uc, avatar = user.Avatar });
+
+                    if (model.recuerdame)
+                    {
+                        var recuerdame = "si";
+                        CookieOptions option = new CookieOptions();
+                        option.Expires = DateTime.Now.AddDays(30);
+                        
+                        Response.Cookies.Append("usuario", model.usuario, option);
+                        Response.Cookies.Append("contrasena", model.contrasena, option);
+                        Response.Cookies.Append("recuerdame", recuerdame, option);
+                    }
+                    else
+                    {
+                        var recuerdame = "no";
+                        CookieOptions option = new CookieOptions();
+                        option.Expires = DateTime.Now.AddDays(-1);
+                        Response.Cookies.Append("usuario", model.usuario, option);
+                        Response.Cookies.Append("contrasena", model.contrasena, option);
+                        Response.Cookies.Append("recuerdame", recuerdame, option);
+                    }
+                  
+                    //if (Request.Cookies["session"] == "abierta")
+                    //    return RedirectToAction("ListarEmpresas", "GrupoEmpresarial");
+                    //else
+                    //{
+                        CookieOptions op = new CookieOptions();
+                        op.Expires = DateTime.Now.AddDays(30);
+                        Response.Cookies.Append("session", "abierta", op);
+                        return Json(new { success = true, userConfig = uc, avatar = user.Avatar });
+
+                    
+
                 }
 
 
@@ -131,6 +193,9 @@ namespace AltivaWebApp.Controllers
         public IActionResult Logout()
         {
             var login = HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            CookieOptions op = new CookieOptions();
+            op.Expires = DateTime.Now.AddDays(-1);
+            Response.Cookies.Append("session", "cerrada", op);
             //HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
         }
