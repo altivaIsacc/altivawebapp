@@ -30,8 +30,8 @@
     <div class="row">
         <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
             <label>@lb["Periodo"]:</label>
-            <input id="LtPeriodos" list="LtPeriodoTrabajo" class="form-control" autocomplete=on onchange="buscar()" placeholder="@lb["Periodo"]">
-            <datalist id="LtPeriodoTrabajo">
+            <input id="LtPeriodosBus" list="LtPeriodoTrabajoBus" class="form-control" autocomplete=on onchange="buscar()" placeholder="@lb["Periodo"]">
+            <datalist id="LtPeriodoTrabajoBus">
                 @{
                     foreach (var item in ViewBag.Periodos)
                     {
@@ -45,8 +45,8 @@
         </div>
         <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
             <label>@lb["tipo"]:</label>
-            <input id="LtTipos" list="LtTipoDoc" class="form-control" autocomplete=on onchange="buscar()" placeholder="@lb["tipo"]">
-            <datalist id="LtTipoDoc">
+            <input id="LtTiposBus" list="LtTipoDocBus" class="form-control" autocomplete=on onchange="buscar()" placeholder="@lb["tipo"]">
+            <datalist id="LtTipoDocBus">
                 @{
                     foreach (var item in ViewBag.Tipos)
                     {
@@ -57,12 +57,12 @@
         </div>
         <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
             <label>@lb["Código"]:</label>
-            <input type="search" id="codigoAsiento" class="form-control" placeholder="@lb["Codigo"]" onchange="buscar()">
+            <input type="search" id="codigoAsientoBus" class="form-control" placeholder="@lb["Codigo"]" onchange="buscar()">
         </div>
         <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
             <label>@lb["Estado"]:</label>
-            <input id="LtEstados" list="LtEstado" class="form-control" autocomplete=on onchange="buscar()" placeholder="@lb["Estado"]">
-            <datalist id="LtEstado">
+            <input id="ListEstadoBus" list="LtEstadoBus" class="form-control" onchange="buscar()" placeholder="@lb["Estado"]" autocomplete="ÑÖcompletes">
+            <datalist id="LtEstadoBus">
                 <option value="@lb["ACTIVO"]">@lb["ACTIVO"]</option>
                 <option value="@lb["BLOQUEADO"]">@lb["BLOQUEADO"]</option>
                 <option value="@lb["ANULADO"]">@lb["ANULADO"]</option>
@@ -122,14 +122,14 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody id="tabla"></tbody>
             </table>
         </div>
     </div>
     <input readonly hidden id="monedaFormater" />
 </div>
-    <div id="editor" class="border-aero">
-
+    <div id="editor" class="border-aero" style="display:none">
+        <div id="item"></div>
     </div>
 </body>
 
@@ -143,11 +143,31 @@
     var desde;
     var hasta;
 
-    function colapsar() {
-
+    var xBuscador;
+    var yBuscador;
+    function colapsarBuscador() {
+        xBuscador = window.scrollX;
+        yBuscador = window.scrollY;      
+        muestra_oculta("buscador", true);
+        muestra_oculta("editor", false);
+        window.scrollTo(0, 3);
     }
+    function mostrarBuscador() {
+        muestra_oculta("buscador", false);
+        muestra_oculta("editor", true);
+        window.scrollTo(xBuscador, yBuscador);          
+    }
+    function muestra_oculta(id,ocultar) {
+        var el = document.getElementById(id);  
+   
+            if (ocultar == true) {
 
-
+                el.style.display = 'none';
+            }
+            else {
+                el.style.display = 'block';
+            }          
+    }
     $(document).ready(function () {   
     
     var tipoDoc;
@@ -294,8 +314,7 @@
         }
     }
     function filtroCodigo(valor) {
-        console.log('CodigoSelect:' + codigoSeleccionado);
-        console.log('Valor:' + valor);
+      
         if (codigoSeleccionado == null || codigoSeleccionado == '') {
             return true;
         }
@@ -347,35 +366,50 @@
         return $('#monedaFormater').val();
 
     }
-   
-    function cargarDatos(data) {
+    var resultadoCargado;
+    function cargarDatos(datos) {    
 
-        $("#tblAsiento> tbody").remove();
-        $('#tblAsiento').append('<tbody></tbody>');
-          var contadorFila = 0;
-        var colorFila = "";
-        var disabled = "";
-        var anularIcon = '<i class="fas fa-trash"></i>';
-        for (var i = 0; i < data.length; i++) {
-
-            if (data[i].Estado = "ANULADO") {
-                colorFila = "color: #808080";
-                disabled = "disabled";
-                anularIcon = '<i class="fas fa-trash-restore"></i>';
+         var url = "@Url.Action("_ListAsiento")";
+        $.ajax({
+            type: "Post",
+            url: url,
+            data: { asientos: datos},
+            success: function (data) {
+                $('#tabla').html(data);
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
             }
 
-            var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
-                + '<td><label class="link" onclick=editarItem("' + data[i].idAsientoContable + '") style="padding-top:1rem;">' + data[i].idAsientoContable + '</label></td>'               
-                + '<td><label class="link" onclick=editarItem("' + data[i].idAsientoContable + '") style="padding-top:1rem;">' + data[i].codigo + '</label></td>'
-                + '<td><p hidden>'+ soloFecha(data[i].fecha) + '</p><p style="padding-top:1rem;">' + FormatoFecha(data[i].fecha) + '</p></td>'
-                + '<td><p style="padding-top:1rem; text-align:right;">' + darFormatoMoneda(data[i].montoColones, 1) + '</p></td>'              
-                + '<td><p style="padding-top:1rem; text-align:right;">' + darFormatoMoneda(data[i].montoDolar, 2) + '</p></td>'              
-                + '<td><p style="padding-top:1rem; text-align:right;">' + darFormatoMoneda(data[i].montoEuro, 3) + '</p></td>'  
-                + '<td><p style="padding-top:1rem;">' + obtenerNombreEstado(data[i].estado) + '</p></td>'
-                + '<td>  <button onclick=editarItem("' + data[i].idAsientoContable + '") class="btn btn-link btnEditar"><i class="fas fa-edit"></i>';
-                $('#tblAsiento > tbody').append(body);
-                contadorFila++;
-        }
+        });
+
+
+        resultadoCargado = datos;
+        //$("#tblAsiento> tbody").remove();
+        //$('#tblAsiento').append('<tbody></tbody>');
+        //  var contadorFila = 0;
+        //var colorFila = "";
+        //var disabled = "";
+        //var anularIcon = '<i class="fas fa-trash"></i>';
+        //for (var i = 0; i < data.length; i++) {
+
+        //    if (data[i].Estado == 3) {
+        //        colorFila = "color: #808080";             
+        //        anularIcon = '<i class="fas fa-trash-restore"></i>';
+        //    }
+
+        //    var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
+        //        + '<td><label class="link" onclick=editarItem("' + data[i].idAsientoContable + '") style="padding-top:1rem;">' + data[i].idAsientoContable + '</label></td>'               
+        //        + '<td><label class="link" onclick=editarItem("' + data[i].idAsientoContable + '") style="padding-top:1rem;">' + data[i].codigo + '</label></td>'
+        //        + '<td><p hidden>'+ soloFecha(data[i].fecha) + '</p><p style="padding-top:1rem;">' + FormatoFecha(data[i].fecha) + '</p></td>'
+        //        + '<td><p style="padding-top:1rem; text-align:right;">' + darFormatoMoneda(data[i].montoColones, 1) + '</p></td>'              
+        //        + '<td><p style="padding-top:1rem; text-align:right;">' + darFormatoMoneda(data[i].montoDolar, 2) + '</p></td>'              
+        //        + '<td><p style="padding-top:1rem; text-align:right;">' + darFormatoMoneda(data[i].montoEuro, 3) + '</p></td>'  
+        //        + '<td><p style="padding-top:1rem;">' + obtenerNombreEstado(data[i].estado) + '</p></td>'
+        //        + '<td>  <button onclick=editarItem("' + data[i].idAsientoContable + '") class="btn btn-link btnEditar"><i class="fas fa-edit"></i>';
+        //        $('#tblAsiento > tbody').append(body);
+        //        contadorFila++;
+        //}
         inicializarTabla();
     }
     var anulado = '@lb["ANULADO"]'
@@ -460,13 +494,13 @@
 
     var codigoSeleccionado;
     function obtenerCodigo() {
-        codigoSeleccionado = document.getElementById("codigoAsiento").value;
+        codigoSeleccionado = document.getElementById("codigoAsientoBus").value;
     }
 
   
     var periodoSeleccionado;
     function obtenerPeriodo() {
-        var nombreDoc = document.getElementById("LtPeriodos").value;
+        var nombreDoc = document.getElementById("LtPeriodosBus").value;
         periodoSeleccionado = null;
         periodos.forEach(function (item) {
             if (nombreDoc == item.Nombre) {
@@ -477,7 +511,7 @@
     }
     var tipoDocSeleccionado;
     function obtenerTipos() {
-        var nombreDoc = document.getElementById("LtTipos").value;
+        var nombreDoc = document.getElementById("LtTiposBus").value;
         tipoDocSeleccionado = null;
         tiposDoc.forEach(function (item) {
             if (nombreDoc == item.Descripcion) {
@@ -488,7 +522,7 @@
     var estadoSeleccionado;
     function obtenerEstado() {
         estadoSeleccionado = null;
-        estadoNombre = document.getElementById("LtEstados").value;
+        estadoNombre = document.getElementById("ListEstadoBus").value;
          if (estadoNombre == anulado) {
               estadoSeleccionado = 3
           }
@@ -514,20 +548,25 @@
         return day + '/' + monthNames[monthIndex] + '/' + year;
 
     }
-       
-     function editarItem(id) {
-         var parametros = {
-             codigo: codigoSeleccionado,
-             Periodo: periodoSeleccionado.idPeriodoTrabajo,
-             FechaDesde: desde,
-             FechaHasta: hasta,
-             Tipo: tipoDocSeleccionado,
-             Estado: estadoSeleccionado
-         };
-
+ 
+    function editarItem(id) {
+      
         var url = '@Url.Action("Item", "ContaAsiento", new { id = "__id__" })';
+         url = url.replace("__id__", id);       
+         $.ajax({
+             type: "Post",
+             url: url,
+             success: function (data) {
+                 $('#item').html(data);
+                 colapsarBuscador();
+             },
+             error: function (err, scnd) {
+                 console.log(err.statusText);
+             }
 
-        window.location.href = url.replace("__id__", id);
+         });    
+         
+
     }
 </script>
 <style>

@@ -1,14 +1,22 @@
 ﻿@model AltivaWebApp.DomainsConta.Asiento
-@inject IStringLocalizer<SharedResources> Lb
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
-@functions{
-    public string GetAntiXsrfRequestToken()
-    {
-        return Xsrf.GetAndStoreTokens(Context).RequestToken;
-    }
-}
-
 @{
+    if (Model.IdAsientoContable == 0)
+    {
+        @inject IStringLocalizer<SharedResources> lb
+        @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+        @functions{
+            public string GetAntiXsrfRequestToken()
+            {
+                return Xsrf.GetAndStoreTokens(Context).RequestToken;
+            }
+        }
+    }
+    else
+    {
+        Layout = null;
+
+    }
+
     var estado = "";
     var cambiaEstado = "";
     var usuario = ViewData["usuario"] as TbSeUsuario;
@@ -24,9 +32,9 @@
 
 
     var numDocumento = Model.IdDocumento;
-    ViewData["Title"] = Lb["Asiento"];
+    ViewData["Title"] = lb["Asiento"];
 }
-
+<script src="~/js/comentario.js"></script>
 
 <div id="datosAsiento">
 
@@ -34,12 +42,12 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             @if (Model.IdAsientoContable != 0)
             {
-                <div class="col-md-3"><h3>@Lb["Editar"] @Lb["Asiento"]</h3></div>
+                <div class="col-md-3"><h3>@lb["Editar"] @lb["Asiento"]</h3></div>
                 <div class="col-md-offset-3 col-md-3"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
             }
             else
             {
-                <div class="col-md-3"><h3>@Lb["Nuevo"] @Lb["Asiento"]</h3></div>
+                <div class="col-md-3"><h3>@lb["Nuevo"] @lb["Asiento"]</h3></div>
             }
         </div>
     </div>
@@ -56,12 +64,12 @@
             @Html.HiddenFor(x => x.Frecuente)
             <div class="form-group col-md-3 col-sm-12 col-xs-12">
                 <div class="row">
-                    <label for="fecha">@Lb["Fecha"]:</label>
+                    <label for="fecha">@lb["Fecha"]:</label>
                     <input @estado id="dtFechaAsiento" type="date" asp-for="Fecha" onchange="CambioFecha()" class="form-control date" name="fecha" min="@ViewBag.FechaDesdePeriodo.ToString("yyyy-MM-dd")" max="@ViewBag.FechaHastaPeriodo.ToString("yyyy-MM-dd")" value="@Model.Fecha.ToString("yyyy-MM-dd")">
-                    <span hidden id="fechaCorregir" class="text-danger">@Lb["fechaCorregir"]</span>
+                    <span hidden id="fechaCorregir" class="text-danger">@lb["fechaCorregir"]</span>
                 </div>
                 <div class="row">
-                    <label asp-for="IdPeriodoTrabajo" class="control-label">@Lb["Periodo"]:</label>
+                    <label asp-for="IdPeriodoTrabajo" class="control-label">@lb["Periodo"]:</label>
                     <input readonly id="LtPeriodos" list="LtPeriodoTrabajo" class="form-control" autocomplete=on onchange="cambioPeriodo()">
                     <datalist id="LtPeriodoTrabajo">
                         @{
@@ -71,29 +79,32 @@
                             }
                         }
                     </datalist>
-                    <span hidden id="periodoCorregir" class="text-danger">@Lb["periodoCorregir"]</span>
+                    <span hidden id="periodoCorregir" class="text-danger">@lb["periodoCorregir"]</span>
                 </div>
                 <div class="row">
-                    <label asp-for="Codigo" class="control-label">@Lb["Asiento"]:</label>
+                    <label asp-for="Codigo" class="control-label">@lb["Asiento"]:</label>
                     <input readonly="readonly" asp-for="Codigo" id="CodigoAsiento" class="form-control" />
-                    <span hidden id="codigoCorregir" class="text-danger">@Lb["asientoCorregir"]</span>
+                    <span hidden id="codigoCorregir" class="text-danger">@lb["asientoCorregir"]</span>
                 </div>
 
             </div>
             <div class="form-group col-md-3 col-sm-6 col-xs-12" style="margin-left:1rem">
                 <div class="row">
-                    <label asp-for="Estado" class="control-label">@Lb["Estado"]:</label>
-                    <input @cambiaEstado id="LtEstados" list="LtEstado" class="form-control" autocomplete=on>
-                    <datalist id="LtEstado">
-                        <option value="@Lb["ACTIVO"]">@Lb["ACTIVO"]</option>
-                        <option value="@Lb["BLOQUEADO"]">@Lb["BLOQUEADO"]</option>
-                        <option value="@Lb["ANULADO"]">@Lb["ANULADO"]</option>
+                    <label class="control-label">@lb["Estado"] :</label>
+                    <input @cambiaEstado id="LtAsientoE" list="ListAsientoE" class="form-control" autocomplete="ÑÖcompletes">
+                    <datalist id="ListAsientoE">
+                        <option value="@lb["ACTIVO"]">@lb["ACTIVO"]</option>
+                        <option value="@lb["BLOQUEADO"]">@lb["BLOQUEADO"]</option>
+                        <option value="@lb["ANULADO"]">@lb["ANULADO"]</option>
 
                     </datalist>
-                    <span hidden id="estadoCorregir" class="text-danger">@Lb["estadoCorregir"]</span>
+                    <span hidden id="estadoCorregir" class="text-danger">@lb["estadoCorregir"]</span>
+
+
+
                 </div>
                 <div class="row">
-                    <label asp-for="CodigoMoneda" class="control-label">@Lb["Moneda"]:</label>
+                    <label asp-for="CodigoMoneda" class="control-label">@lb["Moneda"]:</label>
                     <input @estado id="LtMonedas" list="LtCodigoMoneda" class="form-control" autocomplete=on onchange="cambioMoneda()">
                     <datalist id="LtCodigoMoneda">
                         @{
@@ -103,79 +114,79 @@
                             }
                         }
                     </datalist>
-                    <span hidden id="monedaCorregir" class="text-danger">@Lb["monedaCorregir"]</span>
+                    <span hidden id="monedaCorregir" class="text-danger">@lb["monedaCorregir"]</span>
                 </div>
                 <div class="row">
-                    <label asp-for="IdTipoDocumento" class="control-label">@Lb["tipo"]:</label>
+                    <label asp-for="IdTipoDocumento" class="control-label">@lb["tipo"]:</label>
                     <input @estado id="LtTipos" list="LtTipoDoc" class="form-control" autocomplete=on onchange="cambioTipoDoc()">
                     <datalist id="LtTipoDoc">
                         @{
                             foreach (var item in ViewBag.Tipos)
                             {
-                                <option>@Lb[item.Descripcion]</option>
+                                <option>@lb[item.Descripcion]</option>
                             }
                         }
 
                     </datalist>
-                    <span hidden id="tipoDocCorregir" class="text-danger">@Lb["tipoDocCorregir"]</span>
+                    <span hidden id="tipoDocCorregir" class="text-danger">@lb["tipoDocCorregir"]</span>
                 </div>
             </div>
             <div class="form-group col-md-4 col-sm-12 col-xs-12">
                 <div class="form-group shadow-textarea">
-                    <label for="exampleFormControlTextarea2">@Lb["Descripción"]</label>
+                    <label for="exampleFormControlTextarea2">@lb["Descripción"]</label>
                     <textarea @estado asp-for="Descripcion" maxlength="400" class="form-control rounded-0" id="descripcionAsiento" rows="8"></textarea>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="form-group col-md-4 col-sm-6 col-xs-6">
-                <label class="control-label">@Lb["Cuenta"]:</label>
+                <label class="control-label">@lb["Cuenta"]:</label>
                 <input @estado list="ltCuentas" class="form-control" id="catalogoCuentas" onkeydown="pasarSigCampo(event,'tipoCambioDolar','true')">
                 <datalist id="ltCuentas">
                     @{
                         foreach (var item in ViewBag.Catalogo)
                         {
-                            <option value="@Lb[item.Descripcion]">@Lb[item.CuentaContable]</option>
+                            <option value="@lb[item.Descripcion]">@lb[item.CuentaContable]</option>
                         }
                     }
                 </datalist>
-                <span hidden id="cuentaCorregir" class="text-danger">@Lb["cuentaCorregir"]</span>
+                <span hidden id="cuentaCorregir" class="text-danger">@lb["cuentaCorregir"]</span>
             </div>
             <div class="form-group col-md-6 col-sm-6 col-xs-6">
                 <div class="form-group col-md-6 col-sm-6 col-xs-6">
-                    <label id="lblItem" class="control-label">@Lb["TipoCambio"] $: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                    <label id="lblItem" class="control-label">@lb["TipoCambio"] $: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
                     <input @estado class="form-control" id="tipoCambioDolar" autofocus onkeyup="pasarSigCampo(event,'tipoCambioEuro')" style="text-align:right" />
-                    <span hidden id="tipoCambioDolarCorregir" class="text-danger">@Lb["tipoCambioDolarCorregir"]</span>
+                    <span hidden id="tipoCambioDolarCorregir" class="text-danger">@lb["tipoCambioDolarCorregir"]</span>
                 </div>
                 <div class="form-group col-md-6 col-sm-6 col-xs-6">
-                    <label id="lblItem" class="control-label">@Lb["TipoCambio"] Eur: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                    <label id="lblItem" class="control-label">@lb["TipoCambio"] Eur: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
                     <input @estado class="form-control" id="tipoCambioEuro" autofocus onkeyup="pasarSigCampo(event,'MontoBase')" style="text-align:right" />
-                    <span hidden id="tipoCambioEuroCorregir" class="text-danger">@Lb["tipoCambioEuroCorregir"]</span>
+                    <span hidden id="tipoCambioEuroCorregir" class="text-danger">@lb["tipoCambioEuroCorregir"]</span>
                 </div>
             </div>
             <div class="row">
                 <div class="form-group col-md-10 col-sm-12 col-xs-12">
                     <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                        <label class="control-label">@Lb["Monto"] @ViewBag.SimboloBase:</label>
+                        <label class="control-label">@lb["Monto"] @ViewBag.SimboloBase:</label>
                         <input @estado type="number" class="form-control" id="MontoBase" onchange="fnMontoColon('')" autofocus onkeyup="pasarSigCampo(event,'Monto2')" style="text-align:right" />
-                        <span hidden id="montoBaseCorregir" class="text-danger">@Lb["montoBaseCorregir"]</span>
+                        <span hidden id="montoBaseCorregir" class="text-danger">@lb["montoBaseCorregir"]</span>
                     </div>
                     <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                        <label id="lblItem" class="control-label">@Lb["Monto"] @ViewBag.SimboloDolar: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                        <label id="lblItem" class="control-label">@lb["Monto"] @ViewBag.SimboloDolar: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
                         <input @estado type="number" class="form-control" id="Monto2" onchange="fnMontoDolar('')" autofocus onkeyup="pasarSigCampo(event,'Monto3')" style="text-align:right" />
-                        <span hidden id="montoDolarCorregir" class="text-danger">@Lb["montoDolarCorregir"]</span>
+                        <span hidden id="montoDolarCorregir" class="text-danger">@lb["montoDolarCorregir"]</span>
                     </div>
                     <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                        <label id="lblItem" class="control-label">@Lb["Monto"] @ViewBag.SimboloEuro: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                        <label id="lblItem" class="control-label">@lb["Monto"] @ViewBag.SimboloEuro: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
                         <input @estado type="number" class="form-control" id="Monto3" onchange="fnMontoEuro('')" autofocus onkeyup="pasarSigCampo(event,'btnAgregarDebe')" style="text-align:right" />
-                        <span hidden id="montoEuroCorregir" class="text-danger">@Lb["montoEuroCorregir"]</span>
+                        <span hidden id="montoEuroCorregir" class="text-danger">@lb["montoEuroCorregir"]</span>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="form-group col-md-4 col-sm-6 col-xs-6">
-                    <button @estado id="btnAgregarDebe" onclick="agregarLinea('Debe')" onkeyup="pasarSigCampo(event,'btnAgregarHaber')" class="btn btn-success"><span>@Lb["Debe"] </span><span><i class="fas fa-plus"></i></span></button>
-                    <button @estado id="btnAgregarHaber" onclick="agregarLinea('Haber')" onkeyup="pasarSigCampo(event,'btnAgregarDebe')" class="btn btn-success"><span>@Lb["Haber"] </span><span><i class="fas fa-plus"></i></span></button>
+                    <button @estado id="btnAgregarDebe" onclick="agregarLinea('Debe')" onkeyup="pasarSigCampo(event,'btnAgregarHaber')" class="btn btn-success"><span>@lb["Debe"] </span><span><i class="fas fa-plus"></i></span></button>
+                    <button @estado id="btnAgregarHaber" onclick="agregarLinea('Haber')" onkeyup="pasarSigCampo(event,'btnAgregarDebe')" class="btn btn-success"><span>@lb["Haber"] </span><span><i class="fas fa-plus"></i></span></button>
                 </div>
             </div>
 
@@ -183,19 +194,18 @@
                 <table class="table table-bordered table-striped" id="tbAsientoDetalle" style="min-width:1250px">
                     <thead>
                         <tr>
-                            <th style="width:10%"><span>@Lb["Cuenta"]</span></th>
-                            <th style="width:18%"><span>@Lb["Nombre"]</span></th>
-                            <th style="width:11%"><span>@Lb["Debe"] @ViewBag.SimboloBase</span></th>
-                            <th style="width:11%"><span>@Lb["Haber"] @ViewBag.SimboloBase</span></th>
-                            <th style="width:11%"><span>@Lb["Debe"] @ViewBag.SimboloDolar</span></th>
-                            <th style="width:11%"><span>@Lb["Haber"] @ViewBag.SimboloDolar</span></th>
-                            <th style="width:11%"><span>@Lb["Debe"] @ViewBag.SimboloEuro</span></th>
-                            <th style="width:11%"><span>@Lb["Haber"] @ViewBag.SimboloEuro</span></th>
+                            <th style="width:10%"><span>@lb["Cuenta"]</span></th>
+                            <th style="width:18%"><span>@lb["Nombre"]</span></th>
+                            <th style="width:11%"><span>@lb["Debe"] @ViewBag.SimboloBase</span></th>
+                            <th style="width:11%"><span>@lb["Haber"] @ViewBag.SimboloBase</span></th>
+                            <th style="width:11%"><span>@lb["Debe"] @ViewBag.SimboloDolar</span></th>
+                            <th style="width:11%"><span>@lb["Haber"] @ViewBag.SimboloDolar</span></th>
+                            <th style="width:11%"><span>@lb["Debe"] @ViewBag.SimboloEuro</span></th>
+                            <th style="width:11%"><span>@lb["Haber"] @ViewBag.SimboloEuro</span></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="lineaForm">
-                        </tr>
+                        <tr class="lineaForm"></tr>
                     </tbody>
                 </table>
             </div>
@@ -204,31 +214,31 @@
 
                 <div class="row">
                     <div class="col-lg-4 col-md-12 col-xs-12">
-                        <label class="control-label">@Lb["Total"]  @Lb["Debe"] @ViewBag.SimboloBase:</label>
+                        <label class="control-label">@lb["Total"]  @lb["Debe"] @ViewBag.SimboloBase:</label>
                         <input readonly id="totalDebeBase" class="form-control" style="text-align: right" />
                     </div>
                     <div class="col-lg-4 col-md-12 col-xs-12">
-                        <label class="control-label">@Lb["Total"]  @Lb["Haber"] @ViewBag.SimboloBase:</label>
+                        <label class="control-label">@lb["Total"]  @lb["Haber"] @ViewBag.SimboloBase:</label>
                         <input readonly id="totalHaberBase" class="form-control" style="text-align: right" />
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-lg-4 col-md-12 col-xs-12">
-                        <label class="control-label">@Lb["Total"]  @Lb["Debe"] @ViewBag.SimboloDolar:</label>
+                        <label class="control-label">@lb["Total"]  @lb["Debe"] @ViewBag.SimboloDolar:</label>
                         <input readonly id="totalDebeDolar" class="form-control" style="text-align: right" />
                     </div>
                     <div class="col-lg-4 col-md-12 col-xs-12">
-                        <label class="control-label">@Lb["Total"]  @Lb["Haber"] @ViewBag.SimboloDolar:</label>
+                        <label class="control-label">@lb["Total"]  @lb["Haber"] @ViewBag.SimboloDolar:</label>
                         <input readonly id="totalHaberDolar" class="form-control" style="text-align: right" />
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-lg-4 col-md-12 col-xs-12">
-                        <label class="control-label">@Lb["Total"]  @Lb["Debe"] @ViewBag.SimboloEuro:</label>
+                        <label class="control-label">@lb["Total"]  @lb["Debe"] @ViewBag.SimboloEuro:</label>
                         <input readonly id="totalDebeEuro" class="form-control" style="text-align: right" />
                     </div>
                     <div class="col-lg-4 col-md-12 col-xs-12">
-                        <label class="control-label">@Lb["Total"]  @Lb["Haber"] @ViewBag.SimboloEuro:</label>
+                        <label class="control-label">@lb["Total"]  @lb["Haber"] @ViewBag.SimboloEuro:</label>
                         <input readonly id="totalHaberEuro" class="form-control" style="text-align: right" />
                     </div>
                 </div>
@@ -238,20 +248,20 @@
         <div class="row" style="margin-top:10px">
             <div class="col-md-12">
                 <div class="form-group col-md-3">
-                    <button @cambiaEstado class="btn btn-success btnAccion" onclick="guardar()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
-                    <a onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
-                    <span style="margin-top:4px" hidden id="totalCorregir" class="text-danger">@Lb["totalCorregir"]</span>
-                    <span style="margin-top:4px" hidden id="lineasCorregir" class="text-danger">@Lb["lineasCorregir"]</span>
+                    <button @cambiaEstado class="btn btn-success btnAccion" onclick="guardar()">@lb["Guardar"] <i class="fas fa-save"></i></button>
+                    <a onclick="cancelar()" class="btn btn-default">@lb["Cancelar"]</a>
+                    <span style="margin-top:4px" hidden id="totalCorregir" class="text-danger">@lb["totalCorregir"]</span>
+                    <span style="margin-top:4px" hidden id="lineasCorregir" class="text-danger">@lb["lineasCorregir"]</span>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
-                <p>@Lb["Creacion"]:@ViewBag.UsuarioCreador.Nombre - @Model.FechaCreacion | @Lb["Último"] @Lb["Cambio"]: @ViewBag.UsuarioMod.Nombre - @Model.FechaMod<p>
+                <p>@lb["Creacion"]:@ViewBag.UsuarioCreador.Nombre - @Model.FechaCreacion | @lb["Último"] @lb["Cambio"]: @ViewBag.UsuarioMod.Nombre - @Model.FechaMod<p>
             </div>
 
         </div>
-        <input readonly hidden id="monedaFormater" />
+        <input readonly hidden id="monedaFormaterDet" />
 
 
     </div>
@@ -262,7 +272,7 @@
             <div class="modal-content">
                 <div class="modal-header row">
                     <div class="col-md-10 col-sm-10 col-xs-10" style="text-align:left">
-                        <h4 class="modal-title" id="lineaModalLabel">@Lb["Editar"] @Lb["Línea"]</h4>
+                        <h4 class="modal-title" id="lineaModalLabel">@lb["Editar"] @lb["Línea"]</h4>
                     </div>
                     <div class="col-md-2 col-sm-2 col-xs-2" style="text-align:right">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -271,59 +281,59 @@
                     </div>
                 </div>
                 <div class="modal-body row">
-                        <div hidden class="form-group col-md-2 col-sm-2 col-xs-12">
-                            <input readonly id="idLinea" class="form-control" type="number" />
-                        </div>
-                        <div class="form-group col-md-12 col-sm-6 col-xs-6">
-                            <label class="control-label">@Lb["Cuenta"]:</label>
-                            <input @estado list="ltCuentas" class="form-control" id="catalogoCuentasModal" onkeydown="pasarSigCampo(event,'tipoCambioDolar')">
-                            <datalist id="ltCuentas">
-                                @{
-                                    foreach (var item in ViewBag.Catalogo)
-                                    {
-                                        <option value="@Lb[item.Descripcion]">@Lb[item.CuentaContable]</option>
-                                    }
+                    <div hidden class="form-group col-md-2 col-sm-2 col-xs-12">
+                        <input readonly id="idLinea" class="form-control" type="number" />
+                    </div>
+                    <div class="form-group col-md-12 col-sm-6 col-xs-6">
+                        <label class="control-label">@lb["Cuenta"]:</label>
+                        <input @estado list="ltCuentas" class="form-control" id="catalogoCuentasModal" onkeydown="pasarSigCampo(event,'tipoCambioDolar')">
+                        <datalist id="ltCuentas">
+                            @{
+                                foreach (var item in ViewBag.Catalogo)
+                                {
+                                    <option value="@lb[item.Descripcion]">@lb[item.CuentaContable]</option>
                                 }
-                            </datalist>
-                            <span hidden id="cuentaCorregirModal" class="text-danger">@Lb["cuentaCorregir"]</span>
+                            }
+                        </datalist>
+                        <span hidden id="cuentaCorregirModal" class="text-danger">@lb["cuentaCorregir"]</span>
+                    </div>
+                    <div class="form-group col-md-12 col-sm-12 col-xs-6">
+                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                            <label id="lblItem" class="control-label">@lb["TipoCambio"] @ViewBag.SimboloDolar:</label>
+                            <input @estado class="form-control" id="tipoCambioDolarModal" autofocus onkeyup="pasarSigCampo(event,'tipoCambioEuroModal')" style="text-align:right" />
+                            <span hidden id="tipoCambioDolarCorregirModal" class="text-danger">@lb["tipoCambioDolarCorregir"]</span>
                         </div>
-                        <div class="form-group col-md-12 col-sm-12 col-xs-6">
-                            <div class="form-group col-md-6 col-sm-6 col-xs-6">
-                                <label id="lblItem" class="control-label">@Lb["TipoCambio"] @ViewBag.SimboloDolar:</label>
-                                <input @estado class="form-control" id="tipoCambioDolarModal" autofocus onkeyup="pasarSigCampo(event,'tipoCambioEuroModal')" style="text-align:right" />
-                                <span hidden id="tipoCambioDolarCorregirModal" class="text-danger">@Lb["tipoCambioDolarCorregir"]</span>
+                        <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                            <label id="lblItem" class="control-label">@lb["TipoCambio"] @ViewBag.SimboloEuro:</label>
+                            <input @estado class="form-control" id="tipoCambioEuroModal" autofocus onkeyup="pasarSigCampo(event,'MontoBaseModal')" style="text-align:right" />
+                            <span hidden id="tipoCambioEuroCorregirModal" class="text-danger">@lb["tipoCambioEuroCorregir"]</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+                            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                                <label class="control-label">@lb["Monto"] @ViewBag.SimboloBase:</label>
+                                <input @estado type="number" class="form-control" id="MontoBaseModal" onchange="fnMontoColon('Modal')" autofocus onkeyup="pasarSigCampo(event,'Monto2Modal')" style="text-align:right" />
+                                <span hidden id="montoBaseCorregirModal" class="text-danger">@lb["montoBaseCorregir"]</span>
                             </div>
-                            <div class="form-group col-md-6 col-sm-6 col-xs-6">
-                                <label id="lblItem" class="control-label">@Lb["TipoCambio"] @ViewBag.SimboloEuro:</label>
-                                <input @estado class="form-control" id="tipoCambioEuroModal" autofocus onkeyup="pasarSigCampo(event,'MontoBaseModal')" style="text-align:right" />
-                                <span hidden id="tipoCambioEuroCorregirModal" class="text-danger">@Lb["tipoCambioEuroCorregir"]</span>
+                            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                                <label id="lblItem" class="control-label">@lb["Monto"] @ViewBag.SimboloDolar: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                                <input @estado type="number" class="form-control" id="Monto2Modal" onchange="fnMontoDolar('Modal')" autofocus onkeyup="pasarSigCampo(event,'Monto3Modal')" style="text-align:right" />
+                                <span hidden id="montoDolarCorregirModal" class="text-danger">@lb["montoDolarCorregir"]</span>
+                            </div>
+                            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                                <label id="lblItem" class="control-label">@lb["Monto"] @ViewBag.SimboloEuro: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                                <input @estado type="number" class="form-control" id="Monto3Modal" onchange="fnMontoEuro('Modal')" autofocus onkeyup="pasarSigCampo(event,'btnAgregarDebeModal')" style="text-align:right" />
+                                <span hidden id="montoEuroCorregirModal" class="text-danger">@lb["montoEuroCorregir"]</span>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="form-group col-md-12 col-sm-12 col-xs-12">
-                                <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                                    <label class="control-label">@Lb["Monto"] @ViewBag.SimboloBase:</label>
-                                    <input @estado type="number" class="form-control" id="MontoBaseModal" onchange="fnMontoColon('Modal')" autofocus onkeyup="pasarSigCampo(event,'Monto2Modal')" style="text-align:right" />
-                                    <span hidden id="montoBaseCorregirModal" class="text-danger">@Lb["montoBaseCorregir"]</span>
-                                </div>
-                                <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                                    <label id="lblItem" class="control-label">@Lb["Monto"] @ViewBag.SimboloDolar: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
-                                    <input @estado type="number" class="form-control" id="Monto2Modal" onchange="fnMontoDolar('Modal')" autofocus onkeyup="pasarSigCampo(event,'Monto3Modal')" style="text-align:right" />
-                                    <span hidden id="montoDolarCorregirModal" class="text-danger">@Lb["montoDolarCorregir"]</span>
-                                </div>
-                                <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                                    <label id="lblItem" class="control-label">@Lb["Monto"] @ViewBag.SimboloEuro: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
-                                    <input @estado type="number" class="form-control" id="Monto3Modal" onchange="fnMontoEuro('Modal')" autofocus onkeyup="pasarSigCampo(event,'btnAgregarDebeModal')" style="text-align:right" />
-                                    <span hidden id="montoEuroCorregirModal" class="text-danger">@Lb["montoEuroCorregir"]</span>
-                                </div>
-                            </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-12 col-sm-6 col-xs-6">
+                            <button @estado id="btnAgregarDebeModal" onclick="actualizarLinea('Debe')" onkeyup="pasarSigCampo(event,'btnAgregarHaberModal')" class="btn btn-success"><span>@lb["Debe"] </span><span><i class="fas fa-plus"></i></span></button>
+                            <button @estado id="btnAgregarHaberModal" onclick="actualizarLinea('Haber')" onkeyup="pasarSigCampo(event,'btnAgregarDebeModal')" class="btn btn-success"><span>@lb["Haber"] </span><span><i class="fas fa-plus"></i></span></button>
                         </div>
-                        <div class="row">
-                            <div class="form-group col-md-12 col-sm-6 col-xs-6">
-                                <button @estado id="btnAgregarDebeModal" onclick="actualizarLinea('Debe')" onkeyup="pasarSigCampo(event,'btnAgregarHaberModal')" class="btn btn-success"><span>@Lb["Debe"] </span><span><i class="fas fa-save"></i></span></button>
-                                <button @estado id="btnAgregarHaberModal" onclick="actualizarLinea('Haber')" onkeyup="pasarSigCampo(event,'btnAgregarDebeModal')" class="btn btn-success"><span>@Lb["Haber"] </span><span><i class="fas fa-save"></i></span></button>
-                            </div>
-                        </div>                 
+                    </div>
                 </div>
 
             </div>
@@ -373,22 +383,22 @@
     var IdAsiento = '@Model.IdAsientoContable';
     var lineas = [];
     Cargar();
-
+    var editar;
     function Cargar() {
         IdAsiento = '@Model.IdAsientoContable';
-        console.log('IdAsiento:' + IdAsiento);
         if (IdAsiento == '0') {
             document.getElementById('tipoCambioDolar').value = TipoCambioDolar;
             document.getElementById('tipoCambioEuro').value = TipoCambioEuro;
 
             CambioFecha();
+            editar = false;
         }
         else {
-            
-            document.getElementById('LtEstados').value = obtenerNombreEstado('@Model.Estado');
-            document.getElementById('LtMonedas').value = '@ViewBag.Moneda.Nombre';
+            editar = true;         
+            document.getElementById('LtAsientoE').value = obtenerNombreEstado('@Model.Estado');
+            document.getElementById('LtMonedas').value = '@ViewBag.Moneda.Simbolo';
             document.getElementById('LtTipos').value = '@ViewBag.TipoDoc.Descripcion';
-            document.getElementById('LtPeriodos').value = '@ViewBag.Periodo.Nombre';           
+            document.getElementById('LtPeriodos').value = '@ViewBag.Periodo.Nombre';
             document.getElementById('tipoCambioDolar').value = TipoCambioDolar;
             document.getElementById('tipoCambioEuro').value = TipoCambioEuro;
             var linea
@@ -400,7 +410,7 @@
             @: if (EsDebe != 'True') { tipolinea = 'Haber'; }
             @:  linea = { MDolar: '@item.MontoDolares', MEuro: '@item.MontoEuro', MBase: '@item.MontoColones', cuenta: obtenerCuentaPorId('@item.IdCuentaContable'), Tipo: tipolinea, TCDolar: '@item.TipoCambioDolar', TCEuro: '@item.TipoCambioEuro', Id: '@item.IdDetalleAsientoContable' };
             @:  lineas.push(linea);
-            }
+            }          
             tabla();
         }
 
@@ -493,9 +503,9 @@
     }
         var solo1 = 0;
         function pasarSigCampo(e, id, esLt) {
-            (e.keyCode) ? k = e.keyCode : k = e.which;           
+            (e.keyCode) ? k = e.keyCode : k = e.which;
             if (k == 13 || k == 39 || k == 37) {
-              
+
                 if (solo1 == 0) {
 
                     if (esLt == null) {
@@ -513,12 +523,12 @@
                             solo1 = 0;
                         }
                     }
-                } else { solo1 = 0;} 
+                } else { solo1 = 0;}
             }
         }
     var cuentaSeleccionada;
     function agregarLinea(tipo) {
-        
+
         obtenerLinea('');
         cuentaSeleccionada = obtenerCuenta(cuenta);
         if (validarLinea('') == true) {
@@ -557,31 +567,31 @@
                 var montoHaberEuro = 0;
                 if (parseFloat(linea.MBase) >= 0) {
 
-                if (linea.Tipo == 'Debe') {
-                    montoDebeBase = linea.MBase;
-                    montoDebeDolar = linea.MDolar;
-                    montoDebeEuro = linea.MEuro;
+                    if (linea.Tipo == 'Debe') {
+                        montoDebeBase = linea.MBase.replace(',','.');
+                        montoDebeDolar = linea.MDolar.replace(',', '.');
+                        montoDebeEuro = linea.MEuro.replace(',', '.');
                 }
                 if (linea.Tipo == 'Haber') {
-                    montoHaberBase = linea.MBase;
-                    montoHaberDolar = linea.MDolar;
-                    montoHaberEuro = linea.MEuro;
+                    montoHaberBase = linea.MBase.replace(',', '.');
+                    montoHaberDolar = linea.MDolar.replace(',', '.');
+                    montoHaberEuro = linea.MEuro.replace(',', '.');
                 }
 
-                
+
                       var filaVisual = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td ><Label class="link" onclick="modalEditarLinea(' + linea.Id + ')">' + linea.cuenta.CuentaContable + '</label></td>'
                     + '<td>' + linea.cuenta.Descripcion + '</td>'
-                     + '<td style="text-align: right">' + darFomatoMoneda(montoDebeBase,'1') + '</td>'
-                     + '<td style="text-align: right">' + darFomatoMoneda(montoHaberBase,'1') + '</td>'
-                     + '<td style="text-align: right">' + darFomatoMoneda(montoDebeDolar,'2') + '</td>'
-                     + '<td style="text-align: right">' + darFomatoMoneda(montoHaberDolar, '2') + '</td>'
-                     + '<td style="text-align: right">' + darFomatoMoneda(montoDebeEuro, '3') + '</td>'
-                     + '<td style="text-align: right">' + darFomatoMoneda(montoHaberEuro, '3') + '</td>'
+                     + '<td style="text-align: right">' + darFomatoMonedaDet(montoDebeBase,'1') + '</td>'
+                     + '<td style="text-align: right">' + darFomatoMonedaDet(montoHaberBase,'1') + '</td>'
+                     + '<td style="text-align: right">' + darFomatoMonedaDet(montoDebeDolar,'2') + '</td>'
+                     + '<td style="text-align: right">' + darFomatoMonedaDet(montoHaberDolar, '2') + '</td>'
+                     + '<td style="text-align: right">' + darFomatoMonedaDet(montoDebeEuro, '3') + '</td>'
+                     + '<td style="text-align: right">' + darFomatoMonedaDet(montoHaberEuro, '3') + '</td>'
                      + '<td> <button class="btn btn-link" @estado style="margin:0; padding:0; font-size:1.8rem;" onclick="modalEditarLinea(' + linea.Id + ')" ><i class="fas fa-edit"></i></button>&nbsp;&nbsp; <button @estado class="btn btn-link" style="margin:0; padding:0; font-size:1.8rem;" value="' + contadorFila + '" onclick="removerLinea(' + linea.Id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
                     $('#tbAsientoDetalle > tbody').append(filaVisual);
                      contadorFila++;
                 }
-              
+
                 TotalDebeBase = parseFloat(TotalDebeBase) + parseFloat(montoDebeBase);
                 TotalHaberBase = parseFloat(TotalHaberBase) + parseFloat(montoHaberBase);
                 TotalDebeDolar =  parseFloat(TotalDebeDolar) + parseFloat(montoDebeDolar);
@@ -589,16 +599,16 @@
                 TotalDebeEuro = parseFloat(TotalDebeEuro) + parseFloat(montoDebeEuro);
                 TotalHaberEuro = parseFloat(TotalHaberEuro) + parseFloat(montoHaberEuro);
             });
-            $('#totalDebeBase').val(darFomatoMoneda(TotalDebeBase,'1'));
-            $('#totalHaberBase').val(darFomatoMoneda(TotalHaberBase,'1'));
-            $('#totalDebeDolar').val(darFomatoMoneda(TotalDebeDolar,'2'));
-            $('#totalHaberDolar').val(darFomatoMoneda(TotalHaberDolar,'2'));
-            $('#totalDebeEuro').val(darFomatoMoneda(TotalDebeEuro,'3'));
-            $('#totalHaberEuro').val(darFomatoMoneda(TotalHaberEuro,'3'));
+            $('#totalDebeBase').val(darFomatoMonedaDet(TotalDebeBase,'1'));
+            $('#totalHaberBase').val(darFomatoMonedaDet(TotalHaberBase,'1'));
+            $('#totalDebeDolar').val(darFomatoMonedaDet(TotalDebeDolar,'2'));
+            $('#totalHaberDolar').val(darFomatoMonedaDet(TotalHaberDolar,'2'));
+            $('#totalDebeEuro').val(darFomatoMonedaDet(TotalDebeEuro,'3'));
+            $('#totalHaberEuro').val(darFomatoMonedaDet(TotalHaberEuro,'3'));
 
         }
 
-        function darFomatoMoneda(_value,moneda) {
+        function darFomatoMonedaDet(_value,moneda) {
 
             var value = parseFloat(_value);
             var simbolo = "";
@@ -613,9 +623,9 @@
                 simbolo = '@ViewBag.SimboloEuro';
             }
 
-            MASK(document.getElementById('monedaFormater'), value, '-##,###,##0.00', 1);
+            MASKDET(document.getElementById('monedaFormaterDet'), value, '-##,###,##0.00', 1);
 
-            return simbolo + ' ' + document.getElementById('monedaFormater').value;
+            return simbolo + ' ' + document.getElementById('monedaFormaterDet').value;
 
     }
     var lineaEdit;
@@ -628,32 +638,32 @@
         $('#montoDolarCorregirModal').prop('hidden', true);
         $('#montoEuroCorregirModal').prop('hidden', true);
 
-   
+
         lineas.forEach(function (linea) {
             if (linea.Id == Id) {
                 lineaEdit = linea;
             }
         });
-     
-   
-        $('#idLinea').val(Id);      
-     
+
+
+        $('#idLinea').val(Id);
+
         $('#catalogoCuentasModal').val(lineaEdit.cuenta.Descripcion);
         $('#tipoCambioDolarModal').val(lineaEdit.TCDolar);
         $('#tipoCambioEuroModal').val(lineaEdit.TCEuro);
         $('#MontoBaseModal').val(String(lineaEdit.MBase).replace(',','.'));
         $('#Monto2Modal').val(String(lineaEdit.MDolar).replace(',','.'));
         $('#Monto3Modal').val(String(lineaEdit.MEuro).replace(',', '.'));
-         
+
         $('#lineaModal').modal('show');
         document.getElementById('catalogoCuentasModal').focus();
         document.getElementById('catalogoCuentasModal').select();
     }
-    function actualizarLinea(tipo) {      
-        
+    function actualizarLinea(tipo) {
+
         obtenerLinea('Modal');
         cuentaSeleccionada = obtenerCuenta(cuenta);
-    
+
         if (validarLinea('Modal') == true) {
             lineaEdit.MDolar = montoDolar;
             lineaEdit.MEuro = montoEuro;
@@ -661,23 +671,23 @@
             lineaEdit.cuenta = cuentaSeleccionada;
             lineaEdit.Tipo = tipo;
             lineaEdit.TCDolar = TipoCambioDolar;
-            lineaEdit.TCEuro = TipoCambioEuro; 
+            lineaEdit.TCEuro = TipoCambioEuro;
         }
-    
+
         tabla();
         $('#lineaModal').modal('hide');
-   
+
     }
-    function removerLinea(Id) {      
-        
+    function removerLinea(Id) {
+
         lineas.forEach(function (linea) {
             if (linea.Id == Id) {
                 lineaEdit = linea;
             }
-        });      
-        lineaEdit.MBase = -1;     
+        });
+        lineaEdit.MBase = -1;
         tabla();
-   
+
     }
     // formatea un numero según una mascara dada ej: "-$###,###,##0.00"
     //
@@ -688,7 +698,7 @@
     //
     // La función devuelve el numero formateado
 
-    function MASK(form, n, mask, format) {
+    function MASKDET(form, n, mask, format) {
         if (format == "undefined") format = false;
         if (format || NUM(n)) {
             dec = 0, point = 0;
@@ -800,12 +810,12 @@
             obtenerTipoDoc(nombreTipoDoc);
 
     }
-    var anulado = '@Lb["ANULADO"]'
-    var activo = '@Lb["ACTIVO"]'
-    var bloqueado = '@Lb["BLOQUEADO"]'
+    var anulado = '@lb["ANULADO"]'
+    var activo = '@lb["ACTIVO"]'
+    var bloqueado = '@lb["BLOQUEADO"]'
     var IdEstadoSeleccionado = 0;
       function cambioEstado() {
-          var estadoNombre = document.getElementById("LtEstados").value;
+          var estadoNombre = document.getElementById("LtAsientoE").value;
 
           IdEstadoSeleccionado = 0;
           if (estadoNombre == anulado) {
@@ -848,16 +858,28 @@
         }
     function guardar() {
         var asiento = crearModelo();
-        console.log(asiento);
         if (asiento != null) {
            enviarAjax(asiento);
         }
 
+
     }
     function cancelar() {
-         window.location.href = "@Url.Action("Index")";
+        regresarBuscador();
+
+    }
+    function regresarBuscador() {
+
+        if (editar==true) {
+            mostrarBuscador();
+
+                    }
+                    else {
+                       window.location.href = "@Url.Action("Index")";
+                    }
     }
     function enviarAjax(asiento) {
+  
            $.ajax({
             type: "POST",
             headers: {
@@ -868,17 +890,39 @@
             data: asiento,
             success: function (data) {
                 if (data.success) {
-                    window.location.href = "@Url.Action("Index")";
+                    actualizarBuscador(asiento);
+                    regresarBuscador();
+
                 }
                 else {
 
                 }
                  },
               error: function (err, scnd) {
-                  cargarAlert('@Lb["errorGeneral"]');
+                  cargarAlert('@lb["errorGeneral"]');
                   console.log(err.statusText);
               }
         });
+    }
+    function actualizarBuscador(asiento) {
+        if (editar == true) {
+              for (var i = 0; i < resultadoCargado.length; i++) {
+                var n = resultadoCargado[i].idAsientoContable.toString() .localeCompare(asiento.IdAsientoContable);
+                if (n == 0 ) {
+
+                    resultadoCargado[i].codigo = asiento.Codigo;
+                    resultadoCargado[i].fecha = asiento.Fecha;
+                    resultadoCargado[i].montoColones = asiento.MontoColones;
+                    resultadoCargado[i].montoDolar = asiento.MontoDolar;
+                    resultadoCargado[i].montoEuro = asiento.MontoEuro;
+                    resultadoCargado[i].estado = asiento.Estado;
+
+                }
+
+            }
+     
+            cargarDatos(resultadoCargado);
+        }
     }
     function crearModelo() {
         var codigoAsiento = document.getElementById("CodigoAsiento").value;
@@ -1125,6 +1169,6 @@
 
     }
 </script>
-<script src="~/js/comentario.js"></script>
+
 
 

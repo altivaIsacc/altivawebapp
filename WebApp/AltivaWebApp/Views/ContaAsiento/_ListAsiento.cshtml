@@ -1,0 +1,59 @@
+﻿@model IList<AltivaWebApp.DomainsConta.Asiento>
+@inject IStringLocalizer<SharedResources> lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    var contadorFila = 1;
+    foreach (AltivaWebApp.DomainsConta.Asiento item in Model)
+    {
+
+        var colorFila = "";
+        if (item.Estado == 3)
+        { colorFila = "color: #808080";}
+        var estadonombre = "";
+
+        if (item.Estado == 1) { estadonombre = lb["ACTIVO"]; }
+        if (item.Estado == 2) { estadonombre = lb["BLOQUEADO"]; }
+        if (item.Estado == 3) { estadonombre = lb["ANULADO"]; }
+
+<tr class="fila'+@contadorFila+'filas" style="@colorFila">
+
+    <td>
+        <label class="link" onclick="editarItem(@item.IdAsientoContable)" style="padding-top:1rem;">@item.IdAsientoContable </label>
+    </td>
+    <td>
+        <label class="link" onclick="editarItem(@item.IdAsientoContable)" style="padding-top:1rem;">@item.Codigo </label>
+    </td>
+    <td>
+    <p hidden>@item.Fecha.Year@item.Fecha.Month@item.Fecha.Day</p>
+
+    <p style="padding-top:1rem;">@item.Fecha.ToString("dd/MM/yyyy")</p>
+    </td>
+    <td>
+        <p style="padding-top:1rem; text-align:right;">@item.MontoColones.ToString("#,###.##")</p>
+    </td>
+    <td>
+        <p style="padding-top:1rem; text-align:right;">@item.MontoDolar.ToString("#,###.##")</p>
+    </td>
+    <td>
+        <p style="padding-top:1rem; text-align:right;">@item.MontoEuro.ToString("#,###.##")</p>
+    </td>
+    <td>
+        <p style="padding-top:1rem; text-align:right;">@estadonombre</p>
+    </td>
+    <td>
+        <button onclick=editarItem(@item.IdAsientoContable) class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button>
+    </td>
+</tr>
+    }
+
+}
+
+
+
+

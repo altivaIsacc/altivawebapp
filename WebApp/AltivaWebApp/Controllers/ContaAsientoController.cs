@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Data.SqlClient;
 using System.Data;
+using System.Collections.Generic;
 
 namespace AltivaWebApp.Controllers
 {
@@ -130,6 +131,21 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
         }
+        [HttpPost("_ListAsiento")]
+        public IActionResult _ListAsiento(IList<Asiento> asientos)
+        {
+            try
+            {      
+                return PartialView("_ListAsiento",asientos);
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+            }
+
+        }
+
         [HttpPost("_BalancePeriodo")]
         public IActionResult _BalancePeriodo(long id, int idMoneda)
         {
@@ -239,34 +255,7 @@ namespace AltivaWebApp.Controllers
            
             }
         }
-        [HttpPost("Mayorizar")]
-        public ActionResult GuardarParametrosBusqueda()
-        {
-
-            try
-            {
-                SqlCommand cmd = new SqlCommand("EXEC pr_CO_Mayorizar");
-                if (AltivaData.Provider.SQL.exe(cmd, StringFactory.StringEmpresas))
-                {
-
-                    return Json(new { success = true });
-                }
-                else
-                {
-                    return Json(new { success = false });
-
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                AltivaLog.Log.Insertar(ex.ToString(), "Error");
-                return Json(new { success = false });
-
-            }
-        }
-
+     
 
         [HttpGet("GetAsientosWithReqs")]
         public IActionResult GetAsientosWithReqs()
@@ -384,17 +373,6 @@ namespace AltivaWebApp.Controllers
 
         }
 
-    }
-    public class parametrosAsientos
-    {
-        string codigo;
-        DateTime fechaDesde;
-        DateTime fechaHasta;
-        int IdPeriodoTrabajo;
-        int IdEstado;
-        
-
-    }
-    
+    }   
 
 }

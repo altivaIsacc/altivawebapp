@@ -147,18 +147,18 @@
 
     var periodoFiscalSeleccionado;
     function obtenerPeriodoFiscal() {
-        var nombrePeriodoFiscal = document.getElementById("LtPeriodosFiscal").value;      
-        periodoFiscalSeleccionado = null; 
+        var nombrePeriodoFiscal = document.getElementById("LtPeriodosFiscal").value;
+        periodoFiscalSeleccionado = null;
         periodosFiscales.forEach(function (item) {
             if (nombrePeriodoFiscal == item.Nombre) {
-                periodoFiscalSeleccionado = item;               
+                periodoFiscalSeleccionado = item;
             }
         });
-        
+
     }
     function llenaPeriodoTrabajo() {
         obtenerPeriodoFiscal();
-        var list = document.getElementById('LtPeriodoTrabajo');       
+        var list = document.getElementById('LtPeriodoTrabajo');
         if (periodoFiscalSeleccionado != null) {
             document.getElementById("LtPeriodoTrabajo").innerHTML = '';
             periodos.forEach(function (item) {
@@ -167,12 +167,12 @@
                 option.value = item.Nombre;
                 option.text = item.FechaInicio + ' | ' + item.FechaFinal;
                 list.appendChild(option);
-           
+
             }
 
         });
         }
-       
+
     }
 
     var periodoSeleccionado;
@@ -181,7 +181,7 @@
         periodoSeleccionado = null;
         periodos.forEach(function (item) {
             if (nombrePeriodo == item.Nombre) {
-                periodoSeleccionado = item;                
+                periodoSeleccionado = item;
             }
         });
     }
@@ -207,7 +207,7 @@
                 url: url,
                 data: { id: periodoSeleccionado.IdPeriodoTrabajo, idMoneda: monedaSeleccionada.Codigo},
             success: function (data) {
-                $('#tabla').html(data);         
+                $('#tabla').html(data);
                            },
             error: function (err, scnd) {
                 console.log(err.statusText);
@@ -217,23 +217,26 @@
 
         }
         document.getElementById('btVer').classList.remove("disabled");
-      
+
     }
     function Mayorizar() {
+        obtenerPeriodo();
+        obtenerMoneda();
+
+        if (validarModelo())
+        {
+
         document.getElementById('btVer').classList.add("disabled");
         document.getElementById('btMayorizar').classList.add("disabled");
-        obtenerPeriodo();
-        obtenerMoneda();       
-        
+
         var url = "@Url.Action("Mayorizar")";
-        if (validarModelo()) {
             $.ajax({type: "Post",
                 url: url,
                 success: function () {
                    document.getElementById('btVer').classList.add("disabled");
                     document.getElementById('btMayorizar').classList.add("disabled");
                     document.getElementById('btMayorizar').innerText = '@lb["Mayorizar"] (0)';
-                    
+
                     getBalancePeriodo();
                  },
             error: function (err, scnd) {
@@ -255,7 +258,7 @@
             estado = false;
 
         }
-        else {        
+        else {
             document.getElementById('periodoCorregir').style.display = 'none';
 
         }
