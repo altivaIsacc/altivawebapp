@@ -9,6 +9,7 @@ namespace AltivaWebApp.Repositories
 {
     public interface IMovimientoRepository
     {
+        TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimientoHasta(long idMovimientoHasta);
         IList<TbFaMovimiento> GetSaldoContacto(long idContacto);
         long GetUltimoMovimientoPagoId(long idDoc);
         TbFaMovimiento GetMovimientoById(long id);

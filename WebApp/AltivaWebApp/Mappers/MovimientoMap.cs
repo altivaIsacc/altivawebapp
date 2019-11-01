@@ -315,15 +315,22 @@ namespace AltivaWebApp.Mappers
             {
                 viewModel.Monto = domain.MontoBase;
                 viewModel.DisponibleBase = domain.DisponibleBase;
+                viewModel.DisponibleDolar = domain.DisponibleDolar;
+                viewModel.DisponibleEuro = domain.DisponibleEuro;
+
             }
             else if (viewModel.IdMoneda == 2)
             {
                 viewModel.Monto = domain.MontoDolar;
+                viewModel.DisponibleBase = domain.DisponibleBase;
                 viewModel.DisponibleDolar = domain.DisponibleDolar;
+                viewModel.DisponibleEuro = domain.DisponibleEuro;
             }
             else if (viewModel.IdMoneda == 3)
             {
                 viewModel.Monto = domain.MontoEuro;
+                viewModel.DisponibleBase = domain.DisponibleBase;
+                viewModel.DisponibleDolar = domain.DisponibleDolar;
                 viewModel.DisponibleEuro = domain.DisponibleEuro;
             }
             return viewModel;
