@@ -5,11 +5,12 @@
     var user = new TbSeUsuario();
     var iconoEstado = "";
 }
+@inject IStringLocalizer<SharedResources> Lb
 
 
 <div class="row">
     <div class="col-md-2">
-        <h3 data-translate="bodegas">Bodegas</h3>
+        <h3>@Lb["Bodegas"]</h3>
     </div>
     <div class="col-md-8" style="margin-left:1rem; padding-top:0.7rem">
         <p>
@@ -31,97 +32,97 @@ else
     <a class="btn btn-dark" href="@Url.Action("ListarBodegas", new { estado = "" })"><span data-translate="verActivas">Ver Activas</span></a>
 }
 
-    <div class="table-responsive">
+<div class="table-responsive">
 
 
-        <table class="table bodegas">
-            <thead>
+    <table class="table bodegas">
+        <thead>
+            <tr>
+                <th>
+                    <span data-translate="nombre">Nombre</span>
+                </th>
+                <th>
+                    <span data-translate="produccion">Produccion</span>
+                </th>
+                <th>
+                    <span data-translate="almacenamiento">Almacenamiento</span>
+                </th>
+                <th>
+                    <span data-translate="suministrosInternos">Suministros Internos</span>
+                </th>
+                <th>
+                    <span data-translate="consignacion">Consignacion</span>
+                </th>
+                <th>
+                    <span>@Lb["Estado"]</span>
+                </th>
+                <th>
+                    <span data-translate="fechaCreacion">Fecha creación</span>
+                </th>
+                <th>
+                    <span data-translate="usuarioEncargado">Usuario Encargado</span>
+                </th>
+                <th>
+                    <span data-translate="observaciones">Observaciones</span>
+                </th>
+                <th>
+                    <span data-translate="accion">Acción</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
                 <tr>
-                    <th>
-                        <span data-translate="nombre">Nombre</span>
-                    </th>
-                    <th>
-                        <span data-translate="produccion">Produccion</span>
-                    </th>
-                    <th>
-                        <span data-translate="almacenamiento">Almacenamiento</span>
-                    </th>
-                    <th>
-                        <span data-translate="suministrosInternos">Suministros Internos</span>
-                    </th>
-                    <th>
-                        <span data-translate="consignacion">Consignacion</span>
-                    </th>
-                    <th>
-                        <span data-translate="estado">Estado</span>
-                    </th>
-                    <th>
-                        <span data-translate="fechaCreacion">Fecha creación</span>
-                    </th>
-                    <th>
-                        <span data-translate="usuarioEncargado">Usuario Encargado</span>
-                    </th>
-                    <th>
-                        <span data-translate="observaciones">Observaciones</span>
-                    </th>
-                    <th>
-                        <span data-translate="accion">Acción</span>
-                    </th>
+                    <td>
+                        <a asp-action="EditarBodega" asp-route-id="@item.Id">@item.Nombre</a>
+
+                    </td>
+                    <td>
+                        <input class="form-check-input" type="checkbox" disabled checked="@item.Produccion">
+                    </td>
+                    <td>
+                        <input class="form-check-input" type="checkbox" disabled checked="@item.Almacenamiento">
+                    </td>
+                    <td>
+                        <input class="form-check-input" type="checkbox" disabled checked="@item.SuministrosInternos">
+                    </td>
+                    <td>
+                        <input class="form-check-input" type="checkbox" disabled checked="@item.Consignacion">
+                    </td>
+                    <td>
+                        @if (item.Estado == true)
+                        {
+                            <span data-translate="activa">Activa</span>
+                        }
+                        else
+                        {
+                            <span data-translate="inactiva">Inactiva</span>
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FechaCreacion)
+                    </td>
+                    <td>
+                        @{
+                            user = usuarios.FirstOrDefault(u => u.Id == item.UsuarioEncargado);
+                        }
+                        <a href="@Url.Action("CuentaUsuario", "ManejoUsuarios", new { codigo = user.Codigo })">@user.Nombre</a>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Observaciones)
+                    </td>
+                    <td>
+
+                        <a asp-action="EditarBodega" asp-route-id="@item.Id"><span><i class="fas fa-edit"></i></span></a>
+                        <a asp-action="CambiarEstado" asp-route-id="@item.Id"><span><i class="fas @iconoEstado"></i></span></a>
+
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>
-                            <a asp-action="EditarBodega" asp-route-id="@item.Id">@item.Nombre</a>
-
-                        </td>
-                        <td>
-                            <input class="form-check-input" type="checkbox" disabled checked="@item.Produccion">
-                        </td>
-                        <td>
-                            <input class="form-check-input" type="checkbox" disabled checked="@item.Almacenamiento">
-                        </td>
-                        <td>
-                            <input class="form-check-input" type="checkbox" disabled checked="@item.SuministrosInternos">
-                        </td>
-                        <td>
-                            <input class="form-check-input" type="checkbox" disabled checked="@item.Consignacion">
-                        </td>
-                        <td>
-                            @if (item.Estado == true)
-                            {
-                                <span data-translate="activa">Activa</span>
-                            }
-                            else
-                            {
-                                <span data-translate="inactiva">Inactiva</span>
-                            }
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.FechaCreacion)
-                        </td>
-                        <td>
-                            @{
-                                user = usuarios.FirstOrDefault(u => u.Id == item.UsuarioEncargado);
-                            }
-                            <a href="@Url.Action("CuentaUsuario", "ManejoUsuarios", new { codigo = user.Codigo })">@user.Nombre</a>
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Observaciones)
-                        </td>
-                        <td>
-
-                            <a asp-action="EditarBodega" asp-route-id="@item.Id"><span><i class="fas fa-edit"></i></span></a>
-                            <a asp-action="CambiarEstado" asp-route-id="@item.Id"><span><i class="fas @iconoEstado"></i></span></a>
-
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+            }
+        </tbody>
+    </table>
+</div>
 
 <script>
 
