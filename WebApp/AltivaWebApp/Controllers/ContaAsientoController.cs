@@ -103,6 +103,11 @@ namespace AltivaWebApp.Controllers
             ViewBag.Catalogo = bd.CatalogoContable.Where(p => p.Movimiento == true);
             ViewBag.PeriodosFiscales = bd.PeriodoFiscal.Where(p => !p.Estado.Equals("CREADO"));
             ViewBag.SinMayorizar = bd.Asiento.Where(p => p.Estado == 1).Count();
+            cargarMoneda();
+            return View();
+        }
+        public void cargarMoneda() {
+
             Moneda v = bd.Moneda.Find(1);
             ViewBag.SimboloBase = v.Simbolo;
 
@@ -113,7 +118,6 @@ namespace AltivaWebApp.Controllers
             v = bd.Moneda.Find(3);
             ViewBag.TipoCambioEuro = v.ValorCompra;
             ViewBag.SimboloEuro = v.Simbolo;
-            return View();
         }
         [HttpGet("GetBalaceIdPeriodo")]
         public IActionResult GetBalaceIdPeriodo(long _IdPeriodo)
@@ -135,7 +139,8 @@ namespace AltivaWebApp.Controllers
         public IActionResult _ListAsiento(IList<Asiento> asientos)
         {
             try
-            {      
+            {
+                cargarMoneda();
                 return PartialView("_ListAsiento",asientos);
             }
             catch (Exception ex)
