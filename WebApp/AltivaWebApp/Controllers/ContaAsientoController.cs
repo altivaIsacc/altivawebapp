@@ -267,8 +267,9 @@ namespace AltivaWebApp.Controllers
         {
             try
             {
-                var asiento = bd.Asiento.ToList().OrderByDescending(p=>p.IdAsientoContable);
 
+
+                var asiento = bd.Asiento.ToList().OrderByDescending(p=>p.IdAsientoContable);
                 return Ok(asiento);
             }
             catch (Exception ex)

@@ -6,7 +6,6 @@ using AltivaWebApp.ViewModels;
 using AltivaWebApp.Helpers;
 
 namespace AltivaWebApp.Context
-
 {
     public partial class EmpresasContext : DbContext
     {
@@ -32,7 +31,6 @@ namespace AltivaWebApp.Context
 
         public virtual DbSet<TbBaFlujo> TbBaFlujo { get; set; }
         public virtual DbSet<TbBaFlujoCategoria> TbBaFlujoCategoria { get; set; }
-        public virtual DbSet<TbBaFlujo> TbBaFlujo { get; set; }
         public virtual DbSet<TbCeCanton> TbCeCanton { get; set; }
         public virtual DbSet<TbCeCodigosReferencia> TbCeCodigosReferencia { get; set; }
         public virtual DbSet<TbCeCofiguracion> TbCeCofiguracion { get; set; }
@@ -266,30 +264,30 @@ namespace AltivaWebApp.Context
                     .HasForeignKey(d => d.IdTraslado)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_PR_TrasladoInventario_tb_PR_Traslado");
-         
+            });
 
             modelBuilder.Entity<ListarInventarioViewModel>(entity =>
-            {
-                entity.HasKey(e => e.IdInventario);
+                {
+                    entity.HasKey(e => e.IdInventario);
 
-                entity.ToTable("vs_Pr_ListarIventario");
+                    entity.ToTable("vs_Pr_ListarIventario");
 
-                entity.Property(e => e.Codigo).HasColumnName("Codigo");
-                entity.Property(e => e.Descripcion).HasColumnName("Descripcion");
-                entity.Property(e => e.CantidadUnidad).HasColumnName("CantidadUnidad");
-                entity.Property(e => e.ExistenciaGeneral).HasColumnName("ExistenciaGeneral");
-                entity.Property(e => e.Inactiva).HasColumnName("Inactiva");
-                entity.Property(e => e.IdSubFamilia).HasColumnName("IdSubFamilia");
-                entity.Property(e => e.Abreviatura).HasColumnName("Abreviatura");
-                entity.Property(e => e.PrecioVentaFinal).HasColumnName("PrecioVentaFinal");
-                entity.Property(e => e.Simbolo).HasColumnName("Simbolo");
-                entity.Property(e => e.ExistenciaMinima).HasColumnName("ExistenciaMinima");
-                entity.Property(e => e.ExistenciaMaxima).HasColumnName("ExistenciaMaxima");
-                entity.Property(e => e.ExistenciaMedia).HasColumnName("ExistenciaMedia");
-                entity.Property(e => e.IdBodega).HasColumnName("IdBodega");
-                entity.Property(e => e.IdFamilia).HasColumnName("IdFamilia");
+                    entity.Property(e => e.Codigo).HasColumnName("Codigo");
+                    entity.Property(e => e.Descripcion).HasColumnName("Descripcion");
+                    entity.Property(e => e.CantidadUnidad).HasColumnName("CantidadUnidad");
+                    entity.Property(e => e.ExistenciaGeneral).HasColumnName("ExistenciaGeneral");
+                    entity.Property(e => e.Inactiva).HasColumnName("Inactiva");
+                    entity.Property(e => e.IdSubFamilia).HasColumnName("IdSubFamilia");
+                    entity.Property(e => e.Abreviatura).HasColumnName("Abreviatura");
+                    entity.Property(e => e.PrecioVentaFinal).HasColumnName("PrecioVentaFinal");
+                    entity.Property(e => e.Simbolo).HasColumnName("Simbolo");
+                    entity.Property(e => e.ExistenciaMinima).HasColumnName("ExistenciaMinima");
+                    entity.Property(e => e.ExistenciaMaxima).HasColumnName("ExistenciaMaxima");
+                    entity.Property(e => e.ExistenciaMedia).HasColumnName("ExistenciaMedia");
+                    entity.Property(e => e.IdBodega).HasColumnName("IdBodega");
+                    entity.Property(e => e.IdFamilia).HasColumnName("IdFamilia");
 
-            });
+                });
 
 
             modelBuilder.Entity<CompraAutomaticoViewModel>(entity =>
@@ -1207,7 +1205,7 @@ namespace AltivaWebApp.Context
                     .IsRequired()
                     .HasDefaultValueSql("((1))");
             });
-           
+
 
             modelBuilder.Entity<TbCpComprasDetalleServicio>(entity =>
             {
@@ -2390,9 +2388,9 @@ namespace AltivaWebApp.Context
             {
                 entity.ToTable("tb_PR_Bodega");
 
-               entity.Property(e => e.Almacenamiento)
-                    .IsRequired()
-                    .HasDefaultValueSql("((1))");
+                entity.Property(e => e.Almacenamiento)
+                 .IsRequired()
+                 .HasDefaultValueSql("((1))");
 
                 entity.Property(e => e.Consignacion)
                     .IsRequired()
@@ -3021,7 +3019,7 @@ namespace AltivaWebApp.Context
                     .HasConstraintName("FK_tb_PR_TomaDetalle_tb_PR_Toma");
             });
 
-          
+
             modelBuilder.Entity<TbPrUnidadMedida>(entity =>
             {
                 entity.ToTable("tb_PR_UnidadMedida");
@@ -3862,4 +3860,5 @@ namespace AltivaWebApp.Context
 
         }
     }
+
 }
