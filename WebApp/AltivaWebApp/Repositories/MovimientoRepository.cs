@@ -41,6 +41,16 @@ namespace AltivaWebApp.Repositories
                     });
                 }
 
+                context.TbFaMovimientoDetalle.RemoveRange(UpdateMovDetalle(mov));
+                context.SaveChanges();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        //public IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc)
         public IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc, int tipoDoc)
         {
 
@@ -238,7 +248,10 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbFaMovimientoDetalle.FirstOrDefault(d => d.IdMovimientoHasta == idMovimiento);
         }
-
+        public TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimientoHasta(long idMovimientoHasta)
+        {
+            return context.TbFaMovimientoDetalle.FirstOrDefault(d => d.IdMovimientoHasta == idMovimientoHasta);
+        }
         public IList<TbFaMovimientoDetalle> GetMovimientosDetalleByIdMovimiento(long idMovimiento)
         {
             return context.TbFaMovimientoDetalle.Where(m => m.IdMovimientoDesde == idMovimiento).ToList();

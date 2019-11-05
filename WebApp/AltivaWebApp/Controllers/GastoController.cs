@@ -40,7 +40,26 @@ namespace AltivaWebApp.Controllers
             this.haciendaService = haciendaService;
             this.tomaService = tomaService;
         }
-       [HttpGet]
+        [HttpPost("_ListarGastos")]
+        public IActionResult _ListarGastos(FiltroFechaViewModel filtro)
+        {
+            try
+            {
+                ViewData["monedas"] = monedaService.GetAll();
+                if (filtro.Filtrando)
+                    return PartialView(service.GetAllGastos().Where(c => c.FechaCreacion.Date >= filtro.Desde.Date && c.FechaCreacion.Date <= filtro.Hasta.Date).ToList());
+                else
+                    return PartialView(service.GetAllGastos());
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+
+        }
+        [HttpGet]
        public ActionResult ListarGastos()
         {
             return View();

@@ -1,0 +1,122 @@
+﻿@model IList<TbPrCompra>
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    var monedas = ViewData["monedas"] as IList<TbSeMoneda>;
+}
+
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12 table-responsive">
+        <table class="table table-bordered" id="tblGastos">
+            <thead>
+                <tr>
+                    <th>@Lb["Número"]</th>
+                    <th>@Lb["Tipo"]</th>
+                    <th>@Lb["Fecha"]</th>
+                    <th>@Lb["Proveedor"]</th>
+                    <th>@Lb["Moneda"]</th>
+                    <th>@Lb["Total"]</th>
+                    <th hidden>@Lb["Anulado"]</th>
+                    <th>@Lb["Acción"]</th>
+                </tr>
+            </thead>
+            <tbody>
+             @foreach (var item in Model)
+              {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.TipoDocumento</td>
+                    <td>@item.FechaCreacion</td>
+                    @{
+                        var proveedor = item.IdContactoNavigation.Persona ? item.IdContactoNavigation.Nombre + " " + item.IdContactoNavigation.Apellidos : item.IdContactoNavigation.NombreComercial;
+                    }
+                    <td>@proveedor</td>
+                    <td>@monedas.FirstOrDefault(m => m.Codigo == item.IdMoneda).Nombre</td>
+                    @{
+                        var total = item.IdMoneda == 1 ? item.TotalBase : item.IdMoneda == 2 ? item.TotalDolar : item.TotalEuro;
+                    }
+                    <td style="text-align:right" class="colon">
+
+                        @{ CultureInfo us = CultureInfo.CreateSpecificCulture("en-US"); }
+                        <p>@monedas.FirstOrDefault(m => m.Codigo == item.IdMoneda).Simbolo  @total.ToString("0,0.00", us)</p>
+
+                    </td>
+
+                    <td hidden>@item.Anulado</td>
+                    <td><a href="@Url.Action("EditarGasto", new { id=item.Id })" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a></td>
+                </tr>
+              }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        hasta = new Date().toLocaleString();
+        desde = new Date().toLocaleString();
+        inicializarTabla();
+       tblG.columns(6).search('false').draw(); 
+
+    });
+  function inicializarTabla() {
+    $('#tblGastos').DataTable().destroy();
+        tblG = $('#tblGastos').DataTable({
+            "info": false,
+             "bSort": false,
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+                      
+        });
+          $(".dataTables_searching").hide();
+    }
+        /////////////////////filtros//////////////////
+    $("#filtroBuscarNum").on("keyup", function () {
+        tblG
+            .columns(0)
+            .search(this.value)
+            .draw();
+    });
+        $("#filtroBuscarPro").on("keyup", function () {
+        tblG
+            .columns(3)
+            .search(this.value)
+            .draw();
+    });
+         $('#estado').change(function () {
+
+        if (!$(this).prop('checked')) {
+            tblG.columns(6).search('false').draw(); 
+        }
+        else {
+            tblG.columns(6).search('true').draw(); 
+        }
+
+     });
+
+</script>

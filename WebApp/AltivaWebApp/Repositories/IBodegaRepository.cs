@@ -8,6 +8,7 @@ namespace AltivaWebApp.Repositories
 {
     public interface IBodegaRepository
     {
+        IList<TbPrInventarioBodega> GetAllInventarioBodega();
         TbPrBodega Save(TbPrBodega domain);
         TbPrBodega Update(TbPrBodega domain);
         bool Delete(TbPrBodega domain);

@@ -8,6 +8,7 @@ namespace AltivaWebApp.Services
 {
     public interface IAjusteService
     {
+        IList<TbPrAjuste> GetAllAjustesByIdInventario(string cod);
         TbPrAjuste Save(TbPrAjuste domain);
         TbPrAjuste Update(TbPrAjuste domain);
         bool Delete(TbPrAjuste domain);

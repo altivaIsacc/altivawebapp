@@ -1,4 +1,4 @@
-﻿@model IList<TbPrToma>
+﻿@model IList<TbPrRequisicion>
 @inject IStringLocalizer<SharedResources> Lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
@@ -8,20 +8,18 @@
     }
 }
 @{
-    var usuarios = ViewData["usuarios"] as IList<TbSeUsuario>;
-    var bodegas = ViewData["bodegas"] as IList<TbPrBodega>;
-
-
+    var monedas = ViewData["monedas"] as IList<TbSeMoneda>;
+    var departamentos =  ViewData["departamentos"] as IList<TbPrDepartamento>;
 }
 <div class="row">
     <div class="col-md-8 col-sm-8 col-xs-12 table-responsive">
-        <table class="table table-bordered" id="tblToma">
+        <table class="table table-bordered" id="tblReq">
             <thead>
                 <tr>
-                    <th>@Lb["Nº"]</th>
+                    <th hidden>@Lb["id"]</th>
                     <th>@Lb["Fecha"]</th>
-                    <th>@Lb["Usuario"]</th>
-                    <th>@Lb["Bodega"]</th>
+                    <th>@Lb["Departamento"]</th>
+                    <th>@Lb["Descripción"]</th>
                     <th hidden>@Lb["Anulado"]</th>
                     <th> @Lb["Acción"]</th>
                 </tr>
@@ -29,33 +27,32 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr>
-                        <td>@item.Id</td>
-                        <td>@item.FechaToma</td>
-                        <td>@usuarios.FirstOrDefault(u => u.Id == item.IdUsuarioCreacion).Nombre</td>
-                        <td>@bodegas.FirstOrDefault(b => b.Id == item.IdBodega).Nombre</td>
-                        <td hidden>@item.Anulado</td>
-                        <td><a href="@Url.Action("EditarToma", new { id=item.Id })" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a></td>
-                    </tr>
+                <tr>
+                    <td hidden>@item.Id</td>
+                    <td>@item.Fecha</td>
+                    <td>@departamentos.FirstOrDefault(d => d.Id == item.IdDepartamento).Descripcion</td>
+                    <td>@item.Descripcion</td>
+                    <td hidden>@item.Anulado</td>
+                    <td><a href="@Url.Action("EditarRequisicion", new { id=item.Id })" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a></td>
+                </tr>
                 }
             </tbody>
         </table>
     </div>
 </div>
 
-
 <script>
- $(document).ready(function(){
+    $(document).ready(function(){
         hasta = new Date().toLocaleString();
         desde = new Date().toLocaleString();
         inicializarTabla();
-        tblToma.columns(4).search('false').draw(); 
+        tblCompras.columns(4).search('false').draw(); 
     });
      function inicializarTabla() {
 
-        $('#tblToma').DataTable().destroy();
+        $('#tblReq').DataTable().destroy();
 
-        tblToma = $('#tblToma').DataTable({
+        tblCompras = $('#tblReq').DataTable({
             "info": false,         
             "order": [[0, "desc"]],
             dom: 'Bfrtip',
@@ -97,13 +94,26 @@
     }
          ///////////////////////////////////////////////////////filtros//////////////////////////////
 
+
+    $("#filtroBuscarDescripcion").on("keyup", function () {
+        tblCompras
+            .columns(3)
+            .search(this.value)
+            .draw();
+    });
+    $("#filtroBuscarDepartamento").on("keyup", function () {
+        tblCompras
+            .columns(2)
+            .search(this.value)
+            .draw();
+    });
      $('#estado').change(function () {
 
         if (!$(this).prop('checked')) {
-            tblToma.columns(4).search('false').draw(); 
+            tblCompras.columns(4).search('false').draw(); 
         }
         else {
-            tblToma.columns(4).search('true').draw(); 
+            tblCompras.columns(4).search('true').draw(); 
         }
 
      });

@@ -21,9 +21,10 @@ namespace AltivaWebApp.Controllers
         private readonly IBodegaService bodegaService;
         private readonly IKardexMap kardexMap;
         private readonly ITomaService tomaService;
+        private readonly IMonedaService monedaService;
         EmpresasContext bd;
 
-        public AjusteInventarioController(EmpresasContext _bd, ITomaService tomaService, IKardexMap kardexMap, IBodegaService bodegaService, IAjusteService service, IAjusteMap map, IUserService userService)
+        public AjusteInventarioController(EmpresasContext _bd, ITomaService tomaService, IKardexMap kardexMap, IBodegaService bodegaService, IAjusteService service, IAjusteMap map, IUserService userService, IMonedaService monedaService)
         {
             bd = _bd;
             this.service = service;
@@ -32,8 +33,33 @@ namespace AltivaWebApp.Controllers
             this.bodegaService = bodegaService;
             this.kardexMap = kardexMap;
             this.tomaService = tomaService;
+            this.monedaService = monedaService;
         }
+        [HttpPost("_ListarAjustes")]
+        public IActionResult _ListarAjustes(FiltroFechaViewModel filtro, string cod)
+        {
+            try
+            {
 
+                ViewData["moneda"] = monedaService.GetAll();
+
+                if (filtro.Filtrando && cod != null)
+                    return PartialView(service.GetAllAjustesByIdInventario(cod).Where(c => c.FechaDocumento.Date >= filtro.Desde.Date && c.FechaDocumento.Date <= filtro.Hasta.Date).ToList());
+                if (!filtro.Filtrando && cod != null)
+                    return PartialView(service.GetAllAjustesByIdInventario(cod).ToList());
+                if (filtro.Filtrando && cod == null)
+                    return PartialView(service.GetAllAjustes().Where(c => c.FechaDocumento.Date >= filtro.Desde.Date && c.FechaDocumento.Date <= filtro.Hasta.Date).ToList());
+                else
+                    return PartialView(service.GetAllAjustes().ToList());
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+
+        }
         [HttpGet("Lista-Ajustes")]
         public ActionResult ListarAjustes()
         {

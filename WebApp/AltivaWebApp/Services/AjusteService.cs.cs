@@ -15,7 +15,10 @@ namespace AltivaWebApp.Services
         {
             this.repository = repository;
         }
-
+        public IList<TbPrAjuste> GetAllAjustesByIdInventario(string cod)
+        {
+            return repository.GetAllAjustesByIdInventario(cod);
+        }
         public TbPrAjuste Save(TbPrAjuste domain)
         {
             return repository.Save(domain);

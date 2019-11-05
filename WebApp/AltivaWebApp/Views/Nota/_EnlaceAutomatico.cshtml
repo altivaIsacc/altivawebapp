@@ -56,7 +56,9 @@
     var saldoAplicable = 0;
 
     $(document).ready(function () {
-        $("#disponible").val($("#totalDisponible").inputmask('unmaskedvalue'));
+        console.log($("#totalDisponible").text());
+        $("#disponible").val($("#totalDisponible").text());
+        console.log($("#disponible").inputmask('unmaskedvalue'));
         $("#sumaAplicado").val(0.00);
 
         saldoAplicable = getSaldoAplicable();
@@ -77,14 +79,31 @@
 
         for (var i = 0; i < data.length; i++) {
             contadorFila++;
+            aplicado = calcularLinea(recuperarSaldo(data[i]));
             var body = '<tr class="filasSinAplicar" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + recuperarTipoDocumento(data[i].idTipoDocumento) + '</td>'
                 + '<td style="padding-top:2rem;"><span>' + data[i].idDocumento + '</span></td>'
                 + '<td ><span >' + recuperarFecha(data[i].fechaDocumento) + '</span></td>'
                 + '<td ><span id="pendiente' + i + '" class="currency">' + recuperarSaldo(data[i]) + '</span></td>'
                 + '<td ><input id="aplicado' + i + '" onkeyup="cambiarAplicado(' + i + ')"  class="form-control currency" value="' + aplicado + '"/></td></tr>';
             $('.lineaSinAplicar').before(body);
+            guardarAplicado(docSinAplicar[i], aplicado);
 
         }
+           var simbolo = monedas[0].simbolo;
+        if (parseInt($('#tipoMoneda').val()) === 2)
+            simbolo = monedas[1].simbolo;
+        else if (parseInt($('#tipoMoneda').val()) === 3)
+            simbolo = monedas[2].simbolo;
+        $(".currency").inputmask('currency', {
+            prefix: simbolo,
+            rightAlign: true
+        });
+
+        $(".moneda").inputmask('currency', {
+           prefix: '',
+           rightAlign: true,
+           min: 0
+        });
     }
     
     function calcularLinea(saldo) {
@@ -116,8 +135,6 @@
         if (total < 0) {
           $('#saldoValid').prop('hidden', false);
         } else {           
-            lineasAplicado = JSON.parse(JSON.stringify(lineasEnlace));
-
             Guardar();                      
             $('#modalTipoJustificante').modal('hide');
         }
@@ -136,7 +153,6 @@
             dataType: "json",
             url: url,
             success: function (data) {
-
                 docSinAplicar = data;
                 cargarTablaDocSinAplicar(data);
             },
@@ -146,7 +162,7 @@
         });
     }
 
-    function calcularLinea(pos) {
+   /* function calcularLinea(pos) {
         var moneda = parseInt($("#tipoMoneda").val());
         var saldo = lineasEnlace[pos].saldoBase;
         if(moneda == 2)
@@ -172,17 +188,39 @@
         } else {
             return 0;
         }
+    }*/
+    function cambiarAplicado(pos) {
+            var monto = parseFloat($("#aplicado" + pos).inputmask('unmaskedvalue'));
+            var disponible = parseFloat($("#disponible").inputmask('unmaskedvalue'));
+            var totalApli = parseFloat($("#sumaAplicado").inputmask('unmaskedvalue'));
+            var montoAnterior = recuperarAplicado(docSinAplicar[pos]);
+            var saldo = recuperarSaldo(docSinAplicar[pos]);
+        if (monto <= saldo) {
+            if (monto >= montoAnterior)
+                $("#disponible").val(disponible - (monto - montoAnterior));
+            if (monto <= montoAnterior)
+                $("#disponible").val(disponible + (montoAnterior - monto));
+
+            $("#sumaAplicado").val(totalApli - montoAnterior);
+            var nuevoApli = parseFloat($("#sumaAplicado").inputmask('unmaskedvalue'));
+            $("#sumaAplicado").val(nuevoApli + monto);
+            guardarAplicado(docSinAplicar[pos], monto);
+        } 
+        
+
+           
+            
     }
 
     function crearModeloEnlace() {
         var array = [];
-        for (var i = 0; i < movimientosDetalle.length; i++) {
-            if (movimientosDetalle[i].tipo == 1) {
+        for (var i = 0; i < docSinAplicar.length; i++) {
+            if (recuperarAplicado(docSinAplicar[i]) != 0) {
                 var model = {
-                    num: movimientosDetalle[i].idDocumento,
+                    num: docSinAplicar[i].idDocumento,
                     IdMovimientoDesde: parseInt($("#IdMovimiento").val()),
-                    IdMovimientoHasta: movimientosDetalle[i].idMovimiento,
-                    Aplicado: parseFloat($("#aplicadoFinal" + i).inputmask('unmaskedvalue')).toString().replace(".", ","),
+                    IdMovimientoHasta: docSinAplicar[i].idMovimiento,
+                    Aplicado: parseFloat(recuperarAplicado(docSinAplicar[i])).toString().replace(".", ","),
                     CompraDolarTC: parseFloat($("#dolar").inputmask('unmaskedvalue')),
                     VentaDolarTC: parseFloat($("#dolarVenta").inputmask('unmaskedvalue')),
                     CompraEuroTC: parseFloat($("#euro").inputmask('unmaskedvalue')),

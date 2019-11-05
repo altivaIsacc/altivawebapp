@@ -32,7 +32,32 @@ namespace AltivaWebApp.Controllers
             this.inventarioService = inventarioService;
             this.monedaService = monedaService;
         }
+        [HttpPost("_ListarOrdenes")]
+        public IActionResult _ListarOrdenes(FiltroFechaViewModel filtro, string cod)
+       {
+            try
+           {
+                ViewData["monedas"] = monedaService.GetAll();
+                ViewData["usuarios"] = contactoService.GetAllProveedores();
+                if (filtro.Filtrando && cod != null)
+                    return PartialView(service.GetAllOrdenesByIdInventario(cod).Where(c => c.Fecha.Date >= filtro.Desde.Date && c.Fecha.Date <= filtro.Hasta.Date).ToList());
+                if (!filtro.Filtrando && cod != null)
+                    return PartialView(service.GetAllOrdenesByIdInventario(cod).ToList());
+                if (filtro.Filtrando && cod == null)
+                    return PartialView(service.GetAllOrdenes().Where(c => c.Fecha.Date >= filtro.Desde.Date && c.Fecha.Date <= filtro.Hasta.Date).ToList());
 
+                else
+                    return PartialView(service.GetAllOrdenes().ToList());
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+
+        }
         [Route("Listar-Ordenes")]
         public ActionResult ListarOrdenes()
         {
@@ -53,7 +78,21 @@ namespace AltivaWebApp.Controllers
             }
 
         }
+        [HttpGet("GetPrueba")]
+        public IActionResult GetPrueba(FiltroFechaViewModel filtro)
+        {
+            try
+            {
+                var prov = (service.GetAllOrdenes().Where(c => c.Fecha.Date >= filtro.Desde.Date && c.Fecha.Date <= filtro.Hasta.Date));
+                return Ok(prov);
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return BadRequest();
+            }
 
+        }
         [HttpGet("GenerarCompraAutomatica/{idProveedor}")]
         public IActionResult GenerarCompraAutomatica(int idProveedor)
         {

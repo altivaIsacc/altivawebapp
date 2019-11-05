@@ -127,7 +127,7 @@ namespace AltivaWebApp
 
             services.Configure<IISServerOptions>(options =>
             {
-                options.AutomaticAuthentication = false;
+                options.AutomaticAuthentication = true;
             });
 
             services.AddHttpContextAccessor();

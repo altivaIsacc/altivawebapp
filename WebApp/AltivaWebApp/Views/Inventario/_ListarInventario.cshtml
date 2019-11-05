@@ -1,0 +1,151 @@
+﻿@model IList<ListarInventarioViewModel>
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+
+
+}
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12 table-responsive">
+            <table class="table table-bordered" id="tblInventario">
+                <thead>
+                    <tr>
+                        <th hidden>@Lb["Id"]</th>
+                        <th>@Lb["Codigo"]</th>
+                        <th>@Lb["Descripción"]</th>
+                        <th>@Lb["Present"]</th>
+                        <th>@Lb["PrecioUnit"]</th>
+                        <th> @Lb["Exist"]</th>
+                        <th>@Lb["Min"]</th>
+                        <th>@Lb["Med"]</th>
+                        <th>@Lb["Max"]</th>
+                        <th>@Lb["Estado"]</th>
+                        <th>@Lb["Acción"]</th>
+                        <th hidden >@Lb["IdFamilia"]</th>
+                        <th hidden  >@Lb["subFamilia"]</th>
+                        <th hidden >@Lb["Bodega"]</th>
+                        <th hidden >@Lb["Inactiva"]</th>
+
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                     @foreach (var item in Model)
+                    {
+                    <tr>
+                        <td hidden>@item.IdInventario</td>
+                        <td>@item.Codigo</td>
+                        <td>@item.Descripcion</td>
+                        <td>@item.CantidadUnidad  @item.Abreviatura</td>
+                        <td> @item.Simbolo  @item.PrecioVentaFinal</td>
+                        <td>@item.ExistenciaGeneral</td>
+                        <td>@item.ExistenciaMinima</td>
+                        <td>@item.ExistenciaMedia</td>
+                        <td>@item.ExistenciaMaxima</td>
+                        @{ var estado = @Lb["Activo"];
+                            var inactivo = 1;
+                            var icono = "fas fa-trash";
+                            if (item.Inactiva)
+                            {
+                                estado = @Lb["Inactivo"];
+                                inactivo = 2;
+                                icono = "fas fa-trash-restore";
+                            }
+                        }
+                        <td>@estado</td>
+                        <td><a href="@Url.Action("EditarInventario", new { id=item.IdInventario })" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a><a onclick="cambiarEstadoInventarioLocal(@item.IdInventario, @inactivo)" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="@icono"></i></a></td>
+                        <td hidden >@item.IdFamilia</td>
+                        <td hidden >@item.IdSubFamilia</td>
+                        <td hidden >@item.IdBodega</td>
+                        <td hidden >@item.Inactiva</td>
+
+                        
+
+
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+<script>
+    $(document).ready(function () {
+        hasta = new Date().toLocaleString();
+        desde = new Date().toLocaleString();
+        inicializarTabla();
+         if ($("#filtroBuscar").val() != "")
+            tblIV.columns(1).search($("#filtroBuscar").val()).draw();
+          if ($("#filtroBuscarDescripcion").val() != "")
+            tblIV.columns(2).search($("#filtroBuscarDescripcion").val()).draw();
+         if ($("#filtroFamilia").val() != 0)
+            tblIV.columns(11).search($("#filtroFamilia").val()).draw();
+         if ($("#filtroSubFamilia").val() != 0)
+            tblIV.columns(12).search($("#filtroSubFamilia").val()).draw();
+         if ($("#filtroBodega").find('option:selected').text() != "Todas")
+            tblIV.columns(13).search($("#filtroBodega").val()).draw();
+         if ($("#btnActivo").is(':hidden'))
+            tblIV.columns(14).search('False').draw();
+          if ($("#btnInactivo").is(':hidden'))
+            tblIV.columns(14).search('True').draw();
+    });
+       
+    
+     function inicializarTabla() {
+        $('#tblInventario').DataTable().destroy();
+        tblIV = $('#tblInventario').DataTable({
+            "info": false,
+            "order": [[10, "desc"]],
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+           
+        });
+        $(".dataTables_searching").hide();
+    }
+        ////////////helpers////////////////
+
+
+    ////////////////////filtros////////////////////////////
+    $("#filtroBuscarDescripcion").on("keyup", function () {
+
+        tblIV
+            .columns(2)
+            .search(this.value)
+            .draw();
+    });
+
+    $("#filtroBuscar").on("keyup", function () {
+
+          tblIV
+            .columns(1)
+            .search(this.value)
+            .draw();
+    });
+
+
+</script>

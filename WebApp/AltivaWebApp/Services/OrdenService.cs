@@ -14,6 +14,10 @@ namespace AltivaWebApp.Services
         {
             return repository.GetAllProveedores();
         }
+        public IList<TbPrOrden> GetAllOrdenesByIdInventario(string cod)
+        {
+            return repository.GetAllOrdenesByIdInventario(cod);
+        }
         public OrdenService(IOrdenRepository repository)
         {
             this.repository = repository;

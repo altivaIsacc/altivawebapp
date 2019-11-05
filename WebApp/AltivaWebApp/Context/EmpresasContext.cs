@@ -23,6 +23,8 @@ namespace AltivaWebApp.Context
 
         //no autogenerado / no borrar
         public virtual DbSet<CompraAutomaticoViewModel> CompraAutomatico { get; set; }
+        public virtual DbSet<ListarInventarioViewModel> ListarInventario { get; set; }
+
         public virtual DbSet<DocumentosContactoViewModel> DocumentosContacto { get; set; }
 
         public virtual DbSet<TbCrContactoVisita> TbCrContactoVisita { get; set; }
@@ -264,6 +266,29 @@ namespace AltivaWebApp.Context
                     .HasForeignKey(d => d.IdTraslado)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tb_PR_TrasladoInventario_tb_PR_Traslado");
+         
+
+            modelBuilder.Entity<ListarInventarioViewModel>(entity =>
+            {
+                entity.HasKey(e => e.IdInventario);
+
+                entity.ToTable("vs_Pr_ListarIventario");
+
+                entity.Property(e => e.Codigo).HasColumnName("Codigo");
+                entity.Property(e => e.Descripcion).HasColumnName("Descripcion");
+                entity.Property(e => e.CantidadUnidad).HasColumnName("CantidadUnidad");
+                entity.Property(e => e.ExistenciaGeneral).HasColumnName("ExistenciaGeneral");
+                entity.Property(e => e.Inactiva).HasColumnName("Inactiva");
+                entity.Property(e => e.IdSubFamilia).HasColumnName("IdSubFamilia");
+                entity.Property(e => e.Abreviatura).HasColumnName("Abreviatura");
+                entity.Property(e => e.PrecioVentaFinal).HasColumnName("PrecioVentaFinal");
+                entity.Property(e => e.Simbolo).HasColumnName("Simbolo");
+                entity.Property(e => e.ExistenciaMinima).HasColumnName("ExistenciaMinima");
+                entity.Property(e => e.ExistenciaMaxima).HasColumnName("ExistenciaMaxima");
+                entity.Property(e => e.ExistenciaMedia).HasColumnName("ExistenciaMedia");
+                entity.Property(e => e.IdBodega).HasColumnName("IdBodega");
+                entity.Property(e => e.IdFamilia).HasColumnName("IdFamilia");
+
             });
 
 

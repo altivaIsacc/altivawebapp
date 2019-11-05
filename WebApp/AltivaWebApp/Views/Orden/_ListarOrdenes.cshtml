@@ -1,0 +1,109 @@
+﻿@model IList<TbPrOrden>
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    var monedas = ViewData["monedas"] as IList<TbSeMoneda>;
+    var contactos = ViewData["contactos"] as IList<TbCrContacto>;
+}
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12 table-responsive">
+            <table class="table table-bordered" id="tblOrdenes">
+                <thead>
+                    <tr>
+                        <th>@Lb["Nº"]</th>
+                        <th>@Lb["Fecha"]</th>
+                        <th>@Lb["Proveedor"]</th>
+                        <th>@Lb["Moneda"]</th>
+                        <th> @Lb["Total"]</th>
+                        <th>@Lb["Anulada"]</th>
+                        <th>@Lb["accion"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Fecha</td>
+                        @{
+                            var proveedor = item.IdProveedorNavigation.Persona ? item.IdProveedorNavigation.Nombre + " " + item.IdProveedorNavigation.Apellidos : item.IdProveedorNavigation.NombreComercial;
+                        }
+                        <td>@proveedor</td>
+                        <td>@monedas.FirstOrDefault(m => m.Codigo == item.IdMoneda).Nombre</td>
+                        @{
+                            var total = item.IdMoneda == 1 ? item.TotalBase : item.IdMoneda == 2 ? item.TotalDolar : item.TotalEuro;
+                        }
+                        <td style="text-align:right" class="colon">
+
+                            @{ CultureInfo us = CultureInfo.CreateSpecificCulture("en-US"); }
+                            <p>@monedas.FirstOrDefault(m => m.Codigo == item.IdMoneda).Simbolo  @total.ToString("0,0.00", us)</p>
+
+                        </td>
+                        @{
+                             var anulado = @Lb["No"];
+                            if (item.Anulado)
+                            {
+                                anulado = @Lb["Si"];
+                            }
+                        }
+                        <td>@anulado</td>
+                        <td><a href="@Url.Action("EditarOrden", new { id=item.Id })" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a></td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+<script>
+    $(document).ready(function () {
+        hasta = new Date().toLocaleString();
+        desde = new Date().toLocaleString();
+        inicializarTabla();
+
+    });
+  function inicializarTabla() {
+        $('#tblOrdenes').DataTable().destroy();
+        tblOrdenes = $('#tblOrdenes').DataTable({
+            "info": false,
+             "bSort": false,
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+                      
+        });
+          $(".dataTables_searching").hide();
+    }
+        /////////////////////filtros//////////////////
+    $("#filtroBuscar").on("keyup", function () {
+        tblOrdenes
+            .columns(2)
+            .search(this.value)
+            .draw();
+    });
+
+
+
+</script>

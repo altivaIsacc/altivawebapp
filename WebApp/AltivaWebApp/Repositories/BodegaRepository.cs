@@ -20,6 +20,11 @@ namespace AltivaWebApp.Repositories
             return context.TbPrBodega.Include(b => b.TbPrInventarioBodega).ThenInclude(i => i.IdInventarioNavigation).FirstOrDefault(b => b.Id == id);
 
         }
+        public IList<TbPrInventarioBodega> GetAllInventarioBodega()
+        {
+            return context.TbPrInventarioBodega.ToList();
+           
+        }
         public TbPrBodega GetBodegaByNombre(string nombre)
         {
             return context.TbPrBodega.FirstOrDefault(b => b.Nombre == nombre);

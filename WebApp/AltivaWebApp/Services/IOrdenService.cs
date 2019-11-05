@@ -20,5 +20,6 @@ namespace AltivaWebApp.Services
         bool SaveOrdenDetalle(IList<TbPrOrdenDetalle> domain);
         bool DeleteOrdenDetalle(IList<int> domain, int idOrden);
         bool UpdateOrdenDetalle(IList<TbPrOrdenDetalle> domain);
+        IList<TbPrOrden> GetAllOrdenesByIdInventario(string cod);
     }
 }

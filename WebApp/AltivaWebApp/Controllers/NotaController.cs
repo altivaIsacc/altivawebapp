@@ -156,14 +156,36 @@ namespace AltivaWebApp.Controllers
 
         }
         [HttpPost("CrearEnlace")]
-        public IActionResult CrearEnlace(IList<MovimientoDetalleViewModel> viewModel, IList<MovimientoDetalleViewModel> lineasActualizadas)
+        public IActionResult CrearEditarEnlace(IList<MovimientoDetalleViewModel> viewModel)
         {
             try
             {
+                var lineasNuevas = new List<MovimientoDetalleViewModel>();
+                var lineasActualizadas = new List<MovimientoDetalleViewModel>();
+                foreach (var item in viewModel)
+                {                 
+                    var modelo = movimientoService.GetMovimientoDetalleByIdMovimientoHasta(item.IdMovimientoHasta);
+                    if (modelo == null)
+                    {
+                        lineasNuevas.Add(item);
+                    }
+                    else
+                    {
+                        if(item.IdMoneda ==1)
+                            item.Aplicado = item.Aplicado + modelo.AplicadoBase;
+                        if (item.IdMoneda == 2)
+                            item.Aplicado = item.Aplicado + modelo.AplicadoDolar;
+                        if (item.IdMoneda == 3)
+                            item.Aplicado = item.Aplicado + modelo.AplicadoEuro;
+
+                        lineasActualizadas.Add(item);
+                    }
+                }
+                
                 if (lineasActualizadas.Count > 0)
                     movimientoMap.UpdateMD(lineasActualizadas);
-                if (viewModel.Count > 0)
-                    movimientoMap.CreateMD(viewModel);
+                if (lineasNuevas.Count > 0)
+                    movimientoMap.CreateMD(lineasNuevas);
 
                 return Json(new { success = true });
             }

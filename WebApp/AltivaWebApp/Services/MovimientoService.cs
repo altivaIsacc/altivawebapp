@@ -15,6 +15,10 @@ namespace AltivaWebApp.Services
         {
             this.repository = repository;
         }
+        public TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimientoHasta(long idMovimientoHasta)
+        {
+            return repository.GetMovimientoDetalleByIdMovimientoHasta(idMovimientoHasta);
+        }
         public TbFaMovimiento Save(TbFaMovimiento domain)
         {
             return repository.Save(domain);
@@ -100,7 +104,7 @@ namespace AltivaWebApp.Services
         public TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimiento(long idMovimiento)
         {
             return repository.GetMovimientoDetalleByIdMovimiento(idMovimiento);
-        }
+        }       
 
         public IList<DocumentosContactoViewModel> GetDocumentosPendientesContacto(long idContacto)
         {
