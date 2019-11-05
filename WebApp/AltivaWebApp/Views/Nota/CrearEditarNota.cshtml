@@ -354,18 +354,8 @@
 
 
     $(document).ready(function () {
-        getAllMovimientos();
-        getTipoDocumento(1);        
-        getMonedas();
-       getTipoJustificante();            
-
-        $("#monto").val(0.00);
-        getContactos(2);
-
-       
-
         var date = new Date();
-
+        $("#monto").val(0.00);
         if (@Model.IdDocumento != 0) {
 
             GetComentarios("DOCS", @Model.IdDocumento, '@Url.Action("Nuevo-Comentario", "Mensajes")');
@@ -376,13 +366,19 @@
             date = new Date(formatearFecha());
 
         }
-
         $('#fechaPicker').datetimepicker({
             defaultDate: date,
             locale: localStorage.getItem("idioma")
         });
+
+            getAllMovimientos();
+            //getTipoDocumento(1);        
+            //getMonedas();
+            //getTipoJustificante();            
+            //getContactos(2);
          if (@Model.IdDocumento == 0){
              $("#activo1").attr('checked', true);
+             getContactos(2);
             $('#preDetalleContainerpreDetalleContainer').prop('hidden', false);
             $('#notaDetalleContainer').prop('hidden', true);
           toggleTipoDocumento();
@@ -532,6 +528,8 @@
               url: '@Url.Action("GetAllMovimientos", "Nota")',
                  success: function (data) {
                      arrayMovimiento = data;
+                    getTipoDocumento(1);        
+           
              },
              error: function (err, scnd) {
                   cargarAlert('@Lb["errorGeneral"]');
@@ -551,14 +549,23 @@
                     if (data.cxp)
                         $("#tipo").val("1");
                     else
-                      $("#tipo").val("2");
+                    $("#tipo").val("2");
+
                 $("#IdMovimiento").val(data.idMovimiento);
                 $("#IdUsuario").val(data.idUsuario);
-                $(".total").val(data.monto);
-                $("#totalDisponible").val(recuperarDisponible(data));
-                $("#totalAplicado").val(recuperarAplicado(data));              
+                //$('#formatter').val(data.monto);
+                //$(".total").val($('#formatter').inputmask('unmaskedvalue'));
+                //$('#formatter').val(recuperarDisponible(data));
+                //$("#totalDisponible").val($('#formatter').inputmask('unmaskedvalue'));
+                //$('#formatter').val(recuperarAplicado(data));
+                //$("#totalAplicado").val($('#formatter').inputmask('unmaskedvalue'));
+
+                $(".total").text(data.monto);
+                $("#totalDisponible").text(recuperarDisponible(data));
+                $("#totalAplicado").text(recuperarAplicado(data));
+
                 esNota2();
-                if ($("#documentoTipo").val() == "true") {
+                if ($("#documentoTipo").val() == "true") {                   
                       getMovimientoJustificante(data.idMovimiento);
                   }
                 if ($("#documentoTipo").val() == "false") {
@@ -577,6 +584,7 @@
                   console.log(err.statusText);
               }
         });
+            getContactos(2);
             toggleTipoDocumento();
 
     }
@@ -612,8 +620,7 @@
            dataType: "json",
            url: url,
             success: function (data) {
-                docAplicados = data;
-        
+                docAplicados = data;     
                 cargarTablaDocAplicados(data);
 
            },
@@ -690,12 +697,11 @@
     function procesarPagoDoc() {
 
         formasPagoDoc = formasPago;
-        $(".total").val(totalFomasPago());
-        $('#formatter').val(totalFomasPago());
+         $('#formatter').val(totalFomasPago());
+        $(".total").val($('#formatter').inputmask('unmaskedvalue'));
         $('#totalDisponible').val($('#formatter').inputmask('unmaskedvalue'));
-        $('#totalDetallePrepago').val($('#formatter').inputmask('unmaskedvalue'));
-
-
+       //$('#totalDetallePrepago').text($('#formatter').inputmask('unmaskedvalue'));
+        procesarPago('@Model.IdDocumento');
         $('#formaPagoModal').modal('hide');
 
     }
@@ -864,8 +870,8 @@
                          }
 
                      }
-                }
-
+                 }
+                 getMonedas();           
             },
             error: function (err, scnd) {
                 cargarAlert('@Lb["errorGeneral"]');
@@ -908,8 +914,7 @@
     function postProcesarPago(idDocumento) {
         if (@Model.IdDocumento == 0)
             window.location.href = "@Url.Action("EditarPago","Nota", new { id = "__id__" })".replace("__id__", idDocumento);
-        else
-            window.location.href = '@Url.Action("ListarNotas")';
+       
     }
 
     function crearEditarPago() {
@@ -920,7 +925,10 @@
                 data: { modelPago: crearModeloNota(), modelMovimiento: crearModeloMovimiento()},
                 url: '@Url.Action("CrearEditarPago", "Nota")',
                 success: function (data) {
-                    postProcesarPago(data.idPago);
+                  if (@Model.IdDocumento == 0)
+                    window.location.href = "@Url.Action("EditarPago","Nota", new { id = "__id__" })".replace("__id__", data.idPago);
+                 else
+                     window.location.href = '@Url.Action("ListarNotas")';
                 },
                 error: function (err, scnd) {
                     cargarAlert('@Lb["errorGeneral"]');
@@ -959,6 +967,7 @@
               dataType: "json",
               url: '@Url.Action("GetMovimientoJustificante", new { id = "__id__"} )'.replace("__id__",id),
               success: function (data) {
+                   getTipoJustificante();            
                   lineasCargadas = data;
                   $("#dolar").val(data[0].compraDolarTc);
                   $("#euro").val(data[0].compraEuroTc);
@@ -1381,24 +1390,10 @@
         var tcEuro = parseFloat($("#euro").inputmask('unmaskedvalue'));
 
         if ('@Model.IdDocumento' == 0) {
-            switch (parseInt(model.IdMoneda)) {
-                case 1:
-                    model.DisponibleBase = monto;
-                    model.DisponibleDolar = monto / tcDolar;
-                    model.DisponibleEuro = monto / tcEuro;
-                    break;
-                case 2:
-                    model.DisponibleBase = monto * tcDolar;
-                    model.DisponibleDolar = monto;
-                    model.DisponibleEuro = (monto * tcDolar) / tcEuro;
-                    break;
-                case 3:
-                    model.DisponibleBase = monto * tcEuro;
-                    model.DisponibleDolar = (monto * tcEuro) / tcDolar;
-                    model.DisponibleEuro = monto;
-                    break;
+           
+                model.monto = 0;
 
-            }
+            
         } else {
             var disponible = parseFloat($("#totalDisponible").inputmask('unmaskedvalue'));
             var aplicado = parseFloat($("#totalAplicado").inputmask('unmaskedvalue'));
