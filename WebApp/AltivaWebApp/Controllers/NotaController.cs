@@ -55,6 +55,7 @@ namespace AltivaWebApp.Controllers
         [HttpGet("CrearNota")]
         public IActionResult CrearNota()
         {
+            ViewBag.moneda = monedaService.GetAll();
             ViewBag.Justificantes = justificanteService.GetAll();
             var model = new DocumentoViewModel();
             model.Fecha = DateTime.Now;
@@ -68,6 +69,7 @@ namespace AltivaWebApp.Controllers
         [HttpGet("EditarNota")]
         public IActionResult EditarNota(long id)
         {
+            ViewBag.moneda = monedaService.GetAll();
             ViewBag.Justificantes = justificanteService.GetAll();
             var nota = map.DomainToVIewModel(service.GetNotaById(id));
             return View("CrearEditarNota", nota);
@@ -201,8 +203,24 @@ namespace AltivaWebApp.Controllers
             try
             {
                 movimientoService.DeleteMD(id);
-
                 return Json(new { success = true });
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
+        [HttpPost("EditarMovimientosDetalle")]
+        public IActionResult EditarMovimientosDetalle(MovimientoDetalleViewModel viewModel)
+        {
+            try
+            {
+                var lineasActualizadas = new List<MovimientoDetalleViewModel>();
+                lineasActualizadas.Add(viewModel);
+                movimientoMap.UpdateMD(lineasActualizadas);
+                return Json(new { success = true });
+
             }
             catch
             {
@@ -247,12 +265,12 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var notas = service.GetAll();
-                //var pagos = pagoService.GetAll();
+                var pagos = pagoService.GetAll();
                 IList<DocumentoViewModel> docs = new List<DocumentoViewModel>();
-                //foreach (var item in pagos)
-                //{
-                //    docs.Add(pagoMap.DomainToViewModel(item));
-                //}
+                foreach (var item in pagos)
+                {
+                    docs.Add(pagoMap.DomainToViewModel(item));
+                }
                 foreach (var item in notas)
                 {
                     docs.Add(map.DomainToVIewModel(item));

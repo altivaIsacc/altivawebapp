@@ -231,7 +231,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                var MD = context.TbFaMovimientoDetalle.FirstOrDefault(d => d.IdMovimientoHasta == id);
+                var MD = context.TbFaMovimientoDetalle.FirstOrDefault(d => d.IdMovimientoDetalle== id);
                 context.TbFaMovimientoDetalle.Remove(MD);
                 context.SaveChanges();
 

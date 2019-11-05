@@ -403,7 +403,7 @@ namespace AltivaWebApp.Mappers
             double montoBase = 0;
             double montoDolar = 0;
             double montoEuro = 0;
-
+        
             foreach (var item in service.GetJustificantesByMovimientoId(viewModel.IdMovimiento))
             {
                 montoBase = item.MontoBase + montoBase;
@@ -411,12 +411,48 @@ namespace AltivaWebApp.Mappers
                 montoEuro = item.MontoEuro + montoEuro;
 
             }
-            domain.MontoBase = montoBase;
-            domain.MontoDolar = montoDolar;
-            domain.MontoEuro = montoEuro;
-            domain.DisponibleBase = montoBase - domain.AplicadoBase;
-            domain.DisponibleDolar = montoDolar - domain.DisponibleDolar;
-            domain.DisponibleEuro = montoEuro - domain.DisponibleEuro;
+            if (montoBase != 0)
+            {
+                domain.MontoBase = montoBase;
+                domain.MontoDolar = montoDolar;
+                domain.MontoEuro = montoEuro;
+                domain.DisponibleBase = montoBase - domain.AplicadoBase;
+                domain.DisponibleDolar = montoDolar - domain.DisponibleDolar;
+                domain.DisponibleEuro = montoEuro - domain.DisponibleEuro;
+            }
+            else
+            {
+                var moneda = monedaService.GetAll();
+                float dolar =(float)moneda[1].ValorVenta;
+                float euro =(float)moneda[2].ValorVenta;
+
+                domain.DisponibleBase = viewModel.DisponibleBase;
+                domain.DisponibleDolar = viewModel.DisponibleDolar;
+                domain.DisponibleEuro = viewModel.DisponibleEuro;
+
+                domain.AplicadoBase = viewModel.AplicadoBase;
+                domain.AplicadoDolar = viewModel.AplicadoDolar;
+                domain.AplicadoEuro = viewModel.AplicadoDolar;
+
+                if (viewModel.IdMoneda == 1)
+                {
+                    domain.MontoBase = viewModel.Monto;
+                    domain.MontoDolar = domain.MontoBase / dolar;
+                    domain.MontoEuro = domain.MontoBase / euro;
+                }
+                else if (viewModel.IdMoneda == 2)
+                {
+                    domain.MontoBase = viewModel.Monto * dolar;
+                    domain.MontoDolar = viewModel.Monto;
+                    domain.MontoEuro = domain.MontoBase / euro;
+                }
+                else if (viewModel.IdMoneda == 3)
+                {
+                    domain.MontoBase = viewModel.Monto * euro;
+                    domain.MontoDolar = domain.MontoBase / dolar;
+                    domain.MontoEuro = viewModel.Monto;
+                }
+            }
 
 
             return domain;

@@ -54,11 +54,11 @@
 <script>
 
     var saldoAplicable = 0;
+    var flag = true;
 
     $(document).ready(function () {
-        console.log($("#totalDisponible").text());
-        $("#disponible").val($("#totalDisponible").text());
-        console.log($("#disponible").inputmask('unmaskedvalue'));
+        $("#disponible").val($('#totalDisponible').inputmask('unmaskedvalue'));
+         console.log($('#disponible').val());
         $("#sumaAplicado").val(0.00);
 
         saldoAplicable = getSaldoAplicable();
@@ -89,27 +89,27 @@
             guardarAplicado(docSinAplicar[i], aplicado);
 
         }
-           var simbolo = monedas[0].simbolo;
+       var simbolo = "₡";
         if (parseInt($('#tipoMoneda').val()) === 2)
-            simbolo = monedas[1].simbolo;
+            simbolo = "$";
         else if (parseInt($('#tipoMoneda').val()) === 3)
-            simbolo = monedas[2].simbolo;
-        $(".currency").inputmask('currency', {
+            simbolo = "€";
+         $(".currency").inputmask('currency', {
             prefix: simbolo,
             rightAlign: true
-        });
+          });
 
-        $(".moneda").inputmask('currency', {
+          $(".moneda").inputmask('currency', {
            prefix: '',
            rightAlign: true,
            min: 0
-        });
+       });
     }
     
     function calcularLinea(saldo) {
 
         if (saldo > 0 && saldo != NaN) {
-            var disponible = $("#disponible").inputmask('unmaskedvalue');
+            var disponible = parseFloat($("#disponible").inputmask('unmaskedvalue'));
             var totalApli = $("#sumaAplicado").inputmask('unmaskedvalue');
             var result = 0;
             if (saldo <= disponible) {
@@ -132,7 +132,7 @@
     function GuardarEnlace() {
     $('#saldoValid').prop('hidden', true);
         var total = $("#disponible").inputmask('unmaskedvalue');
-        if (total < 0) {
+        if (total < 0 || !flag) {
           $('#saldoValid').prop('hidden', false);
         } else {           
             Guardar();                      
@@ -196,6 +196,8 @@
             var montoAnterior = recuperarAplicado(docSinAplicar[pos]);
             var saldo = recuperarSaldo(docSinAplicar[pos]);
         if (monto <= saldo) {
+            $("#aplicado" + pos).css('color', '');
+
             if (monto >= montoAnterior)
                 $("#disponible").val(disponible - (monto - montoAnterior));
             if (monto <= montoAnterior)
@@ -205,7 +207,10 @@
             var nuevoApli = parseFloat($("#sumaAplicado").inputmask('unmaskedvalue'));
             $("#sumaAplicado").val(nuevoApli + monto);
             guardarAplicado(docSinAplicar[pos], monto);
-        } 
+        } if (monto > saldo) {
+            $("#aplicado" + pos).css('color', 'red');
+            flag = false;
+        }
         
 
            
