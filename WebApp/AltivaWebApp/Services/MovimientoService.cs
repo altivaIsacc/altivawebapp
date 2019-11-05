@@ -31,14 +31,14 @@ namespace AltivaWebApp.Services
         {
             return repository.UpdateMovDetalle(domain);
         }
-        public IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc)
+        public IList<TbFaMovimientoDetalle> GetMovimientoByIdDocConPagos(long idDoc, int tipoDoc)
         {
-            return repository.GetMovimientoByIdDocConPagos(idDoc);
+            return repository.GetMovimientoByIdDocConPagos(idDoc, tipoDoc);
         }
 
-        public TbFaMovimiento GetMovimientoByIdDocumento(long idDoc)
+        public TbFaMovimiento GetMovimientoByIdDocumento(long idDoc, long tipoDoc)
         {
-            return repository.GetMovimientoByIdDocumento(idDoc);
+            return repository.GetMovimientoByIdDocumento(idDoc, tipoDoc);
         }
         public long GetUltimoMovimientoPagoId(long idDoc)
         {
@@ -93,13 +93,23 @@ namespace AltivaWebApp.Services
         {
             repository.DeleteMovimientoDetalle(domain);
         }
-        public IList<DocumentosContactoViewModel> GetDocumentosContacto(long id, bool cxp, long idMovimiento)
+        public IList<DocumentosContactoViewModel> GetDocumentosContacto(long id, bool cxp, long idDocumento)
         {
-            return repository.GetDocumentosContacto(id, cxp, idMovimiento);
+            return repository.GetDocumentosContacto(id, cxp, idDocumento);
         }
         public TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimiento(long idMovimiento)
         {
             return repository.GetMovimientoDetalleByIdMovimiento(idMovimiento);
-        }      
+        }
+
+        public IList<DocumentosContactoViewModel> GetDocumentosPendientesContacto(long idContacto)
+        {
+            return repository.GetDocumentosPendientesContacto(idContacto);
+        }
+        public IList<TbFaMovimientoDetalle> GetMovimientosDetalleByIdMovimiento(long idMovimiento)
+        {
+            return repository.GetMovimientosDetalleByIdMovimiento(idMovimiento);
+        }
+
     }
 }
