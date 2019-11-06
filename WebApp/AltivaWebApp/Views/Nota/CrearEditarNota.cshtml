@@ -372,16 +372,12 @@
         });
 
             getAllMovimientos();
-            //getTipoDocumento(1);        
-            //getMonedas();
-            //getTipoJustificante();            
-            //getContactos(2);
+            getTipoJustificante();            
          if (@Model.IdDocumento == 0){
              $("#activo1").attr('checked', true);
              getContactos(2);
-            $('#preDetalleContainerpreDetalleContainer').prop('hidden', false);
-            $('#notaDetalleContainer').prop('hidden', true);
-          toggleTipoDocumento();
+            $('#preDetalleContainer').prop('hidden', true);
+             $('#notaDetalleContainer').prop('hidden', true);           
         }
         
     });
@@ -392,15 +388,17 @@
     });
 
     function toggleTipoDocumento() {
-
+        
         if (@Model.IdDocumento == 0) {
-             esNota2();
-            if ($("#documentoTipo").val() == "true") {
-                $('#preDetalleContainer').prop('hidden', false);
-                $('#notaDetalleContainer').prop('hidden', true);
-            } if ($("#documentoTipo").val() == "false") {
-                $('#preDetalleContainer').prop('hidden', true);
+            var esN = false;     
+            for (var i = 0; i < tipoDocumento.length; i++) {
+                if (parseInt($("#tipoDocumento option:selected").val()) == tipoDocumento[i].idTipoDocumento)
+                    esN = tipoDocumento[i].esNota;             
+            }
+            if (esN) {
                 $('#notaDetalleContainer').prop('hidden', false);
+            } if (!esN) {
+                $('#notaDetalleContainer').prop('hidden', true);
             }
         }
         if (@Model.IdDocumento != 0) {
@@ -544,7 +542,8 @@
               dataType: "json",
               url: '@Url.Action("GetMovimiento", new { id = Model.IdDocumento, tipoDoc = Model.IdTipoDocumento })',
 
-            success: function (data) {              
+            success: function (data) {  
+                console.log(data);
                     $("#tipoMoneda").val(data.idMoneda);
                     if (data.cxp)
                         $("#tipo").val("1");
@@ -553,13 +552,6 @@
 
                 $("#IdMovimiento").val(data.idMovimiento);
                 $("#IdUsuario").val(data.idUsuario);
-                //$('#formatter').val(data.monto);
-                //$(".total").val($('#formatter').inputmask('unmaskedvalue'));
-                //$('#formatter').val(recuperarDisponible(data));
-                //$("#totalDisponible").val($('#formatter').inputmask('unmaskedvalue'));
-                //$('#formatter').val(recuperarAplicado(data));
-                //$("#totalAplicado").val($('#formatter').inputmask('unmaskedvalue'));
-
                 $(".total").text(data.monto);
                 $("#totalDisponible").text(recuperarDisponible(data));
                 $("#totalAplicado").text(recuperarAplicado(data));
@@ -699,8 +691,7 @@
         formasPagoDoc = formasPago;
          $('#formatter').val(totalFomasPago());
         $(".total").val($('#formatter').inputmask('unmaskedvalue'));
-        $('#totalDisponible').val($('#formatter').inputmask('unmaskedvalue'));
-       //$('#totalDetallePrepago').text($('#formatter').inputmask('unmaskedvalue'));
+        $('#totalDisponible').val(parseFloat($("#formatter").inputmask('unmaskedvalue')) - $('#totalAplicado').inputmask('unmaskedvalue'));
         procesarPago('@Model.IdDocumento');
         $('#formaPagoModal').modal('hide');
 
@@ -796,7 +787,6 @@
             url: '@Url.Action("GetTipoJustificante", "TipoJustificante")',
             success: function (data) {
                 lineasTJustificante = data;
-                cargarTabla(lineas);
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].estado == 1) {
                         var o = new Option(data[i].nombre, data[i].idTipoJustificante);
@@ -1010,7 +1000,8 @@
     function eliminarMovimientoDetalle() {
         bootbox.confirm("@Lb["confirmEliminarLinea"]", function (result) {
             if (result) {
-                var pos = parseInt($("#idFila").val());            
+                var pos = parseInt($("#idFila").val());   
+                var aplicado = recuperarAplicado(docAplicados[pos]);
                 var idMovD =  docAplicados[pos].idMovimientoDetalle;
                 $.ajax({
                          type: "post",
@@ -1018,7 +1009,9 @@
                          data: { id: idMovD },
                          url: '@Url.Action("EliminarMovimientoDetalle", "Nota")',
                         success: function (data) {
-                           getMovimiento();
+                           $("#totalDisponible").val(parseFloat($("#totalDisponible").inputmask('unmaskedvalue')) + parseFloat(aplicado));
+                           $("#totalAplicado").val(parseFloat($("#totalAplicado").inputmask('unmaskedvalue')) - parseFloat(aplicado));
+                           getDocumentosEnlazados();
                           $("#modalEditAplicado").modal("hide");
                         },
                        error: function (err, scnd) {
@@ -1152,6 +1145,7 @@
     function editarAplicado() {
         $('#aplicadoValid').prop('hidden', true);
         var pos = parseInt($("#idFila").val());
+         var aplicadoAnterior = recuperarAplicado(docAplicados[pos]);
         var aplicado = $("#editAplicado").inputmask('unmaskedvalue');
          var model = {
                     num: docAplicados[pos].idDocumento,
@@ -1171,7 +1165,11 @@
              data: { viewModel: model},
                 url: '@Url.Action("EditarMovimientosDetalle", "Nota")',
              success: function (data) {
-                 getMovimiento();
+                 $("#totalAplicado").val(parseFloat($("#totalAplicado").inputmask('unmaskedvalue')) - parseFloat(aplicadoAnterior));
+                 $("#totalAplicado").val(parseFloat($("#totalAplicado").inputmask('unmaskedvalue')) + parseFloat(aplicado));
+                 $("#totalDisponible").val(parseFloat($(".total").inputmask('unmaskedvalue')) - parseFloat($("#totalAplicado").inputmask('unmaskedvalue')));
+
+                 getDocumentosEnlazados();
                   $("#modalEditAplicado").modal("hide");
               },
              error: function (err, scnd) {
@@ -1359,7 +1357,7 @@
              IdMoneda: parseInt($("#tipoMoneda").val()),
              Cxp:getCx(1),
              Cxc:getCx(2),
-             Monto: parseFloat($(".total").inputmask('unmaskedvalue').replace(".", ",")),
+             Monto: $("#documentoTipo").val() == 'false' && '@Model.IdDocumento' == 0  ? 0 : parseFloat($(".total").inputmask('unmaskedvalue').replace(".", ",")),
              DisponibleBase:  0,
              DisponibleDolar: 0,
              DisponibleEuro:  0,
@@ -1426,16 +1424,17 @@
                     model.DisponibleEuro = disponible;
                     break;
 
-            }
-        }
-
-        model.DisponibleBase = model.DisponibleBase.toString().replace(".", ",");
+             }
+             model.DisponibleBase = model.DisponibleBase.toString().replace(".", ",");
         model.DisponibleDolar = model.DisponibleDolar.toString().replace(".", ",");
         model.DisponibleEuro = model.DisponibleEuro.toString().replace(".", ",");
 
         model.AplicadoBase = model.AplicadoBase.toString().replace(".", ",");
         model.AplicadoDolar = model.AplicadoDolar.toString().replace(".", ",");
         model.AplicadoEuro = model.AplicadoEuro.toString().replace(".", ",");
+        }
+
+       
 
         return model;
     }
@@ -1697,7 +1696,7 @@
              data: { viewModel: crearModeloEnlace()},
                 url: '@Url.Action("CrearEnlace", "Nota")',
              success: function (data) {
-                 getMovimiento();
+                  getDocumentosEnlazados(2);
                 },
                 error: function (err, scnd) {
                     cargarAlert('@Lb["errorGeneral"]');

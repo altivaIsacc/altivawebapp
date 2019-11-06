@@ -73,18 +73,49 @@ namespace AltivaWebApp.Controllers
                 }
                 else
                 {
+                    if (idDocumento != 0 && fpEliminadas.Count() > 0)
+                        cajaMovService.DeleteRangeCM(fpEliminadas);
+
                     var idMov = movimientoService.GetMovimientoByNota(idDocumento).IdMovimiento;
-                    var cm = cajaMovMap.CreateCajaMovimiento(viewModel, idMov);
+                    if (viewModel.Count > 0)
+                    {
+                        IList<CajaMovimientoViewModel> Nuevas = new List<CajaMovimientoViewModel>();
+                        IList<CajaMovimientoViewModel> Actualizadas = new List<CajaMovimientoViewModel>();
+                        foreach (var item in viewModel)
+                        {
+                            if(item.IdCajaMovimiento !=0)
+                                Actualizadas.Add(item);
+                            else                         
+                                Nuevas.Add(item);
+                            
+                        }
+                        if(Nuevas.Count > 0)
+                           cajaMovMap.CreateCajaMovimiento(Nuevas, idMov);
+
+                        if (Actualizadas.Count > 0)
+                          cajaMovMap.UpdateCajaMovimiento(Actualizadas, idMov);
+                    }
                 }
 
-                if (idDocumento != 0 && fpEliminadas.Count() > 0)
-                    cajaMovService.DeleteRangeCM(fpEliminadas);
+               
 
                 return Json(new { success = true });
             }
             catch (Exception ex)
             {
                 AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+            }
+        }
+        [HttpPost("GetLineasPago")]
+        public IActionResult GetLineasPago(double idMov)
+        {
+            try
+            {
+                var CM = cajaMovMap.GetLineasPago(idMov);
+                return Ok(CM);
+
+            }catch(Exception){
                 throw;
             }
         }

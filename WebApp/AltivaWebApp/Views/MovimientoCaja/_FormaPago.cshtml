@@ -1396,14 +1396,38 @@
     }
 
     function getFormasPago() {
-         $.ajax({
+         @*$.ajax({
               type: "post",
               dataType: "json",
              url: '@Url.Action("GetFormasPago", "MovimientoCaja")',
              data: { idDoc : @Model.IdDocumento, idTipo: @Model.IdTipoDocumento},
              success: function (data) {
                  if (data.length > 0)
+                     console.log(data);
                     cargarMetodosPagoBD(data);
+             },
+             error: function (err, scnd) {
+                 cargarAlert('@Lb["errorGeneral"]');
+                 console.log(err.statusText);
+             }
+         });*@
+          $.ajax({
+              type: "post",
+              dataType: "json",
+             url: '@Url.Action("GetLineasPago", "MovimientoCaja")',
+             data: { idMov : @Model.IdDocumento},
+              success: function (data) {
+                  formasPago = [];
+                  fpCrOrUp = [];
+                  console.log(data);
+                  if (data.length > 0) {
+                      for (var i = 0; i < data.length; i++) {
+                          formasPago.push(data[i]);
+                          fpCrOrUp.push(data[i]);
+                      }
+                      cargarFormasPago(formasPago);
+                  }
+                   // cargarMetodosPagoBD(data);
              },
              error: function (err, scnd) {
                  cargarAlert('@Lb["errorGeneral"]');
@@ -1449,7 +1473,7 @@
         }, 500);
 
         setSaldoDisponible();
-
+        
         if (@Model.IdDocumento != 0) {
             getFormasPago();
         }

@@ -24,11 +24,23 @@ namespace AltivaWebApp.Services
         {
             return repository.SaveRangeCMF(domain);
         }
+        public IList<TbFaCajaMovimiento> UpdateRange(IList<TbFaCajaMovimiento> domain)
+        {
+            return repository.UpdateRange(domain);
+        }
+
+        public IList<TbFaCajaMovimientoFlujo> UpdateRangeCMF(IList<TbFaCajaMovimientoFlujo> domain)
+        {
+            return repository.UpdateRangeCMF(domain);
+        }
         public void DeleteRangeCM(IList<long> fpElimindas)
         {
             repository.DeleteRangeCM(fpElimindas);
         }
-
+        public IList<TbFaCajaMovimiento> GetCajaMovimientoByIdMovimiento(double idDoc)
+        {
+            return repository.GetCajaMovimientoByIdMovimiento(idDoc);
+        }
 
 
     }
