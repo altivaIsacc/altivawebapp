@@ -316,7 +316,6 @@
 <input hidden readonly id="documentoTipo" />
 <input hidden readonly id="docT" />
 
-
 <div class="row">
     <div class="col-md-12">
         <div id="comentarios">
@@ -335,12 +334,8 @@
     var lineasEliminadas = [];
     var lineasTJustificante = [];
     var lineasCargadas = [];
-    var lineasEnlace = [];
-    var lineasAplicado = [];
     var tipoDocumento = [];
     var movimientosDetalle = [];
-    var aplicadosOriginal = [];
-    var lineasActualizadasAplicadas = [];
     var idCajaPuntoVenta = 0;
     var formasPagoDoc = [];
     var monedas = [];
@@ -350,7 +345,7 @@
     var saldoAplicable = 0;
     var docSinAplicar = [];
     var docAplicados = [];
-    var docTip = [];
+    var ObjetoMovimiento = [];
 
 
     $(document).ready(function () {
@@ -402,7 +397,6 @@
             }
         }
         if (@Model.IdDocumento != 0) {
-            console.log($("#documentoTipo").val());
             if ( $("#documentoTipo").val() == "true") {
                 $('#preDetalleContainer').prop('hidden', true);
                 $('#notaDetalleContainer').prop('hidden', false);
@@ -466,9 +460,7 @@
             }
         }
 
-        if (@Model.IdDocumento != 0) {
-            recalcularDatos();
-            cargarTablaDocAplicados();
+        if (@Model.IdDocumento != 0) {            
             for (var i = 0; i < lineas.length; i++) {
                 for (var j = 0; j < lineasCargadas.length; j++) {
                     if (lineas[i].id == lineasCargadas[j].idMovimientoJustificante)
@@ -476,6 +468,11 @@
 
                 }
             }
+            $(".total").text(recalcularMonto(ObjetoMovimiento));
+             $("#totalDisponible").val(recuperarDisponible(ObjetoMovimiento));
+             $("#totalAplicado").val(recuperarAplicado(ObjetoMovimiento));
+            cargarTablaDocAplicados(docAplicados);
+
         }
 
         setTotal();
@@ -543,7 +540,7 @@
               url: '@Url.Action("GetMovimiento", new { id = Model.IdDocumento, tipoDoc = Model.IdTipoDocumento })',
 
             success: function (data) {  
-                console.log(data);
+                ObjetoMovimiento = data;
                     $("#tipoMoneda").val(data.idMoneda);
                     if (data.cxp)
                         $("#tipo").val("1");
@@ -552,7 +549,7 @@
 
                 $("#IdMovimiento").val(data.idMovimiento);
                 $("#IdUsuario").val(data.idUsuario);
-                $(".total").text(data.monto);
+                $(".total").text(recalcularMonto(data));
                 $("#totalDisponible").text(recuperarDisponible(data));
                 $("#totalAplicado").text(recuperarAplicado(data));
 
@@ -870,11 +867,17 @@
         });
     }
     function guardarCambios() {
-        esNota2();
-        if ($("#documentoTipo").val() == 'true')
+                          var esN = false;     
+            for (var i = 0; i < tipoDocumento.length; i++) {
+                if (parseInt($("#tipoDocumento option:selected").val()) == tipoDocumento[i].idTipoDocumento)
+                    esN = tipoDocumento[i].esNota;             
+            }
+        if (esN) {
             crearEditarNota();
-        else
+        }
+        else {
             crearEditarPago();
+        }
 
     }
 
@@ -1234,7 +1237,7 @@
             lineas.push(model);
 
         }
-        //setTotal();
+        setTotal();
         cargarTabla(lineas);
     }
     function guardarLinea() {
@@ -1264,7 +1267,8 @@
             monto = lineas[i].monto + monto;
         }       
         $('#formatter').val(monto);
-        $(".total").val($('#formatter').inputmask('unmaskedvalue'));
+        $(".total").text($('#formatter').inputmask('unmaskedvalue'));
+        $("#total").val($('#formatter').inputmask('unmaskedvalue'));
         $("#totalDisponible").val($('#formatter').inputmask('unmaskedvalue') - $("#totalAplicado").inputmask('unmaskedvalue'));
 
 
@@ -1318,15 +1322,7 @@
         return monto;
     }
 
-    function recuperarSaldoTabla(idDoc, idLbl) {
-
-        $("#pendiente" + idLbl).text(formatInput(recuperarSaldo(lineasEnlace[idDoc].idDocumento)));
-
-    }
-    function recuperarAplicadoTabla(pos) {
-
-        $("#aplicado" + pos).val(recuperarAplicadoAnterior(lineasEnlace[pos].idDocumento));
-    }
+ 
     function formatInput(monto) {
 
         $('#formatter').val(monto);
@@ -1347,7 +1343,11 @@
         return NotaModel;
     }
     function crearModeloMovimiento() {
-        esNota2();
+                               var esN = false;     
+            for (var i = 0; i < tipoDocumento.length; i++) {
+                if (parseInt($("#tipoDocumento option:selected").val()) == tipoDocumento[i].idTipoDocumento)
+                    esN = tipoDocumento[i].esNota;             
+            }
          var MovimientoModel = {
              IdMovimiento: parseInt($("#IdMovimiento").val()),
              IdContacto: parseInt($("#contactos").val()),
@@ -1357,7 +1357,7 @@
              IdMoneda: parseInt($("#tipoMoneda").val()),
              Cxp:getCx(1),
              Cxc:getCx(2),
-             Monto: $("#documentoTipo").val() == 'false' && '@Model.IdDocumento' == 0  ? 0 : parseFloat($(".total").inputmask('unmaskedvalue').replace(".", ",")),
+             Monto:parseFloat($(".total").inputmask('unmaskedvalue').replace(".", ",")),
              DisponibleBase:  0,
              DisponibleDolar: 0,
              DisponibleEuro:  0,
@@ -1368,7 +1368,7 @@
              SaldoDolar: 0,
              SaldoEuro: 0,
              FechaCreacion: $("#fecha").val(),
-             MovimientoJustificante: $("#documentoTipo").val() == 'true' ? crearModeloMJustificante(lineasAgregadas) : null
+             MovimientoJustificante: esN ? crearModeloMJustificante(lineasAgregadas) : null
 
         };
 
@@ -1504,7 +1504,7 @@
     }
         function recuperarDisponible(item) {
          var moneda = parseInt($('#tipoMoneda').val());
-            if (moneda == 1)
+         if (moneda == 1)
                 return item.disponibleBase;
         if (moneda == 2)
             return item.disponibleDolar;
@@ -1523,8 +1523,8 @@
     function recalcularMonto(item) {
 
         var moneda = parseInt($('#tipoMoneda').val());
-        var dolar = parseFloat($("#dolar").inputmask('unmaskedvalue'));
-        var euro = parseFloat($("#euro").inputmask('unmaskedvalue'));
+        var dolar = parseFloat($("#dolarVenta").inputmask('unmaskedvalue'));
+        var euro = parseFloat($("#euroVenta").inputmask('unmaskedvalue'));
 
         if (moneda === 1 && item.idMoneda === 1)
             return item.monto;
@@ -1567,27 +1567,23 @@
     }
     function guardarAplicado(data, monto) {
          var moneda = parseInt($('#tipoMoneda').val());
-        var dolar = parseFloat($("#dolar").inputmask('unmaskedvalue'));
-        var euro = parseFloat($("#euro").inputmask('unmaskedvalue'));
-
-        if (moneda === 1 && data.idMoneda === 1)
-            data.aplicadoBase =monto ;
-        else if (moneda === 1 && data.idMoneda === 2)
-            data.aplicadoDolar= monto * dolar;
-        else if (moneda === 1 && data.idMoneda === 3)
+        var dolar = parseFloat($("#dolarVenta").inputmask('unmaskedvalue'));
+        var euro = parseFloat($("#euroVenta").inputmask('unmaskedvalue'));
+        if (moneda == 1) {
+                data.aplicadoBase = monto;
+            data.aplicadoDolar = monto * dolar;
             data.aplicadoEuro = monto * euro;
-        else if (moneda === 2 && data.idMoneda === 1)
-             data.aplicadoBase = monto / dolar;
-        else if (moneda === 2 && data.idMoneda === 2)
-            data.aplicadoDolar= monto;
-        else if (moneda === 2 && data.idMoneda === 3)
-            data.aplicadoEuro = (monto * euro) / dolar;
-        else if (moneda === 3 && data.idMoneda === 1)
-            data.aplicadoBase = monto / euro;
-        else if (moneda === 3 && data.idMoneda === 2)
-            data.aplicadoDolar= (monto * dolar) / euro;
-        else if (moneda === 3 && data.idMoneda === 3)
-             data.aplicadoEuro = monto;
+        }
+        if (moneda == 2) {
+             data.aplicadoBase = monto * dolar;
+            data.aplicadoDolar = monto;
+            data.aplicadoEuro =  data.aplicadoBase * euro;
+        }
+         if (moneda == 3) {
+             data.aplicadoBase = monto * euro;
+            data.aplicadoDolar = data.aplicadoBase / dolar;
+            data.aplicadoEuro =  monto;
+        }
 
     }
     function recuperarFecha(_fecha) {
@@ -1600,9 +1596,9 @@
        for (var i = 0; i < arrayMovimiento.length; i++) {
          if (arrayMovimiento[i].idMovimiento == id) {
            for (var j = 0; j < tipoDocumento.length; j++) {
-                if (tipoDocumento[j].idTipoDocumento == arrayMovimiento[i].idTipoDocumento)
-                  return tipoDocumento[j].nombre;
-                   break;
+               if (tipoDocumento[j].idTipoDocumento == arrayMovimiento[i].idTipoDocumento) {
+                   return tipoDocumento[j].nombre;
+               }
            }
          }
                 

@@ -18,24 +18,26 @@
     <input readonly class="form-control currency" id="disponible" />
     <br />
 </div>
+<div class=" row col-md-12 col-sm-12 col-xs-12">
+    <div class="table-responsive " style="overflow-y:scroll;height:100px;">
+        <table class="table table-bordered table-fixed" id="tblSinAplicar">
+            <thead>
+                <tr>
 
-    <table class="table table-bordered table-striped col-md-2 col-sm-2 col-xs-12 well" id="tblSinAplicar">
-        <thead>
-            <tr>
-
-                <th><span>@Lb["tipo"]</span></th>
-                <th><span>@Lb["Documento"]</span></th>
-                <th><span>@Lb["Fecha"]</span></th>
-                <th><span>@Lb["Pendiente"]</span></th>
-                <th><span>@Lb["Aplicado"]</span></th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="lineaSinAplicar"></tr>
-        </tbody>
-    </table>
- 
-    <div class="col-md-3 col-sm-3 col-xs-12 pull-right" >
+                    <th><span>@Lb["tipo"]</span></th>
+                    <th><span>@Lb["Documento"]</span></th>
+                    <th><span>@Lb["Fecha"]</span></th>
+                    <th><span>@Lb["Pendiente"]</span></th>
+                    <th width="30%"><span>@Lb["Aplicado"]</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="lineaSinAplicar"></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+    <div class="col-md-3 col-sm-3 col-xs-12 pull-right">
         <label>@Lb["Aplicado"]:</label>
         <input readonly id="sumaAplicado" class="form-control currency" />
 
@@ -51,14 +53,13 @@
         </div>
 
     </div>
-<script>
+    <script>
 
     var saldoAplicable = 0;
     var flag = true;
 
     $(document).ready(function () {
         $("#disponible").val($('#totalDisponible').inputmask('unmaskedvalue'));
-         console.log($('#disponible').val());
         $("#sumaAplicado").val(0.00);
 
         saldoAplicable = getSaldoAplicable();
@@ -69,7 +70,7 @@
     $("#cancelarEnlace").on("click", function () {
         $('#modalTipoJustificante').modal('hide');
     });
-         
+
     function cargarTablaDocSinAplicar(data) {
 
         $('.filasSinAplicar').remove();
@@ -80,11 +81,11 @@
         for (var i = 0; i < data.length; i++) {
             contadorFila++;
             aplicado = calcularLinea(recuperarSaldo(data[i]));
-            var body = '<tr class="filasSinAplicar" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + recuperarTipoDocumento(data[i].idTipoDocumento) + '</td>'
+            var body = '<tr class="filasSinAplicar" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + data[i].nombre + '</td>'
                 + '<td style="padding-top:2rem;"><span>' + data[i].idDocumento + '</span></td>'
                 + '<td ><span >' + recuperarFecha(data[i].fechaDocumento) + '</span></td>'
                 + '<td ><span id="pendiente' + i + '" class="currency">' + recuperarSaldo(data[i]) + '</span></td>'
-                + '<td ><input id="aplicado' + i + '" onkeyup="cambiarAplicado(' + i + ')"  class="form-control currency" value="' + aplicado + '"/></td></tr>';
+                + '<td style="padding: auto;" ><input id="aplicado' + i + '" onkeyup="cambiarAplicado(' + i + ')"  class="form-control currency" value="' + aplicado + '"/></td></tr>';
             $('.lineaSinAplicar').before(body);
             guardarAplicado(docSinAplicar[i], aplicado);
 
@@ -105,7 +106,7 @@
            min: 0
        });
     }
-    
+
     function calcularLinea(saldo) {
 
         if (saldo > 0 && saldo != NaN) {
@@ -134,8 +135,8 @@
         var total = $("#disponible").inputmask('unmaskedvalue');
         if (total < 0 || !flag) {
           $('#saldoValid').prop('hidden', false);
-        } else {           
-            Guardar();  
+        } else {
+            Guardar();
               $("#totalDisponible").val($("#disponible").inputmask('unmaskedvalue'));
               $("#totalAplicado").val(parseFloat($("#totalAplicado").inputmask('unmaskedvalue')) + parseFloat($("#sumaAplicado").inputmask('unmaskedvalue')));
             $('#modalTipoJustificante').modal('hide');
@@ -163,40 +164,15 @@
             }
         });
     }
-
-   /* function calcularLinea(pos) {
-        var moneda = parseInt($("#tipoMoneda").val());
-        var saldo = lineasEnlace[pos].saldoBase;
-        if(moneda == 2)
-            saldo = lineasEnlace[pos].saldoDolar;
-         if(moneda == 3)
-            saldo = lineasEnlace[pos].saldoEuro;
-        if (saldo > 0 && saldo != NaN) {
-
-            var disponible = $("#disponible").inputmask('unmaskedvalue');
-            var totalApli = $("#sumaAplicado").inputmask('unmaskedvalue');
-            var result = 0;
-            if (saldo <= disponible) {
-                result = disponible - saldo;
-                $("#disponible").val(result);
-                $("#sumaAplicado").val(parseFloat(totalApli) + saldo);
-                return saldo;
-            }
-            if (saldo > disponible) {
-                $("#disponible").val(0.00);
-                $("#sumaAplicado").val(parseFloat(disponible) + parseFloat(totalApli));
-                return disponible;
-            }
-        } else {
-            return 0;
-        }
-    }*/
     function cambiarAplicado(pos) {
             var monto = parseFloat($("#aplicado" + pos).inputmask('unmaskedvalue'));
             var disponible = parseFloat($("#disponible").inputmask('unmaskedvalue'));
             var totalApli = parseFloat($("#sumaAplicado").inputmask('unmaskedvalue'));
             var montoAnterior = recuperarAplicado(docSinAplicar[pos]);
-            var saldo = recuperarSaldo(docSinAplicar[pos]);
+        var saldo = recuperarSaldo(docSinAplicar[pos]);
+        if (isNaN(monto))
+            monto = 0;
+
         if (monto <= saldo) {
             $("#aplicado" + pos).css('color', '');
 
@@ -213,10 +189,10 @@
             $("#aplicado" + pos).css('color', 'red');
             flag = false;
         }
-        
 
-           
-            
+
+
+
     }
 
     function crearModeloEnlace() {
@@ -240,4 +216,4 @@
         return array;
     }
 
-</script>
+    </script>
