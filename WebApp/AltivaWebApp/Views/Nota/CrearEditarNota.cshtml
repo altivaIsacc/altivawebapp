@@ -83,13 +83,13 @@
         </div>
         <div class="form-group col-md-2 col-sm-2 col-xs-6">
             <label class="control-label">@Lb["Dolar"]:</label>
-            <input class="form-control moneda" value="@ViewBag.Dolar" id="dolar" @estado />
-            <input class="form-control moneda" type="hidden" value="@ViewBag.DolarVenta" id="dolarVenta" />
+            <input class="form-control moneda" value="@ViewBag.DolarVenta" id="dolarVenta" @estado />
+            <input class="form-control moneda" type="hidden" value="@ViewBag.Dolar" id="dolar" />
         </div>
         <div class="form-group  col-md-2 col-sm-2 col-xs-6">
             <label class="control-label">@Lb["Euro"]:</label>
-            <input class="form-control moneda" value="@ViewBag.Euro" id="euro" @estado />
-            <input class="form-control moneda" type="hidden" value="@ViewBag.EuroVenta" id="euroVenta" />
+            <input class="form-control moneda" value="@ViewBag.EuroVenta" id="euroVenta" @estado />
+            <input class="form-control moneda" type="hidden" value="@ViewBag.Euro" id="euro" />
 
         </div>
         <div class="form-group col-md-4 col-sm-6 col-xs-12">
@@ -129,7 +129,7 @@
                 <label class="control-label">@Lb["tipo"]:</label>
                 <select class="selectItems form-control" data-live-search="true" id="tipoJustificante"></select>
             </div>
-            <div class="form-group col-md-1 col-sm-1 col-xs-2">
+            <div class="form-group col-md-1 col-sm-1 col-xs-12">
                 <br />
                 <a style="padding:0; margin:0; margin-top:1rem" class="btn btn-link" id="crearJustificante">
                     <span><i style="font-size: 2rem" class="fas fa-plus-circle"></i></span>
@@ -150,7 +150,7 @@
 
         </div>
 
-        <div class=" row col-md-8">
+        <div class=" row  col-md-8 col-sm-8 col-xs-12">
             <div class="table-responsive " style="overflow-y:scroll;height:200px;">
                 <table class="table table-bordered table-fixed" id="tblOrdenCompra">
                     <thead>
@@ -213,7 +213,7 @@
 <div class="row">
     <div class="form-group col-md-8">
         <button class="btn btn-success btnAccion" onclick="guardarCambios()">@Lb["Guardar"] <i class="fas fa-save"></i></button>
-        <a onclick="" class="btn btn-default">@Lb["Cancelar"]</a>
+        <a onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
     </div>
 </div>
 <div class="row">
@@ -323,6 +323,7 @@
         </div>
     </div>
 </div>
+
 <script src="~/js/comentario.js"></script>
 <script>
     var $idNotaCredito = '@Model.IdDocumento';
@@ -348,7 +349,8 @@
     var ObjetoMovimiento = [];
 
 
-    $(document).ready(function () {
+    $(document).ready(function () {      
+       $('#enlaceContenedor').prop('hidden', true);       
         var date = new Date();
         $("#monto").val(0.00);
         if (@Model.IdDocumento != 0) {
@@ -584,8 +586,8 @@
         $.ajax({
             type: "GET",
             url: url,
-            success: function (data) {
-                $('#EditarPartial').html(data);
+            success: function (data) {              
+                 $('#EditarPartial').html(data);
                 $('#modalTipoJustificante').modal('show');
             },
             error: function (err, scnd) {
@@ -682,7 +684,9 @@
         });
 
     }
-
+    function cancelar() {
+          window.location.href = '@Url.Action("ListarNotas")';
+    }
     function procesarPagoDoc() {
 
         formasPagoDoc = formasPago;
@@ -1279,9 +1283,9 @@
         contadorFila = 0;
         for (var i = 0; i < data.length; i++) {
             contadorFila++;
-            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td>' + data[i].descripcion + '</td>'
-                + '<td ><span>' + getTipo(data[i].tipo) + '</span></td>'
-                + '<td ><span class="currency">' + data[i].monto + '</span></td>'
+            var body = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + data[i].descripcion + '</td>'
+                + '<td style="padding-top:2rem;" ><span>' + getTipo(data[i].tipo) + '</span></td>'
+                + '<td style="padding-top:2rem;" ><span class="currency">' + data[i].monto + '</span></td>'
                 + '<td><button  class="btn btn-link" value="' + contadorFila + '" onclick="cargarModalEditNota(' + i + ')" ><i class="fas fa-edit"></i></button><button  class="btn btn-link" value="' + i + '" onclick="eliminarLinea(value, ' + data[i].id + ')" ><i class="fas fa-trash"></i></button></td></tr>';
 
             $('.lineaForm').before(body);
@@ -1722,16 +1726,31 @@
         return array;
     }
     function GetReporte() {
-
         var parametros = [];
+             $.ajax({
+              type: "get",
+              dataType: "json",
+              url: '@Url.Action("GetEmpresa", "GrupoEmpresarial", new { id = @Context.Session.GetInt32("idEmpresa")})',
+                 success: function (data) {
+                    parametros.push({ nombre: "idPuntoVenta", valor:data.idPuntoVenta });
+                           
+           
+             },
+             error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+             }
+             });
+      
+         parametros.push({ nombre: "IdNC", valor: '@Model.IdDocumento' });
+         parametros.push({ nombre: "idMovimiento", valor: $("#IdMovimiento").val() });
+         parametros.push({ nombre: "idEmpresa", valor: '@Context.Session.GetInt32("idEmpresa")' });
+        console.log(parametros);
 
-        parametros.push({ nombre: "IdNC", valor: '@Model.IdDocumento' });
-
-
-        $.ajax({
+       $.ajax({
             type: "POST",
             url: '@Url.Action("ReporteGeneral", "VistaReporte")',
-            data: { NombreReporte: "ReporteNota", parametros: parametros },
+            data: { NombreReporte: "Nota", parametros: parametros, usaGrupo: false },
              success: function (data) {
 
                  var myWindow = window.open('', '', '');

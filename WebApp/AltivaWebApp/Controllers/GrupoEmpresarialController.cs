@@ -48,6 +48,12 @@ namespace AltivaWebApp.Controllers
            ViewData["grupoEmpresas"] = service.GetGE();
             return View(user);
         }
+        [HttpGet("GetEmpresa/{id}")]
+        public ActionResult GetEmpresa(int id)
+        {
+            var empresa = service.GetEmpresaById(id);
+            return Ok(empresa);
+        }
 
         [HttpGet("Empresa/{nombre}")]
         public ActionResult DetallesEmpresa(string nombre, string contexto="")

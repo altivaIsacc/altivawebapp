@@ -19,16 +19,17 @@
     <br />
 </div>
 <div class=" row col-md-12 col-sm-12 col-xs-12">
-    <div class="table-responsive " style="overflow-y:scroll;height:100px;">
+    <div class="table-responsive " style="overflow-y:scroll;height:200px;">
         <table class="table table-bordered table-fixed" id="tblSinAplicar">
             <thead>
+
                 <tr>
 
                     <th><span>@Lb["tipo"]</span></th>
                     <th><span>@Lb["Documento"]</span></th>
+                    <th style="padding-left:50px"><span>@Lb["Aplicado"]</span></th>
                     <th><span>@Lb["Fecha"]</span></th>
                     <th><span>@Lb["Pendiente"]</span></th>
-                    <th width="30%"><span>@Lb["Aplicado"]</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -44,7 +45,7 @@
     </div>
 
     <div class="row">
-        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+        <div class="form-group col-md-8 col-sm-8 col-xs-12">
             <br />
             <button class="btn btn-success btnAccion" onclick="GuardarEnlace()">@Lb["Aplicar"]</button>
             <a id="cancelarEnlace" onclick="" class="btn btn-default">@Lb["Cancelar"]</a>
@@ -68,6 +69,8 @@
     });
 
     $("#cancelarEnlace").on("click", function () {
+     
+               
         $('#modalTipoJustificante').modal('hide');
     });
 
@@ -83,10 +86,11 @@
             aplicado = calcularLinea(recuperarSaldo(data[i]));
             var body = '<tr class="filasSinAplicar" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + data[i].nombre + '</td>'
                 + '<td style="padding-top:2rem;"><span>' + data[i].idDocumento + '</span></td>'
-                + '<td ><span >' + recuperarFecha(data[i].fechaDocumento) + '</span></td>'
-                + '<td ><span id="pendiente' + i + '" class="currency">' + recuperarSaldo(data[i]) + '</span></td>'
-                + '<td style="padding: auto;" ><input id="aplicado' + i + '" onkeyup="cambiarAplicado(' + i + ')"  class="form-control currency" value="' + aplicado + '"/></td></tr>';
-            $('.lineaSinAplicar').before(body);
+                + '<td><input id="aplicado' + i + '" onkeyup="cambiarAplicado(' + i + ')"  class="form-control currency" value="' + aplicado + '"/></td>'
+                + '<td style="padding-top:2rem;" ><span >' + recuperarFecha(data[i].fechaDocumento) + '</span></td>'
+                + '<td style="padding-top:2rem;" ><span id="pendiente' + i + '" class="currency">' + recuperarSaldo(data[i]) + '</span></td></tr>';
+               $('.lineaSinAplicar').before(body);
+           
             guardarAplicado(docSinAplicar[i], aplicado);
 
         }
@@ -138,8 +142,9 @@
         } else {
             Guardar();
               $("#totalDisponible").val($("#disponible").inputmask('unmaskedvalue'));
-              $("#totalAplicado").val(parseFloat($("#totalAplicado").inputmask('unmaskedvalue')) + parseFloat($("#sumaAplicado").inputmask('unmaskedvalue')));
-            $('#modalTipoJustificante').modal('hide');
+            $("#totalAplicado").val(parseFloat($("#totalAplicado").inputmask('unmaskedvalue')) + parseFloat($("#sumaAplicado").inputmask('unmaskedvalue')));
+             $('#enlaceContenedor').prop('hidden', true);
+         $('#notaContenedor').prop('hidden',false );
         }
     }
 
