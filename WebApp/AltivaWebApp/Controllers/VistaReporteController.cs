@@ -44,7 +44,15 @@ namespace AltivaWebApp.Controllers
 
             foreach (var item in parametros)
             {
-                rep.Report.SetParameterValue(item.Nombre,long.Parse( item.Valor));// envia por parametro el idempresa a fast report
+                if(item.Nombre == "Direccion")
+                {
+                    rep.Report.SetParameterValue(item.Nombre,( item.Valor).ToString());
+                }
+                else
+                {
+                    rep.Report.SetParameterValue(item.Nombre, long.Parse(item.Valor));// envia por parametro el idempresa a fast report
+
+                }
             }
 
            // rep.ShowToolbar = false;

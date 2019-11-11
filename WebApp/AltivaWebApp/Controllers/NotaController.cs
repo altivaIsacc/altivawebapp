@@ -345,6 +345,7 @@ namespace AltivaWebApp.Controllers
                 {
                     pago = pagoMap.Create(modelPago);
                     modelMovimiento.IdDocumento = pago.IdPago;
+                    modelMovimiento.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     movimientoMap.Create(modelMovimiento);
                 }
 

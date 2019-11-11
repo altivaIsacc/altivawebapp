@@ -42,7 +42,7 @@
 </div>
 <div class="row well">
     <input type="hidden" id="IdMovimiento" value="0" />
-    <input type="hidden" id="IdUsuario" value="0" />
+    <input type="hidden" id="IdUsuario"  />
 
     <div class="row">
 
@@ -1726,14 +1726,21 @@
         return array;
     }
     function GetReporte() {
+                                       var esN = false;     
+            for (var i = 0; i < tipoDocumento.length; i++) {
+                if (parseInt($("#tipoDocumento option:selected").val()) == tipoDocumento[i].idTipoDocumento)
+                    esN = tipoDocumento[i].esNota;             
+            }
         var parametros = [];
              $.ajax({
               type: "get",
               dataType: "json",
               url: '@Url.Action("GetEmpresa", "GrupoEmpresarial", new { id = @Context.Session.GetInt32("idEmpresa")})',
                  success: function (data) {
-                    parametros.push({ nombre: "idPuntoVenta", valor:data.idPuntoVenta });
-                           
+                     parametros.push({ nombre: "idPuntoVenta", valor: data.idPuntoVenta.toString() });
+                     if (!esN)
+                         parametros.push({ nombre: "Direccion", valor: data.direccion.toString() });
+
            
              },
              error: function (err, scnd) {
@@ -1741,16 +1748,20 @@
                   console.log(err.statusText);
              }
              });
-      
-         parametros.push({ nombre: "IdNC", valor: '@Model.IdDocumento' });
-         parametros.push({ nombre: "idMovimiento", valor: $("#IdMovimiento").val() });
-         parametros.push({ nombre: "idEmpresa", valor: '@Context.Session.GetInt32("idEmpresa")' });
+        if (esN) {
+            parametros.push({ nombre: "IdNC", valor: '@Model.IdDocumento' });
+            parametros.push({ nombre: "idMovimiento", valor: $("#IdMovimiento").val() });
+            parametros.push({ nombre: "idEmpresa", valor: '@Context.Session.GetInt32("idEmpresa")' });
+            var nombre = "Nota";
+        } if (!esN) {
+            parametros.push({ nombre: "idMovimiento", valor: $("#IdMovimiento").val() });
+            var nombre = "Pago";
+        }
         console.log(parametros);
-
        $.ajax({
             type: "POST",
             url: '@Url.Action("ReporteGeneral", "VistaReporte")',
-            data: { NombreReporte: "Nota", parametros: parametros, usaGrupo: false },
+            data: { NombreReporte: nombre, parametros: parametros, usaGrupo: false },
              success: function (data) {
 
                  var myWindow = window.open('', '', '');
