@@ -13,8 +13,19 @@ namespace AltivaWebApp.App_Start
 
 
         public static void AddScope(IServiceCollection services)
-
         {
+
+            //contacto visitas
+            services.AddScoped<IContactoVisitaMap, ContactoVisitaMap>();
+            services.AddScoped<IContactoVisitaRepository, ContactoVisitaRepository>();
+            services.AddScoped<IContactoVisitaService, ContactoVisitaService>();
+
+            //visita Tipo
+            services.AddScoped<IVisitaTipoMap, VisitaTipoMap>();
+            services.AddScoped<IVisitaTipoRepository, VisitaTipoRepository>();
+            services.AddScoped<IVisitaTipoService, VisitaTipoService>();
+
+
 
             //condiciones de pago
             services.AddScoped<ICondicionesDePagoRepository,CondicionesDePagoRepository>();

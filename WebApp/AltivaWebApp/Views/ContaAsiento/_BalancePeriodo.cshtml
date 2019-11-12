@@ -1,0 +1,101 @@
+﻿@{
+    double TotalSaldoAnterior = 0;
+    double TotalDebitos = 0;
+    double TotalCreditos = 0;
+    double TotalSaldoPeriodo = 0;
+    double TotalsaldoAcumulado = 0;
+    var formatoMoneda = ViewBag.Moneda.Simbolo + " #,##0.00";
+
+ }
+@foreach (var item in ViewBag.resultado)
+{
+    var estiloFila = "font-weight:normal; font-size:x-small; text-decoration:underline"; if (@item.ItemArray[2].ToString() == "1") { estiloFila = "font-weight:bold; font-size:small; color:blue"; }
+    if (@item.ItemArray[2].ToString() == "2") { estiloFila = "font-weight:normal; font-size:small"; }
+    if (@item.ItemArray[6].ToString() == "True") { estiloFila = "font-weight:normal; font-size:xx-small"; }
+
+
+    var saldoAnteriorPos = 8;
+    var debitosPos = 9;
+    var creditosPos = 10;
+    var saldoPeriodoPos = 11;
+    var acumuladoPos = 12;
+    if (ViewBag.Moneda.Codigo == 2)
+    {
+        saldoAnteriorPos = 13;
+        debitosPos = 14;
+        creditosPos = 15;
+        saldoPeriodoPos = 16;
+        acumuladoPos = 17;
+    }
+    if (ViewBag.Moneda.Codigo == 3)
+    {
+        saldoAnteriorPos = 18;
+        debitosPos = 19;
+        creditosPos = 20;
+        saldoPeriodoPos = 21;
+        acumuladoPos = 22;
+    }
+    if (@item.ItemArray[6].ToString() == "True")
+    {
+        TotalDebitos += double.Parse(item.ItemArray[debitosPos].ToString());
+        TotalCreditos += double.Parse(item.ItemArray[creditosPos].ToString());
+        TotalSaldoAnterior += double.Parse(item.ItemArray[saldoAnteriorPos].ToString());
+        TotalSaldoPeriodo += double.Parse(item.ItemArray[saldoPeriodoPos].ToString());
+        TotalsaldoAcumulado += double.Parse(item.ItemArray[acumuladoPos].ToString());
+
+    }
+
+
+    <tr style="@estiloFila">
+        <td>
+            @item.ItemArray[0].ToString() 
+        </td>
+        <td>
+            @item.ItemArray[2].ToString()
+        </td>
+        <td>
+            @item.ItemArray[1].ToString()
+        </td>
+        <td style="text-align:right">
+            @item.ItemArray[saldoAnteriorPos].ToString(formatoMoneda)
+        </td>
+        <td style="text-align:right">
+            @item.ItemArray[debitosPos].ToString(formatoMoneda)
+        </td>
+        <td style="text-align:right">
+            @item.ItemArray[creditosPos].ToString(formatoMoneda)
+        </td>
+        <td style="text-align:right">
+            @item.ItemArray[saldoPeriodoPos].ToString(formatoMoneda)
+        </td>
+        <td style="text-align:right">
+            @item.ItemArray[acumuladoPos].ToString(formatoMoneda)
+        </td>
+    </tr>
+}
+    <tr>
+        <td>
+           
+        </td>
+        <td>
+           
+        </td>
+        <td>
+           
+        </td>
+        <td style="text-align:right; font-weight:bold">
+            @TotalSaldoAnterior.ToString(formatoMoneda)
+        </td>
+        <td style="text-align:right; font-weight:bold">
+            @TotalDebitos.ToString(formatoMoneda)
+        </td>
+        <td style="text-align:right; font-weight:bold">
+            @TotalCreditos.ToString(formatoMoneda)
+        </td>
+        <td style="text-align:right; font-weight:bold">
+            @TotalSaldoPeriodo.ToString(formatoMoneda)
+        </td>
+        <td style="text-align:right; font-weight:bold">
+            @TotalsaldoAcumulado.ToString(formatoMoneda)
+        </td>
+    </tr>

@@ -32,7 +32,7 @@ namespace AltivaWebApp.Domains
         public virtual ICollection<TbPrInventarioBodega> TbPrInventarioBodega { get; set; }
         public virtual ICollection<TbPrRequisicion> TbPrRequisicion { get; set; }
         public virtual ICollection<TbPrToma> TbPrToma { get; set; }
-        public virtual ICollection<TbPrTraslado> TbPrTrasladoIdBodegaDestinoNavigation { get; set; }
+        public virtual ICollection<TbPrTraslado> TbPrTrasladoIdBodegaDestinoNavigation { get; set; }//este
         public virtual ICollection<TbPrTraslado> TbPrTrasladoIdBodegaOrigenNavigation { get; set; }
     }
 }

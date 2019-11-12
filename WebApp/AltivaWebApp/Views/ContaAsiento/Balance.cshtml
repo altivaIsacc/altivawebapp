@@ -1,4 +1,6 @@
-﻿@inject IStringLocalizer<SharedResources> lb
+﻿
+@inject IStringLocalizer<SharedResources> lb
+
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
@@ -8,6 +10,10 @@
 }
 @{
     ViewData["Title"] = lb[ViewBag.Titulo];
+    var disable = "disabled";
+    var etiquetaMayorizar = "SinAsientosPorMayorizar";
+    if (ViewBag.SinMayorizar > 0) { disable = ""; etiquetaMayorizar = "AsientosPorMayorizar"; }
+
 
 }
 <!DOCTYPE html>
@@ -16,14 +22,14 @@
 <body>
     <div class="row">
         <div class="col-md-2"><h3>@lb[ViewBag.Titulo]</h3></div>
-       
+
     </div>
     <div class="row well">
 
         <div class="row">
             <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
                 <label>@lb["PeriodoFiscal"]:</label>
-                <input id="LtPeriodosFiscal" list="LtPeriodoFiscal" class="form-control" autocomplete=on onchange="escogePeriodoFiscal()" placeholder="@lb["PeriodoFiscal"]">
+                <input id="LtPeriodosFiscal" list="LtPeriodoFiscal" class="form-control" autocomplete=on placeholder="@lb["PeriodoFiscal"]" onchange="llenaPeriodoTrabajo()">
                 <datalist id="LtPeriodoFiscal">
                     @{
                         foreach (var item in ViewBag.PeriodosFiscales)
@@ -33,10 +39,11 @@
                         }
                     }
                 </datalist>
+                <span hidden id="periodoFiscalCorregir" class="text-danger">@lb["periodoFiscalCorregir"]</span>
             </div>
             <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
                 <label>@lb["Periodo"]:</label>
-                <input id="LtPeriodos" list="LtPeriodoTrabajo" class="form-control" autocomplete=on onchange="escogePeriodoTrabajo()" placeholder="@lb["Periodo"]">
+                <input id="LtPeriodos" list="LtPeriodoTrabajo" class="form-control" placeholder="@lb["Periodo"]">
                 <datalist id="LtPeriodoTrabajo">
                     @{
                         foreach (var item in ViewBag.Periodos)
@@ -47,10 +54,11 @@
 
                     }
                 </datalist>
+                <span hidden id="periodoCorregir" class="text-danger">@lb["periodoCorregir"]</span>
             </div>
             <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
                 <label class="control-label">@lb["Moneda"]:</label>
-                <input id="LtMonedas" list="LtCodigoMoneda" class="form-control" autocomplete=on onchange="escogeMoneda()">
+                <input id="LtMonedas" list="LtCodigoMoneda" class="form-control" placeholder="@lb["Moneda"]" autocomplete=on>
                 <datalist id="LtCodigoMoneda">
                     @{
                         foreach (var item in ViewBag.Monedas)
@@ -59,14 +67,21 @@
                         }
                     }
                 </datalist>
+                <span hidden id="monedaCorregir" class="text-danger">@lb["monedaCorregir"]</span>
             </div>
             <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
-                <div class="col-md-10" style="padding-top: 0.5rem">
-                    <a class="btn btn-primary" asp-action="item"><span>@lb["Ver"]</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+                <div class="col-md-12 col-sm-4 col-xs-12" style="margin-top: 2.5rem">
+                    <a id="btVer" class="btn btn-primary" onclick="getBalancePeriodo()"><span>@lb["Ver"]</span>&nbsp;<i class="fas fa-search"></i></a>
+
+                    <a @disable id="btMayorizar" class="btn btn-primary" onclick="Mayorizar()" data-toggle="tooltip" data-placement="top" title="@lb[etiquetaMayorizar]">@lb["Mayorizar"] (@ViewBag.SinMayorizar)</i></a>
+
                 </div>
+
             </div>
+
         </div>
 
+ 
         <div class="row" style="margin-top:4px">
             <div class="col-md-12 col-xs-12 table-responsive">
                 <table class="table table-bordered" id="tblBalance">
@@ -85,7 +100,7 @@
                                 @lb["SaldoAnterior"]
                             </th>
                             <th>
-                                @lb["Debe"] 
+                                @lb["Debe"]
                             </th>
                             <th>
                                 @lb["Haber"]
@@ -98,16 +113,179 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody id="tabla"></tbody>
                 </table>
             </div>
         </div>
     </div>
+
 </body>
 </html>
-<script>
-    function cargarDatos() {
+<script type="text/javascript">
+    var monedas = [];
+    var monedaItem;
+      @foreach (var item in ViewBag.Monedas)
+      {
+        @:      monedaItem = {Codigo:'@item.Codigo',Nombre:'@item.Nombre',Simbolo:'@item.Simbolo'};
+        @:      monedas.push(monedaItem);
+        }
 
+    var periodos = [];
+    var periodo;
+      @foreach (var item in ViewBag.Periodos)
+      {
+        @:      periodo = {FechaInicio:'@item.FechaInicio.ToString("yyyy/MM/dd")',FechaFinal:'@item.FechaFinal.ToString("yyyy/MM/dd")',Nombre: '@item.Nombre',IdPeriodoTrabajo: '@item.IdPeriodoTrabajo',IdPeriodoFiscal: '@item.IdPeriodoFiscal'};
+        @:      periodos.push(periodo);
+        }
+    var periodosFiscales = [];
+    var periodoFiscal;
+      @foreach (var item in ViewBag.PeriodosFiscales)
+      {
+        @:      periodoFiscal = {FechaInicio:'@item.FechaDesde.ToString("yyyy/MM/dd")',FechaFinal:'@item.FechaHasta.ToString("yyyy/MM/dd")',Nombre: '@item.Nombre',IdPeriodoFiscal: '@item.IdPeriodoFiscal'};
+        @:      periodosFiscales.push(periodoFiscal);
+        }
+
+    var periodoFiscalSeleccionado;
+    function obtenerPeriodoFiscal() {
+        var nombrePeriodoFiscal = document.getElementById("LtPeriodosFiscal").value;
+        periodoFiscalSeleccionado = null;
+        periodosFiscales.forEach(function (item) {
+            if (nombrePeriodoFiscal == item.Nombre) {
+                periodoFiscalSeleccionado = item;
+            }
+        });
 
     }
+    function llenaPeriodoTrabajo() {
+        obtenerPeriodoFiscal();
+        var list = document.getElementById('LtPeriodoTrabajo');
+        if (periodoFiscalSeleccionado != null) {
+            document.getElementById("LtPeriodoTrabajo").innerHTML = '';
+            periodos.forEach(function (item) {
+            if (item.IdPeriodoFiscal == periodoFiscalSeleccionado.IdPeriodoFiscal) {
+                var option = document.createElement('option');
+                option.value = item.Nombre;
+                option.text = item.FechaInicio + ' | ' + item.FechaFinal;
+                list.appendChild(option);
+
+            }
+
+        });
+        }
+
+    }
+
+    var periodoSeleccionado;
+    function obtenerPeriodo() {
+        var nombrePeriodo = document.getElementById("LtPeriodos").value;
+        periodoSeleccionado = null;
+        periodos.forEach(function (item) {
+            if (nombrePeriodo == item.Nombre) {
+                periodoSeleccionado = item;
+            }
+        });
+    }
+
+    var monedaSeleccionada;
+    function obtenerMoneda() {
+        var simboloMoneda = document.getElementById("LtMonedas").value;
+        monedaSeleccionada = null;
+        monedas.forEach(function (item) {
+            if (simboloMoneda == item.Simbolo) {
+                monedaSeleccionada = item;
+            }
+        });
+    }
+    function getBalancePeriodo() {
+        document.getElementById('btVer').classList.add("disabled");
+
+        obtenerPeriodo();
+        obtenerMoneda();
+        var url = "@Url.Action("_BalancePeriodo")";
+        if (validarModelo()) {
+            $.ajax({type: "Post",
+                url: url,
+                data: { id: periodoSeleccionado.IdPeriodoTrabajo, idMoneda: monedaSeleccionada.Codigo},
+            success: function (data) {
+                $('#tabla').html(data);
+                           },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+
+        }
+        document.getElementById('btVer').classList.remove("disabled");
+
+    }
+    function Mayorizar() {
+        obtenerPeriodo();
+        obtenerMoneda();
+
+        if (validarModelo())
+        {
+
+        document.getElementById('btVer').classList.add("disabled");
+        document.getElementById('btMayorizar').classList.add("disabled");
+
+        var url = "@Url.Action("Mayorizar")";
+            $.ajax({type: "Post",
+                url: url,
+                success: function () {
+                   document.getElementById('btVer').classList.add("disabled");
+                    document.getElementById('btMayorizar').classList.add("disabled");
+                    document.getElementById('btMayorizar').innerText = '@lb["Mayorizar"] (0)';
+
+                    getBalancePeriodo();
+                 },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+                document.getElementById('btVer').classList.remove("disabled");
+                document.getElementById('btMayorizar').classList.remove("disabled");
+            }
+
+        });
+
+        }
+
+    }
+    function validarModelo() {
+
+        var estado = true;
+        if (periodoSeleccionado == null) {
+            document.getElementById('periodoCorregir').style.display = 'block';
+            estado = false;
+
+        }
+        else {
+            document.getElementById('periodoCorregir').style.display = 'none';
+
+        }
+        if (periodoFiscalSeleccionado == null) {
+            document.getElementById('periodoFiscalCorregir').style.display = 'block';
+            estado = false;
+
+        }
+        else {
+            document.getElementById('periodoFiscalCorregir').style.display = 'none';
+
+        }
+
+        if (monedaSeleccionada == null) {
+            document.getElementById('monedaCorregir').style.display = 'block';
+            estado = false;
+
+        } else {
+            document.getElementById('monedaCorregir').style.display = 'none';
+
+        }
+
+        return estado;
+
+    }
+
+
+
 </script>
+

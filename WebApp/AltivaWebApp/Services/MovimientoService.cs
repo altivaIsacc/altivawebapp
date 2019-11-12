@@ -104,8 +104,7 @@ namespace AltivaWebApp.Services
         public TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimiento(long idMovimiento)
         {
             return repository.GetMovimientoDetalleByIdMovimiento(idMovimiento);
-        }
-        
+        }       
 
         public IList<DocumentosContactoViewModel> GetDocumentosPendientesContacto(long idContacto)
         {
