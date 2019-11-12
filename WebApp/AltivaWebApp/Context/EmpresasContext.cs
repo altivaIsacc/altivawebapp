@@ -24,8 +24,10 @@ namespace AltivaWebApp.Context
         //no autogenerado / no borrar
         public virtual DbSet<CompraAutomaticoViewModel> CompraAutomatico { get; set; }
         public virtual DbSet<ListarInventarioViewModel> ListarInventario { get; set; }
-
         public virtual DbSet<DocumentosContactoViewModel> DocumentosContacto { get; set; }
+        public virtual DbSet<DocumentosSaldoGeneralViewModel> DocumentosSaldoGeneral { get; set; }
+        public virtual DbSet<ContactoSaldoGeneralViewModel> ContactoSaldoGeneral { get; set; }
+
 
         //agregado por lenin
         public virtual DbSet<TbBaFlujoCategoria> TbBaFlujoCategoria { get; set; }
@@ -169,6 +171,29 @@ namespace AltivaWebApp.Context
                 entity.Property(e => e.IdFamilia).HasColumnName("IdFamilia");
 
             });
+
+            modelBuilder.Entity<DocumentosSaldoGeneralViewModel>(entity =>
+            {
+                entity.HasKey(e => e.IdMovimiento);
+                entity.Property(e => e.SaldoBase).HasColumnName("SaldoBase");
+                entity.Property(e => e.SaldoDolar).HasColumnName("SaldoDolar");
+                entity.Property(e => e.SaldoEuro).HasColumnName("SaldoEuro");
+                entity.Property(e => e.IdContacto).HasColumnName("IdContacto");
+                entity.Property(e => e.IdDocumento).HasColumnName("IdDocumento");
+                entity.Property(e => e.FechaCreacion).HasColumnName("FechaCreacion");              
+            });
+
+            modelBuilder.Entity<ContactoSaldoGeneralViewModel>(entity =>
+            {
+                entity.HasKey(e => e.IdContacto);
+                entity.Property(e => e.Nombre).HasColumnName("Nombre");
+                entity.Property(e => e.Apellidos).HasColumnName("Apellidos");
+                entity.Property(e => e.NombreComercial).HasColumnName("NombreComercial");
+                entity.Property(e => e.Cedula).HasColumnName("Cedula");
+                entity.Property(e => e.PlazoCredito).HasColumnName("PlazoCredito");
+                entity.Property(e => e.MontoMaximo).HasColumnName("MontoMaximo");
+            });
+
 
 
             modelBuilder.Entity<CompraAutomaticoViewModel>(entity =>

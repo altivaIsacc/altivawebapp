@@ -46,6 +46,11 @@ namespace AltivaWebApp.Controllers
         {
             return View();
         }
+        [HttpGet("SaldoGeneral")]
+        public IActionResult SaldoGeneral()
+        {
+            return View();
+        }
         [HttpGet("EnlaceAutomatico/{idContacto}")]
         public IActionResult _EnlaceAutomatico(long idContacto)
         {
