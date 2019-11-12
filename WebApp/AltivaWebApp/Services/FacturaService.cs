@@ -17,7 +17,27 @@ namespace AltivaWebApp.Services
         {
             return repository.DeleteFacturaDetalle(domain);
         }
+        public IList<FacturaBusqueda> GetFiltrado(long idPuntoVenta, string estado = "", string nombreCliente = "", string nombreVendedor = "", string fechaDesde = "", string fechaHasta = "")
+        {
+            if (estado == null) { estado = ""; }
+            if (nombreVendedor == null) { nombreVendedor = ""; }
+            if (nombreCliente == null) { nombreCliente = ""; }
+            if (fechaDesde == null) { fechaDesde = ""; }
+            else
+            {
+                DateTime ff = Convert.ToDateTime(fechaHasta).Date;
+                fechaHasta = ff.ToString("dd/MM/yyyy");
+            }
+           
+            if (fechaHasta == null) { fechaHasta = ""; }
+            else
+            {
+                DateTime ff = Convert.ToDateTime(fechaDesde).Date;
+                fechaDesde = ff.ToString("dd/MM/yyyy");
+            }
 
+            return repository.GetFiltrado(idPuntoVenta, estado, nombreCliente, nombreVendedor, fechaDesde, fechaHasta);
+        }
         public IList<TbFdFactura> GetAllFacturas()
         {
             return repository.GetAllFacturas();
@@ -32,7 +52,7 @@ namespace AltivaWebApp.Services
         {
             return repository.GetFacturaDetalleById(id);
         }
-        
+
 
         public TbFdFactura Save(TbFdFactura Factura)
         {

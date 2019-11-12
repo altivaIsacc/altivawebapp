@@ -11,11 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using AltivaWebApp.GEDomain;
 using System.Linq;
-using Nancy.Authentication.Forms;
-using Amazon.OpsWorks.Model;
 using Microsoft.AspNetCore.Routing;
 
 namespace AltivaWebApp.Controllers
