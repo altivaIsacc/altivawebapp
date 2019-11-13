@@ -14,6 +14,8 @@ namespace AltivaWebApp.Services
         TbFaNota Update(TbFaNota domain);
         IList<TbFaTipoDocumento> GetAllTipoDocumento();
         TbFaMovimiento SaveMovimiento(TbFaMovimiento domain);
+        TbFaPago GetPagoById(long id);
+        TbFaPago UpdateDoc(TbFaPago domain);
 
     }
 }

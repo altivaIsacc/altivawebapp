@@ -7,12 +7,12 @@
     }
 }
 @{
-    ViewData["Title"] = Lb["Notas"];
+    ViewData["Title"] = Lb["Movimientos"];
 
 }
 <div class="row">
     <div class="col-md-3">
-        <h3>@Lb["Notas"]</h3>
+        <h3>@Lb["Movimientos"]</h3>
     </div>
     <div class="col-md-4" style="margin-left:1rem; padding-top:0.7rem">
         <p>
@@ -38,6 +38,13 @@
             <option value="3">@Lb["CXC"]</option>
         </select>
     </div>
+    <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
+        <label>@Lb["BuscarTipoDocumento"]:</label>
+        <select class="form-control" id="tipoDocumento">
+            <option selected value="1">@Lb["seleccione"]</option>
+
+        </select>
+    </div>
     <div class="col-md-3 col-sm-4 col-xs-12">
         <input type="checkbox" id="habilitaFiltroFecha" />
         <label for="habilitaFiltroFecha">@Lb["FiltroFecha"]</label>
@@ -57,7 +64,7 @@
 
     </div>
 
-    <div class="col-md-2 col-sm-2 col-xs-12 checkbox" >
+    <div class="col-md-2 col-sm-2 col-xs-12 checkbox">
         <label class="control-label">
             <input type="checkbox" id="estado" onchange="filtroAnuladas()"> @Lb["VerInactivos"]
         </label>
@@ -71,7 +78,7 @@
         <table class="table table-bordered" id="tblNotas">
             <thead>
                 <tr>
-                   
+
                     <th>
                         @Lb["Consecutivo"]
                     </th>
@@ -80,6 +87,9 @@
                     </th>
                     <th>
                         @Lb["Contacto"]
+                    </th>
+                    <th hidden>
+                        @Lb["tipoDoc"]
                     </th>
                     <th>
                         @Lb["tipo"]
@@ -118,7 +128,10 @@
     });
     //Eventos directos
     $("#filtroBuscarCX").on("change", function () {
+        var tipo = parseInt($("#filtroBuscarCX option:selected").val());
+        console.log(tipo);
         filtroAnuladas();
+        TiposDocumentos(tipo);
     });
     $("#filtroBuscarConsecutivo").on("keyup", function () {
         tblTipoJustificante
@@ -132,6 +145,20 @@
             .search(this.value)
             .draw();
     });
+    $("#tipoDocumento").on("change", function () {
+        var tipo = parseInt($("#tipoDocumento option:selected").val());
+        if (tipo != 0) {
+            tblTipoJustificante
+                .columns(3)
+                .search(this.value)
+                .draw();
+        } else {
+            tblTipoJustificante
+                .columns(3)
+                .search('')
+                .draw();
+        }
+    });
     $('#habilitaFiltroFecha').change(function () {
         if (!$(this).prop('checked')) {
             filtroAnuladas();
@@ -143,12 +170,12 @@
         }
     });
     //AJAX
-    function anularNotaDirect(id) {
+    function anularNotaDirect(id, tipo) {
         $.ajax({
             type: "post",
             dataType: "json",
             url: '@Url.Action("AnularNota", "Nota")',
-            data: { id: id },
+            data: { id: id, tip : tipo },
             success: function (data) {
                 getNotas();
             },
@@ -160,7 +187,7 @@
 
     }
    
-    function anularNota(id, key) {
+    function anularNota(id, key, idtipo) {
 
         var msj = "@Lb["confirmAnularNota"]";
         if (key ==2) {
@@ -173,8 +200,13 @@
         bootbox.confirm(msj, function (result) {
 
             if (result) {
+                var tipo = false;
+                for (var i = 0; i < tipoDocumentos.length; i++) {
+                    if (tipoDocumentos[i].idTipoDocumento == idtipo)
+                        tipo = tipoDocumentos[i].esNota;
+                }
 
-                anularNotaDirect(id);
+                anularNotaDirect(id,tipo);
             }
 
         });
@@ -184,9 +216,8 @@
             type: "get",
             dataType: "json",
             url: '@Url.Action("GetAllMovimientos", "Nota")',
-              success: function (data) {                
-                  Movimientos = data;
-                  
+            success: function (data) {  
+                  Movimientos = data;                
                   getTipoDocumentos();
             },
             error: function (err, scnd) {
@@ -201,8 +232,9 @@
             type: "get",
             dataType: "json",
             url: '@Url.Action("GetAllTipoDocumento", "Nota")',
-            success: function (data) {                
+            success: function (data) {
                 tipoDocumentos = data;
+             
                 getNotas();
             },
             error: function (err, scnd) {
@@ -211,14 +243,36 @@
             }
         });
     }
+    function TiposDocumentos(tipo) {
+        $("#tipoDocumento").html('');
+        console.log(tipoDocumentos);
+        $("#tipoDocumento").append(new Option('@Lb["Seleccione"]',0));
+        for (var i = 0; i < tipoDocumentos.length; i++) {
+                if (tipoDocumentos[i].esNota || !tipoDocumentos[i].esDebito) {
+                    if (tipo == 3) {
+                        if (tipoDocumentos[i].cxc) {
+                            var j = new Option(tipoDocumentos[i].nombre, tipoDocumentos[i].idTipoDocumento);
+                            $("#tipoDocumento").append(j);
+                        }
+                    }
+                    if (tipo == 2) {
+                        if (tipoDocumentos[i].cxP) {
+                            var o = new Option(tipoDocumentos[i].nombre, tipoDocumentos[i].idTipoDocumento);
+                            $("#tipoDocumento").append(o);
+                        }
 
+                    }
+                }
+              }
+    }
     function getNotas() {
         $.ajax({
             type: "get",
             dataType: "json",
             url: '@Url.Action("GetAllNotas", "Nota")',
             success: function (data) {
-                Notas = data;               
+                Notas = data; 
+
                 cargarDatos(data);
                 filtroAnuladas();
             },
@@ -273,13 +327,14 @@
                var body = '<tr class="fila' + contadorFila + ' filas" style="' + colorFila + '">'
                  + '<td>' + data[i].idDocumento + '</td>'
                  + '<td>'+ data[i].idMovimiento+ '</td>'
-                 + '<td>' + getContacto(data[i].idContacto) + '</td>'
+                   + '<td>' + getContacto(data[i].idContacto) + '</td>'
+                   + '<td hidden>' + data[i].idTipoDocumento + '</td>'
                  + '<td >' + getTipo(data[i]) + '</td>'
                  + '<td >' + recuperarFecha(data[i].fechaCreacion) + ' </td>'
                  + '<td >' + Estado + ' </td>'
                  + '<td ><input style="padding-top:1rem; border:0; background-color : #F7F7F7" class="' + darFormato(data[i].idMoneda) + '" value="' + getMonto(data[i]) + '"/></td>'
-                 + '<td ><input style="padding-top:1rem; border:0; background-color : #F7F7F7" class="' + darFormato(data[i].idMoneda) + '" value="' + getDisponible(data[i]) + '"/></td>'
-                   + '<td >  <button ' + disabled + ' value="' + data[i].idDocumento + '" onclick="getCrearEditar(value, ' + data[i].idTipoDocumento + ')" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].idDocumento + '" onclick="anularNota(value, ' + Estado2 + ')" class="btn btn-link btnEditar">' + anularIcon + '</button></td></tr>';
+                   + '<td ><input style="padding-top:1rem; border:0; background-color : #F7F7F7" class="' + darFormato(data[i].idMoneda) + '" value="' + getDisponible(data[i]) + '"/></td>'
+                   + '<td >  <button ' + disabled + ' value="' + data[i].idDocumento + '" onclick="getCrearEditar(value, ' + data[i].idTipoDocumento + ')" class="btn btn-link btnEditar"><i class="fas fa-edit"></i></button><button value="' + data[i].idDocumento + '" onclick="anularNota(value, ' + Estado2 + ',' + data[i].idTipoDocumento + ')" class="btn btn-link btnEditar">' + anularIcon + '</button></td></tr>';
 
             $('#tblNotas > tbody').append(body);
                 contadorFila++;

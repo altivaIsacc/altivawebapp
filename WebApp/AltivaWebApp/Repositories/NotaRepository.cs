@@ -13,9 +13,27 @@ namespace AltivaWebApp.Repositories
         {
 
         }
+        public TbFaPago UpdateDoc(TbFaPago domain)
+        {
+            try
+            {
+                context.TbFaPago.Update(domain);
+                context.SaveChanges();
+
+                return domain;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         public TbFaNota GetNotaById(long id)
         {
             return context.TbFaNota.FirstOrDefault(d => d.IdNotaCredito == id);
+        }
+        public TbFaPago GetPagoById(long id)
+        {
+            return context.TbFaPago.FirstOrDefault(d => d.IdPago == id);
         }
         public IList<TbFaTipoDocumento> GetAllTipoDocumento()
         {

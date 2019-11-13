@@ -6,7 +6,18 @@
     double TotalsaldoAcumulado = 0;
     var formatoMoneda = ViewBag.Moneda.Simbolo + " #,##0.00";
 
- }
+}
+
+@inject IStringLocalizer<SharedResources> lb
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+
 @foreach (var item in ViewBag.resultado)
 {
     var estiloFila = "font-weight:normal; font-size:x-small; text-decoration:underline"; if (@item.ItemArray[2].ToString() == "1") { estiloFila = "font-weight:bold; font-size:small; color:blue"; }
@@ -48,7 +59,7 @@
 
     <tr style="@estiloFila">
         <td>
-            @item.ItemArray[0].ToString() 
+            @item.ItemArray[0].ToString()
         </td>
         <td>
             @item.ItemArray[2].ToString()
@@ -73,29 +84,80 @@
         </td>
     </tr>
 }
-    <tr>
-        <td>
-           
-        </td>
-        <td>
-           
-        </td>
-        <td>
-           
-        </td>
-        <td style="text-align:right; font-weight:bold">
-            @TotalSaldoAnterior.ToString(formatoMoneda)
-        </td>
-        <td style="text-align:right; font-weight:bold">
-            @TotalDebitos.ToString(formatoMoneda)
-        </td>
-        <td style="text-align:right; font-weight:bold">
-            @TotalCreditos.ToString(formatoMoneda)
-        </td>
-        <td style="text-align:right; font-weight:bold">
-            @TotalSaldoPeriodo.ToString(formatoMoneda)
-        </td>
-        <td style="text-align:right; font-weight:bold">
-            @TotalsaldoAcumulado.ToString(formatoMoneda)
-        </td>
-    </tr>
+<tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td style="text-align:right; font-weight:bold">
+        @TotalSaldoAnterior.ToString(formatoMoneda)
+    </td>
+    <td style="text-align:right; font-weight:bold">
+        @TotalDebitos.ToString(formatoMoneda)
+    </td>
+    <td style="text-align:right; font-weight:bold">
+        @TotalCreditos.ToString(formatoMoneda)
+    </td>
+    <td style="text-align:right; font-weight:bold">
+        @TotalSaldoPeriodo.ToString(formatoMoneda)
+    </td>
+    <td style="text-align:right; font-weight:bold">
+        @TotalsaldoAcumulado.ToString(formatoMoneda)
+    </td>
+</tr>
+<script>
+    $(document).ready(function () {
+        inicializarTabla();
+    });
+
+    function inicializarTabla() {
+
+        $('#tblBalance').DataTable().destroy();
+
+        tbl = $('#tblBalance').DataTable({
+            "info": false,
+             "bSort": false,
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@lb["Mostrar"] _MENU_ @lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@lb["sinResultados"]",
+                "paginate": {
+                    "first": "@lb["Primero"]",
+                    "last": "@lb["Último"]",
+                    "next": "@lb["Sguiente"]",
+                    "previous": "@lb["Anterior"]"
+                }
+            },
+
+            buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        title: "@lb["Balance"]",
+                        text:'Excel'
+                        //Columns to export
+                        //exportOptions: {
+                       //     columns: [0, 1, 2, 3,4,5,6]
+                       // }
+                    }
+            ]
+        });
+         $(".dataTables_searching").hide();
+    }
+
+</script>
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>

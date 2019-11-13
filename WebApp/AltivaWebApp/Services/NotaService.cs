@@ -24,7 +24,13 @@ namespace AltivaWebApp.Services
         {
             return repository.GetNotaById(id);
         }
-        
+        public  TbFaPago GetPagoById(long id)
+        {
+            return repository.GetPagoById(id);
+
+        }
+
+
         public TbFaNota Save(TbFaNota domain)
         {
             return repository.Save(domain);
@@ -32,6 +38,10 @@ namespace AltivaWebApp.Services
         public TbFaNota Update(TbFaNota domain)
         {
             return repository.Update(domain);
+        }
+        public TbFaPago UpdateDoc(TbFaPago domain)
+        {
+            return repository.UpdateDoc(domain);
         }
         public IList<TbFaTipoDocumento> GetAllTipoDocumento()
         {

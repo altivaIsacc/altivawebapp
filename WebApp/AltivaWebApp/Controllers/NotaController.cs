@@ -366,17 +366,30 @@ namespace AltivaWebApp.Controllers
 
 
         [HttpPost("AnularNota")]
-        public IActionResult AnularNota(long id)
+        public IActionResult AnularNota(long id, bool tip)
         {
             try
             {
-                var nota = service.GetNotaById(id);
-                if (nota.Estado == 1)
-                    nota.Estado = 2;
+                if (tip)
+                {
+                    var doc = service.GetNotaById(id);
+                    if (doc.Estado == 1)
+                        doc.Estado = 2;
+                    else
+                        doc.Estado = 1;
+                    doc = service.Update(doc);
+                    return Ok(doc);
+                }
                 else
-                    nota.Estado = 1;
-                nota = service.Update(nota);
-                return Ok(nota);
+                {
+                    var doc = service.GetPagoById(id);
+                    if (doc.Estado == 1)
+                        doc.Estado = 2;
+                    else
+                        doc.Estado = 1;
+                    doc = service.UpdateDoc(doc);
+                    return Ok(doc);
+                }
             }
             catch (Exception ex)
             {

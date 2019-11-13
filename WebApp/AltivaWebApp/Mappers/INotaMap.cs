@@ -14,5 +14,6 @@ namespace AltivaWebApp.Mappers
         TbFaNota ViewModelToDomain(DocumentoViewModel viewModel);
         TbFaNota ViewModelToDomainEditar(DocumentoViewModel viewModel);
         DocumentoViewModel DomainToVIewModel(TbFaNota domain);
+        TbFaPago UpdateDoc(DocumentoViewModel viewModel);
     }
 }
