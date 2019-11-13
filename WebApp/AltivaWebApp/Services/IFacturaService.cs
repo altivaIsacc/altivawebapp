@@ -17,5 +17,6 @@ namespace AltivaWebApp.Services
         IList<TbFdFacturaDetalle> UpdateFacturaDetalle(IList<TbFdFacturaDetalle> domain);
         bool DeleteFacturaDetalle(IList<long> domain);
         long GetIdTipoPrecioCliente(long idCliente);
+        IList<FacturaBusqueda> GetFiltrado(long idPuntoVenta, string estado = "", string nombreCliente = "", string nombreVendedor = "", string fechaDesde = "", string fechaHasta = "");
     }
 }

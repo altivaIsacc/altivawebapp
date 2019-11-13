@@ -59,12 +59,11 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("_ListarFacturas")]
-        public IActionResult _ListarFacturas(long pv)
+        public IActionResult _ListarFacturas(long pv, string estado, string nombreCliente = "", string nombreVendedor = "", string fechaDesde = "", string fechaHasta = "")
         {
-            if (pv != 0)
-                return PartialView(service.GetAllFacturas().Where(f => f.IdPuntoVenta == pv).ToList());
-            else
-                return PartialView(service.GetAllFacturas());
+
+            return PartialView(service.GetFiltrado(pv, estado, nombreCliente, nombreVendedor, fechaDesde, fechaHasta));
+       
         }
 
         [Route("Nueva")]

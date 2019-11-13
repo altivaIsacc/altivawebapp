@@ -19,6 +19,7 @@ namespace AltivaWebApp.Context
 
         }
         public DbSet<tbPRTipoAjusteInventario> TiposAjusteInventario { get; set; }
+        public DbSet<FacturaBusqueda> FacturasBusquedas { get; set; }
 
         //no autogenerado / no borrar
         public virtual DbSet<CompraAutomaticoViewModel> CompraAutomatico { get; set; }
