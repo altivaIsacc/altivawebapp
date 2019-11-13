@@ -51,6 +51,32 @@ namespace AltivaWebApp.Controllers
         {
             return View();
         }
+        [HttpGet("GetTotalCredito/{idCliente}")]
+        public IActionResult GetTotalCredito(int idCliente)
+        {
+            try
+            {
+                return Ok(movimientoService.GetTotalCredito(idCliente));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+           
+        }
+        [HttpGet("GetMaximoCredito/{idCliente}")]
+        public IActionResult GetMaximoCredito(int idCliente)
+        {
+            try
+            {
+                return Ok(movimientoService.GetMaximoCredito(idCliente));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
         [HttpGet("EnlaceAutomatico/{idContacto}")]
         public IActionResult _EnlaceAutomatico(long idContacto)
         {

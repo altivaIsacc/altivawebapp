@@ -104,20 +104,12 @@
         </div>
         <div class="form-group col-md-4 col-sm-4 col-xs-6">
             <label asp-for="IdCliente" class="control-label">@Lb["Cliente"]:</label>
-            <select onkeyup="pasarSigCampo(event,'Tipo')" asp-for="IdCliente" class="form-control selectItems">
-                @foreach (var item in ViewData["clientes"] as IList<TbCrContacto>)
-                {
-                    if (item.Persona)
-                    {
-                        <option value="@item.IdContacto">@item.Nombre @item.Apellidos</option>
-                    }
-                    else
-                    {
-                        <option value="@item.IdContacto">@item.NombreComercial</option>
-                    }
-
-                }
-            </select>
+            <select onkeyup="pasarSigCampo(event,'Tipo')" asp-for="IdCliente" class="form-control selectItems"></select>
+        </div> <div class="form-group col-md-1 col-sm-1 col-xs-12">
+            <br />
+            <a style="padding:0; margin:0; margin-top:1rem" class="btn btn-link" id="crearcontacto" onclick="crearContacto()">
+                <span><i style="font-size: 2rem" class="fas fa-plus-circle"></i></span>
+            </a>
         </div>
         <div class="form-group col-md-2 col-sm-2 col-xs-6">
             <label asp-for="Tipo" class="control-label">@Lb["tipo"]:</label>
@@ -203,7 +195,7 @@
             </div>
 
             <div class="form-group col-md-1 col-sm-1 col-xs-1" style="padding-top: 2.3rem;">
-                <a onkeyup="pasarSigCampo(event,'producto')" onclick="" id="submitFrmFD" class="btn btn-success"><span><i class="fas fa-save"></i></span></a>
+                <a onkeyup="pasarSigCampo(event,'producto')" onclick="" id="submitFrmFD" class="btn btn-primary"><span><i class="fas fa-plus-circle"></i></span></a>
             </div>
             <div class="form-group col-md-3 col-sm-3 col-xs-12" style="padding-top: 2.3rem;">
                 <label style="font-size:2rem" class="control-label pull-right">@Lb["Total"]: <span id="totalFactura"></span></label>
@@ -342,24 +334,37 @@
         </div>
     </div>
 </div>
+<div class="row">
+    <!-- Modal -->
+    <div class="modal fade bd-example-modal-lg" id="modalContacto" tabindex="-1" role="dialog" aria-labelledby="departamentoModallabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
 
+                <div class="modal-body" id="CrearContactoPartial">
+                    <div class="col-md-1 col-sm-1 col-xs-1">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <input hidden id="monedaFormatter" class="moneda" type="text" />
 <input hidden id="auxFormat" class="moneda" type="text" />
 <input hidden id="moneyFormatter" class="money" type="text" />
-
-
 <script src="~/js/comentario.js"></script>
 <script src="~/js/base64ImageCreator.js"></script>
-
-
 <script>
 
     ///////factura
     var $totalFactura = $('#totalFactura');
     var idTipoPrecio = 0;
-
     var idCajaPuntoVenta = 0;
+    var totalCredito = 0;
+    var maximoCredito = 0;
 
     ///////linea
     var $item = $('#producto');
@@ -380,6 +385,7 @@
 
 
     $(document).ready(function () {
+        getContactos();
         console.log($("#IdCliente option:selected").val());
 
         $('.selectItems').select2();
@@ -424,15 +430,95 @@
         });
 
         $('#IdCliente').on('change.select2', function () {
-
+            getTotalCredito();
+            getMaximoCredito();
             getIdTipoPrecioCliente();
             limpiarLinea();
         });
 
+         $('#IdCliente').focus();
 
+        getTotalCredito();
+        getMaximoCredito();
     });
+    function at() {
+       $('#modalContacto').modal('hide');
+    }
+    function validarCredito() {
+        var monto = parseFloat($('#precio').inputmask('unmaskedvalue'));
+        var total = monto + parseFloat(totalCredito);
+        if (total > maximoCredito)
+            return false;
+        else
+            return true;
+    }
+    function getMaximoCredito() {
+        var idc = parseInt($("#IdCliente option:selected").val());
+        var url = "@Url.Action("GetMaximoCredito", "Nota", new { idCliente= "__id__"})".replace("__id__",  idc);
+        $.ajax({
+            type: "GET",
+            url: url,
+            success: function (data) {
+                maximoCredito = data;
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
 
+        });
+    }
+    function getContactos() {
+        $("#IdCliente").html('');
+        $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetAllClientes", "Contacto")',
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                   if (data[i].persona)
+                       nombre = data[i].nombre + ' ' + data[i].apellidos;
+                    else
+                       nombre = data[i].nombreComercial;
+                        var o = new Option(nombre, data[i].idContacto);
+                       $("#IdCliente").append(o);
+                }
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+    function crearContacto() {
+     var url = "@Url.Action("CrearContacto", "Contacto", new { tipo= 2})";
+        $.ajax({
+            type: "GET",
+            url: url,
+            success: function (data) {
+                 $('#CrearContactoPartial').html(data);
+                $('#modalContacto').modal('show');
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
 
+        });
+    }
+    function getTotalCredito() {
+        var idc = parseInt($("#IdCliente option:selected").val());
+        var url = "@Url.Action("GetTotalCredito", "Nota", new { idCliente= "__id__"})".replace("__id__",  idc);
+        $.ajax({
+            type: "GET",
+            url: url,
+            success: function (data) {
+                totalCredito = data;
+            },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+        });
+    }
 
     function getFormData() {
         var unindexed_array = $('#frmFactura ').serializeArray();
@@ -497,12 +583,16 @@
     }
 
     function prepararLinea() {
-        guardarLinea();
-        cargarTabla(lineas);
-        $item.focus();
-        $item.select();
-        $cantidad.val(1);
-        limpiarLinea();
+        if (validarCredito()) {
+            guardarLinea();
+            cargarTabla(lineas);
+            $item.focus();
+            $item.select();
+            $cantidad.val(1);
+            limpiarLinea();
+        } else {
+             cargarAlert('@Lb["ExcedioCredito"]');
+        }
     }
 
     function cargarLineas(data) {
@@ -938,7 +1028,7 @@
                 else {
                     postProcesarPago(data.idDoc);
                 }
-                    
+
 
             },
             error: function (err, scnd) {
@@ -1087,7 +1177,6 @@
 
 
     /////////////////////////////////////////////// fin manejo factura//////////////////////////////////////////
-
     function cargarTabla(data) {
 
 
@@ -1103,11 +1192,15 @@
         contadorFila = 0;
 
         for (var i = 0; i < data.length; i++) {
+            if (getItemPorId(data[i].idInventario).descripcionVenta == "Ninguna")
+                var des = getItemPorId(data[i].idInventario).descripcion;
+            else
+                var des = getItemPorId(data[i].idInventario).descripcionVenta;
 
 
             var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
                 + '<td >' + parseFloat(data[i].cantidad).toFixed(2) + ' </td>'
-                + '<td >' + getItemPorId(data[i].idInventario).descripcionVenta + '</td>'
+                + '<td ><span onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')">' +des+ '<span/></td>'
                 + '<td style="text-align: right">' + darFomatoMoneda(data[i].precio) + '</td>'
                 + '<td style="text-align: right">' + darFomatoMoneda(data[i].total) + '</td>'
                 + '<td> <a  href="#" style="font-size:1.8rem;" onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-edit"></i></a>&nbsp;&nbsp; <a href="#" style="font-size:1.8rem;" value="' + contadorFila + '" onclick="eliminarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-trash"></i></a></td></tr>';

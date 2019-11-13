@@ -9,6 +9,8 @@ namespace AltivaWebApp.Services
 {
     public interface IMovimientoService
     {
+      double? GetMaximoCredito(int idCliente);
+        double GetTotalCredito(int idCliente);
         TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimientoHasta(long idMovimientoHasta);
         TbFaMovimiento Save(TbFaMovimiento domain);
         TbFaMovimiento Update(TbFaMovimiento domain);
