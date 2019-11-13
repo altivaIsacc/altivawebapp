@@ -215,6 +215,7 @@ namespace AltivaWebApp.Controllers
 
 
             }
+            ViewBag.TiposDet = bd.TiposDoc.ToList();
 
             ViewBag.Monedas = bd.Moneda.Where(p => p.Activa == true);
             ViewBag.Catalogo = bd.CatalogoContable.Where(p => p.Movimiento == true).OrderBy(p => p.CuentaContable);
@@ -331,6 +332,9 @@ namespace AltivaWebApp.Controllers
                                 lineaItem.TipoCambioDolar = lineaDatos.TipoCambioDolar;
                                 lineaItem.TipoCambioEuro = lineaDatos.TipoCambioEuro;
                                 lineaItem.IdCentrosDeGastos = lineaDatos.IdCentrosDeGastos;
+                                lineaItem.NumDocumento = lineaDatos.NumDocumento;
+                                lineaItem.Observacion = lineaDatos.Observacion;
+                                lineaItem.IdTipoDocumento = lineaDatos.IdTipoDocumento;
 
                             }
 
@@ -348,6 +352,9 @@ namespace AltivaWebApp.Controllers
                         itemCambios.TipoCambioDolar = lineaDatos.TipoCambioDolar;
                         itemCambios.TipoCambioEuro = lineaDatos.TipoCambioEuro;
                         itemCambios.IdCentrosDeGastos = lineaDatos.IdCentrosDeGastos;
+                        itemCambios.NumDocumento = lineaDatos.NumDocumento;
+                        itemCambios.Observacion = lineaDatos.Observacion;
+                        itemCambios.IdTipoDocumento = lineaDatos.IdTipoDocumento;
                         item.detalle.Add(itemCambios);
 
                     }

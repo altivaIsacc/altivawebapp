@@ -29,8 +29,16 @@
     {
         cambiaEstado = "disabled";
     }
+    var tipoDefecto = "";
+    foreach (var item in ViewBag.Tipos)
+    {
+        if (item.IdTipoDocumento == 1)
+        {
+            tipoDefecto = item.Descripcion;
+        }
 
 
+    }
     var numDocumento = Model.IdDocumento;
     ViewData["Title"] = lb["Asiento"];
 }
@@ -91,7 +99,7 @@
             <div class="form-group col-md-3 col-sm-6 col-xs-12" style="margin-left:1rem">
                 <div class="row">
                     <label class="control-label">@lb["Estado"] :</label>
-                    <input @cambiaEstado id="LtAsientoE" list="ListAsientoE" class="form-control" autocomplete="ÑÖcompletes">
+                    <input @cambiaEstado id="LtAsientoE" list="ListAsientoE" class="form-control" autocomplete="ÑÖcompletes" value="@lb["ACTIVO"]">
                     <datalist id="ListAsientoE">
                         <option value="@lb["ACTIVO"]">@lb["ACTIVO"]</option>
                         <option value="@lb["BLOQUEADO"]">@lb["BLOQUEADO"]</option>
@@ -105,7 +113,7 @@
                 </div>
                 <div class="row">
                     <label asp-for="CodigoMoneda" class="control-label">@lb["Moneda"]:</label>
-                    <input @estado id="LtMonedas" list="LtCodigoMoneda" class="form-control" autocomplete=on onchange="cambioMoneda()">
+                    <input @estado id="LtMonedas" list="LtCodigoMoneda" class="form-control" autocomplete=on onchange="cambioMoneda()" value="@ViewBag.SimboloBase">
                     <datalist id="LtCodigoMoneda">
                         @{
                             foreach (var item in ViewBag.Monedas)
@@ -118,7 +126,7 @@
                 </div>
                 <div class="row">
                     <label asp-for="IdTipoDocumento" class="control-label">@lb["tipo"]:</label>
-                    <input @estado id="LtTipos" list="LtTipoDoc" class="form-control" autocomplete=on onchange="cambioTipoDoc()">
+                    <input @estado id="LtTipos" list="LtTipoDoc" class="form-control" autocomplete=on onchange="cambioTipoDoc()" value="@tipoDefecto">
                     <datalist id="LtTipoDoc">
                         @{
                             foreach (var item in ViewBag.Tipos)
@@ -164,27 +172,55 @@
                     <span hidden id="tipoCambioEuroCorregir" class="text-danger">@lb["tipoCambioEuroCorregir"]</span>
                 </div>
             </div>
+
             <div class="row">
                 <div class="form-group col-md-10 col-sm-12 col-xs-12">
-                    <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                    <div class="form-group col-md-4 col-sm-4 col-xs-4">
                         <label class="control-label">@lb["Monto"] @ViewBag.SimboloBase:</label>
                         <input @estado type="number" class="form-control" id="MontoBase" onchange="fnMontoColon('')" autofocus onkeyup="pasarSigCampo(event,'Monto2')" style="text-align:right" />
                         <span hidden id="montoBaseCorregir" class="text-danger">@lb["montoBaseCorregir"]</span>
                     </div>
-                    <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                    <div class="form-group col-md-4 col-sm-4 col-xs-4">
                         <label id="lblItem" class="control-label">@lb["Monto"] @ViewBag.SimboloDolar: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
                         <input @estado type="number" class="form-control" id="Monto2" onchange="fnMontoDolar('')" autofocus onkeyup="pasarSigCampo(event,'Monto3')" style="text-align:right" />
                         <span hidden id="montoDolarCorregir" class="text-danger">@lb["montoDolarCorregir"]</span>
                     </div>
-                    <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                    <div class="form-group col-md-4 col-sm-4 col-xs-4">
                         <label id="lblItem" class="control-label">@lb["Monto"] @ViewBag.SimboloEuro: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
-                        <input @estado type="number" class="form-control" id="Monto3" onchange="fnMontoEuro('')" autofocus onkeyup="pasarSigCampo(event,'btnAgregarDebe')" style="text-align:right" />
+                        <input @estado type="number" class="form-control" id="Monto3" onchange="fnMontoEuro('')" autofocus onkeyup="pasarSigCampo(event,'LtTipoDocDet')" style="text-align:right" />
                         <span hidden id="montoEuroCorregir" class="text-danger">@lb["montoEuroCorregir"]</span>
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div class="form-group col-md-4 col-sm-6 col-xs-6">
+                <div class="form-group col-md-10 col-sm-12 col-xs-12">
+                    <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                        <label id="lblItem" class="control-label">@lb["TipoDocumento"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                        <input @estado id="LtTipoDocDet" list="LtTiposDocDet" class="form-control" autocomplete=on onchange="cambioTipoDoc()" onkeyup="pasarSigCampo(event,'NumDocumentoDet')">
+                        <datalist id="LtTiposDocDet">
+                            @{
+                                foreach (var item in ViewBag.TiposDet)
+                                {
+                                    <option>@lb[item.Descripcion]</option>
+                                }
+                            }
+                        </datalist>
+                        <span hidden id="tipoDocCorregir" class="text-danger">@lb["tipoDocCorregir"]</span>
+                    </div>
+                    <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                        <label class="control-label">@lb["Número"] @lb["Documento"]:</label>
+                        <input @estado type="number" class="form-control" id="NumDocumentoDet" onkeyup="pasarSigCampo(event,'NotaAsientoDet')" style="text-align:right" />
+                        <span hidden id="numeroDocumentoCorregir" class="text-danger">@lb["numeroDocumentoCorregir"]</span>
+                    </div>
+                    <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                        <label class="control-label">@lb["Nota"]:</label>
+                        <input @estado type="text" class="form-control" id="NotaAsientoDet" onkeyup="pasarSigCampo(event,'btnAgregarDebe')" />
+                        <span hidden id="NotaAsientoCorregir" class="text-danger">@lb["NotaAsientoCorregir"]</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4 col-sm-12 col-xs-12">
                     <button @estado id="btnAgregarDebe" onclick="agregarLinea('Debe')" onkeyup="pasarSigCampo(event,'btnAgregarHaber')" class="btn btn-success"><span>@lb["Debe"] </span><span><i class="fas fa-plus"></i></span></button>
                     <button @estado id="btnAgregarHaber" onclick="agregarLinea('Haber')" onkeyup="pasarSigCampo(event,'btnAgregarDebe')" class="btn btn-success"><span>@lb["Haber"] </span><span><i class="fas fa-plus"></i></span></button>
                 </div>
@@ -321,14 +357,43 @@
                             </div>
                             <div class="form-group col-md-4 col-sm-4 col-xs-12">
                                 <label id="lblItem" class="control-label">@lb["Monto"] @ViewBag.SimboloEuro: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
-                                <input @estado type="number" class="form-control" id="Monto3Modal" onchange="fnMontoEuro('Modal')" autofocus onkeyup="pasarSigCampo(event,'btnAgregarDebeModal')" style="text-align:right" />
+                                <input @estado type="number" class="form-control" id="Monto3Modal" onchange="fnMontoEuro('Modal')" autofocus onkeyup="pasarSigCampo(event,'LtTipoDocDetModal')" style="text-align:right" />
                                 <span hidden id="montoEuroCorregirModal" class="text-danger">@lb["montoEuroCorregir"]</span>
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="form-group col-md-12 col-sm-6 col-xs-6">
+                        <div class="form-group col-md-10 col-sm-12 col-xs-12">
+                            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                                <label id="lblItem" class="control-label">@lb["TipoDocumento"]: <span style="font-size:1.1rem" class="text-info"><a id="lblInfoItem"></a></span></label>
+                                <input @estado id="LtTipoDocDetModal" list="LtTiposDocDetModal" class="form-control" autocomplete=on onchange="cambioTipoDoc()">
+                                <datalist id="LtTiposDocDetModal">
+                                    @{
+                                        foreach (var item in ViewBag.TiposDet)
+                                        {
+                                            <option>@lb[item.Descripcion]</option>
+                                        }
+                                    }
+                                </datalist>
+                                <span hidden id="tipoDocCorregir" class="text-danger">@lb["tipoDocCorregir"]</span>
+                            </div>
+                            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                                <label class="control-label">@lb["Número"] @lb["Documento"]:</label>
+                                <input @estado type="number" class="form-control" id="NumDocumentoDetModal" onkeyup="pasarSigCampo(event,'NotaAsientoDetModal')" style="text-align:right" />
+                                <span hidden id="numeroDocumentoCorregir" class="text-danger">@lb["numeroDocumentoCorregir"]</span>
+                            </div>
+
+                            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                                <label class="control-label">@lb["Nota"]:</label>
+                                <input @estado type="text" class="form-control" id="NotaAsientoDetModal" onkeyup="pasarSigCampo(event,'btnAgregarDebeModal')" />
+                                <span hidden id="NotaAsientoCorregir" class="text-danger">@lb["NotaAsientoCorregir"]</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6 col-sm-6 col-xs-12">
                             <button @estado id="btnAgregarDebeModal" onclick="actualizarLinea('Debe')" onkeyup="pasarSigCampo(event,'btnAgregarHaberModal')" class="btn btn-success"><span>@lb["Debe"] </span><span><i class="fas fa-plus"></i></span></button>
+
                             <button @estado id="btnAgregarHaberModal" onclick="actualizarLinea('Haber')" onkeyup="pasarSigCampo(event,'btnAgregarDebeModal')" class="btn btn-success"><span>@lb["Haber"] </span><span><i class="fas fa-plus"></i></span></button>
                         </div>
                     </div>
@@ -371,7 +436,7 @@
         @:      monedaItem = {Codigo:'@item.Codigo',Nombre:'@item.Nombre',Simbolo: '@item.Simbolo'};
         @:      monedas.push(monedaItem);
         }
-          @foreach (var item in ViewBag.Tipos)
+          @foreach (var item in ViewBag.TiposDet)
         {
         @:      tipoDoc = { IdTipoDocumento: '@item.IdTipoDocumento', Descripcion: '@item.Descripcion', Abreviatura: '@item.Abreviatura', Automatico: '@item.Automatico' };
         @:      tiposDoc.push(tipoDoc);
@@ -392,7 +457,7 @@
             editar = false;
         }
         else {
-            editar = true;         
+            editar = true;
             document.getElementById('LtAsientoE').value = obtenerNombreEstado('@Model.Estado');
             document.getElementById('LtMonedas').value = '@ViewBag.Moneda.Simbolo';
             document.getElementById('LtTipos').value = '@ViewBag.TipoDoc.Descripcion';
@@ -406,9 +471,9 @@
             @: var EsDebe = '@item.Debe'
             @: if (EsDebe == 'True') { tipolinea = 'Debe'; }
             @: if (EsDebe != 'True') { tipolinea = 'Haber'; }
-            @:  linea = { MDolar: '@item.MontoDolares', MEuro: '@item.MontoEuro', MBase: '@item.MontoColones', cuenta: obtenerCuentaPorId('@item.IdCuentaContable'), Tipo: tipolinea, TCDolar: '@item.TipoCambioDolar', TCEuro: '@item.TipoCambioEuro', Id: '@item.IdDetalleAsientoContable' };
+            @:  linea = { MDolar: '@item.MontoDolares', MEuro: '@item.MontoEuro', MBase: '@item.MontoColones', cuenta: obtenerCuentaPorId('@item.IdCuentaContable'), Tipo: tipolinea, TCDolar: '@item.TipoCambioDolar', TCEuro: '@item.TipoCambioEuro', Id: '@item.IdDetalleAsientoContable', NumDocumento: '@item.NumDocumento', IdTipoDocumento: obtenerTipoDocPorId('@item.IdTipoDocumento') , observacion: '@item.Observacion'};
             @:  lineas.push(linea);
-            }          
+            }
             tabla();
         }
 
@@ -530,7 +595,8 @@
         obtenerLinea('');
         cuentaSeleccionada = obtenerCuenta(cuenta);
         if (validarLinea('') == true) {
-            var linea = { MDolar: montoDolar, MEuro: montoEuro, MBase: montoBase, cuenta: cuentaSeleccionada, Tipo: tipo, TCDolar: TipoCambioDolar, TCEuro: TipoCambioEuro, Id: (lineas.length + 1) * -1 };
+            var linea = { MDolar: montoDolar, MEuro: montoEuro, MBase: montoBase, cuenta: cuentaSeleccionada, Tipo: tipo, TCDolar: TipoCambioDolar, TCEuro: TipoCambioEuro, Id: (lineas.length + 1) * -1, NumDocumento: numDoc, IdTipoDocumento: idTipoDoc, observacion: nota };
+            console.log(linea);
             lineas.push(linea);
             tabla();
             document.getElementById('catalogoCuentas').value = '';
@@ -652,6 +718,10 @@
         $('#MontoBaseModal').val(String(lineaEdit.MBase).replace(',','.'));
         $('#Monto2Modal').val(String(lineaEdit.MDolar).replace(',','.'));
         $('#Monto3Modal').val(String(lineaEdit.MEuro).replace(',', '.'));
+        console.log("Valor a cargar;" + lineaEdit.IdTipoDocumento);
+        $('#LtTipoDocDetModal').val(lineaEdit.IdTipoDocumento);
+        $('#NumDocumentoDetModal').val(lineaEdit.NumDocumento);
+        $('#NotaAsientoDetModal').val(lineaEdit.observacion);
 
         $('#lineaModal').modal('show');
         document.getElementById('catalogoCuentasModal').focus();
@@ -670,6 +740,9 @@
             lineaEdit.Tipo = tipo;
             lineaEdit.TCDolar = TipoCambioDolar;
             lineaEdit.TCEuro = TipoCambioEuro;
+            lineaEdit.NumDocumento = numDoc;
+            lineaEdit.IdTipoDocumento = idTipoDoc;
+            lineaEdit.observacion = nota;
         }
 
         tabla();
@@ -766,7 +839,10 @@
         var cuenta;
         var montoDolar;
         var montoEuro;
-        var montoBase;
+    var montoBase;
+    var numDoc;
+    var idTipoDoc;
+    var nota;
         var monedaSeleccionada = [];
         function obtenerMoneda(nombre) {
             monedas.forEach(function (item) {
@@ -802,7 +878,20 @@
                     tipoSeleccionado = item;
                 }
             });
-        }
+    }
+    function obtenerTipoDocPorId(Id) {
+        var descrip="";
+        tiposDoc.forEach(function (item)
+        {
+           
+            if (Id == item.IdTipoDocumento)
+            {
+             
+                descrip = item.Descripcion;
+            }
+        });
+        return descrip;
+    }
         function cambioTipoDoc() {
             var nombreTipoDoc = document.getElementById("LtTipos").value;
             obtenerTipoDoc(nombreTipoDoc);
@@ -835,15 +924,19 @@
             cuenta = document.getElementById('catalogoCuentas' + deModal).value;
             TipoCambioDolar = document.getElementById('tipoCambioDolar'  + deModal).value;
             TipoCambioEuro = document.getElementById('tipoCambioEuro' + deModal).value;
+            idTipoDoc = document.getElementById('LtTipoDocDet' + deModal).value;
+            numDoc = document.getElementById('NumDocumentoDet' + deModal).value;
+            nota = document.getElementById('NotaAsientoDet' + deModal).value;
+            console.log("Obtuvo: " + idTipoDoc);
         }
-        function obtenerCuenta(_DescripcionCuenta) {
-            var cuenta = null;
-            catalogo.forEach(function (item) {
-                if (_DescripcionCuenta == item.Descripcion) {
-                    cuenta = item;
-                }
-            });
-            return cuenta;
+    function obtenerCuenta(_DescripcionCuenta) {
+        var cuenta = null;
+        catalogo.forEach(function (item) {
+            if (_DescripcionCuenta == item.Descripcion) {
+                cuenta = item;
+            }
+        });
+        return cuenta;
     }
      function obtenerCuentaPorId(_IdCuentaContable) {
             var cuenta;
@@ -877,7 +970,7 @@
                     }
     }
     function enviarAjax(asiento) {
-  
+
            $.ajax({
             type: "POST",
             headers: {
@@ -918,7 +1011,7 @@
                 }
 
             }
-     
+
             cargarDatos(resultadoCargado);
         }
     }
@@ -1131,9 +1224,11 @@
     }
 
 
-        function generarLineas(lineas) {
+    function generarLineas(lineas) {
+       
             var lineasAsiento = [];
-            for (var i = 0; i < lineas.length; i++) {
+        for (var i = 0; i < lineas.length; i++) {
+            obtenerTipoDoc(lineas[i].IdTipoDocumento);
                 var detalle = {
                     IdDetalleAsientoContable: lineas[i].Id,
                     IdAsientoContable: IdAsiento,
@@ -1146,7 +1241,10 @@
                     Haber: lineas[i].Tipo == 'Haber',
                     TipoCambioDolar: parseFloat(lineas[i].TCDolar),
                     TipoCambioEuro: parseFloat(lineas[i].TCEuro),
-                    IdCentroDeGastos: 0
+                    IdCentroDeGastos: 0,
+                    NumDocumento: lineas[i].NumDocumento,
+                    IdTipoDocumento: tipoSeleccionado.IdTipoDocumento,
+                    Observacion: lineas[i].observacion
                 }
                 lineasAsiento.push(detalle);
             }

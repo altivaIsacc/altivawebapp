@@ -45,6 +45,9 @@ namespace AltivaWebApp.DomainsConta
         public double TipoCambioDolar { get; set; }
         public double TipoCambioEuro { get; set; }
         public long IdCentrosDeGastos { get; set; }
+        public string NumDocumento{ get;set; }
+        public long IdTipoDocumento { get; set; }
+        public string Observacion { get; set; }
     }
 
 }
