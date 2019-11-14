@@ -324,7 +324,7 @@ namespace AltivaWebApp.Repositories
             try
             {
 
-                var model = context.DocumentosContacto.FromSql($"Select * from vs_FA_DocumentosContacto").Where(d => d.IdContacto == idContacto && d.SaldoBase > 0 && d.EsDebito).ToList();
+                var model = context.DocumentosContacto.FromSql($"Select * from vs_FA_DocumentosContacto").Where(d => d.IdContacto == idContacto && d.SaldoBase > 0 && d.EsDebito && d.Estado ==1).ToList();
                 return model;
 
             }
