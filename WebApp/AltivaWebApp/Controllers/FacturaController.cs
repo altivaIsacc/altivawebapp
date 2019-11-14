@@ -57,6 +57,27 @@ namespace AltivaWebApp.Controllers
                 throw;
             }
         }
+        [HttpPost("Anular")]
+        public IActionResult Anular(int id)
+        {
+            try
+            {
+                var factura = service.GetFacturaById(id);
+                factura.Estado = "Anulada";
+                factura = service.Update(factura);
+                var mov = movService.GetMovimientoByIdDocumento(factura.Id, 1);
+                var movD = movService.GetMovimientoDetalleByIdMovimientoHasta(mov.IdMovimiento);
+                if (movD != null)
+                    movService.DeleteMD(movD.IdMovimientoDetalle);
+
+                 return Ok(factura);
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+            }
+        }
 
         [HttpPost("_ListarFacturas")]
         public IActionResult _ListarFacturas(long pv, string estado, string nombreCliente = "", string nombreVendedor = "", string fechaDesde = "", string fechaHasta = "")

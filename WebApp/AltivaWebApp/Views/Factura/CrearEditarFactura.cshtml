@@ -1,9 +1,12 @@
 ﻿@model AltivaWebApp.ViewModels.FacturaViewModel
 @inject IStringLocalizer<SharedResources> Lb
 
-@{
+@{ var est2 = "";
+    var est = "";
     if (Model.Id != 0)
     {
+        est2 = "none;";
+        est = "hidden";
         ViewData["Title"] = Lb["Editar"] + " " + Lb["Factura"];
     }
     else
@@ -14,7 +17,11 @@
 }
 
 <div class="row">
+
+
     <div class="col-md-2 col-sm-3 col-xs-12">
+        <a style="font-size:2rem;" asp-controller="Factura" asp-action="ListarFacturas"><i class="fas fa-arrow-left"></i></a>
+
         @if (Model.Id != 0)
         {
             <h3>@Lb["Editar"] @Lb["Factura"]</h3>
@@ -26,7 +33,7 @@
     </div>
     <div class="col-md-offset-7 col-sm-offset-6 col-md-3 col-sm-9 col-xs-12 ">
         <label for="selectPuntoVenta" class="control-label">@Lb["PuntoVenta"]:</label>
-        <select id="selectPuntoVenta" class="form-control selectItems"></select>
+        <select id="selectPuntoVenta" class="form-control selectItems" disabled="@(Model.Id != 0 ? "disabled" : null)"></select>
     </div>
 </div>
 
@@ -34,29 +41,30 @@
 
 @if (Model.Id != 0)
 {
-    <div class="row">
-        <div class="btn-group  col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <button type="button" onclick="GetPDF(1, false)" class="btn btn-primary">@Lb["imprimir"]</button>
-            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                <span class="caret"></span>
-                <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-                <li>
-                    <a href="#carta" onclick="GetPDF(1, false)">@Lb["Carta"]</a>
-                </li>
-                <li>
-                    <a href="#mediacarta" onclick="GetPDF(2, false)">@Lb["MediaCarta"]</a>
-                </li>
-                <li>
-                    <a href="#ticket" onclick="GetPDF(3, false)">@Lb["Ticket"]</a>
-                </li>
-                <li>
-                    <a href="#personalizado" onclick="GetPDF(4, false)">@Lb["Personalizado"]</a>
-                </li>
-            </ul>
-        </div>
+<div class="row">
+    <div class="btn-group  col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <button type="button" onclick="GetPDF(1, false)" class="btn btn-primary">@Lb["imprimir"]</button>
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            <li>
+                <a href="#carta" onclick="GetPDF(1, false)">@Lb["Carta"]</a>
+            </li>
+            <li>
+                <a href="#mediacarta" onclick="GetPDF(2, false)">@Lb["MediaCarta"]</a>
+            </li>
+            <li>
+                <a href="#ticket" onclick="GetPDF(3, false)">@Lb["Ticket"]</a>
+            </li>
+            <li>
+                <a href="#personalizado" onclick="GetPDF(4, false)">@Lb["Personalizado"]</a>
+            </li>
+        </ul>
     </div>
+    <div class="col-md-12 text-right"><button class="btn btn-danger btn-sm" id="btnAnular" onclick="Anular()">@Lb["Anular"]</button></div>
+</div>
 }
 
 <br />
@@ -88,7 +96,7 @@
 
         <div class="form-group col-md-3 col-sm-3 col-xs-6">
             <label asp-for="IdVendedor" class="control-label">@Lb["Vendedor"]:</label>
-            <select onkeyup="pasarSigCampo(event,'IdCliente')" asp-for="IdVendedor" class="form-control selectItems">
+            <select  onkeyup="pasarSigCampo(event,'IdCliente')" asp-for="IdVendedor" class="form-control selectItems" disabled="@(Model.Id != 0 ? "disabled" : null)">
                 @foreach (var item in ViewData["usuarios"] as IList<TbSeUsuario>)
                 {
                     if (item.Id == int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value) && Model.Id != 0)
@@ -104,57 +112,52 @@
         </div>
         <div class="form-group col-md-4 col-sm-4 col-xs-6">
             <label asp-for="IdCliente" class="control-label">@Lb["Cliente"]:</label>
-            <select onkeyup="pasarSigCampo(event,'Tipo')" asp-for="IdCliente" class="form-control selectItems"></select>
-        </div> <div class="form-group col-md-1 col-sm-1 col-xs-12">
+            <select onkeyup="pasarSigCampo(event,'Tipo')" asp-for="IdCliente" class="form-control selectItems" disabled="@(Model.Id != 0 ? "disabled" : null)"></select>
+        </div> <div @est class="form-group col-md-1 col-sm-1 col-xs-12">
             <br />
-            <a style="padding:0; margin:0; margin-top:1rem" class="btn btn-link" id="crearcontacto" onclick="crearContacto()">
+            <a  style="padding:0; margin:0; margin-top:1rem" class="btn btn-link" id="crearcontacto" onclick="crearContacto()">
                 <span><i style="font-size: 2rem" class="fas fa-plus-circle"></i></span>
             </a>
         </div>
         <div class="form-group col-md-2 col-sm-2 col-xs-6">
             <label asp-for="Tipo" class="control-label">@Lb["tipo"]:</label>
-            <select asp-for="Tipo" class="form-control selectItems">
+            <select asp-for="Tipo" class="form-control selectItems" disabled="@(Model.Id != 0 ? "disabled" : null)">
                 <option value="1">@Lb["Contado"]</option>
                 <option value="2">@Lb["Crédito"]</option>
             </select>
         </div>
 
         <div class="col-md-2 col-sm-2 col-xs-6 btn-group" style="padding: 0; margin: 0; padding-top:2.4rem">
-            <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle" type="button" aria-expanded="false">
-                @Lb["MasOpciones"] <span class="caret"></span>
-            </button>
-            <ul role="menu" class="dropdown-menu">
-                <li>
-                    <a class="dropdown-item" href="#">@Lb["AplicarExoneracion"]</a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="#">@Lb["AplicarDescuento"]</a>
-                </li>
-                @*<li>
-                        <a class="dropdown-item" href="#">@Lb["AplicarApartado"]</a>
-                    </li>*@
-                <li>
-                    <a class="dropdown-item" href="#">@Lb["ImportarCotizacion"]</a>
-                </li>
-                <li class="divider">@Lb["Reportes"]</li>
-                @if (Model.Id != 0)
-                {
+            @if (Model.Id == 0)
+            {
+                <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle" type="button" aria-expanded="false">
+                    @Lb["MasOpciones"] <span class="caret"></span>
+                </button>
+                <ul role="menu" class="dropdown-menu">
                     <li>
-                        <a class="dropdown-item" href="#" onclick="GetReporte(1)">@Lb["Carta"]</a>
+                        <a class="dropdown-item" href="#">@Lb["AplicarExoneracion"]</a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="#" onclick="GetReporte(2)">@Lb["MediaCarta"]</a>
+                        <a class="dropdown-item" href="#">@Lb["AplicarDescuento"]</a>
                     </li>
+                    @*<li>
+                    <a class="dropdown-item" href="#">@Lb["AplicarApartado"]</a>
+                </li>*@
                     <li>
-                        <a class="dropdown-item" href="#" onclick="GetReporte(3)">@Lb["Tiquete"]</a>
+                        <a class="dropdown-item" href="#">@Lb["ImportarCotizacion"]</a>
                     </li>
-                    <li>
-                        <a class="dropdown-item" href="#" onclick="GetReporte(4)">@Lb["Personalizado"]</a>
-                    </li>
-                }
+                    <li class="divider">@Lb["Reportes"]</li>
 
-            </ul>
+                </ul>
+            }
+            @if (Model.Id != 0)
+            {
 
+                <button class="btn btn-primary" type="button" id="cambiarPago" onclick="facturar()">
+                    @Lb["CambiarFormaPago"] 
+                </button>
+
+            }
         </div>
 
 
@@ -171,30 +174,30 @@
         <fieldset id="frmFDfieldset">
             <div class="form-group col-md-3 col-sm-3 col-xs-12">
                 <label class="control-label">@Lb["Producto"]: <span style="font-size:1.1rem" class="text-info"><a id="descProducto"></a></span></label>
-                <input id="producto" onkeyup="pasarSigCampo(event,'cantidad')" class="form-control autocompleteTH" autocomplete="off" autofocus type="text" />
+                <input id="producto" onkeyup="pasarSigCampo(event,'cantidad')" class="form-control autocompleteTH" autocomplete="off" autofocus type="text" disabled="@(Model.Id != 0 ? "disabled" : null)" />
             </div>
 
             <div class="form-group col-md-2 col-sm-2 col-xs-4">
                 <label class="control-label">@Lb["Cantidad"]:</label>
-                <input id="cantidad" onkeyup="pasarSigCampo(event,'precio')" class="form-control numerico" value="1" type="text" />
+                <input id="cantidad" onkeyup="pasarSigCampo(event,'precio')" class="form-control numerico" value="1" type="text" disabled="@(Model.Id != 0 ? "disabled" : null)" />
             </div>
 
             <div class="form-group col-md-2 col-sm-2 col-xs-6">
                 <label class="control-label">@Lb["Precio"]:</label>
-                <input id="precio" onkeyup="pasarSigCampo(event,'submitFrmFD')" class="form-control moneda" type="text" />
+                <input id="precio" onkeyup="pasarSigCampo(event,'submitFrmFD')" class="form-control moneda" type="text" disabled="@(Model.Id != 0 ? "disabled" : null)" />
             </div>
 
             <div hidden class="form-group col-md-3 col-sm-3 col-xs-6">
                 <label class="control-label">@Lb["Descuento"]:</label>
-                <input id="descuento" class="form-control porcentaje" value="0" type="text" />
+                <input id="descuento" class="form-control porcentaje" value="0" type="text" disabled="@(Model.Id != 0 ? "disabled" : null)" />
             </div>
 
             <div hidden class="form-group col-md-3 col-sm-3 col-xs-6">
                 <label class="control-label">@Lb["IVA"]:</label>
-                <input id="iva" class="form-control" type="text" />
+                <input id="iva" class="form-control" type="text" disabled="@(Model.Id != 0 ? "disabled" : null)" />
             </div>
 
-            <div class="form-group col-md-1 col-sm-1 col-xs-1" style="padding-top: 2.3rem;">
+            <div @est class="form-group col-md-1 col-sm-1 col-xs-1" style="padding-top: 2.3rem;">
                 <a onkeyup="pasarSigCampo(event,'producto')" onclick="" id="submitFrmFD" class="btn btn-primary"><span><i class="fas fa-plus-circle"></i></span></a>
             </div>
             <div class="form-group col-md-3 col-sm-3 col-xs-12" style="padding-top: 2.3rem;">
@@ -205,7 +208,7 @@
 
 </div>
 <div class="row">
-    <div class="form-group col-md-12 col-sm-12 col-xs-12" style="padding-top: 1rem;">
+    <div class="form-group col-md-12 col-sm-12 col-xs-12" style="padding-top: 1rem;" @est>
         @*<a class="btn btn-success pull-right" onclick="guardarCambios()">@Lb["Facturar"]</a>*@
         <a class="btn btn-success pull-right" onclick="facturar()">@Lb["Facturar"]</a>
         <a class="btn btn-default pull-right" onclick="cancelar()">@Lb["Cancelar"]</a>
@@ -221,7 +224,7 @@
                         <th style="width:48%">@Lb["Producto"]</th>
                         <th style="width:16%">@Lb["PrecioUnit"]</th>
                         <th style="width:18%">@Lb["Total"]</th>
-                        <th style="width:8%">@Lb["Acción"]</th>
+                        <th style="width:8%" @est>@Lb["Acción"]</th>
                     </tr>
 
                 </thead>
@@ -435,12 +438,49 @@
             getIdTipoPrecioCliente();
             limpiarLinea();
         });
+        $('#modalContacto').on('hidden.bs.modal', function () {
+            getContactos();
+        });
 
          $('#IdCliente').focus();
 
         getTotalCredito();
         getMaximoCredito();
-    });
+        if (@Model.Id != 0) {
+            if ($('#Tipo').val() == "2") {
+                document.getElementById("cambiarPago").disabled = true;
+            }
+            if ('@Model.Estado' === "Anulada") {
+                document.getElementById("btnAnular").disabled = true;
+                 document.getElementById("cambiarPago").disabled = true;
+            }
+        }
+         });
+    function Anular() {
+        bootbox.confirm("@Lb["confirmAnular"]", function (result) {
+
+                 if (result) {
+
+                         var url = "@Url.Action("Anular", "Factura")";
+                     $.ajax({
+                         type: "POST",
+                         url: url,
+                         data: {id: @Model.Id},
+                             success: function (data) {
+                              console.log(data);
+                                 document.getElementById("btnAnular").disabled = true;
+                                  document.getElementById("cambiarPago").disabled = true;
+                              },
+                             error: function (err, scnd) {
+                                console.log(err.statusText);
+                             }
+
+                     });
+
+                 }
+        });
+     
+    }
     function at() {
        $('#modalContacto').modal('hide');
     }
@@ -452,6 +492,7 @@
         else
             return true;
     }
+  
     function getMaximoCredito() {
         var idc = parseInt($("#IdCliente option:selected").val());
         var url = "@Url.Action("GetMaximoCredito", "Nota", new { idCliente= "__id__"})".replace("__id__",  idc);
@@ -474,13 +515,26 @@
             dataType: "json",
             url: '@Url.Action("GetAllClientes", "Contacto")',
             success: function (data) {
-                for (var i = 0; i < data.length; i++) {
-                   if (data[i].persona)
-                       nombre = data[i].nombre + ' ' + data[i].apellidos;
-                    else
-                       nombre = data[i].nombreComercial;
+                if (@Model.Id == 0) {
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].persona)
+                            nombre = data[i].nombre + ' ' + data[i].apellidos;
+                        else
+                            nombre = data[i].nombreComercial;
                         var o = new Option(nombre, data[i].idContacto);
-                       $("#IdCliente").append(o);
+                        $("#IdCliente").append(o);
+                    }
+                } else {
+                   for (var i = 0; i < data.length; i++) {
+                       if (@Model.IdCliente == data[i].idContacto) {
+                            if (data[i].persona)
+                                nombre = data[i].nombre + ' ' + data[i].apellidos;
+                            else
+                                nombre = data[i].nombreComercial;
+                            var o = new Option(nombre, data[i].idContacto);
+                            $("#IdCliente").append(o);
+                        }
+                    }
                 }
             },
             error: function (err, scnd) {
@@ -1001,7 +1055,7 @@
         $.ajax({
             type: "POST",
             url: '@Url.Action("_FormaPago", "MovimientoCaja")',
-            data: { viewModel: model },
+            data: { viewModel: model, tipo: 1 },
             success: function (data) {
                 $('#formaPagoPartial').html(data);
                 $('#formaPagoModal').modal('show');
@@ -1200,15 +1254,15 @@
 
             var body = '<tr class="filasCargadas" id="fila' + contadorFila + '">'
                 + '<td >' + parseFloat(data[i].cantidad).toFixed(2) + ' </td>'
-                + '<td ><span onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')">' +des+ '<span/></td>'
+                + '<td ><span class="spanEdit" disabled onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')">' +des+ '<span/></td>'
                 + '<td style="text-align: right">' + darFomatoMoneda(data[i].precio) + '</td>'
                 + '<td style="text-align: right">' + darFomatoMoneda(data[i].total) + '</td>'
-                + '<td> <a  href="#" style="font-size:1.8rem;" onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-edit"></i></a>&nbsp;&nbsp; <a href="#" style="font-size:1.8rem;" value="' + contadorFila + '" onclick="eliminarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-trash"></i></a></td></tr>';
+                + '<td style="display:@est2" > <a  href="#" style="font-size:1.8rem;" onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-edit"></i></a>&nbsp;&nbsp; <a href="#" style="font-size:1.8rem;" value="' + contadorFila + '" onclick="eliminarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-trash"></i></a></td></tr>';
 
             var body2 = '<tr class="filasCargadas" id="filaxs' + contadorFila + '">'
                 + '<td >' + getItemPorId(data[i].idInventario).descripcionVenta.substr(0, 30) + '</td>'
                 + '<td style="text-align: right">' + darFomatoMoneda(data[i].total) + '</td>'
-                + '<td> <a  href="#" style="font-size:1.8rem;" onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-edit"></i></a>&nbsp;&nbsp; <a href="#" style="font-size:1.8rem;" value="' + contadorFila + '" onclick="eliminarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-trash"></i></a></td></tr>';
+                + '<td> <a href="#" style="font-size:1.8rem;" onclick="modalEditarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-edit"></i></a>&nbsp;&nbsp; <a href="#" style="font-size:1.8rem;" value="' + contadorFila + '" onclick="eliminarLinea(' + contadorFila + ', ' + data[i].id + ')" ><i class="fas fa-trash"></i></a></td></tr>';
 
 
             $('#tblFDxs > tbody').append(body2);
@@ -1218,6 +1272,8 @@
             contadorFila++;
 
         }
+        if(@Model.Id !=0)
+        $(".spanEdit").css("pointer-events", "none");
 
     }
 

@@ -17,6 +17,11 @@
             saldoDisponible = movimiento.DisponibleEuro;
             break;
     }
+    var estado = "";
+    if (ViewBag.tipo == 2)
+    {
+        estado = "hidden";
+    }
 
 }
 
@@ -26,7 +31,7 @@
         <div class="modal-content">
             <div class="modal-header row" style="padding-bottom:0; margin-bottom: 0; ">
 
-                <div class="col-md-3 col-sm-3 col-xs-6">
+                <div class="col-md-3 col-sm-3 col-xs-6" @estado>
                     <div class="form-group row">
                         <label for="monto" class="col-sm-3 col-xs-4 col-md-3 col-form-label col-form-label-sm">@Lb["Monto"]:</label>
                         <div class="col-sm-9 col-md-9 col-xs-8">
@@ -42,7 +47,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 col-sm-4 col-xs-8">
+                <div class="col-md-4 col-sm-4 col-xs-8" @estado>
                     <div class="form-group row">
                         <label for="balance" class="col-sm-3 col-xs-3 col-md-3 col-form-label col-form-label-sm">@Lb["Balance"]:</label>
                         <div class="col-sm-9 col-md-9 col-xs-9">
@@ -50,11 +55,22 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-2 col-sm-2 col-xs-4" style="margin: 0; padding: 0; text-align:right">
-                    <button class="btn btn-link" onclick="guardarMovimientosCaja()">
-                        <span aria-hidden="true">@Lb["Terminar"]</span>
-                    </button>
-                </div>
+                @if (ViewBag.tipo == 2)
+                {
+                    <div class="col-md-9 col-sm-9 col-xs-4" style="margin: 0; padding: 0; text-align:right">
+                        <button class="btn btn-link" onclick="guardarMovimientosCaja()">
+                            <span aria-hidden="true">@Lb["Terminar"]</span>
+                        </button>
+                    </div>
+                }
+                @if (ViewBag.tipo == 1)
+                {
+                    <div class="col-md-2 col-sm-2 col-xs-4" style="margin: 0; padding: 0; text-align:right">
+                        <button class="btn btn-link" onclick="guardarMovimientosCaja()">
+                            <span aria-hidden="true">@Lb["Terminar"]</span>
+                        </button>
+                    </div>
+                 }
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -440,16 +456,10 @@
     var saldoDisponible = 0;
 
     $(document).ready(function () {
-
         inicializarFP();
-
         $("input:radio[name=rdOperadorTarjeta]:first").prop('checked', true);
         $("input:radio[name=rdBanco]:first").prop('checked', true);
         $("input:radio[name=rdBancoCheque]:first").prop('checked', true);
-
-
-
-
     });
 
     function habilitarPrepago(){
@@ -577,10 +587,11 @@
         if (balance < 0)
             balance = 0;
 
-        setterGeneral(_BALANCE, balance);
+       setterGeneral(_BALANCE, balance);
 
         $('#balance').val(balance * -1);
 
+        $('#balance').val(0);
         setterGeneral(_VISUAL, $('#balance').inputmask('unmaskedvalue'));
     }
 
@@ -957,8 +968,10 @@
 
         setMontoFP(fp.idMoneda);
         cargarFormasPago(formasPago);
-
         borrarInputs();
+        if (parseFloat($('#pago').inputmask('unmaskedvalue')) == parseFloat($('#monto').inputmask('unmaskedvalue'))) {
+            guardarMovimientosCaja();
+        }
 
     }
 
