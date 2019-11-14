@@ -477,6 +477,9 @@
                     $('#lbEstado').prop("disabled", true);
                     break;
             }
+            if (@Model.Estado == 4) {
+               // getCajaMovimiento();
+            }
 
         }
 
@@ -497,6 +500,58 @@
     });
 ///////////////////////////////////////////////////////GETS/////////////////////////////////////////////////////////////////////////////////////
 
+    function getCajaMovimiento() {
+         $.ajax({
+              type: "get",
+              dataType: "json",
+             url: '@Url.Action("GetCajaMovimientoByIdCaja","MovimientoCaja", new {idCaja = Model.IdCaja })',
+             success: function (data) {
+                 var base = 0;
+                 var dolar = 0;
+                 var euro = 0;
+                  var baseT = 0;
+                 var dolarT = 0;
+                 var euroT = 0;
+                  var baseB = 0;
+                 var dolarB = 0;
+                 var euroB = 0;
+                 for (var i = 0; i < data.length; i++) {
+                     if (data[i].idTipoCajaMovimiento == 1) {
+                         base += data[i].montoBase;
+                         dolar += data[i].montoDolar;
+                         euro += data[i].montoEuro;
+                     }
+                     if (data[i].idTipoCajaMovimiento == 2) {
+                         baseT += data[i].montoBase;
+                         dolarT += data[i].montoDolar;
+                         euroT += data[i].montoEuro;
+                     }
+                     if (data[i].idTipoCajaMovimiento == 3 || data[i].idTipoCajaMovimiento == 4 ) {
+                         baseB += data[i].montoBase;
+                         dolarB += data[i].montoDolar;
+                         euroB += data[i].montoEuro;
+                     }
+                 }  
+                 $("#inpEfectivoBaseCierreSistema").val(base);
+                 $("#inpEfectivoDolarCierreSistema").val(dolar.toFixed(2));
+                 $("#inpEfectivoEuroCierreSistema").val(euro.toFixed(2));
+                 
+                 $("#inpTarjetaBaseCierreSistema").val(baseT);
+                 $("#inpTarjetaDolarCierreSistema").val(dolarT.toFixed(2));
+                 $("#inpTarjetaEuroCierreSistema").val(euroT.toFixed(2));
+
+                 $("#inpBancoBaseCierreSistema").val(baseB);
+                 $("#inpBancoDolarCierreSistema").val(dolarB.toFixed(2));
+                 $("#inpBancoEuroCierreSistema").val(euroB.toFixed(2));
+
+                 var sumaTotal = base + baseT + baseB + dolar + dolarT + dolarB + euro + euroT + euroB;
+                 $("#txtTotalSistemaCierre").val(sumaTotal);
+            },
+            error: function (err, scnd) {
+               cargarAlert('@Lb["errorGeneral"]');
+            }
+        });
+    }
     function getAllPerfilModulo() {//con opcion 1
         if(@Model.IdCaja != 0)
         $.ajax({
@@ -1624,7 +1679,7 @@
 
                     body = '<tr class="filasCargadasCierreBase" id="filaBaseCierre' + contadorFila + '">'
                         + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbEfectivobaseCierre' + idFila + '"> ' + simbolo + " " + txtEfectivo + '</label></td> '
-                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoEfectivo + '" id="inpEfectivoBaseCierre" class="form-control cantidad ' + coin + '" type="text" min="0" disabled /></td></tr>'
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoEfectivo + '" id="inpEfectivoBaseCierre" class="form-control cantidad  ' + coin + '" type="text" min="0" disabled /></td></tr>'
                         + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbTarjetaBaseCierre' + idFila + '"> ' + simbolo + " " + txtTarjeta + '</label></td> '
                         + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoTarjeta + '" id="inpTarjetaBaseCierre" class="form-control cantidad ' + coin + '" type="text" min="0" disabled /></td></tr>'
                         + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbBancoBaseCierre' + idFila + '"> ' + simbolo + " " + txtBanco + '</label></td> '
@@ -1873,7 +1928,7 @@
             rightAlign: false,
 
         });
-
+        getCajaMovimiento();
     }
 
     function cargarTablaCierreDolarSistema(data) {

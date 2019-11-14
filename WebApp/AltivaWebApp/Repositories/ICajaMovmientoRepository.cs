@@ -14,5 +14,6 @@ namespace AltivaWebApp.Repositories
         IList<TbFaCajaMovimientoFlujo> UpdateRangeCMF(IList<TbFaCajaMovimientoFlujo> domain);
         void DeleteRangeCM(IList<long> fpElimindas);
         IList<TbFaCajaMovimiento> GetCajaMovimientoByIdMovimiento(double idDoc);
+        IList<TbFaCajaMovimiento> GetCajaMovimientoByIdCaja(double idCaja);
     }
 }
