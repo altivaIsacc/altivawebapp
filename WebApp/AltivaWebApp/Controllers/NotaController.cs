@@ -46,6 +46,37 @@ namespace AltivaWebApp.Controllers
         {
             return View();
         }
+        [HttpGet("SaldoGeneral")]
+        public IActionResult SaldoGeneral()
+        {
+            return View();
+        }
+        [HttpGet("GetTotalCredito/{idCliente}")]
+        public IActionResult GetTotalCredito(int idCliente)
+        {
+            try
+            {
+                return Ok(movimientoService.GetTotalCredito(idCliente));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+           
+        }
+        [HttpGet("GetMaximoCredito/{idCliente}")]
+        public IActionResult GetMaximoCredito(int idCliente)
+        {
+            try
+            {
+                return Ok(movimientoService.GetMaximoCredito(idCliente));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
         [HttpGet("EnlaceAutomatico/{idContacto}")]
         public IActionResult _EnlaceAutomatico(long idContacto)
         {
@@ -55,6 +86,7 @@ namespace AltivaWebApp.Controllers
         [HttpGet("CrearNota")]
         public IActionResult CrearNota()
         {
+            ViewBag.moneda = monedaService.GetAll();
             ViewBag.Justificantes = justificanteService.GetAll();
             var model = new DocumentoViewModel();
             model.Fecha = DateTime.Now;
@@ -68,6 +100,7 @@ namespace AltivaWebApp.Controllers
         [HttpGet("EditarNota")]
         public IActionResult EditarNota(long id)
         {
+            ViewBag.moneda = monedaService.GetAll();
             ViewBag.Justificantes = justificanteService.GetAll();
             var nota = map.DomainToVIewModel(service.GetNotaById(id));
             return View("CrearEditarNota", nota);
@@ -201,8 +234,24 @@ namespace AltivaWebApp.Controllers
             try
             {
                 movimientoService.DeleteMD(id);
-
                 return Json(new { success = true });
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
+        [HttpPost("EditarMovimientosDetalle")]
+        public IActionResult EditarMovimientosDetalle(MovimientoDetalleViewModel viewModel)
+        {
+            try
+            {
+                var lineasActualizadas = new List<MovimientoDetalleViewModel>();
+                lineasActualizadas.Add(viewModel);
+                movimientoMap.UpdateMD(lineasActualizadas);
+                return Json(new { success = true });
+
             }
             catch
             {
@@ -247,12 +296,12 @@ namespace AltivaWebApp.Controllers
             try
             {
                 var notas = service.GetAll();
-                //var pagos = pagoService.GetAll();
+                var pagos = pagoService.GetAll();
                 IList<DocumentoViewModel> docs = new List<DocumentoViewModel>();
-                //foreach (var item in pagos)
-                //{
-                //    docs.Add(pagoMap.DomainToViewModel(item));
-                //}
+                foreach (var item in pagos)
+                {
+                    docs.Add(pagoMap.DomainToViewModel(item));
+                }
                 foreach (var item in notas)
                 {
                     docs.Add(map.DomainToVIewModel(item));
@@ -327,6 +376,7 @@ namespace AltivaWebApp.Controllers
                 {
                     pago = pagoMap.Create(modelPago);
                     modelMovimiento.IdDocumento = pago.IdPago;
+                    modelMovimiento.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     movimientoMap.Create(modelMovimiento);
                 }
 
@@ -342,17 +392,30 @@ namespace AltivaWebApp.Controllers
 
 
         [HttpPost("AnularNota")]
-        public IActionResult AnularNota(long id)
+        public IActionResult AnularNota(long id, bool tip)
         {
             try
             {
-                var nota = service.GetNotaById(id);
-                if (nota.Estado == 1)
-                    nota.Estado = 2;
+                if (tip)
+                {
+                    var doc = service.GetNotaById(id);
+                    if (doc.Estado == 1)
+                        doc.Estado = 2;
+                    else
+                        doc.Estado = 1;
+                    doc = service.Update(doc);
+                    return Ok(doc);
+                }
                 else
-                    nota.Estado = 1;
-                nota = service.Update(nota);
-                return Ok(nota);
+                {
+                    var doc = service.GetPagoById(id);
+                    if (doc.Estado == 1)
+                        doc.Estado = 2;
+                    else
+                        doc.Estado = 1;
+                    doc = service.UpdateDoc(doc);
+                    return Ok(doc);
+                }
             }
             catch (Exception ex)
             {

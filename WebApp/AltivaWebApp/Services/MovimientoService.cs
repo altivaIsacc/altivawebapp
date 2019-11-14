@@ -15,6 +15,14 @@ namespace AltivaWebApp.Services
         {
             this.repository = repository;
         }
+        public double? GetMaximoCredito(int idCliente)
+        {
+            return repository.GetMaximoCredito(idCliente);
+        }
+        public double GetTotalCredito(int idCliente)
+        {
+            return repository.GetTotalCredito(idCliente);
+        }
         public TbFaMovimientoDetalle GetMovimientoDetalleByIdMovimientoHasta(long idMovimientoHasta)
         {
             return repository.GetMovimientoDetalleByIdMovimientoHasta(idMovimientoHasta);

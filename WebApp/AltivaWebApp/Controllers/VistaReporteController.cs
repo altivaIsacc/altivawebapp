@@ -18,7 +18,7 @@ namespace AltivaWebApp.Controllers
     public class VistaReporteController : Controller
     {
         [HttpPost("ReporteGeneral")]
-        public IActionResult ReporteGeneral(string NombreReporte, IList<RepParametro> parametros)
+        public IActionResult ReporteGeneral(string NombreReporte, IList<RepParametro> parametros, bool usaGrupo=true)
         {
             FastReport.Utils.Config.WebMode = true;
             var rep = new WebReport();
@@ -29,14 +29,30 @@ namespace AltivaWebApp.Controllers
             rep.Report.Load(path);
 
             var str = Resources.JsonStringProvider.GetJson(CultureInfo.CurrentCulture.Name);//  idioma
-
-            rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringGE;
-            rep.Report.Dictionary.Connections[1].ConnectionString = StringProvider.StringEmpresas;// primera conexion
-            rep.Report.Dictionary.Connections[2].ConnectionString = str;
+            if (usaGrupo)
+            {
+                 rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringGE;
+                rep.Report.Dictionary.Connections[1].ConnectionString = StringProvider.StringEmpresas;// primera conexion
+                rep.Report.Dictionary.Connections[2].ConnectionString = str;
+            }
+            else
+            {
+                // rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringGE;
+                rep.Report.Dictionary.Connections[0].ConnectionString = StringProvider.StringEmpresas;// primera conexion
+                rep.Report.Dictionary.Connections[1].ConnectionString = str;
+            }
 
             foreach (var item in parametros)
             {
-                rep.Report.SetParameterValue(item.Nombre,long.Parse( item.Valor));// envia por parametro el idempresa a fast report
+                if(item.Nombre == "Direccion")
+                {
+                    rep.Report.SetParameterValue(item.Nombre,( item.Valor).ToString());
+                }
+                else
+                {
+                    rep.Report.SetParameterValue(item.Nombre, long.Parse(item.Valor));// envia por parametro el idempresa a fast report
+
+                }
             }
 
            // rep.ShowToolbar = false;

@@ -84,12 +84,16 @@ namespace AltivaWebApp.Controllers
             }
         }
 
-        /// //////////////////////////////////////////////////////////////////////////crear o editar contacto
-        /// 
+       /////////////////////////////////////////////////////////////////////////////crear o editar contacto/// 
 
-        [HttpGet("Nuevo")]
-        public IActionResult CrearContacto()
+        [HttpGet("Nuevo/{tipo}")]
+        public IActionResult CrearContacto(int tipo)
         {
+            if (tipo == 2)
+                ViewBag.tipo = true;
+            if(tipo ==1)
+                ViewBag.tipo = false;
+
             ViewBag.esPorDefectoPV = false;
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["paises"] = paisService.GetAll();
@@ -103,6 +107,7 @@ namespace AltivaWebApp.Controllers
         [HttpGet("Editar/{id}")]
         public IActionResult EditarContacto(int id)
         {
+            ViewBag.tipo = false;
             ViewBag.esPorDefectoPV = contactoService.EsPorDefectoPV(id);
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["paises"] = paisService.GetAll();

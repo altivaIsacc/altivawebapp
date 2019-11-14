@@ -352,6 +352,9 @@ namespace AltivaWebApp.App_Start
             services.AddScoped<IPagoRepository, PagoRepository>();
             services.AddScoped<IPagoService, PagoService>();
             services.AddScoped<IPagoMap, PagoMap>();
+            //SaldoGeneral
+            services.AddScoped<ISaldoGeneralRepository, SaldoGeneralRepository>();
+            services.AddScoped<ISaldoGeneralService, SaldoGeneralService>();
 
         }
     }

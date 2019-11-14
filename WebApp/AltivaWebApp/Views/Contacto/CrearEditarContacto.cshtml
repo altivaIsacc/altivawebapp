@@ -49,14 +49,26 @@
         esPorDefectoPV = "disabled";
     }
 
+
+
 }
 
 
-<div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
-        <h3> @titulo</h3>
+
+    <div class="row">
+       
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            @if (ViewBag.tipo)
+            {
+                Layout = null;
+                <div class="col-md-1 col-sm-1 col-xs-1">
+                    <br />
+                    <a onclick="at()"><i class="fas fa-arrow-left"></i></a>
+                </div>
+            }
+            <h3> @titulo</h3>
+        </div>
     </div>
-</div>
 
 @Html.Hidden("disabled", ViewBag.esPorDefectoPV, new { @id = "esPorDefectoPV" })
 
@@ -522,7 +534,6 @@
 
 
     }
-
     function isEmail(email) {
         var regex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
         return regex.test(email);
@@ -558,12 +569,17 @@
                     if (data.success) {
                         if ($('#fileUploadC').val() !== "")
                             guardarImagen(data.id);
+                        if ('@ViewBag.tipo') {
+                             getContactos();
+                           $('#modalContacto').modal('hide');
 
-                        if (!data.accion) {
-                            window.location.href = "@Url.Action("EditarContacto", new { id = "__id__" })".replace("__id__", data.id);
-                        }
-                        else {
-                            window.location.href = "@Url.Action("ListarContactos", new { nombreContacto = "__nombre__" })".replace("__nombre__", data.nombre);
+                        } else {
+                            if (!data.accion) {
+                                window.location.href = "@Url.Action("EditarContacto", new { id = "__id__" })".replace("__id__", data.id);
+                            }
+                            else {
+                                window.location.href = "@Url.Action("ListarContactos", new { nombreContacto = "__nombre__" })".replace("__nombre__", data.nombre);
+                            }
                         }
                     }
                     else {
@@ -1219,7 +1235,12 @@
     function cancelar() {
         bootbox.confirm("@Lb["confirmCancelar"]", function (result) {
             if (result)
-                window.location.href = "@Url.Action("ListarContactos")";
+                if ('@ViewBag.tipo') {
+                    $('#modalContacto').modal('hide');
+
+                } else {
+                    window.location.href = "@Url.Action("ListarContactos")";
+                }
             else {
                 if ($('#persona').prop('checked')) {
                     setTimeout(function () { $('#Nombre').focus(); }, 1);

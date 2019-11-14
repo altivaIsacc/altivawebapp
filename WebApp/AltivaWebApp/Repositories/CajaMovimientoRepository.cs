@@ -31,12 +31,52 @@ namespace AltivaWebApp.Repositories
                 throw;
             }
         }
+        public IList<TbFaCajaMovimiento> UpdateRange(IList<TbFaCajaMovimiento> domain)
+        {
+            try
+            {
+                context.TbFaCajaMovimiento.UpdateRange(domain);
+                context.SaveChanges();
 
+                return domain;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public IList<TbFaCajaMovimiento> GetCajaMovimientoByIdMovimiento(double idDoc)
+        {
+            try
+            {
+
+                var CM = context.TbFaCajaMovimiento.Where(c => c.IdMovimiento == idDoc).ToList();
+                return CM;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         public IList<TbFaCajaMovimientoFlujo> SaveRangeCMF(IList<TbFaCajaMovimientoFlujo> domain)
         {
             try
             {
                 context.TbFaCajaMovimientoFlujo.AddRange(domain);
+                context.SaveChanges();
+
+                return domain;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public IList<TbFaCajaMovimientoFlujo> UpdateRangeCMF(IList<TbFaCajaMovimientoFlujo> domain)
+        {
+            try
+            {
+                context.TbFaCajaMovimientoFlujo.UpdateRange(domain);
                 context.SaveChanges();
 
                 return domain;

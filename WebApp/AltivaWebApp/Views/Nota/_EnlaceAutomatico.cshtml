@@ -18,31 +18,34 @@
     <input readonly class="form-control currency" id="disponible" />
     <br />
 </div>
+<div class=" row col-md-12 col-sm-12 col-xs-12">
+    <div class="table-responsive " style="overflow-y:scroll;height:200px;">
+        <table class="table table-bordered table-fixed" id="tblSinAplicar">
+            <thead>
 
-    <table class="table table-bordered table-striped col-md-2 col-sm-2 col-xs-12 well" id="tblSinAplicar">
-        <thead>
-            <tr>
+                <tr>
 
-                <th><span>@Lb["tipo"]</span></th>
-                <th><span>@Lb["Documento"]</span></th>
-                <th><span>@Lb["Fecha"]</span></th>
-                <th><span>@Lb["Pendiente"]</span></th>
-                <th><span>@Lb["Aplicado"]</span></th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="lineaSinAplicar"></tr>
-        </tbody>
-    </table>
- 
-    <div class="col-md-3 col-sm-3 col-xs-12 pull-right" >
+                    <th><span>@Lb["tipo"]</span></th>
+                    <th><span>@Lb["Documento"]</span></th>
+                    <th style="padding-left:50px"><span>@Lb["Aplicado"]</span></th>
+                    <th><span>@Lb["Fecha"]</span></th>
+                    <th><span>@Lb["Pendiente"]</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="lineaSinAplicar"></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+    <div class="col-md-3 col-sm-3 col-xs-12 pull-right">
         <label>@Lb["Aplicado"]:</label>
         <input readonly id="sumaAplicado" class="form-control currency" />
 
     </div>
 
     <div class="row">
-        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+        <div class="form-group col-md-8 col-sm-8 col-xs-12">
             <br />
             <button class="btn btn-success btnAccion" onclick="GuardarEnlace()">@Lb["Aplicar"]</button>
             <a id="cancelarEnlace" onclick="" class="btn btn-default">@Lb["Cancelar"]</a>
@@ -51,14 +54,13 @@
         </div>
 
     </div>
-<script>
+    <script>
 
     var saldoAplicable = 0;
+    var flag = true;
 
     $(document).ready(function () {
-        console.log($("#totalDisponible").text());
-        $("#disponible").val($("#totalDisponible").text());
-        console.log($("#disponible").inputmask('unmaskedvalue'));
+        $("#disponible").val($('#totalDisponible').inputmask('unmaskedvalue'));
         $("#sumaAplicado").val(0.00);
 
         saldoAplicable = getSaldoAplicable();
@@ -67,9 +69,11 @@
     });
 
     $("#cancelarEnlace").on("click", function () {
+     
+               
         $('#modalTipoJustificante').modal('hide');
     });
-         
+
     function cargarTablaDocSinAplicar(data) {
 
         $('.filasSinAplicar').remove();
@@ -80,36 +84,37 @@
         for (var i = 0; i < data.length; i++) {
             contadorFila++;
             aplicado = calcularLinea(recuperarSaldo(data[i]));
-            var body = '<tr class="filasSinAplicar" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + recuperarTipoDocumento(data[i].idTipoDocumento) + '</td>'
+            var body = '<tr class="filasSinAplicar" id="fila' + contadorFila + '"><td style="padding-top:2rem;">' + data[i].nombre + '</td>'
                 + '<td style="padding-top:2rem;"><span>' + data[i].idDocumento + '</span></td>'
-                + '<td ><span >' + recuperarFecha(data[i].fechaDocumento) + '</span></td>'
-                + '<td ><span id="pendiente' + i + '" class="currency">' + recuperarSaldo(data[i]) + '</span></td>'
-                + '<td ><input id="aplicado' + i + '" onkeyup="cambiarAplicado(' + i + ')"  class="form-control currency" value="' + aplicado + '"/></td></tr>';
-            $('.lineaSinAplicar').before(body);
+                + '<td><input id="aplicado' + i + '" onkeyup="cambiarAplicado(' + i + ')"  class="form-control currency" value="' + aplicado + '"/></td>'
+                + '<td style="padding-top:2rem;" ><span >' + recuperarFecha(data[i].fechaDocumento) + '</span></td>'
+                + '<td style="padding-top:2rem;" ><span id="pendiente' + i + '" class="currency">' + recuperarSaldo(data[i]) + '</span></td></tr>';
+               $('.lineaSinAplicar').before(body);
+           
             guardarAplicado(docSinAplicar[i], aplicado);
 
         }
-           var simbolo = monedas[0].simbolo;
+       var simbolo = "₡";
         if (parseInt($('#tipoMoneda').val()) === 2)
-            simbolo = monedas[1].simbolo;
+            simbolo = "$";
         else if (parseInt($('#tipoMoneda').val()) === 3)
-            simbolo = monedas[2].simbolo;
-        $(".currency").inputmask('currency', {
+            simbolo = "€";
+         $(".currency").inputmask('currency', {
             prefix: simbolo,
             rightAlign: true
-        });
+          });
 
-        $(".moneda").inputmask('currency', {
+       $(".moneda").inputmask('currency', {
            prefix: '',
            rightAlign: true,
            min: 0
-        });
+       });
     }
-    
+
     function calcularLinea(saldo) {
 
         if (saldo > 0 && saldo != NaN) {
-            var disponible = $("#disponible").inputmask('unmaskedvalue');
+            var disponible = parseFloat($("#disponible").inputmask('unmaskedvalue'));
             var totalApli = $("#sumaAplicado").inputmask('unmaskedvalue');
             var result = 0;
             if (saldo <= disponible) {
@@ -132,11 +137,15 @@
     function GuardarEnlace() {
     $('#saldoValid').prop('hidden', true);
         var total = $("#disponible").inputmask('unmaskedvalue');
-        if (total < 0) {
+        if (total < 0 || !flag) {
           $('#saldoValid').prop('hidden', false);
-        } else {           
-            Guardar();                      
-            $('#modalTipoJustificante').modal('hide');
+        } else {
+            Guardar();
+              $("#totalDisponible").val($("#disponible").inputmask('unmaskedvalue'));
+            $("#totalAplicado").val(parseFloat($("#totalAplicado").inputmask('unmaskedvalue')) + parseFloat($("#sumaAplicado").inputmask('unmaskedvalue')));
+            $('#enlaceContenedor').prop('hidden', true);
+             $('#modalTipoJustificante').modal('hide');
+         $('#notaContenedor').prop('hidden',false );
         }
     }
 
@@ -161,41 +170,18 @@
             }
         });
     }
-
-   /* function calcularLinea(pos) {
-        var moneda = parseInt($("#tipoMoneda").val());
-        var saldo = lineasEnlace[pos].saldoBase;
-        if(moneda == 2)
-            saldo = lineasEnlace[pos].saldoDolar;
-         if(moneda == 3)
-            saldo = lineasEnlace[pos].saldoEuro;
-        if (saldo > 0 && saldo != NaN) {
-
-            var disponible = $("#disponible").inputmask('unmaskedvalue');
-            var totalApli = $("#sumaAplicado").inputmask('unmaskedvalue');
-            var result = 0;
-            if (saldo <= disponible) {
-                result = disponible - saldo;
-                $("#disponible").val(result);
-                $("#sumaAplicado").val(parseFloat(totalApli) + saldo);
-                return saldo;
-            }
-            if (saldo > disponible) {
-                $("#disponible").val(0.00);
-                $("#sumaAplicado").val(parseFloat(disponible) + parseFloat(totalApli));
-                return disponible;
-            }
-        } else {
-            return 0;
-        }
-    }*/
     function cambiarAplicado(pos) {
             var monto = parseFloat($("#aplicado" + pos).inputmask('unmaskedvalue'));
             var disponible = parseFloat($("#disponible").inputmask('unmaskedvalue'));
             var totalApli = parseFloat($("#sumaAplicado").inputmask('unmaskedvalue'));
             var montoAnterior = recuperarAplicado(docSinAplicar[pos]);
-            var saldo = recuperarSaldo(docSinAplicar[pos]);
+        var saldo = recuperarSaldo(docSinAplicar[pos]);
+        if (isNaN(monto))
+            monto = 0;
+
         if (monto <= saldo) {
+            $("#aplicado" + pos).css('color', '');
+
             if (monto >= montoAnterior)
                 $("#disponible").val(disponible - (monto - montoAnterior));
             if (monto <= montoAnterior)
@@ -205,11 +191,14 @@
             var nuevoApli = parseFloat($("#sumaAplicado").inputmask('unmaskedvalue'));
             $("#sumaAplicado").val(nuevoApli + monto);
             guardarAplicado(docSinAplicar[pos], monto);
-        } 
-        
+        } if (monto > saldo) {
+            $("#aplicado" + pos).css('color', 'red');
+            flag = false;
+        }
 
-           
-            
+
+
+
     }
 
     function crearModeloEnlace() {
@@ -233,4 +222,4 @@
         return array;
     }
 
-</script>
+    </script>

@@ -18,6 +18,30 @@ namespace AltivaWebApp.Repositories
         {
 
         }
+        public double? GetMaximoCredito(int idCliente)
+        {
+            try
+            {
+                return context.TbFdCondicionesDePago.Where(c => c.IdContacto == idCliente).Select(c => c.MontoMaximo).FirstOrDefault();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public double GetTotalCredito(int idCliente)
+        {
+            try
+            {
+                return context.TbFaMovimiento.Where(m => m.IdContacto == idCliente && m.IdTipoDocumento == 1).Select(m => m.SaldoBase).FirstOrDefault();
+            }
+            catch (Exception)
+            {
+                throw;
+
+            }
+
+        }
         public void DeleteMovimientoDetalle(IList<TbFaMovimientoDetalle> domain)
         {
             try
@@ -231,7 +255,7 @@ namespace AltivaWebApp.Repositories
         {
             try
             {
-                var MD = context.TbFaMovimientoDetalle.FirstOrDefault(d => d.IdMovimientoHasta == id);
+                var MD = context.TbFaMovimientoDetalle.FirstOrDefault(d => d.IdMovimientoDetalle== id);
                 context.TbFaMovimientoDetalle.Remove(MD);
                 context.SaveChanges();
 

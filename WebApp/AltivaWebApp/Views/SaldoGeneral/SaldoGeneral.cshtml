@@ -1,0 +1,313 @@
+﻿@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    ViewData["Title"] = Lb["Notas"];
+
+}
+<div class="row">
+    <div class="col-md-3">
+        <h3>@Lb["saldoGeneral"]</h3>
+    </div>
+</div>
+<div class="row">
+    <input value="@ViewBag.Dolar" hidden id="dolar"/>
+    <input value="@ViewBag.Euro" hidden id="euro" />
+    <div class="col-md-3 col-sm-4 col-xs-12">
+        <label>@Lb["BuscarPorCliente"]:</label>
+        <input type="text" id="filtroBuscarPorCliente" class="form-control" placeholder="@Lb["Cliente"]" />
+    </div>
+    <div class="form-group col-md-2 col-sm-2 col-xs-6">
+        <label class="control-label">@Lb["Moneda"]:</label>
+        <select class="selectItems form-control" data-live-search="true" id="tipoMoneda">
+            <option value="1">@Lb["CRC"]</option>
+            <option value="2">@Lb["USD"]</option>
+            <option value="3">@Lb["EUR"]</option>
+        </select>
+    </div>
+</div>
+
+
+<div class="row">
+
+    <div class=" col-md-12 table-responsive">
+        <table class="table table-bordered" id="tblSaldoGeneral">
+            <thead>
+                <tr>
+
+                    <th>
+                        @Lb["Cliente"]
+                    </th>
+                    <th>
+                        @Lb["DiasCredito"]
+                    </th>
+                    <th>
+                        @Lb["MaximoCredito"]
+                    </th>
+                    <th>
+                        @Lb["+120"]
+                    </th>
+                    <th>
+                        @Lb["+90"]
+                    </th>
+                    <th>
+                        @Lb["+60"]
+                    </th>
+                    <th>
+                        @Lb["+30"]
+                    </th>
+                    <th>
+                        @Lb["Vencido"]
+                    </th>
+                    <th>
+                        @Lb["SinVencido"]
+                    </th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+<script>
+    var documentos = [];
+    var contactos = [];
+    $(document).ready(function () {
+         getDocumentos();
+    });
+    $("#tipoMoneda").on("change", function () {
+        console.log(contactos);
+        cargarTabla(contactos);
+    });
+    function getDocumentos() {
+         $.ajax({
+            type: "post",
+            dataType: "json",
+            url: '@Url.Action("GetDocumentos", "SaldoGeneral")',
+             success: function (data) {
+                 documentos = data;
+                getContactos();
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+    function getContactos() {
+        $.ajax({
+            type: "post",
+            dataType: "json",
+            url: '@Url.Action("GetContactos", "SaldoGeneral")',
+            success: function (data) {
+                contactos = data;
+                cargarTabla(data);
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+    function cargarTabla(data) {
+         var sinVencer = 0;
+        var montoTreita = 0;
+        var montoSesenta = 0;
+        var montoNoventa = 0;
+        var montoCientoV = 0;
+        var vencido = 0;
+        $("#tblSaldoGeneral> tbody").remove();
+        $('#tblSaldoGeneral').append('<tbody></tbody>');
+        for (var i = 0; i < data.length; i++) {
+            var montos = getMontos(data[i].idContacto);
+            var body = '<tr class="lineasForm">'
+                + '<td> ' + recuperarNombre(data[i]) +'</td>'
+                + '<td>' + data[i].plazoCredito + '</td>'
+                + '<td><span class="currency">' + recuperarMonto(data[i].montoMaximo) + '</span></td>'
+                + '<td><span class="currency">' + montos.cientoV + '</span></td>'
+                + '<td><span class="currency">' + montos.noventa + '</span></td>'
+                + '<td><span class="currency">' + montos.sesenta + '</span></td>'
+                + '<td><span class="currency">' + montos.treinta + '</span></td>'
+                + '<td><span class="currency">' + montos.vencido + '</span></td>'
+                + '<td><span class="currency">' + montos.sinVencer + '</span></td></tr>';
+               $('#tblSaldoGeneral > tbody').append(body);
+              sinVencer += montos.sinVencer;
+              montoTreita += montos.treinta;
+              montoSesenta += montos.sesenta;
+              montoNoventa += montos.noventa;
+              montoCientoV += montos.cientoV;
+            vencido += montos.vencido;
+        }
+         var data = '<tr>'
+                + '<td></td>'
+                + '<td></td>'
+                + '<td><p align="right" style="font-weight: bold;">'+'@Lb["totales"]'+' =</p></td>'
+                + '<td><span class="currency" style="color: red;">' +  montoCientoV + '</span></td>'
+                + '<td><span class="currency" style="color: red;">' + montoNoventa + '</span></td>'
+                + '<td><span class="currency" style="color: red;">' + montoSesenta + '</span></td>'
+                + '<td><span class="currency" style="color: red;">' + montoTreita + '</span></td>'
+                + '<td><span class="currency" style="color: red;">' + vencido + '</span></td>'
+            + '<td><span class="currency" style="color: green;">' + sinVencer + '</span></td></tr>';
+        $('#tblSaldoGeneral > tbody').append(data);
+        var simbolo = "₡";
+        if (parseInt($('#tipoMoneda').val()) === 2)
+         simbolo = "$";
+       else if (parseInt($('#tipoMoneda').val()) === 3)
+         simbolo = "€";
+       $(".currency").inputmask('currency', {
+            prefix: simbolo,
+            rightAlign: true
+       });
+
+        inicializarTabla();
+    }
+
+    function getMontos(id) {
+        var sinVencer = 0;
+        var montoTreita = 0;
+        var montoSesenta = 0;
+        var montoNoventa = 0;
+        var montoCientoV = 0;
+        var fecha;
+        for (var i = 0; i < documentos.length; i++) {
+            if (documentos[i].idContacto == id) {
+                var fecha = sumarDias(documentos[i].fechaCreacion);
+              if (parseInt($('#tipoMoneda').val()) === 1) {
+                  if (fecha <= 30)
+                    sinVencer += documentos[i].saldoBase;
+                  if (fecha > 30 && fecha <=60)
+                    montoTreita += documentos[i].saldoBase;
+                  if (fecha > 60 && fecha <=90)
+                    montoSesenta += documentos[i].saldoBase;
+                  if (fecha > 90 && fecha <=120)
+                    montoNoventa += documentos[i].saldoBase;
+                  if (fecha > 120)
+                    montoCientoV += documentos[i].saldoBase;
+                } if (parseInt($('#tipoMoneda').val()) === 2) {
+                  if (fecha <= 30)
+                    sinVencer += documentos[i].saldoDolar;
+                  if (fecha > 30 && fecha <=60)
+                    montoTreita += documentos[i].saldoDolar;
+                  if (fecha > 60 && fecha <=90)
+                    montoSesenta += documentos[i].saldoDolar;
+                  if (fecha > 90 && fecha <=120)
+                    montoNoventa += documentos[i].saldoDolar;
+                  if (fecha > 120)
+                    montoCientoV += documentos[i].saldoDolar;
+
+              } if (parseInt($('#tipoMoneda').val()) === 3) {
+                  if (fecha <= 30)
+                    sinVencer += documentos[i].saldoEuro;
+                  if (fecha > 30 && fecha <=60)
+                    montoTreita += documentos[i].saldoEuro;
+                  if (fecha > 60 && fecha <=90)
+                    montoSesenta += documentos[i].saldoEuro;
+                  if (fecha > 90 && fecha <=120)
+                    montoNoventa += documentos[i].saldoEuro;
+                  if (fecha > 120)
+                    montoCientoV += documentos[i].saldoEuro;
+               }
+
+            }
+        }
+        var array = {
+            treinta: montoTreita,
+            sesenta: montoSesenta,
+            noventa: montoNoventa,
+            cientoV: montoCientoV,
+            vencido: montoTreita + montoSesenta + montoNoventa + montoCientoV,
+            sinVencer: sinVencer
+        };
+        return array;
+    }
+
+    function sumarDias(_fecha, dias) {
+       var fechaini = new Date(_fecha);
+       var fechafin = new Date();
+	   var diasdif= fechafin.getTime()-fechaini.getTime();
+        var contdias = Math.round(diasdif / (1000 * 60 * 60 * 24));
+        return contdias;
+
+
+    }
+    function recuperarNombre(item) {
+        if (item.nombreComercial == "")
+            return item.nombre +" "+item.apellidos;
+        else {
+            return item.nombreComercial;
+        }
+    }
+    function recuperarMonto(monto) {
+        if (parseInt($('#tipoMoneda').val()) === 2)
+            return monto / parseFloat($("#dolar").val());
+        else if (parseInt($('#tipoMoneda').val()) === 3)
+            return monto / parseFloat($("#euro").val());
+        else
+            return monto;
+    }
+     function inicializarTabla() {
+
+        $('#tblSaldoGeneral').DataTable().destroy();
+
+        tblSaldo = $('#tblSaldoGeneral').DataTable({
+            "info": false,
+             "bSort": false,
+            dom: 'Bfrtip',
+            language: {
+                "decimal": "",
+                "emptyTable": "@Lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "@Lb["Mostrar"] _MENU_ @Lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@Lb["sinResultados"]",
+                "paginate": {
+                    "first": "@Lb["Primero"]",
+                    "last": "@Lb["Último"]",
+                    "next": "@Lb["Sguiente"]",
+                    "previous": "@Lb["Anterior"]"
+                }
+            },
+
+            buttons: [
+                 {
+                        extend: 'excelHtml5',
+                        title: "@Lb["saldoGeneral"]",
+                        text:'Excel'
+                        //Columns to export
+                        //exportOptions: {
+                       //     columns: [0, 1, 2, 3,4,5,6]
+                       // }
+                    }
+            ]
+        });
+
+     }
+   $("#filtroBuscarPorCliente").on("keyup", function () {
+        tblSaldo
+            .columns(0)
+            .search(this.value)
+            .draw();
+    });
+
+</script>
+<style>
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        visibility: hidden;
+    }
+</style>
