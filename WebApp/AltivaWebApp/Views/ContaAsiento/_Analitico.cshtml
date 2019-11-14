@@ -1,4 +1,4 @@
-﻿@model IList<AltivaWebApp.DomainsConta.Asiento>
+﻿@model IList<AltivaWebApp.DomainsConta.AsientosAnalitico>
 @inject IStringLocalizer<SharedResources> lb
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
@@ -8,6 +8,66 @@
     }
 }
 <div>
+    <table>
+        <thead>
+            <tr>
+                <td>
+                    @lb["Asiento"]
+                </td>
+                <td>
+                    @lb["Tipo"]
+                </td>
+                <td>
+                    @lb["Documento"]
+                </td>
+                <td>
+                    @lb["Nota"]
+                </td>
+                <td>
+                    @lb["Debe"]
+                </td>
+                <td>
+                    @lb["Haber"]
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+            @{ 
 
+                foreach (AltivaWebApp.DomainsConta.AsientosAnalitico item in Model)
+                {
+            <tr>
+                <td>@item.Asiento</td>
+                <td>@item.TipoDocumento</td>
+                <td>@item.NumDocumento</td>
+                <td>@item.Nota</td>
+                @{
+                    double monto = 0;
+                    if (ViewBag.Moneda == 1) { monto = item.MontoColones; }
+                    if (ViewBag.Moneda == 2) { monto = item.MontoDolares; }
+                    if (ViewBag.Moneda == 3) { monto = item.MontoEuro; }
+
+                    double montoDebe = 0; double montoHaber = 0;
+                    if (item.Debe) {
+
+                        montoDebe = monto;
+                    }
+                    if (item.Haber)
+                    {
+                        montoHaber = monto;
+                    }
+                 }
+
+                <td>@montoDebe</td>
+                <td>@montoHaber</td>
+            </tr>
+                }
+
+            }
+            
+
+        </tbody>
+
+    </table>
 
  </div>

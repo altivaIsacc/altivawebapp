@@ -15,6 +15,27 @@ namespace AltivaWebApp.DomainsConta
         public double ValorVenta { get; set; }
         public string Simbolo { get; set; }
     }
+    [Table("vs_SE_AsientosAnalitico")]
+    public class AsientosAnalitico
+    {
+        [Key]
+        public long IdDetalleAsientoContable { get; set; }
+        public long IdAsientoContable { get; set; }
+        public long IdPeriodoTrabajo { get; set; }
+        public long IdCuentaContable { get; set; }
+        public string CuentaContable { get; set; }
+        public string Descripcion { get; set; }
+        public string Asiento { get; set; }
+        public int Estado { get; set; }
+        public string TipoDocumento { get; set; }
+        public string NumDocumento { get; set; }       
+        public string Nota { get; set; }
+        public bool Debe { get; set; }
+        public bool Haber { get; set; }
+        public double MontoColones { get; set; }
+        public double MontoDolares { get; set; }
+        public double MontoEuro { get; set; }
+    }
     [Table("vs_SE_Usuario")]
     public class Usuario
     {
