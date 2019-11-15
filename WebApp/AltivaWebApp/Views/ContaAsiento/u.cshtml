@@ -47,15 +47,32 @@
 <div id="datosAsiento">
 
     <div class="row">
+        
         <div class="col-md-12 col-sm-12 col-xs-12">
             @if (Model.IdAsientoContable != 0)
             {
-                <div class="col-md-3"><h3>@lb["Editar"] @lb["Asiento"]</h3></div>
-                <div class="col-md-offset-3 col-md-3"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
+
+                <div class="col-md-8">
+                    <h3>
+                        <a href="#" style="font-size:2rem;" onclick="regresarBuscador()">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        @lb["Editar"] @lb["Asiento"]
+                    </h3>
+                </div>
+                <div class="col-md-offset-4"><button style="font-size:2rem; padding-top:1rem" onclick="crearPdf()" class="btn btn-link"><i class="fas fa-file-pdf"></i>PDF</button></div>
             }
             else
             {
-                <div class="col-md-3"><h3>@lb["Nuevo"] @lb["Asiento"]</h3></div>
+                <script>EsAnalitico = false;</script>
+                <div class="col-md-8">
+                    <h3>
+                        <a href="#" style="font-size:2rem;" onclick="regresarBuscador()">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        @lb["Nuevo"] @lb["Asiento"]
+                    </h3>
+                </div>
             }
         </div>
     </div>
@@ -596,7 +613,7 @@
         cuentaSeleccionada = obtenerCuenta(cuenta);
         if (validarLinea('') == true) {
             var linea = { MDolar: montoDolar, MEuro: montoEuro, MBase: montoBase, cuenta: cuentaSeleccionada, Tipo: tipo, TCDolar: TipoCambioDolar, TCEuro: TipoCambioEuro, Id: (lineas.length + 1) * -1, NumDocumento: numDoc, IdTipoDocumento: idTipoDoc, observacion: nota };
-            console.log(linea);
+        
             lineas.push(linea);
             tabla();
             document.getElementById('catalogoCuentas').value = '';
@@ -718,7 +735,6 @@
         $('#MontoBaseModal').val(String(lineaEdit.MBase).replace(',','.'));
         $('#Monto2Modal').val(String(lineaEdit.MDolar).replace(',','.'));
         $('#Monto3Modal').val(String(lineaEdit.MEuro).replace(',', '.'));
-        console.log("Valor a cargar;" + lineaEdit.IdTipoDocumento);
         $('#LtTipoDocDetModal').val(lineaEdit.IdTipoDocumento);
         $('#NumDocumentoDetModal').val(lineaEdit.NumDocumento);
         $('#NotaAsientoDetModal').val(lineaEdit.observacion);
@@ -883,10 +899,10 @@
         var descrip="";
         tiposDoc.forEach(function (item)
         {
-           
+
             if (Id == item.IdTipoDocumento)
             {
-             
+
                 descrip = item.Descripcion;
             }
         });
@@ -927,7 +943,6 @@
             idTipoDoc = document.getElementById('LtTipoDocDet' + deModal).value;
             numDoc = document.getElementById('NumDocumentoDet' + deModal).value;
             nota = document.getElementById('NotaAsientoDet' + deModal).value;
-            console.log("Obtuvo: " + idTipoDoc);
         }
     function obtenerCuenta(_DescripcionCuenta) {
         var cuenta = null;
@@ -960,16 +975,19 @@
 
     }
     function regresarBuscador() {
-        if (EsAnalitico == true) {
-            mostrarAnalitico();
-        }
-        if (editar == true) {
-            mostrarBuscador();
-
-        }
-        else {
-                       window.location.href = "@Url.Action("Index")";
-        }
+    
+            if (EsAnalitico == true) {
+                mostrarAnalitico();
+            }
+            else {
+                if (editar == true) {
+                    mostrarBuscador();
+                }
+                else {
+                    window.location.href = "@Url.Action("Index")";
+                }
+            }
+      
     }
     function enviarAjax(asiento) {
 
@@ -1227,7 +1245,7 @@
 
 
     function generarLineas(lineas) {
-       
+
             var lineasAsiento = [];
         for (var i = 0; i < lineas.length; i++) {
             obtenerTipoDoc(lineas[i].IdTipoDocumento);
