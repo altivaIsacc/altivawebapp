@@ -30,7 +30,7 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpPost("_FormaPago")]
-        public IActionResult _FormaPago(FormaPagoViewModel viewModel)
+        public IActionResult _FormaPago(FormaPagoViewModel viewModel, int tipo)
         {
             IList<TbBaFlujoCategoria> flujoCategoria = new List<TbBaFlujoCategoria>();
             flujoCategoria = flujoService.GetAllFlujoCategoria();
@@ -39,6 +39,7 @@ namespace AltivaWebApp.Controllers
             ViewData["bancos"] = flujoCategoria.Where(o => o.IdTipoFlujo == 1).ToList();
             ViewBag.flujoEfectivo = flujoCategoria.FirstOrDefault(e => e.IdTipoFlujo == 2).IdCategoriaFlujo;
             ViewBag.saldoDisponible = RetornaSaldo(viewModel.IdContacto);
+            ViewBag.tipo = tipo;
 
 
             return PartialView(viewModel);
