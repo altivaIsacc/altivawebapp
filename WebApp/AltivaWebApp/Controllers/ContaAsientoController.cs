@@ -106,6 +106,7 @@ namespace AltivaWebApp.Controllers
             cargarMoneda();
             return View();
         }
+
         public void cargarMoneda() {
 
             Moneda v = bd.Moneda.Find(1);
@@ -162,6 +163,8 @@ namespace AltivaWebApp.Controllers
                 cmd.Parameters.Add(idInput);
                 DataTable dt = new DataTable();         
                 AltivaData.Provider.SQL.fill(cmd, dt, StringFactory.StringEmpresas);
+                ViewBag.IdPeriodoSelecionado = id;
+                ViewBag.IdMonedaSeleccionada = idMoneda;
                 ViewBag.resultado = dt.AsEnumerable().ToList();
                 ViewBag.Moneda = bd.Moneda.Find(idMoneda);
 
@@ -174,7 +177,26 @@ namespace AltivaWebApp.Controllers
             }
 
         }
-        
+        [HttpPost("_Analitico")]
+        public IActionResult _Analitico(int idperiodo, int idcuentacontable, int idmoneda, string saldoanterior, string saldoperiodo, string saldoacumulado)
+        {
+            try
+            {
+                var asientos = bd.AsientosAnalitico.Where(p => p.IdPeriodoTrabajo == idperiodo & p.IdCuentaContable == idcuentacontable).ToList();
+                ViewBag.IdMonedaSeleccionada = idmoneda;
+                ViewBag.saldoanterior = saldoanterior;
+                ViewBag.saldoperiodo = saldoperiodo;
+                ViewBag.saldoacumulado = saldoacumulado;
+                return PartialView("_Analitico", asientos);
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                throw;
+            }
+
+        }
+
         [Route("item")]
         public IActionResult Item(long Id)
         {

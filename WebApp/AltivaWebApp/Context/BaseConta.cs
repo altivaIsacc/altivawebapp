@@ -27,5 +27,6 @@ namespace AltivaWebApp.Context
         public DbSet<Usuario> Usuario { get; set; }
         public DbSet<TiposDocumentosConta> TiposDoc { get; set; }
         public DbSet<ResultadoPeriodo> ResultadosPeriodo { get; set; }
+        public DbSet<AsientosAnalitico> AsientosAnalitico { get; set; }
     }
 }

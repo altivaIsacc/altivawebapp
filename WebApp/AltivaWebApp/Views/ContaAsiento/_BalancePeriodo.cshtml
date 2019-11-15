@@ -65,10 +65,18 @@
             @item.ItemArray[2].ToString()
         </td>
         <td>
-            @item.ItemArray[1].ToString()
+
             @{
                 if (item.ItemArray[6].ToString() == "True")
-                { <a><i class="fas fa-search" onclick="verAnalitico()"></i></a>}
+                { 
+                    <a onclick="verAnalitico(@ViewBag.IdPeriodoSelecionado,@item.ItemArray[25].ToString(),@ViewBag.IdMonedaSeleccionada, @TotalSaldoAnterior, @TotalSaldoPeriodo,@TotalsaldoAcumulado)">
+                     <i class="fas fa-search"></i>@item.ItemArray[1].ToString()
+                     </a>
+                }
+                else
+                {
+                @item.ItemArray[1].ToString()
+            }
             }
         </td>
         <td style="text-align:right">
@@ -113,7 +121,24 @@
     $(document).ready(function () {
         inicializarTabla();
     });
+    function verAnalitico(IdPeriodoSeleccionado,  IdCuenta, CodigoMoneda, SaldoAnterior, SaldoPeriodo, SaldoAcumulado) {  
+        //int idperiodo, int idcuentacontable, int idmoneda, string saldoanterior, string saldoperiodo, string saldoacumulado
+        var url = '@Url.Action("_Analitico", "ContaAsiento")';    
+         $.ajax({
+             type: "Post",
+             url: url,
+             data: { idperiodo: IdPeriodoSeleccionado, idcuentacontable: IdCuenta, idmoneda: CodigoMoneda, saldoanterior: SaldoAnterior, saldoperiodo: SaldoPeriodo, saldoacumulado: SaldoAcumulado},
+             success: function (data) {
+                 $('#item').html(data);
+                 mostrarAnalitico();
+             },
+             error: function (err, scnd) {
+                 console.log(err.statusText);
+             }
 
+         });
+
+    }
     function inicializarTabla() {
 
         $('#tblBalance').DataTable().destroy();

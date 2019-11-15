@@ -15,7 +15,7 @@ namespace AltivaWebApp.DomainsConta
         public double ValorVenta { get; set; }
         public string Simbolo { get; set; }
     }
-    [Table("vs_SE_AsientosAnalitico")]
+    [Table("vs_CO_AsientosAnalitico")]
     public class AsientosAnalitico
     {
         [Key]

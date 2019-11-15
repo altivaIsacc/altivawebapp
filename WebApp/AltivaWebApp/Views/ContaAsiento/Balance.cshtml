@@ -20,109 +20,151 @@
 
 <html>
 <body>
-    <div class="row">
-        <div class="col-md-2"><h3>@lb[ViewBag.Titulo]</h3></div>
-
-    </div>
-    <div class="row well">
+    <div id="Balance">
 
         <div class="row">
-            <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
-                <label>@lb["PeriodoFiscal"]:</label>
-                <input id="LtPeriodosFiscal" list="LtPeriodoFiscal" class="form-control" autocomplete=on placeholder="@lb["PeriodoFiscal"]" onchange="llenaPeriodoTrabajo()">
-                <datalist id="LtPeriodoFiscal">
-                    @{
-                        foreach (var item in ViewBag.PeriodosFiscales)
-                        {
-                            <option value="@item.Nombre">@item.FechaDesde.ToString("yyyy/MM/dd") | @item.FechaHasta.ToString("yyyy/MM/dd") </option>
+            <div class="col-md-2"><h3>@lb[ViewBag.Titulo]</h3></div>
+
+        </div>
+        <div class="row well">
+
+            <div class="row">
+                <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
+                    <label>@lb["PeriodoFiscal"]:</label>
+                    <input id="LtPeriodosFiscal" list="LtPeriodoFiscal" class="form-control" autocomplete=on placeholder="@lb["PeriodoFiscal"]" onchange="llenaPeriodoTrabajo()">
+                    <datalist id="LtPeriodoFiscal">
+                        @{
+                            foreach (var item in ViewBag.PeriodosFiscales)
+                            {
+                                <option value="@item.Nombre">@item.FechaDesde.ToString("yyyy/MM/dd") | @item.FechaHasta.ToString("yyyy/MM/dd") </option>
+
+                            }
+                        }
+                    </datalist>
+                    <span hidden id="periodoFiscalCorregir" class="text-danger">@lb["periodoFiscalCorregir"]</span>
+                </div>
+                <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
+                    <label>@lb["Periodo"]:</label>
+                    <input id="LtPeriodos" list="LtPeriodoTrabajo" class="form-control" placeholder="@lb["Periodo"]">
+                    <datalist id="LtPeriodoTrabajo">
+                        @{
+                            foreach (var item in ViewBag.Periodos)
+                            {
+                                <option value="@item.Nombre">@item.FechaInicio.ToString("yyyy/MM/dd") | @item.FechaFinal.ToString("yyyy/MM/dd") </option>
+
+                            }
 
                         }
-                    }
-                </datalist>
-                <span hidden id="periodoFiscalCorregir" class="text-danger">@lb["periodoFiscalCorregir"]</span>
-            </div>
-            <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
-                <label>@lb["Periodo"]:</label>
-                <input id="LtPeriodos" list="LtPeriodoTrabajo" class="form-control" placeholder="@lb["Periodo"]">
-                <datalist id="LtPeriodoTrabajo">
-                    @{
-                        foreach (var item in ViewBag.Periodos)
-                        {
-                            <option value="@item.Nombre">@item.FechaInicio.ToString("yyyy/MM/dd") | @item.FechaFinal.ToString("yyyy/MM/dd") </option>
-
+                    </datalist>
+                    <span hidden id="periodoCorregir" class="text-danger">@lb["periodoCorregir"]</span>
+                </div>
+                <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
+                    <label class="control-label">@lb["Moneda"]:</label>
+                    <input id="LtMonedas" list="LtCodigoMoneda" class="form-control" placeholder="@lb["Moneda"]" autocomplete=on>
+                    <datalist id="LtCodigoMoneda">
+                        @{
+                            foreach (var item in ViewBag.Monedas)
+                            {
+                                <option>@item.Simbolo</option>
+                            }
                         }
+                    </datalist>
+                    <span hidden id="monedaCorregir" class="text-danger">@lb["monedaCorregir"]</span>
+                </div>
+                <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
+                    <div class="col-md-12 col-sm-4 col-xs-12" style="margin-top: 2.5rem">
+                        <a id="btVer" class="btn btn-primary" onclick="getBalancePeriodo()"><span>@lb["Ver"]</span>&nbsp;<i class="fas fa-search"></i></a>
 
-                    }
-                </datalist>
-                <span hidden id="periodoCorregir" class="text-danger">@lb["periodoCorregir"]</span>
-            </div>
-            <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
-                <label class="control-label">@lb["Moneda"]:</label>
-                <input id="LtMonedas" list="LtCodigoMoneda" class="form-control" placeholder="@lb["Moneda"]" autocomplete=on>
-                <datalist id="LtCodigoMoneda">
-                    @{
-                        foreach (var item in ViewBag.Monedas)
-                        {
-                            <option>@item.Simbolo</option>
-                        }
-                    }
-                </datalist>
-                <span hidden id="monedaCorregir" class="text-danger">@lb["monedaCorregir"]</span>
-            </div>
-            <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 0.2rem">
-                <div class="col-md-12 col-sm-4 col-xs-12" style="margin-top: 2.5rem">
-                    <a id="btVer" class="btn btn-primary" onclick="getBalancePeriodo()"><span>@lb["Ver"]</span>&nbsp;<i class="fas fa-search"></i></a>
+                        <a @disable id="btMayorizar" class="btn btn-primary" onclick="Mayorizar()" data-toggle="tooltip" data-placement="top" title="@lb[etiquetaMayorizar]">@lb["Aprobar"] (@ViewBag.SinMayorizar)</i></a>
 
-                    <a @disable id="btMayorizar" class="btn btn-primary" onclick="Mayorizar()" data-toggle="tooltip" data-placement="top" title="@lb[etiquetaMayorizar]">@lb["Aprobar"] (@ViewBag.SinMayorizar)</i></a>
+                    </div>
 
                 </div>
 
             </div>
 
-        </div>
 
- 
-        <div class="row" style="margin-top:4px">
-            <div class="col-md-12 col-xs-12 table-responsive">
-                <table class="table table-bordered" id="tblBalance">
-                    <thead>
-                        <tr>
-                            <th>
-                                @lb["Catalogo"]
-                            </th>
-                            <th>
-                                @lb["Nivel"]
-                            </th>
-                            <th>
-                                @lb["Nombre"]
-                            </th>
-                            <th>
-                                @lb["SaldoAnterior"]
-                            </th>
-                            <th>
-                                @lb["Debe"]
-                            </th>
-                            <th>
-                                @lb["Haber"]
-                            </th>
-                            <th>
-                                @lb["SaldoPeriodo"]
-                            </th>
-                            <th>
-                                @lb["Acumulado"]
-                            </th>                           
-                        </tr>
-                    </thead>
-                    <tbody id="tabla"></tbody>
-                </table>
+            <div class="row" style="margin-top:4px">
+                <div class="col-md-12 col-xs-12 table-responsive">
+                    <table class="table table-bordered" id="tblBalance">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @lb["Catalogo"]
+                                </th>
+                                <th>
+                                    @lb["Nivel"]
+                                </th>
+                                <th>
+                                    @lb["Nombre"]
+                                </th>
+                                <th>
+                                    @lb["SaldoAnterior"]
+                                </th>
+                                <th>
+                                    @lb["Debe"]
+                                </th>
+                                <th>
+                                    @lb["Haber"]
+                                </th>
+                                <th>
+                                    @lb["SaldoPeriodo"]
+                                </th>
+                                <th>
+                                    @lb["Acumulado"]
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-
+    <div id="Analitico" class="border-aero" style="display:none">
+        <div id="item"></div>
+    </div>
+    <div id="Asiento" class="border-aero" style="display:none">
+        <div id="itemAsiento"></div>
+    </div>
 </body>
 </html>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
 <script type="text/javascript">
+    var xBuscador;
+    var yBuscador;
+    function mostrarAnalitico() {
+        xBuscador = window.scrollX;
+        yBuscador = window.scrollY;
+        muestra_oculta("Balance", true);
+        muestra_oculta("Asiento", true);
+        muestra_oculta("Analitico", false);
+        window.scrollTo(0, 3);
+    }
+    function mostrarBuscador() {
+        muestra_oculta("Balance", false);
+        muestra_oculta("Asiento", true);
+        muestra_oculta("Analitico", true);
+        window.scrollTo(xBuscador, yBuscador);
+    }
+    function mostrarAsiento() {
+        muestra_oculta("Balance", true);
+        muestra_oculta("Asiento", false);
+        muestra_oculta("Analitico", true);
+        window.scrollTo(xBuscador, yBuscador);
+    }
+    function muestra_oculta(id, ocultar) {
+        var el = document.getElementById(id);
+
+        if (ocultar == true) {
+
+            el.style.display = 'none';
+        }
+        else {
+            el.style.display = 'block';
+        }
+    }
+  
     $(document).ready(function () {
       //  inicializarTabla();
 
@@ -289,6 +331,7 @@
         return estado;
 
     }
+   
 
 
 </script>

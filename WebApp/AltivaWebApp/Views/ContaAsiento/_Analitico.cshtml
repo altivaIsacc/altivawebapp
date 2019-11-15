@@ -6,68 +6,196 @@
     {
         return Xsrf.GetAndStoreTokens(Context).RequestToken;
     }
+ 
+
 }
-<div>
-    <table>
+@{ 
+    double totalDebe = 0;
+    double totalHaber = 0;
+    double saldoA = Convert.ToDouble(ViewBag.saldoanterior);
+    double saldoP = Convert.ToDouble(ViewBag.saldoperiodo);
+    double saldoAcum = Convert.ToDouble(ViewBag.saldoacumulado);
+}
+<div class="col-lg-12 col-x12" style="padding-bottom:1em">
+    <a style="font-size:2rem;" onclick="mostrarBuscador()"><i class="fas fa-arrow-left"></i></a>
+    <a>@lb["Cuenta:"]</a>
+    <input readonly="readonly" value="@Model.First().CuentaContable" />
+    <a>@lb["Nombre:"]</a>
+    <input readonly="readonly" value="@Model.First().Descripcion" />  
+</div>
+<div class="col-lg-12">
+    <table class="table table-bordered" id="tblAnalitico">
         <thead>
             <tr>
-                <td>
+                <th>
+
                     @lb["Asiento"]
-                </td>
-                <td>
+                </th>
+                <th>
                     @lb["Tipo"]
-                </td>
-                <td>
+                </th>
+                <th>
                     @lb["Documento"]
-                </td>
-                <td>
+                </th>
+                <th>
                     @lb["Nota"]
-                </td>
-                <td>
+                </th>
+                <th>
                     @lb["Debe"]
-                </td>
-                <td>
+                </th>
+                <th>
                     @lb["Haber"]
-                </td>
+                </th>
             </tr>
         </thead>
         <tbody>
-            @{ 
+            @{
 
                 foreach (AltivaWebApp.DomainsConta.AsientosAnalitico item in Model)
                 {
-            <tr>
-                <td>@item.Asiento</td>
-                <td>@item.TipoDocumento</td>
-                <td>@item.NumDocumento</td>
-                <td>@item.Nota</td>
-                @{
-                    double monto = 0;
-                    if (ViewBag.Moneda == 1) { monto = item.MontoColones; }
-                    if (ViewBag.Moneda == 2) { monto = item.MontoDolares; }
-                    if (ViewBag.Moneda == 3) { monto = item.MontoEuro; }
+                    <tr>
+                        <td><label class="link" onclick="editarItem(@item.IdAsientoContable)">@item.Asiento</label></td>
+                        <td>@item.TipoDocumento</td>
+                        <td>@item.NumDocumento</td>
+                        <td>@item.Nota</td>
+                        @{
+                            double monto = 0;
+                            if (ViewBag.IdMonedaSeleccionada == 1) { monto = item.MontoColones; }
+                            if (ViewBag.IdMonedaSeleccionada == 2) { monto = item.MontoDolares; }
+                            if (ViewBag.IdMonedaSeleccionada == 3) { monto = item.MontoEuro; }
 
-                    double montoDebe = 0; double montoHaber = 0;
-                    if (item.Debe) {
+                            double montoDebe = 0; double montoHaber = 0;
+                            if (item.Debe)
+                            {
 
-                        montoDebe = monto;
-                    }
-                    if (item.Haber)
-                    {
-                        montoHaber = monto;
-                    }
-                 }
+                                montoDebe = monto;
+                                totalDebe += monto;
+                            }
+                            if (item.Haber)
+                            {
+                                montoHaber = monto;
+                                totalHaber += monto;
+                            }
 
-                <td>@montoDebe</td>
-                <td>@montoHaber</td>
-            </tr>
+                        }
+
+                        <td style="text-align:right">@montoDebe.ToString("#,##0.00")</td>
+                        <td style="text-align:right">@montoHaber.ToString("#,##0.00")</td>
+                    </tr>
                 }
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td style="text-align:right">@lb["Totales"]:</td>
+                    <td style="text-align:right">@totalDebe.ToString("#,##0.00")</td>
+                    <td style="text-align:right">@totalHaber.ToString("#,##0.00")</td>
+                </tr>
 
             }
-            
 
         </tbody>
+        <tfooter>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style="text-align:right"></td>
+                <td style="text-align:right; font-weight:bold;">@lb["SaldoAnterior"]:</td>
+                <td style="text-align:right">@saldoA.ToString("#,##0.00")</td>
 
-    </table>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style="text-align:right"></td>
+                <td style="text-align:right; font-weight:bold;">@lb["SaldoPeriodo"]:</td>
+                <td style="text-align:right">@saldoP.ToString("#,##0.00")</td>
 
- </div>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style="text-align:right"></td>
+                <td style="text-align:right; font-weight:bold;">@lb["SaldoAcumulado"]:</td>
+                <td style="text-align:right">@saldoAcum.ToString("#,##0.00")</td>
+
+            </tr>
+        </tfooter>
+
+    </table>           
+    
+      
+
+</div>
+<script>
+    $(document).ready(function () {
+        initTabla();
+    });
+    function initTabla() {
+
+        $('#tblAnalitico').DataTable().destroy();
+
+        tbl = $('#tblAnalitico').DataTable({
+            "paging": false,
+            "info": false,
+             "bSort": false,
+            dom: 'Bfrtip',
+            language: {
+                "decimal": ".",
+                "emptyTable": "@lb["NoDatos"]",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",             
+                "thousands": ",",
+                "lengthMenu": "@lb["Mostrar"] _MENU_ @lb["Entradas"]",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "<i class='fas fa-search'></i>",
+                "zeroRecords": "@lb["sinResultados"]",
+                "paginate": {
+                    "first": "@lb["Primero"]",
+                    "last": "@lb["Último"]",
+                    "next": "@lb["Sguiente"]",
+                    "previous": "@lb["Anterior"]"
+                }
+            },
+
+            buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        title: "@lb["Analicito"]",
+                        text:'Excel'
+                        //Columns to export
+                        //exportOptions: {
+                       //     columns: [0, 1, 2, 3,4,5,6]
+                       // }
+                    }
+            ]
+        });
+         $(".dataTables_searching").hide();
+    }
+    var EsAnalitico = true;
+        function editarItem(id) {
+
+        var url = '@Url.Action("Item", "ContaAsiento", new { id = "__id__" })';
+         url = url.replace("__id__", id);
+         $.ajax({
+             type: "Post",
+             url: url,
+             success: function (data) {
+                 $('#itemAsiento').html(data);
+                 mostrarAsiento();
+             },
+             error: function (err, scnd) {
+                 console.log(err.statusText);
+             }
+
+         });
+
+
+    }
+    </script>
