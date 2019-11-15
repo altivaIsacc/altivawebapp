@@ -85,7 +85,6 @@ namespace AltivaWebApp.Controllers
                 }
                 else
                 {
-
                     viewModel.IdUsuario = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
                     
                     var caja = _Map.Create(viewModel);//CajaApertura

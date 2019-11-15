@@ -28,7 +28,17 @@ namespace AltivaWebApp.Controllers
             this.cajaMovService = cajaMovService;
             this.movimientoMap = movimientoMap;
         }
-
+        [HttpGet("GetCajaMovimientoByIdCaja/{idCaja}")]
+        public IActionResult  GetCajaMovimientoByIdCaja(double idCaja){
+            try
+            {
+                return Ok(cajaMovService.GetCajaMovimientoByIdCaja(idCaja).ToList());
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         [HttpPost("_FormaPago")]
         public IActionResult _FormaPago(FormaPagoViewModel viewModel, int tipo)
         {
@@ -44,7 +54,7 @@ namespace AltivaWebApp.Controllers
 
             return PartialView(viewModel);
         }
-
+       
         [HttpPost("CrearEditarFormasPago")]
         public IActionResult CrearEditarFormasPago(long idDocumento, IList<CajaMovimientoViewModel> viewModel, IList<long> fpEliminadas, double montoPrepago, bool esPagoContado)
         {

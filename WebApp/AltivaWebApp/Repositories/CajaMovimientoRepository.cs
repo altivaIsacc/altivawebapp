@@ -58,6 +58,22 @@ namespace AltivaWebApp.Repositories
                 throw;
             }
         }
+
+        public IList<TbFaCajaMovimiento> GetCajaMovimientoByIdCaja(double idCaja)
+        {
+            try
+            {
+
+                var CM = context.TbFaCajaMovimiento.Where(c => c.IdCaja == idCaja).ToList();
+                return CM;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
         public IList<TbFaCajaMovimientoFlujo> SaveRangeCMF(IList<TbFaCajaMovimientoFlujo> domain)
         {
             try

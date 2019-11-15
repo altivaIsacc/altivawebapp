@@ -14,7 +14,10 @@ namespace AltivaWebApp.Services
         {
             this.repository = repository;
         }
-
+        public IList<TbFaCajaMovimiento> GetCajaMovimientoByIdCaja(double idCaja)
+        {
+          return repository.GetCajaMovimientoByIdCaja(idCaja);
+        }
         public IList<TbFaCajaMovimiento> SaveRange(IList<TbFaCajaMovimiento> domain)
         {
             return repository.SaveRange(domain);
