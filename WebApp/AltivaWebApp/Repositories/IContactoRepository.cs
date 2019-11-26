@@ -27,7 +27,7 @@ public interface IContactoRepository
         IList<TbCeDistrito> GetDistrito(int idCanton,int idProvincia);
         bool EliminarRelacion(int idRelacion);
         bool EsPorDefectoPV(int id);
-
+         IList<DocContacto> GetAllDocs(long id);
 
     }
 }

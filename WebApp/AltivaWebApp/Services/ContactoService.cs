@@ -27,7 +27,10 @@ namespace AltivaWebApp.Services
         {
             return this.cpRepository.CreateOrUpdate(domain);
         }
-
+        public IList<DocContacto> GetAllDocs(long id)
+        {
+            return this.repository.GetAllDocs(id);
+                }
         public TbFdCuentasBancarias AgregarCuentasBancarias(TbFdCuentasBancarias domain)
         {
             return this.cbRepository.Save(domain);
@@ -53,7 +56,12 @@ namespace AltivaWebApp.Services
             return this.cbRepository.Update(domain);
         }
 
-       
+        public List<DocContacto> GetDocumentosContactos(long id)
+        {
+
+            return this.GetDocumentosContactos(id);
+
+        }
 
         public IList<TbCrContacto> GetAllProveedores()
         {

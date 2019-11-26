@@ -15,6 +15,9 @@ using System.Runtime.Serialization.Json;
 using Newtonsoft.Json;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using System.Data.SqlClient;
+using System.Data;
+using AltivaWebApp.Context;
 
 namespace AltivaWebApp.Controllers
 {
@@ -102,6 +105,19 @@ namespace AltivaWebApp.Controllers
             contacto.TipoCedula = "1";
 
             return View("CrearEditarContacto", contacto);
+        }
+        public IActionResult VerContacto(long id)
+        {
+            SqlParameter idInput = new SqlParameter("@id", id);
+            SqlCommand cmd = new SqlCommand();
+            cmd.CommandText = "Select * From vs_FA_DocsContacto as r where r.IdContacto = @id Order by FechaDocumento";
+            cmd.Parameters.Add(idInput);
+            DataTable dt = new DataTable();
+            AltivaData.Provider.SQL.fill(cmd, dt, StringFactory.StringEmpresas);    
+            ViewBag.Docs = dt.AsEnumerable().ToList();         
+            var contacto = contactoMap.DomainToViewModelC(contactoService.GetByIdContacto(id));
+       
+            return View(contacto);
         }
 
         [HttpGet("Editar/{id}")]

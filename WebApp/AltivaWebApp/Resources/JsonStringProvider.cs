@@ -51,7 +51,6 @@ namespace AltivaWebApp.Resources
                 json += "\n}";
 
                 string rutaJson = System.IO.Path.Combine(Startup.entorno.ContentRootPath, "Resources");
-
                 string archivo = System.IO.Path.Combine(rutaJson, @".\Idioma-" + cultura + ".json");
                 System.IO.File.WriteAllText(archivo, json);
 

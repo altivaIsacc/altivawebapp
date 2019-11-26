@@ -20,6 +20,7 @@ namespace AltivaWebApp.DomainsConta
     {
         [Key]
         public long IdDetalleAsientoContable { get; set; }
+        public DateTime Fecha { get; set; }
         public long IdAsientoContable { get; set; }
         public long IdPeriodoTrabajo { get; set; }
         public long IdCuentaContable { get; set; }

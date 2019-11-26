@@ -58,4 +58,43 @@ namespace AltivaWebApp.Domains
         public string PuntoVenta { get; set; }
 
     }
+    [Table("vs_FA_DocsContacto")]
+    public class DocContacto
+    {
+        public string Nombre { get; set; }
+        [Key]
+        public long IdMovimiento { get; set; }    
+        public long IdContacto { get; set; }
+        public long IdDocumento { get; set; }
+        public int IdTipoDocumento { get; set; }
+        public long IdUsuario { get; set; }
+        public bool CXP { get; set; }
+        public bool CXC { get; set; }
+        public int IdMoneda { get; set; }
+        public float MontoBase { get; set; }
+        public float MontoDolar { get; set; }
+        public float MontoEuro { get; set; }
+        public float DisponibleBase { get; set; }
+        public float DisponibleDolar { get; set; }
+        public float DisponibleEuro { get; set; }
+        public float AplicadoBase { get; set; }
+        public float AplicadoDolar { get; set; }
+        public float AplicadoEuro { get; set; }
+        public float SaldoBase { get; set; }
+        public float SaldoDolar { get; set; }
+        public float SaldoEuro { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public bool EsDebito { get; set; }
+        public long Concecutivo { get; set; }
+        public DateTime FechaDocumento { get; set; }
+        public long IdVendedor { get; set; }
+        public long IdUsuarioCreador { get; set; }
+        public long IdPuntoVenta { get; set; }
+        public DateTime FechaVencimiento { get; set; }
+        public int Estado { get; set; }
+    }
 }
+
+
+
+

@@ -38,6 +38,7 @@ namespace AltivaWebApp.Services
         TbCrContactoRelacion GetRelacionById(int id);
         TbCrContactoRelacion GetByIdPadreAndIdHijo(int idPadre, int idHijo);
         bool EsPorDefectoPV(int id);
+        IList<DocContacto> GetAllDocs(long id);
 
     }
 }

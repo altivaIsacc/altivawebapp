@@ -485,12 +485,18 @@
        $('#modalContacto').modal('hide');
     }
     function validarCredito() {
-        var monto = parseFloat($('#precio').inputmask('unmaskedvalue'));
-        var total = monto + parseFloat(totalCredito);
-        if (total > maximoCredito)
-            return false;
-        else
+        var tipo = $('#Tipo').val()
+        if (tipo == 2) {
+            var monto = parseFloat($('#precio').inputmask('unmaskedvalue'));
+            var total = monto + parseFloat(totalCredito);
+            if (total > maximoCredito)
+                return false;
+            else
+                return true;
+        } else {
             return true;
+        }
+      
     }
   
     function getMaximoCredito() {
@@ -1028,10 +1034,24 @@
                 cargarFormaPago();
             }
             else {
-                procesarPagoDoc();
+                if (validarCreditoTotalFactura()) {
+                    procesarPagoDoc();
+                } else {
+                     cargarAlert('@Lb["ExcedioCredito"]');
+                }
+             
             }
         }
 
+    }
+    function validarCreditoTotalFactura() {
+        var total = facturaModel.Total;     
+      
+            if (total > maximoCredito)
+                return false;
+            else
+                return true;
+       
     }
 
     function cargarFormaPago() {

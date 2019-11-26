@@ -29,7 +29,11 @@ namespace AltivaWebApp.Repositories
         {
             return context.TbCrContacto.Where(u => u.Empresa == true).ToList();
         }
+        public List<DocContacto> GetDocumentosContactos(long id) {
 
+            return context.DocumentosC.Where(p => p.IdContacto == id).ToList();
+
+        }
         public IList<TbCrContacto> GetAllPersonas()
         {
             return context.TbCrContacto.Where(u => u.Persona == true).ToList();
@@ -40,6 +44,22 @@ namespace AltivaWebApp.Repositories
             try
             {
                 var model = context.TbCrContacto.FromSql($"Select * From tb_CR_Contacto as c where c.Cliente = 1 Order By LTRIM(Nombre + NombreComercial)").ToList();
+                return model;
+
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+
+                throw;
+            }
+        }
+        public IList<DocContacto> GetAllDocs(long id)
+        {
+            try
+            {
+                var model = context.DocumentosC.Where(p => p.IdContacto == id).ToList();
+             
                 return model;
 
             }

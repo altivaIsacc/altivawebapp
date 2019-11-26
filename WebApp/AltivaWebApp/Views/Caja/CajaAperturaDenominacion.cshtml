@@ -227,7 +227,7 @@
                         <div class="row">
                             <div class="col-md-6"></div>
                             <div class="col-md-6">
-                                <label id="lbTotalUsuarioCierre">@Lb["Total"]:</label>
+                                <label id="lbTotalUsuarioCierre">@Lb["Usuario"]:</label>
                                 <input type='text' class="form-control colon" id="txtTotalUsuarioCierre" disabled />
                             </div>
                         </div>
@@ -278,7 +278,7 @@
                         <div class="row">
                             <div class="col-md-6"></div>
                             <div class="col-md-6">
-                                <label id="lbTotalSistemaCierre">@Lb["Total"]:</label>
+                                <label id="lbTotalSistemaCierre">@Lb["Sistema"]:</label>
                                 <input type='text' class="form-control colon" id="txtTotalSistemaCierre" disabled />
                             </div>
                         </div>
@@ -369,6 +369,7 @@
         <a onclick="cancelar()" class="btn btn-default">@Lb["Cancelar"]</a>
     </div>
 </div>
+
 <input readonly hidden id="monedaFormater" />
 <div hidden><input hidden id="formater" class="currency" type="text" /></div>
 
@@ -544,8 +545,9 @@
                  $("#inpBancoDolarCierreSistema").val(dolarB.toFixed(2));
                  $("#inpBancoEuroCierreSistema").val(euroB.toFixed(2));
 
-                 var sumaTotal = base + baseT + baseB + dolar + dolarT + dolarB + euro + euroT + euroB;
-                 $("#txtTotalSistemaCierre").val(sumaTotal);
+                 tCierreSistema= base + baseT + baseB + dolar + dolarT + dolarB + euro + euroT + euroB;
+                 $("#txtTotalSistemaCierre").val(tCierreSistema);
+                 CalcularTotalCierreDiferencia();
             },
             error: function (err, scnd) {
                cargarAlert('@Lb["errorGeneral"]');
@@ -640,7 +642,7 @@
            function getCajaCierreSistema() {
                if (@Model.IdCaja != 0)
                    cargarLineasCierreSistema(_CajaCierreSistema);
-               CalcularTotalCierreDiferencia();
+              
 
     }
 
@@ -754,9 +756,9 @@
                  CambioDolar = monedas[1].valorCompra;
                  CambioEuro = monedas[2].valorCompra;
 
-                 $('#DiferenciaBase').text(monedas[0].simbolo + " " + "@Lb["Diferencias"]");
-                 $('#DiferenciaDolar').text(monedas[1].simbolo + " " + "@Lb["Diferencias"]");
-                 $('#DiferenciaEuro').text(monedas[2].simbolo + " " + "@Lb["Diferencias"]");
+                 $('#DiferenciaBase').text(monedas[0].simbolo);
+                 $('#DiferenciaDolar').text(monedas[1].simbolo);
+                 $('#DiferenciaEuro').text(monedas[2].simbolo);
                  $('#lbTotalBase').text("@Lb["Total"]" + " " + monedas[0].simbolo+":");
                  $('#lbTotalDolar').text("@Lb["Total"]" + " " + monedas[1].simbolo+":" );
                  $('#lbTotalEuro').text("@Lb["Total"]" + " " + monedas[2].simbolo+":");
@@ -1678,11 +1680,11 @@
                             simbolo = monedas[0].simbolo;
 
                     body = '<tr class="filasCargadasCierreBase" id="filaBaseCierre' + contadorFila + '">'
-                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbEfectivobaseCierre' + idFila + '"> ' + simbolo + " " + txtEfectivo + '</label></td> '
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbEfectivobaseCierre' + idFila + '"> ' + txtEfectivo + '</label></td> '
                         + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoEfectivo + '" id="inpEfectivoBaseCierre" class="form-control cantidad  ' + coin + '" type="text" min="0" disabled /></td></tr>'
-                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbTarjetaBaseCierre' + idFila + '"> ' + simbolo + " " + txtTarjeta + '</label></td> '
+                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbTarjetaBaseCierre' + idFila + '"> ' + txtTarjeta + '</label></td> '
                         + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoTarjeta + '" id="inpTarjetaBaseCierre" class="form-control cantidad ' + coin + '" type="text" min="0" disabled /></td></tr>'
-                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbBancoBaseCierre' + idFila + '"> ' + simbolo + " " + txtBanco + '</label></td> '
+                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbBancoBaseCierre' + idFila + '"> ' + txtBanco + '</label></td> '
                         + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoBanco + '" id="inpBancoBaseCierre" class="form-control cantidad ' + coin + '" type="text" min="0" disabled /></td></tr>'
                 $('.lineaFormCierreBase').before(body);
 
@@ -1751,11 +1753,11 @@
 
 
                     body = '<tr class="filasCargadasCierreDolar" id="filaDolarCierre' + contadorFila + '">'
-                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbEfectivoDolarCierre' + idFila + '"> ' + simbolo + " " + txtEfectivo + '</label></td> '
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbEfectivoDolarCierre' + idFila + '"> ' +  txtEfectivo + '</label></td> '
                         + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoEfectivo + '" id="inpEfectivoDolarCierre" class="form-control cantidad ' + coin + '" type="text" min="0" disabled /></td></tr>'
-                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbTarjetaDolarCierre' + idFila + '"> ' + simbolo + " " + txtTarjeta + '</label></td> '
+                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbTarjetaDolarCierre' + idFila + '"> ' + txtTarjeta + '</label></td> '
                         + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoTarjeta + '" id="inpTarjetaDolarCierre" class="form-control cantidad ' + coin + '" type="text" min="0" disabled /></td></tr>'
-                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbBancoDolarCierre' + idFila + '"> ' + simbolo + " " + txtBanco + '</label></td> '
+                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbBancoDolarCierre' + idFila + '"> ' + txtBanco + '</label></td> '
                         + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoBanco + '" id="inpBancoDolarCierre" class="form-control cantidad ' + coin + '" type="text" min="0" disabled  /></td></tr>'
 
                 $('.lineaFormCierreDolar').before(body);
@@ -1823,11 +1825,11 @@
 
 
                     body = '<tr class="filasCargadasCierreEuro" id="filaEuroCierre' + contadorFila + '">'
-                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbEfectivoEuroCierre' + idFila + '"> ' + simbolo + " " + txtEfectivo + '</label></td> '
+                        + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbEfectivoEuroCierre' + idFila + '"> ' + txtEfectivo + '</label></td> '
                         + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoEfectivo + '" id="inpEfectivoEuroCierre" class="form-control cantidad ' + coin + '" type="text" min="0" disabled /></td></tr>'
-                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbTarjetaEuroCierre' + idFila + '"> ' + simbolo + " " + txtTarjeta + '</label></td> '
+                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbTarjetaEuroCierre' + idFila + '"> ' + txtTarjeta + '</label></td> '
                         + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoTarjeta + '" id="inpTarjetaEuroCierre" class="form-control cantidad ' + coin + '" type="text" min="0" disabled /></td></tr>'
-                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbBancoEuroCierre' + idFila + '"> ' + simbolo + " " + txtBanco + '</label></td> '
+                        + '<tr><td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones "><label id="lbBancoEuroCierre' + idFila + '"> ' + txtBanco + '</label></td> '
                         + '<td style="padding-top:2rem;text-align:center;" class="letratbDenominaciones"><input  value="' + montoBanco + '" id="inpBancoEuroCierre" class="form-control cantidad ' + coin + '" type="text" min="0" disabled /></td></tr>'
                 $('.lineaFormCierreEuro').before(body);
 
@@ -2772,14 +2774,15 @@
         }
     }
 //////////////////////////////////////////////////////////////////CALCULOS//////////////////////////////////////////////////////////////////////
-
+    var tCierreUsuario = 0;
+    var tCierreSistema = 0;
     function CalcularTotalCierreUsuario() {
 
         var totalBase = 0;
         var totalDolar = 0;
         var totalEuro = 0;
-        var totalCierreUsuario = 0;
-
+        
+ 
         totalBase = parseFloat(parseFloat($('#inpEfectivoBaseCierre').val())+parseFloat($('#inpTarjetaBaseCierre').val())+parseFloat($('#inpBancoBaseCierre').val()));
         totalDolar = parseFloat(parseFloat($('#inpEfectivoDolarCierre').val()) + parseFloat($('#inpTarjetaDolarCierre').val()) + parseFloat($('#inpBancoDolarCierre').val()));
         totalEuro = parseFloat(parseFloat($('#inpEfectivoEuroCierre').val()) + parseFloat($('#inpTarjetaEuroCierre').val()) + parseFloat($('#inpBancoEuroCierre').val()));
@@ -2787,33 +2790,55 @@
         totalDolar = parseFloat(totalDolar * CambioDolar);
         totalEuro = parseFloat(totalEuro * CambioEuro);
 
-        totalCierreUsuario = parseFloat(totalBase + totalDolar + totalEuro);
-
-        $('#txtTotalUsuarioCierre').val(totalCierreUsuario);
+        tCierreUsuario = parseFloat(totalBase + totalDolar + totalEuro);
+        console.log("*WA aPEN, Us:" + tCierreUsuario)
+        $('#txtTotalUsuarioCierre').val(tCierreUsuario);
+        
     }
 
-    function CalcularTotalCierreSistema() {
+    //function CalcularTotalCierreSistema() {
 
-        var totalBaseSistema = 0;
-        var totalDolarSistema = 0;
-        var totalEuroSistema = 0;
-        var totalCierreSistema = 0;
+    //    var totalBaseSistema = 0;
+    //    var totalDolarSistema = 0;
+    //    var totalEuroSistema = 0;
+       
 
-        totalBaseSistema = parseFloat(parseFloat($('#inpEfectivoBaseCierreSistema').val()) + parseFloat($('#inpTarjetaBaseCierreSistema').val()) + parseFloat($('#inpBancoBaseCierreSistema').val()));
-        totalDolarSistema = parseFloat(parseFloat($('#inpEfectivoDolarCierreSistema').val()) + parseFloat($('#inpTarjetaDolarCierreSistema').val()) + parseFloat($('#inpBancoDolarCierreSistema').val()));
-        totalEuroSistema = parseFloat(parseFloat($('#inpEfectivoEuroCierreSistema').val()) + parseFloat($('#inpTarjetaEuroCierreSistema').val()) + parseFloat($('#inpBancoEuroCierreSistema').val()));
+    //    totalBaseSistema = parseFloat(parseFloat($('#inpEfectivoBaseCierreSistema').val()) + parseFloat($('#inpTarjetaBaseCierreSistema').val()) + parseFloat($('#inpBancoBaseCierreSistema').val()));
+    //    totalDolarSistema = parseFloat(parseFloat($('#inpEfectivoDolarCierreSistema').val()) + parseFloat($('#inpTarjetaDolarCierreSistema').val()) + parseFloat($('#inpBancoDolarCierreSistema').val()));
+    //    totalEuroSistema = parseFloat(parseFloat($('#inpEfectivoEuroCierreSistema').val()) + parseFloat($('#inpTarjetaEuroCierreSistema').val()) + parseFloat($('#inpBancoEuroCierreSistema').val()));
 
 
-        totalDolarSistema = parseFloat(totalDolarSistema * CambioDolar);
-        totalEuroSistema = parseFloat(totalEuroSistema * CambioEuro);
+    //    totalDolarSistema = parseFloat(totalDolarSistema * CambioDolar);
+    //    totalEuroSistema = parseFloat(totalEuroSistema * CambioEuro);
 
-        totalCierreSistema = parseFloat(totalBaseSistema + totalDolarSistema + totalEuroSistema);
-
-        $('#txtTotalSistemaCierre').val(totalCierreSistema);
-    }
+    //    tCierreSistema = parseFloat(totalBaseSistema + totalDolarSistema + totalEuroSistema);
+    //    console.log("**WA aPEN, Sis:" + tCierreSistema)
+    //    $('#txtTotalSistemaCierre').val(tCierreSistema);
+    //    CalcularTotalCierreDiferencia();
+    //}
 
     function CalcularTotalCierreDiferencia() {
-        $('#txtTotalDiferenciaCierre').val(0);
+        console.log("***WA aPEN, Us:" + tCierreUsuario + " / Sis:"+  tCierreSistema)
+        var DiferenciaEfeBase = 0;
+        var DiferenciaEfeDolar = 0;
+        var DiferenciaEfeEuro = 0;
+
+
+        var DiferenciaTarBase = 0;
+        var DiferenciaTarDolar = 0;
+        var DiferenciaTarEuro = 0;
+
+        var DiferenciaTraBase = 0;
+        var DiferenciaTraDolar = 0;
+        var DiferenciaTraEuro = 0;
+
+        DiferenciaEfeBase = parseFloat(parseFloat($('#inpEfectivoBaseCierre').val()) + parseFloat($('#inpEfectivoBaseCierreSistema').val()));
+        DiferenciaEfeDolar = parseFloat(parseFloat($('#inpEfectivoDolarCierre').val()) + parseFloat($('#inpEfectivoDolarCierreSistema').val()));
+        DiferenciaEfeEuro = parseFloat(parseFloat($('#inpEfectivoEuroCierre').val()) + parseFloat($('#inpEfectivoEuroCierreSistema').val()));
+        $('#txtTotalDiferenciaCierre').val(parseFloat(tCierreUsuario - tCierreSistema));
+        $('#inpDiferenciaEfectivoBase').val(DiferenciaEfeBase)
+        $('#inpDiferenciaEfectivoDolar').val(DiferenciaEfeDolar)
+        $('#inpDiferenciaEfectivoEuro').val(DiferenciaEfeEuro)
     }
 
     function CalcularTotalArqueo() {

@@ -1,0 +1,127 @@
+﻿@model AltivaWebApp.ViewModels.ContactoViewModel
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+        public string GetAntiXsrfRequestToken()
+        {
+            return Xsrf.GetAndStoreTokens(Context).RequestToken;
+        }     
+        
+
+
+}
+@{
+    string nombre = "";
+    long id = Model.IdContacto;
+    if (Model.Empresa)
+    {
+        nombre = Model.NombreComercial + " / " + Model.NombreJuridico;
+    }
+    else {
+        nombre = Model.Nombre + " " + Model.Apellidos;
+    }
+    DateTime hoy = DateTime.Now;
+    DateTime ayer = hoy.AddDays(-1);
+    int posTipo = 0;
+    int posConcecutivo = 23;
+    int posFecha = 24;
+    int posMonto = 9;
+ }
+<div class="row">
+    <h2>@nombre <a class="btn btn-primary" asp-action="EditarContacto" asp-route-id="@id"><span>Editar</span>&nbsp;<i class="fas fa-edit"></i></a></h2>
+</div>
+<div class="row">
+    <div class="col-lg-3 col-md-3  col-xs-12 well">
+        <p><a style="font-weight:bold"> @Lb["Telefono"]</a>: @Model.Telefono.</p>
+        <p><a style="font-weight:bold">@Lb["Email"]</a>: @Model.Correo</p>
+        <p><a style="font-weight:bold">@Lb["Web"]</a>: @Model.WebLink</p>
+        <p><a style="font-weight:bold">@Lb["Cedula"]</a>: @Model.Cedula</p>
+    </div>
+    <div class="col-lg-7 col-md-8 col-xs-12 well" style="margin-left: 2em;padding-left: 2em">
+        <div class="row">
+            <h4>@Lb["Hoy"]</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <td>@Lb["Documento"]</td>
+                        <td>@Lb["Tipo"]</td>
+                        <td>@Lb["Fecha"]</td>
+                        <td style="text-align:right">@Lb["Monto"]</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (var item in ViewBag.Docs)
+                        {
+                            if (item.ItemArray[posFecha].ToString() == hoy.ToString())
+                            {
+                                <tr role="row" class="odd">
+                                    <td>@item.ItemArray[posConcecutivo].ToString()</td>
+                                    <td>@item.ItemArray[posTipo].ToString()</td>
+                                    <td>@item.ItemArray[posFecha].ToString()</td>
+                                    <td style="text-align:right">@item.ItemArray[posMonto].ToString()</td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+            <h4>@Lb["Ayer"]</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <td>@Lb["Documento"]</td>
+                        <td>@Lb["Tipo"]</td>
+                        <td>@Lb["Fecha"]</td>
+                        <td style="text-align:right">@Lb["Monto"]</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (var item in ViewBag.Docs)
+                        {
+                            if (item.ItemArray[posFecha].ToString() == ayer.ToString())
+                            {
+                                <tr role="row" class="odd">
+                                    <td>@item.ItemArray[posConcecutivo].ToString()</td>
+                                    <td>@item.ItemArray[posTipo].ToString()</td>
+                                    <td>@item.ItemArray[posFecha].ToString()</td>
+                                    <td style="text-align:right">@item.ItemArray[posMonto].ToString()</td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+            <h4>@ayer.AddDays(-1).ToString("dd/MM/yyyy")</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <td>@Lb["Documento"]</td>
+                        <td>@Lb["Tipo"]</td>
+                        <td>@Lb["Fecha"]</td>
+                        <td style="text-align:right">@Lb["Monto"]</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (var item in ViewBag.Docs)
+                        {
+                            if (item.ItemArray[posFecha].ToString() == ayer.AddDays(-1).ToString())
+                            {
+                                <tr role="row" class="odd">
+                                    <td>@item.ItemArray[posConcecutivo].ToString()</td>
+                                    <td>@item.ItemArray[posTipo].ToString()</td>
+                                    <td>@item.ItemArray[posFecha].ToString()</td>
+                                    <td style="text-align:right">@item.ItemArray[posMonto].ToString()</td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+     
+    </div>
+</div>
+
