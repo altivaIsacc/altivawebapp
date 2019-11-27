@@ -24,58 +24,70 @@
                 <th>
                     @Lb["Estado"]
                 </th>
+                <th style="text-align:right">
+                    @Lb["Monto"]
+                </th>
                 <th>@Lb["Acción"]</th>
             </tr>
         </thead>
         <tbody>
+            @{double total = 0;}
             @foreach (var item in Model)
             {
-            <tr>
-                <td>@item.Id</td>
-                <td>0000000000</td>
-                <td>@item.FechaFactura</td>
-                <td>@item.NombreMostrar</td>
-                <td>@item.Vendedor</td>
-                <td>@item.PuntoVenta</td>
-                <td>@item.Estado</td>
-                <td><a href="@Url.Action("EditarFactura", new { id = item.Id })" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a></td>
-            </tr>
+                total += item.TotalBase;
+                <tr>
+                    <td>@item.Id</td>
+                    <td>0000000000</td>
+                    <td>@item.FechaFactura</td>
+                    <td>@item.NombreMostrar</td>
+                    <td>@item.Vendedor</td>
+                    <td>@item.PuntoVenta</td>
+                    <td>@item.Estado</td>
+                    <td style="text-align:right">@item.TotalBase.ToString("#,##0.00")</td>
+                    <td><a href="@Url.Action("EditarFactura", new { id = item.Id })" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a></td>
+                </tr>
             }
+            <tr>
+                <td> </td>
+                <td> </td>
+                <td> </td>
+                <td> </td>
+                <td> </td>
+                <td> </td>
+                <td style="font-weight:bold">@Lb["Total"]:</td>
+                <td style="text-align:right">@total.ToString("#,##0.00")</td>
+                <td> </td>
+            </tr>
         </tbody>
     </table>
 </div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
 <script>
 
-    var tblFacturas;
-
-    $(document).ready(function () {
-
-       // inicializarTabla();
-        
-
-    });
-
-
+    var tblFac;
     
     function filtroPuntoVenta(value) {
         
-        tblFacturas
+        tblFac
             .columns(5)
             .search(value)
             .draw();
     }
-
+    $(document).ready(function () {
+        inicializarTabla();
+    });
 
     function inicializarTabla() {
-
-        
-
-        tblFacturas = $('#tblFacturas').DataTable({
+        if (!$('#tblFacturas').DataTable == null) { 
+        $('#tblFacturas').DataTable.destroy();
+    }
+        tblFac = $('#tblFacturas').DataTable({
+            "paging": false,
             "info": false,
             "bSort": false,
+            dom: 'Bfrtip',
             language: {
-                "decimal": "",
+                "decimal": ".",
                 "emptyTable": "@Lb["NoDatos"]",
                 "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
                 "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
@@ -93,10 +105,20 @@
                     "next": "@Lb["Sguiente"]",
                     "previous": "@Lb["Anterior"]"
                 }
-            }
+            },
+            buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        title: "@Lb["Facturas"]",
+                        text:'Excel'
+                        //Columns to export
+                        //exportOptions: {
+                       //     columns: [0, 1, 2, 3,4,5,6]
+                       // }
+                    }
+            ]
         });
-
-        //$(".dataTables_searching").hide();
+       $(".dataTables_searching").hide();
     }
 
 </script>

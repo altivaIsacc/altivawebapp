@@ -25,7 +25,7 @@
 
         <div class="form-group col-md-6 col-sm-6 col-xs-6">
             <label for="filtroPV">@Lb["PuntoVenta"]:</label>
-            <select class="form-control" id="filtroPV" onchange="getFacturas()">
+            <select class="form-control" id="filtroPV" onchange="getFacturas()"  onkeydown="enterBusca(event)">
                 <option value="0">@Lb["Todos"]</option>
                 @foreach (var item in ViewData["puntoVenta"] as IList<TbSePuntoVenta>)
                 {
@@ -37,7 +37,7 @@
         </div>
         <div class="form-group col-md-6 col-sm-6 col-xs-6">
             <label for="filtroEstado">@Lb["Estado"]:</label>
-            <select class="form-control" id="filtroEstado" onchange="getFacturas()">
+            <select class="form-control" id="filtroEstado" onchange="getFacturas()" onkeydown="enterBusca(event)">
                 <option value="-1">@Lb["Todos"]</option>
                 <option value="Anulada">@Lb["ANULADO"]</option>
                 <option value="Pendiente">@Lb["PENDIENTE"]</option>
@@ -48,11 +48,11 @@
     </div>
         <div class="form-group col-md-2 col-sm-3 col-xs-12">
             <label for="filtroCliente">@Lb["Cliente"]:</label>
-            <input type="text" class="form-control" id="filtroCliente" placeholder="@Lb["Cliente"]" onchange="getFacturas()">
+            <input type="text" class="form-control" id="filtroCliente" placeholder="@Lb["Cliente"]" onchange="getFacturas()" onkeydown="enterBusca(event)">
         </div>
         <div class="form-group col-md-2 col-sm-3 col-xs-12">
             <label for="filtroVendedor">@Lb["Vendedor"]:</label>
-            <input type="text" class="form-control" id="filtroVendedor" placeholder="@Lb["Vendedor"]" onchange="getFacturas()">
+            <input type="text" class="form-control" id="filtroVendedor" placeholder="@Lb["Vendedor"]" onchange="getFacturas()" onkeydown="enterBusca(event)">
         </div>
         <div class="form-group col-md-2 col-sm-3 col-xs-12">
             <label class="control-label">
@@ -82,6 +82,10 @@
     </div>
 
     <script>
+        function enterBusca(e) {
+            tecla = (document.all) ? e.keyCode : e.which;
+            if (tecla == 13) { getFacturas(); }
+        }
         var desde;
         var hasta;
         $('#habilitaFiltroFecha').change(function () {
@@ -98,9 +102,7 @@
     $(document).ready(function () {
 
         hasta = new Date().toLocaleString();
-        desde = new Date().toLocaleString();
-
-        getFacturas();
+        desde = new Date().toLocaleString();     
 
         $('#filtroFecha').attr('disabled', true);
 
@@ -153,11 +155,11 @@
 
     var facturas = [];
 
-    $(function () {
+    //$(function () {
 
-        getFacturas();
+    //    getFacturas();
 
-    });
+    //});
 
     function getFacturas()
     {
@@ -167,13 +169,13 @@
             fDesde = desde;
             fHasta = hasta;
         }
-        console.log("Desde: " + fDesde); console.log("Hasta:" + fHasta)
         $.ajax({
             type: "POST",
             url: '@Url.Action("_ListarFacturas", "Factura")',
             data: { pv: $('#filtroPV').val(), estado: $('#filtroEstado').val(), nombreCliente: $('#filtroCliente').val(), nombreVendedor: $('#filtroVendedor').val(), fechaDesde: fDesde, fechaHasta: fHasta },
             success: function (data) {
                 $('#facturasPartial').html(data);
+               
             },
             error: function (err, scnd) {
                 cargarAlert('@Lb["errorGeneral"]');
