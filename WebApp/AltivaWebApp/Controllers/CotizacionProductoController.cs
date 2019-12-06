@@ -59,9 +59,9 @@ namespace AltivaWebApp.Controllers
         }
 
         [HttpGet("Crear-Cotizacion")]
-        public IActionResult CrearCotizacion()
+        public IActionResult CrearCotizacion(long idContacto = 0)
         {
-
+            ViewBag.idContacto = idContacto;
             ViewData["usuario"] = _UserService.GetSingleUser(int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value));
             var tipoCambio = _MonedaService.GetAll();
             var model = new CotizacionViewModel

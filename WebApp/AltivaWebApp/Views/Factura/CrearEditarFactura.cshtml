@@ -386,10 +386,9 @@
 
     var arrayPV = [];
 
-
+    var forzarCliente = '@ViewBag.idContacto'
     $(document).ready(function () {
         getContactos();
-        console.log($("#IdCliente option:selected").val());
 
         $('.selectItems').select2();
 
@@ -455,6 +454,7 @@
                  document.getElementById("cambiarPago").disabled = true;
             }
         }
+
          });
     function Anular() {
         bootbox.confirm("@Lb["confirmAnular"]", function (result) {
@@ -479,7 +479,7 @@
 
                  }
         });
-     
+
     }
     function at() {
        $('#modalContacto').modal('hide');
@@ -496,9 +496,9 @@
         } else {
             return true;
         }
-      
+
     }
-  
+
     function getMaximoCredito() {
         var idc = parseInt($("#IdCliente option:selected").val());
         var url = "@Url.Action("GetMaximoCredito", "Nota", new { idCliente= "__id__"})".replace("__id__",  idc);
@@ -516,12 +516,16 @@
     }
     function getContactos() {
         $("#IdCliente").html('');
-        $.ajax({
+        if (forzarCliente == 0) {
+            forzarCliente=@Model.IdCliente;
+        }
+        console.log("Datos:" + forzarCliente);
+               $.ajax({
             type: "get",
             dataType: "json",
             url: '@Url.Action("GetAllClientes", "Contacto")',
             success: function (data) {
-                if (@Model.Id == 0) {
+                if (forzarCliente == 0) {
                     for (var i = 0; i < data.length; i++) {
                         if (data[i].persona)
                             nombre = data[i].nombre + ' ' + data[i].apellidos;
@@ -532,7 +536,7 @@
                     }
                 } else {
                    for (var i = 0; i < data.length; i++) {
-                       if (@Model.IdCliente == data[i].idContacto) {
+                       if (forzarCliente == data[i].idContacto) {
                             if (data[i].persona)
                                 nombre = data[i].nombre + ' ' + data[i].apellidos;
                             else
@@ -548,6 +552,8 @@
                 console.log(err.statusText);
             }
         });
+
+
     }
     function crearContacto() {
      var url = "@Url.Action("CrearContacto", "Contacto", new { tipo= 2})";
@@ -1039,19 +1045,19 @@
                 } else {
                      cargarAlert('@Lb["ExcedioCredito"]');
                 }
-             
+
             }
         }
 
     }
     function validarCreditoTotalFactura() {
-        var total = facturaModel.Total;     
-      
+        var total = facturaModel.Total;
+
             if (total > maximoCredito)
                 return false;
             else
                 return true;
-       
+
     }
 
     function cargarFormaPago() {
@@ -1347,6 +1353,8 @@
     }
 
     function getIdTipoPrecioCliente() {
+        if (!($('#IdCliente').val() == null)) {
+   
          $.ajax({
              type: "get",
              dataType: "json",
@@ -1364,7 +1372,8 @@
                   cargarAlert('@Lb["errorGeneral"]');
                   console.log(err.statusText);
              }
-         });
+            });
+        }
     }
 
 
@@ -1717,7 +1726,9 @@
                 var file = new Blob([data], { type: 'application/pdf' });
                 var fileURL = URL.createObjectURL(file);
                 var w = window.open(fileURL);
-                w.print();
+                if (!w == null) {
+                    w.print();
+                }
 
                 if (volver)
                      window.location.href = "@Url.Action("CrearFactura")";

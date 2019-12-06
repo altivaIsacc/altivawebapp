@@ -84,8 +84,9 @@ namespace AltivaWebApp.Controllers
             return PartialView("_EnlaceAutomatico");
         }
         [HttpGet("CrearNota")]
-        public IActionResult CrearNota()
+        public IActionResult CrearNota(long idContacto=0)//, string tipo="CXC", string documento = "POST PAGO")
         {
+            ViewBag.idContacto = idContacto;
             ViewBag.moneda = monedaService.GetAll();
             ViewBag.Justificantes = justificanteService.GetAll();
             var model = new DocumentoViewModel();
@@ -367,6 +368,9 @@ namespace AltivaWebApp.Controllers
             try
             {
                 TbFaPago pago = null;
+                if (modelPago.Nota == null) {
+                    modelPago.Nota = "";
+                }
                 if (modelPago.IdDocumento != 0)
                 {
                     pago = pagoMap.Update(modelPago);

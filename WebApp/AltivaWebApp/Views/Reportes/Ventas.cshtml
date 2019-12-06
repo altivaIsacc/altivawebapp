@@ -1,0 +1,190 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@inject IStringLocalizer<SharedResources> Lb
+
+@{
+
+    ViewData["Title"] = @Lb["Reporte"];
+
+
+    var date = DateTime.Now;
+
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+</head>
+<body>
+    <div class="row">
+        <div class="form-group col-md-3 col-sm-3 col-xs-12">
+
+            <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                <label for="filtroPV">@Lb["PuntoVenta"]:</label>
+                <select class="form-control" id="filtroPV">
+                    <option value="0">@Lb["Todos"]</option>
+                    @foreach (var item in ViewData["puntoVenta"] as IList<TbSePuntoVenta>)
+                    {
+                        <option value="@item.IdPuntoVenta">@item.Nombre</option>
+                    }
+                </select>
+
+
+            </div>
+            <div class="form-group col-md-6 col-sm-6 col-xs-6">
+                <label for="filtroEstado">@Lb["Estado"]:</label>
+                <select class="form-control" id="filtroEstado" >
+                    <option value="">@Lb["Todos"]</option>
+                    <option value="Anulada">@Lb["ANULADO"]</option>
+                    <option value="Pendiente">@Lb["PENDIENTE"]</option>
+                    <option value="Enviada">@Lb["ENVIADA"]</option>
+
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-md-2 col-sm-3 col-xs-12">
+            <label for="filtroCliente">@Lb["Cliente"]:</label>
+            <input type="text" class="form-control" id="filtroCliente" placeholder="@Lb["Cliente"]" >
+        </div>
+        <div class="form-group col-md-2 col-sm-3 col-xs-12">
+            <label for="filtroVendedor">@Lb["Vendedor"]:</label>
+            <input type="text" class="form-control" id="filtroVendedor" placeholder="@Lb["Vendedor"]" >
+        </div>
+        <div class="form-group col-md-2 col-sm-3 col-xs-12">
+            <label class="control-label">
+                <input type="checkbox" id="habilitaFiltroFecha"> @Lb["FiltroFecha"]
+            </label>
+            <form id="frmFecha" class="form-horizontal">
+                <fieldset>
+                    <div class="control-group">
+                        <div class="controls">
+                            <div class="input-prepend input-group">
+                                <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                                <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="@date.Date - @date.Date" />
+                            </div>
+                        </div>
+                    </div>
+
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    <div>
+        <div class="col-md-8 col-md-1"><button style="font-size:2rem; padding-top:1rem" onclick="AbrirReporte()" class="btn btn-link"><i class="fas fa-file-pdf"></i>@Lb["Ver reporte"]</button></div>
+    </div>
+    <div id="visorReporte">
+
+        </div>
+</body>
+</html>
+<script>
+
+
+     function AbrirReporte() {
+
+
+
+         //  open("rtpVentas");
+         getReporte();
+    }
+
+    function getReporte() {
+        var filtraFecha = document.getElementById("habilitaFiltroFecha").checked;
+        if (filtraFecha ==false)
+        {
+            desde = "";
+            hasta = "";
+        }
+        var idPunto = document.getElementById("filtroPV").value;
+        var nombre = document.getElementById("filtroCliente").value;
+        var Vendedor = document.getElementById("filtroVendedor").value;
+        var estado = document.getElementById("filtroEstado").value;
+
+        var url = "@Url.Action("rtpVentas")";
+   
+            $.ajax({type: "Post",
+                url: url,
+                data: { idPuntoV: idPunto,fDesde: desde, fHasta:hasta, nombreCliente:nombre,idVendedor:Vendedor,estado:estado},
+            success: function (data) {
+                $('#visorReporte').html(data);
+                           },
+            error: function (err, scnd) {
+                console.log(err.statusText);
+            }
+
+            });
+    }
+    var desde;
+    var hasta;
+    $('#habilitaFiltroFecha').change(function () {
+
+        if (!$(this).prop('checked')) {
+            $('#filtroFecha').attr('disabled', true);
+        }
+        else {
+            $('#filtroFecha').attr('disabled', false);
+        }
+    });
+    $(document).ready(function () {
+
+        hasta = new Date().toLocaleString();
+        desde = new Date().toLocaleString();
+
+        $('#filtroFecha').attr('disabled', true);
+
+        $('#filtroFecha').daterangepicker({
+            opens: 'left',
+
+            "locale": {
+                format: "@Lb["formatoFecha"]",
+                "separator": " - ",
+                "applyLabel": "@Lb["Aplicar"]",
+                "cancelLabel": "@Lb["Cancelar"]",
+                "fromLabel": "@Lb["DE"]",
+                "toLabel": "@Lb["Hasta"]",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "@Lb["Dom"]",
+                    "@Lb["Lun"]",
+                    "@Lb["Mar"]",
+                    "@Lb["Mie"]",
+                    "@Lb["Jue"]",
+                    "@Lb["Vie"]",
+                    "@Lb["Sáb"]"
+                ],
+                "monthNames": [
+                    "@Lb["Enero"]",
+                    "@Lb["Febrero"]",
+                    "@Lb["Marzo"]",
+                    "@Lb["Abril"]",
+                    "@Lb["Mayo"]",
+                    "@Lb["Junio"]",
+                    "@Lb["Julio"]",
+                    "@Lb["Agosto"]",
+                    "@Lb["Septiembre"]",
+                    "@Lb["Octubre"]",
+                    "@Lb["Noviembre"]",
+                    "@Lb["Diciembre"]"
+                ],
+                "firstDay": 1
+            }
+        },
+            function (start, end, label) {
+
+                desde = start.format('YYYY-MM-DD');
+                hasta = end.format('YYYY-MM-DD');
+
+
+            });
+
+    });
+</script>
+

@@ -325,7 +325,7 @@ namespace AltivaWebApp.Controllers
         }
 
 
-        // POST: AjusteInventario/Delete/5
+   
         [HttpGet("Crear-PDF-Traslado/{id}")]
         public IActionResult CrearPdfEspecifico(int id)
         {

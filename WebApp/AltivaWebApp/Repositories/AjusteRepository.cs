@@ -73,7 +73,7 @@ namespace AltivaWebApp.Repositories
                 throw;
             }
         }
-
+     
         public TbPrAjuste GetAjusteForKardex(int id, IList<long> idDetalles)
         {
             try

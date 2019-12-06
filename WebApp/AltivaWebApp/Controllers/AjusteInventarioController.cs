@@ -86,6 +86,7 @@ namespace AltivaWebApp.Controllers
             return View("CrearEditarAjuste", ajuste);
         }
 
+
         [HttpPost("CrearEditar-Ajuste")]
         public ActionResult CrearEditarAjuste(AjusteViewModel viewModel, IList<AjusteInventarioViewModel> detalle, IList<long> eliminadas)
         {
@@ -319,24 +320,15 @@ namespace AltivaWebApp.Controllers
         }
 
 
-        [HttpGet("Get-AjusteInventario/{id}")]
-        public ActionResult GetAjusteinventario(int id)
+        [HttpGet("GetAjusteinventarioDetalle/{id}")]
+        public ActionResult GetAjusteinventarioDetalle(int id)
         {
             try
             {
-                var ajuste = service.GetAjusteById(id);
-
-                ajuste.IdBodegaNavigation.TbPrInventarioBodega = null;
-                ajuste.IdBodegaNavigation.TbPrAjuste = null;
-                foreach (var item in ajuste.TbPrAjusteInventario)
-                {
-                    item.IdAjusteNavigation = null;
-                    item.IdCentroGastosNavigation.TbPrAjusteInventario = null;
-                    item.IdCuentaContableNavigation.TbPrAjusteInventario = null;
-                    item.IdInventarioNavigation.TbPrAjusteInventario = null;
-                    item.IdInventarioNavigation.TbPrInventarioBodega = null;
-                }
-                return Ok(ajuste);
+            
+             var detalle= bd.TbPrAjusteInventario.Where(p => p.IdAjuste == id).ToList();
+                return Ok(detalle);
+                  
             }
             catch (Exception ex)
             {

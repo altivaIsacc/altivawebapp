@@ -8,7 +8,7 @@
     var date = DateTime.Now;
 
 }
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
 <div class="row">
     <div class="col-md-2 col-md-3 col-xs-6">
         <h3>@Lb["Facturas"]</h3>
@@ -25,7 +25,7 @@
 
         <div class="form-group col-md-6 col-sm-6 col-xs-6">
             <label for="filtroPV">@Lb["PuntoVenta"]:</label>
-            <select class="form-control" id="filtroPV" onchange="getFacturas()"  onkeydown="enterBusca(event)">
+            <select class="form-control" id="filtroPV" onchange="getFacturas()" onkeydown="enterBusca(event)">
                 <option value="0">@Lb["Todos"]</option>
                 @foreach (var item in ViewData["puntoVenta"] as IList<TbSePuntoVenta>)
                 {
@@ -46,63 +46,63 @@
             </select>
         </div>
     </div>
-        <div class="form-group col-md-2 col-sm-3 col-xs-12">
-            <label for="filtroCliente">@Lb["Cliente"]:</label>
-            <input type="text" class="form-control" id="filtroCliente" placeholder="@Lb["Cliente"]" onchange="getFacturas()" onkeydown="enterBusca(event)">
-        </div>
-        <div class="form-group col-md-2 col-sm-3 col-xs-12">
-            <label for="filtroVendedor">@Lb["Vendedor"]:</label>
-            <input type="text" class="form-control" id="filtroVendedor" placeholder="@Lb["Vendedor"]" onchange="getFacturas()" onkeydown="enterBusca(event)">
-        </div>
-        <div class="form-group col-md-2 col-sm-3 col-xs-12">
-            <label class="control-label">
-                <input type="checkbox" id="habilitaFiltroFecha"> @Lb["FiltroFecha"]
-            </label>
-            <form id="frmFecha" class="form-horizontal">
-                <fieldset>
-                    <div class="control-group">
-                        <div class="controls">
-                            <div class="input-prepend input-group">
-                                <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
-                                <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="@date.Date - @date.Date" />
-                            </div>
+    <div class="form-group col-md-2 col-sm-3 col-xs-12">
+        <label for="filtroCliente">@Lb["Cliente"]:</label>
+        <input type="text" class="form-control" id="filtroCliente" placeholder="@Lb["Cliente"]" onchange="getFacturas()" onkeydown="enterBusca(event)">
+    </div>
+    <div class="form-group col-md-2 col-sm-3 col-xs-12">
+        <label for="filtroVendedor">@Lb["Vendedor"]:</label>
+        <input type="text" class="form-control" id="filtroVendedor" placeholder="@Lb["Vendedor"]" onchange="getFacturas()" onkeydown="enterBusca(event)">
+    </div>
+    <div class="form-group col-md-2 col-sm-3 col-xs-12">
+        <label class="control-label">
+            <input type="checkbox" id="habilitaFiltroFecha"> @Lb["FiltroFecha"]
+        </label>
+        <form id="frmFecha" class="form-horizontal">
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="input-prepend input-group">
+                            <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                            <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="@date.Date - @date.Date" />
                         </div>
                     </div>
+                </div>
 
-                </fieldset>
-            </form>
-        </div>
+            </fieldset>
+        </form>
     </div>
+</div>
 
-    <div class="row">
+<div class="row">
 
-        <div class="col-md-12 col-sm-12 col-xs-12" id="facturasPartial">
+    <div class="col-md-12 col-sm-12 col-xs-12" id="facturasPartial">
 
-        </div>
     </div>
+</div>
 
-    <script>
-        function enterBusca(e) {
-            tecla = (document.all) ? e.keyCode : e.which;
-            if (tecla == 13) { getFacturas(); }
+<script>
+    function enterBusca(e) {
+        tecla = (document.all) ? e.keyCode : e.which;
+        if (tecla == 13) { getFacturas(); }
+    }
+    var desde;
+    var hasta;
+    $('#habilitaFiltroFecha').change(function () {
+
+        if (!$(this).prop('checked')) {
+            $('#filtroFecha').attr('disabled', true);
         }
-        var desde;
-        var hasta;
-        $('#habilitaFiltroFecha').change(function () {
+        else {
+            $('#filtroFecha').attr('disabled', false);
+        }
 
-            if (!$(this).prop('checked')) {
-                $('#filtroFecha').attr('disabled', true);
-            }
-            else {
-                $('#filtroFecha').attr('disabled', false);
-            }
-
-            getFacturas();
-        });
+        getFacturas();
+    });
     $(document).ready(function () {
 
         hasta = new Date().toLocaleString();
-        desde = new Date().toLocaleString();     
+        desde = new Date().toLocaleString();
 
         $('#filtroFecha').attr('disabled', true);
 
@@ -143,11 +143,11 @@
                 "firstDay": 1
             }
         },
-        function (start, end, label) {
+            function (start, end, label) {
 
-            desde = start.format('YYYY-MM-DD');
-            hasta = end.format('YYYY-MM-DD');
-            getFacturas();
+                desde = start.format('YYYY-MM-DD');
+                hasta = end.format('YYYY-MM-DD');
+                getFacturas();
 
             });
 
@@ -161,8 +161,7 @@
 
     //});
 
-    function getFacturas()
-    {
+    function getFacturas() {
         var fDesde = "";
         var fHasta = "";
         if ($('#habilitaFiltroFecha').prop('checked')) {
@@ -175,7 +174,7 @@
             data: { pv: $('#filtroPV').val(), estado: $('#filtroEstado').val(), nombreCliente: $('#filtroCliente').val(), nombreVendedor: $('#filtroVendedor').val(), fechaDesde: fDesde, fechaHasta: fHasta },
             success: function (data) {
                 $('#facturasPartial').html(data);
-               
+
             },
             error: function (err, scnd) {
                 cargarAlert('@Lb["errorGeneral"]');
@@ -225,5 +224,9 @@
         });
     }
 
+    $(document).ready(function () {
+        getFacturas();
+    })
 
-    </script>
+
+</script>

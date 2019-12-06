@@ -110,7 +110,7 @@ namespace AltivaWebApp.Controllers
         {
             SqlParameter idInput = new SqlParameter("@id", id);
             SqlCommand cmd = new SqlCommand();
-            cmd.CommandText = "Select * From vs_FA_DocsContacto as r where r.IdContacto = @id Order by FechaDocumento";
+            cmd.CommandText = "Select * From vs_FA_DocumentosContacto as r where r.IdContacto = @id Order by FechaDocumento";
             cmd.Parameters.Add(idInput);
             DataTable dt = new DataTable();
             AltivaData.Provider.SQL.fill(cmd, dt, StringFactory.StringEmpresas);    
@@ -142,10 +142,10 @@ namespace AltivaWebApp.Controllers
                 var contacto = new TbCrContacto();
                 if (cViewModel.IdContacto != 0)
                 {
-                    if (existeContacto != null && existeContacto.IdContacto != cViewModel.IdContacto)
-                    {
-                        return Json(new { success = false });
-                    }
+                    //if (existeContacto != null && existeContacto.IdContacto != cViewModel.IdContacto)
+                    //{
+                    //    return Json(new { success = false });
+                    //}
 
                     contacto = contactoMap.UpdateContacto(cViewModel);
 
@@ -173,10 +173,10 @@ namespace AltivaWebApp.Controllers
                 }
                 else
                 {
-                    if (existeContacto != null)
-                    {
-                        return Json(new { success = false });
-                    }
+                    //if (existeContacto != null)
+                    //{
+                    //    return Json(new { success = false });
+                    //}
 
                     contacto = contactoMap.CreateContacto(cViewModel);
 
@@ -449,7 +449,21 @@ namespace AltivaWebApp.Controllers
         }
 
 
+        [HttpGet("GetContacto")]
+        public IActionResult GetContacto(int idContacto)
+        {
+            try
+            {
+                var prov = contactoService.GetAllProveedores().Where(p => p.IdContacto==idContacto);
+                return Ok(prov);
+            }
+            catch (Exception ex)
+            {
+                AltivaLog.Log.Insertar(ex.ToString(), "Error");
+                return BadRequest();
+            }
 
+        }
         //////////////////////////////////////localizaciones///////////////////////////////////////
 
         [HttpPost("Provincias")]

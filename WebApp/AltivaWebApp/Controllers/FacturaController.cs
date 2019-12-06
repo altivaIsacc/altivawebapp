@@ -88,8 +88,18 @@ namespace AltivaWebApp.Controllers
         }
 
         [Route("Nueva")]
-        public IActionResult CrearFactura()
+        public IActionResult CrearFactura(long idContacto=0)
         {
+            if (idContacto == null)
+            {
+                ViewBag.idContacto = 0;
+
+            }
+            else {
+                ViewBag.idContacto = idContacto;
+            }
+            
+
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["clientes"] = contactoService.GetAllClientes();
             return View("CrearEditarFactura", new FacturaViewModel { Estado = "Enviada", FechaFactura = DateTime.Now, FechaCreacion = DateTime.Now, FechaVencimiento = DateTime.Now.AddDays(30), IdMoneda = 1 });

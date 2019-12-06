@@ -528,10 +528,10 @@ else
 
     function cargarLineas(array) {
 
-        var data = array.tbPrAjusteInventario;
+        var data = array;
 
         console.log(array);
-
+        console.log(arrayInventario);
         for (var i = 0; i < data.length; i++) {
 
             var item = data[i];
@@ -539,7 +539,7 @@ else
 
             var desCCont = getCContInfo(item.idCuentaContable);
             var desCCost = getCCostInfo(item.idCentroGastos);
-
+            var desCInv = getCInventarioInfo(item.idInventario);
             var model = {
 
                 id: item.id,
@@ -554,8 +554,8 @@ else
                 idCentroGastos: item.idCentroGastos,
                 cuentaContable: desCCont.cuentaContable + " - " + desCCont.descripcion,
                 cuentaCosto: desCCost.codigo + " - " + desCCost.nombre,
-                nombreItem: item.idInventarioNavigation.descripcion,
-                codItem: item.idInventarioNavigation.codigo
+                nombreItem: desCInv.descripcion,
+                codItem: desCInv.codigo
 
             };
 
@@ -994,7 +994,11 @@ else
         if (flag)
             cargarItems(data[0].tbPrInventarioBodega);
 
+        getCuentaContable();
+        getCuentaCosto();
+       
         getAjusteInventario();
+        
 
     }
     function getItem(id) {
@@ -1039,10 +1043,11 @@ else
                   "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
               },
               dataType: "json",
-            url: '@Url.Action("GetAjusteinventario", "AjusteInventario")',
+            url: '@Url.Action("GetAjusteinventarioDetalle", "AjusteInventario")',
             data: {id: @Model.Id},
             success: function (data) {
-                arrayAjusteFromDB = JSON.parse(JSON.stringify(data.tbPrAjusteInventario));
+                console.log(data);
+               //' arrayAjusteFromDB = JSON.parse(JSON.stringify(data.tbPrAjusteInventario));
                 cargarLineas(data);
                },
               error: function (err, scnd) {
@@ -1525,6 +1530,14 @@ else
         for (var i = 0; i < cuentaContableArray.length; i++) {
             if (cuentaContableArray[i].idTipoAjusteInventario === id) {
                 return cuentaContableArray[i];
+            }
+        }
+        return cuentaContableArray[0];
+    }
+    function getCInventarioInfo(id) {
+        for (var i = 0; i < arrayItems.length; i++) {
+            if (arrayItems[i].idInventario === id) {
+                return arrayItems[i];
             }
         }
     }
