@@ -273,20 +273,22 @@
     function reenderizarCard(data) {
 
         var rutaEditar = '@Url.Action("VerContacto", new { id = "__id__" })'.replace("__id__", data.id);
-        var img = '<img style="height:6rem; width: 6rem;" src="' + data.ruta + '" class="img-circle " alt="Profile Image" />';
+        var img = '';
         
-        if (data.ruta === "") {
+        if (!ImageExist(data.ruta)) {
 
             var string = data.nombre.replace(/^\s+/g, '');
-            
+
             var names = string.split(' '),
-            initials = names[0].substring(0, 1).toUpperCase();
+                initials = names[0].substring(0, 1).toUpperCase();
 
             if (names.length > 1) {
                 initials += names[names.length - 1].substring(0, 1).toUpperCase();
             }
 
             img = '<h2>' + initials + '</h2>'
+        } else {
+            img = '<img style="height:6rem; width: 6rem;" src="' + data.ruta + '" class="img-circle " alt="Profile Image" />';
         }
 
         return '<a href="' + rutaEditar + '"> <div class="col-md-4 col-sm-6 col-xs-12"> <div class="well" style="padding:1rem"> ' +
@@ -298,6 +300,22 @@
             '                         </div >' +
             '                       </div > </a>';
     }
+    function ImageExist(url) {
+        if (url == null) {
+            return false;
+        }
+        else {
+
+                if (url == "") { return false; }
+                else {
+                    var http = new XMLHttpRequest(); http.open('HEAD', url, false); http.send(); return http.status != 404;
+                }
+            }  
+
+
+       
+ }
+
 
     function getNombre(data) {
 

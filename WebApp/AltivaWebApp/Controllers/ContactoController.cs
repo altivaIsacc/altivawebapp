@@ -108,6 +108,9 @@ namespace AltivaWebApp.Controllers
         }
         public IActionResult VerContacto(long id)
         {
+            string idCont = id.ToString();
+            int idContact = 0;
+            int.TryParse(idCont,out idContact);
             SqlParameter idInput = new SqlParameter("@id", id);
             SqlCommand cmd = new SqlCommand();
             cmd.CommandText = "Select * From vs_FA_DocumentosContacto as r where r.IdContacto = @id Order by FechaDocumento";
@@ -116,14 +119,18 @@ namespace AltivaWebApp.Controllers
             AltivaData.Provider.SQL.fill(cmd, dt, StringFactory.StringEmpresas);    
             ViewBag.Docs = dt.AsEnumerable().ToList();         
             var contacto = contactoMap.DomainToViewModelC(contactoService.GetByIdContacto(id));
-       
+            var condi = contactoService.GetCondicionesByIdContacto(idContact).ToList();
+            ViewBag.PlazoCreditoCliente = condi.ElementAt(0).PlazoCredito;
+            ViewBag.MontoMaximoCliente = condi.ElementAt(0).MontoMaximo;
+
             return View(contacto);
         }
 
         [HttpGet("Editar/{id}")]
-        public IActionResult EditarContacto(int id)
+        public IActionResult EditarContacto(int id, string reff="")
         {
             ViewBag.tipo = false;
+            ViewBag.reff = reff;
             ViewBag.esPorDefectoPV = contactoService.EsPorDefectoPV(id);
             ViewData["usuarios"] = userService.GetAllByIdEmpresa((int)HttpContext.Session.GetInt32("idEmpresa"));
             ViewData["paises"] = paisService.GetAll();

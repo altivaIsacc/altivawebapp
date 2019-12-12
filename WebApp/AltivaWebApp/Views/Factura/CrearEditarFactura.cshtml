@@ -16,22 +16,30 @@
 
 }
 
-<div class="row">
+<div class="row col-lg-12">
+    <div class="col-md-3 col-sm-3 col-xs-12">
+        <h3>
+            @if (!(ViewBag.idContacto == 0))
+            {
+                <a asp-controller="Contacto" asp-action="VerContacto" asp-route-id="@ViewBag.idContacto"><i class="fas fa-arrow-left"></i></a>
+            }
+            else
+            {
+                <a asp-controller="Factura" asp-action="ListarFacturas"><i class="fas fa-arrow-left"></i></a>
+            }
 
+            @if (Model.Id != 0)
+            {
+                @Lb["Editar"] @Lb["Factura"]
+            }
+            else
+            {
+                @Lb["Nueva"] @Lb["Factura"]
+            }
 
-    <div class="col-md-2 col-sm-3 col-xs-12">
-        <a style="font-size:2rem;" asp-controller="Factura" asp-action="ListarFacturas"><i class="fas fa-arrow-left"></i></a>
-
-        @if (Model.Id != 0)
-        {
-            <h3>@Lb["Editar"] @Lb["Factura"]</h3>
-        }
-        else
-        {
-            <h3>@Lb["Nueva"] @Lb["Factura"]</h3>
-        }
+        </h3>
     </div>
-    <div class="col-md-offset-7 col-sm-offset-6 col-md-3 col-sm-4 col-xs-12 ">
+    <div class="col-md-offset-6 col-sm-offset-6 col-md-3 col-sm-4 col-xs-12 ">
         <label for="selectPuntoVenta" class="control-label">@Lb["PuntoVenta"]:</label>
         <select id="selectPuntoVenta" class="form-control selectItems" disabled="@(Model.Id != 0 ? "disabled" : null)"></select>
     </div>
@@ -1132,7 +1140,14 @@
             $('#impresionModal').modal('show');
         }
         else if (pv.opcionImpresion == 0) {
-            window.location.href = "@Url.Action("CrearFactura")";
+            @if (ViewBag.idContacto == 0)
+            {
+                @:window.location.href = "@Url.Action("CrearFactura")";
+            }
+            else {
+                  @:window.location.href = "@Url.Action("CrearFactura", "Factura",new { idContacto=ViewBag.idContacto })";
+            }
+
         }
         else {
             GetPDF(pv.opcionImpresion, true);
@@ -1354,7 +1369,7 @@
 
     function getIdTipoPrecioCliente() {
         if (!($('#IdCliente').val() == null)) {
-   
+
          $.ajax({
              type: "get",
              dataType: "json",
@@ -1634,7 +1649,16 @@
         bootbox.confirm("@Lb["confirmCancelar"]", function (result) {
             if (result) {
                 localStorage.removeItem("FacturaBorrador");
-                window.location.href = "@Url.Action("ListarFacturas")";
+                @if (ViewBag.idContacto==0)
+                {
+
+                    @:window.location.href = "@Url.Action("ListarFacturas")";
+                }
+                else
+                {
+                     @:window.location.href = "@Url.Action("VerContacto","Contacto",new {id=ViewBag.idContacto })";
+                }
+
             }
         });
     }
@@ -1730,8 +1754,17 @@
                     w.print();
                 }
 
-                if (volver)
-                     window.location.href = "@Url.Action("CrearFactura")";
+                if (volver) {
+                      @if (ViewBag.idContacto == 0)
+            {
+                @:window.location.href = "@Url.Action("CrearFactura")";
+            }
+            else {
+                  @:window.location.href = "@Url.Action("CrearFactura", "Factura",new { idContacto=ViewBag.idContacto })";
+            }
+
+                }
+                  
 
             },
             error: function () {

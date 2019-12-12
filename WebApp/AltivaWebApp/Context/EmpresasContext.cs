@@ -18,6 +18,10 @@ namespace AltivaWebApp.Context
         {
 
         }
+        public DbSet<Devolucion> Devoluciones { get; set; }
+        public DbSet<DevolucionDetalle> DevolucionesDetalle { get; set; }
+        public DbSet<MotivoDevolucion> MotivosDevolucion { get; set; }
+
         public DbSet<tbPRTipoAjusteInventario> TiposAjusteInventario { get; set; }
         public DbSet<FacturaBusqueda> FacturasBusquedas { get; set; }
         public DbSet<DocContacto> DocumentosC { get; set; }
@@ -27,11 +31,8 @@ namespace AltivaWebApp.Context
         public virtual DbSet<DocumentosContactoViewModel> DocumentosContacto { get; set; }
         public virtual DbSet<DocumentosSaldoGeneralViewModel> DocumentosSaldoGeneral { get; set; }
         public virtual DbSet<ContactoSaldoGeneralViewModel> ContactoSaldoGeneral { get; set; }
-
-
         public virtual DbSet<TbCrContactoVisita> TbCrContactoVisita { get; set; }
         public virtual DbSet<TbCrVisitaTipo> TbCrVisitaTipo { get; set; }
-
         public virtual DbSet<TbBaFlujo> TbBaFlujo { get; set; }
         public virtual DbSet<TbBaFlujoCategoria> TbBaFlujoCategoria { get; set; }
         public virtual DbSet<TbCeCanton> TbCeCanton { get; set; }

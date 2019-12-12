@@ -5,10 +5,7 @@
         public string GetAntiXsrfRequestToken()
         {
             return Xsrf.GetAndStoreTokens(Context).RequestToken;
-        }     
-        
-
-
+        } 
 }
 @{
     string nombre = "";
@@ -27,13 +24,55 @@
     int posFecha = 24;
     int posMonto = 9;
     int posSaldo = 19;
+    int posDisponible = 13;
+    int posTipoDoc = 0;
     ViewData["Title"] = nombre;
+    string tipoCedula = "";
+    if (Model.TipoCedula == "1") {
+        tipoCedula = @Lb["Física"];
+    }
+    if (Model.TipoCedula == "2")
+    {
+        tipoCedula = @Lb["Jurídica"];
+    }
+    if (Model.TipoCedula == "3")
+    {
+        tipoCedula = @Lb["Dimex"];
+    }
+    if (Model.TipoCedula == "4")
+    {
+        tipoCedula = @Lb["NITE"];
+    }
+    float saldoPagos = 0;
+    float saldoFacturas = 0;
+    float saldoNC = 0;
+    float saldoND = 0;
+    float saldoDocs = 0;
+
+    float totalPagos = 0;
+    float totalFacturas = 0;
+    float totalNC = 0;
+    float totalND = 0;
+    float totalDocs = 0;
+
+    bool hayDocs = false;
  }
+
 <div class="row">
-    <h2>@nombre <a class="btn btn-primary" asp-action="EditarContacto" asp-route-id="@id"><span>@Lb["Editar"]</span>&nbsp;<i class="fas fa-edit"></i></a></h2>
+
+    <div class="col-lg-10">
+        <h2>
+            <a href="javascript:window.history.back();"><i class="fas fa-arrow-left"></i></a>
+            @nombre <a class="btn btn-primary" asp-action="EditarContacto" asp-route-id="@id" asp-route-reff="VerContacto"><span>@Lb["Editar"]</span>&nbsp;<i class="fas fa-edit"></i></a>
+        </h2>
+
+    </div>    
+   
+   
 </div>
 <div class="row">
     <div class="col-lg-3 col-md-3  col-xs-12 well">
+        <p><a style="font-weight:bold"> @Lb["Cedula"]</a>: @tipoCedula / @Model.Cedula </p>
         <p><a style="font-weight:bold"> @Lb["Telefono"]</a>: @Model.Telefono.</p>
         <p><a style="font-weight:bold">@Lb["Email"]</a>: @Model.Correo</p>
         @{
@@ -43,29 +82,47 @@
             }
             else
             {
-                <p><a style="font-weight:bold">@Lb["Web"]</a>: <a href="@Model.WebLink">@Model.WebLink </a></p>
+                <p><a style="font-weight:bold">@Lb["Web"]</a>: <a href="@Model.WebLink" target="_blank">@Model.WebLink </a></p>
+            }
+            if (!Model.MapLink.Equals(""))
+            {
+                <p><a style="font-weight:bold">@Lb["Mapa"]</a>: <a href="@Model.MapLink" target="_blank"><i class="fas fa-map-marked-alt"></i></a></p>
             }
             if (Model.Cliente)
             {
                 <p><a style="font-weight:bold">@Lb["Cliente"] <i class="fas fa-check-circle"></i></a></p>
+                <p><a style="font-weight:bold">@Lb["PlazoCredito"] (@Lb["Días"]):</a> @ViewBag.PlazoCreditoCliente</p>
+                <p><a style="font-weight:bold">@Lb["MontoMaximo"]:</a> @ViewBag.MontoMaximoCliente.ToString("#,###0.00")</p>
             }
             if (Model.Proveedor)
             {
                 <p><a style="font-weight:bold">@Lb["Provedor"] <i class="fas fa-check-circle"></i></a></p>
             }
+
         }
 
 
-        <p><a style="font-weight:bold">@Lb["Cedula"]</a>: @Model.Cedula</p>
-        @{
-            if (!Model.MapLink.Equals(""))
+
+        <p class="row">
+        <p id="frmCP">
+
+        </p>
+        </p>
+        <p>
+            @if (!(Model.Ruta == ""))
             {
-                <p><a href="@Model.MapLink"><i class="fas fa-map-marked-alt"></i></a></p>
+                if (System.IO.File.Exists(Model.Ruta))
+                {
+                    <img style="height:10rem; width: 10rem;" src="@Model.Ruta" class="img-responsive " alt="Profile Image" />
+
+                }
+
+
             }
 
-        }
+        </p>
     </div>
-    <div class="col-lg-7 col-md-8 col-xs-12 well" style="margin-left: 2em;padding-left: 2em">
+    <div class="col-lg-9 col-md-9 col-xs-12 well">
         @{
             if (Model.Cliente)
             {
@@ -80,142 +137,219 @@
 
 
             }
+                <div class="row">
+                    @{ bool hayHoy = false;
+                        foreach (var item in ViewBag.Docs)
+                        {
+                            hayDocs = true;
+                            saldoDocs += item.ItemArray[posSaldo];
+                            totalDocs += item.ItemArray[posMonto];
+                            string tipo = item.ItemArray[posTipoDoc].ToString();
+                            if (tipo.Equals("FACTURA"))
+                            {
+
+                                saldoFacturas += item.ItemArray[posSaldo];
+                                totalFacturas += item.ItemArray[posMonto];
+
+                            }
+                            if (tipo.Equals("NOTA DEBITO"))
+                            {
+
+                                saldoND += item.ItemArray[posSaldo];
+                                totalND += item.ItemArray[posMonto];
+
+                            }
+                            if (tipo.Equals("NOTA CREDITO"))
+                            {
+
+                                saldoNC += item.ItemArray[posDisponible];
+                                totalNC += item.ItemArray[posMonto];
+                            }
+                            if (tipo.Equals("POST PAGO") ||
+                                                       tipo.Equals("PREPAGO"))
+                            {
+
+                                saldoPagos += item.ItemArray[posDisponible];
+                                totalPagos += item.ItemArray[posMonto];
+                            }
+
+                            if (item.ItemArray[posFecha].Date.ToString() == hoy.Date.ToString())
+                            {
+                                hayHoy = true;
+
+                            }
+                        }
+                        if (hayDocs)
+                        {
 
 
+                            <div class="row col-lg-12">
+                                <div class="col-lg-6">
+                                    <h4>@Lb["Disponible"]</h4>
+                                    <div class="card well col-lg-6">
+                                        <div class="card-header">
+                                            @Lb["Pagos"]:
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="card-text">@saldoPagos.ToString("#,##0.00")</p>
 
-                            <div class="row">
-                                @{ bool hayHoy = false;
-                                    foreach (var item in ViewBag.Docs)
-                                    {
+                                        </div>
+                                    </div>
+                                    <div class="card well col-lg-6">
+                                        <div class="card-header">
+                                            @Lb["Notas"] @Lb["Credito"]:
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="card-text">@saldoNC.ToString("#,##0.00")</p>
 
-                                        if (item.ItemArray[posFecha].Date.ToString() == hoy.Date.ToString())
-                                        {
-                                            hayHoy = true;
-                                        }
-                                    }
-                                    if (hayHoy)
-                                    {
-                                        <h4>@Lb["Hoy"]</h4>
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <td width="120">@Lb["Documento"]</td>
-                                                    <td width="150">@Lb["Tipo"]</td>
-                                                    <td width="120">@Lb["Fecha"]</td>
-                                                    <td style="text-align:right">@Lb["Monto"]</td>
-                                                    <td style="text-align:right">@Lb["Pendiente"]</td>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @{
-                                                    foreach (var item in ViewBag.Docs)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 ">
+                                    <h4>@Lb["Pendiente"]</h4>
+                                    <div class="card well col-lg-6">
+                                        <div class="card-header">
+                                            @Lb["Facturas"]:
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="card-text">@saldoFacturas.ToString("#,##0.00")</p>
+
+                                        </div>
+                                    </div>
+                                    <div class="card well col-lg-6">
+                                        <div class="card-header">
+                                            @Lb["Notas"] @Lb["Debito"]:
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="card-text">@saldoND.ToString("#,##0.00")</p>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        if (hayHoy)
+                        {
+                            <div class="row col-lg-12">
+                                <h4>@Lb["Hoy"]</h4>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <td width="120">@Lb["Documento"]</td>
+                                            <td width="150">@Lb["Tipo"]</td>
+                                            <td width="120">@Lb["Fecha"]</td>
+                                            <td style="text-align:right">@Lb["Monto"]</td>
+                                            <td style="text-align:right">@Lb["Pendiente"]</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            foreach (var item in ViewBag.Docs)
+                                            {
+
+                                                if (item.ItemArray[posFecha].Date.ToString() == hoy.Date.ToString())
+                                                {
+                                                    string tipo = item.ItemArray[posTipoDoc].ToString();
+                                                    int posSaldoLinea = 0;
+                                                    if (tipo.Equals("FACTURA") || tipo.Equals("NOTA DEBITO"))
                                                     {
-
-                                                        if (item.ItemArray[posFecha].Date.ToString() == hoy.Date.ToString())
-                                                        {
-                                                            <tr role="row" class="odd">
-                                                                <td>@item.ItemArray[posConcecutivo].ToString()</td>
-                                                                <td>@item.ItemArray[posTipo].ToString()</td>
-                                                                <td>@item.ItemArray[posFecha].Date.ToString("dd/MM/yyyy")</td>
-                                                                <td style="text-align:right">@item.ItemArray[posMonto].ToString("#,##0.00")</td>
-                                                                <td style="text-align:right">@item.ItemArray[posSaldo].ToString("#,##0.00")</td>
-                                                            </tr>
-                                                        }
+                                                        posSaldoLinea = posSaldo;
                                                     }
-                                                }
-                                            </tbody>
-                                        </table>
-                                    }
-                                }
-
-                                @{ bool hayAyer = false;
-                                    foreach (var item in ViewBag.Docs)
-                                    {
-
-                                        if (item.ItemArray[posFecha].Date.ToString() == ayer.Date.ToString())
-                                        {
-                                            hayAyer = true;
-
-                                        }
-                                    }
-                                    if (hayAyer)
-                                    {
-                                        <h4>@Lb["Ayer"]</h4>
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <td width="120">@Lb["Documento"]</td>
-                                                    <td width="150">@Lb["Tipo"]</td>
-                                                    <td width="120">@Lb["Fecha"]</td>
-                                                    <td style="text-align:right">@Lb["Monto"]</td>
-                                                    <td style="text-align:right">@Lb["Pendiente"]</td>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @{
-                                                    foreach (var item in ViewBag.Docs)
+                                                    else
                                                     {
-                                                        if (item.ItemArray[posFecha].Date.ToString() == ayer.Date.ToString())
-                                                        {
-                                                            <tr role="row" class="odd">
-                                                                <td>@item.ItemArray[posConcecutivo].ToString()</td>
-                                                                <td>@item.ItemArray[posTipo].ToString()</td>
-                                                                <td>@item.ItemArray[posFecha].Date.ToString("dd/MM/yyyy")</td>
-                                                                <td style="text-align:right">@item.ItemArray[posMonto].ToString("#,##0.00")</td>
-                                                                <td style="text-align:right">@item.ItemArray[posSaldo].ToString("#,##0.00")</td>
-                                                            </tr>
-                                                        }
+                                                        posSaldoLinea = posDisponible;
                                                     }
+
+                                                    <tr role="row" class="odd">
+                                                        <td>@item.ItemArray[posConcecutivo].ToString()</td>
+                                                        <td>@item.ItemArray[posTipo].ToString()</td>
+                                                        <td>@item.ItemArray[posFecha].Date.ToString("dd/MM/yyyy")</td>
+                                                        <td style="text-align:right">@item.ItemArray[posMonto].ToString("#,##0.00")</td>
+                                                        <td style="text-align:right">@item.ItemArray[posSaldoLinea].ToString("#,##0.00")</td>
+                                                    </tr>
                                                 }
-                                            </tbody>
-                                        </table>
-                                    }
-                                }
-                                @{ bool hayAntier = false;
-                                    foreach (var item in ViewBag.Docs)
-                                    {
-
-                                        if (item.ItemArray[posFecha].Date.ToString() == ayer.Date.ToString())
-                                        {
-                                            hayAntier = true;
-
+                                            }
                                         }
-                                    }
-                                    if (hayAntier)
-                                    {
-                                        <h4>@ayer.AddDays(-1).ToString("ddd dd/MM/yyyy")</h4>
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <td width="120">@Lb["Documento"]</td>
-                                                    <td width="150">@Lb["Tipo"]</td>
-                                                    <td width="120">@Lb["Fecha"]</td>
-                                                    <td style="text-align:right">@Lb["Monto"]</td>
-                                                    <td style="text-align:right">@Lb["Saldo"]</td>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @{
-                                                    foreach (var item in ViewBag.Docs)
-                                                    {
-                                                        if (item.ItemArray[posFecha].Date.ToString() == ayer.AddDays(-1).Date.ToString())
-                                                        {
-                                                            <tr role="row" class="odd">
-                                                                <td>@item.ItemArray[posConcecutivo].ToString()</td>
-                                                                <td>@item.ItemArray[posTipo].ToString()</td>
-                                                                <td>@item.ItemArray[posFecha].ToString("dd/MM/yyyy")</td>
-                                                                <td style="text-align:right">@item.ItemArray[posMonto].ToString("#,##0.00")</td>
-                                                                <td style="text-align:right">@item.ItemArray[posSaldo].ToString("#,##0.00")</td>
-                                                            </tr>
-                                                        }
-                                                    }
-                                                }
-                                            </tbody>
-                                        </table>
-                                    }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    }
 
-                                }
-                                <h4>@Lb["Mas"]</h4>
+                    @{ bool hayAyer = false;
+                        foreach (var item in ViewBag.Docs)
+                        {
+
+                            if (item.ItemArray[posFecha].Date.ToString() == ayer.Date.ToString())
+                            {
+                                hayAyer = true;
+
+                            }
+                        }
+                        if (hayAyer)
+                        {
+                            <div class="row col-lg-12">
+                                <h4>@Lb["Ayer"]</h4>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <td width="120">@Lb["Documento"]</td>
+                                            <td width="150">@Lb["Tipo"]</td>
+                                            <td width="120">@Lb["Fecha"]</td>
+                                            <td style="text-align:right">@Lb["Monto"]</td>
+                                            <td style="text-align:right">@Lb["Pendiente"]</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            foreach (var item in ViewBag.Docs)
+                                            {
+                                                if (item.ItemArray[posFecha].Date.ToString() == ayer.Date.ToString())
+                                                {
+
+                                                    string tipo = item.ItemArray[posTipoDoc].ToString();
+
+                                                    int posSaldoLinea = 0;
+                                                    if (tipo.Equals("FACTURA") || tipo.Equals("NOTA DEBITO"))
+                                                    {
+                                                        posSaldoLinea = posSaldo;
+                                                    }
+                                                    else
+                                                    {
+                                                        posSaldoLinea = posDisponible;
+                                                    }
+
+                                                    <tr role="row" class="odd">
+                                                        <td>@item.ItemArray[posConcecutivo].ToString()</td>
+                                                        <td>@item.ItemArray[posTipo].ToString()</td>
+                                                        <td>@item.ItemArray[posFecha].Date.ToString("dd/MM/yyyy")</td>
+                                                        <td style="text-align:right">@item.ItemArray[posMonto].ToString("#,##0.00")</td>
+                                                        <td style="text-align:right">@item.ItemArray[posSaldoLinea].ToString("#,##0.00")</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    }
+                    @{ bool hayAntier = false;
+                        foreach (var item in ViewBag.Docs)
+                        {
+
+                            if (item.ItemArray[posFecha].Date.ToString() == ayer.AddDays(-1).Date.ToString())
+                            {
+                                hayAntier = true;
+
+                            }
+                        }
+                        if (hayAntier)
+                        {
+                            <div class="row col-lg-12">
+
+                                <h4>@ayer.AddDays(-1).ToString("ddd dd/MM/yyyy")</h4>
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
@@ -230,14 +364,25 @@
                                         @{
                                             foreach (var item in ViewBag.Docs)
                                             {
-                                                if (item.ItemArray[posFecha].Date < ayer.AddDays(-1))
+                                                if (item.ItemArray[posFecha].Date.ToString() == ayer.AddDays(-1).Date.ToString())
                                                 {
+                                                    string tipo = item.ItemArray[posTipoDoc].ToString();
+
+                                                    int posSaldoLinea = 0;
+                                                    if (tipo.Equals("FACTURA") || tipo.Equals("NOTA DEBITO"))
+                                                    {
+                                                        posSaldoLinea = posSaldo;
+                                                    }
+                                                    else
+                                                    {
+                                                        posSaldoLinea = posDisponible;
+                                                    }
                                                     <tr role="row" class="odd">
                                                         <td>@item.ItemArray[posConcecutivo].ToString()</td>
                                                         <td>@item.ItemArray[posTipo].ToString()</td>
                                                         <td>@item.ItemArray[posFecha].ToString("dd/MM/yyyy")</td>
                                                         <td style="text-align:right">@item.ItemArray[posMonto].ToString("#,##0.00")</td>
-                                                        <td style="text-align:right">@item.ItemArray[posSaldo].ToString("#,##0.00")</td>
+                                                        <td style="text-align:right">@item.ItemArray[posSaldoLinea].ToString("#,##0.00")</td>
                                                     </tr>
                                                 }
                                             }
@@ -245,7 +390,214 @@
                                     </tbody>
                                 </table>
                             </div>
+                        }
 
+                    }
+
+                    <div class="row col-lg-12">
+                        <h4>@Lb["Mas"]</h4>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <td width="120">@Lb["Documento"]</td>
+                                    <td width="150">@Lb["Tipo"]</td>
+                                    <td width="120">@Lb["Fecha"]</td>
+                                    <td style="text-align:right">@Lb["Monto"]</td>
+                                    <td style="text-align:right">@Lb["Saldo"]</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    foreach (var item in ViewBag.Docs)
+                                    {
+                                        if (item.ItemArray[posFecha].Date < ayer.AddDays(-1))
+                                        {
+                                            string tipo = item.ItemArray[posTipoDoc].ToString();
+
+                                            int posSaldoLinea = 0;
+                                            if (tipo.Equals("FACTURA") || tipo.Equals("NOTA DEBITO"))
+                                            {
+                                                posSaldoLinea = posSaldo;
+                                            }
+                                            else
+                                            {
+                                                posSaldoLinea = posDisponible;
+                                            }
+                                            <tr role="row" class="odd">
+                                                <td>@item.ItemArray[posConcecutivo].ToString()</td>
+                                                <td>@item.ItemArray[posTipo].ToString()</td>
+                                                <td>@item.ItemArray[posFecha].ToString("dd/MM/yyyy")</td>
+                                                <td style="text-align:right">@item.ItemArray[posMonto].ToString("#,##0.00")</td>
+                                                <td style="text-align:right">@item.ItemArray[posSaldoLinea].ToString("#,##0.00")</td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row col-lg-12">
+                        <h4>@Lb["Totales"]</h4>
+                        <div class="col-lg-6 well">
+                            <div class="card well col-lg-6">
+                                <div class="card-header">
+                                    @Lb["Pagos"]:
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">@totalPagos.ToString("#,##0.00")</p>
+
+                                </div>
+                            </div>
+                            <div class="card well col-lg-6">
+                                <div class="card-header">
+                                    @Lb["Notas"] @Lb["Credito"]:
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">@totalNC.ToString("#,##0.00")</p>
+
+                                </div>
+                            </div>
                         </div>
+                        <div class="col-lg-6 well">
+                            <div class="card well col-lg-6">
+                                <div class="card-header">
+                                    @Lb["Facturas"]:
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">@totalFacturas.ToString("#,##0.00")</p>
+                                </div>
+                            </div>
+                            <div class="card well col-lg-6">
+                                <div class="card-header">
+                                    @Lb["Notas"] @Lb["Debito"]:
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">@saldoND.ToString("#,##0.00")</p>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                </div>
 </div>
+<script>
+    var camposPersonalizados = [];
+    var ccPersonalizados = [];
+
+    $(document).ready(function () { getCamposPersonalizados(); });
+
+        function getCamposPersonalizados() {
+
+         $.ajax({
+            type: "get",
+            headers: {
+                "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+            },
+            dataType: "json",
+            url: '@Url.Action("GetCamposPersonalizados", "Contacto")',
+            data: {idContacto: @Model.IdContacto},
+            success: function (data) {
+
+                camposPersonalizados = data;
+
+                for (var i = 0; i < data.length; i++) {
+                    var idCampoContacto = 0;
+                    var valor = '';
+                    if (data[i].tbCrContactosCamposPersonalizados.length != 0) {
+                        idCampoContacto = data[i].tbCrContactosCamposPersonalizados[0].id;
+                        valor = data[i].tbCrContactosCamposPersonalizados[0].valor;
+                    }
+                    var model = {
+                        id: idCampoContacto,
+                        idContacto: @Model.IdContacto,
+                        idCampoPersonalizados: data[i].id,
+                        valor: valor,
+                        tipo: data[i].tipo
+                    };
+
+                    ccPersonalizados.push(model);
+                }
+
+                cargarCamposPersonalizados(camposPersonalizados);
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+         });
+    }
+     function cargarCamposPersonalizados(data) {
+
+        var contador = 0;
+        var input = '';
+        for (var i = 0; i < data.length; i++) {
+
+            var value = '';
+            if (data[i].tbCrContactosCamposPersonalizados.length != 0) {
+                value = data[i].tbCrContactosCamposPersonalizados[0].valor;
+            }
+
+            if (data[i].tipo != "lista") {
+
+                if (data[i].tipo === "casilla") {
+
+                    var idC = data[i].id;
+                    if (@Model.IdContacto == 0) {
+                        idC = i;
+                    }
+
+                    if (value == "" || value.toString() == "false")
+                        value = "";
+                    else
+                        value = "checked='checked'";
+
+                    input =  '<a style="font-weight:bold"> ' + data[i].nombre + '</a> <input disabled id="' + idC + '" type="checkbox" ' + value + '  />'
+                  
+                }
+                else if (data[i].tipo === "texto") {
+                    input = '<p><a style="font-weight:bold">' + data[i].nombre + '</a>:' + value + '</p>';
+                }
+                else if (data[i].tipo === "fecha") {
+                    input = '<p><a style="font-weight:bold">' + data[i].nombre + '</a>:' + value + '</p>';
+                }
+
+            }
+            else {
+                var valoresLista = '';
+                for (var k = 0; k < data[i].tbCrListaDesplegables.length; k++) {
+
+                    var selected = '';
+                    if (data[i].tbCrListaDesplegables[k].id.toString() === value) {
+                        selected = 'selected';
+                    }
+
+                    valoresLista += '<option ' + selected + ' value="' + data[i].tbCrListaDesplegables[k].id + '" >' + data[i].tbCrListaDesplegables[k].valor + '</option>';
+                }
+
+                input = '<div class="form-group col-md-4 col-sm-4 col-xs-12">'
+                    + '<label for="' + data[i].id + '">' + data[i].nombre + ':</label>'
+                    + '<select id="' + data[i].id + '" class="form-control">'
+                    + valoresLista
+                    + '</select></div>';
+            }
+
+            contador++;
+            $('#frmCP').append(input);
+
+            if (data[i].tipo == "fecha"){
+                $('.fechaPickerCP').datetimepicker({
+                    locale: localStorage.getItem("idioma")
+                });
+            }
+
+
+        }
+
+
+
+    }
+
+</script>
 
