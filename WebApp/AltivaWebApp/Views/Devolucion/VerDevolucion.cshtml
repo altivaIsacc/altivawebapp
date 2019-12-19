@@ -1,10 +1,107 @@
-﻿<!DOCTYPE html>
+﻿
+@model AltivaWebApp.Domains.Devolucion
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    string Estado = "";
+    if (Model.Estado == 0)
+    {
+        Estado = Lb["ACTIVA"];
 
+    }
+    else {
+        Estado = Lb["ANULADA"];
+    }
+    ViewData["Title"] = Lb["Devolución"];
+    double Total = 0;
+    double Aplicado = 0;
+    double Pendiente = 0;
+ }
 <html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>VerDevolucion</title>
-</head>
-<body>
+
+<body class="well">
+    <div class="row">
+        <h2>
+            <a href="javascript:window.history.back();"><i class="fas fa-arrow-left"></i></a>
+            @Lb["Devolucion"] ID: @Model.IdDevolucion
+            <a class="btn btn-primary" asp-action="e" asp-route-id="@Model.IdDevolucion" ><span>@Lb["Editar"]</span>&nbsp;<i class="fas fa-edit"></i></a>
+        </h2>
+    </div>
+    <div class="row well">
+        <div class="row">
+            <p><a style="font-weight:bold"> @Lb["Cliente"]</a>: @Model.Contacto() </p>
+            <p><a style="font-weight:bold"> @Lb["Vendedor"]</a>: @Model.Vendedor() </p>
+            <p><a style="font-weight:bold"> @Lb["Fecha"]</a>: @Model.Fecha.ToString("dd/MM/yyyy") | <a style="font-weight:bold"> @Lb["Estado"]</a>:@Estado</p>
+            <p><a style="font-weight:bold"> @Lb["Monto"]</a>: @Model.Total.ToString("#,##0.00") </p>
+
+        </div>
+        <div class="row">
+            <p><a style="font-weight:bold"> @Lb["Nota"]</a>: @Model.Nota </p>
+
+        </div>
+        <div class="row">
+            <table id="tblDevolucionDetalle" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <td>@Lb["Producto"]</td>
+                        <td>@Lb["Codigo"]</td>
+                        <td>@Lb["Devolver"]</td>
+                        <td>@Lb["Motivo"]</td>
+                        <td>@Lb["Precio"] @Lb["Unidad"] </td>
+                        <td>@Lb["Total"]</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Detalle)
+                    {
+                        <tr>
+                            @{
+                                Total += item.Total;
+
+                            }
+                            <td>@item.Producto()[0]</td>
+                            <td>@item.Producto()[1]</td>
+                            <td>@item.Motivo()</td>
+                            <td>@item.Devolver</td>
+                            <td style="text-align:right">@item.PrecioUnit.ToString("#,##0.00")</td>
+                            <td style="text-align:right">@item.Total.ToString("#,##0.00")</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>@Lb["Total"]:</td>
+                        <td style="text-align:right">@Total.ToString("#,##0.00")</td>
+
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>@Lb["Aplicado"]:</td>
+                        <td style="text-align:right">@Aplicado.ToString("#,##0.00")</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>@Lb["Aplicado"]:</td>
+                        <td style="text-align:right">@Pendiente.ToString("#,##0.00")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html>
+

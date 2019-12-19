@@ -63,7 +63,7 @@ namespace AltivaWebApp.Domains
     {
         public string Nombre { get; set; }
         [Key]
-        public long IdMovimiento { get; set; }    
+        public long IdMovimiento { get; set; }
         public long IdContacto { get; set; }
         public long IdDocumento { get; set; }
         public int IdTipoDocumento { get; set; }
@@ -93,8 +93,30 @@ namespace AltivaWebApp.Domains
         public DateTime FechaVencimiento { get; set; }
         public int Estado { get; set; }
     }
+    [Table("vs_SE_Usuario")]
+    public class Usuario
+    {
+        public long Id { get; set; }
+        public string Codigo { get; set; }
+        public string Nombre { get; set; }
+        public string Estado { get; set; }
+        public string Iniciales { get; set; }
+        public string Contrasena { get; set; }
+        public DateTime FechaMod { get; set; }
+        public long Id_Usuario { get; set; }
+        public string Correo { get; set; }
+        public string Avatar { get; set; }
+    }
+    [Table("vs_PR_Inventario")]
+    public class Inventario
+    {
+        [Key]
+        public long IdInventario { get; set; }
+        public string Codigo { get; set; }
+        public string Descripcion { get; set; }
+        public double CantidadUnidad { get; set; }
+        public string Unidad { get; set; }
+        public string Familia { get; set; }
+        public double General { get; set; }
+    }
 }
-
-
-
-

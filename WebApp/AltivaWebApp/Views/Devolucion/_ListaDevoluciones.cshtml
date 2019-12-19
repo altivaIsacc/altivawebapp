@@ -1,0 +1,65 @@
+﻿@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+
+}
+@{
+    int posId = 0;
+    int posFecha = 1;
+    int posEstado = 2;
+    int posTotal = 3;
+    int posNota = 8;
+    int posCliente = 9;
+    int posVendedor = 10;
+}
+
+<!DOCTYPE html>
+
+<html>
+
+<body>
+    <table  id="tblDevolucion" class="table table-bordered">
+        <thead>
+            <tr>
+                <td>@Lb["ID"]</td>
+                <td>@Lb["Fecha"]</td>
+                <td>@Lb["Cliente"]</td>
+                <td>@Lb["Vendedor"]</td>
+                <td>@Lb["Total"]</td>
+                <td>@Lb["Estado"]</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewBag.resultado)
+            {                
+            <tr>
+                <td><a href="@Url.Action("VerDevolucion", new { id = @item.ItemArray[posId] })">@item.ItemArray[posId]</a></td>
+                <td>@item.ItemArray[posFecha]</td>
+                <td>@item.ItemArray[posCliente]</td>
+                <td>@item.ItemArray[posVendedor]</td>
+                <td style="text-align:right">@item.ItemArray[posTotal].ToString("#,##0.00")</td>
+                @{ string estado = "";
+                    if (item.ItemArray[posEstado] == 0)
+                    {
+                        estado = Lb["ACTIVA"];
+
+                    }
+                    else {
+                        estado = Lb["ANULADA"];
+                    }
+                }
+
+                <td>@estado</td>
+                <td><a href="@Url.Action("VerDevolucion", new { id = @item.ItemArray[posId] })" class="btn btn-link" style="margin: 0; padding:0;"><i style="font-size:2rem" class="fas fa-edit"></i></a></td>
+            </tr>
+            }
+        </tbody>
+
+
+    </table>
+</body>
+</html>

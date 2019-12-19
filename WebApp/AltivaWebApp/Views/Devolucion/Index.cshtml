@@ -1,0 +1,179 @@
+﻿@model AltivaWebApp.Domains.Devolucion
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+   
+}
+@{ 
+    ViewData["Title"] = Lb["Devoluciones"];
+    System.DateTime date = System.DateTime.Now;
+}
+
+<!DOCTYPE html>
+
+<html>
+
+<body>
+    <div>
+        <h2>
+            <a href="javascript:window.history.back();"><i class="fas fa-arrow-left"></i></a>
+            @Lb["Devoluciones"]
+            <a class="btn btn-primary" asp-action="e" asp-route-id="0"><span>@Lb["Agregar"]</span>&nbsp;<i class="fas fa-plus-circle"></i></a>
+        </h2>
+     
+        <div class="row col-lg-12">
+   
+                <div class="form-group col-md-2 col-sm-3 col-xs-6">
+                    <label for="filtroEstado">@Lb["Estado"]:</label>
+                    <select class="form-control" id="filtroEstado" onchange="getResultado()" onkeydown="enterBusca(event)">
+                        <option value="">@Lb["Todos"]</option>
+                        <option value="1">@Lb["ANULADA"]</option>
+                        <option value="0">@Lb["ACTIVA"]</option>
+                    </select>
+                </div>
+
+            <div class="form-group col-md-2 col-sm-3 col-xs-12">
+                <label for="filtroID">@Lb["ID"]:</label>
+                <input type="number" class="form-control" id="filtroID" placeholder="@Lb["ID"]" onchange="getResultado()" onkeydown="enterBusca(event)">
+            </div>
+            <div class="form-group col-md-2 col-sm-3 col-xs-12">
+                <label for="filtroCliente">@Lb["Cliente"]:</label>
+                <input type="text" class="form-control" id="filtroCliente" placeholder="@Lb["Cliente"]" onchange="getResultado()" onkeydown="enterBusca(event)">
+            </div>
+            <div class="form-group col-md-2 col-sm-3 col-xs-12">
+                <label for="filtroVendedor">@Lb["Vendedor"]:</label>
+                <input type="text" class="form-control" id="filtroVendedor" placeholder="@Lb["Vendedor"]" onchange="getResultado()" onkeydown="enterBusca(event)">
+            </div>          
+            <div class="form-group col-md-2 col-sm-3 col-xs-12">
+                <label class="control-label">
+                    <input type="checkbox" id="habilitaFiltroFecha"> @Lb["FiltroFecha"]
+                </label>
+                <form id="frmFecha" class="form-horizontal">
+                    <fieldset>
+                        <div class="control-group">
+                            <div class="controls">
+                                <div class="input-prepend input-group">
+                                    <span class="add-on input-group-addon"><i class="fas fa-calendar"></i></span>
+                                    <input type="text" style="width: 200px" name="filtroFecha" id="filtroFecha" class="form-control" value="@date.Date - @date.Date" />
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+
+        </div>
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12" id="resultadoFiltro">
+
+                </div>
+            </div>
+        </div>
+</body>
+</html>
+<script>
+     var desde;
+    var hasta;
+    $('#habilitaFiltroFecha').change(function () {
+
+        if (!$(this).prop('checked')) {
+            $('#filtroFecha').attr('disabled', true);
+        }
+        else {
+            $('#filtroFecha').attr('disabled', false);
+        }
+
+        getResultado();
+    });
+    $(document).ready(function () {
+
+        hasta = new Date().toLocaleString();
+        desde = new Date().toLocaleString();
+
+        $('#filtroFecha').attr('disabled', true);
+
+        $('#filtroFecha').daterangepicker({
+            opens: 'left',
+
+            "locale": {
+                format: "@Lb["formatoFecha"]",
+                "separator": " - ",
+                "applyLabel": "@Lb["Aplicar"]",
+                "cancelLabel": "@Lb["Cancelar"]",
+                "fromLabel": "@Lb["DE"]",
+                "toLabel": "@Lb["Hasta"]",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "@Lb["Dom"]",
+                    "@Lb["Lun"]",
+                    "@Lb["Mar"]",
+                    "@Lb["Mie"]",
+                    "@Lb["Jue"]",
+                    "@Lb["Vie"]",
+                    "@Lb["Sáb"]"
+                ],
+                "monthNames": [
+                    "@Lb["Enero"]",
+                    "@Lb["Febrero"]",
+                    "@Lb["Marzo"]",
+                    "@Lb["Abril"]",
+                    "@Lb["Mayo"]",
+                    "@Lb["Junio"]",
+                    "@Lb["Julio"]",
+                    "@Lb["Agosto"]",
+                    "@Lb["Septiembre"]",
+                    "@Lb["Octubre"]",
+                    "@Lb["Noviembre"]",
+                    "@Lb["Diciembre"]"
+                ],
+                "firstDay": 1
+            }
+        },
+            function (start, end, label) {
+
+                desde = start.format('YYYY-MM-DD');
+                hasta = end.format('YYYY-MM-DD');
+                getResultado();
+
+            });
+
+    });
+
+    function enterBusca(e) {
+        tecla = (document.all) ? e.keyCode : e.which;
+        if (tecla == 13) { getResultado(); }
+    }
+      function getResultado() {
+        var fDesde = "";
+        var fHasta = "";
+        if ($('#habilitaFiltroFecha').prop('checked')) {
+            fDesde = desde;
+            fHasta = hasta;
+          }
+          var anulados = "";
+          if ($('verAnulados').prop('checked')) {
+              anulados = "1";
+          }
+          console.log("Entro")
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("_ListaDevoluciones", "Devolucion")',
+            data: { id: $('#filtroID').val(), vendedor: $('#filtroVendedor').val(), cliente: $('#filtroCliente').val(), fechaDesde: fDesde, fechaHasta: fHasta, estado: $('#filtroEstado').val()},
+            success: function (data) {
+                $('#resultadoFiltro').html(data);
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        getResultado();
+    })
+</script>
