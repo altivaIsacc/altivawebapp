@@ -1,5 +1,6 @@
 ﻿using AltivaWebApp.Context;
 using AltivaWebApp.Domains;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Data.SqlClient;
@@ -18,10 +19,10 @@ namespace AltivaWebApp.Controllers
         }
         public IActionResult Index()
         {           
-            return View();
+            return View("DevolucionIndex");
         }
-        [HttpPost("_ListaDevoluciones")]
-        public IActionResult _ListaDevoluciones(long id = 0, string vendedor = "", string cliente = "", string fechaDesde = "", string fechaHasta = "", string estado = "")
+        [HttpPost("_DevolucionesGrid")]
+        public IActionResult _DevolucionesGrid(long id = 0, string vendedor = "", string cliente = "", string fechaDesde = "", string fechaHasta = "", string estado = "")
         {
             if (vendedor == null) { vendedor = ""; }
             if (cliente == null) { cliente = ""; }
@@ -111,14 +112,14 @@ namespace AltivaWebApp.Controllers
             DataTable dt = new DataTable();
             AltivaData.Provider.SQL.fill(cmd, dt, StringFactory.StringEmpresas);
             ViewBag.resultado = dt.AsEnumerable().ToList();
-            return PartialView();
+            return PartialView("_DevolucionesGrid");
         }
-        [HttpGet("VerDevolucion")]
-        public IActionResult VerDevolucion(long id)
+        [HttpGet("v")]
+        public IActionResult DevolucionVer(long id)
         {
             Devolucion item = bd.Devoluciones.Where(p => p.IdDevolucion == id).FirstOrDefault();
             item.Detalle = bd.DevolucionesDetalle.Where(p => p.IdDevolucion == id).ToList();
-            return View(item);
+            return View("DevolucionVer",item);
         }
         [HttpGet("e")]
         public IActionResult e(long id)
@@ -138,12 +139,18 @@ namespace AltivaWebApp.Controllers
             else {
                 item = bd.Devoluciones.Where(p => p.IdDevolucion == id).FirstOrDefault();           
             }
+            Empresa e = bd.Empresas.Where(p => p.Id == (int)HttpContext.Session.GetInt32("idEmpresa")).FirstOrDefault();
+            PuntoVenta pv = bd.PuntosVenta.Where(p => p.IdPuntoVenta == e.IdPuntoVenta).FirstOrDefault();
+
+            ViewBag.IdTipoPrecioDefecto = pv.IdTipoPrecioDefecto;
+            ViewBag.TiposCliente = bd.TbFdTipoCliente.Where(p => p.Inactivo == false).ToList();
+            ViewBag.PreciosCatalogo = bd.PreciosCatalogo.ToList();
             item.IdModificador = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value);
             item.Detalle = bd.DevolucionesDetalle.Where(p => p.IdDevolucion == id).ToList();
             ViewData["Usuarios"] = bd.Usuarios.ToList();
             ViewBag.Motivos = bd.MotivosDevolucion.ToList();
             ViewBag.Inventario = bd.Inventarios.ToList();
-            return View("CrearEditarDevolucion",item);
+            return View("DevolucionCrearEditar", item);
         }
         [HttpPost("guardar")]
         public IActionResult guardar(Devolucion dev)
@@ -182,6 +189,36 @@ namespace AltivaWebApp.Controllers
                 else
                 {
                     bd.Devoluciones.Update(item);
+                }
+
+                foreach (DevolucionDetalle itemLi in dev.Detalle)
+                {
+                    if (itemLi.IdDevolucion == 0)
+                    {
+                        DevolucionDetalle nueva = new DevolucionDetalle();
+                        nueva.IdDevolucion = itemLi.IdDevolucion;
+                        nueva.IdInventario = itemLi.IdInventario;
+                        nueva.Modificacion = itemLi.Modificacion;
+                        nueva.Devolver = itemLi.Devolver;
+                        nueva.PrecioUnit = itemLi.PrecioUnit;
+                        nueva.Total = itemLi.Total;
+                        nueva.Creacion = System.DateTime.Now;
+                        nueva.IdMotivoDevolucion = itemLi.IdMotivoDevolucion;
+
+                        bd.DevolucionesDetalle.Add(itemLi);
+                    }
+                    else {
+                        if (itemLi.IdDevolucion == dev.IdDevolucion)
+                        {
+
+                        }
+                        else
+                        {
+
+                        }
+                    }
+
+
                 }
                 bd.SaveChanges();
                 return Json(new { success = true, idDevolucion = item.IdDevolucion });

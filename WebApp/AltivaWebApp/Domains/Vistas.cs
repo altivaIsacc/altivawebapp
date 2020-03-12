@@ -119,4 +119,29 @@ namespace AltivaWebApp.Domains
         public string Familia { get; set; }
         public double General { get; set; }
     }
+    [Table("vs_SE_PuntoVenta")]
+    public class PuntoVenta
+    {
+        [Key]
+        public long IdPuntoVenta { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+        public bool Inactivo { get; set; }
+        public bool EsPorDefecto { get; set; }
+        public int IdTipoPrecioDefecto { get; set; }
+
+    }
+    [Table("vs_SE_Empresa")]
+    public class Empresa
+    {
+        [Key]
+        public long Id { get; set; }
+        public string Nombre { get; set; }
+        public string BD { get; set; }
+        public bool Estado { get; set; }
+        public string Correo { get; set; }
+        public string CedJuridica { get; set; }
+        public long IdPuntoVenta { get; set; }
+
+    }
 }

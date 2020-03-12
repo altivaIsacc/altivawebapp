@@ -23,6 +23,9 @@ namespace AltivaWebApp.Context
         public DbSet<MotivoDevolucion> MotivosDevolucion { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Inventario> Inventarios { get; set; }
+        public DbSet<PrecioCatalogo> PreciosCatalogo { get; set; }
+        public DbSet<PuntoVenta> PuntosVenta { get; set; }
+        public DbSet<Empresa> Empresas { get; set; }
 
         public DbSet<tbPRTipoAjusteInventario> TiposAjusteInventario { get; set; }
         public DbSet<FacturaBusqueda> FacturasBusquedas { get; set; }

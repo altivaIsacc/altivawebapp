@@ -120,8 +120,11 @@ namespace AltivaWebApp.Controllers
             ViewBag.Docs = dt.AsEnumerable().ToList();         
             var contacto = contactoMap.DomainToViewModelC(contactoService.GetByIdContacto(id));
             var condi = contactoService.GetCondicionesByIdContacto(idContact).ToList();
-            ViewBag.PlazoCreditoCliente = condi.ElementAt(0).PlazoCredito;
-            ViewBag.MontoMaximoCliente = condi.ElementAt(0).MontoMaximo;
+            if (condi.Count > 0) {
+                ViewBag.PlazoCreditoCliente = condi.ElementAt(0).PlazoCredito;
+                ViewBag.MontoMaximoCliente = condi.ElementAt(0).MontoMaximo;
+            }
+          
 
             return View(contacto);
         }

@@ -128,7 +128,18 @@ namespace AltivaWebApp.Domains
         public System.DateTime Modificacion { get; set; }      
         public string Nota { get; set; }
     }
-    
+    [Table("vs_PR_PrecioCatalogo")]
+    public class PrecioCatalogo
+    {
+        [Key]
+        public long IdPrecioCatalogo { get; set; }
+        public long IdInventario { get; set; }
+        public int IdTipoPrecio { get; set; }
+        public double PorcUtilidad { get; set; }
+        public double PrecioSinImpuesto { get; set; }
+        public double PrecioFinal { get; set; }
+
+    }
 }
 
 

@@ -1,0 +1,486 @@
+﻿
+@model AltivaWebApp.Domains.Devolucion
+@inject IStringLocalizer<SharedResources> Lb
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    string Estado = "";
+    if (Model.Estado == 0)
+    {
+        Estado = Lb["ACTIVA"];
+
+    }
+    else
+    {
+        Estado = Lb["ANULADA"];
+    }
+    string accion = "";
+    if (Model.IdDevolucion == 0)
+    {
+
+        accion = Lb["Crear"];
+    }
+    else
+    {
+        accion = Lb["Editar"];
+    }
+
+    ViewData["Title"] = Lb["Devolución"];
+    double Total = 0;
+    double Aplicado = 0;
+    double Pendiente = 0;
+}
+<html>
+
+<body class="well">
+    <div class="row">
+        <h2>
+            <a href="javascript:window.history.back();"><i class="fas fa-arrow-left"></i></a>
+            @accion @Lb["Devolucion"] ID: @Model.IdDevolucion
+
+        </h2>
+    </div>
+    <div class="row well">
+        <div class="row">
+            <form id="frmDevolucion">
+
+                @Html.HiddenFor(x => x.IdDevolucion)
+                @Html.HiddenFor(x => x.Creacion)
+                @Html.HiddenFor(x => x.Modificacion)
+                @Html.HiddenFor(x => x.IdCreador)
+                @Html.HiddenFor(x => x.IdModificador)
+                @Html.HiddenFor(x => x.Total)
+                <div class="col-lg-8">
+                    <div class="form-group col-md-3 col-sm-3 col-xs-6">
+                        <label asp-for="IdVendedor" class="control-label">@Lb["Vendedor"]:</label>
+                        <select onkeyup="pasarSigCampo(event,'IdContacto')" asp-for="IdVendedor" class="form-control selectItems" disabled="@(Model.IdDevolucion != 0 ? "disabled" : null)">
+                            @foreach (var item in ViewData["usuarios"] as IList<Usuario>)
+                            {
+                                if (item.Id == int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value) && Model.IdDevolucion != 0)
+                                {
+                                    <option selected value="@item.Id">@item.Nombre</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Id">@item.Nombre</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4 col-sm-4 col-xs-6">
+                        <label asp-for="IdContacto" class="control-label">@Lb["Cliente"]:</label>
+                        <select onkeyup="pasarSigCampo(event,'Estado')" asp-for="IdContacto" class="form-control selectItems"></select>
+                    </div>
+                    <div class="form-group col-md-2 col-sm-2 col-xs-2">
+                        <label asp-for="Estado" class="control-label">@Lb["Estado"]:</label>
+                        <select onkeyup="pasarSigCampo(event,'Tipo')" asp-for="Estado" class="form-control selectItems">
+                            <option selected value="0">@Lb["ACTIVA"]</option>
+                            <option value="1">@Lb["ANULADA"]</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-3 col-sm-4 col-xs-4">
+                        <label asp-for="Fecha" class="control-label">@Lb["Fecha"]:</label>
+                        <input asp-for="Fecha" type="date" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-group col-md-4 col-sm-12 col-xs-12">
+                    <label asp-for="Nota" class="control-label">@Lb["Nota"]:</label>
+                    <textarea asp-for="Nota" class="form-control"></textarea>
+                </div>
+            </form>
+
+
+        </div>
+
+        <div class="row">
+
+            <div class="form-group col-md-3 col-sm-4 col-xs-8">
+                <label class="control-label left">@Lb["Producto"]:</label>
+                <select id="inProducto" type="text" class="form-control" onchange="getPrecioUnit()">
+
+                    @foreach (var item in ViewBag.Inventario as IList<Inventario>)
+                    {
+
+                        <option value="@item.IdInventario">@item.Descripcion</option>
+
+                    }
+                </select>
+            </div>
+            <div class="form-group col-md-1 col-sm-1 col-xs-3">
+                <label class="control-label left">@Lb["Cantidad"]:</label>
+                <input id="inCantidad" type="number" class="form-control" />
+            </div>
+            <div class="form-group col-md-2 col-sm-6 col-xs-6">
+                <label class="control-label left">@Lb["Motivo"]:</label>
+                <select id="inMotivo" type="text" class="form-control">
+
+                    @foreach (var item in ViewBag.Motivos as IList<MotivoDevolucion>)
+                    {
+                        <option value="@item.IdMotivoDevolucion">@item.Nombre</option>
+                                            }
+                </select>
+
+            </div>
+            <div class="form-group col-md-1 col-sm-1 col-xs-1">
+                <a class="btn btn-success" style="margin-top:2rem" onclick="agregar()"><i class="fas fa-plus-circle"></i></a>
+
+            </div>
+
+
+        </div>
+        <div class="row col-md-12">
+            <table id="tblDevolucionDetalle" class="table table-responsive">
+                <thead>
+                    <tr>
+                        <td>@Lb["Producto"]</td>
+                        <td>@Lb["Codigo"]</td>
+                        <td>@Lb["Devolver"]</td>
+                        <td>@Lb["Motivo"]</td>
+                        <td>@Lb["Precio"] @Lb["Unidad"] </td>
+                        <td>@Lb["Total"]</td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="form-group col-md-4 col-sm-12 col-xs-12">
+            <a class="btn btn-success" onclick="guardar()">@Lb["Guardar"]</a>
+            <a class="btn btn-default" onclick="cancelar()">@Lb["Cancelar"]</a>
+        </div>
+        <input readonly hidden id="monedaFormaterDet" />
+    </div>
+</body>
+</html>
+<script>
+    var inventario = [];
+    var preciosCatalogo = [];
+    var tiposCliente = [];
+    $(document).ready(function () {
+        cargar();
+    });
+    function cargar() {       
+            @foreach (var item in ViewBag.Inventario as IList<Inventario>)
+            {
+                @: var item = {IdInventario:@item.IdInventario, Codigo:'@item.Codigo', Descripcion:'@item.Descripcion'}
+            @: inventario.push(item);
+            }
+             @foreach (var itemPrecioCatalogo in ViewBag.PreciosCatalogo as IList<AltivaWebApp.Domains.PrecioCatalogo>)
+            {
+                @: var itemPrecioCatalogo = {IdInventario:@itemPrecioCatalogo.IdInventario, IdPrecioCatalogo:@itemPrecioCatalogo.IdPrecioCatalogo, PrecioCatalogo:'@itemPrecioCatalogo.PrecioSinImpuesto', precioTotal: ''}
+            @: preciosCatalogo.push(itemPrecioCatalogo);
+            }    
+         @foreach (var itemTipo in ViewBag.TiposCliente as IList<AltivaWebApp.Domains.TbFdTipoCliente>)
+            {
+                @: var itemTipo = {IdInventario:@itemTipo.Id, IdTipoPrecio:@itemTipo.IdTipoPrecio, Descripcion:'@itemTipo.Nombre'}
+                @: tiposCliente.push(itemTipo);
+            }
+
+        getContactos();
+        cargarLineas();
+    }
+    function cargarLineas() {
+        @{
+            foreach (var item in Model.Detalle)
+            {
+
+            @:    var detalle = {IdDevolucionDetalle: @item.IdDevolucionDetalle, IdDevolucion: @Model.IdDevolucion,Devolver: @item.Devolver, PrecioUnit: @item.PrecioUnit, Total: 0,
+            @:                     IdInventario: @item.IdInventario, Creacion: '@Model.IdCreador', Modificacion: '@Model.IdCreador', IdMotivoDevolucion: @item.IdMotivoDevolucion, Producto: '@item.Producto()[0]', Codigo: '@item.Producto()[1]', Motivo: '@item.Motivo()' }
+            @:     lineas.push(detalle);
+          }
+
+         }
+        tabla();
+    }
+    function getInventario() {
+        inventario.forEach(function (linea) {
+            if (linea.Id == Id) {
+                lineaEdit = linea;
+            }
+        });
+    }
+
+    function getPrecioTipoCliente() {
+        var precio;
+        var IdTipo;
+        var IdContacto = document.getElementById("inContacto").value;
+        var contacto;
+
+
+        contactos.forEach(function (linea) {
+            if (linea.Id == IdContacto) {
+                contacto = linea;
+            }
+        });
+
+        IdTipo = contacto.IdSubFamilia;
+
+        tipo.forEach(function (linea) {
+            if (linea.Id == IdTipo) {
+                tiposCliente = linea;
+            }
+        });
+
+
+        preciosCatalogo.forEach(function (linea) {
+            if (linea.idContacto == Id && linea.idTipoPrecio==IdTipo) {
+                precio = linea;
+            }
+        });
+
+        return precio;
+
+    }
+
+    function guardar() {
+        if (validar()) {
+
+            var devol =  {
+                IdDevolucion: document.getElementById("IdDevolucion").value,
+                Fecha: document.getElementById("Fecha").value,
+                Total: document.getElementById("Total").value,
+                Nota: document.getElementById("Nota").value,
+                Estado: document.getElementById("Estado").value,
+                IdContacto: document.getElementById("IdContacto").value,
+                IdVendedor: document.getElementById("IdVendedor").value,
+                Creacion: document.getElementById("Creacion").value,
+                IdCreador: document.getElementById("IdCreador").value,
+                Modificacion: document.getElementById("Modificacion").value,
+                IdModificador: document.getElementById("IdModificador").value,
+                detalle: lineas
+            };
+
+              $.ajax({
+            type: "POST",
+            headers: {
+                  "RequestVerificationToken": '@GetAntiXsrfRequestToken()'
+              },
+              dataType: "json",
+            url: '@Url.Action("guardar","Devolucion")',
+            data: devol,
+            success: function (data) {
+                if (data.success) {
+                    console.log("Succces");
+
+                }
+                else {
+                    console.log("Error");
+                }
+                 },
+              error: function (err, scnd) {
+                  cargarAlert('@Lb["errorGeneral"]');
+                  console.log(err.statusText);
+              }
+        });
+        }
+
+    }
+ 
+    function validar() {
+
+        return true;
+    }
+
+
+
+    var contactos = [];
+    function getContactos() {
+        $("#IdCliente").html('');
+
+          $.ajax({
+            type: "get",
+            dataType: "json",
+            url: '@Url.Action("GetAllClientes", "Contacto")',
+              success: function (data) {
+                  contactos = data;
+                if (@Model.IdDevolucion <= 0)
+                {
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].persona)
+                            nombre = data[i].nombre + ' ' + data[i].apellidos;
+                        else
+                            nombre = data[i].nombreComercial;
+
+                        var o = new Option(nombre, data[i].idContacto);
+                        $("#IdContacto").append(o);
+                    }
+                } else {
+                   for (var i = 0; i < data.length; i++) {
+                       if (@Model.IdContacto == data[i].idContacto) {
+                            if (data[i].persona)
+                                nombre = data[i].nombre + ' ' + data[i].apellidos;
+                            else
+                               nombre = data[i].nombreComercial;
+
+                            var o = new Option(nombre, data[i].idContacto);
+                            $("#IdContacto").append(o);
+                        }
+                    }
+                }
+            },
+            error: function (err, scnd) {
+                cargarAlert('@Lb["errorGeneral"]');
+                console.log(err.statusText);
+            }
+        });
+    }
+    var lineas = [];
+    function agregar() {
+
+        var total = parseFloat(document.getElementById("inProducto").value);
+        var detalle = {
+            IdDevolucionDetalle: 0,
+            IdDevolucion: @Model.IdDevolucion,
+            Devolver: document.getElementById("inCantidad").value,
+            PrecioUnit: document.getElementById("inCantidad").value,
+            Total: 0,
+            IdInventario: document.getElementById("inProducto").value,
+            Creacion: '@Model.IdCreador',
+            Modificacion: '@Model.IdCreador',
+            IdMotivoDevolucion: document.getElementById("inMotivo").value,
+            Producto: $("#inProducto option:selected").text(),
+            Codigo: $("#inProducto option:selected").text(),
+            Motivo: $("#inMotivo option:selected").text()
+        }
+        lineas.push(detalle);
+        tabla();
+    }
+      function editar() {
+        var detalle = {
+            IdDevolucionDetalle: 0,
+            IdDevolucion: @Model.IdDevolucion,
+            Devolver: document.getElementById("inCantidad").value,
+            PrecioUnit: document.getElementById("inCantidad"),
+            Tota: 0,
+            IdInventario: document.getElementById("inProducto"),
+            Creacion: '@Model.IdCreador',
+            Modificacion: '@Model.IdModificador',
+            IdMotivoDevolucion: document.getElementById("inMotivo")
+        }
+          lineas.push(detalle);
+          if (validarLinea('Modal') == true) {
+              lineaEdit.IdDevolucion= @Model.IdDevolucion;
+              lineaEdit.Devolver = document.getElementById("inCantidad").value;
+              lineaEdit.PrecioUnit = document.getElementById("inCantidad");
+              lineaEdit.Total = 0;
+              lineaEdit.IdInventario = document.getElementById("inProducto").value;
+              lineaEdit.Creacion= '@Model.IdCreador';
+              lineaEdit.Modificacion = '@Model.IdCreador';
+              lineaEdit.IdMotivoDevolucion= document.getElementById("inMotivo").value;
+          }
+    }
+    var lineaEdit
+    function modalEditar(Id) {
+
+        lineas.forEach(function (linea) {
+            if (linea.Id == Id) {
+                lineaEdit = linea;
+            }
+        });
+    }
+    function tabla() {
+        $("#tblDevolucionDetalle > tbody").remove();
+        $('#tblDevolucionDetalle').append('<tbody></tbody>');
+        var contadorFila=0;
+
+        lineas.forEach(function (linea) {
+            var filaVisual = '<tr class="filasCargadas" id="fila' + contadorFila + '"><td ><Label class="link" onclick="modalEditarLinea(' + linea.IdDevolucionDetalle + ')">' + linea.Producto + '</label></td>'
+                        + '<td>' + linea.Codigo + '</td>'
+                        + '<td style="text-align: right">' + darFomatoMonedaDet(linea.Devolver, '1') + '</td>'
+                        + '<td>' + linea.Motivo + '</td>'
+                        + '<td style="text-align: right">' + darFomatoMonedaDet(linea.PrecioUnit, '1') + '</td>'
+                        + '<td style="text-align: right">' + darFomatoMonedaDet(linea.Total, '1') + '</td>'
+                        + '<td> <button class="btn btn-link" style="margin:0; padding:0; font-size:1.8rem;" onclick="modalEditarLinea(' + linea.IdDevolucionDetalle + ')" ><i class="fas fa-edit"></i></button>&nbsp;&nbsp; <button class="btn btn-link" style="margin:0; padding:0; font-size:1.8rem;" value="' + contadorFila + '" onclick="removerLinea(' + linea.IdDevolucionDetalle + ')" ><i class="fas fa-trash"></i></button></td></tr>';
+                  $('#tblDevolucionDetalle > tbody').append(filaVisual);
+                contadorFila++;
+            });
+
+
+        }
+
+        function darFomatoMonedaDet(_value,moneda) {
+
+            var value = parseFloat(_value);
+            var simbolo = "";
+
+            if (moneda === "1") {
+                simbolo = '@ViewBag.SimboloBase';
+            }
+            else if (moneda === "2") {
+                simbolo = '@ViewBag.SimboloDolar';
+            }
+            else if (moneda === "3") {
+                simbolo = '@ViewBag.SimboloEuro';
+            }
+
+            MASKDET(document.getElementById('monedaFormaterDet'), value, '-##,###,##0.00', 1);
+
+            return simbolo + ' ' + document.getElementById('monedaFormaterDet').value;
+
+    }
+    function NUM(s, dec) {
+        for (var s = s + "", num = "", x = 0; x < s.length; x++) {
+            c = s.charAt(x);
+            if (".-+/*".indexOf(c) + 1 || c != " " && !Number.isNaN(c)) { num += c; }
+        }
+        if (Number.isNaN(num)) { num = eval(num); }
+        if (num == "") { num = 0; } else { num = parseFloat(num); }
+        if (dec != undefined) {
+            r = .5; if (num < 0) r = -r;
+            e = Math.pow(10, (dec > 0) ? dec : 0);
+            return parseInt(num * e + r) / e;
+        } else {
+            return num;
+        }
+    }
+    function MASKDET(form, n, mask, format) {
+        if (format == "undefined") format = false;
+        if (format || NUM(n)) {
+            dec = 0, point = 0;
+            x = mask.indexOf(".") + 1;
+            if (x) { dec = mask.length - x; }
+
+            if (dec) {
+                n = NUM(n, dec) + "";
+                x = n.indexOf(".") + 1;
+                if (x) { point = n.length - x; } else { n += "."; }
+            } else {
+                n = NUM(n, 0) + "";
+            }
+            for (var x = point; x < dec; x++) {
+                n += "0";
+            }
+            x = n.length, y = mask.length, XMASK = "";
+            while (x || y) {
+                if (x) {
+                    while (y && "#0.".indexOf(mask.charAt(y - 1)) == -1) {
+                        if (n.charAt(x - 1) != "-")
+                            XMASK = mask.charAt(y - 1) + XMASK;
+                        y--;
+                    }
+                    XMASK = n.charAt(x - 1) + XMASK, x--;
+                } else if (y && "$0".indexOf(mask.charAt(y - 1)) + 1) {
+                    XMASK = mask.charAt(y - 1) + XMASK;
+                }
+                if (y) { y-- }
+            }
+        } else {
+            XMASK = "";
+        }
+        if (form) {
+            form.value = XMASK;
+            if (NUM(n) < 0) {
+                form.style.color = "#FF0000";
+            } else {
+                form.style.color = "#000000";
+            }
+        }
+        return XMASK;
+    }
+</script>
+
+
